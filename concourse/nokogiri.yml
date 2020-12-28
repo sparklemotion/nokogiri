@@ -305,7 +305,6 @@ jobs:
           run: {path: ci/concourse/tasks/gem-test/gem-build.sh}
       - in_parallel:
         <% $native_ruby_versions.each do |ruby_version| %>
-          <% ruby_version = "3.0-rc" if ruby_version == "3.0" %>
         - task: install-and-test-<%= ruby_version %>
           config:
             "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-<%= ruby_version %>"))

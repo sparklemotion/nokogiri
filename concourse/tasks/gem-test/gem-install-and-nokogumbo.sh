@@ -26,6 +26,8 @@ pushd nokogiri
   bundle install --local || bundle install
   bundle info nokogiri
 
+  gem install nokogumbo
+
   bundle exec rake test:cmd > run-test
   rm -rf lib ext # ensure we can't use the local files
   bundle exec bash run-test

@@ -7,7 +7,7 @@ source "https://rubygems.org/"
 gem "racc", "~>1.4"
 gem "mini_portile2", "~>2.5.0"
 
-gem "concourse", "~>0.40", :group => [:development, :test]
+gem "concourse", "~>0.41", :group => [:development, :test]
 gem "hoe", "~>3.22", ">=3.22.1", :group => [:development, :test]
 gem "hoe-bundler", "~>1.2", :group => [:development, :test]
 gem "hoe-debugging", "~>2.0", :group => [:development, :test]
