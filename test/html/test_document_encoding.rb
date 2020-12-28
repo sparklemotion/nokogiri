@@ -142,6 +142,17 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
             assert_equal(evil, ary_from_file)
           end
         end
+
+        describe "error handling" do
+          RAW = "<html><body><div"
+
+          {"read_memory" => RAW, "read_io" => StringIO.new(RAW)}.each do |flavor, input|
+            it "#{flavor} should handle errors" do
+              doc = Nokogiri::HTML.parse(input)
+              assert_operator(doc.errors.length, :>, 0)
+            end
+          end
+        end
       end
     end
   end

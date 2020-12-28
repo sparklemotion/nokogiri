@@ -112,6 +112,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
+* [CRuby] Syntax errors are now correctly captured in `Document#errors` for short HTML documents. Previously the SAX parser used for encoding detection was clobbering libxml2's global error handler.
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
