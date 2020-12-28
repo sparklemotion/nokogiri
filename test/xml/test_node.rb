@@ -1200,6 +1200,7 @@ eoxml
       end
 
       def test_text_node_robustness_gh1426
+        skip "No need to test libxml-ruby workarounds on JRuby" if Nokogiri.jruby?
         # notably, the original bug report was about libxml-ruby interactions
         # this test should blow up under valgrind if we regress on libxml-ruby workarounds
         message = "<section><h2>BOOM!</h2></section>"
