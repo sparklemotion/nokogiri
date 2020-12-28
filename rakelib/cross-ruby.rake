@@ -62,13 +62,13 @@ CrossRuby = Struct.new(:version, :host) do
       when "x86-mingw32"
         "i686-w64-mingw32-"
       when "x86_64-linux"
-        "x86_64-linux-gnu-"
+        "x86_64-redhat-linux-"
       when "x86-linux"
-        "i686-linux-gnu-"
+        "i686-redhat-linux-"
       when /x86_64.*darwin/
-        "x86_64-apple-darwin20-"
+        "x86_64-apple-darwin-"
       when /a.*64.*darwin/
-        "aarch64-apple-darwin20-"
+        "aarch64-apple-darwin-"
       else
         raise "CrossRuby.tool: unmatched platform: #{platform}"
       end) + name
@@ -131,6 +131,7 @@ CrossRuby = Struct.new(:version, :host) do
           "libpthread.so.0"
         end),
         "libc.so.6",
+        "libdl.so.2", # on old dists only - now in libc
       ]
     when DARWIN_PLATFORM_REGEX
       [
