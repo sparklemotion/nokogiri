@@ -108,13 +108,13 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute. commit e45dedd
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
+* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
+* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
-* [CRuby] Fixed Nokogumbo integration which broke in the v1.11.0 release candidates. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
-* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
-* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
-* [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
+* [CRuby] Fixed Nokogumbo integration which broke in the v1.11.0 release candidates. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
