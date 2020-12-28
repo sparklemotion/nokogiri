@@ -86,6 +86,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 ### Performance
 
 * [CRuby] The CSS `~=` operator and class selector `.` are about 2x faster. [[#2137](https://github.com/sparklemotion/nokogiri/issues/2137), [#2135](https://github.com/sparklemotion/nokogiri/issues/2135)]
+* [CRuby] Patch libxml2 to call `strlen` from `xmlStrlen` rather than the naive implementation, because `strlen` is generally optimized for the architecture. [[#2144](https://github.com/sparklemotion/nokogiri/issues/2144)] (Thanks, [@ilyazub](https://github.com/ilyazub)!)
 * Improve performance of some namespace operations. [[#1916](https://github.com/sparklemotion/nokogiri/issues/1916)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Remove unnecessary array allocations from Node serialization methods [[#1911](https://github.com/sparklemotion/nokogiri/issues/1911)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
