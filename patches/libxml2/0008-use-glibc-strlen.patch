@@ -1,0 +1,53 @@
+From c94172d2a4451368530db2186190d70be8a1d9e5 Mon Sep 17 00:00:00 2001
+From: Ilya Zub <ilya@serpapi.com>
+Date: Wed, 23 Dec 2020 12:45:29 +0200
+Subject: Use glibc strlen to speed up xmlStrlen
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+xmlStrlen (entire HTML file): 926171.936981 μs
+glibc_xmlStrlen (entire HTML file): 36905.903992 μs
+delta (xmlStrlen ÷ glibc_xmlStrlen): 25.094584 times
+
+xmlStrlen (average string): 57479.204010 μs
+glibc_xmlStrlen (average string): 5802.069000 μs
+delta (xmlStrlen ÷ glibc_xmlStrlen): 9.905937 times
+
+xmlStrlen (bigger string): 388056.315979 μs
+glibc_xmlStrlen (bigger string): 12797.856995 μs
+delta (xmlStrlen ÷ glibc_xmlStrlen): 30.318382 times
+
+xmlStrlen (smallest string): 15870.046021 μs
+glibc_xmlStrlen (smallest string): 6282.208984 μs
+delta (xmlStrlen ÷ glibc_xmlStrlen): 2.527903 times
+
+See https://gitlab.gnome.org/GNOME/libxml2/-/issues/212 for reference.
+---
+ xmlstring.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/xmlstring.c b/xmlstring.c
+index e8a1e45d..df247dff 100644
+--- a/xmlstring.c
++++ b/xmlstring.c
+@@ -423,14 +423,9 @@ xmlStrsub(const xmlChar *str, int start, int len) {
+
+ int
+ xmlStrlen(const xmlChar *str) {
+-    int len = 0;
+-
+     if (str == NULL) return(0);
+-    while (*str != 0) { /* non input consuming */
+-        str++;
+-        len++;
+-    }
+-    return(len);
++
++    return strlen((const char*)str);
+ }
+
+ /**
+--
+2.29.2
+
