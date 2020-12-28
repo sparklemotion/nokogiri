@@ -369,10 +369,17 @@ module Nokogiri
 
       def test_document_compare
         nodes = @xml.xpath('//employee')
-        if Nokogiri.uses_libxml?("< 2.9.5")
-          assert_equal(-1, (nodes.first <=> @xml))
+        result = (nodes.first <=> @xml)
+
+        # Note that this behavior was changed in libxml@a005199 starting in v2.9.5.
+        #
+        # But that fix was backported by debian (and other distros?) into their v2.9.4 fork so we
+        # can't use version to detect what's going on here. Instead just shrug if we're using system
+        # libraries and the result is -1.
+        if (Nokogiri::VersionInfo.instance.libxml2_using_system?)
+          assert(result == 1 || result == -1)
         else
-          assert_equal(1, (nodes.first <=> @xml))
+          assert_equal(1, result)
         end
       end
 
