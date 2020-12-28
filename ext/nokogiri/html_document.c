@@ -10,7 +10,7 @@ static ID id_to_s;
  * Create a new document
  */
 static VALUE
-new (int argc, VALUE *argv, VALUE klass)
+rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)
 {
   VALUE uri, external_id, rest, rb_doc;
   htmlDocPtr doc;
@@ -36,7 +36,7 @@ new (int argc, VALUE *argv, VALUE klass)
  * and +options+.  See Nokogiri::HTML.parse
  */
 static VALUE
-read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
+rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
 {
   VALUE rb_doc;
   VALUE rb_error_list = rb_ary_new();
@@ -94,7 +94,7 @@ read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_encoding, VALUE rb_opti
  * and +options+.  See Nokogiri::HTML.parse
  */
 static VALUE
-read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
+rb_html_document_s_read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
 {
   VALUE rb_doc;
   VALUE rb_error_list = rb_ary_new();
@@ -141,7 +141,7 @@ read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE rb_encoding, VALUE r
  * The type for this document
  */
 static VALUE
-type(VALUE self)
+rb_html_document_type(VALUE self)
 {
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
@@ -154,19 +154,17 @@ void
 init_html_document()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE html = rb_define_module_under(nokogiri, "HTML");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE xml_doc = rb_define_class_under(xml, "Document", node);
-  VALUE klass = rb_define_class_under(html, "Document", xml_doc);
+  VALUE nokogiri_xml = rb_define_module_under(nokogiri, "XML");
+  VALUE nokogiri_xml_node = rb_define_class_under(nokogiri_xml, "Node", rb_cObject);
+  VALUE nokogiri_xml_document = rb_define_class_under(nokogiri_xml, "Document", nokogiri_xml_node);
+  VALUE nokogiri_html = rb_define_module_under(nokogiri, "HTML");
+  cNokogiriHtmlDocument = rb_define_class_under(nokogiri_html, "Document", nokogiri_xml_document);
 
-  cNokogiriHtmlDocument = klass;
+  rb_define_singleton_method(cNokogiriHtmlDocument, "read_memory", rb_html_document_s_read_memory, 4);
+  rb_define_singleton_method(cNokogiriHtmlDocument, "read_io", rb_html_document_s_read_io, 4);
+  rb_define_singleton_method(cNokogiriHtmlDocument, "new", rb_html_document_s_new, -1);
 
-  rb_define_singleton_method(klass, "read_memory", read_memory, 4);
-  rb_define_singleton_method(klass, "read_io", read_io, 4);
-  rb_define_singleton_method(klass, "new", new, -1);
-
-  rb_define_method(klass, "type", type, 0);
+  rb_define_method(cNokogiriHtmlDocument, "type", rb_html_document_type, 0);
 
   id_encoding_found = rb_intern("encoding_found");
   id_to_s = rb_intern("to_s");
