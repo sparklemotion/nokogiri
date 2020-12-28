@@ -220,8 +220,6 @@ jobs:
       - name: ci
       - name: nokogiri
       params:
-        CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-        GIT_BRANCH: master
         TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
@@ -256,7 +254,7 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-valgrind
   public: true
-- name: cruby-3.0-rc
+- name: cruby-3.0
   on_failure:
     in_parallel:
       steps:
@@ -276,12 +274,14 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
       - name: nokogiri
       params:
+        CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
+        GIT_BRANCH: master
         TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
@@ -291,7 +291,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -304,7 +304,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -405,6 +405,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
   - config:
       image_resource:
@@ -454,12 +455,13 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
   - config:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-2.7
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -475,7 +477,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-2.7
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -505,6 +507,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
   - config:
       image_resource:
@@ -527,7 +530,7 @@ jobs:
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
-              tag: mri-2.7
+              tag: mri-3.0
             type: registry-image
           inputs:
           - name: ci
@@ -569,6 +572,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - config:
@@ -636,7 +640,7 @@ jobs:
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
-              tag: mri-3.0-rc
+              tag: mri-3.0
             type: registry-image
           inputs:
           - name: ci
@@ -645,7 +649,7 @@ jobs:
           platform: linux
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        task: install-and-test-3.0-rc
+        task: install-and-test-3.0
       - config:
           image_resource:
             source:
@@ -678,6 +682,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - config:

@@ -385,7 +385,6 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
         TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
@@ -422,11 +421,11 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-valgrind
   public: true
-- name: cruby-3.0-rc
+- name: cruby-3.0
   on_abort:
     params:
       base_context: ci.nokogiri.org
-      context: cruby-3.0-rc
+      context: cruby-3.0
       description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
@@ -434,7 +433,7 @@ jobs:
   on_error:
     params:
       base_context: ci.nokogiri.org
-      context: cruby-3.0-rc
+      context: cruby-3.0
       description: This job had errors.
       path: nokogiri-pr
       status: ERROR
@@ -442,7 +441,7 @@ jobs:
   on_failure:
     params:
       base_context: ci.nokogiri.org
-      context: cruby-3.0-rc
+      context: cruby-3.0
       description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
@@ -450,7 +449,7 @@ jobs:
   on_success:
     params:
       base_context: ci.nokogiri.org
-      context: cruby-3.0-rc
+      context: cruby-3.0
       description: Nokobot is happy with this job.
       path: nokogiri-pr
       status: SUCCESS
@@ -464,7 +463,7 @@ jobs:
     version: every
   - params:
       base_context: ci.nokogiri.org
-      context: cruby-3.0-rc
+      context: cruby-3.0
       description: Nokobot is working, beep boop ...
       path: nokogiri-pr
       status: PENDING
@@ -473,13 +472,14 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
       - name: nokogiri-pr
         path: nokogiri
       params:
+        CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
         TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
@@ -489,7 +489,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -503,7 +503,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-3.0-rc
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -664,6 +664,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
   - params:
       base_context: ci.nokogiri.org
@@ -745,6 +746,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - params:
@@ -758,7 +760,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-2.7
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -775,7 +777,7 @@ jobs:
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
-          tag: mri-2.7
+          tag: mri-3.0
         type: registry-image
       inputs:
       - name: ci
@@ -829,6 +831,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - params:
@@ -860,7 +863,7 @@ jobs:
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
-              tag: mri-2.7
+              tag: mri-3.0
             type: registry-image
           inputs:
           - name: ci
@@ -927,6 +930,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - params:
@@ -1005,7 +1009,7 @@ jobs:
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
-              tag: mri-3.0-rc
+              tag: mri-3.0
             type: registry-image
           inputs:
           - name: ci
@@ -1015,7 +1019,7 @@ jobs:
           platform: linux
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        task: install-and-test-3.0-rc
+        task: install-and-test-3.0
       - config:
           image_resource:
             source:
@@ -1072,6 +1076,7 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
+    - cruby-3.0
     trigger: true
     version: every
   - params:
