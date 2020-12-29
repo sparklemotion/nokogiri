@@ -46,7 +46,7 @@ gem "nokogiri", "~> 1.11.0.rc4"`
 We've been shipping native Windows gems since 2009, but starting in v1.11.0 we are also shipping native gems for these platforms:
 
 - Linux: `x86-linux` and `x86_64-linux` -- including musl platforms like alpine
-- OSX/Darwin: `x86_64-darwin`
+- OSX/Darwin: `x86_64-darwin` and `arm64-darwin`
 
 We'd appreciate your thoughts and feedback on this work at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
 
