@@ -990,7 +990,7 @@ module Nokogiri
       end
 
       def test_java_integration
-        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
         noko_doc = wrap_java_document
         assert_equal "foo", noko_doc.root.name
 
@@ -1005,7 +1005,7 @@ eoxml
       end
 
       def test_add_child
-        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
         doc = wrap_java_document
         doc.root.add_child "<bar />"
       end
@@ -1014,6 +1014,61 @@ eoxml
         f = File.open XML_FILE
         Nokogiri::XML f
         f.close
+      end
+
+      describe "XML::Document.parse" do
+        # establish baseline behavior for HTML document behavior in
+        # https://github.com/sparklemotion/nokogiri/issues/2130
+        # (see similar tests in test/html/test_document.rb)
+        let(:xml_strict) do
+          Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_XML).norecover
+        end
+
+        it "sets the test up correctly" do
+          assert(xml_strict.strict?)
+        end
+
+        describe "read memory" do
+          let(:input) { "<html><body><div" }
+
+          describe "strict parsing" do
+            let(:parse_options) { xml_strict }
+
+            it "raises exception on parse error" do
+              assert_raises Nokogiri::SyntaxError do
+                Nokogiri::XML.parse(input, nil, nil, parse_options)
+              end
+            end
+          end
+
+          describe "default options" do
+            it "does not raise exception on parse error" do
+              doc = Nokogiri::XML.parse(input)
+              assert_operator(doc.errors.length, :>, 0)
+            end
+          end
+        end
+
+        describe "read io" do
+          let(:input) { StringIO.new("<html><body><div") }
+
+          describe "strict parsing" do
+            let(:parse_options) { xml_strict }
+
+            it "raises exception on parse error" do
+              assert_raises Nokogiri::SyntaxError do
+                Nokogiri::XML.parse(input, nil, nil, parse_options)
+              end
+            end
+          end
+
+          describe "default options" do
+            it "does not raise exception on parse error" do
+              doc = Nokogiri::XML.parse(input)
+              assert_operator(doc.errors.length, :>, 0)
+            end
+          end
+        end
       end
     end
   end

@@ -838,9 +838,13 @@ module Nokogiri
         # FIXME bug report: https://github.com/sparklemotion/nokogiri/issues/2092
         error_count = document.errors.length
         node_set = in_context(contents, options.to_i)
-        if node_set.empty? and document.errors.length > error_count and options.recover?
-          fragment = Nokogiri::HTML::DocumentFragment.parse contents
-          node_set = fragment.children
+        if (node_set.empty? && (document.errors.length > error_count))
+          if options.recover?
+            fragment = Nokogiri::HTML::DocumentFragment.parse contents
+            node_set = fragment.children
+          else
+            raise document.errors[error_count]
+          end
         end
         node_set
       end

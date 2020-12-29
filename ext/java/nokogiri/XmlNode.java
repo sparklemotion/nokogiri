@@ -720,7 +720,7 @@ public class XmlNode extends RubyObject {
         // Do not touch this if, if it's not for a good reason.
         if (node.getNodeType() == Node.DOCUMENT_NODE ||
            otherNode.getNodeType() == Node.DOCUMENT_NODE) {
-            return context.runtime.newFixnum(-1);
+            return context.runtime.newFixnum(1);
         }
 
         try{

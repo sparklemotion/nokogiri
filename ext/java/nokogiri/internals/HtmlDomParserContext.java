@@ -35,9 +35,11 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
+import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
@@ -65,22 +67,13 @@ import org.w3c.dom.NodeList;
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
 
-	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
+    public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         this(runtime, runtime.getNil(), options);
     }
 
     public HtmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime, encoding, options);
         java_encoding = NokogiriHelpers.getValidEncoding(encoding);
-    }
-
-    @Override
-    protected void initErrorHandler() {
-        if (options.strict) {
-            errorHandler = new NokogiriStrictErrorHandler(options.noError, options.noWarning);
-        } else {
-            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml(options.noError, options.noWarning);
-        }
     }
 
     @Override
@@ -106,7 +99,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     
     @Override
     public void setEncoding(String encoding) {
-		super.setEncoding(encoding);
+        super.setEncoding(encoding);
     }
 
     /**
@@ -116,6 +109,24 @@ public class HtmlDomParserContext extends XmlDomParserContext {
      */
     public void enableDocumentFragment() {
         setFeature("http://cyberneko.org/html/features/balance-tags/document-fragment", true);
+    }
+
+    @Override
+    public XmlDocument parse(ThreadContext context, RubyClass klass, IRubyObject url) {
+        XmlDocument xmlDoc = super.parse(context, klass, url);
+
+        // let's be consistent in how we handle RECOVER and NORECOVER (a.k.a. STRICT)
+        // https://github.com/sparklemotion/nokogiri/issues/2130
+        if (!options.recover && errorHandler.getErrors().size() > 0) {
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
+            String exceptionMsg = String.format("%s: '%s'",
+                                                "Parser without recover option encountered error or warning",
+                                                errorHandler.getErrors().get(0));
+            xmlSyntaxError.setException(new Exception(exceptionMsg));
+            throw xmlSyntaxError.toThrowable();
+        }
+
+        return xmlDoc;
     }
 
     @Override
@@ -190,32 +201,32 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         
         // element names from xhtml1-strict.dtd
         private static String[][] element_names = {
-                {"a", "abbr", "acronym", "address", "area"},
-                {"b", "base", "basefont", "bdo", "big", "blockquote", "body", "br", "button"},
-                {"caption", "cite", "code", "col", "colgroup"},
-                {"dd", "del", "dfn", "div", "dl", "dt"},
-                {"em"},
-                {"fieldset", "font", "form", "frame", "frameset"},
-                {}, // g
-                {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
-                {"i", "iframe", "img", "input", "ins"},
-                {}, // j
-                {"kbd"},
-                {"label", "legend", "li", "link"},
-                {"map", "meta"},
-                {"noframes", "noscript"},
-                {"object", "ol", "optgroup", "option"},
-                {"p", "param", "pre"},
-                {"q"},
-                {}, // r
-                {"s", "samp", "script", "select", "small", "span", "strike", "strong", "style", "sub", "sup"},
-                {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
-                {"u", "ul"},
-                {"var"},
-                {}, // w
-                {}, // x
-                {}, // y
-                {}  // z
+            {"a", "abbr", "acronym", "address", "area"},
+            {"b", "base", "basefont", "bdo", "big", "blockquote", "body", "br", "button"},
+            {"caption", "cite", "code", "col", "colgroup"},
+            {"dd", "del", "dfn", "div", "dl", "dt"},
+            {"em"},
+            {"fieldset", "font", "form", "frame", "frameset"},
+            {}, // g
+            {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
+            {"i", "iframe", "img", "input", "ins"},
+            {}, // j
+            {"kbd"},
+            {"label", "legend", "li", "link"},
+            {"map", "meta"},
+            {"noframes", "noscript"},
+            {"object", "ol", "optgroup", "option"},
+            {"p", "param", "pre"},
+            {"q"},
+            {}, // r
+            {"s", "samp", "script", "select", "small", "span", "strike", "strong", "style", "sub", "sup"},
+            {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
+            {"u", "ul"},
+            {"var"},
+            {}, // w
+            {}, // x
+            {}, // y
+            {}  // z
         };
         
         private static boolean isValid(final String name) {

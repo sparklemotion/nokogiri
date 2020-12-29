@@ -116,12 +116,11 @@ module Nokogiri
       def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
         doc = HTML.parse "<html><body><div></div></body></html>"
         context_node = doc.at_css "div"
-        nodeset = context_node.parse("<div </div>") do |options|
-          options.strict
+        assert_raises(Nokogiri::XML::SyntaxError) do
+          context_node.parse("<div </div>") do |options|
+            options.strict
+          end
         end
-
-        assert_equal 1, doc.errors.length
-        assert_equal 0, nodeset.length
       end
 
       def test_parse_error_list
@@ -368,9 +367,19 @@ module Nokogiri
       end
 
       def test_document_compare
-        skip "underlying libxml2 behavior changed in libxml2@a005199"
         nodes = @xml.xpath('//employee')
-        assert_equal(-1, (nodes.first <=> @xml)) # post-libxml2@a005199, returns 1
+        result = (nodes.first <=> @xml)
+
+        # Note that this behavior was changed in libxml@a005199 starting in v2.9.5.
+        #
+        # But that fix was backported by debian (and other distros?) into their v2.9.4 fork so we
+        # can't use version to detect what's going on here. Instead just shrug if we're using system
+        # libraries and the result is -1.
+        if (Nokogiri::VersionInfo.instance.libxml2_using_system?)
+          assert(result == 1 || result == -1)
+        else
+          assert_equal(1, result)
+        end
       end
 
       def test_different_document_compare
@@ -1200,6 +1209,7 @@ eoxml
       end
 
       def test_text_node_robustness_gh1426
+        skip "No need to test libxml-ruby workarounds on JRuby" if Nokogiri.jruby?
         # notably, the original bug report was about libxml-ruby interactions
         # this test should blow up under valgrind if we regress on libxml-ruby workarounds
         message = "<section><h2>BOOM!</h2></section>"

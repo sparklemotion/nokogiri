@@ -13,7 +13,13 @@ feel free to update whitespace in the surrounding code.
 
 This style can be automatically applied by running:
 
-    astyle --indent=spaces=2 --style=1tbs --keep-one-line-blocks $(ack -f --type=cpp --type=cc ext/nokogiri)
+    astyle --indent=spaces=2 \
+           --style=1tbs --keep-one-line-blocks \
+           --unpad-paren --pad-header --pad-oper --pad-comma \
+           --align-pointer=name \
+           --break-return-type --attach-return-type-decl \
+           --max-code-length=120 \
+           $(ack -f --type=cpp --type=cc ext/nokogiri)
 
 
 = FUNCTION DECLARATION:

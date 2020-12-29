@@ -130,7 +130,11 @@ encoding="iso-8859-1" indent="yes"/>
     end
     result = xslt.apply_to(@doc, ['title', 'foo'])
     assert_no_match(/<td>/, result)
-    assert_match(/This is an adjacent/, result)
+
+    # the entity-form is for systems with this bug with Encodings.properties
+    # https://issues.apache.org/jira/browse/XALANJ-2618
+    # a.k.a. "Attempt to output character of integral value 48 that is not represented in specified output encoding of iso-8859-1."
+    assert_match(/This is an adjacent|&#84;&#104;&#105;&#115;&#32;&#105;&#115;&#32;&#97;&#110;&#32;&#97;&#100;&#106;&#97;&#99;&#101;&#110;&#116;/, result)
   end
 
   def test_transform_arg_error

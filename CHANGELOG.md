@@ -106,15 +106,18 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Fixed
 
+* HTML Parsing in "strict" mode (i.e., the `RECOVER` parse option not set) now correctly raises a `XML::SyntaxError` exception. Previously the value of the `RECOVER` bit was being ignored by CRuby and was misinterpreted by JRuby. [[#2130](https://github.com/sparklemotion/nokogiri/issues/2130)]
 * The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute. commit e45dedd
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
+* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
+* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
+* [CRuby] Syntax errors are now correctly captured in `Document#errors` for short HTML documents. Previously the SAX parser used for encoding detection was clobbering libxml2's global error handler.
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
-* [CRuby] Fixed Nokogumbo integration which broke in the v1.11.0 release candidates. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
-* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
-* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
+* [CRuby] Fixed Nokogumbo integration which broke in the v1.11.0 release candidates. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
@@ -137,6 +140,15 @@ This behavior is counter to the security policy intended by Nokogiri maintainers
 Please note that this security fix was pushed into a new minor version, 1.11.x, rather than a patch release to the 1.10.x branch, because it is a breaking change for some schemas and the risk was assessed to be "Low Severity".
 
 More information and instructions for enabling "trusted input" behavior in v1.11.0.rc4 and later is available at the [public advisory](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
+
+
+#### HTML parser now obeys the `strict` or `norecover` parsing option
+
+(Also noted above in the "Fixed" section) HTML Parsing in "strict" mode (i.e., the `RECOVER` parse option not set) now correctly raises a `XML::SyntaxError` exception. Previously the value of the `RECOVER` bit was being ignored by CRuby and was misinterpreted by JRuby.
+
+If you're using the default parser options, you will be unaffected by this fix. If you're passing `strict` or `norecover` to your HTML parser call, you may be surprised to see that the parser now fails to recover and raises a `XML::SyntaxError` exception. Given the number of HTML documents on the internet that libxml2 would consider to be ill-formed, this is probably not what you want, and you can omit setting that parse option to restore the behavior that you have been relying upon.
+
+Apologies to anyone inconvenienced by this breaking bugfix being present in a minor release, but I felt it was appropriate to introduce this fix because it's straightforward to fix any code that has been relying on this buggy behavior.
 
 
 #### `VersionInfo`, the output of `nokogiri -v`, and related constants
@@ -300,7 +312,7 @@ This CVE's public notice is [#1915](https://github.com/sparklemotion/nokogiri/is
 * [MRI] Address a memory leak when unparenting a DTD. [[#1784](https://github.com/sparklemotion/nokogiri/issues/1784)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [MRI] Use RbConfig::CONFIG instead of ::MAKEFILE_CONFIG to fix installations that use Makefile macros. [[#1820](https://github.com/sparklemotion/nokogiri/issues/1820)] (Thanks, [@nobu](https://github.com/nobu)!)
 * [JRuby] Decrease large memory usage when making nested XPath queries. [[#1749](https://github.com/sparklemotion/nokogiri/issues/1749)]
-* [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [#1890, #2148]
+* [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [[#1890](https://github.com/sparklemotion/nokogiri/issues/1890), [#2148](https://github.com/sparklemotion/nokogiri/issues/2148)]
 * [JRuby] Clarify exception message when custom XPath functions can't be resolved.
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [[#1774](https://github.com/sparklemotion/nokogiri/issues/1774)]
