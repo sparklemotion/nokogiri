@@ -28,12 +28,12 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ## Unreleased (will be v1.11.0)
 
-Latest is `v1.11.0.rc3` (2020-09-08). To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
+Latest is `v1.11.0.rc4` (2020-12-29). To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc4`
 
 If you're using bundler, try updating your Gemfile with:
 
 ``` ruby
-gem "nokogiri", "~> 1.11.0.rc3"`
+gem "nokogiri", "~> 1.11.0.rc4"`
 ```
 
 
