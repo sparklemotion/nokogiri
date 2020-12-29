@@ -112,6 +112,8 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
 * [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [[#1890](https://github.com/sparklemotion/nokogiri/issues/1890), [#2148](https://github.com/sparklemotion/nokogiri/issues/2148)]
+* [JRuby] Clarify exception message when custom XPath functions can't be resolved.
 * [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
 * [CRuby] Syntax errors are now correctly captured in `Document#errors` for short HTML documents. Previously the SAX parser used for encoding detection was clobbering libxml2's global error handler.
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
@@ -312,8 +314,6 @@ This CVE's public notice is [#1915](https://github.com/sparklemotion/nokogiri/is
 * [MRI] Address a memory leak when unparenting a DTD. [[#1784](https://github.com/sparklemotion/nokogiri/issues/1784)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [MRI] Use RbConfig::CONFIG instead of ::MAKEFILE_CONFIG to fix installations that use Makefile macros. [[#1820](https://github.com/sparklemotion/nokogiri/issues/1820)] (Thanks, [@nobu](https://github.com/nobu)!)
 * [JRuby] Decrease large memory usage when making nested XPath queries. [[#1749](https://github.com/sparklemotion/nokogiri/issues/1749)]
-* [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [[#1890](https://github.com/sparklemotion/nokogiri/issues/1890), [#2148](https://github.com/sparklemotion/nokogiri/issues/2148)]
-* [JRuby] Clarify exception message when custom XPath functions can't be resolved.
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [[#1774](https://github.com/sparklemotion/nokogiri/issues/1774)]
 * [JRuby] Fix support for Java 9. [[#1759](https://github.com/sparklemotion/nokogiri/issues/1759)] (Thanks, [@Taywee](https://github.com/Taywee)!)
