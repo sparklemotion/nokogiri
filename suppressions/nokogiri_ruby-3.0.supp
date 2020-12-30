@@ -255,6 +255,7 @@
    # fun:gc_rest.part.136
    fun:gc_rest
    fun:garbage_collect
+   ...
    # fun:gc_start_internal
    # fun:invoke_bf
    # fun:vm_invoke_builtin
