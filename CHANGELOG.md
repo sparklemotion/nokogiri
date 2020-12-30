@@ -33,7 +33,7 @@ Latest is `v1.11.0.rc4` (2020-12-29). To try out release candidates, use `gem in
 If you're using bundler, try updating your Gemfile with:
 
 ``` ruby
-gem "nokogiri", "~> 1.11.0.rc4"`
+gem "nokogiri", "~> 1.11.0.rc4"
 ```
 
 
