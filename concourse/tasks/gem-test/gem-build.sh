@@ -6,6 +6,7 @@ if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
   # normally part of rake-compiler-dock runas which we can't easily use in concourse
   . /etc/rubybashrc
   ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
+  export RAKE_EXTENSION_TASK_NO_NATIVE=true
 fi
 
 cd nokogiri
