@@ -243,3 +243,53 @@
    # fun:ruby_run_node
    # fun:main
 }
+{
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/cruby-3.0/builds/5#L5fc5adad:473
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_children
+   fun:gc_marks_wb_unprotected_objects
+   ...
+   # fun:gc_marks_finish
+   # fun:gc_marks_rest
+   # fun:gc_rest.part.136
+   fun:gc_rest
+   fun:garbage_collect
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
