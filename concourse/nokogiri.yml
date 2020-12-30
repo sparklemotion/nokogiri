@@ -263,7 +263,7 @@ jobs:
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: [{name: ci}, {name: nokogiri}]
           outputs: [{name: gems}]
           run: {path: ci/concourse/tasks/gem-test/gem-build.sh}
@@ -298,7 +298,7 @@ jobs:
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: [{name: ci}, {name: nokogiri}]
           outputs: [{name: gems}]
           params: {BUILD_NATIVE_GEM: "x86_64-linux"}
@@ -336,7 +336,7 @@ jobs:
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: [{name: ci}, {name: nokogiri}]
           outputs: [{name: gems}]
           params: {BUILD_NATIVE_GEM: "x86-linux"}

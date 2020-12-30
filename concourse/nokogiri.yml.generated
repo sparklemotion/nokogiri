@@ -512,8 +512,8 @@ jobs:
   - config:
       image_resource:
         source:
-          repository: flavorjones/rake-compiler-dock-mri-x86_64-linux
-          tag: 1.0.0
+          repository: larskanis/rake-compiler-dock-mri-x86_64-linux
+          tag: 1.1.0
         type: registry-image
       inputs:
       - name: ci
@@ -578,8 +578,8 @@ jobs:
   - config:
       image_resource:
         source:
-          repository: flavorjones/rake-compiler-dock-mri-x86_64-linux
-          tag: 1.0.0
+          repository: larskanis/rake-compiler-dock-mri-x86_64-linux
+          tag: 1.1.0
         type: registry-image
       inputs:
       - name: ci
@@ -688,8 +688,8 @@ jobs:
   - config:
       image_resource:
         source:
-          repository: flavorjones/rake-compiler-dock-mri-x86-linux
-          tag: 1.0.0
+          repository: larskanis/rake-compiler-dock-mri-x86-linux
+          tag: 1.1.0
         type: registry-image
       inputs:
       - name: ci
@@ -753,7 +753,7 @@ jobs:
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-jruby
-          tag: 1.0.0
+          tag: 1.1.0
         type: registry-image
       inputs:
       - name: ci

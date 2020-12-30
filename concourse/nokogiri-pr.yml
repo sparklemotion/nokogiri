@@ -311,7 +311,7 @@ jobs:
       - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: #@ task_inputs()
           outputs:
             - name: gems
@@ -349,7 +349,7 @@ jobs:
       - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: #@ task_inputs()
           outputs:
             - name: gems
@@ -391,7 +391,7 @@ jobs:
       - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
-          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
           inputs: #@ task_inputs()
           outputs:
             - name: gems
