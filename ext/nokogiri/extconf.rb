@@ -33,6 +33,10 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
       --disable-clean
           Do not clean out intermediate files after successful build
 
+      --prevent-strip
+          Take steps to prevent stripping the symbol table and debugging info from the shared
+          library, potentially overriding RbConfig's CFLAGS/LDFLAGS/DLDFLAGS.
+
 
     Flags only used when using system libraries:
 
@@ -80,6 +84,7 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
       --enable-cross-build
           Enable cross-build mode. (You probably do not want to set this manually.)
+
 
     Environment variables used:
 
@@ -513,10 +518,22 @@ end
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::CONFIG['CC']
 
+if arg_config('--prevent-strip')
+  old_cflags = $CFLAGS.split.join(" ")
+  old_ldflags = $LDFLAGS.split.join(" ")
+  old_dldflags = $DLDFLAGS.split.join(" ")
+  $CFLAGS = $CFLAGS.split.reject { |flag| flag == "-s" }.join(" ")
+  $LDFLAGS = $LDFLAGS.split.reject { |flag| flag == "-s" }.join(" ")
+  $DLDFLAGS = $DLDFLAGS.split.reject { |flag| flag == "-s" }.join(" ")
+  puts "Prevent stripping by removing '-s' from $CFLAGS" if old_cflags != $CFLAGS
+  puts "Prevent stripping by removing '-s' from $LDFLAGS" if old_ldflags != $LDFLAGS
+  puts "Prevent stripping by removing '-s' from $DLDFLAGS" if old_dldflags != $DLDFLAGS
+end
+
 # adopt environment config
-append_cflags(ENV["CFLAGS"].split(/\s+/)) if !ENV["CFLAGS"].nil?
-append_cppflags(ENV["CPPFLAGS"].split(/\s+/)) if !ENV["CPPFLAGS"].nil?
-append_ldflags(ENV["LDFLAGS"].split(/\s+/)) if !ENV["LDFLAGS"].nil?
+append_cflags(ENV["CFLAGS"].split) if !ENV["CFLAGS"].nil?
+append_cppflags(ENV["CPPFLAGS"].split) if !ENV["CPPFLAGS"].nil?
+append_ldflags(ENV["LDFLAGS"].split) if !ENV["LDFLAGS"].nil?
 $LIBS = concat_flags($LIBS, ENV["LIBS"])
 
 append_cflags("-g") # always include debugging information
@@ -605,6 +622,14 @@ else
             cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
             execute "configure", ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix]
           end
+
+          def compile
+            if host=~/darwin/
+              execute "compile", "make AR=#{host}-libtool"
+            else
+              super
+            end
+          end
         end
       end
     end
@@ -667,7 +692,7 @@ else
       recipe.configure_options += iconv_configure_flags
     end
 
-    if darwin?
+    if darwin? && !cross_build_p
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
@@ -689,7 +714,7 @@ else
 
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
-    if darwin?
+    if darwin? && !cross_build_p
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
