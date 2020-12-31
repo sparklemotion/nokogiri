@@ -86,6 +86,7 @@ describe File.basename(gemfile) do
   describe "all platforms" do
     it "contains every ruby file in lib/" do
       expected = %x(git ls-files lib).split("\n").grep(/\.rb$/).sort
+      skip "looks like this isn't a git repository" if expected.empty?
       actual = gemfile_contents.grep(%r{^lib/}).grep(/\.rb$/).sort
       assert_equal(expected, actual)
     end
