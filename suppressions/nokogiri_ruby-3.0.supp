@@ -294,3 +294,65 @@
    # fun:ruby_run_node
    # fun:main
 }
+{
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/cruby-3.0/builds/11#L5fc5b89c:471
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_children
+   fun:gc_mark_stacked_objects
+   ...
+   # fun:gc_mark_stacked_objects_incremental
+   # fun:gc_marks_rest
+   # fun:gc_rest.part.136
+   # fun:gc_rest
+   # fun:objspace_each_objects
+   # fun:rb_objspace_each_objects
+   fun:rb_reset_coverages
+   fun:rb_coverage_result
+   ...
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
+{
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/cruby-3.0/builds/11#L5fc5b89c:529
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_children
+   fun:gc_marks_wb_unprotected_objects
+   fun:gc_marks_finish
+   fun:gc_marks_rest
+   ...
+   # fun:gc_rest.part.136
+   # fun:gc_rest
+   # fun:objspace_each_objects
+   # fun:rb_objspace_each_objects
+   fun:rb_reset_coverages
+   fun:rb_coverage_result
+   ...
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
