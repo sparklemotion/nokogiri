@@ -1,15 +1,16 @@
+# frozen_string_literal: true
 require "hoe"
 
-Hoe.plugin :bundler
-Hoe.plugin :debugging
-Hoe.plugin :gemspec
-Hoe.plugin :git
-Hoe.plugin :markdown
+Hoe.plugin(:bundler)
+Hoe.plugin(:debugging)
+Hoe.plugin(:gemspec)
+Hoe.plugin(:git)
+Hoe.plugin(:markdown)
 
 require_relative "rakelib/util"
 require_relative "lib/nokogiri/version/constant"
 
-HOE = Hoe.spec "nokogiri" do |hoe|
+HOE = Hoe.spec("nokogiri") do |hoe|
   hoe.version = Nokogiri::VERSION
 
   hoe.author = [
@@ -24,7 +25,7 @@ HOE = Hoe.spec "nokogiri" do |hoe|
 
   hoe.email = "nokogiri-talk@googlegroups.com"
 
-  hoe.license "MIT"
+  hoe.license("MIT")
 
   hoe.urls = {
     "home" => "https://nokogiri.org",
@@ -66,12 +67,12 @@ HOE = Hoe.spec "nokogiri" do |hoe|
   ]
 
   hoe.spec_extras = {
-    :extensions => ["ext/nokogiri/extconf.rb"],
-    :required_ruby_version => ">= 2.5.0"
+    extensions: ["ext/nokogiri/extconf.rb"],
+    required_ruby_version: ">= 2.5.0",
   }
 
   hoe.testlib = :minitest
-  hoe.test_prelude = %q(require "helper") # ensure simplecov gets loaded before anything else
+  hoe.test_prelude = 'require "helper"' # ensure simplecov gets loaded before anything else
 end
 
 require "rake/clean"
