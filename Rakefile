@@ -37,17 +37,6 @@ HOE = Hoe.spec "nokogiri" do |hoe|
   hoe.markdown_linkify_files = FileList["*.md"]
   hoe.extra_rdoc_files = FileList["ext/nokogiri/*.c"]
 
-  hoe.clean_globs += [
-    "nokogiri.gemspec",
-    "lib/nokogiri/nokogiri.{bundle,jar,rb,so}",
-    "lib/nokogiri/[0-9].[0-9]",
-    "coverage",
-    "concourse/images/*.generated",
-    "ext/nokogiri/include",
-    "tmp",
-  ]
-  hoe.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
-
   hoe.extra_deps += [
     ["racc", "~> 1.4"],
   ]
@@ -84,6 +73,20 @@ HOE = Hoe.spec "nokogiri" do |hoe|
   hoe.testlib = :minitest
   hoe.test_prelude = %q(require "helper") # ensure simplecov gets loaded before anything else
 end
+
+require "rake/clean"
+
+CLEAN.add(
+  "concourse/images/*.generated",
+  "coverage",
+  "ext/nokogiri/include",
+  "lib/nokogiri/[0-9].[0-9]",
+  "lib/nokogiri/nokogiri.{bundle,jar,rb,so}",
+  "nokogiri.gemspec",
+  "tmp",
+)
+
+CLOBBER.add("ports/*").exclude(%r{ports/archives$})
 
 # work around Hoe's inflexibility about the default tasks
 Rake::Task[:default].prerequisites.unshift("compile")
