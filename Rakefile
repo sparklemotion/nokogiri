@@ -14,13 +14,16 @@ HOE = Hoe.spec("nokogiri") do |hoe|
   hoe.version = Nokogiri::VERSION
 
   hoe.author = [
-    "Mike Dalessio",
-    "Aaron Patterson",
-    "John Shahid",
-    "Yoko Harada",
-    "Akinori MUSHA",
-    "Lars Kanis",
-    "Tim Elliott",
+	  "Mike Dalessio",
+	  "Aaron Patterson",
+	  "Yoko Harada",
+	  "Akinori MUSHA",
+	  "John Shahid",
+	  "Karol Bucek",
+	  "Lars Kanis",
+	  "Sergio Arbeo",
+	  "Timothy Elliott",
+	  "Nobuyoshi Nakada",
   ]
 
   hoe.email = "nokogiri-talk@googlegroups.com"
