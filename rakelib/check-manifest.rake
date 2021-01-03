@@ -28,7 +28,6 @@ task :check_manifest do
   ignore_files = %w[
     .cross_rubies
     .editorconfig
-    .gemtest
     .gitignore
     appveyor.yml
     nokogiri.gemspec

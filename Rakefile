@@ -17,6 +17,8 @@ CLEAN.add(
   "tmp",
 )
 CLOBBER.add("ports/*").exclude(%r{ports/archives$})
+CLOBBER.add(".yardoc")
+CLOBBER.add("gems")
 
 require "hoe/markdown"
 Hoe::Markdown::Standalone.new("nokogiri").define_markdown_tasks
