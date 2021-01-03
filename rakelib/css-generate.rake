@@ -20,7 +20,6 @@ namespace "css" do
   end
 end
 
-task "gem:spec" => "css:generate" if Hoe.plugins.include?(:gemspec)
 task "compile" => "css:generate"
 task "check_manifest" => "css:generate"
 
