@@ -165,6 +165,25 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
 require "rake_compiler_dock"
 
+def java?
+  /java/ === RUBY_PLATFORM
+end
+
+def add_file_to_gem(relative_source_path)
+  dest_path = File.join(gem_build_path, relative_source_path)
+  dest_dir = File.dirname(dest_path)
+
+  mkdir_p dest_dir unless Dir.exist?(dest_dir)
+  rm_f dest_path if File.exist?(dest_path)
+  safe_ln relative_source_path, dest_path
+
+  NOKOGIRI_SPEC.files << relative_source_path
+end
+
+def gem_build_path
+  File.join "pkg", NOKOGIRI_SPEC.full_name
+end
+
 def verify_dll(dll, cross_ruby)
   allowed_imports = cross_ruby.allowed_dlls
 
