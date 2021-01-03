@@ -38,7 +38,6 @@ exclude: !ruby/regexp '/
        SECURITY\.md|
        STANDARD_RESPONSES\.md|
        Vagrantfile|
-       Y_U_NO_GEMSPEC\.md|
        [0-9]+-.*|
        [a-z\.]+\.(log|out)
       )$
