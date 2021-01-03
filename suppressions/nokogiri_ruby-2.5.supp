@@ -10,8 +10,7 @@
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    <ruby_cleanup_error_2>
@@ -25,8 +24,7 @@
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-2.5-valgrind/builds/66
@@ -38,8 +36,7 @@
    fun:gc_mark_stacked_objects
    ...
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-2.5-valgrind/builds/71
@@ -51,6 +48,5 @@
    fun:gc_marks_wb_unprotected_objects
    ...
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }

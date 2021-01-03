@@ -7,8 +7,7 @@
    fun:gc_marks_rest
    ...
    fun:rb_ec_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-rc-valgrind/builds/1
@@ -18,8 +17,7 @@
    fun:gc_marks_finish
    ...
    fun:rb_ec_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-rc-valgrind/builds/3
@@ -30,8 +28,7 @@
    fun:gc_marks_rest
    ...
    fun:rb_ec_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-valgrind/builds/1
@@ -42,6 +39,4 @@
    fun:rb_iseq_compile_node
    fun:rb_iseq_new_with_opt
    ...
-   fun:ruby_run_node
-   fun:main
 }

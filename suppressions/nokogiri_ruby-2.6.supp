@@ -7,8 +7,7 @@
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
 {
    https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-v1.10.x/jobs/ruby-2.6-valgrind/builds/3
@@ -19,7 +18,6 @@
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
-   fun:ruby_run_node
    ...
 }
 {
@@ -32,6 +30,5 @@
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
-   fun:ruby_run_node
-   fun:main
+   ...
 }
