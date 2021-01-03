@@ -38,4 +38,4 @@ bundle exec rake gem:darwin
 cp -v pkg/nokogiri-*darwin*.gem gems
 
 # test those gem files!
-$(dirname $0)/test-gem-files gems/*.gem
+$(dirname $0)/test-gem-set gems/*.gem
