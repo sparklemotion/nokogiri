@@ -28,6 +28,7 @@ jobs:
           echo "NOKOGIRI_USE_SYSTEM_LIBRARIES=t" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
+          gem install bundler
           bundle config --local path vendor/bundle
           bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
           bundle install
@@ -59,6 +60,7 @@ jobs:
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
+          gem install bundler
           bundle config --local path vendor/bundle
           bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
           bundle install
