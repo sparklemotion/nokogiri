@@ -303,6 +303,7 @@ NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
   spec.add_development_dependency("rexical", "~> 1.0.5")
   spec.add_development_dependency("rubocop", "~> 0.88")
   spec.add_development_dependency("simplecov", "~> 0.20")
+  spec.add_development_dependency("yard", "~> 0.9")
 
   spec.extensions << "ext/nokogiri/extconf.rb"
 end

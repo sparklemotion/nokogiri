@@ -1,5 +1,4 @@
-
-<img src="https://nokogiri.org/images/nokogiri-serif-black.png" align="right" />
+![Nokogiri Logo](https://nokogiri.org/images/nokogiri-serif-black.png)
 
 # Nokogiri
 

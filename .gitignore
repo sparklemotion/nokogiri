@@ -19,6 +19,7 @@ concourse/docker-compose.yml
 concourse/private.yml
 concourse/images/*.generated
 coverage
+doc
 ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
