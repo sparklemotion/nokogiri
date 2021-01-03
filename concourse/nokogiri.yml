@@ -81,6 +81,8 @@ resources:
   - name: nokogiri
     type: git
     icon: "github"
+    check_every: 5m
+    webhook_token: ((nokogiri-master-webhook-token))
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master

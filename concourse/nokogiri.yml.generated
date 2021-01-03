@@ -831,7 +831,8 @@ resources:
     adapter: GitterActivityFeedAdapter
     url: ((nokogiri-gitter-channel-webhook-url))
   type: webhook-notification
-- icon: github
+- check_every: 5m
+  icon: github
   name: nokogiri
   source:
     branch: master
@@ -843,3 +844,4 @@ resources:
     - Vagrantfile
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
+  webhook_token: ((nokogiri-master-webhook-token))
