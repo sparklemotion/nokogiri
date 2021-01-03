@@ -26,7 +26,6 @@ task :check_manifest do
     [0-9]*
   }
   ignore_files = %w[
-    .autotest
     .cross_rubies
     .editorconfig
     .gemtest
