@@ -324,11 +324,11 @@ if java?
 else
   require "rake/extensiontask"
 
-  NOKOGIRI_SPEC.files.reject! { |f| f =~ %r{\.(java|jar)$} }
-
   dependencies = YAML.load_file("dependencies.yml")
 
   task gem_build_path do
+    NOKOGIRI_SPEC.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+
     ["libxml2", "libxslt"].each do |lib|
       version = dependencies[lib]["version"]
       archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")

@@ -44,6 +44,7 @@ NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
   }
 
   spec.files = [
+    "Gemfile",
     "LICENSE-DEPENDENCIES.md",
     "LICENSE.md",
     "README.md",
@@ -286,7 +287,7 @@ NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(/^bin/) { |f| File.basename(f) }
 
   spec.extra_rdoc_files += Dir.glob("ext/nokogiri/*.c")
-  spec.extra_rdoc_files += Dir.glob("*.md")
+  spec.extra_rdoc_files += Dir.glob("README.md")
   spec.rdoc_options = ["--main", "README.md"]
 
   spec.add_runtime_dependency("racc", "~> 1.4")
