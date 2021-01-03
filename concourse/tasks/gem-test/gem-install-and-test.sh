@@ -19,18 +19,14 @@ pushd nokogiri
   if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
     export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
   fi
-  bundle -v
-  bundle config
 
-  bundle add nokogiri --skip-install
-  bundle install --local || bundle install
-  bundle info nokogiri
+  bundle install --local || bundle install # ensure dependencies are installed
 
-  bundle exec rake test:cmd > run-test
-  rm -rf lib ext # ensure we can't use the local files
-  bundle exec bash run-test
+  rm -rf lib ext # ensure we don't use the local files
+  rake test
 
   if [[ -e ./scripts/test-gem-installation ]] ; then
     ./scripts/test-gem-installation
   fi
+
 popd

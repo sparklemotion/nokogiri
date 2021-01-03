@@ -1,12 +1,17 @@
 # coding: utf-8
 # frozen_string_literal: true
-require File.expand_path(File.join(File.dirname(__FILE__), "lib/nokogiri/version/constant"))
+
+begin
+  require File.expand_path(File.join(File.dirname(__FILE__), "lib/nokogiri/version/constant"))
+rescue LoadError
+  puts "WARNING: Could not load Nokogiri::VERSION"
+end
 
 NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
   java_p = /java/ === RUBY_PLATFORM
 
   spec.name = "nokogiri"
-  spec.version = Nokogiri::VERSION
+  spec.version = defined?(Nokogiri::VERSION) ? Nokogiri::VERSION : "0.0.0"
 
   spec.summary = "Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby."
   spec.description = <<~EOF
