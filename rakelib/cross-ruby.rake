@@ -98,7 +98,7 @@ CrossRuby = Struct.new(:version, :host) do
   end
 
   def dll_staging_path
-    "tmp/#{platform}/stage/lib/#{HOE.spec.name}/#{minor_ver}/#{HOE.spec.name}.#{dll_ext}"
+    "tmp/#{platform}/stage/lib/#{NOKOGIRI_SPEC.name}/#{minor_ver}/#{NOKOGIRI_SPEC.name}.#{dll_ext}"
   end
 
   def libruby_dll
@@ -264,7 +264,7 @@ namespace "gem" do
   def gem_builder(plat)
     # use Task#invoke because the pkg/*gem task is defined at runtime
     Rake::Task["native:#{plat}"].invoke
-    Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
+    Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
   end
 
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
@@ -304,7 +304,7 @@ end
 
 if java?
   require "rake/javaextensiontask"
-  Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
+  Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
     jruby_home = RbConfig::CONFIG['prefix']
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
 
@@ -324,7 +324,7 @@ if java?
 else
   require "rake/extensiontask"
 
-  HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+  NOKOGIRI_SPEC.files.reject! { |f| f =~ %r{\.(java|jar)$} }
 
   dependencies = YAML.load_file("dependencies.yml")
 
@@ -345,7 +345,7 @@ else
     end
   end
 
-  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+  Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
     ext.cross_compile  = true

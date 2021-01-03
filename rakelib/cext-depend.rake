@@ -1,10 +1,10 @@
 require "set"
 
 namespace "cext" do
-  desc "Regenerate C extension dependencies in #{File.dirname(HOE.spec.extensions.first)}/depend"
+  desc "Regenerate C extension dependencies in #{File.dirname(NOKOGIRI_SPEC.extensions.first)}/depend"
   task :depend do
     # this task requires the `makedepend` utility
-    HOE.spec.extensions.each do |extconf|
+    NOKOGIRI_SPEC.extensions.each do |extconf|
       ext_dir = File.dirname(extconf)
       Dir.chdir(ext_dir) do
         puts "(in #{ext_dir})"
