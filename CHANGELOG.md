@@ -1,28 +1,6 @@
 # Nokogiri Changelog
 
-## Versioning Policy
-
-Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). [![Dependabot's SemVer compatibility score for Nokogiri](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
-
-We bump `Major.Minor.Patch` versions following this guidance:
-
-`Major`: (we've never done this)
-
-- Significant backwards-incompatible changes to the public API that would require rewriting existing application code.
-- Some examples of backwards-incompatible changes we might someday consider for a Major release are at [`ROADMAP.md`](ROADMAP.md).
-
-`Minor`:
-
-- Features and bugfixes.
-- Updating packaged libraries for non-security-related reasons.
-- Dropping support for EOLed Ruby versions. [Some folks find this objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but [SemVer says this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
-- Backwards-incompatible changes to internal or private methods and constants. These are detailed in the "Changes" section of each changelog entry.
-
-`Patch`:
-
-- Bugfixes.
-- Security updates.
-- Updating packaged libraries for security-related reasons.
+Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [README.md](README.md) for details.
 
 ---
 
