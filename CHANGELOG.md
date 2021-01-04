@@ -4,16 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## Unreleased (will be v1.11.0)
-
-Latest is `v1.11.0.rc4` (2020-12-29). To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc4`
-
-If you're using bundler, try updating your Gemfile with:
-
-``` ruby
-gem "nokogiri", "~> 1.11.0.rc4"
-```
-
+## v1.11.0 / 2021-01-03
 
 ### Notes
 
