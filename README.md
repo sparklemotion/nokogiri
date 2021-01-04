@@ -1,12 +1,10 @@
-![Nokogiri Logo](https://nokogiri.org/images/nokogiri-serif-black.png)
+<div><img src="https://nokogiri.org/images/nokogiri-serif-black.png" align="right"/></div>
 
 # Nokogiri
 
-## Description
-
 Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby. It provides a sensible, easy-to-understand API for reading, writing, modifying, and querying documents. It is fast and standards-compliant by relying on native parsers like libxml2 (C) and xerces (Java).
 
-### Guiding Principles
+## Guiding Principles
 
 Some guiding principles Nokogiri tries to follow:
 
@@ -14,15 +12,16 @@ Some guiding principles Nokogiri tries to follow:
 - be a **thin-as-reasonable layer** on top of the underlying parsers, and don't attempt to fix behavioral differences between the parsers
 
 
-### Capabilities Overview
+## Features Overview
 
-- XML/HTML DOM Parser which recovers from broken HTML
-- XML/HTML SAX Parser
-- XML/HTML Push Parser
-- XPath 1.0 support for document searching
-- CSS3 selector support for document searching, with some jquery-like extensions
-- XML/HTML "Builder" DSL
-- XSLT Transformer
+- DOM Parser for XML and HTML4
+- SAX Parser for XML and HTML4
+- Push Parser for XML and HTML4
+- Document search via XPath 1.0
+- Document search via CSS3 selectors, with some jquery-like extensions
+- XSD Schema validation
+- XSLT transformation
+- "Builder" DSL for XML and HTML documents
 
 
 ## Status
