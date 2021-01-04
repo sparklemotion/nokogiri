@@ -1,0 +1,99 @@
+#@ load("@ytt:template", "template")
+
+#@ load("ruby.star", "truffleruby_versions")
+#@ all_truffleruby_versions = []
+#@ all_truffleruby_versions.extend(truffleruby_versions["supported"])
+#@ all_truffleruby_versions.extend(truffleruby_versions["beta"])
+
+---
+#@ def registry_image(image_repo, image_tag):
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    repository: #@ image_repo
+    tag: #@ image_tag
+#@ end
+
+---
+resource_types:
+  - name: pull-request
+    type: registry-image
+    source:
+      repository: teliaoss/github-pr-resource
+
+
+resources:
+  - name: ci
+    type: git
+    icon: cog
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true #! always get the latest pipeline configuration
+  - name: nokogiri
+    type: git
+    icon: "github"
+    check_every: 5m
+    webhook_token: ((nokogiri-master-webhook-token))
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      ignore_paths:
+        - "*.md"
+        - "concourse/**"
+        - "suppressions/**"
+        - ".github/**"
+        - "Vagrantfile"
+  - name: nokogiri-pr
+    type: pull-request
+    icon: github
+    check_every: 15m
+    webhook_token: ((nokogiri-pr-webhook-token))
+    source:
+      repository: sparklemotion/nokogiri
+      access_token: ((github-repo-status-access-token))
+      ignore_drafts: true
+      ignore_paths:
+        - "*.md"
+        - "concourse/"
+        - "suppressions/"
+        - ".github/"
+        - "Vagrantfile"
+
+jobs:
+#@ for ruby_version in all_truffleruby_versions:
+#@ job_name = "truffle-{}".format(ruby_version)
+  - name: #@ job_name
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run: { path: ci/concourse/tasks/rake-test/run.sh }
+#@ end
+
+#@ for ruby_version in all_truffleruby_versions:
+#@ job_name = "truffle-pr-{}".format(ruby_version)
+  - name: #@ job_name
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+      - task: rake-test
+        config:
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          run: { path: ci/concourse/tasks/rake-test/run.sh }
+#@ end

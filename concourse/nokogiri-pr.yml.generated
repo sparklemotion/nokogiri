@@ -578,52 +578,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test
   public: true
-- name: truffle-stable
-  plan:
-  - get: ci
-  - get: nokogiri-pr
-    passed:
-    - cruby-on-vanilla-ubuntu
-    trigger: true
-    version: every
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: truffle-stable
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
-  public: true
-- name: truffle-nightly
-  plan:
-  - get: ci
-  - get: nokogiri-pr
-    passed:
-    - cruby-on-vanilla-ubuntu
-    trigger: true
-    version: every
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: truffle-nightly
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
-  public: true
 - name: cruby-on-musl
   on_abort:
     params:

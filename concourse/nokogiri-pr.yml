@@ -221,24 +221,6 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 #@ end
 
-#@ for ruby_version in all_truffleruby_versions:
-#@ job_name = "truffle-{}".format(ruby_version)
-  - name: #@ job_name
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["cruby-on-vanilla-ubuntu"]
-      - task: rake-test
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
-          inputs: #@ task_inputs()
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#@ end
-
 #@ job_name = "cruby-on-musl"
   - name: #@ job_name
     public: true

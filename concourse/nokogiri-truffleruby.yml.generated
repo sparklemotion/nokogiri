@@ -1,0 +1,123 @@
+jobs:
+- name: truffle-stable
+  plan:
+  - get: ci
+  - get: nokogiri
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-stable
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
+- name: truffle-nightly
+  plan:
+  - get: ci
+  - get: nokogiri
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
+- name: truffle-pr-stable
+  plan:
+  - get: ci
+  - get: nokogiri-pr
+    trigger: true
+    version: every
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-stable
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri-pr
+        path: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
+- name: truffle-pr-nightly
+  plan:
+  - get: ci
+  - get: nokogiri-pr
+    trigger: true
+    version: every
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri-pr
+        path: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
+resource_types:
+- name: pull-request
+  source:
+    repository: teliaoss/github-pr-resource
+  type: registry-image
+resources:
+- icon: cog
+  name: ci
+  source:
+    branch: master
+    disable_ci_skip: true
+    uri: https://github.com/sparklemotion/nokogiri/
+  type: git
+- check_every: 5m
+  icon: github
+  name: nokogiri
+  source:
+    branch: master
+    ignore_paths:
+    - '*.md'
+    - concourse/**
+    - suppressions/**
+    - .github/**
+    - Vagrantfile
+    uri: https://github.com/sparklemotion/nokogiri/
+  type: git
+  webhook_token: ((nokogiri-master-webhook-token))
+- check_every: 15m
+  icon: github
+  name: nokogiri-pr
+  source:
+    access_token: ((github-repo-status-access-token))
+    ignore_drafts: true
+    ignore_paths:
+    - '*.md'
+    - concourse/
+    - suppressions/
+    - .github/
+    - Vagrantfile
+    repository: sparklemotion/nokogiri
+  type: pull-request
+  webhook_token: ((nokogiri-pr-webhook-token))
