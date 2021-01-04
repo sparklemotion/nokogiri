@@ -17,16 +17,26 @@ assignees: ""
 <!-- Please make sure to escape the file contents with triple-backticks. -->
 
 ```
-your output goes here
+the output goes here
 ```
 
 
-**What are the complete contents of the `mkmf.log` file generated during the failed installation?**
+**If installation completed but is broken, what is the complete output from `nokogiri -v`?**
 
 <!-- Please make sure to escape the file contents with triple-backticks. -->
 
 ```
-your mkmf.log file contents go here
+the output of "nokogiri -v" goes here
+```
+
+
+
+**If installation failed during compilation, what are the complete contents of the `mkmf.log` file generated during the failed installation?**
+
+<!-- Please make sure to escape the file contents with triple-backticks. -->
+
+```
+the mkmf.log file contents go here
 ```
 
 
@@ -39,7 +49,7 @@ What is the output from `gem -v`?
 What is the output from `gem env`?
 
 ```
-gem env output goes here
+the output of "gem env" output goes here
 ```
 
 
@@ -48,7 +58,7 @@ If you're using Bundler:
 - what is the output from `bundle config`? (Take care to redact any credentials)
 
 ```
-bundle config output goes here
+the output of "bundle config" goes here
 ```
 
 If you're on MacOS, please note:
