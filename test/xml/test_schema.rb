@@ -4,6 +4,7 @@ module Nokogiri
   module XML
     class TestSchema < Nokogiri::TestCase
       def setup
+        super
         assert @xsd = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE))
       end
 

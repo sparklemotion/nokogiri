@@ -7,6 +7,7 @@ module Nokogiri
     module SAX
       class TestParserContext < Nokogiri::SAX::TestCase
         def setup
+          super
           @xml = '<hello>
 
 world
