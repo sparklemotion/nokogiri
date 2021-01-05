@@ -120,6 +120,8 @@ parse_with(VALUE self, VALUE sax_handler)
     ctxt->sax = sax;
     ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
 
+    xmlSetStructuredErrorFunc(NULL, NULL);
+
     rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
 
     return Qnil;

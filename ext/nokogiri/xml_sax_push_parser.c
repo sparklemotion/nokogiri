@@ -35,6 +35,8 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
     size = (int)RSTRING_LEN(_chunk);
   }
 
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   if (xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
     if (!(ctx->options & XML_PARSE_RECOVER)) {
       xmlErrorPtr e = xmlCtxtGetLastError(ctx);
