@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## v1.11.1 / unreleased
+## v1.11.1 / 2021-01-06
 
 ### Fixed
 
