@@ -356,3 +356,60 @@
    # fun:ruby_run_node
    # fun:main
 }
+{
+   https://ci.nokogiri.org/builds/14555#L5fc5c6b0:492
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_children
+   fun:gc_mark_stacked_objects
+   fun:gc_mark_stacked_objects_incremental
+   fun:gc_marks_rest
+   fun:gc_marks_continue
+   fun:heap_prepare
+   fun:heap_next_freepage
+   ...
+   # fun:ractor_cache_slots
+   # fun:newobj_slowpath
+   # fun:newobj_slowpath_wb_protected
+   # fun:newobj_of0
+   # fun:newobj_of
+   # fun:rb_wb_protected_newobj_of
+   # fun:hash_alloc_flags
+   # fun:hash_alloc
+   # fun:rb_hash_new
+   # fun:rb_hash_new_with_size
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_sendish.constprop.531
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
