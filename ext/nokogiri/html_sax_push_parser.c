@@ -9,9 +9,10 @@
 static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
-  const char * chunk  = NULL;
-  int size            = 0;
-
+  const char * chunk = NULL;
+  int size = 0;
+  int status = 0;
+  libxmlStructuredErrorHandlerState handler_state;
 
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
@@ -20,13 +21,16 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
     size = (int)RSTRING_LEN(_chunk);
   }
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_structured_error_func_save_and_set(&handler_state, NULL, NULL);
 
-  if(htmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
-    if (!(ctx->options & XML_PARSE_RECOVER)) {
-      xmlErrorPtr e = xmlCtxtGetLastError(ctx);
-      Nokogiri_error_raise(NULL, e);
-    }
+  status = htmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0);
+
+  Nokogiri_structured_error_func_restore(&handler_state);
+
+  if ((status != 0) && !(ctx->options & XML_PARSE_RECOVER)) {
+    // TODO: there appear to be no tests for this block
+    xmlErrorPtr e = xmlCtxtGetLastError(ctx);
+    Nokogiri_error_raise(NULL, e);
   }
 
   return self;
