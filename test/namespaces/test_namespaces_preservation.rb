@@ -5,6 +5,7 @@ module Nokogiri
     class TestNamespacePreservation < Nokogiri::TestCase
 
       def setup
+        super
         @xml = Nokogiri.XML <<-eoxml
               <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                 <xs:element xmlns:quer="http://api.geotrust.com/webtrust/query"/>

@@ -4,6 +4,7 @@ module Nokogiri
   module XML
     class TestRelaxNG < Nokogiri::TestCase
       def setup
+        super
         assert @schema = Nokogiri::XML::RelaxNG(File.read(ADDRESS_SCHEMA_FILE))
       end
 

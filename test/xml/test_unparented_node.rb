@@ -6,6 +6,7 @@ module Nokogiri
   module XML
     class TestUnparentedNode < Nokogiri::TestCase
       def setup
+        super
         begin
           xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
           @node = xml.at('staff')

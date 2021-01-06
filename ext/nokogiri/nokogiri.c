@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+void init_test_global_handlers(); /* in lieu of test_global_handlers.h */
+
 VALUE mNokogiri ;
 VALUE mNokogiriXml ;
 VALUE mNokogiriHtml ;
@@ -132,4 +134,5 @@ void Init_nokogiri()
   init_xml_relax_ng();
   init_nokogiri_io();
   init_xml_encoding_handler();
+  init_test_global_handlers();
 }

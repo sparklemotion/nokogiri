@@ -2,6 +2,7 @@ require "helper"
 
 class TestXsltTransforms < Nokogiri::TestCase
   def setup
+    super
     @doc = Nokogiri::XML(File.open(XML_FILE))
   end
 

@@ -1,5 +1,28 @@
 #include <xml_syntax_error.h>
 
+void
+Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state)
+{
+  /* this method is tightly coupled to the implementation of xmlSetStructuredErrorFunc */
+  handler_state->user_data = xmlStructuredErrorContext;
+  handler_state->handler = xmlStructuredError;
+}
+
+void
+Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state,
+                                            void *user_data,
+                                            xmlStructuredErrorFunc handler)
+{
+  Nokogiri_structured_error_func_save(handler_state);
+  xmlSetStructuredErrorFunc(user_data, handler);
+}
+
+void
+Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state)
+{
+  xmlSetStructuredErrorFunc(handler_state->user_data, handler_state->handler);
+}
+
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;

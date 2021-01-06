@@ -58,7 +58,16 @@ module Nokogiri
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
     XPATH_FILE          = File.join(ASSETS_DIR, 'slow-xpath.xml')
 
+    def setup
+      @fake_error_handler_called = false
+      Nokogiri::Test.__foreign_error_handler do
+        @fake_error_handler_called = true
+      end if Nokogiri.uses_libxml?
+    end
+
     def teardown
+      refute(@fake_error_handler_called, "the fake error handler should never get called") if Nokogiri.uses_libxml?
+
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
         if RUBY_PLATFORM =~ /java/
@@ -134,6 +143,11 @@ module Nokogiri
         attr_reader :errors, :warnings, :end_elements_namespace
         attr_reader :xmldecls
         attr_reader :processing_instructions
+
+        def initialize
+          @errors = []
+          super
+        end
 
         def xmldecl version, encoding, standalone
           @xmldecls = [version, encoding, standalone].compact
