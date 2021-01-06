@@ -1,40 +1,44 @@
-.DS_Store
-*.tmproj
-*~
-.*.swp
-.bundle
+# bundler
+/.bundle/
+/Gemfile*lock
+/vendor/
+
+# building and packaging
+/ext/nokogiri/**/nokogiri.dll
+/ext/nokogiri/include
+/gems/
+/lib/nokogiri/**/nokogiri.bundle
+/lib/nokogiri/**/nokogiri.so
+/lib/nokogiri/nokogiri.jar
+/pkg/
+/ports/
+/tmp/
+
+# CI
+/concourse/docker-compose.yml
+/concourse/private.yml
+/concourse/images/*.generated
+
+# code coverage
+/coverage/
+
+# documentation
+/.yardoc/
+/doc/
+
+# editors and tags
 .classpath
 .project
-.rake_tasks
-.ruby-gemset
-.ruby-version
-.rvmrc
 .settings
-.vagrant
-.yardoc
-Gemfile*lock
-TAGS
 build
-concourse/docker-compose.yml
-concourse/private.yml
-concourse/images/*.generated
-coverage
-doc
-ext/java/Canna
-ext/java/nokogiri/**/*.class
-ext/nokogiri/*.dll
-ext/nokogiri/include
-gems
-lib/nokogiri/**/nokogiri.bundle
-lib/nokogiri/**/nokogiri.so
-lib/nokogiri/nokogiri.jar
-pkg
-ports
-stash
+TAGS
 tags
-test/*/*_mini.rb
-test/*_mini.rb
-test/test_jruby_footer.rb
-test/test_jruby_header.rb
-tmp
-vendor
+
+# mac
+.DS_Store/
+
+# Vagrant
+/.vagrant/
+
+# directories named after issues
+/[0-9][0-9][0-9]*/
