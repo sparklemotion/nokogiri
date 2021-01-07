@@ -40,41 +40,76 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
     Flags only used when using system libraries:
 
-      --with-opt-dir=DIRECTORY
-          Look for headers and libraries in DIRECTORY
+      General:
 
-      --with-zlib-dir=DIR
-          Look for zlib header and library in DIRECTORY
+        --with-opt-dir=DIRECTORY
+            Look for headers and libraries in DIRECTORY
 
-      --with-iconv-dir=DIRECTORY
-          Look for iconv header and library in DIRECTORY
+        --with-opt-lib=DIRECTORY
+            Look for libraries in DIRECTORY
 
-      --with-xml2-dir=DIRECTORY
-          Look for xml2 headers and library in DIRECTORY
+        --with-opt-include=DIRECTORY
+            Look for headers in DIRECTORY
 
-      --with-xml2-lib=DIRECTORY
-          Look for xml2 library in DIRECTORY
 
-      --with-xslt-include=DIRECTORY
-          Look for xslt headers in DIRECTORY
+      Related to zlib:
 
-      --with-xslt-dir=DIRECTORY
-          Look for xslt headers and library in DIRECTORY
+        --with-zlib-dir=DIRECTORY
+            Look for zlib headers and library in DIRECTORY
 
-      --with-xslt-lib=DIRECTORY
-          Look for xslt library in DIRECTORY
+        --with-zlib-lib=DIRECTORY
+            Look for zlib library in DIRECTORY
 
-      --with-xslt-include=DIRECTORY
-          Look for xslt headers in DIRECTORY
+        --with-zlib-include=DIRECTORY
+            Look for zlib headers in DIRECTORY
 
-      --with-exslt-dir=DIRECTORY
-          Look for exslt headers and library in DIRECTORY
 
-      --with-exslt-lib=DIRECTORY
-          Look for exslt library in DIRECTORY
+      Related to iconv:
 
-      --with-exslt-include=DIRECTORY
-          Look for exslt headers in DIRECTORY
+        --with-iconv-dir=DIRECTORY
+            Look for iconv headers and library in DIRECTORY
+
+        --with-iconv-lib=DIRECTORY
+            Look for iconv library in DIRECTORY
+
+        --with-iconv-include=DIRECTORY
+            Look for iconv headers in DIRECTORY
+
+
+      Related to libxml2:
+
+        --with-xml2-dir=DIRECTORY
+            Look for xml2 headers and library in DIRECTORY
+
+        --with-xml2-lib=DIRECTORY
+            Look for xml2 library in DIRECTORY
+
+        --with-xml2-include=DIRECTORY
+            Look for xml2 headers in DIRECTORY
+
+
+      Related to libxslt:
+
+        --with-xslt-dir=DIRECTORY
+            Look for xslt headers and library in DIRECTORY
+
+        --with-xslt-lib=DIRECTORY
+            Look for xslt library in DIRECTORY
+
+        --with-xslt-include=DIRECTORY
+            Look for xslt headers in DIRECTORY
+
+
+      Related to libexslt:
+
+        --with-exslt-dir=DIRECTORY
+            Look for exslt headers and library in DIRECTORY
+
+        --with-exslt-lib=DIRECTORY
+            Look for exslt library in DIRECTORY
+
+        --with-exslt-include=DIRECTORY
+            Look for exslt headers in DIRECTORY
 
 
     Flags only used when building and using the packaged libraries:
