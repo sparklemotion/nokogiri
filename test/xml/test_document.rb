@@ -947,37 +947,80 @@ module Nokogiri
           assert(xml.children.respond_to?(:awesome!))
         end
 
-        if Nokogiri.jruby?
-          def wrap_java_document
-            require "java"
-            factory = javax.xml.parsers.DocumentBuilderFactory.newInstance
-            builder = factory.newDocumentBuilder
-            document = builder.newDocument
-            root = document.createElement("foo")
-            document.appendChild(root)
-            Nokogiri::XML::Document.wrap(document)
+        describe "JRuby-only methods" do
+          describe "Document.wrap" do
+            if Nokogiri.jruby?
+              let(:java_doc) do
+                require "java"
+                factory = javax.xml.parsers.DocumentBuilderFactory.newInstance
+                builder = factory.newDocumentBuilder
+                document = builder.newDocument
+                root = document.createElement("foo")
+                document.appendChild(root)
+                document
+              end
+
+              it "wraps a Java document" do
+                rb_doc = Nokogiri::XML::Document.wrap(java_doc)
+                assert_kind_of(Nokogiri::XML::Document, rb_doc)
+                assert_equal("foo", rb_doc.root.name)
+              end
+
+              it "shares the same data structure as shown when modified via Java interop" do
+                rb_doc = Nokogiri::XML::Document.wrap(java_doc)
+                assert_equal(0, rb_doc.root.children.length)
+
+                java_doc.getFirstChild().appendChild(java_doc.createElement("bar"))
+                assert_equal(1, rb_doc.root.children.length)
+              end
+
+              it "shares the same data structure as shown when modified via Nokogiri" do
+                rb_doc = Nokogiri::XML::Document.wrap(java_doc)
+                assert_equal(0, java_doc.getFirstChild().getChildNodes().getLength())
+
+                rb_doc.root.add_child("<bar />")
+                assert_equal(1, java_doc.getFirstChild().getChildNodes().getLength())
+              end
+            else
+              it "does not have the method" do
+                refute_respond_to(Nokogiri::XML::Document, :wrap)
+              end
+            end
           end
-        end
 
-        def test_java_integration
-          skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
-          noko_doc = wrap_java_document
-          assert_equal("foo", noko_doc.root.name)
+          describe "Document#to_java" do
+            if Nokogiri.jruby?
+              let(:rb_doc) do
+                Nokogiri::XML::Document.parse("<foo xmlns='hello'><bar xmlns:foo='world' /></foo>")
+              end
 
-          noko_doc = Nokogiri::XML(<<~eoxml)
-            <foo xmlns='hello'>
-              <bar xmlns:foo='world' />
-            </foo>
-          eoxml
-          dom = noko_doc.to_java
-          assert(dom.is_a?(org.w3c.dom.Document))
-          assert_equal("foo", dom.getDocumentElement.getTagName)
-        end
+              it "returns the underlying java object" do
+                java_doc = rb_doc.to_java
+                assert_kind_of(org.w3c.dom.Document, java_doc)
+                assert_equal("foo", java_doc.getDocumentElement().getTagName())
+              end
 
-        def test_add_child
-          skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
-          doc = wrap_java_document
-          doc.root.add_child("<bar />")
+              it "shares the same data structure as shown when modified via Nokogiri" do
+                java_doc = rb_doc.to_java
+                assert_equal(1, java_doc.getFirstChild().getChildNodes().getLength())
+
+                rb_doc.root.add_child("<baz />")
+                assert_equal(2, java_doc.getFirstChild().getChildNodes().getLength())
+              end
+
+              it "shares the same data structure as shown when modified via Java interop" do
+                java_doc = rb_doc.to_java
+                assert_equal(1, rb_doc.root.children.length)
+
+                java_doc.getFirstChild().appendChild(java_doc.createElement("baz"))
+                assert_equal(2, rb_doc.root.children.length)
+              end
+            else
+              it "does not have the method" do
+                refute_respond_to(Nokogiri::XML::Document.new, :to_java)
+              end
+            end
+          end
         end
 
         def test_can_be_closed
