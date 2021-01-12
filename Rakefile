@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require "bundler"
-Bundler.load_gemspec("nokogiri.gemspec")
+NOKOGIRI_SPEC = Bundler.load_gemspec("nokogiri.gemspec")
 
 require "rubygems/package_task"
 Gem::PackageTask.new(NOKOGIRI_SPEC).define
