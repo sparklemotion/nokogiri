@@ -36,7 +36,6 @@ task :check_manifest do
     CONTRIBUTING.md
     C_CODING_STYLE.rdoc
     Gemfile?*
-    Manifest.txt
     ROADMAP.md
     Rakefile
     SECURITY.md
