@@ -1,0 +1,7 @@
+--embed-mixins
+--main=README.md
+lib/**/*.rb
+ext/nokogiri/*.c
+-
+README.md
+LICENSE.md
