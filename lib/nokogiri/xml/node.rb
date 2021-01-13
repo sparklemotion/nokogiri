@@ -5,64 +5,54 @@ require "nokogiri/xml/node/save_options"
 
 module Nokogiri
   module XML
-    ####
-    # Nokogiri::XML::Node is your window to the fun filled world of dealing
-    # with XML and HTML tags.  A Nokogiri::XML::Node may be treated similarly
-    # to a hash with regard to attributes.  For example (from irb):
+    ##
+    # {Nokogiri::XML::Node} is your window to the fun filled world of dealing with XML and HTML
+    # tags. A {Nokogiri::XML::Node} may be treated similarly to a hash with regard to attributes. For
+    # example:
     #
-    #   irb(main):004:0> node
-    #   => <a href="#foo" id="link">link</a>
-    #   irb(main):005:0> node['href']
-    #   => "#foo"
-    #   irb(main):006:0> node.keys
-    #   => ["href", "id"]
-    #   irb(main):007:0> node.values
-    #   => ["#foo", "link"]
-    #   irb(main):008:0> node['class'] = 'green'
-    #   => "green"
-    #   irb(main):009:0> node
-    #   => <a href="#foo" id="link" class="green">link</a>
-    #   irb(main):010:0>
+    #   node = Nokogiri::XML::DocumentFragment.parse("<a href='#foo' id='link'>link</a>").at_css("a")
+    #   node.to_html # => "<a href=\"#foo\" id=\"link\">link</a>"
+    #   node['href'] # => "#foo"
+    #   node.keys # => ["href", "id"]
+    #   node.values # => ["#foo", "link"]
+    #   node['class'] = 'green' # => "green"
+    #   node.to_html # => "<a href=\"#foo\" id=\"link\" class=\"green\">link</a>"
     #
-    # See Nokogiri::XML::Node#[] and Nokogiri::XML#[]= for more information.
+    # See the method group entitled "Working With Node Attributes" for the full set of methods.
     #
-    # Nokogiri::XML::Node also has methods that let you move around your
+    # {Nokogiri::XML::Node} also has methods that let you move around your
     # tree.  For navigating your tree, see:
     #
-    # * Nokogiri::XML::Node#parent
-    # * Nokogiri::XML::Node#children
-    # * Nokogiri::XML::Node#next
-    # * Nokogiri::XML::Node#previous
-    #
+    # * {#parent}
+    # * {#children}
+    # * {#next}
+    # * {#previous}
     #
     # When printing or otherwise emitting a document or a node (and
     # its subtree), there are a few methods you might want to use:
     #
-    # * content, text, inner_text, to_str: emit plaintext
+    # * {#content}, {#text}, {#inner_text}, {#to_str}: These methods will all <b>emit plaintext</b>,
+    #   meaning that entities will be replaced (e.g., "&lt;" will be replaced with "<"), meaning
+    #   that any sanitizing will likely be un-done in the output.
     #
-    #   These methods will all emit the plaintext version of your
-    #   document, meaning that entities will be replaced (e.g., "&lt;"
-    #   will be replaced with "<"), meaning that any sanitizing will
-    #   likely be un-done in the output.
+    # * {#to_s}, {#to_xml}, {#to_html}, {#inner_html}: These methods will all <b>emit
+    #   properly-escaped markup</b>, meaning that it's suitable for consumption by browsers,
+    #   parsers, etc.
     #
-    # * to_s, to_xml, to_html, inner_html: emit well-formed markup
+    # You may search this node's subtree using {#xpath} and {#css}
     #
-    #   These methods will all emit properly-escaped markup, meaning
-    #   that it's suitable for consumption by browsers, parsers, etc.
-    #
-    # You may search this node's subtree using Searchable#xpath and Searchable#css
     class Node
       include Nokogiri::XML::PP::Node
       include Nokogiri::XML::Searchable
       include Enumerable
 
-      # Element node type, see Nokogiri::XML::Node#element?
+      # Element node type, see {Nokogiri::XML::Node#element?}
       ELEMENT_NODE = 1
       # Attribute node type
       ATTRIBUTE_NODE = 2
-      # Text node type, see Nokogiri::XML::Node#text?
+      # Text node type, see {Nokogiri::XML::Node#text?}
       TEXT_NODE = 3
-      # CDATA node type, see Nokogiri::XML::Node#cdata?
+      # CDATA node type, see {Nokogiri::XML::Node#cdata?}
       CDATA_SECTION_NODE = 4
       # Entity reference node type
       ENTITY_REF_NODE = 5
@@ -70,9 +60,9 @@ module Nokogiri
       ENTITY_NODE = 6
       # PI node type
       PI_NODE = 7
-      # Comment node type, see Nokogiri::XML::Node#comment?
+      # Comment node type, see {Nokogiri::XML::Node#comment?}
       COMMENT_NODE = 8
-      # Document node type, see Nokogiri::XML::Node#xml?
+      # Document node type, see {Nokogiri::XML::Node#xml?}
       DOCUMENT_NODE = 9
       # Document type node type
       DOCUMENT_TYPE_NODE = 10
@@ -80,7 +70,7 @@ module Nokogiri
       DOCUMENT_FRAG_NODE = 11
       # Notation node type
       NOTATION_NODE = 12
-      # HTML document node type, see Nokogiri::XML::Node#html?
+      # HTML document node type, see {Nokogiri::XML::Node#html?}
       HTML_DOCUMENT_NODE = 13
       # DTD node type
       DTD_NODE = 14
