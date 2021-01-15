@@ -46,6 +46,7 @@ import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -213,6 +214,7 @@ public class XmlDomParserContext extends ParserContext {
      */
     protected XmlDocument wrapDocument(ThreadContext context, RubyClass klass, Document doc) {
         XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, doc);
+        Helpers.invoke(context, xmlDocument, "initialize");
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {
