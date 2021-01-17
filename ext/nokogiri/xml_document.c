@@ -278,7 +278,7 @@ static VALUE read_io( VALUE klass,
     return Qnil;
   }
 
-  document = Nokogiri_wrap_xml_document(klass, doc);
+  document = nokogiri_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -322,7 +322,7 @@ static VALUE read_memory( VALUE klass,
     return Qnil;
   }
 
-  document = Nokogiri_wrap_xml_document(klass, doc);
+  document = nokogiri_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -339,7 +339,6 @@ static VALUE duplicate_document(int argc, VALUE *argv, VALUE self)
   xmlDocPtr doc, dup;
   VALUE copy;
   VALUE level;
-  VALUE error_list;
 
   if(rb_scan_args(argc, argv, "01", &level) == 0)
     level = INT2NUM((long)1);
@@ -351,9 +350,8 @@ static VALUE duplicate_document(int argc, VALUE *argv, VALUE self)
   if(dup == NULL) return Qnil;
 
   dup->type = doc->type;
-  copy = Nokogiri_wrap_xml_document(rb_obj_class(self), dup);
-  error_list = rb_iv_get(self, "@errors");
-  rb_iv_set(copy, "@errors", error_list);
+  copy = nokogiri_xml_document_wrap(rb_obj_class(self), dup);
+  rb_iv_set(copy, "@errors", rb_iv_get(self, "@errors"));
   return copy ;
 }
 
@@ -373,8 +371,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   if (NIL_P(version)) version = rb_str_new2("1.0");
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
-  rb_doc = Nokogiri_wrap_xml_document(klass, doc);
-  rb_obj_call_init(rb_doc, argc, argv);
+  rb_doc = nokogiri_xml_document_wrap_with_init_args(klass, doc, argc, argv);
   return rb_doc ;
 }
 
@@ -564,6 +561,39 @@ static VALUE nokogiri_xml_document_canonicalize(int argc, VALUE* argv, VALUE sel
   return rb_funcall(io, rb_intern("string"), 0);
 }
 
+VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
+{
+  nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
+
+  VALUE rb_doc = Data_Wrap_Struct(
+    klass ? klass : cNokogiriXmlDocument,
+    mark,
+    dealloc,
+    doc
+    );
+
+  VALUE cache = rb_ary_new();
+  rb_iv_set(rb_doc, "@decorators", Qnil);
+  rb_iv_set(rb_doc, "@errors", Qnil);
+  rb_iv_set(rb_doc, "@node_cache", cache);
+
+  tuple->doc = rb_doc;
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
+  tuple->node_cache = cache;
+  doc->_private = tuple ;
+
+  rb_obj_call_init(rb_doc, argc, argv);
+
+  return rb_doc ;
+}
+
+
+VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
+{
+  return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
+}
+
+
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
@@ -592,31 +622,4 @@ void init_xml_document()
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);
   rb_define_method(klass, "remove_namespaces!", remove_namespaces_bang, 0);
-}
-
-
-/* this takes klass as a param because it's used for HtmlDocument, too. */
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
-{
-  nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
-
-  VALUE rb_doc = Data_Wrap_Struct(
-      klass ? klass : cNokogiriXmlDocument,
-      mark,
-      dealloc,
-      doc
-  );
-
-  VALUE cache = rb_ary_new();
-  rb_iv_set(rb_doc, "@decorators", Qnil);
-  rb_iv_set(rb_doc, "@node_cache", cache);
-
-  tuple->doc = rb_doc;
-  tuple->unlinkedNodes = st_init_numtable_with_size(128);
-  tuple->node_cache = cache;
-  doc->_private = tuple ;
-
-  rb_obj_call_init(rb_doc, 0, NULL);
-
-  return rb_doc ;
 }

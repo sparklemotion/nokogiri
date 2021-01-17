@@ -52,6 +52,7 @@ import org.cyberneko.html.filters.DefaultFilter;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -133,6 +134,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     protected XmlDocument wrapDocument(ThreadContext context, RubyClass klass, Document document) {
         HtmlDocument htmlDocument = new HtmlDocument(context.runtime, klass, document);
         htmlDocument.setDocumentNode(context.runtime, document);
+        Helpers.invoke(context, htmlDocument, "initialize");
+
         if (ruby_encoding.isNil()) {
             // ruby_encoding might have detected by HtmlDocument::EncodingReader
             if (detected_encoding != null && !detected_encoding.isNil()) {

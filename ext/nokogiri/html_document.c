@@ -23,8 +23,7 @@ rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)
           RTEST(uri) ? (const xmlChar *)StringValueCStr(uri) : NULL,
           RTEST(external_id) ? (const xmlChar *)StringValueCStr(external_id) : NULL
         );
-  rb_doc = Nokogiri_wrap_xml_document(klass, doc);
-  rb_obj_call_init(rb_doc, argc, argv);
+  rb_doc = nokogiri_xml_document_wrap_with_init_args(klass, doc, argc, argv);
   return rb_doc ;
 }
 
@@ -81,7 +80,7 @@ rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_enco
     return Qnil;
   }
 
-  rb_doc = Nokogiri_wrap_xml_document(klass, c_doc);
+  rb_doc = nokogiri_xml_document_wrap(klass, c_doc);
   rb_iv_set(rb_doc, "@errors", rb_error_list);
   return rb_doc;
 }
@@ -129,7 +128,7 @@ rb_html_document_s_read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE r
     return Qnil;
   }
 
-  rb_doc = Nokogiri_wrap_xml_document(klass, c_doc);
+  rb_doc = nokogiri_xml_document_wrap(klass, c_doc);
   rb_iv_set(rb_doc, "@errors", rb_error_list);
   return rb_doc;
 }
