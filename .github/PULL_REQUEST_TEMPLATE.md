@@ -2,7 +2,7 @@
 --  Thank you for contributing to Nokogiri! To help us prioritize, please take care to answer the
 --  questions below when you submit this pull request.
 --
---  The Nokogiri core team work off of `master`, so please submit all PRs based on the `master`
+--  The Nokogiri core team work off of `main`, so please submit all PRs based on the `main`
 --  branch. We generally will cherry-pick relevant bug fixes onto the current release branch.
 -->
 

@@ -1179,7 +1179,7 @@ resources:
 - icon: cog
   name: ci
   source:
-    branch: master
+    branch: main
     disable_ci_skip: true
     uri: https://github.com/sparklemotion/nokogiri/
   type: git

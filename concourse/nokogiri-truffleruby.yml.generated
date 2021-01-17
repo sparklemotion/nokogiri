@@ -88,7 +88,7 @@ resources:
 - icon: cog
   name: ci
   source:
-    branch: master
+    branch: main
     disable_ci_skip: true
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
@@ -96,7 +96,7 @@ resources:
   icon: github
   name: nokogiri
   source:
-    branch: master
+    branch: main
     ignore_paths:
     - '*.md'
     - concourse/**
@@ -105,7 +105,7 @@ resources:
     - Vagrantfile
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
-  webhook_token: ((nokogiri-master-webhook-token))
+  webhook_token: ((nokogiri-main-webhook-token))
 - check_every: 15m
   icon: github
   name: nokogiri-pr

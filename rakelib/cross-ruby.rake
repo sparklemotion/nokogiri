@@ -282,7 +282,6 @@ namespace "gem" do
       task "builder" do
         gem_builder(plat)
       end
-      task "guest" => "builder" # TODO: remove me after this code is on master, temporary backwards compat for CI
     end
   end
 

@@ -61,7 +61,7 @@ resources:
     icon: cog
     source:
       uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
+      branch: main
       disable_ci_skip: true #! always get the latest pipeline configuration
   - name: irc
     type: irc-notification
@@ -82,10 +82,10 @@ resources:
     type: git
     icon: "github"
     check_every: 5m
-    webhook_token: ((nokogiri-master-webhook-token))
+    webhook_token: ((nokogiri-main-webhook-token))
     source:
       uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
+      branch: main
       ignore_paths:
         - "*.md"
         - "concourse/**"
@@ -151,7 +151,7 @@ jobs:
             TEST_WITH_SYSTEM_LIBRARIES: t
             #@ if ruby_version == cruby_versions["supported"][-1]:
             CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-            GIT_BRANCH: master
+            GIT_BRANCH: main
             #@ end
           run: {path: ci/concourse/tasks/rake-test/run.sh}
       - task: rake-test-vendored-libraries

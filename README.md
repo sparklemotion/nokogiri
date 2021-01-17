@@ -27,7 +27,7 @@ Some guiding principles Nokogiri tries to follow:
 ## Status
 
 [![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/cruby-2.7/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri)
-[![Appveyor CI](https://ci.appveyor.com/api/projects/status/xj2pqwvlxwuwgr06/branch/master?svg=true)](https://ci.appveyor.com/project/flavorjones/nokogiri/branch/master)
+[![Appveyor CI](https://ci.appveyor.com/api/projects/status/xj2pqwvlxwuwgr06/branch/main?svg=true)](https://ci.appveyor.com/project/flavorjones/nokogiri/branch/main)
 [![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.svg)](https://codeclimate.com/github/sparklemotion/nokogiri)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/59c67b0e8976027a45ad/test_coverage)](https://codeclimate.com/github/sparklemotion/nokogiri/test_coverage)
 

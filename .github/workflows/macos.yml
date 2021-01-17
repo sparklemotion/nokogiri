@@ -2,7 +2,7 @@ name: macos
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
       - '*'
@@ -11,7 +11,7 @@ jobs:
   cruby-test-system-libraries:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
         
       - name: Set ENV
         run: |
@@ -27,7 +27,7 @@ jobs:
   cruby-test-vendored-libraries:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: ports/archives

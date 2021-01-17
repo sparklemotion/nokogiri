@@ -57,7 +57,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * Add support for CSS queries `a:has(> b)`, `a:has(~ b)`, and `a:has(+ b)`. [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
 * Add `Node#value?` to better match expected semantics of a Hash-like object. [[#1838](https://github.com/sparklemotion/nokogiri/issues/1838), [#1840](https://github.com/sparklemotion/nokogiri/issues/1840)] (Thanks, [@MatzFan](https://github.com/MatzFan)!)
 * [CRuby] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
-* `nokogiri.gemspec` is back after a 10-year hiatus. We still prefer you use the official releases, but master is pretty stable these days, and YOLO.
+* `nokogiri.gemspec` is back after a 10-year hiatus. We still prefer you use the official releases, but `main` is pretty stable these days, and YOLO.
 
 
 ### Performance

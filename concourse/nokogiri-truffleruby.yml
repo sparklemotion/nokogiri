@@ -29,16 +29,16 @@ resources:
     icon: cog
     source:
       uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
+      branch: main
       disable_ci_skip: true #! always get the latest pipeline configuration
   - name: nokogiri
     type: git
     icon: "github"
     check_every: 5m
-    webhook_token: ((nokogiri-master-webhook-token))
+    webhook_token: ((nokogiri-main-webhook-token))
     source:
       uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
+      branch: main
       ignore_paths:
         - "*.md"
         - "concourse/**"
