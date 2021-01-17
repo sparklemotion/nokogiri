@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [CRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was invoked twice on each object.
+* [JRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was not called, which was a problem for subclassing such as done by `Loofah`.
+
+
 ## v1.11.1 / 2021-01-06
 
 ### Fixed
