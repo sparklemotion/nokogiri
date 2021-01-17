@@ -278,7 +278,7 @@ static VALUE read_io( VALUE klass,
     return Qnil;
   }
 
-  document = Nokogiri_wrap_xml_document(klass, doc);
+  document = nokogiri_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -322,7 +322,7 @@ static VALUE read_memory( VALUE klass,
     return Qnil;
   }
 
-  document = Nokogiri_wrap_xml_document(klass, doc);
+  document = nokogiri_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -351,7 +351,7 @@ static VALUE duplicate_document(int argc, VALUE *argv, VALUE self)
   if(dup == NULL) return Qnil;
 
   dup->type = doc->type;
-  copy = Nokogiri_wrap_xml_document(rb_obj_class(self), dup);
+  copy = nokogiri_xml_document_wrap(rb_obj_class(self), dup);
   error_list = rb_iv_get(self, "@errors");
   rb_iv_set(copy, "@errors", error_list);
   return copy ;
@@ -373,7 +373,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   if (NIL_P(version)) version = rb_str_new2("1.0");
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
-  rb_doc = Nokogiri_wrap_xml_document(klass, doc);
+  rb_doc = nokogiri_xml_document_wrap(klass, doc);
   rb_obj_call_init(rb_doc, argc, argv);
   return rb_doc ;
 }
@@ -596,7 +596,7 @@ void init_xml_document()
 
 
 /* this takes klass as a param because it's used for HtmlDocument, too. */
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
+VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 {
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
 

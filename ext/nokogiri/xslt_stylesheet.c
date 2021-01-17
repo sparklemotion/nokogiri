@@ -173,7 +173,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
       rb_exc_raise(exception);
     }
 
-    return Nokogiri_wrap_xml_document((VALUE)0, result) ;
+    return nokogiri_xml_document_wrap((VALUE)0, result) ;
 }
 
 static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
