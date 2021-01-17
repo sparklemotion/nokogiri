@@ -23,8 +23,7 @@ rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)
           RTEST(uri) ? (const xmlChar *)StringValueCStr(uri) : NULL,
           RTEST(external_id) ? (const xmlChar *)StringValueCStr(external_id) : NULL
         );
-  rb_doc = nokogiri_xml_document_wrap(klass, doc);
-  rb_obj_call_init(rb_doc, argc, argv);
+  rb_doc = nokogiri_xml_document_wrap_with_init_args(klass, doc, argc, argv);
   return rb_doc ;
 }
 
