@@ -13,6 +13,7 @@ task :check_manifest do
     .vagrant
     .yardoc
     concourse
+    coverage
     doc
     gems
     patches
@@ -31,6 +32,7 @@ task :check_manifest do
     .cross_rubies
     .editorconfig
     .gitignore
+    .yardopts
     appveyor.yml
     nokogiri.gemspec
     CHANGELOG.md
