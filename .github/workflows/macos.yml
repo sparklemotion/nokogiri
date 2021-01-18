@@ -10,9 +10,11 @@ on:
 jobs:
   cruby-test-system-libraries:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        ruby: ["2.7", "3.0"]
     steps:
       - uses: actions/checkout@v2
-        
       - name: Set ENV
         run: |
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
@@ -20,12 +22,15 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: '2.7'
+          ruby-version: ${{ matrix.ruby }}
       - run: bundle exec rake compile
       - run: bundle exec rake test
 
   cruby-test-vendored-libraries:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        ruby: ["2.7", "3.0"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -34,13 +39,12 @@ jobs:
           key: tarballs-${{ hashFiles('**/dependencies.yml') }}
           restore-keys: |
             tarballs-
-
       - name: Set ENV
         run: |
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: '2.7'
+          ruby-version: ${{ matrix.ruby }}
       - run: bundle exec rake compile
       - run: bundle exec rake test
