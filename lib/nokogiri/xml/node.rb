@@ -89,8 +89,14 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      def initialize(name, document) # :nodoc:
-        # ... Ya.  This is empty on purpose.
+      ##
+      # Create a new node with +name+ sharing GC lifecycle with +document+.
+      # @param name [String]
+      # @param document [Nokogiri::XML::Document]
+      # @return [Nokogiri::XML::Node]
+      # @see Nokogiri::XML::Node.new
+      def initialize(name, document)
+        # This is intentionally empty.
       end
 
       ###
