@@ -3,6 +3,8 @@
 
 desc "Perform a sanity check on the gemspec file list"
 task :check_manifest do
+  raw_gemspec = Bundler.load_gemspec("nokogiri.gemspec")
+
   ignore_directories = %w{
     .bundle
     .DS_Store
@@ -11,6 +13,7 @@ task :check_manifest do
     .vagrant
     .yardoc
     concourse
+    coverage
     doc
     gems
     patches
@@ -29,6 +32,7 @@ task :check_manifest do
     .cross_rubies
     .editorconfig
     .gitignore
+    .yardopts
     appveyor.yml
     nokogiri.gemspec
     CHANGELOG.md
@@ -36,7 +40,6 @@ task :check_manifest do
     CONTRIBUTING.md
     C_CODING_STYLE.rdoc
     Gemfile?*
-    Manifest.txt
     ROADMAP.md
     Rakefile
     SECURITY.md
@@ -58,7 +61,7 @@ task :check_manifest do
     .select { |filename| File.file?(filename) }
     .sort
 
-  spec_files = NOKOGIRI_SPEC.files.sort
+  spec_files = raw_gemspec.files.sort
 
   missing_files = intended_files - spec_files
   extra_files = spec_files - intended_files

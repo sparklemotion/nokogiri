@@ -7,7 +7,7 @@ rescue LoadError
   puts "WARNING: Could not load Nokogiri::VERSION"
 end
 
-NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
+Gem::Specification.new do |spec|
   java_p = /java/ === RUBY_PLATFORM
 
   spec.name = "nokogiri"

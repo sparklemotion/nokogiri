@@ -1395,12 +1395,15 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 }
 
 /*
- * call-seq:
- *   new(name, document)
- *
- * Create a new node with +name+ sharing GC lifecycle with +document+
+ * @overload new(name, document)
+ *   Create a new node with +name+ sharing GC lifecycle with +document+.
+ *   @param name [String]
+ *   @param document [Nokogiri::XML::Document]
+ *   @return [Nokogiri::XML::Node]
+ *   @see Nokogiri::XML::Node#initialize
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+rb_xml_node_new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
@@ -1711,7 +1714,7 @@ void init_xml_node()
 
   cNokogiriXmlElement = rb_define_class_under(xml, "Element", klass);
 
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(klass, "new", rb_xml_node_new, -1);
 
   rb_define_method(klass, "add_namespace_definition", add_namespace_definition, 2);
   rb_define_method(klass, "node_name", get_name, 0);

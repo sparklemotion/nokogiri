@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require 'pathname'
@@ -78,6 +79,35 @@ module Nokogiri
 
         return doc
       end
+
+      ##
+      # @!method wrap(java_document)
+      # @!scope class
+      #
+      # Create a {Document} using an existing Java DOM document object.
+      #
+      # The returned {Document} shares the same underlying data structure as the Java object, so
+      # changes in one are reflected in the other.
+      #
+      # @param java_document [Java::OrgW3cDom::Document]
+      # @return [Nokogiri::XML::Document]
+      # @note This method is only available when running JRuby.
+      # @note The class +Java::OrgW3cDom::Document+ is also accessible as +org.w3c.dom.Document+.
+      # @see #to_java
+
+      ##
+      # @!method to_java()
+      #
+      # Returns the underlying Java DOM document object for the {Document}.
+      #
+      # The returned Java object shares the same underlying data structure as the {Document}, so
+      # changes in one are reflected in the other.
+      #
+      # @return [Java::OrgW3cDom::Document]
+      # @note This method is only available when running JRuby.
+      # @note The class +Java::OrgW3cDom::Document+ is also accessible as +org.w3c.dom.Document+.
+      # @see .wrap
+
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
@@ -262,24 +292,14 @@ module Nokogiri
       end
       alias :<< :add_child
 
-      ##
-      # +JRuby+
-      # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
-      def self.wrap(document) end if false # native-ext provides Document.wrap
-
-      ##
-      # +JRuby+
-      # Returns Java's org.w3c.dom.document of this Document.
-      def to_java; end if false # JRuby provides #to_java
-
       private
+
       def self.empty_doc? string_or_io
         string_or_io.nil? ||
           (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      # @private
       IMPLIED_XPATH_CONTEXTS = [ '//'.freeze ].freeze # :nodoc:
 
       def inspect_attributes
