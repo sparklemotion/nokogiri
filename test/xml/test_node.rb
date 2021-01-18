@@ -1055,28 +1055,6 @@ module Nokogiri
           assert_nil(node.namespaces['xmlns:o'])
         end
 
-        def test_line
-          xml = Nokogiri::XML(<<~eoxml)
-            <root>
-              <a>
-                Hello world
-              </a>
-            </root>
-          eoxml
-
-          set = xml.search("//a")
-          node = set.first
-          assert_equal(2, node.line)
-        end
-
-        def test_set_line
-          skip("Only supported with libxml2") unless Nokogiri.uses_libxml?
-          document = Nokogiri::XML::Document.new
-          node = document.create_element('a')
-          node.line = 54321
-          assert_equal(54321, node.line)
-        end
-
         def test_xpath_results_have_document_and_are_decorated
           x = Module.new do
             def awesome!; end
@@ -1229,6 +1207,35 @@ module Nokogiri
           thing.wrap("<wrapper/>")
           assert_equal('wrapper', thing.parent.name)
           assert_equal('thing', doc.at_css("wrapper").children.first.name)
+        end
+
+        describe "#line" do
+          it "returns a sensible line number for each node" do
+            xml = Nokogiri::XML(<<~eoxml)
+              <a>
+                <b>
+                  Hello world
+                </b>
+                <b>
+                  Goodbye world
+                </b>
+              </root>
+            eoxml
+
+            set = xml.search("//b")
+            assert_equal(2, set[0].line)
+            assert_equal(5, set[1].line)
+          end
+        end
+
+        describe "#line=" do
+          it "overrides the line number of a node" do
+            skip("Xerces does not have line numbers for nodes") unless Nokogiri.uses_libxml?
+            document = Nokogiri::XML::Document.new
+            node = document.create_element('a')
+            node.line = 54321
+            assert_equal(54321, node.line)
+          end
         end
       end
     end
