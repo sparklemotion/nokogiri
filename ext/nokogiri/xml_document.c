@@ -588,6 +588,13 @@ VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int 
 }
 
 
+/* deprecated. use nokogiri_xml_document_wrap() instead. */
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
+{
+  /* TODO: deprecate this method in v2.0 */
+  return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
+}
+
 VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 {
   return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
