@@ -1406,14 +1406,22 @@ public class XmlNode extends RubyObject {
         if (node == this.node) {
             return true;
         }
+
         NodeList list = node.getChildNodes();
-        for (int i=0; i<list.getLength(); i++) {
-            Node n = list.item(i);
-            if (n instanceof Text
-                    && ((Text)n).getData().contains("\n")) {
-                counter[0] += 1;
+        for (int jchild=0; jchild<list.getLength(); jchild++) {
+            Node child = list.item(jchild);
+
+            if (child instanceof Text) {
+                String text = ((Text)child).getData();
+                int textLength = text.length();
+                for (int jchar = 0; jchar < textLength; jchar++) {
+                    if (text.charAt(jchar) == '\n') {
+                        counter[0] += 1;
+                    }
+                }
             }
-            if (count(n, counter)) return true;
+
+            if (count(child, counter)) return true;
         }
         return false;
     }

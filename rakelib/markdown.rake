@@ -1,2 +1,2 @@
 require "hoe/markdown"
-Hoe::Markdown::Standalone.new("nokogiri").define_markdown_tasks
+Hoe::Markdown::Standalone.new("nokogiri").define_markdown_tasks("CHANGELOG.md")

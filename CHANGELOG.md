@@ -12,6 +12,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was not called, which was a problem for subclassing such as done by `Loofah`.
 
 
+### Improved
+
+* [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223)]
+
+
 ## v1.11.1 / 2021-01-06
 
 ### Fixed
