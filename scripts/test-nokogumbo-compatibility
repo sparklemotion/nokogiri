@@ -1,0 +1,59 @@
+#! /usr/bin/env ruby
+# frozen_string_literal: true
+#
+#  this script is intended to run as part of the CI test suite.
+#
+#  it ensures that nokogumbo can install and run using the installed nokogiri gem.
+#
+#  this file isn't in the `test/` subdirectory because it's intended to be run standalone against an
+#  installed gem (and not against the source code or behavior of the gem itself).
+#
+
+if RUBY_PLATFORM =~ /java/
+  puts "Skip: Nokogumbo does not support JRuby"
+  exit 0
+end
+
+# this line needs to come before the bundler bit, to assert that we're running against an
+# already-installed version (and not some other version that bundler/inline might install if it came
+# first)
+gemspec = Gem::Specification.find_by_name('nokogiri')
+raise "could not find installed gem" unless gemspec
+
+require "bundler/inline"
+
+gemfile(true) do
+  source "https://rubygems.org"
+  gem "minitest"
+  gem "minitest-reporters"
+  gem "nokogiri", gemspec.version.approximate_recommendation
+  gem "nokogumbo"
+end
+
+nokogumbo_gemspec = Gem::Specification.find_by_name('nokogumbo')
+
+require 'nokogumbo'
+require 'yaml'
+
+if ARGV.include?("-v")
+  puts "---------- Nokogiri version info ----------"
+  puts Nokogiri::VERSION_INFO.to_yaml
+  puts
+  puts "---------- Nokogiri installed gemspec ----------"
+  puts gemspec.to_ruby
+  puts
+  puts "---------- Nokogumbo installed gemspec ----------"
+  puts nokogumbo_gemspec.to_ruby
+  puts
+end
+
+require "minitest/autorun"
+require "minitest/reporters"
+Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
+
+puts "Testing #{gemspec.full_name} installed in #{gemspec.base_dir}"
+describe gemspec.full_name do
+  it "works" do
+    assert(Nokogiri::HTML5::Document.parse("<div>ahoy</div>"))
+  end
+end

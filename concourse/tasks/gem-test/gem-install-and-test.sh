@@ -29,4 +29,8 @@ pushd nokogiri
     ./scripts/test-gem-installation
   fi
 
+  if [[ -e ./scripts/test-nokogumbo-compatibility ]] ; then
+    ./scripts/test-nokogumbo-compatibility
+  fi
+
 popd
