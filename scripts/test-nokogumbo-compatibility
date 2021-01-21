@@ -26,7 +26,7 @@ gemfile(true) do
   source "https://rubygems.org"
   gem "minitest"
   gem "minitest-reporters"
-  gem "nokogiri", gemspec.version.approximate_recommendation
+  gem "nokogiri", "=#{gemspec.version}"
   gem "nokogumbo"
 end
 

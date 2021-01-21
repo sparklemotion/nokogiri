@@ -29,8 +29,10 @@ pushd nokogiri
     ./scripts/test-gem-installation
   fi
 
-  if [[ -e ./scripts/test-nokogumbo-compatibility ]] ; then
-    ./scripts/test-nokogumbo-compatibility
-  fi
-
 popd
+
+# cd out of the dir with the Gemfile and Gemfile.lock
+# because that's confusing to older versions of rubygems (e.g., bionic32)
+if [[ -e nokogiri/scripts/test-nokogumbo-compatibility ]] ; then
+  nokogiri/scripts/test-nokogumbo-compatibility
+fi
