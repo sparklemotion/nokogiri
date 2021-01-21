@@ -21,4 +21,8 @@ VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc);
 #define DOC_NODE_CACHE(x) (((nokogiriTuplePtr)(x->_private))->node_cache)
 
 extern VALUE cNokogiriXmlDocument ;
+
+/* deprecated. use nokogiri_xml_document_wrap() instead. */
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc);
+
 #endif
