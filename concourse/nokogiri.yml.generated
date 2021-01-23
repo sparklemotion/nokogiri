@@ -4,11 +4,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -32,11 +29,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -79,11 +73,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -139,11 +130,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -199,11 +187,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -259,11 +244,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -321,11 +303,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -351,11 +330,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -401,11 +377,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -453,11 +426,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -518,11 +488,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -628,11 +595,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -696,11 +660,8 @@ jobs:
     in_parallel:
       steps:
       - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
           status: failed
-        put: gitter
+        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -750,17 +711,10 @@ jobs:
     trigger: true
     version: every
   - params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)
-    put: irc
-  - params:
       status: succeeded
-    put: gitter
+    put: discord
   public: true
 resource_types:
-- name: irc-notification
-  source:
-    repository: flavorjones/irc-notification-resource
-  type: registry-image
 - name: webhook-notification
   source:
     repository: flavorjones/webhook-notification-resource
@@ -775,19 +729,10 @@ resources:
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
 - icon: bell
-  name: irc
+  name: discord
   source:
-    channel: '#nokogiri'
-    password: ((nokobot-irc-password))
-    port: 7070
-    server: chat.freenode.net
-    user: ((nokobot-irc-username))
-  type: irc-notification
-- icon: bell
-  name: gitter
-  source:
-    adapter: GitterActivityFeedAdapter
-    url: ((nokogiri-gitter-channel-webhook-url))
+    adapter: DiscordAdapter
+    url: ((discord-nokogiri-channel-webhook))
   type: webhook-notification
 - check_every: 5m
   icon: github

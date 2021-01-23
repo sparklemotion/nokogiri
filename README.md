@@ -53,8 +53,6 @@ Your first stops for API documentation should be:
 If you'd like to talk to a human:
 
 - The Discord chat channel is `#nokogiri-💎` at https://discord.gg/UyQnKrT
-- The Gitter chat channel is https://gitter.im/sparklemotion/nokogiri
-- The IRC chat channel is `#nokogiri` on freenode.
 - The Nokogiri mailing list is active at https://groups.google.com/group/nokogiri-talk
 - The Nokogiri bug tracker is at https://github.com/sparklemotion/nokogiri/issues
 

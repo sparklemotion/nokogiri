@@ -29,9 +29,7 @@ image_resource:
 #@ def notify_on_failure(job_name):
 on_failure:
   in_parallel:
-    - put: irc
-      params: { message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)" }
-    - put: gitter
+    - put: discord
       params: { status: "failed" }
 #@ end
 
@@ -45,10 +43,6 @@ on_failure:
 % require "common_prelude.rb"
 
 resource_types:
-  - name: irc-notification
-    type: registry-image
-    source:
-      repository: flavorjones/irc-notification-resource
   - name: webhook-notification
     type: registry-image
     source:
@@ -63,21 +57,12 @@ resources:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: main
       disable_ci_skip: true #! always get the latest pipeline configuration
-  - name: irc
-    type: irc-notification
-    icon: bell
-    source:
-      server: chat.freenode.net
-      port: 7070
-      channel: "#nokogiri"
-      user: ((nokobot-irc-username))
-      password: ((nokobot-irc-password))
-  - name: gitter
+  - name: discord
     type: webhook-notification
     icon: bell
     source:
-      adapter: GitterActivityFeedAdapter
-      url: ((nokogiri-gitter-channel-webhook-url))
+      adapter: DiscordAdapter
+      url: ((discord-nokogiri-channel-webhook))
   - name: nokogiri
     type: git
     icon: "github"
@@ -382,7 +367,5 @@ jobs:
           - cruby-gem-test
           - cruby-native-gem-test
           - jruby-gem-test
-      - put: irc
-        params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
-      - put: gitter
+      - put: discord
         params: { status: "succeeded" }
