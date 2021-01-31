@@ -8,7 +8,7 @@ pushd gems
 
   gemfile=$(ls *.gem | head -n1)
   sha256sum ${gemfile}
-  gem install ${gemfile}
+  gem install --no-document ${gemfile}
   gem list -d nokogiri
   nokogiri -v
 
