@@ -72,6 +72,82 @@
    # fun:main
 }
 {
+   generated manually in alpine 3.13.1 image on dev machine
+   Memcheck:Addr4
+   fun:iseq_peephole_optimize
+   fun:iseq_optimize.isra.0
+   fun:iseq_setup_insn
+   fun:iseq_setup_insn
+   fun:rb_iseq_compile_node
+   fun:rb_iseq_new_with_opt
+   fun:new_child_iseq
+   ...
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:new_child_iseq
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:new_child_iseq
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:rb_iseq_new_top
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_alias
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_alias
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:vm_call0_body
+   # fun:rb_vm_call0
+   # fun:rb_call0
+   # fun:rb_call
+   # fun:rb_funcallv
+   # fun:autoload_require
+   # fun:rb_ensure
+   # fun:rb_autoload_load
+   # fun:vm_get_ev_const
+   # fun:vm_get_ev_const
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_alias
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:vm_call0_body
+   # fun:rb_vm_call0
+   # fun:rb_call0
+   # fun:rb_call
+   # fun:rb_funcallv
+   # fun:autoload_require
+   # fun:rb_ensure
+   # fun:rb_autoload_load
+   # fun:rb_const_search_from
+}
+{
    generated on dev machine via "valgrind --gen-suppressions=all ruby -Ilib:test test/test_gem_platform.rb"
    Memcheck:Addr4
    fun:iseq_peephole_optimize
