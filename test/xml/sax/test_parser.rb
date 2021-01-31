@@ -388,6 +388,38 @@ module Nokogiri
           @parser.parse(xml)
           assert_includes(@parser.document.data, "en:#:home_page:#:stories:#:[6]:#:name")
         end
+
+        def test_large_cdata_is_handled
+          # see #2132 and https://gitlab.gnome.org/GNOME/libxml2/-/issues/200
+          skip("Upstream libxml2 <= 2.9.10 needs to be patched") if Nokogiri::VersionInfo.instance.libxml2_using_system?
+
+          template = <<~EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://example.com">
+               <soapenv:Header>
+                  <AuthHeader xsi:type="ns:vAuthHeader">
+                  <userName xsi:type="xsd:string">gorilla</userName>
+                  <password xsi:type="xsd:string">secret</password>
+                </AuthHeader>
+               </soapenv:Header>
+              <soapenv:Body>
+                <ns:checkToken soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+                  <checkToken xsi:type="xsd:string"><![CDATA[%s]]></checkToken>
+                </ns:checkToken>
+               </soapenv:Body>
+            </soapenv:Envelope>
+          EOF
+
+          factor = 10
+          huge_data = "a" * (1024 * 1024 * factor)
+          xml = StringIO.new(template % (huge_data))
+
+          handler = Nokogiri::SAX::TestCase::Doc.new
+          parser = Nokogiri::XML::SAX::Parser.new(handler)
+          parser.parse(xml)
+
+          assert_predicate(handler.errors, :empty?)
+        end
       end
     end
   end
