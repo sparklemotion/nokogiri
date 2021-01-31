@@ -9,6 +9,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Fixed
 
 * [CRuby] `NodeSet` may now safely contain `Node` objects from multiple documents. Previously the GC lifecycle of the parent `Document` objects could lead to contained nodes being GCed while still in scope. [[#1952](https://github.com/sparklemotion/nokogiri/issues/1952)]
+* [CRuby] Patch libxml2 to avoid "huge input lookup" errors on large CDATA elements. (See upstream [GNOME/libxml2#200](https://gitlab.gnome.org/GNOME/libxml2/-/issues/200) and [GNOME/libxml2!100](https://gitlab.gnome.org/GNOME/libxml2/-/merge_requests/100).) [[#2132](https://github.com/sparklemotion/nokogiri/issues/2132)].
 * [CRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was invoked twice on each object.
 * [JRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was not called, which was a problem for subclassing such as done by `Loofah`.
 
