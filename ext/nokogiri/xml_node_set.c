@@ -176,21 +176,22 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
  * Returns a new set built by merging the set and the elements of the given
  * set.
  */
-static VALUE set_union(VALUE self, VALUE rb_other)
+static VALUE rb_xml_node_set_union(VALUE rb_node_set, VALUE rb_other)
 {
-  xmlNodeSetPtr node_set, other;
-  xmlNodeSetPtr new;
+  xmlNodeSetPtr c_node_set, c_other;
+  xmlNodeSetPtr c_new_node_set;
 
-  if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
+  if (!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet)) {
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+  }
 
-  Data_Get_Struct(self, xmlNodeSet, node_set);
-  Data_Get_Struct(rb_other, xmlNodeSet, other);
+  Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, c_other);
 
-  new = xmlXPathNodeSetMerge(NULL, node_set);
-  new = xmlXPathNodeSetMerge(new, other);
+  c_new_node_set = xmlXPathNodeSetMerge(NULL, c_node_set);
+  c_new_node_set = xmlXPathNodeSetMerge(c_new_node_set, c_other);
 
-  return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
+  return Nokogiri_wrap_xml_node_set(c_new_node_set, rb_iv_get(rb_node_set, "@document"));
 }
 
 /*
@@ -473,7 +474,7 @@ void init_xml_node_set(void)
   rb_define_method(klass, "[]", slice, -1);
   rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
-  rb_define_method(klass, "|", set_union, 1);
+  rb_define_method(klass, "|", rb_xml_node_set_union, 1);
   rb_define_method(klass, "-", minus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
