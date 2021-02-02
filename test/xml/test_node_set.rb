@@ -877,6 +877,36 @@ module Nokogiri
           assert_equal(node_set.document, new_set.document)
           assert(new_set.respond_to?(:awesome!))
         end
+
+        describe "adding nodes from different documents to the same NodeSet" do
+          # see https://github.com/sparklemotion/nokogiri/issues/1952
+          it "should not segfault" do
+            skip("this tests a libxml2-specific issue") if Nokogiri.jruby?
+
+            xml = <<~EOF
+              <?xml version="1.0" encoding="UTF-8"?>
+              <container></container>
+            EOF
+            scope = lambda do
+              Nokogiri::XML::Document.parse(xml).css("container") + Nokogiri::XML::Document.parse(xml).css("container")
+            end
+            stress_memory_while do
+              node_set = scope.call
+              node_set.to_s
+            end
+          end
+
+          it "should handle this case just fine" do
+            doc1 = Nokogiri::XML::Document.parse("<div class='doc1'></div>")
+            doc2 = Nokogiri::XML::Document.parse("<div class='doc2'></div>")
+            node_set = doc1.css("div")
+            assert_equal(doc1, node_set.document)
+            node_set += doc2.css("div")
+            assert_equal(2, node_set.length)
+            assert_equal(doc1, node_set[0].document)
+            assert_equal(doc2, node_set[1].document)
+          end
+        end
       end
     end
   end

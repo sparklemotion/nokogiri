@@ -15,6 +15,25 @@ static void Check_Node_Set_Node_Type(VALUE node)
 }
 
 
+static void mark(xmlNodeSetPtr node_set)
+{
+  xmlNodePtr c_node;
+  VALUE rb_node;
+  int jnode;
+
+  for (jnode = 0; jnode < node_set->nodeNr; jnode++) {
+    c_node = node_set->nodeTab[jnode];
+    if (NOKOGIRI_NAMESPACE_EH(c_node)) {
+      rb_node = (VALUE)(((xmlNsPtr)c_node)->_private);
+    } else {
+      rb_node = (VALUE)(c_node->_private);
+    }
+    if (rb_node) {
+      rb_gc_mark(rb_node);
+    }
+  }
+}
+
 static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
@@ -405,7 +424,7 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
     node_set = xmlXPathNodeSetCreate(NULL);
   }
 
-  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
+  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, mark, deallocate, node_set);
 
   if (!NIL_P(document)) {
     rb_iv_set(new_set, "@document", document);
