@@ -58,7 +58,12 @@
 #define RBSTR_OR_QNIL(_str) \
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
-#include <xml_libxml2_hacks.h>
+#ifndef HAVE_XMLFIRSTELEMENTCHILD
+/* see xml_libxml2_hacks.c */
+xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
+xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
+xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
+#endif
 
 #include <xml_io.h>
 #include <xml_document.h>
