@@ -289,7 +289,7 @@ allocate(VALUE klass)
 
 VALUE cNokogiriXmlSaxParser ;
 void
-init_xml_sax_parser()
+noko_init_xml_sax_parser()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

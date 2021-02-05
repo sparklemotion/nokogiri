@@ -93,7 +93,7 @@ relink_namespace(xmlNodePtr reparented)
         } else {
           reparented->nsDef = curr->next;
         }
-        nokogiri_root_nsdef(curr, reparented->doc);
+        noko_xml_document_pin_namespace(curr, reparented->doc);
       } else {
         prev = curr;
       }
@@ -298,7 +298,7 @@ ok:
       original_ns_prefix_is_default = 1;
     }
 
-    nokogiri_root_node(reparentee);
+    noko_xml_document_pin_node(reparentee);
 
     if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
@@ -338,7 +338,7 @@ ok:
     new_next_text = xmlDocCopyNode(next_text, pivot->doc, 1) ;
 
     xmlUnlinkNode(next_text);
-    nokogiri_root_node(next_text);
+    noko_xml_document_pin_node(next_text);
 
     xmlAddNextSibling(pivot, new_next_text);
   }
@@ -579,7 +579,7 @@ duplicate_node(int argc, VALUE *argv, VALUE self)
   dup = xmlDocCopyNode(node, new_parent_doc, level);
   if (dup == NULL) { return Qnil; }
 
-  nokogiri_root_node(dup);
+  noko_xml_document_pin_node(dup);
 
   return Nokogiri_wrap_xml_node(rb_obj_class(self), dup);
 }
@@ -596,7 +596,7 @@ unlink_node(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
   xmlUnlinkNode(node);
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
   return self;
 }
 
@@ -701,7 +701,7 @@ replace(VALUE self, VALUE new_node)
 
   xmlNodePtr pivot;
   Data_Get_Struct(self, xmlNode, pivot);
-  nokogiri_root_node(pivot);
+  noko_xml_document_pin_node(pivot);
 
   return reparent;
 }
@@ -904,7 +904,7 @@ set(VALUE self, VALUE property, VALUE value)
   if (prop && prop->children) {
     for (cur = prop->children; cur; cur = cur->next) {
       if (cur->_private) {
-        nokogiri_root_node(cur);
+        noko_xml_document_pin_node(cur);
         xmlUnlinkNode(cur);
       }
     }
@@ -1158,7 +1158,7 @@ set_native_content(VALUE self, VALUE content)
   while (NULL != child) {
     next = child->next ;
     xmlUnlinkNode(child) ;
-    nokogiri_root_node(child);
+    noko_xml_document_pin_node(child);
     child = next ;
   }
 
@@ -1473,7 +1473,7 @@ rb_xml_node_new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewNode(NULL, (xmlChar *)StringValueCStr(name));
   node->doc = doc->doc;
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(
               klass == cNokogiriXmlNode ? (VALUE)NULL : klass,
@@ -1657,7 +1657,7 @@ in_context(VALUE self, VALUE _str, VALUE _options)
     tmp = list->next;
     list->next = NULL;
     xmlXPathNodeSetAddUnique(set, list);
-    nokogiri_root_node(list);
+    noko_xml_document_pin_node(list);
     list = tmp;
   }
 
@@ -1763,7 +1763,7 @@ Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
 }
 
 void
-init_xml_node()
+noko_init_xml_node()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

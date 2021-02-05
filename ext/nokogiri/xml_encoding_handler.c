@@ -73,7 +73,7 @@ name(VALUE self)
 }
 
 void
-init_xml_encoding_handler()
+noko_init_xml_encoding_handler()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE klass = rb_define_class_under(nokogiri, "EncodingHandler", rb_cObject);

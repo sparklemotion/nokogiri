@@ -269,7 +269,7 @@ get_description(VALUE klass, VALUE tag_name)
 
 VALUE cNokogiriHtmlElementDescription ;
 void
-init_html_element_description()
+noko_init_html_element_description()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE html     = rb_define_module_under(nokogiri, "HTML");

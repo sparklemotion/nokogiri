@@ -176,7 +176,7 @@ transform(int argc, VALUE *argv, VALUE self)
     rb_exc_raise(exception);
   }
 
-  return nokogiri_xml_document_wrap((VALUE)0, result) ;
+  return noko_xml_document_wrap((VALUE)0, result) ;
 }
 
 static void
@@ -250,7 +250,7 @@ registr(VALUE self, VALUE uri, VALUE obj)
 }
 
 void
-init_xslt_stylesheet()
+noko_init_xslt_stylesheet()
 {
   rb_define_singleton_method(mNokogiriXslt, "register", registr, 2);
   rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());

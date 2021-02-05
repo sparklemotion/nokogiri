@@ -121,7 +121,7 @@ Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 }
 
 void
-init_xml_namespace()
+noko_init_xml_namespace()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

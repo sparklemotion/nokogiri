@@ -86,7 +86,7 @@ system_id(VALUE self)
 VALUE cNokogiriXmlEntityDecl;
 
 void
-init_xml_entity_decl()
+noko_init_xml_entity_decl()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

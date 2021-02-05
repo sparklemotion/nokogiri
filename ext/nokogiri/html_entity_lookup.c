@@ -24,7 +24,7 @@ get(VALUE self, VALUE key)
 }
 
 void
-init_html_entity_lookup()
+noko_init_html_entity_lookup()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE html = rb_define_module_under(nokogiri, "HTML");

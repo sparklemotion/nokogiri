@@ -75,7 +75,7 @@ Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 
 VALUE cNokogiriXmlSyntaxError;
 void
-init_xml_syntax_error()
+noko_init_xml_syntax_error()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

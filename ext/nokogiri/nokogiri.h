@@ -141,16 +141,16 @@ typedef struct _nokogiriXsltStylesheetTuple {
 } nokogiriXsltStylesheetTuple;
 
 int vasprintf(char **strp, const char *fmt, va_list ap);
-void nokogiri_root_node(xmlNodePtr);
-void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
+void noko_xml_document_pin_node(xmlNodePtr);
+void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
 
 int noko_io_read(void *ctx, char *buffer, int len);
 int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 
-VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
-VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc);
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use nokogiri_xml_document_wrap() instead. */
+VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
+VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node);
 VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr node);

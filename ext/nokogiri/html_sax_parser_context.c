@@ -107,7 +107,7 @@ parse_with(VALUE self, VALUE sax_handler)
 }
 
 void
-init_html_sax_parser_context()
+noko_init_html_sax_parser_context()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

@@ -40,7 +40,7 @@ new (int argc, VALUE *argv, VALUE klass)
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
   if (rb_block_given_p()) { rb_yield(rb_node); }
 
@@ -48,7 +48,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-init_xml_comment()
+noko_init_xml_comment()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

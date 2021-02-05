@@ -172,7 +172,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 
 VALUE cNokogiriXmlRelaxNG;
 void
-init_xml_relax_ng()
+noko_init_xml_relax_ng()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

@@ -112,7 +112,7 @@ Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
 }
 
 void
-init_xml_element_content()
+noko_init_xml_element_content()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

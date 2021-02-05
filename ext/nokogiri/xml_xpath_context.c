@@ -366,7 +366,7 @@ new (VALUE klass, VALUE nodeobj)
 }
 
 void
-init_xml_xpath_context(void)
+noko_init_xml_xpath_context(void)
 {
   VALUE module = rb_define_module("Nokogiri");
 

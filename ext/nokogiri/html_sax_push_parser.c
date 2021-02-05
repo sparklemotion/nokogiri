@@ -84,7 +84,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
 
 VALUE cNokogiriHtmlSaxPushParser;
 void
-init_html_sax_push_parser()
+noko_init_html_sax_push_parser()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE html = rb_define_module_under(nokogiri, "HTML");

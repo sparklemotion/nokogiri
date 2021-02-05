@@ -151,7 +151,7 @@ set_replace_entities(VALUE self, VALUE value)
 
 VALUE cNokogiriXmlSaxPushParser ;
 void
-init_xml_sax_push_parser()
+noko_init_xml_sax_push_parser()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

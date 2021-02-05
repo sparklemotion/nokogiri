@@ -475,7 +475,7 @@ Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 
 
 void
-init_xml_node_set(void)
+noko_init_xml_node_set(void)
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml      = rb_define_module_under(nokogiri, "XML");

@@ -269,7 +269,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 
 VALUE cNokogiriXmlSchema;
 void
-init_xml_schema()
+noko_init_xml_schema()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

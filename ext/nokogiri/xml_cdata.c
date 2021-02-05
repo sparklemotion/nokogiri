@@ -34,7 +34,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);
 
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
@@ -45,7 +45,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-init_xml_cdata()
+noko_init_xml_cdata()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

@@ -56,7 +56,7 @@ prefix(VALUE self)
 VALUE cNokogiriXmlElementDecl;
 
 void
-init_xml_element_decl()
+noko_init_xml_element_decl()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

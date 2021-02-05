@@ -189,7 +189,7 @@ external_id(VALUE self)
 VALUE cNokogiriXmlDtd;
 
 void
-init_xml_dtd()
+noko_init_xml_dtd()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

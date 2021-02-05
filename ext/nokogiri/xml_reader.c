@@ -648,7 +648,7 @@ empty_element_p(VALUE self)
 VALUE cNokogiriXmlReader;
 
 void
-init_xml_reader()
+noko_init_xml_reader()
 {
   VALUE module = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(module, "XML");

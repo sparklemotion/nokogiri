@@ -156,7 +156,7 @@ set_root(VALUE self, VALUE root)
 
     if (old_root) {
       xmlUnlinkNode(old_root);
-      nokogiri_root_node(old_root);
+      noko_xml_document_pin_node(old_root);
     }
 
     return root;
@@ -175,7 +175,7 @@ set_root(VALUE self, VALUE root)
   }
 
   xmlDocSetRootElement(doc, new_root);
-  if (old_root) { nokogiri_root_node(old_root); }
+  if (old_root) { noko_xml_document_pin_node(old_root); }
   return root;
 }
 
@@ -299,7 +299,7 @@ read_io(VALUE klass,
     return Qnil;
   }
 
-  document = nokogiri_xml_document_wrap(klass, doc);
+  document = noko_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -345,7 +345,7 @@ read_memory(VALUE klass,
     return Qnil;
   }
 
-  document = nokogiri_xml_document_wrap(klass, doc);
+  document = noko_xml_document_wrap(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -375,7 +375,7 @@ duplicate_document(int argc, VALUE *argv, VALUE self)
   if (dup == NULL) { return Qnil; }
 
   dup->type = doc->type;
-  copy = nokogiri_xml_document_wrap(rb_obj_class(self), dup);
+  copy = noko_xml_document_wrap(rb_obj_class(self), dup);
   rb_iv_set(copy, "@errors", rb_iv_get(self, "@errors"));
   return copy ;
 }
@@ -397,7 +397,7 @@ new (int argc, VALUE *argv, VALUE klass)
   if (NIL_P(version)) { version = rb_str_new2("1.0"); }
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
-  rb_doc = nokogiri_xml_document_wrap_with_init_args(klass, doc, argc, argv);
+  rb_doc = noko_xml_document_wrap_with_init_args(klass, doc, argc, argv);
   return rb_doc ;
 }
 
@@ -533,7 +533,7 @@ block_caller(void *ctx, xmlNodePtr _node, xmlNodePtr _parent)
  * should be included in the canonicalized document.
  */
 static VALUE
-nokogiri_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
+rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
 {
   VALUE mode;
   VALUE incl_ns;
@@ -591,7 +591,7 @@ nokogiri_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
 }
 
 VALUE
-nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
+noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
 {
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
 
@@ -618,23 +618,23 @@ nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, 
 }
 
 
-/* deprecated. use nokogiri_xml_document_wrap() instead. */
+/* deprecated. use noko_xml_document_wrap() instead. */
 VALUE
 Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
   /* TODO: deprecate this method in v2.0 */
-  return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
+  return noko_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
 }
 
 VALUE
-nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
+noko_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 {
-  return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
+  return noko_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
 }
 
 
 void
-nokogiri_root_node(xmlNodePtr node)
+noko_xml_document_pin_node(xmlNodePtr node)
 {
   xmlDocPtr doc;
   nokogiriTuplePtr tuple;
@@ -646,7 +646,7 @@ nokogiri_root_node(xmlNodePtr node)
 
 
 void
-nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
+noko_xml_document_pin_namespace(xmlNsPtr ns, xmlDocPtr doc)
 {
   nokogiriTuplePtr tuple;
 
@@ -656,7 +656,7 @@ nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
 
 
 void
-init_xml_document()
+noko_init_xml_document()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");
@@ -678,7 +678,7 @@ init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "version", version, 0);
-  rb_define_method(klass, "canonicalize", nokogiri_xml_document_canonicalize, -1);
+  rb_define_method(klass, "canonicalize", rb_xml_document_canonicalize, -1);
   rb_define_method(klass, "dup", duplicate_document, -1);
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);

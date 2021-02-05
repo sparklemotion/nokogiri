@@ -76,7 +76,7 @@ new (int argc, VALUE *argv, VALUE klass)
            NULL
          );
 
-  nokogiri_root_node((xmlNodePtr)node);
+  noko_xml_document_pin_node((xmlNodePtr)node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
   rb_obj_call_init(rb_node, argc, argv);
@@ -89,7 +89,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-init_xml_attr()
+noko_init_xml_attr()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

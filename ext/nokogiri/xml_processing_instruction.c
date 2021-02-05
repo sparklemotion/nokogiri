@@ -28,7 +28,7 @@ new (int argc, VALUE *argv, VALUE klass)
            (const xmlChar *)StringValueCStr(content)
          );
 
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
@@ -40,7 +40,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
 VALUE cNokogiriXmlProcessingInstruction;
 void
-init_xml_processing_instruction()
+noko_init_xml_processing_instruction()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

@@ -23,7 +23,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewDocFragment(xml_doc->doc);
 
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
@@ -34,7 +34,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-init_xml_document_fragment()
+noko_init_xml_document_fragment()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

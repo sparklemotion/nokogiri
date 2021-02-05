@@ -261,7 +261,7 @@ get_recovery(VALUE self)
 }
 
 void
-init_xml_sax_parser_context()
+noko_init_xml_sax_parser_context()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

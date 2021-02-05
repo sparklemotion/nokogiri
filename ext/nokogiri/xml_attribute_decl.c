@@ -59,7 +59,7 @@ enumeration(VALUE self)
 }
 
 void
-init_xml_attribute_decl()
+noko_init_xml_attribute_decl()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
