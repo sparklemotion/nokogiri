@@ -91,8 +91,6 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 
   if (node->_private) return (VALUE)node->_private;
 
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
-
   if (DOC_RUBY_OBJECT_TEST(doc)) {
     document = DOC_RUBY_OBJECT(doc);
 
