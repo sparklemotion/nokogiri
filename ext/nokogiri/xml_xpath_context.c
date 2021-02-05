@@ -18,7 +18,7 @@ deallocate(xmlXPathContextPtr ctx)
 }
 
 /* find a CSS class in an HTML element's `class` attribute */
-const xmlChar *
+static const xmlChar *
 builtin_css_class(const xmlChar *str, const xmlChar *val)
 {
   int val_len;

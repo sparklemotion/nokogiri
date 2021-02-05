@@ -438,7 +438,7 @@ new (int argc, VALUE *argv, VALUE klass)
  *  please direct your browser to
  *  http://tenderlovemaking.com/2009/04/23/namespaces-in-xml.html
  */
-VALUE
+static VALUE
 remove_namespaces_bang(VALUE self)
 {
   xmlDocPtr doc ;

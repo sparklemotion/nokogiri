@@ -66,7 +66,7 @@ vasprintf(char **strp, const char *fmt, va_list ap)
 #endif
 
 
-VALUE
+static VALUE
 read_check(VALUE val)
 {
   VALUE *args = (VALUE *)val;
@@ -74,7 +74,7 @@ read_check(VALUE val)
 }
 
 
-VALUE
+static VALUE
 read_failed(VALUE arg, VALUE exc)
 {
   return Qundef;
@@ -104,7 +104,7 @@ noko_io_read(void *ctx, char *buffer, int len)
 }
 
 
-VALUE
+static VALUE
 write_check(VALUE val)
 {
   VALUE *args = (VALUE *)val;
@@ -112,7 +112,7 @@ write_check(VALUE val)
 }
 
 
-VALUE
+static VALUE
 write_failed(VALUE arg, VALUE exc)
 {
   return Qundef;
