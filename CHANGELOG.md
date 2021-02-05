@@ -15,6 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Improved
 
+* Reduce the number of object allocations needed when parsing an HTML::DocumentFragment. [[#2087](https://github.com/sparklemotion/nokogiri/issues/2087)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223)]
 
 
