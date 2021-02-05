@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'simplecov'
 SimpleCov.start do
   add_filter "/test/"
@@ -58,23 +59,42 @@ module Nokogiri
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
     XPATH_FILE          = File.join(ASSETS_DIR, 'slow-xpath.xml')
 
+    unless Nokogiri.jruby?
+      GC_SETTING = if ["stress", "major", "minor", "none"].include?(ENV['NOKOGIRI_TEST_GC_SETTING'])
+                     ENV['NOKOGIRI_TEST_GC_SETTING']
+                   else
+                     "major" # the default
+                   end
+      warn "#{__FILE__}:#{__LINE__}: suite GC setting: #{GC_SETTING}"
+    end
+
     def setup
-      @fake_error_handler_called = false
-      Nokogiri::Test.__foreign_error_handler do
-        @fake_error_handler_called = true
-      end if Nokogiri.uses_libxml?
+      if Nokogiri.uses_libxml?
+        @fake_error_handler_called = false
+        Nokogiri::Test.__foreign_error_handler do
+          @fake_error_handler_called = true
+        end
+      end
+
+      unless Nokogiri.jruby?
+        if GC_SETTING == "stress"
+          GC.stress = true
+        end
+      end
     end
 
     def teardown
-      refute(@fake_error_handler_called, "the fake error handler should never get called") if Nokogiri.uses_libxml?
+      if Nokogiri.uses_libxml?
+        refute(@fake_error_handler_called, "the fake error handler should never get called")
+      end
 
-      if ENV['NOKOGIRI_GC']
-        STDOUT.putc '!'
-        if RUBY_PLATFORM =~ /java/
-          require 'java'
-          java.lang.System.gc
-        else
-          GC.start
+      unless Nokogiri.jruby?
+        if GC_SETTING == "major"
+          GC.start(full_mark: true)
+        elsif GC_SETTING == "minor"
+          GC.start(full_mark: false)
+        elsif GC_SETTING == "stress"
+          GC.stress = false
         end
       end
     end
