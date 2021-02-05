@@ -634,6 +634,28 @@ nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 
 
 void
+nokogiri_root_node(xmlNodePtr node)
+{
+  xmlDocPtr doc;
+  nokogiriTuplePtr tuple;
+
+  doc = node->doc;
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
+}
+
+
+void
+nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
+{
+  nokogiriTuplePtr tuple;
+
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
+}
+
+
+void
 init_xml_document()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
