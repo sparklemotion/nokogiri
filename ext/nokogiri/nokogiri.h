@@ -64,6 +64,14 @@
 #  define NOKOGIRI_DEBUG_END(p)
 #endif
 
+/* libxml2_backwards_compat.c */
+#ifndef HAVE_XMLFIRSTELEMENTCHILD
+xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
+xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
+xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
+#endif
+
+
 /* nokogiri.c */
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;
@@ -112,12 +120,5 @@ void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
 /* test_global_handlers.h */
 void init_test_global_handlers();
-
-/* xml_libxml2_hacks.c */
-#ifndef HAVE_XMLFIRSTELEMENTCHILD
-xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
-xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
-xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
-#endif
 
 #endif /* NOKOGIRI_NATIVE */
