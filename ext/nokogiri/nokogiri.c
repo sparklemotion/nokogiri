@@ -7,6 +7,39 @@ VALUE mNokogiriXslt ;
 VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
 
+void init_xml_attr();
+void init_xml_attribute_decl();
+void init_xml_cdata();
+void init_xml_comment();
+void init_xml_document();
+void init_xml_document_fragment();
+void init_xml_dtd();
+void init_xml_element_content();
+void init_xml_element_decl();
+void init_xml_encoding_handler();
+void init_xml_entity_decl();
+void init_xml_entity_reference();
+void init_xml_namespace();
+void init_xml_node();
+void init_xml_node_set();
+void init_xml_processing_instruction();
+void init_xml_reader();
+void init_xml_relax_ng();
+void init_xml_sax_parser();
+void init_xml_sax_parser_context();
+void init_xml_sax_push_parser();
+void init_xml_schema();
+void init_xml_syntax_error();
+void init_xml_text();
+void init_xml_xpath_context();
+void init_xslt_stylesheet();
+void init_html_document();
+void init_html_element_description();
+void init_html_entity_lookup();
+void init_html_sax_parser_context();
+void init_html_sax_push_parser();
+void init_test_global_handlers();
+
 static ID id_read, id_write;
 
 

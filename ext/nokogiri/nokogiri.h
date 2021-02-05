@@ -79,122 +79,110 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #  endif
 #endif
 
-
-/* nokogiri.c */
 extern VALUE mNokogiri ;
-extern VALUE mNokogiriXml ;
-extern VALUE mNokogiriXmlSax ;
 extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
+extern VALUE mNokogiriXml ;
+extern VALUE mNokogiriXmlSax ;
 extern VALUE mNokogiriXslt ;
 
-int vasprintf(char **strp, const char *fmt, va_list ap);
-void nokogiri_root_node(xmlNodePtr);
-void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
-
-
+extern VALUE cNokogiriHtmlDocument ;
+extern VALUE cNokogiriHtmlElementDescription ;
+extern VALUE cNokogiriHtmlSaxParserContext;
+extern VALUE cNokogiriHtmlSaxPushParser ;
 extern VALUE cNokogiriXmlAttr;
-void init_xml_attr();
-
 extern VALUE cNokogiriXmlAttributeDecl;
-void init_xml_attribute_decl();
-
 extern VALUE cNokogiriXmlCData;
-void init_xml_cdata();
-
 extern VALUE cNokogiriXmlComment;
-void init_xml_comment();
+extern VALUE cNokogiriXmlDocument ;
+extern VALUE cNokogiriXmlDocumentFragment;
+extern VALUE cNokogiriXmlDtd;
+extern VALUE cNokogiriXmlElement ;
+extern VALUE cNokogiriXmlElementContent;
+extern VALUE cNokogiriXmlElementDecl;
+extern VALUE cNokogiriXmlEntityDecl;
+extern VALUE cNokogiriXmlEntityReference;
+extern VALUE cNokogiriXmlNamespace ;
+extern VALUE cNokogiriXmlNode ;
+extern VALUE cNokogiriXmlNodeSet ;
+extern VALUE cNokogiriXmlProcessingInstruction;
+extern VALUE cNokogiriXmlReader;
+extern VALUE cNokogiriXmlRelaxNG;
+extern VALUE cNokogiriXmlSaxParser ;
+extern VALUE cNokogiriXmlSaxParserContext;
+extern VALUE cNokogiriXmlSaxPushParser ;
+extern VALUE cNokogiriXmlSchema;
+extern VALUE cNokogiriXmlSyntaxError;
+extern VALUE cNokogiriXmlText ;
+extern VALUE cNokogiriXmlXpathContext;
+extern VALUE cNokogiriXsltStylesheet ;
 
-
-/* xml_document.c */
 typedef struct _nokogiriTuple {
   VALUE         doc;
   st_table     *unlinkedNodes;
   VALUE         node_cache;
 } nokogiriTuple;
-typedef nokogiriTuple * nokogiriTuplePtr;
-
-extern VALUE cNokogiriXmlDocument ;
-void init_xml_document();
-VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
-VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc);
-
-#define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
-#define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
-#define DOC_UNLINKED_NODE_HASH(x) (((nokogiriTuplePtr)(x->_private))->unlinkedNodes)
-#define DOC_NODE_CACHE(x) (((nokogiriTuplePtr)(x->_private))->node_cache)
-
-/* deprecated. use nokogiri_xml_document_wrap() instead. */
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc);
-
-
-extern VALUE cNokogiriXmlDocumentFragment;
-void init_xml_document_fragment();
-
-extern VALUE cNokogiriXmlDtd;
-void init_xml_dtd();
-
-extern VALUE cNokogiriXmlElementContent;
-VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element);
-void init_xml_element_content();
-
-extern VALUE cNokogiriXmlElementDecl;
-void init_xml_element_decl();
-
-void init_xml_encoding_handler();
-
-extern VALUE cNokogiriXmlEntityDecl;
-void init_xml_entity_decl();
-
-extern VALUE cNokogiriXmlEntityReference;
-void init_xml_entity_reference();
-
-/* xml_io.c */
-int io_read_callback(void * ctx, char * buffer, int len);
-int io_write_callback(void * ctx, char * buffer, int len);
-int io_close_callback(void * ctx);
-void init_nokogiri_io();
-
-/* xml_namespace.c */
-extern VALUE cNokogiriXmlNamespace ;
-void init_xml_namespace();
-VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node);
-VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr node);
-#define NOKOGIRI_NAMESPACE_EH(node) ((node)->type == XML_NAMESPACE_DECL)
-
-/* xml_node.c */
-extern VALUE cNokogiriXmlNode ;
-extern VALUE cNokogiriXmlElement ;
-void init_xml_node();
-VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node) ;
-void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash) ;
-
-/* xml_node_set.c */
-extern VALUE cNokogiriXmlNodeSet ;
-void init_xml_node_set();
-VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document) ;
-VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set) ;
-VALUE Nokogiri_wrap_xml_node_set_namespace(xmlNsPtr node, VALUE node_set) ;
-
-extern VALUE cNokogiriXmlProcessingInstruction;
-void init_xml_processing_instruction();
-
-extern VALUE cNokogiriXmlReader;
-void init_xml_reader();
-
-extern VALUE cNokogiriXmlRelaxNG;
-void init_xml_relax_ng();
-
-
-/* xml_sax_parser.c */
-extern VALUE cNokogiriXmlSaxParser ;
-void init_xml_sax_parser();
+typedef nokogiriTuple *nokogiriTuplePtr;
 
 typedef struct _nokogiriSAXTuple {
   xmlParserCtxtPtr  ctxt;
   VALUE             self;
 } nokogiriSAXTuple;
-typedef nokogiriSAXTuple * nokogiriSAXTuplePtr;
+typedef nokogiriSAXTuple *nokogiriSAXTuplePtr;
+
+typedef struct _libxmlStructuredErrorHandlerState {
+  void *user_data;
+  xmlStructuredErrorFunc handler;
+} libxmlStructuredErrorHandlerState ;
+
+typedef struct _nokogiriXsltStylesheetTuple {
+  xsltStylesheetPtr ss;
+  VALUE func_instances;
+} nokogiriXsltStylesheetTuple;
+
+int vasprintf(char **strp, const char *fmt, va_list ap);
+void nokogiri_root_node(xmlNodePtr);
+void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
+int io_read_callback(void *ctx, char *buffer, int len);
+int io_write_callback(void *ctx, char *buffer, int len);
+int io_close_callback(void *ctx);
+
+VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
+VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc);
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use nokogiri_xml_document_wrap() instead. */
+
+VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node);
+VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr node);
+
+VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node) ;
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document) ;
+VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set) ;
+VALUE Nokogiri_wrap_xml_node_set_namespace(xmlNsPtr node, VALUE node_set) ;
+
+VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element);
+
+void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash) ;
+
+#define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
+#define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
+#define DOC_UNLINKED_NODE_HASH(x) (((nokogiriTuplePtr)(x->_private))->unlinkedNodes)
+#define DOC_NODE_CACHE(x) (((nokogiriTuplePtr)(x->_private))->node_cache)
+#define NOKOGIRI_NAMESPACE_EH(node) ((node)->type == XML_NAMESPACE_DECL)
+
+#define NOKOGIRI_SAX_SELF(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->self
+#define NOKOGIRI_SAX_CTXT(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->ctxt
+#define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) nokogiri_sax_tuple_new(_ctxt, _self)
+#define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) free(_tuple)
+
+void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
+void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state, void *user_data,
+    xmlStructuredErrorFunc handler);
+void Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
+VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error);
+void Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
+NORETURN(void Nokogiri_error_raise(void *ctx, xmlErrorPtr error));
+void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
+    const char *function_name) ;
 
 static inline
 nokogiriSAXTuplePtr
@@ -205,78 +193,5 @@ nokogiri_sax_tuple_new(xmlParserCtxtPtr ctxt, VALUE self)
   tuple->ctxt = ctxt;
   return tuple;
 }
-
-#define NOKOGIRI_SAX_SELF(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->self
-#define NOKOGIRI_SAX_CTXT(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->ctxt
-#define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) nokogiri_sax_tuple_new(_ctxt, _self)
-#define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) free(_tuple)
-
-
-extern VALUE cNokogiriXmlSaxParserContext;
-void init_xml_sax_parser_context();
-
-extern VALUE cNokogiriXmlSaxPushParser ;
-void init_xml_sax_push_parser();
-
-extern VALUE cNokogiriXmlSchema;
-void init_xml_schema();
-
-
-/* xml_syntax_error.c */
-extern VALUE cNokogiriXmlSyntaxError;
-void init_xml_syntax_error();
-
-typedef struct _libxmlStructuredErrorHandlerState {
-  void *user_data;
-  xmlStructuredErrorFunc handler;
-} libxmlStructuredErrorHandlerState ;
-
-void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
-void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state,
-                                                 void *user_data,
-                                                 xmlStructuredErrorFunc handler);
-void Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
-
-VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error);
-void Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
-NORETURN(void Nokogiri_error_raise(void *ctx, xmlErrorPtr error));
-
-
-extern VALUE cNokogiriXmlText ;
-void init_xml_text();
-
-/* xml_xpath_context.c */
-extern VALUE cNokogiriXmlXpathContext;
-void init_xml_xpath_context();
-void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler, const char* function_name) ;
-
-
-extern VALUE cNokogiriXsltStylesheet ;
-void init_xslt_stylesheet();
-
-typedef struct _nokogiriXsltStylesheetTuple {
-  xsltStylesheetPtr ss;
-  VALUE func_instances;
-} nokogiriXsltStylesheetTuple;
-
-
-extern VALUE cNokogiriHtmlDocument ;
-void init_html_document();
-
-
-extern VALUE cNokogiriHtmlElementDescription ;
-void init_html_element_description();
-
-void init_html_entity_lookup();
-
-extern VALUE cNokogiriHtmlSaxParserContext;
-void init_html_sax_parser_context();
-
-extern VALUE cNokogiriHtmlSaxPushParser ;
-void init_html_sax_push_parser();
-
-
-/* test_global_handlers.h */
-void init_test_global_handlers();
 
 #endif /* NOKOGIRI_NATIVE */
