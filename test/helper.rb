@@ -1,4 +1,14 @@
 # frozen_string_literal: true
+#
+# Some environment variables that are used to configure the test suite:
+# - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
+# - NOKOGIRI_TEST_GC_SETTING:
+#   - "stress" - run tests with GC.stress set to true
+#   - "major" (default) - force a major GC cycle after each test
+#   - "minor" - force a minor GC cycle after each test
+#   - "none" - normal GC functionality
+# - NOKOGIRI_GC: read more in test/test_memory_leak.rb
+#
 require 'simplecov'
 SimpleCov.start do
   add_filter "/test/"
@@ -8,7 +18,10 @@ $VERBOSE = true
 
 require 'minitest/autorun'
 require 'minitest/reporters'
-Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new({color: true, slow_count: 5, detailed_skip: false}))
+NOKOGIRI_MINITEST_REPORTERS_OPTIONS = {color: true, slow_count: 5, detailed_skip: false}
+NOKOGIRI_MINITEST_REPORTERS_OPTIONS[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
+puts NOKOGIRI_MINITEST_REPORTERS_OPTIONS
+Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(NOKOGIRI_MINITEST_REPORTERS_OPTIONS))
 
 require 'fileutils'
 require 'tempfile'
