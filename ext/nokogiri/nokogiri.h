@@ -21,6 +21,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include <ruby.h>
+#include <ruby/st.h>
+#include <ruby/encoding.h>
+
 #include <libxml/parser.h>
 #include <libxml/entities.h>
 #include <libxml/parserInternals.h>
@@ -37,67 +41,30 @@
 #include <libxslt/xsltconfig.h>
 #include <libxml/c14n.h>
 
-#include <ruby.h>
-#include <ruby/st.h>
-#include <ruby/encoding.h>
+#define XMLNS_PREFIX "xmlns"
+#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 
 #ifndef NORETURN
-# if defined(__GNUC__)
-#  define NORETURN(name) __attribute__((noreturn)) name
-# else
-#  define NORETURN(name) name
-# endif
+#  if defined(__GNUC__)
+#    define NORETURN(name) __attribute__((noreturn)) name
+#  else
+#    define NORETURN(name) name
+#  endif
 #endif
 
-#define NOKOGIRI_STR_NEW2(str) \
-  NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
+#define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
+#define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
+#define RBSTR_OR_QNIL(_str) (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
-#define NOKOGIRI_STR_NEW(str, len) \
-  rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
-
-#define RBSTR_OR_QNIL(_str) \
-  (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
-
-#ifndef HAVE_XMLFIRSTELEMENTCHILD
-/* see xml_libxml2_hacks.c */
-xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
-xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
-xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
+#ifdef DEBUG
+#  define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
+#  define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
+#else
+#  define NOKOGIRI_DEBUG_START(p)
+#  define NOKOGIRI_DEBUG_END(p)
 #endif
 
-#include <xml_io.h>
-#include <xml_document.h>
-#include <html_entity_lookup.h>
-#include <html_document.h>
-#include <xml_node.h>
-#include <xml_text.h>
-#include <xml_cdata.h>
-#include <xml_attr.h>
-#include <xml_processing_instruction.h>
-#include <xml_entity_reference.h>
-#include <xml_document_fragment.h>
-#include <xml_comment.h>
-#include <xml_node_set.h>
-#include <xml_dtd.h>
-#include <xml_attribute_decl.h>
-#include <xml_element_decl.h>
-#include <xml_entity_decl.h>
-#include <xml_xpath_context.h>
-#include <xml_element_content.h>
-#include <xml_sax_parser_context.h>
-#include <xml_sax_parser.h>
-#include <xml_sax_push_parser.h>
-#include <xml_reader.h>
-#include <html_sax_parser_context.h>
-#include <html_sax_push_parser.h>
-#include <xslt_stylesheet.h>
-#include <xml_syntax_error.h>
-#include <xml_schema.h>
-#include <xml_relax_ng.h>
-#include <html_element_description.h>
-#include <xml_namespace.h>
-#include <xml_encoding_handler.h>
-
+/* nokogiri.c */
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;
 extern VALUE mNokogiriXmlSax ;
@@ -106,29 +73,51 @@ extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
 int vasprintf(char **strp, const char *fmt, va_list ap);
-
 void nokogiri_root_node(xmlNodePtr);
 void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
-#ifdef DEBUG
+#include <xml_attr.h>
+#include <xml_attribute_decl.h>
+#include <xml_cdata.h>
+#include <xml_comment.h>
+#include <xml_document.h>
+#include <xml_document_fragment.h>
+#include <xml_dtd.h>
+#include <xml_element_content.h>
+#include <xml_element_decl.h>
+#include <xml_encoding_handler.h>
+#include <xml_entity_decl.h>
+#include <xml_entity_reference.h>
+#include <xml_io.h>
+#include <xml_namespace.h>
+#include <xml_node.h>
+#include <xml_node_set.h>
+#include <xml_processing_instruction.h>
+#include <xml_reader.h>
+#include <xml_relax_ng.h>
+#include <xml_sax_parser.h>
+#include <xml_sax_parser_context.h>
+#include <xml_sax_push_parser.h>
+#include <xml_schema.h>
+#include <xml_syntax_error.h>
+#include <xml_text.h>
+#include <xml_xpath_context.h>
+#include <xslt_stylesheet.h>
 
-#  define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
-#  define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
+#include <html_document.h>
+#include <html_element_description.h>
+#include <html_entity_lookup.h>
+#include <html_sax_parser_context.h>
+#include <html_sax_push_parser.h>
 
-#else
+/* test_global_handlers.h */
+void init_test_global_handlers();
 
-#  define NOKOGIRI_DEBUG_START(p)
-#  define NOKOGIRI_DEBUG_END(p)
-
+/* xml_libxml2_hacks.c */
+#ifndef HAVE_XMLFIRSTELEMENTCHILD
+xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
+xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
+xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #endif
 
-#ifndef __builtin_expect
-#  if defined(__GNUC__)
-#    define __builtin_expect(expr, c) __builtin_expect((long)(expr), (long)(c))
-#  endif
-#endif
-
-#define XMLNS_PREFIX "xmlns"
-#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
-
-#endif
+#endif /* NOKOGIRI_NATIVE */

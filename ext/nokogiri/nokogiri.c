@@ -1,7 +1,5 @@
 #include <nokogiri.h>
 
-void init_test_global_handlers(); /* in lieu of test_global_handlers.h */
-
 VALUE mNokogiri ;
 VALUE mNokogiriXml ;
 VALUE mNokogiriHtml ;
@@ -13,14 +11,15 @@ VALUE mNokogiriHtmlSax ;
 /*
  * Thank you Geoffroy Couprie for this implementation of vasprintf!
  */
-int vasprintf(char **strp, const char *fmt, va_list ap)
+int
+vasprintf(char **strp, const char *fmt, va_list ap)
 {
   /* Mingw32/64 have a broken vsnprintf implementation that fails when
    * using a zero-byte limit in order to retrieve the required size for malloc.
    * So we use a one byte buffer instead.
    */
   char tmp[1];
-  int len = vsnprintf (tmp, 1, fmt, ap) + 1;
+  int len = vsnprintf(tmp, 1, fmt, ap) + 1;
   char *res = (char *)malloc((unsigned int)len);
   if (res == NULL) {
     return -1;
@@ -32,7 +31,8 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
 
 #include "ruby/util.h"
 
-void nokogiri_root_node(xmlNodePtr node)
+void
+nokogiri_root_node(xmlNodePtr node)
 {
   xmlDocPtr doc;
   nokogiriTuplePtr tuple;
@@ -43,7 +43,8 @@ void nokogiri_root_node(xmlNodePtr node)
   st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
 }
 
-void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
+void
+nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
 {
   nokogiriTuplePtr tuple;
 
@@ -52,7 +53,8 @@ void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
   st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
 }
 
-void Init_nokogiri()
+void
+Init_nokogiri()
 {
   xmlMemSetup(
     (xmlFreeFunc)ruby_xfree,
@@ -76,11 +78,11 @@ void Init_nokogiri()
 
 #ifdef NOKOGIRI_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
-#ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
+#  ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qtrue);
-#else
+#  else
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
-#endif
+#  endif
   rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATCHES), " "));
 #else
