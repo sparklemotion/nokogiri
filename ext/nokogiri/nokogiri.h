@@ -143,9 +143,10 @@ typedef struct _nokogiriXsltStylesheetTuple {
 int vasprintf(char **strp, const char *fmt, va_list ap);
 void nokogiri_root_node(xmlNodePtr);
 void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
-int io_read_callback(void *ctx, char *buffer, int len);
-int io_write_callback(void *ctx, char *buffer, int len);
-int io_close_callback(void *ctx);
+
+int noko_io_read(void *ctx, char *buffer, int len);
+int noko_io_write(void *ctx, char *buffer, int len);
+int noko_io_close(void *ctx);
 
 VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
 VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc);

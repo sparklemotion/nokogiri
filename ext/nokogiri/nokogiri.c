@@ -106,7 +106,7 @@ read_failed(VALUE arg, VALUE exc)
 
 
 int
-io_read_callback(void *ctx, char *buffer, int len)
+noko_io_read(void *ctx, char *buffer, int len)
 {
   VALUE string, args[2];
   size_t str_len, safe_len;
@@ -144,7 +144,7 @@ write_failed(VALUE arg, VALUE exc)
 
 
 int
-io_write_callback(void *ctx, char *buffer, int len)
+noko_io_write(void *ctx, char *buffer, int len)
 {
   VALUE args[2], size;
 
@@ -160,7 +160,7 @@ io_write_callback(void *ctx, char *buffer, int len)
 
 
 int
-io_close_callback(void *ctx)
+noko_io_close(void *ctx)
 {
   return 0;
 }

@@ -46,7 +46,7 @@ rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_enco
 
   xmlSetStructuredErrorFunc((void *)rb_error_list, Nokogiri_error_array_pusher);
 
-  c_doc = htmlReadIO(io_read_callback, io_close_callback, (void *)rb_io, c_url, c_encoding, options);
+  c_doc = htmlReadIO(noko_io_read, noko_io_close, (void *)rb_io, c_url, c_encoding, options);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 

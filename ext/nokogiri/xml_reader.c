@@ -603,8 +603,8 @@ from_io(int argc, VALUE *argv, VALUE klass)
   if (RTEST(rb_options)) { c_options = (int)NUM2INT(rb_options); }
 
   reader = xmlReaderForIO(
-             (xmlInputReadCallback)io_read_callback,
-             (xmlInputCloseCallback)io_close_callback,
+             (xmlInputReadCallback)noko_io_read,
+             (xmlInputCloseCallback)noko_io_close,
              (void *)rb_io,
              c_url,
              c_encoding,

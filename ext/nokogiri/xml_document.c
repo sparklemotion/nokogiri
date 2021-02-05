@@ -275,8 +275,8 @@ read_io(VALUE klass,
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
   doc = xmlReadIO(
-          (xmlInputReadCallback)io_read_callback,
-          (xmlInputCloseCallback)io_close_callback,
+          (xmlInputReadCallback)noko_io_read,
+          (xmlInputCloseCallback)noko_io_close,
           (void *)io,
           c_url,
           c_enc,
@@ -557,8 +557,8 @@ nokogiri_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   io           = rb_class_new_instance(0, 0, rb_cStringIO);
   buf          = xmlAllocOutputBuffer(NULL);
 
-  buf->writecallback = (xmlOutputWriteCallback)io_write_callback;
-  buf->closecallback = (xmlOutputCloseCallback)io_close_callback;
+  buf->writecallback = (xmlOutputWriteCallback)noko_io_write;
+  buf->closecallback = (xmlOutputCloseCallback)noko_io_close;
   buf->context       = (void *)io;
 
   if (rb_block_given_p()) {

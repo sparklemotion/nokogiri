@@ -1356,8 +1356,8 @@ native_write_to(
   xmlTreeIndentString = StringValueCStr(indent_string);
 
   savectx = xmlSaveToIO(
-              (xmlOutputWriteCallback)io_write_callback,
-              (xmlOutputCloseCallback)io_close_callback,
+              (xmlOutputWriteCallback)noko_io_write,
+              (xmlOutputCloseCallback)noko_io_close,
               (void *)io,
               RTEST(encoding) ? StringValueCStr(encoding) : NULL,
               (int)NUM2INT(options)

@@ -27,8 +27,8 @@ parse_io(VALUE klass, VALUE io, VALUE encoding)
   xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding);
 
   ctxt = xmlCreateIOParserCtxt(NULL, NULL,
-                               (xmlInputReadCallback)io_read_callback,
-                               (xmlInputCloseCallback)io_close_callback,
+                               (xmlInputReadCallback)noko_io_read,
+                               (xmlInputCloseCallback)noko_io_close,
                                (void *)io, enc);
   if (ctxt->sax) {
     xmlFree(ctxt->sax);
