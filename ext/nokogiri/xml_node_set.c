@@ -3,7 +3,6 @@
 #include <libxml/xpathInternals.h>
 
 static ID decorate ;
-static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val);
 
 
 static void Check_Node_Set_Node_Type(VALUE node)
@@ -15,22 +14,75 @@ static void Check_Node_Set_Node_Type(VALUE node)
 }
 
 
+static
+VALUE
+ruby_object_get(xmlNodePtr c_node)
+{
+  /* see xmlElementType in libxml2 tree.h */
+  switch (c_node->type) {
+    case XML_NAMESPACE_DECL:
+      /* _private is later in the namespace struct */
+      return (VALUE)(((xmlNsPtr)c_node)->_private);
+
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      /* in documents we use _private to store a tuple */
+      if (DOC_RUBY_OBJECT_TEST(((xmlDocPtr)c_node))) {
+        return DOC_RUBY_OBJECT((xmlDocPtr)c_node);
+      }
+      return (VALUE)NULL;
+
+    default:
+      return (VALUE)(c_node->_private);
+  }
+}
+
+
+static void mark(xmlNodeSetPtr node_set)
+{
+  VALUE rb_node;
+  int jnode;
+
+  for (jnode = 0; jnode < node_set->nodeNr; jnode++) {
+    rb_node = ruby_object_get(node_set->nodeTab[jnode]);
+    if (rb_node) {
+      rb_gc_mark(rb_node);
+    }
+  }
+}
+
+static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
+{
+  /*
+   * For reasons outlined in xml_namespace.c, here we reproduce xmlXPathNodeSetDel() except for the
+   * offending call to xmlXPathNodeSetFreeNs().
+   */
+  int i;
+
+  if (cur == NULL) return;
+  if (val == NULL) return;
+
+  /*
+   * find node in nodeTab
+   */
+  for (i = 0;i < cur->nodeNr;i++)
+    if (cur->nodeTab[i] == val) break;
+
+  if (i >= cur->nodeNr) {	/* not found */
+    return;
+  }
+  cur->nodeNr--;
+  for (;i < cur->nodeNr;i++)
+    cur->nodeTab[i] = cur->nodeTab[i + 1];
+  cur->nodeTab[cur->nodeNr] = NULL;
+}
+
+
 static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
-   *
-   *  since xpath queries return copies of the xmlNs structs,
-   *  xmlXPathFreeNodeSet() frees those xmlNs structs that are in the
-   *  NodeSet.
-   *
-   *  this is bad if someone is still trying to use the Namespace object wrapped
-   *  around the xmlNs, so we need to avoid that.
-   *
-   *  here we reproduce xmlXPathFreeNodeSet() without the xmlNs logic.
-   *
-   *  this doesn't cause a leak because Namespace objects that are in an XPath
-   *  query NodeSet are given their own lifecycle in
-   *  Nokogiri_wrap_xml_namespace().
+   * For reasons outlined in xml_namespace.c, here we reproduce xmlXPathFreeNodeSet() except for the
+   * offending call to xmlXPathNodeSetFreeNs().
    */
   NOKOGIRI_DEBUG_START(node_set) ;
   if (node_set->nodeTab != NULL)
@@ -39,6 +91,7 @@ static void deallocate(xmlNodeSetPtr node_set)
   xmlFree(node_set);
   NOKOGIRI_DEBUG_END(node_set) ;
 }
+
 
 static VALUE allocate(VALUE klass)
 {
@@ -176,21 +229,22 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
  * Returns a new set built by merging the set and the elements of the given
  * set.
  */
-static VALUE set_union(VALUE self, VALUE rb_other)
+static VALUE rb_xml_node_set_union(VALUE rb_node_set, VALUE rb_other)
 {
-  xmlNodeSetPtr node_set, other;
-  xmlNodeSetPtr new;
+  xmlNodeSetPtr c_node_set, c_other;
+  xmlNodeSetPtr c_new_node_set;
 
-  if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
+  if (!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet)) {
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+  }
 
-  Data_Get_Struct(self, xmlNodeSet, node_set);
-  Data_Get_Struct(rb_other, xmlNodeSet, other);
+  Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, c_other);
 
-  new = xmlXPathNodeSetMerge(NULL, node_set);
-  new = xmlXPathNodeSetMerge(new, other);
+  c_new_node_set = xmlXPathNodeSetMerge(NULL, c_node_set);
+  c_new_node_set = xmlXPathNodeSetMerge(c_new_node_set, c_other);
 
-  return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
+  return Nokogiri_wrap_xml_node_set(c_new_node_set, rb_iv_get(rb_node_set, "@document"));
 }
 
 /*
@@ -364,57 +418,28 @@ static VALUE unlink_nodeset(VALUE self)
 }
 
 
-static void reify_node_set_namespaces(VALUE self)
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr c_node_set, VALUE document)
 {
-  /*
-   *  as mentioned in deallocate() above, xmlNs structs returned in an XPath
-   *  NodeSet are duplicates, and we don't clean them up at deallocate() time.
-   *
-   *  as a result, we need to make sure the Ruby manages this memory. we do this
-   *  by forcing the creation of a Ruby object wrapped around the xmlNs.
-   *
-   *  we also have to make sure that the NodeSet has a reference to the
-   *  Namespace object, otherwise GC will kick in and the Namespace won't be
-   *  marked.
-   *
-   *  we *could* do this safely with *all* the nodes in the NodeSet, but we only
-   *  *need* to do it for xmlNs structs, and so you get the code we have here.
-   */
-  int j ;
-  xmlNodeSetPtr node_set ;
-  VALUE namespace_cache ;
+  int j;
+  VALUE rb_node_set ;
 
-  Data_Get_Struct(self, xmlNodeSet, node_set);
-
-  namespace_cache = rb_iv_get(self, "@namespace_cache");
-
-  for (j = 0 ; j < node_set->nodeNr ; j++) {
-    if (NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) {
-      rb_ary_push(namespace_cache, Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[j], self));
-    }
-  }
-}
-
-
-VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
-{
-  VALUE new_set ;
-
-  if (node_set == NULL) {
-    node_set = xmlXPathNodeSetCreate(NULL);
+  if (c_node_set == NULL) {
+    c_node_set = xmlXPathNodeSetCreate(NULL);
   }
 
-  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
+  rb_node_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, mark, deallocate, c_node_set);
 
   if (!NIL_P(document)) {
-    rb_iv_set(new_set, "@document", document);
-    rb_funcall(document, decorate, 1, new_set);
+    rb_iv_set(rb_node_set, "@document", document);
+    rb_funcall(document, decorate, 1, rb_node_set);
   }
 
-  rb_iv_set(new_set, "@namespace_cache", rb_ary_new());
-  reify_node_set_namespaces(new_set);
+  /* make sure we create ruby objects for all the results, so they'll be marked during the GC mark phase */
+  for (j = 0 ; j < c_node_set->nodeNr ; j++) {
+    Nokogiri_wrap_xml_node_set_node(c_node_set->nodeTab[j], rb_node_set);
+  }
 
-  return new_set ;
+  return rb_node_set ;
 }
 
 VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
@@ -427,36 +452,6 @@ VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
   } else {
     return Nokogiri_wrap_xml_node(Qnil, node);
   }
-}
-
-
-static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
-{
-  /*
-   * as mentioned a few times above, we do not want to free xmlNs structs
-   * outside of the Namespace lifecycle.
-   *
-   * xmlXPathNodeSetDel() frees xmlNs structs, and so here we reproduce that
-   * function with the xmlNs logic.
-   */
-  int i;
-
-  if (cur == NULL) return;
-  if (val == NULL) return;
-
-  /*
-   * find node in nodeTab
-   */
-  for (i = 0;i < cur->nodeNr;i++)
-    if (cur->nodeTab[i] == val) break;
-
-  if (i >= cur->nodeNr) {	/* not found */
-    return;
-  }
-  cur->nodeNr--;
-  for (;i < cur->nodeNr;i++)
-    cur->nodeTab[i] = cur->nodeTab[i + 1];
-  cur->nodeTab[cur->nodeNr] = NULL;
 }
 
 
@@ -473,7 +468,7 @@ void init_xml_node_set(void)
   rb_define_method(klass, "[]", slice, -1);
   rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
-  rb_define_method(klass, "|", set_union, 1);
+  rb_define_method(klass, "|", rb_xml_node_set_union, 1);
   rb_define_method(klass, "-", minus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);

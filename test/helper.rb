@@ -1,3 +1,14 @@
+# frozen_string_literal: true
+#
+# Some environment variables that are used to configure the test suite:
+# - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
+# - NOKOGIRI_TEST_GC_SETTING:
+#   - "stress" - run tests with GC.stress set to true
+#   - "major" (default) - force a major GC cycle after each test
+#   - "minor" - force a minor GC cycle after each test
+#   - "none" - normal GC functionality
+# - NOKOGIRI_GC: read more in test/test_memory_leak.rb
+#
 require 'simplecov'
 SimpleCov.start do
   add_filter "/test/"
@@ -7,7 +18,10 @@ $VERBOSE = true
 
 require 'minitest/autorun'
 require 'minitest/reporters'
-Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new({color: true, slow_count: 5, detailed_skip: false}))
+NOKOGIRI_MINITEST_REPORTERS_OPTIONS = {color: true, slow_count: 5, detailed_skip: false}
+NOKOGIRI_MINITEST_REPORTERS_OPTIONS[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
+puts NOKOGIRI_MINITEST_REPORTERS_OPTIONS
+Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(NOKOGIRI_MINITEST_REPORTERS_OPTIONS))
 
 require 'fileutils'
 require 'tempfile'
@@ -58,23 +72,42 @@ module Nokogiri
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
     XPATH_FILE          = File.join(ASSETS_DIR, 'slow-xpath.xml')
 
+    unless Nokogiri.jruby?
+      GC_SETTING = if ["stress", "major", "minor", "none"].include?(ENV['NOKOGIRI_TEST_GC_SETTING'])
+                     ENV['NOKOGIRI_TEST_GC_SETTING']
+                   else
+                     "major" # the default
+                   end
+      warn "#{__FILE__}:#{__LINE__}: suite GC setting: #{GC_SETTING}"
+    end
+
     def setup
-      @fake_error_handler_called = false
-      Nokogiri::Test.__foreign_error_handler do
-        @fake_error_handler_called = true
-      end if Nokogiri.uses_libxml?
+      if Nokogiri.uses_libxml?
+        @fake_error_handler_called = false
+        Nokogiri::Test.__foreign_error_handler do
+          @fake_error_handler_called = true
+        end
+      end
+
+      unless Nokogiri.jruby?
+        if GC_SETTING == "stress"
+          GC.stress = true
+        end
+      end
     end
 
     def teardown
-      refute(@fake_error_handler_called, "the fake error handler should never get called") if Nokogiri.uses_libxml?
+      if Nokogiri.uses_libxml?
+        refute(@fake_error_handler_called, "the fake error handler should never get called")
+      end
 
-      if ENV['NOKOGIRI_GC']
-        STDOUT.putc '!'
-        if RUBY_PLATFORM =~ /java/
-          require 'java'
-          java.lang.System.gc
-        else
-          GC.start
+      unless Nokogiri.jruby?
+        if GC_SETTING == "major"
+          GC.start(full_mark: true)
+        elsif GC_SETTING == "minor"
+          GC.start(full_mark: false)
+        elsif GC_SETTING == "stress"
+          GC.stress = false
         end
       end
     end

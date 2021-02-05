@@ -35,7 +35,8 @@ prs = get("gh pr list").split("\n")
 paths_to_prs = Hash.new { |h,k| h[k] = Set.new }
 
 prs.each do |pr|
-  pr_number = pr.split(/\s+/).first
+  pr_number, *pr_desc = pr.split(/\s+/)
+  pr_desc = pr_desc.join(" ")
 
   diff = get("gh pr diff #{pr_number}")
   diff_data = GitDiff::from_string(diff)
@@ -43,7 +44,7 @@ prs.each do |pr|
   relevant_files = diff_data.files.map(&:b_path)
 
   if relevant_files.length > 0
-    puts "PR #{pr_number}:"
+    puts "PR #{pr_number}: #{pr_desc}"
     relevant_files.sort.each do |file|
       puts "- #{file}"
     end

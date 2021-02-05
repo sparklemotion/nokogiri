@@ -1341,9 +1341,9 @@ static VALUE line(VALUE self)
 static VALUE set_line(VALUE self, VALUE num)
 {
   xmlNodePtr node;
-  Data_Get_Struct(self, xmlNode, node);
-
   int value = NUM2INT(num);
+
+  Data_Get_Struct(self, xmlNode, node);
   if (value < 65535) {
     node->line = value;
   }

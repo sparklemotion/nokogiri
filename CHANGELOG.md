@@ -8,6 +8,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
+* [CRuby] `NodeSet` may now safely contain `Node` objects from multiple documents. Previously the GC lifecycle of the parent `Document` objects could lead to contained nodes being GCed while still in scope. [[#1952](https://github.com/sparklemotion/nokogiri/issues/1952)]
 * [CRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was invoked twice on each object.
 * [JRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was not called, which was a problem for subclassing such as done by `Loofah`.
 
