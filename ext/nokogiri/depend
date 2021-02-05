@@ -21,7 +21,6 @@ xml_element_decl.o: ./nokogiri.h
 xml_encoding_handler.o: ./nokogiri.h
 xml_entity_decl.o: ./nokogiri.h
 xml_entity_reference.o: ./nokogiri.h
-xml_io.o: ./nokogiri.h
 xml_namespace.o: ./nokogiri.h
 xml_node.o: ./nokogiri.h
 xml_node_set.o: ./nokogiri.h

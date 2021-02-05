@@ -164,7 +164,6 @@ Gem::Specification.new do |spec|
     "ext/nokogiri/xml_encoding_handler.c",
     "ext/nokogiri/xml_entity_decl.c",
     "ext/nokogiri/xml_entity_reference.c",
-    "ext/nokogiri/xml_io.c",
     "ext/nokogiri/xml_namespace.c",
     "ext/nokogiri/xml_node.c",
     "ext/nokogiri/xml_node_set.c",
