@@ -78,9 +78,16 @@ static VALUE href(VALUE self)
   return NOKOGIRI_STR_NEW2(ns->href);
 }
 
-static int part_of_an_xpath_node_set_eh(xmlNsPtr node)
+VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr c_namespace)
 {
-  return (node->next && ! NOKOGIRI_NAMESPACE_EH(node->next));
+  VALUE rb_namespace;
+
+  if (c_namespace->_private) return (VALUE)c_namespace->_private;
+
+  rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
+
+  c_namespace->_private = (void *)rb_namespace;
+  return rb_namespace;
 }
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
@@ -94,19 +101,9 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
   if (DOC_RUBY_OBJECT_TEST(doc)) {
     document = DOC_RUBY_OBJECT(doc);
 
-    if (part_of_an_xpath_node_set_eh(node)) {
-      /*
-       *  this is a duplicate returned as part of an xpath query node set, and so
-       *  we need to make sure we manage this memory.
-       *
-       *  see comments in xml_node_set.c for more details.
-       */
-      ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, node);
-    } else {
-      ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
-      node_cache = rb_iv_get(document, "@node_cache");
-      rb_ary_push(node_cache, ns);
-    }
+    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
+    node_cache = rb_iv_get(document, "@node_cache");
+    rb_ary_push(node_cache, ns);
 
     rb_iv_set(ns, "@document", document);
   } else {

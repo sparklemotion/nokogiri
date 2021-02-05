@@ -444,11 +444,8 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr c_node_set, VALUE document)
 
 VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 {
-  xmlDocPtr document ;
-
   if (NOKOGIRI_NAMESPACE_EH(node)) {
-    Data_Get_Struct(rb_iv_get(node_set, "@document"), xmlDoc, document);
-    return Nokogiri_wrap_xml_namespace(document, (xmlNsPtr)node);
+    return Nokogiri_xml_namespace__wrap_xpath_query_copy((xmlNsPtr)node);
   } else {
     return Nokogiri_wrap_xml_node(Qnil, node);
   }
