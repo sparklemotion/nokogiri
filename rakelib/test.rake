@@ -57,6 +57,13 @@ class ValgrindTestTask < Rake::TestTask
   end
 end
 
+class GdbTestTask < ValgrindTestTask
+  def ruby(*args, **options, &block)
+    command = "gdb --args #{RUBY} #{args.join(' ')}"
+    sh(command, **options, &block)
+  end
+end
+
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
   t.test_files = FileList["test/**/test_*.rb"]
@@ -69,6 +76,10 @@ end
 
 namespace "test" do
   ValgrindTestTask.new("valgrind") do |t|
+    nokogiri_test_task_configuration(t)
+  end
+
+  GdbTestTask.new("gdb") do |t|
     nokogiri_test_task_configuration(t)
   end
 end
