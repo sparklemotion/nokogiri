@@ -1,4 +1,4 @@
-#include <xml_processing_instruction.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -7,7 +7,8 @@
  * Create a new ProcessingInstruction element on the +document+ with +name+
  * and +content+
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   xmlNodePtr node;
@@ -22,23 +23,24 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
   node = xmlNewDocPI(
-      xml_doc,
-      (const xmlChar *)StringValueCStr(name),
-      (const xmlChar *)StringValueCStr(content)
-  );
+           xml_doc,
+           (const xmlChar *)StringValueCStr(name),
+           (const xmlChar *)StringValueCStr(content)
+         );
 
   nokogiri_root_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) rb_yield(rb_node);
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
 
 VALUE cNokogiriXmlProcessingInstruction;
-void init_xml_processing_instruction()
+void
+init_xml_processing_instruction()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

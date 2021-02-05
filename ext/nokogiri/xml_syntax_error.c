@@ -1,4 +1,4 @@
-#include <xml_syntax_error.h>
+#include <nokogiri.h>
 
 void
 Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state)
@@ -10,8 +10,8 @@ Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_s
 
 void
 Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state,
-                                            void *user_data,
-                                            xmlStructuredErrorFunc handler)
+    void *user_data,
+    xmlStructuredErrorFunc handler)
 {
   Nokogiri_structured_error_func_save(handler_state);
   xmlSetStructuredErrorFunc(user_data, handler);
@@ -23,19 +23,22 @@ Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handle
   xmlSetStructuredErrorFunc(handler_state->user_data, handler_state->handler);
 }
 
-void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
+void
+Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
   Check_Type(list, T_ARRAY);
   rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error(error));
 }
 
-void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
+void
+Nokogiri_error_raise(void *ctx, xmlErrorPtr error)
 {
   rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
 }
 
-VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
+VALUE
+Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 {
   VALUE msg, e, klass;
 
@@ -49,13 +52,12 @@ VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
   msg = (error && error->message) ? NOKOGIRI_STR_NEW2(error->message) : Qnil;
 
   e = rb_class_new_instance(
-      1,
-      &msg,
-      klass
-  );
+        1,
+        &msg,
+        klass
+      );
 
-  if (error)
-  {
+  if (error) {
     rb_iv_set(e, "@domain", INT2NUM(error->domain));
     rb_iv_set(e, "@code", INT2NUM(error->code));
     rb_iv_set(e, "@level", INT2NUM((short)error->level));
@@ -72,7 +74,8 @@ VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 }
 
 VALUE cNokogiriXmlSyntaxError;
-void init_xml_syntax_error()
+void
+init_xml_syntax_error()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

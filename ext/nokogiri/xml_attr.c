@@ -1,4 +1,4 @@
-#include <xml_attr.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -7,7 +7,8 @@
  * Set the value for this Attr to +content+. Use `nil` to remove the value
  * (e.g., a HTML boolean attribute).
  */
-static VALUE set_value(VALUE self, VALUE content)
+static VALUE
+set_value(VALUE self, VALUE content)
 {
   xmlAttrPtr attr;
   xmlChar *value;
@@ -49,7 +50,8 @@ static VALUE set_value(VALUE self, VALUE content)
  *
  * Create a new Attr element on the +document+ with +name+
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   VALUE document;
@@ -85,7 +87,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 }
 
 VALUE cNokogiriXmlAttr;
-void init_xml_attr()
+void
+init_xml_attr()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

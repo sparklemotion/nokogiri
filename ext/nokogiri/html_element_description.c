@@ -1,4 +1,4 @@
-#include <html_element_description.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -6,9 +6,10 @@
  *
  * A list of required attributes for this element
  */
-static VALUE required_attributes(VALUE self)
+static VALUE
+required_attributes(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   VALUE list;
   int i;
 
@@ -16,9 +17,9 @@ static VALUE required_attributes(VALUE self)
 
   list = rb_ary_new();
 
-  if(NULL == description->attrs_req) return list;
+  if (NULL == description->attrs_req) { return list; }
 
-  for(i = 0; description->attrs_depr[i]; i++) {
+  for (i = 0; description->attrs_depr[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_req[i]));
   }
 
@@ -31,9 +32,10 @@ static VALUE required_attributes(VALUE self)
  *
  * A list of deprecated attributes for this element
  */
-static VALUE deprecated_attributes(VALUE self)
+static VALUE
+deprecated_attributes(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   VALUE list;
   int i;
 
@@ -41,9 +43,9 @@ static VALUE deprecated_attributes(VALUE self)
 
   list = rb_ary_new();
 
-  if(NULL == description->attrs_depr) return list;
+  if (NULL == description->attrs_depr) { return list; }
 
-  for(i = 0; description->attrs_depr[i]; i++) {
+  for (i = 0; description->attrs_depr[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_depr[i]));
   }
 
@@ -56,9 +58,10 @@ static VALUE deprecated_attributes(VALUE self)
  *
  * A list of optional attributes for this element
  */
-static VALUE optional_attributes(VALUE self)
+static VALUE
+optional_attributes(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   VALUE list;
   int i;
 
@@ -66,9 +69,9 @@ static VALUE optional_attributes(VALUE self)
 
   list = rb_ary_new();
 
-  if(NULL == description->attrs_opt) return list;
+  if (NULL == description->attrs_opt) { return list; }
 
-  for(i = 0; description->attrs_opt[i]; i++) {
+  for (i = 0; description->attrs_opt[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_opt[i]));
   }
 
@@ -81,13 +84,15 @@ static VALUE optional_attributes(VALUE self)
  *
  * The default sub element for this element
  */
-static VALUE default_sub_element(VALUE self)
+static VALUE
+default_sub_element(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if (description->defaultsubelt)
+  if (description->defaultsubelt) {
     return NOKOGIRI_STR_NEW2(description->defaultsubelt);
+  }
 
   return Qnil;
 }
@@ -98,9 +103,10 @@ static VALUE default_sub_element(VALUE self)
  *
  * A list of allowed sub elements for this element.
  */
-static VALUE sub_elements(VALUE self)
+static VALUE
+sub_elements(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   VALUE list;
   int i;
 
@@ -108,9 +114,9 @@ static VALUE sub_elements(VALUE self)
 
   list = rb_ary_new();
 
-  if(NULL == description->subelts) return list;
+  if (NULL == description->subelts) { return list; }
 
-  for(i = 0; description->subelts[i]; i++) {
+  for (i = 0; description->subelts[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->subelts[i]));
   }
 
@@ -123,9 +129,10 @@ static VALUE sub_elements(VALUE self)
  *
  * The description for this element
  */
-static VALUE description(VALUE self)
+static VALUE
+description(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   return NOKOGIRI_STR_NEW2(description->desc);
@@ -137,12 +144,13 @@ static VALUE description(VALUE self)
  *
  * Is this element an inline element?
  */
-static VALUE inline_eh(VALUE self)
+static VALUE
+inline_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->isinline) return Qtrue;
+  if (description->isinline) { return Qtrue; }
   return Qfalse;
 }
 
@@ -152,12 +160,13 @@ static VALUE inline_eh(VALUE self)
  *
  * Is this element deprecated?
  */
-static VALUE deprecated_eh(VALUE self)
+static VALUE
+deprecated_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->depr) return Qtrue;
+  if (description->depr) { return Qtrue; }
   return Qfalse;
 }
 
@@ -167,12 +176,13 @@ static VALUE deprecated_eh(VALUE self)
  *
  * Is this an empty element?
  */
-static VALUE empty_eh(VALUE self)
+static VALUE
+empty_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->empty) return Qtrue;
+  if (description->empty) { return Qtrue; }
   return Qfalse;
 }
 
@@ -182,12 +192,13 @@ static VALUE empty_eh(VALUE self)
  *
  * Should the end tag be saved?
  */
-static VALUE save_end_tag_eh(VALUE self)
+static VALUE
+save_end_tag_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->saveEndTag) return Qtrue;
+  if (description->saveEndTag) { return Qtrue; }
   return Qfalse;
 }
 
@@ -197,12 +208,13 @@ static VALUE save_end_tag_eh(VALUE self)
  *
  * Can the end tag be implied for this tag?
  */
-static VALUE implied_end_tag_eh(VALUE self)
+static VALUE
+implied_end_tag_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->endTag) return Qtrue;
+  if (description->endTag) { return Qtrue; }
   return Qfalse;
 }
 
@@ -212,12 +224,13 @@ static VALUE implied_end_tag_eh(VALUE self)
  *
  * Can the start tag be implied for this tag?
  */
-static VALUE implied_start_tag_eh(VALUE self)
+static VALUE
+implied_start_tag_eh(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(description->startTag) return Qtrue;
+  if (description->startTag) { return Qtrue; }
   return Qfalse;
 }
 
@@ -227,12 +240,13 @@ static VALUE implied_start_tag_eh(VALUE self)
  *
  * Get the tag name for this ElemementDescription
  */
-static VALUE name(VALUE self)
+static VALUE
+name(VALUE self)
 {
-  const htmlElemDesc * description;
+  const htmlElemDesc *description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(NULL == description->name) return Qnil;
+  if (NULL == description->name) { return Qnil; }
   return NOKOGIRI_STR_NEW2(description->name);
 }
 
@@ -242,22 +256,24 @@ static VALUE name(VALUE self)
  *
  * Get ElemementDescription for +tag_name+
  */
-static VALUE get_description(VALUE klass, VALUE tag_name)
+static VALUE
+get_description(VALUE klass, VALUE tag_name)
 {
-  const htmlElemDesc * description = htmlTagLookup(
-      (const xmlChar *)StringValueCStr(tag_name)
-  );
+  const htmlElemDesc *description = htmlTagLookup(
+                                      (const xmlChar *)StringValueCStr(tag_name)
+                                    );
 
-  if(NULL == description) return Qnil;
+  if (NULL == description) { return Qnil; }
   return Data_Wrap_Struct(klass, 0, 0, (void *)(uintptr_t)description);
 }
 
 VALUE cNokogiriHtmlElementDescription ;
-void init_html_element_description()
+void
+init_html_element_description()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE html     = rb_define_module_under(nokogiri, "HTML");
-  VALUE klass    = rb_define_class_under(html, "ElementDescription",rb_cObject);
+  VALUE klass    = rb_define_class_under(html, "ElementDescription", rb_cObject);
 
   cNokogiriHtmlElementDescription = klass;
 

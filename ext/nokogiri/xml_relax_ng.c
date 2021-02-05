@@ -1,6 +1,7 @@
-#include <xml_relax_ng.h>
+#include <nokogiri.h>
 
-static void dealloc(xmlRelaxNGPtr schema)
+static void
+dealloc(xmlRelaxNGPtr schema)
 {
   NOKOGIRI_DEBUG_START(schema);
   xmlRelaxNGFree(schema);
@@ -13,7 +14,8 @@ static void dealloc(xmlRelaxNGPtr schema)
  *
  * Validate a Nokogiri::XML::Document against this RelaxNG schema.
  */
-static VALUE validate_document(VALUE self, VALUE document)
+static VALUE
+validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlRelaxNGPtr schema;
@@ -27,7 +29,7 @@ static VALUE validate_document(VALUE self, VALUE document)
 
   valid_ctxt = xmlRelaxNGNewValidCtxt(schema);
 
-  if(NULL == valid_ctxt) {
+  if (NULL == valid_ctxt) {
     /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
@@ -53,7 +55,8 @@ static VALUE validate_document(VALUE self, VALUE document)
  *
  * Create a new RelaxNG from the contents of +string+
  */
-static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
+static VALUE
+read_memory(int argc, VALUE *argv, VALUE klass)
 {
   VALUE content;
   VALUE parse_options;
@@ -86,12 +89,13 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlRelaxNGFreeParserCtxt(ctx);
 
-  if(NULL == schema) {
+  if (NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();
-    if(error)
+    if (error) {
       Nokogiri_error_raise(NULL, error);
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -109,7 +113,8 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
  *
  * Create a new RelaxNG schema from the Nokogiri::XML::Document +doc+
  */
-static VALUE from_document(int argc, VALUE *argv, VALUE klass)
+static VALUE
+from_document(int argc, VALUE *argv, VALUE klass)
 {
   VALUE document;
   VALUE parse_options;
@@ -147,12 +152,13 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlRelaxNGFreeParserCtxt(ctx);
 
-  if(NULL == schema) {
+  if (NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();
-    if(error)
+    if (error) {
       Nokogiri_error_raise(NULL, error);
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -165,7 +171,8 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
 }
 
 VALUE cNokogiriXmlRelaxNG;
-void init_xml_relax_ng()
+void
+init_xml_relax_ng()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

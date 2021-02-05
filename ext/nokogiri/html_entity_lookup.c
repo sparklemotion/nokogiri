@@ -1,4 +1,4 @@
-#include <html_entity_lookup.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -6,13 +6,14 @@
  *
  * Get the HTML::EntityDescription for +key+
  */
-static VALUE get(VALUE self, VALUE key)
+static VALUE
+get(VALUE self, VALUE key)
 {
-  const htmlEntityDesc * desc =
+  const htmlEntityDesc *desc =
     htmlEntityLookup((const xmlChar *)StringValueCStr(key));
   VALUE klass, args[3];
 
-  if(NULL == desc) return Qnil;
+  if (NULL == desc) { return Qnil; }
   klass = rb_const_get(mNokogiriHtml, rb_intern("EntityDescription"));
 
   args[0] = INT2NUM((long)desc->value);
@@ -22,7 +23,8 @@ static VALUE get(VALUE self, VALUE key)
   return rb_class_new_instance(3, args, klass);
 }
 
-void init_html_entity_lookup()
+void
+init_html_entity_lookup()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE html = rb_define_module_under(nokogiri, "HTML");

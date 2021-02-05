@@ -1,4 +1,4 @@
-#include <xml_cdata.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -9,7 +9,8 @@
  * If +content+ cannot be implicitly converted to a string, this method will
  * raise a TypeError exception.
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   xmlNodePtr node;
@@ -36,13 +37,14 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) { rb_yield(rb_node); }
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
 
 VALUE cNokogiriXmlCData;
-void init_xml_cdata()
+void
+init_xml_cdata()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

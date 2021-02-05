@@ -1,4 +1,4 @@
-#include <xml_namespace.h>
+#include <nokogiri.h>
 
 /*
  *  The lifecycle of a Namespace node is more complicated than other Nodes, for two reasons:
@@ -24,7 +24,8 @@
 
 VALUE cNokogiriXmlNamespace ;
 
-static void dealloc_namespace(xmlNsPtr ns)
+static void
+dealloc_namespace(xmlNsPtr ns)
 {
   /*
    *
@@ -52,12 +53,13 @@ static void dealloc_namespace(xmlNsPtr ns)
  *
  * Get the prefix for this namespace.  Returns +nil+ if there is no prefix.
  */
-static VALUE prefix(VALUE self)
+static VALUE
+prefix(VALUE self)
 {
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNs, ns);
-  if(!ns->prefix) return Qnil;
+  if (!ns->prefix) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->prefix);
 }
@@ -68,21 +70,23 @@ static VALUE prefix(VALUE self)
  *
  * Get the href for this namespace
  */
-static VALUE href(VALUE self)
+static VALUE
+href(VALUE self)
 {
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNs, ns);
-  if(!ns->href) return Qnil;
+  if (!ns->href) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->href);
 }
 
-VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr c_namespace)
+VALUE
+Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr c_namespace)
 {
   VALUE rb_namespace;
 
-  if (c_namespace->_private) return (VALUE)c_namespace->_private;
+  if (c_namespace->_private) { return (VALUE)c_namespace->_private; }
 
   rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
 
@@ -90,13 +94,14 @@ VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr c_namespace)
   return rb_namespace;
 }
 
-VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
+VALUE
+Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
   VALUE ns = 0, document, node_cache;
 
   assert(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE);
 
-  if (node->_private) return (VALUE)node->_private;
+  if (node->_private) { return (VALUE)node->_private; }
 
   if (DOC_RUBY_OBJECT_TEST(doc)) {
     document = DOC_RUBY_OBJECT(doc);
@@ -115,7 +120,8 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
   return ns;
 }
 
-void init_xml_namespace()
+void
+init_xml_namespace()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

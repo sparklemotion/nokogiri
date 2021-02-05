@@ -1,4 +1,4 @@
-#include <xml_text.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -6,7 +6,8 @@
  *
  * Create a new Text element on the +document+ with +content+
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr doc;
   xmlNodePtr node;
@@ -27,13 +28,14 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   rb_node = Nokogiri_wrap_xml_node(klass, node) ;
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) rb_yield(rb_node);
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
 
 VALUE cNokogiriXmlText ;
-void init_xml_text()
+void
+init_xml_text()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

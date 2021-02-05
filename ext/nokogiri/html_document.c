@@ -1,4 +1,4 @@
-#include <html_document.h>
+#include <nokogiri.h>
 
 static ID id_encoding_found;
 static ID id_to_s;

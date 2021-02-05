@@ -1,8 +1,9 @@
-#include <xml_document.h>
+#include <nokogiri.h>
 
-static int dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
+static int
+dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
 {
-  switch(node->type) {
+  switch (node->type) {
   case XML_ATTRIBUTE_NODE:
     xmlFreePropList((xmlAttrPtr)node);
     break;
@@ -13,46 +14,52 @@ static int dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
     xmlFreeDtd((xmlDtdPtr)node);
     break;
   default:
-    if(node->parent == NULL) {
+    if (node->parent == NULL) {
       xmlAddChild((xmlNodePtr)doc, node);
     }
   }
   return ST_CONTINUE;
 }
 
-static int dealloc_node_i(st_data_t key, st_data_t node, st_data_t doc)
+static int
+dealloc_node_i(st_data_t key, st_data_t node, st_data_t doc)
 {
   return dealloc_node_i2((xmlNodePtr)key, (xmlNodePtr)node, (xmlDocPtr)doc);
 }
 
-static void remove_private(xmlNodePtr node)
+static void
+remove_private(xmlNodePtr node)
 {
   xmlNodePtr child;
 
-  for (child = node->children; child; child = child->next)
+  for (child = node->children; child; child = child->next) {
     remove_private(child);
+  }
 
   if ((node->type == XML_ELEMENT_NODE ||
        node->type == XML_XINCLUDE_START ||
        node->type == XML_XINCLUDE_END) &&
       node->properties) {
-    for (child = (xmlNodePtr)node->properties; child; child = child->next)
+    for (child = (xmlNodePtr)node->properties; child; child = child->next) {
       remove_private(child);
+    }
   }
 
   node->_private = NULL;
 }
 
-static void mark(xmlDocPtr doc)
+static void
+mark(xmlDocPtr doc)
 {
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)doc->_private;
-  if(tuple) {
-      rb_gc_mark(tuple->doc);
-      rb_gc_mark(tuple->node_cache);
+  if (tuple) {
+    rb_gc_mark(tuple->doc);
+    rb_gc_mark(tuple->node_cache);
   }
 }
 
-static void dealloc(xmlDocPtr doc)
+static void
+dealloc(xmlDocPtr doc)
 {
   st_table *node_hash;
 
@@ -70,23 +77,26 @@ static void dealloc(xmlDocPtr doc)
    * xmlDeregisterNode callback from accessing VALUE pointers from ruby's GC
    * free context, which can result in segfaults.
    */
-  if (xmlDeregisterNodeDefaultValue)
+  if (xmlDeregisterNodeDefaultValue) {
     remove_private((xmlNodePtr)doc);
+  }
 
   xmlFreeDoc(doc);
 
   NOKOGIRI_DEBUG_END(doc);
 }
 
-static void recursively_remove_namespaces_from_node(xmlNodePtr node)
+static void
+recursively_remove_namespaces_from_node(xmlNodePtr node)
 {
   xmlNodePtr child ;
   xmlAttrPtr property ;
 
   xmlSetNs(node, NULL);
 
-  for (child = node->children ; child ; child = child->next)
+  for (child = node->children ; child ; child = child->next) {
     recursively_remove_namespaces_from_node(child);
+  }
 
   if (((node->type == XML_ELEMENT_NODE) ||
        (node->type == XML_XINCLUDE_START) ||
@@ -99,7 +109,7 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
   if (node->type == XML_ELEMENT_NODE && node->properties != NULL) {
     property = node->properties ;
     while (property != NULL) {
-      if (property->ns) property->ns = NULL ;
+      if (property->ns) { property->ns = NULL ; }
       property = property->next ;
     }
   }
@@ -111,12 +121,13 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
  *
  * Get the url name for this document.
  */
-static VALUE url(VALUE self)
+static VALUE
+url(VALUE self)
 {
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  if(doc->URL) return NOKOGIRI_STR_NEW2(doc->URL);
+  if (doc->URL) { return NOKOGIRI_STR_NEW2(doc->URL); }
 
   return Qnil;
 }
@@ -127,7 +138,8 @@ static VALUE url(VALUE self)
  *
  * Set the root element on this document
  */
-static VALUE set_root(VALUE self, VALUE root)
+static VALUE
+set_root(VALUE self, VALUE root)
 {
   xmlDocPtr doc;
   xmlNodePtr new_root;
@@ -137,10 +149,10 @@ static VALUE set_root(VALUE self, VALUE root)
 
   old_root = NULL;
 
-  if(NIL_P(root)) {
+  if (NIL_P(root)) {
     old_root = xmlDocGetRootElement(doc);
 
-    if(old_root) {
+    if (old_root) {
       xmlUnlinkNode(old_root);
       nokogiri_root_node(old_root);
     }
@@ -153,7 +165,7 @@ static VALUE set_root(VALUE self, VALUE root)
 
   /* If the new root's document is not the same as the current document,
    * then we need to dup the node in to this document. */
-  if(new_root->doc != doc) {
+  if (new_root->doc != doc) {
     old_root = xmlDocGetRootElement(doc);
     if (!(new_root = xmlDocCopyNode(new_root, doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
@@ -161,7 +173,7 @@ static VALUE set_root(VALUE self, VALUE root)
   }
 
   xmlDocSetRootElement(doc, new_root);
-  if(old_root) nokogiri_root_node(old_root);
+  if (old_root) { nokogiri_root_node(old_root); }
   return root;
 }
 
@@ -171,7 +183,8 @@ static VALUE set_root(VALUE self, VALUE root)
  *
  * Get the root node for this document.
  */
-static VALUE root(VALUE self)
+static VALUE
+root(VALUE self)
 {
   xmlDocPtr doc;
   xmlNodePtr root;
@@ -180,7 +193,7 @@ static VALUE root(VALUE self)
 
   root = xmlDocGetRootElement(doc);
 
-  if(!root) return Qnil;
+  if (!root) { return Qnil; }
   return Nokogiri_wrap_xml_node(Qnil, root) ;
 }
 
@@ -190,13 +203,15 @@ static VALUE root(VALUE self)
  *
  * Set the encoding string for this Document
  */
-static VALUE set_encoding(VALUE self, VALUE encoding)
+static VALUE
+set_encoding(VALUE self, VALUE encoding)
 {
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  if (doc->encoding)
-      free((char *)(uintptr_t) doc->encoding); /* avoid gcc cast warning */
+  if (doc->encoding) {
+    free((char *)(uintptr_t) doc->encoding);  /* avoid gcc cast warning */
+  }
 
   doc->encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));
 
@@ -209,12 +224,13 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
  *
  * Get the encoding for this Document
  */
-static VALUE encoding(VALUE self)
+static VALUE
+encoding(VALUE self)
 {
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  if(!doc->encoding) return Qnil;
+  if (!doc->encoding) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->encoding);
 }
 
@@ -224,12 +240,13 @@ static VALUE encoding(VALUE self)
  *
  * Get the XML version for this Document
  */
-static VALUE version(VALUE self)
+static VALUE
+version(VALUE self)
 {
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  if(!doc->version) return Qnil;
+  if (!doc->version) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->version);
 }
 
@@ -239,14 +256,15 @@ static VALUE version(VALUE self)
  *
  * Create a new document from an IO object
  */
-static VALUE read_io( VALUE klass,
-                      VALUE io,
-                      VALUE url,
-                      VALUE encoding,
-                      VALUE options )
+static VALUE
+read_io(VALUE klass,
+        VALUE io,
+        VALUE url,
+        VALUE encoding,
+        VALUE options)
 {
-  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
+  const char *c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char *c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   VALUE error_list      = rb_ary_new();
   VALUE document;
   xmlDocPtr doc;
@@ -255,25 +273,26 @@ static VALUE read_io( VALUE klass,
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
   doc = xmlReadIO(
-      (xmlInputReadCallback)io_read_callback,
-      (xmlInputCloseCallback)io_close_callback,
-      (void *)io,
-      c_url,
-      c_enc,
-      (int)NUM2INT(options)
-  );
+          (xmlInputReadCallback)io_read_callback,
+          (xmlInputCloseCallback)io_close_callback,
+          (void *)io,
+          c_url,
+          c_enc,
+          (int)NUM2INT(options)
+        );
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  if(doc == NULL) {
+  if (doc == NULL) {
     xmlErrorPtr error;
 
     xmlFreeDoc(doc);
 
     error = xmlGetLastError();
-    if(error)
+    if (error) {
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -289,15 +308,16 @@ static VALUE read_io( VALUE klass,
  *
  * Create a new document from a String
  */
-static VALUE read_memory( VALUE klass,
-                          VALUE string,
-                          VALUE url,
-                          VALUE encoding,
-                          VALUE options )
+static VALUE
+read_memory(VALUE klass,
+            VALUE string,
+            VALUE url,
+            VALUE encoding,
+            VALUE options)
 {
-  const char * c_buffer = StringValuePtr(string);
-  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
+  const char *c_buffer = StringValuePtr(string);
+  const char *c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char *c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   int len               = (int)RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
   VALUE document;
@@ -308,16 +328,17 @@ static VALUE read_memory( VALUE klass,
   doc = xmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  if(doc == NULL) {
+  if (doc == NULL) {
     xmlErrorPtr error;
 
     xmlFreeDoc(doc);
 
     error = xmlGetLastError();
-    if(error)
+    if (error) {
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -334,20 +355,22 @@ static VALUE read_memory( VALUE klass,
  * Copy this Document.  An optional depth may be passed in, but it defaults
  * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
  */
-static VALUE duplicate_document(int argc, VALUE *argv, VALUE self)
+static VALUE
+duplicate_document(int argc, VALUE *argv, VALUE self)
 {
   xmlDocPtr doc, dup;
   VALUE copy;
   VALUE level;
 
-  if(rb_scan_args(argc, argv, "01", &level) == 0)
+  if (rb_scan_args(argc, argv, "01", &level) == 0) {
     level = INT2NUM((long)1);
+  }
 
   Data_Get_Struct(self, xmlDoc, doc);
 
   dup = xmlCopyDoc(doc, (int)NUM2INT(level));
 
-  if(dup == NULL) return Qnil;
+  if (dup == NULL) { return Qnil; }
 
   dup->type = doc->type;
   copy = nokogiri_xml_document_wrap(rb_obj_class(self), dup);
@@ -361,14 +384,15 @@ static VALUE duplicate_document(int argc, VALUE *argv, VALUE self)
  *
  * Create a new document with +version+ (defaults to "1.0")
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr doc;
   VALUE version, rest, rb_doc ;
 
   rb_scan_args(argc, argv, "0*", &rest);
   version = rb_ary_entry(rest, (long)0);
-  if (NIL_P(version)) version = rb_str_new2("1.0");
+  if (NIL_P(version)) { version = rb_str_new2("1.0"); }
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
   rb_doc = nokogiri_xml_document_wrap_with_init_args(klass, doc, argc, argv);
@@ -412,7 +436,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
  *  please direct your browser to
  *  http://tenderlovemaking.com/2009/04/23/namespaces-in-xml.html
  */
-VALUE remove_namespaces_bang(VALUE self)
+VALUE
+remove_namespaces_bang(VALUE self)
 {
   xmlDocPtr doc ;
   Data_Get_Struct(self, xmlDoc, doc);
@@ -432,7 +457,8 @@ VALUE remove_namespaces_bang(VALUE self)
  * +external_id+, +system_id+, and +content+ set the External ID, System ID,
  * and content respectively.  All of these parameters are optional.
  */
-static VALUE create_entity(int argc, VALUE *argv, VALUE self)
+static VALUE
+create_entity(int argc, VALUE *argv, VALUE self)
 {
   VALUE name;
   VALUE type;
@@ -445,24 +471,25 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   rb_scan_args(argc, argv, "14", &name, &type, &external_id, &system_id,
-      &content);
+               &content);
 
   xmlResetLastError();
   ptr = xmlAddDocEntity(
-      doc,
-      (xmlChar *)(NIL_P(name)        ? NULL                        : StringValueCStr(name)),
-      (int)      (NIL_P(type)        ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type)),
-      (xmlChar *)(NIL_P(external_id) ? NULL                        : StringValueCStr(external_id)),
-      (xmlChar *)(NIL_P(system_id)   ? NULL                        : StringValueCStr(system_id)),
-      (xmlChar *)(NIL_P(content)     ? NULL                        : StringValueCStr(content))
-    );
+          doc,
+          (xmlChar *)(NIL_P(name)        ? NULL                        : StringValueCStr(name)),
+          (int)(NIL_P(type)        ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type)),
+          (xmlChar *)(NIL_P(external_id) ? NULL                        : StringValueCStr(external_id)),
+          (xmlChar *)(NIL_P(system_id)   ? NULL                        : StringValueCStr(system_id)),
+          (xmlChar *)(NIL_P(content)     ? NULL                        : StringValueCStr(content))
+        );
 
-  if(NULL == ptr) {
+  if (NULL == ptr) {
     xmlErrorPtr error = xmlGetLastError();
-    if(error)
+    if (error) {
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not create entity");
+    }
 
     return Qnil;
   }
@@ -470,17 +497,17 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
 }
 
-static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
+static int
+block_caller(void *ctx, xmlNodePtr _node, xmlNodePtr _parent)
 {
   VALUE block;
   VALUE node;
   VALUE parent;
   VALUE ret;
 
-  if(_node->type == XML_NAMESPACE_DECL){
+  if (_node->type == XML_NAMESPACE_DECL) {
     node = Nokogiri_wrap_xml_namespace(_parent->doc, (xmlNsPtr) _node);
-  }
-  else{
+  } else {
     node   = Nokogiri_wrap_xml_node(Qnil, _node);
   }
   parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
@@ -488,7 +515,7 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
 
   ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
 
-  if(Qfalse == ret || Qnil == ret) return 0;
+  if (Qfalse == ret || Qnil == ret) { return 0; }
 
   return 1;
 }
@@ -503,7 +530,8 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
  * The block must return a non-nil, non-false value if the +obj+ passed in
  * should be included in the canonicalized document.
  */
-static VALUE nokogiri_xml_document_canonicalize(int argc, VALUE* argv, VALUE self)
+static VALUE
+nokogiri_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
 {
   VALUE mode;
   VALUE incl_ns;
@@ -514,7 +542,7 @@ static VALUE nokogiri_xml_document_canonicalize(int argc, VALUE* argv, VALUE sel
   xmlDocPtr doc;
   xmlOutputBufferPtr buf;
   xmlC14NIsVisibleCallback cb = NULL;
-  void * ctx = NULL;
+  void *ctx = NULL;
 
   VALUE rb_cStringIO;
   VALUE io;
@@ -531,46 +559,46 @@ static VALUE nokogiri_xml_document_canonicalize(int argc, VALUE* argv, VALUE sel
   buf->closecallback = (xmlOutputCloseCallback)io_close_callback;
   buf->context       = (void *)io;
 
-  if(rb_block_given_p()) {
+  if (rb_block_given_p()) {
     cb = block_caller;
     ctx = (void *)rb_block_proc();
   }
 
-  if(NIL_P(incl_ns)){
+  if (NIL_P(incl_ns)) {
     ns = NULL;
-  }
-  else{
+  } else {
     Check_Type(incl_ns, T_ARRAY);
     ns_len = RARRAY_LEN(incl_ns);
-    ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
+    ns = calloc((size_t)ns_len + 1, sizeof(xmlChar *));
     for (i = 0 ; i < ns_len ; i++) {
       VALUE entry = rb_ary_entry(incl_ns, i);
-      ns[i] = (xmlChar*)StringValueCStr(entry);
+      ns[i] = (xmlChar *)StringValueCStr(entry);
     }
   }
 
 
   xmlC14NExecute(doc, cb, ctx,
-    (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)),
-    ns,
-    (int)      RTEST(with_comments),
-    buf);
+                 (int)(NIL_P(mode)        ? 0 : NUM2INT(mode)),
+                 ns,
+                 (int)      RTEST(with_comments),
+                 buf);
 
   xmlOutputBufferClose(buf);
 
   return rb_funcall(io, rb_intern("string"), 0);
 }
 
-VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
+VALUE
+nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
 {
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
 
   VALUE rb_doc = Data_Wrap_Struct(
-    klass ? klass : cNokogiriXmlDocument,
-    mark,
-    dealloc,
-    doc
-    );
+                   klass ? klass : cNokogiriXmlDocument,
+                   mark,
+                   dealloc,
+                   doc
+                 );
 
   VALUE cache = rb_ary_new();
   rb_iv_set(rb_doc, "@decorators", Qnil);
@@ -589,20 +617,23 @@ VALUE nokogiri_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int 
 
 
 /* deprecated. use nokogiri_xml_document_wrap() instead. */
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
+VALUE
+Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
   /* TODO: deprecate this method in v2.0 */
   return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
 }
 
-VALUE nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
+VALUE
+nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 {
   return nokogiri_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
 }
 
 
 VALUE cNokogiriXmlDocument ;
-void init_xml_document()
+void
+init_xml_document()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE xml       = rb_define_module_under(nokogiri, "XML");

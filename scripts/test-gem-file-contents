@@ -108,7 +108,7 @@ describe File.basename(gemfile) do
 
     it "contains ext/nokogiri C and header files" do
       assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 20)
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 0)
     end
 
     it "does not contain packaged libraries' header files" do

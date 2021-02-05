@@ -1,9 +1,9 @@
 #include <nokogiri.h>
-#include "libxml/xmlerror.h"
 
 static VALUE foreign_error_handler_block = Qnil;
 
-static void foreign_error_handler(void* user_data, xmlErrorPtr c_error)
+static void
+foreign_error_handler(void *user_data, xmlErrorPtr c_error)
 {
   rb_funcall(foreign_error_handler_block, rb_intern("call"), 0);
 }

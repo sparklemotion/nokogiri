@@ -1,6 +1,7 @@
-#include <xml_schema.h>
+#include <nokogiri.h>
 
-static void dealloc(xmlSchemaPtr schema)
+static void
+dealloc(xmlSchemaPtr schema)
 {
   NOKOGIRI_DEBUG_START(schema);
   xmlSchemaFree(schema);
@@ -13,7 +14,8 @@ static void dealloc(xmlSchemaPtr schema)
  *
  * Validate a Nokogiri::XML::Document against this Schema.
  */
-static VALUE validate_document(VALUE self, VALUE document)
+static VALUE
+validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlSchemaPtr schema;
@@ -27,7 +29,7 @@ static VALUE validate_document(VALUE self, VALUE document)
 
   valid_ctxt = xmlSchemaNewValidCtxt(schema);
 
-  if(NULL == valid_ctxt) {
+  if (NULL == valid_ctxt) {
     /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
@@ -53,7 +55,8 @@ static VALUE validate_document(VALUE self, VALUE document)
  *
  * Validate a file against this Schema.
  */
-static VALUE validate_file(VALUE self, VALUE rb_filename)
+static VALUE
+validate_file(VALUE self, VALUE rb_filename)
 {
   xmlSchemaPtr schema;
   xmlSchemaValidCtxtPtr valid_ctxt;
@@ -61,13 +64,13 @@ static VALUE validate_file(VALUE self, VALUE rb_filename)
   VALUE errors;
 
   Data_Get_Struct(self, xmlSchema, schema);
-  filename = (const char*)StringValueCStr(rb_filename) ;
+  filename = (const char *)StringValueCStr(rb_filename) ;
 
   errors = rb_ary_new();
 
   valid_ctxt = xmlSchemaNewValidCtxt(schema);
 
-  if(NULL == valid_ctxt) {
+  if (NULL == valid_ctxt) {
     /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
@@ -93,7 +96,8 @@ static VALUE validate_file(VALUE self, VALUE rb_filename)
  *
  * Create a new Schema from the contents of +string+
  */
-static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
+static VALUE
+read_memory(int argc, VALUE *argv, VALUE klass)
 {
   VALUE content;
   VALUE parse_options;
@@ -121,7 +125,7 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
     ctx,
     Nokogiri_error_array_pusher,
     (void *)errors
-    );
+  );
 #endif
 
   if (parse_options_int & XML_PARSE_NONET) {
@@ -138,12 +142,13 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);
 
-  if(NULL == schema) {
+  if (NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();
-    if(error)
+    if (error) {
       Nokogiri_error_raise(NULL, error);
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -160,24 +165,25 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
  * out from under the VALUE pointer.  This function checks to see if any of
  * those nodes have been exposed to Ruby, and if so we should raise an exception.
  */
-static int has_blank_nodes_p(VALUE cache)
+static int
+has_blank_nodes_p(VALUE cache)
 {
-    long i;
+  long i;
 
-    if (NIL_P(cache)) {
-        return 0;
-    }
-
-    for (i = 0; i < RARRAY_LEN(cache); i++) {
-        xmlNodePtr node;
-        VALUE element = rb_ary_entry(cache, i);
-        Data_Get_Struct(element, xmlNode, node);
-        if (xmlIsBlankNode(node)) {
-            return 1;
-        }
-    }
-
+  if (NIL_P(cache)) {
     return 0;
+  }
+
+  for (i = 0; i < RARRAY_LEN(cache); i++) {
+    xmlNodePtr node;
+    VALUE element = rb_ary_entry(cache, i);
+    Data_Get_Struct(element, xmlNode, node);
+    if (xmlIsBlankNode(node)) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 /*
@@ -186,7 +192,8 @@ static int has_blank_nodes_p(VALUE cache)
  *
  * Create a new Schema from the Nokogiri::XML::Document +doc+
  */
-static VALUE from_document(int argc, VALUE *argv, VALUE klass)
+static VALUE
+from_document(int argc, VALUE *argv, VALUE klass)
 {
   VALUE document;
   VALUE parse_options;
@@ -240,12 +247,13 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);
 
-  if(NULL == schema) {
+  if (NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();
-    if(error)
+    if (error) {
       Nokogiri_error_raise(NULL, error);
-    else
+    } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
+    }
 
     return Qnil;
   }
@@ -260,7 +268,8 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
 }
 
 VALUE cNokogiriXmlSchema;
-void init_xml_schema()
+void
+init_xml_schema()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

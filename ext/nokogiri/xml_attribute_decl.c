@@ -1,4 +1,4 @@
-#include <xml_attribute_decl.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -6,7 +6,8 @@
  *
  * The attribute_type for this AttributeDecl
  */
-static VALUE attribute_type(VALUE self)
+static VALUE
+attribute_type(VALUE self)
 {
   xmlAttributePtr node;
   Data_Get_Struct(self, xmlAttribute, node);
@@ -19,12 +20,13 @@ static VALUE attribute_type(VALUE self)
  *
  * The default value
  */
-static VALUE default_value(VALUE self)
+static VALUE
+default_value(VALUE self)
 {
   xmlAttributePtr node;
   Data_Get_Struct(self, xmlAttribute, node);
 
-  if(node->defaultValue) return NOKOGIRI_STR_NEW2(node->defaultValue);
+  if (node->defaultValue) { return NOKOGIRI_STR_NEW2(node->defaultValue); }
   return Qnil;
 }
 
@@ -34,7 +36,8 @@ static VALUE default_value(VALUE self)
  *
  * An enumeration of possible values
  */
-static VALUE enumeration(VALUE self)
+static VALUE
+enumeration(VALUE self)
 {
   xmlAttributePtr node;
   xmlEnumerationPtr enm;
@@ -45,7 +48,7 @@ static VALUE enumeration(VALUE self)
   list = rb_ary_new();
   enm = node->tree;
 
-  while(enm) {
+  while (enm) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(enm->name));
     enm = enm->next;
   }
@@ -55,7 +58,8 @@ static VALUE enumeration(VALUE self)
 
 VALUE cNokogiriXmlAttributeDecl;
 
-void init_xml_attribute_decl()
+void
+init_xml_attribute_decl()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

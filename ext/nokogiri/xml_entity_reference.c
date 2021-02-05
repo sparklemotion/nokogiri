@@ -1,4 +1,4 @@
-#include <xml_entity_reference.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:
@@ -6,7 +6,8 @@
  *
  * Create a new EntityReference element on the +document+ with +name+
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   xmlNodePtr node;
@@ -20,22 +21,23 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
   node = xmlNewReference(
-      xml_doc,
-      (const xmlChar *)StringValueCStr(name)
-  );
+           xml_doc,
+           (const xmlChar *)StringValueCStr(name)
+         );
 
   nokogiri_root_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) rb_yield(rb_node);
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
 
 VALUE cNokogiriXmlEntityReference;
-void init_xml_entity_reference()
+void
+init_xml_entity_reference()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");

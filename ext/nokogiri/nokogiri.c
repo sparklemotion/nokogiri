@@ -29,8 +29,6 @@ vasprintf(char **strp, const char *fmt, va_list ap)
 }
 #endif
 
-#include "ruby/util.h"
-
 void
 nokogiri_root_node(xmlNodePtr node)
 {
