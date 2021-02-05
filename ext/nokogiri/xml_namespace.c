@@ -1,5 +1,27 @@
 #include <xml_namespace.h>
 
+/*
+ *  The lifecycle of a Namespace node is more complicated than other Nodes, for two reasons:
+ *
+ *  1. the underlying C structure has a different layout than all the other node structs, with the
+ *     `_private` member where we store a pointer to Ruby object data not being in first position.
+ *  2. xmlNs structures returned in an xmlNodeset from an XPath query are copies of the document's
+ *     namespaces, and so do not share the same memory lifecycle as everything else in a document.
+ *
+ *  As a result of 1, you may see special handling of XML_NAMESPACE_DECL node types throughout the
+ *  Nokogiri C code, though I intend to wrap up that logic in ruby_object_{get,set} functions
+ *  shortly.
+ *
+ *  As a result of 2, you will see we have special handling in this file and in xml_node_set.c to
+ *  carefully manage the memory lifecycle of xmlNs structs to match the Ruby object's GC
+ *  lifecycle. In xml_node_set.c we have local versions of xmlXPathNodeSetDel() and
+ *  xmlXPathFreeNodeSet() that avoid freeing xmlNs structs in the node set. In this file, we decide
+ *  whether or not to call dealloc_namespace() depending on whether the xmlNs struct appears to be
+ *  in an xmlNodeSet (and thus the result of an XPath query) or not.
+ *
+ *  Yes, this is madness.
+ */
+
 VALUE cNokogiriXmlNamespace ;
 
 static void dealloc_namespace(xmlNsPtr ns)
