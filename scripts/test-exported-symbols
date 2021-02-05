@@ -1,0 +1,53 @@
+#! /usr/bin/env ruby
+#
+#  examine the nokogiri dll for external symbols that shouldn't be there
+#
+#  this assumes that we're on a linux machine, and that nokogiri.so, libxml2.a, libxslt.a, and
+#  libexslt.a exist and can be found under the pwd.
+#
+
+require "set"
+
+def find_that_file(glob)
+  Dir.glob(glob).first or raise("could not find #{glob}")
+end
+
+def find_symbols(archive, flavor)
+  `nm #{archive}`.split("\n").grep(/ #{flavor} /).inject(Set.new) do |set, line|
+    set.add(line.split(/\s/).last)
+    set
+  end
+end
+
+def external_symbols(archive)
+  find_symbols(archive, "T")
+end
+
+def local_symbols(archive)
+  find_symbols(archive, "t")
+end
+
+noko_so = find_that_file("lib/**/nokogiri.so")
+libxml2_archive = find_that_file("ports/**/libxml2.a")
+libxslt_archive = find_that_file("ports/**/libxslt.a")
+libexslt_archive = find_that_file("ports/**/libexslt.a")
+
+symbols = external_symbols(noko_so)
+symbols -= external_symbols(libxml2_archive)
+symbols -= external_symbols(libxslt_archive)
+symbols -= external_symbols(libexslt_archive)
+
+puts "#{noko_so} exports the following surprising symbols:"
+symbols.to_a.sort.each do |symbol|
+  next if symbol == "Init_nokogiri"
+  next if symbol =~ /^Nokogiri_/
+  next if symbol =~ /^noko_/
+  puts "- #{symbol}"
+end
+
+symbols = local_symbols(noko_so)
+
+puts "#{noko_so} has the following surprising local symbols:"
+symbols.to_a.sort.each do |symbol|
+  puts "- #{symbol}" if symbol =~ /^noko_|^Nokogiri_/
+end
