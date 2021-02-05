@@ -4,26 +4,26 @@ module Nokogiri
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
-      def self.parse tags, encoding = nil
+      def self.parse(tags, encoding = nil)
         doc = HTML::Document.new
 
         encoding ||= if tags.respond_to?(:encoding)
-                       encoding = tags.encoding
-                       if encoding == ::Encoding::ASCII_8BIT
-                         'UTF-8'
-                       else
-                         encoding.name
-                       end
-                     else
-                       'UTF-8'
-                     end
+          encoding = tags.encoding
+          if encoding == ::Encoding::ASCII_8BIT
+            'UTF-8'
+          else
+            encoding.name
+          end
+        else
+          'UTF-8'
+        end
 
         doc.encoding = encoding
 
         new(doc, tags)
       end
 
-      def initialize document, tags = nil, ctx = nil
+      def initialize(document, tags = nil, ctx = nil)
         return self unless tags
 
         if ctx
@@ -33,13 +33,13 @@ module Nokogiri
           self.errors = document.errors - preexisting_errors
         else
           # This is a horrible hack, but I don't care
-          if /^\s*?<body/i.match?(tags)
-            path = "/html/body"
+          path = if /^\s*?<body/i.match?(tags)
+            "/html/body"
           else
-            path = "/html/body/node()"
+            "/html/body/node()"
           end
 
-          temp_doc = HTML::Document.parse "<html><body>#{tags}", nil, document.encoding
+          temp_doc = HTML::Document.parse("<html><body>#{tags}", nil, document.encoding)
           temp_doc.xpath(path).each { |child| child.parent = self }
           self.errors = temp_doc.errors
         end
