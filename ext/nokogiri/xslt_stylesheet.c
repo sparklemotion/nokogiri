@@ -1,6 +1,6 @@
 #include <nokogiri.h>
 
-VALUE xslt;
+VALUE cNokogiriXsltStylesheet ;
 
 static void
 mark(nokogiriXsltStylesheetTuple *wrapper)
@@ -198,7 +198,7 @@ method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 static void *
 initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
 {
-  VALUE modules = rb_iv_get(xslt, "@modules");
+  VALUE modules = rb_iv_get(mNokogiriXslt, "@modules");
   VALUE obj = rb_hash_aref(modules, rb_str_new2((const char *)uri));
   VALUE args = { Qfalse };
   VALUE methods = rb_funcall(obj, rb_intern("instance_methods"), 1, args);
@@ -249,23 +249,15 @@ registr(VALUE self, VALUE uri, VALUE obj)
   return self;
 }
 
-VALUE cNokogiriXsltStylesheet ;
 void
 init_xslt_stylesheet()
 {
-  VALUE nokogiri;
-  VALUE klass;
+  rb_define_singleton_method(mNokogiriXslt, "register", registr, 2);
+  rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
 
-  nokogiri = rb_define_module("Nokogiri");
-  xslt = rb_define_module_under(nokogiri, "XSLT");
-  klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
+  cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
 
-  rb_iv_set(xslt, "@modules", rb_hash_new());
-
-  cNokogiriXsltStylesheet = klass;
-
-  rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
-  rb_define_singleton_method(xslt, "register", registr, 2);
-  rb_define_method(klass, "serialize", serialize, 1);
-  rb_define_method(klass, "transform", transform, -1);
+  rb_define_singleton_method(cNokogiriXsltStylesheet, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
+  rb_define_method(cNokogiriXsltStylesheet, "serialize", serialize, 1);
+  rb_define_method(cNokogiriXsltStylesheet, "transform", transform, -1);
 }
