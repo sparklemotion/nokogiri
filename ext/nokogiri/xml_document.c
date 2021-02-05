@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlDocument ;
+
 static int
 dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
 {
@@ -631,7 +633,6 @@ nokogiri_xml_document_wrap(VALUE klass, xmlDocPtr doc)
 }
 
 
-VALUE cNokogiriXmlDocument ;
 void
 init_xml_document()
 {

@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlDocumentFragment;
+
 /*
  * call-seq:
  *  new(document)
@@ -31,7 +33,6 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlDocumentFragment;
 void
 init_xml_document_fragment()
 {

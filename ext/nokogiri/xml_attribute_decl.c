@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlAttributeDecl;
+
 /*
  * call-seq:
  *  attribute_type
@@ -55,8 +57,6 @@ enumeration(VALUE self)
 
   return list;
 }
-
-VALUE cNokogiriXmlAttributeDecl;
 
 void
 init_xml_attribute_decl()

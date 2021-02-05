@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlXpathContext;
+
 /*
  * these constants have matching declarations in
  * ext/java/nokogiri/internals/NokogiriNamespaceContext.java
@@ -363,7 +365,6 @@ new (VALUE klass, VALUE nodeobj)
   return self;
 }
 
-VALUE cNokogiriXmlXpathContext;
 void
 init_xml_xpath_context(void)
 {

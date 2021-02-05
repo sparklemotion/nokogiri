@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlCData;
+
 /*
  * call-seq:
  *  new(document, content)
@@ -42,7 +44,6 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlCData;
 void
 init_xml_cdata()
 {

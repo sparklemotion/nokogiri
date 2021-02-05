@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlAttr;
+
 /*
  * call-seq:
  *  value=(content)
@@ -86,7 +88,6 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlAttr;
 void
 init_xml_attr()
 {

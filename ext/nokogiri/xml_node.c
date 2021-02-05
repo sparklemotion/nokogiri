@@ -1,5 +1,8 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlElement ;
+VALUE cNokogiriXmlNode ;
+
 static ID decorate, decorate_bang;
 
 #ifdef DEBUG
@@ -1758,9 +1761,6 @@ Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
     prop = prop->next ;
   }
 }
-
-VALUE cNokogiriXmlNode ;
-VALUE cNokogiriXmlElement ;
 
 void
 init_xml_node()

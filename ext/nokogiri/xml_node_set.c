@@ -1,7 +1,8 @@
 #include <nokogiri.h>
 
-static ID decorate ;
+VALUE cNokogiriXmlNodeSet ;
 
+static ID decorate ;
 
 static void
 Check_Node_Set_Node_Type(VALUE node)
@@ -473,7 +474,6 @@ Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 }
 
 
-VALUE cNokogiriXmlNodeSet ;
 void
 init_xml_node_set(void)
 {

@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlComment;
+
 static ID document_id ;
 
 /*
@@ -45,7 +47,6 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlComment;
 void
 init_xml_comment()
 {
