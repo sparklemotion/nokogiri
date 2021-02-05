@@ -49,16 +49,15 @@
 
 #include <libexslt/exslt.h>
 
+/* libxml2_backwards_compat.c */
+#ifndef HAVE_XMLFIRSTELEMENTCHILD
+xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
+xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
+xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
+#endif
+
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
-
-#ifndef NORETURN
-#  if defined(__GNUC__)
-#    define NORETURN(name) __attribute__((noreturn)) name
-#  else
-#    define NORETURN(name) name
-#  endif
-#endif
 
 #define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
 #define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
@@ -72,12 +71,12 @@
 #  define NOKOGIRI_DEBUG_END(p)
 #endif
 
-
-/* libxml2_backwards_compat.c */
-#ifndef HAVE_XMLFIRSTELEMENTCHILD
-xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
-xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
-xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
+#ifndef NORETURN
+#  if defined(__GNUC__)
+#    define NORETURN(name) __attribute__((noreturn)) name
+#  else
+#    define NORETURN(name) name
+#  endif
 #endif
 
 

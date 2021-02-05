@@ -32,6 +32,7 @@ vasprintf(char **strp, const char *fmt, va_list ap)
 }
 #endif
 
+
 void
 nokogiri_root_node(xmlNodePtr node)
 {
@@ -43,6 +44,7 @@ nokogiri_root_node(xmlNodePtr node)
   tuple = (nokogiriTuplePtr)doc->_private;
   st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
 }
+
 
 void
 nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
@@ -134,13 +136,6 @@ io_close_callback(void *ctx)
 void
 Init_nokogiri()
 {
-  xmlMemSetup(
-    (xmlFreeFunc)ruby_xfree,
-    (xmlMallocFunc)ruby_xmalloc,
-    (xmlReallocFunc)ruby_xrealloc,
-    ruby_strdup
-  );
-
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
@@ -179,6 +174,8 @@ Init_nokogiri()
 #ifdef NOKOGIRI_OTHER_LIBRARY_VERSIONS
   rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
 #endif
+
+  xmlMemSetup((xmlFreeFunc)ruby_xfree, (xmlMallocFunc)ruby_xmalloc, (xmlReallocFunc)ruby_xrealloc, ruby_strdup);
 
   xmlInitParser();
 
