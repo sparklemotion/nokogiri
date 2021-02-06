@@ -193,6 +193,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/css/tokenizer.rex",
     "lib/nokogiri/css/xpath_visitor.rb",
     "lib/nokogiri/decorators/slop.rb",
+    "lib/nokogiri/extension.rb",
     "lib/nokogiri/html.rb",
     "lib/nokogiri/html/builder.rb",
     "lib/nokogiri/html/document.rb",
