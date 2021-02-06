@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriHtmlSaxPushParser;
+
 /*
  * call-seq:
  *  native_write(chunk, last_chunk)
@@ -82,17 +84,12 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
   return self;
 }
 
-VALUE cNokogiriHtmlSaxPushParser;
 void
 noko_init_html_sax_push_parser()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE html = rb_define_module_under(nokogiri, "HTML");
-  VALUE sax = rb_define_module_under(html, "SAX");
-  VALUE klass = rb_define_class_under(sax, "PushParser", cNokogiriXmlSaxPushParser);
+  assert(cNokogiriXmlSaxPushParser);
+  cNokogiriHtmlSaxPushParser = rb_define_class_under(mNokogiriHtmlSax, "PushParser", cNokogiriXmlSaxPushParser);
 
-  cNokogiriHtmlSaxPushParser = klass;
-
-  rb_define_private_method(klass, "initialize_native", initialize_native, 3);
-  rb_define_private_method(klass, "native_write", native_write, 2);
+  rb_define_private_method(cNokogiriHtmlSaxPushParser, "initialize_native", initialize_native, 3);
+  rb_define_private_method(cNokogiriHtmlSaxPushParser, "native_write", native_write, 2);
 }

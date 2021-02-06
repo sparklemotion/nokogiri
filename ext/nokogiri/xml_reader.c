@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlReader;
+
 static void
 dealloc(xmlTextReaderPtr reader)
 {
@@ -645,48 +647,41 @@ empty_element_p(VALUE self)
   return Qfalse;
 }
 
-VALUE cNokogiriXmlReader;
-
 void
 noko_init_xml_reader()
 {
-  VALUE module = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(module, "XML");
-
   /*
    * The Reader parser allows you to effectively pull parse an XML document.
    * Once instantiated, call Nokogiri::XML::Reader#each to iterate over each
    * node.  Note that you may only iterate over the document once!
    */
-  VALUE klass = rb_define_class_under(xml, "Reader", rb_cObject);
+  cNokogiriXmlReader = rb_define_class_under(mNokogiriXml, "Reader", rb_cObject);
 
-  cNokogiriXmlReader = klass;
+  rb_define_singleton_method(cNokogiriXmlReader, "from_memory", from_memory, -1);
+  rb_define_singleton_method(cNokogiriXmlReader, "from_io", from_io, -1);
 
-  rb_define_singleton_method(klass, "from_memory", from_memory, -1);
-  rb_define_singleton_method(klass, "from_io", from_io, -1);
+  rb_define_method(cNokogiriXmlReader, "read", read_more, 0);
+  rb_define_method(cNokogiriXmlReader, "inner_xml", inner_xml, 0);
+  rb_define_method(cNokogiriXmlReader, "outer_xml", outer_xml, 0);
+  rb_define_method(cNokogiriXmlReader, "state", state, 0);
+  rb_define_method(cNokogiriXmlReader, "node_type", node_type, 0);
+  rb_define_method(cNokogiriXmlReader, "name", name, 0);
+  rb_define_method(cNokogiriXmlReader, "local_name", local_name, 0);
+  rb_define_method(cNokogiriXmlReader, "namespace_uri", namespace_uri, 0);
+  rb_define_method(cNokogiriXmlReader, "prefix", prefix, 0);
+  rb_define_method(cNokogiriXmlReader, "value", value, 0);
+  rb_define_method(cNokogiriXmlReader, "lang", lang, 0);
+  rb_define_method(cNokogiriXmlReader, "xml_version", xml_version, 0);
+  rb_define_method(cNokogiriXmlReader, "depth", depth, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute", reader_attribute, 1);
+  rb_define_method(cNokogiriXmlReader, "namespaces", namespaces, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute_at", attribute_at, 1);
+  rb_define_method(cNokogiriXmlReader, "empty_element?", empty_element_p, 0);
+  rb_define_method(cNokogiriXmlReader, "attributes?", attributes_eh, 0);
+  rb_define_method(cNokogiriXmlReader, "value?", value_eh, 0);
+  rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
+  rb_define_method(cNokogiriXmlReader, "base_uri", base_uri, 0);
 
-  rb_define_method(klass, "read", read_more, 0);
-  rb_define_method(klass, "inner_xml", inner_xml, 0);
-  rb_define_method(klass, "outer_xml", outer_xml, 0);
-  rb_define_method(klass, "state", state, 0);
-  rb_define_method(klass, "node_type", node_type, 0);
-  rb_define_method(klass, "name", name, 0);
-  rb_define_method(klass, "local_name", local_name, 0);
-  rb_define_method(klass, "namespace_uri", namespace_uri, 0);
-  rb_define_method(klass, "prefix", prefix, 0);
-  rb_define_method(klass, "value", value, 0);
-  rb_define_method(klass, "lang", lang, 0);
-  rb_define_method(klass, "xml_version", xml_version, 0);
-  rb_define_method(klass, "depth", depth, 0);
-  rb_define_method(klass, "attribute_count", attribute_count, 0);
-  rb_define_method(klass, "attribute", reader_attribute, 1);
-  rb_define_method(klass, "namespaces", namespaces, 0);
-  rb_define_method(klass, "attribute_at", attribute_at, 1);
-  rb_define_method(klass, "empty_element?", empty_element_p, 0);
-  rb_define_method(klass, "attributes?", attributes_eh, 0);
-  rb_define_method(klass, "value?", value_eh, 0);
-  rb_define_method(klass, "default?", default_eh, 0);
-  rb_define_method(klass, "base_uri", base_uri, 0);
-
-  rb_define_private_method(klass, "attr_nodes", attribute_nodes, 0);
+  rb_define_private_method(cNokogiriXmlReader, "attr_nodes", attribute_nodes, 0);
 }

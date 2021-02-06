@@ -477,24 +477,22 @@ Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 void
 noko_init_xml_node_set(void)
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml      = rb_define_module_under(nokogiri, "XML");
-  VALUE klass    = rb_define_class_under(xml, "NodeSet", rb_cObject);
-  cNokogiriXmlNodeSet = klass;
+  cNokogiriXmlNodeSet = rb_define_class_under(mNokogiriXml, "NodeSet", rb_cObject);
 
-  rb_define_alloc_func(klass, allocate);
-  rb_define_method(klass, "length", length, 0);
-  rb_define_method(klass, "[]", slice, -1);
-  rb_define_method(klass, "slice", slice, -1);
-  rb_define_method(klass, "push", push, 1);
-  rb_define_method(klass, "|", rb_xml_node_set_union, 1);
-  rb_define_method(klass, "-", minus, 1);
-  rb_define_method(klass, "unlink", unlink_nodeset, 0);
-  rb_define_method(klass, "to_a", to_array, 0);
-  rb_define_method(klass, "dup", duplicate, 0);
-  rb_define_method(klass, "delete", delete, 1);
-  rb_define_method(klass, "&", intersection, 1);
-  rb_define_method(klass, "include?", include_eh, 1);
+  rb_define_alloc_func(cNokogiriXmlNodeSet, allocate);
+
+  rb_define_method(cNokogiriXmlNodeSet, "length", length, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "[]", slice, -1);
+  rb_define_method(cNokogiriXmlNodeSet, "slice", slice, -1);
+  rb_define_method(cNokogiriXmlNodeSet, "push", push, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "|", rb_xml_node_set_union, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "-", minus, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "unlink", unlink_nodeset, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "to_a", to_array, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "dup", duplicate, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "delete", delete, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "&", intersection, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "include?", include_eh, 1);
 
   decorate = rb_intern("decorate");
 }

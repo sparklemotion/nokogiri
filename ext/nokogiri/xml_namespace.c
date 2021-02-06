@@ -123,12 +123,8 @@ Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 void
 noko_init_xml_namespace()
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE klass     = rb_define_class_under(xml, "Namespace", rb_cObject);
+  cNokogiriXmlNamespace = rb_define_class_under(mNokogiriXml, "Namespace", rb_cObject);
 
-  cNokogiriXmlNamespace = klass;
-
-  rb_define_method(klass, "prefix", prefix, 0);
-  rb_define_method(klass, "href", href, 0);
+  rb_define_method(cNokogiriXmlNamespace, "prefix", prefix, 0);
+  rb_define_method(cNokogiriXmlNamespace, "href", href, 0);
 }

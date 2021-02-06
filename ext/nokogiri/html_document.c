@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriHtmlDocument ;
+
 static ID id_encoding_found;
 static ID id_to_s;
 
@@ -147,17 +149,11 @@ rb_html_document_type(VALUE self)
   return INT2NUM((long)doc->type);
 }
 
-VALUE cNokogiriHtmlDocument ;
-
 void
 noko_init_html_document()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE nokogiri_xml = rb_define_module_under(nokogiri, "XML");
-  VALUE nokogiri_xml_node = rb_define_class_under(nokogiri_xml, "Node", rb_cObject);
-  VALUE nokogiri_xml_document = rb_define_class_under(nokogiri_xml, "Document", nokogiri_xml_node);
-  VALUE nokogiri_html = rb_define_module_under(nokogiri, "HTML");
-  cNokogiriHtmlDocument = rb_define_class_under(nokogiri_html, "Document", nokogiri_xml_document);
+  assert(cNokogiriXmlDocument);
+  cNokogiriHtmlDocument = rb_define_class_under(mNokogiriHtml, "Document", cNokogiriXmlDocument);
 
   rb_define_singleton_method(cNokogiriHtmlDocument, "read_memory", rb_html_document_s_read_memory, 4);
   rb_define_singleton_method(cNokogiriHtmlDocument, "read_io", rb_html_document_s_read_io, 4);

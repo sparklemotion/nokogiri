@@ -47,19 +47,11 @@ new (int argc, VALUE *argv, VALUE klass)
 void
 noko_init_xml_cdata()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
-  VALUE text = rb_define_class_under(xml, "Text", char_data);
-
+  assert(cNokogiriXmlText);
   /*
    * CData represents a CData node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "CDATA", text);
+  cNokogiriXmlCData = rb_define_class_under(mNokogiriXml, "CDATA", cNokogiriXmlText);
 
-
-  cNokogiriXmlCData = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlCData, "new", new, -1);
 }

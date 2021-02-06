@@ -1,11 +1,17 @@
 #include <nokogiri.h>
 
 VALUE mNokogiri ;
-VALUE mNokogiriXml ;
 VALUE mNokogiriHtml ;
-VALUE mNokogiriXslt ;
-VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
+VALUE mNokogiriXml ;
+VALUE mNokogiriXmlSax ;
+VALUE mNokogiriXmlXpath ;
+VALUE mNokogiriXslt ;
+
+VALUE cNokogiriSyntaxError;
+VALUE cNokogiriXmlCharacterData;
+VALUE cNokogiriXmlElement;
+VALUE cNokogiriXmlXpathSyntaxError;
 
 void noko_init_xml_attr();
 void noko_init_xml_attribute_decl();
@@ -149,6 +155,7 @@ Init_nokogiri()
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
   mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
+  mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
   mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
 
@@ -188,37 +195,50 @@ Init_nokogiri()
 
   xmlInitParser();
 
-  noko_init_xml_document();
-  noko_init_html_document();
-  noko_init_xml_node();
-  noko_init_xml_document_fragment();
-  noko_init_xml_text();
-  noko_init_xml_cdata();
-  noko_init_xml_processing_instruction();
-  noko_init_xml_attr();
-  noko_init_xml_entity_reference();
-  noko_init_xml_comment();
-  noko_init_xml_node_set();
-  noko_init_xml_xpath_context();
-  noko_init_xml_sax_parser_context();
-  noko_init_xml_sax_parser();
-  noko_init_xml_sax_push_parser();
-  noko_init_xml_reader();
-  noko_init_xml_dtd();
-  noko_init_xml_element_content();
-  noko_init_xml_attribute_decl();
-  noko_init_xml_element_decl();
-  noko_init_xml_entity_decl();
-  noko_init_xml_namespace();
-  noko_init_html_sax_parser_context();
-  noko_init_html_sax_push_parser();
-  noko_init_xslt_stylesheet();
+  cNokogiriSyntaxError = rb_define_class_under(mNokogiri, "SyntaxError", rb_eStandardError);
   noko_init_xml_syntax_error();
-  noko_init_html_entity_lookup();
+  assert(cNokogiriXmlSyntaxError);
+  cNokogiriXmlXpathSyntaxError = rb_define_class_under(mNokogiriXmlXpath, "SyntaxError", cNokogiriXmlSyntaxError);
+
+  noko_init_xml_element_content();
+  noko_init_xml_encoding_handler();
+  noko_init_xml_namespace();
+  noko_init_xml_node_set();
+  noko_init_xml_reader();
+  noko_init_xml_sax_parser();
+  noko_init_xml_xpath_context();
+  noko_init_xslt_stylesheet();
   noko_init_html_element_description();
+  noko_init_html_entity_lookup();
+
   noko_init_xml_schema();
   noko_init_xml_relax_ng();
-  noko_init_xml_encoding_handler();
+
+  noko_init_xml_sax_parser_context();
+  noko_init_html_sax_parser_context();
+
+  noko_init_xml_sax_push_parser();
+  noko_init_html_sax_push_parser();
+
+  noko_init_xml_node();
+  noko_init_xml_attr();
+  noko_init_xml_attribute_decl();
+  noko_init_xml_dtd();
+  noko_init_xml_element_decl();
+  noko_init_xml_entity_decl();
+  noko_init_xml_entity_reference();
+  noko_init_xml_processing_instruction();
+  assert(cNokogiriXmlNode);
+  cNokogiriXmlElement = rb_define_class_under(mNokogiriXml, "Element", cNokogiriXmlNode);
+  cNokogiriXmlCharacterData = rb_define_class_under(mNokogiriXml, "CharacterData", cNokogiriXmlNode);
+  noko_init_xml_comment();
+  noko_init_xml_text();
+  noko_init_xml_cdata();
+
+  noko_init_xml_document_fragment();
+  noko_init_xml_document();
+  noko_init_html_document();
+
   noko_init_test_global_handlers();
 
   id_read = rb_intern("read");

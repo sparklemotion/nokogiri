@@ -36,16 +36,11 @@ new (int argc, VALUE *argv, VALUE klass)
 void
 noko_init_xml_document_fragment()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * DocumentFragment represents a DocumentFragment node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "DocumentFragment", node);
+  cNokogiriXmlDocumentFragment = rb_define_class_under(mNokogiriXml, "DocumentFragment", cNokogiriXmlNode);
 
-  cNokogiriXmlDocumentFragment = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlDocumentFragment, "new", new, -1);
 }

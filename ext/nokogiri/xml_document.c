@@ -658,29 +658,24 @@ noko_xml_document_pin_namespace(xmlNsPtr ns, xmlDocPtr doc)
 void
 noko_init_xml_document()
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE node      = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * Nokogiri::XML::Document wraps an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "Document", node);
+  cNokogiriXmlDocument = rb_define_class_under(mNokogiriXml, "Document", cNokogiriXmlNode);
 
-  cNokogiriXmlDocument = klass;
+  rb_define_singleton_method(cNokogiriXmlDocument, "read_memory", read_memory, 4);
+  rb_define_singleton_method(cNokogiriXmlDocument, "read_io", read_io, 4);
+  rb_define_singleton_method(cNokogiriXmlDocument, "new", new, -1);
 
-  rb_define_singleton_method(klass, "read_memory", read_memory, 4);
-  rb_define_singleton_method(klass, "read_io", read_io, 4);
-  rb_define_singleton_method(klass, "new", new, -1);
-
-  rb_define_method(klass, "root", root, 0);
-  rb_define_method(klass, "root=", set_root, 1);
-  rb_define_method(klass, "encoding", encoding, 0);
-  rb_define_method(klass, "encoding=", set_encoding, 1);
-  rb_define_method(klass, "version", version, 0);
-  rb_define_method(klass, "canonicalize", rb_xml_document_canonicalize, -1);
-  rb_define_method(klass, "dup", duplicate_document, -1);
-  rb_define_method(klass, "url", url, 0);
-  rb_define_method(klass, "create_entity", create_entity, -1);
-  rb_define_method(klass, "remove_namespaces!", remove_namespaces_bang, 0);
+  rb_define_method(cNokogiriXmlDocument, "root", root, 0);
+  rb_define_method(cNokogiriXmlDocument, "root=", set_root, 1);
+  rb_define_method(cNokogiriXmlDocument, "encoding", encoding, 0);
+  rb_define_method(cNokogiriXmlDocument, "encoding=", set_encoding, 1);
+  rb_define_method(cNokogiriXmlDocument, "version", version, 0);
+  rb_define_method(cNokogiriXmlDocument, "canonicalize", rb_xml_document_canonicalize, -1);
+  rb_define_method(cNokogiriXmlDocument, "dup", duplicate_document, -1);
+  rb_define_method(cNokogiriXmlDocument, "url", url, 0);
+  rb_define_method(cNokogiriXmlDocument, "create_entity", create_entity, -1);
+  rb_define_method(cNokogiriXmlDocument, "remove_namespaces!", remove_namespaces_bang, 0);
 }

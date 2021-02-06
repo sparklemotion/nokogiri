@@ -1,6 +1,5 @@
 #include <nokogiri.h>
 
-VALUE cNokogiriXmlElement ;
 VALUE cNokogiriXmlNode ;
 
 static ID decorate, decorate_bang;
@@ -1765,68 +1764,62 @@ Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
 void
 noko_init_xml_node()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
+  cNokogiriXmlNode = rb_define_class_under(mNokogiriXml, "Node", rb_cObject);
 
-  cNokogiriXmlNode = klass;
+  rb_define_singleton_method(cNokogiriXmlNode, "new", rb_xml_node_new, -1);
 
-  cNokogiriXmlElement = rb_define_class_under(xml, "Element", klass);
+  rb_define_method(cNokogiriXmlNode, "add_namespace_definition", add_namespace_definition, 2);
+  rb_define_method(cNokogiriXmlNode, "node_name", get_name, 0);
+  rb_define_method(cNokogiriXmlNode, "document", document, 0);
+  rb_define_method(cNokogiriXmlNode, "node_name=", set_name, 1);
+  rb_define_method(cNokogiriXmlNode, "parent", get_parent, 0);
+  rb_define_method(cNokogiriXmlNode, "child", child, 0);
+  rb_define_method(cNokogiriXmlNode, "first_element_child", first_element_child, 0);
+  rb_define_method(cNokogiriXmlNode, "last_element_child", last_element_child, 0);
+  rb_define_method(cNokogiriXmlNode, "children", children, 0);
+  rb_define_method(cNokogiriXmlNode, "element_children", element_children, 0);
+  rb_define_method(cNokogiriXmlNode, "next_sibling", next_sibling, 0);
+  rb_define_method(cNokogiriXmlNode, "previous_sibling", previous_sibling, 0);
+  rb_define_method(cNokogiriXmlNode, "next_element", next_element, 0);
+  rb_define_method(cNokogiriXmlNode, "previous_element", previous_element, 0);
+  rb_define_method(cNokogiriXmlNode, "node_type", node_type, 0);
+  rb_define_method(cNokogiriXmlNode, "path", path, 0);
+  rb_define_method(cNokogiriXmlNode, "key?", key_eh, 1);
+  rb_define_method(cNokogiriXmlNode, "namespaced_key?", namespaced_key_eh, 2);
+  rb_define_method(cNokogiriXmlNode, "blank?", blank_eh, 0);
+  rb_define_method(cNokogiriXmlNode, "attribute_nodes", attribute_nodes, 0);
+  rb_define_method(cNokogiriXmlNode, "attribute", attr, 1);
+  rb_define_method(cNokogiriXmlNode, "attribute_with_ns", attribute_with_ns, 2);
+  rb_define_method(cNokogiriXmlNode, "namespace", namespace, 0);
+  rb_define_method(cNokogiriXmlNode, "namespace_definitions", namespace_definitions, 0);
+  rb_define_method(cNokogiriXmlNode, "namespace_scopes", namespace_scopes, 0);
+  rb_define_method(cNokogiriXmlNode, "encode_special_chars", encode_special_chars, 1);
+  rb_define_method(cNokogiriXmlNode, "dup", duplicate_node, -1);
+  rb_define_method(cNokogiriXmlNode, "unlink", unlink_node, 0);
+  rb_define_method(cNokogiriXmlNode, "internal_subset", internal_subset, 0);
+  rb_define_method(cNokogiriXmlNode, "external_subset", external_subset, 0);
+  rb_define_method(cNokogiriXmlNode, "create_internal_subset", create_internal_subset, 3);
+  rb_define_method(cNokogiriXmlNode, "create_external_subset", create_external_subset, 3);
+  rb_define_method(cNokogiriXmlNode, "pointer_id", pointer_id, 0);
+  rb_define_method(cNokogiriXmlNode, "line", line, 0);
+  rb_define_method(cNokogiriXmlNode, "line=", set_line, 1);
+  rb_define_method(cNokogiriXmlNode, "content", get_native_content, 0);
+  rb_define_method(cNokogiriXmlNode, "native_content=", set_native_content, 1);
+  rb_define_method(cNokogiriXmlNode, "lang", get_lang, 0);
+  rb_define_method(cNokogiriXmlNode, "lang=", set_lang, 1);
 
-  rb_define_singleton_method(klass, "new", rb_xml_node_new, -1);
-
-  rb_define_method(klass, "add_namespace_definition", add_namespace_definition, 2);
-  rb_define_method(klass, "node_name", get_name, 0);
-  rb_define_method(klass, "document", document, 0);
-  rb_define_method(klass, "node_name=", set_name, 1);
-  rb_define_method(klass, "parent", get_parent, 0);
-  rb_define_method(klass, "child", child, 0);
-  rb_define_method(klass, "first_element_child", first_element_child, 0);
-  rb_define_method(klass, "last_element_child", last_element_child, 0);
-  rb_define_method(klass, "children", children, 0);
-  rb_define_method(klass, "element_children", element_children, 0);
-  rb_define_method(klass, "next_sibling", next_sibling, 0);
-  rb_define_method(klass, "previous_sibling", previous_sibling, 0);
-  rb_define_method(klass, "next_element", next_element, 0);
-  rb_define_method(klass, "previous_element", previous_element, 0);
-  rb_define_method(klass, "node_type", node_type, 0);
-  rb_define_method(klass, "path", path, 0);
-  rb_define_method(klass, "key?", key_eh, 1);
-  rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
-  rb_define_method(klass, "blank?", blank_eh, 0);
-  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
-  rb_define_method(klass, "attribute", attr, 1);
-  rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
-  rb_define_method(klass, "namespace", namespace, 0);
-  rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
-  rb_define_method(klass, "namespace_scopes", namespace_scopes, 0);
-  rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
-  rb_define_method(klass, "dup", duplicate_node, -1);
-  rb_define_method(klass, "unlink", unlink_node, 0);
-  rb_define_method(klass, "internal_subset", internal_subset, 0);
-  rb_define_method(klass, "external_subset", external_subset, 0);
-  rb_define_method(klass, "create_internal_subset", create_internal_subset, 3);
-  rb_define_method(klass, "create_external_subset", create_external_subset, 3);
-  rb_define_method(klass, "pointer_id", pointer_id, 0);
-  rb_define_method(klass, "line", line, 0);
-  rb_define_method(klass, "line=", set_line, 1);
-  rb_define_method(klass, "content", get_native_content, 0);
-  rb_define_method(klass, "native_content=", set_native_content, 1);
-  rb_define_method(klass, "lang", get_lang, 0);
-  rb_define_method(klass, "lang=", set_lang, 1);
-
-  rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
-  rb_define_private_method(klass, "in_context", in_context, 2);
-  rb_define_private_method(klass, "add_child_node", add_child, 1);
-  rb_define_private_method(klass, "add_previous_sibling_node", add_previous_sibling, 1);
-  rb_define_private_method(klass, "add_next_sibling_node", add_next_sibling, 1);
-  rb_define_private_method(klass, "replace_node", replace, 1);
-  rb_define_private_method(klass, "dump_html", dump_html, 0);
-  rb_define_private_method(klass, "native_write_to", native_write_to, 4);
-  rb_define_private_method(klass, "get", get, 1);
-  rb_define_private_method(klass, "set", set, 2);
-  rb_define_private_method(klass, "set_namespace", set_namespace, 1);
-  rb_define_private_method(klass, "compare", compare, 1);
+  rb_define_private_method(cNokogiriXmlNode, "process_xincludes", process_xincludes, 1);
+  rb_define_private_method(cNokogiriXmlNode, "in_context", in_context, 2);
+  rb_define_private_method(cNokogiriXmlNode, "add_child_node", add_child, 1);
+  rb_define_private_method(cNokogiriXmlNode, "add_previous_sibling_node", add_previous_sibling, 1);
+  rb_define_private_method(cNokogiriXmlNode, "add_next_sibling_node", add_next_sibling, 1);
+  rb_define_private_method(cNokogiriXmlNode, "replace_node", replace, 1);
+  rb_define_private_method(cNokogiriXmlNode, "dump_html", dump_html, 0);
+  rb_define_private_method(cNokogiriXmlNode, "native_write_to", native_write_to, 4);
+  rb_define_private_method(cNokogiriXmlNode, "get", get, 1);
+  rb_define_private_method(cNokogiriXmlNode, "set", set, 2);
+  rb_define_private_method(cNokogiriXmlNode, "set_namespace", set_namespace, 1);
+  rb_define_private_method(cNokogiriXmlNode, "compare", compare, 1);
 
   decorate      = rb_intern("decorate");
   decorate_bang = rb_intern("decorate!");

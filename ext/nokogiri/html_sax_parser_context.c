@@ -109,18 +109,11 @@ parse_with(VALUE self, VALUE sax_handler)
 void
 noko_init_html_sax_parser_context()
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE html      = rb_define_module_under(nokogiri, "HTML");
-  VALUE sax       = rb_define_module_under(xml, "SAX");
-  VALUE hsax      = rb_define_module_under(html, "SAX");
-  VALUE pc        = rb_define_class_under(sax, "ParserContext", rb_cObject);
-  VALUE klass     = rb_define_class_under(hsax, "ParserContext", pc);
+  assert(cNokogiriXmlSaxParserContext);
+  cNokogiriHtmlSaxParserContext = rb_define_class_under(mNokogiriHtmlSax, "ParserContext", cNokogiriXmlSaxParserContext);
 
-  cNokogiriHtmlSaxParserContext = klass;
+  rb_define_singleton_method(cNokogiriHtmlSaxParserContext, "memory", parse_memory, 2);
+  rb_define_singleton_method(cNokogiriHtmlSaxParserContext, "file", parse_file, 2);
 
-  rb_define_singleton_method(klass, "memory", parse_memory, 2);
-  rb_define_singleton_method(klass, "file", parse_file, 2);
-
-  rb_define_method(klass, "parse_with", parse_with, 1);
+  rb_define_method(cNokogiriHtmlSaxParserContext, "parse_with", parse_with, 1);
 }

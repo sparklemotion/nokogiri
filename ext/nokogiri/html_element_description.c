@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriHtmlElementDescription ;
+
 /*
  * call-seq:
  *  required_attributes
@@ -267,29 +269,24 @@ get_description(VALUE klass, VALUE tag_name)
   return Data_Wrap_Struct(klass, 0, 0, (void *)(uintptr_t)description);
 }
 
-VALUE cNokogiriHtmlElementDescription ;
 void
 noko_init_html_element_description()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE html     = rb_define_module_under(nokogiri, "HTML");
-  VALUE klass    = rb_define_class_under(html, "ElementDescription", rb_cObject);
+  cNokogiriHtmlElementDescription = rb_define_class_under(mNokogiriHtml, "ElementDescription", rb_cObject);
 
-  cNokogiriHtmlElementDescription = klass;
+  rb_define_singleton_method(cNokogiriHtmlElementDescription, "[]", get_description, 1);
 
-  rb_define_singleton_method(klass, "[]", get_description, 1);
-
-  rb_define_method(klass, "name", name, 0);
-  rb_define_method(klass, "implied_start_tag?", implied_start_tag_eh, 0);
-  rb_define_method(klass, "implied_end_tag?", implied_end_tag_eh, 0);
-  rb_define_method(klass, "save_end_tag?", save_end_tag_eh, 0);
-  rb_define_method(klass, "empty?", empty_eh, 0);
-  rb_define_method(klass, "deprecated?", deprecated_eh, 0);
-  rb_define_method(klass, "inline?", inline_eh, 0);
-  rb_define_method(klass, "description", description, 0);
-  rb_define_method(klass, "sub_elements", sub_elements, 0);
-  rb_define_method(klass, "default_sub_element", default_sub_element, 0);
-  rb_define_method(klass, "optional_attributes", optional_attributes, 0);
-  rb_define_method(klass, "deprecated_attributes", deprecated_attributes, 0);
-  rb_define_method(klass, "required_attributes", required_attributes, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "name", name, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "implied_start_tag?", implied_start_tag_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "implied_end_tag?", implied_end_tag_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "save_end_tag?", save_end_tag_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "empty?", empty_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "deprecated?", deprecated_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "inline?", inline_eh, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "description", description, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "sub_elements", sub_elements, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "default_sub_element", default_sub_element, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "optional_attributes", optional_attributes, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "deprecated_attributes", deprecated_attributes, 0);
+  rb_define_method(cNokogiriHtmlElementDescription, "required_attributes", required_attributes, 0);
 }

@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlText ;
+
 /*
  * call-seq:
  *  new(content, document)
@@ -33,22 +35,14 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlText ;
 void
 noko_init_xml_text()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  /* */
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
-
+  assert(cNokogiriXmlCharacterData);
   /*
    * Wraps Text nodes.
    */
-  VALUE klass = rb_define_class_under(xml, "Text", char_data);
+  cNokogiriXmlText = rb_define_class_under(mNokogiriXml, "Text", cNokogiriXmlCharacterData);
 
-  cNokogiriXmlText = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlText, "new", new, -1);
 }

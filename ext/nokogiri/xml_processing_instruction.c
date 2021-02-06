@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlProcessingInstruction;
+
 /*
  * call-seq:
  *  new(document, name, content)
@@ -38,21 +40,15 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlProcessingInstruction;
 void
 noko_init_xml_processing_instruction()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * ProcessingInstruction represents a ProcessingInstruction node in an xml
    * document.
    */
-  VALUE klass = rb_define_class_under(xml, "ProcessingInstruction", node);
+  cNokogiriXmlProcessingInstruction = rb_define_class_under(mNokogiriXml, "ProcessingInstruction", cNokogiriXmlNode);
 
-  cNokogiriXmlProcessingInstruction = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlProcessingInstruction, "new", new, -1);
 }

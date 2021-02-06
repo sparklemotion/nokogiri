@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlEntityReference;
+
 /*
  * call-seq:
  *  new(document, content)
@@ -35,20 +37,14 @@ new (int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlEntityReference;
 void
 noko_init_xml_entity_reference()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * EntityReference represents an EntityReference node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "EntityReference", node);
+  cNokogiriXmlEntityReference = rb_define_class_under(mNokogiriXml, "EntityReference", cNokogiriXmlNode);
 
-  cNokogiriXmlEntityReference = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlEntityReference, "new", new, -1);
 }

@@ -368,22 +368,14 @@ new (VALUE klass, VALUE nodeobj)
 void
 noko_init_xml_xpath_context(void)
 {
-  VALUE module = rb_define_module("Nokogiri");
-
-  /*
-   * Nokogiri::XML
-   */
-  VALUE xml = rb_define_module_under(module, "XML");
-
   /*
    * XPathContext is the entry point for searching a Document by using XPath.
    */
-  VALUE klass = rb_define_class_under(xml, "XPathContext", rb_cObject);
+  cNokogiriXmlXpathContext = rb_define_class_under(mNokogiriXml, "XPathContext", rb_cObject);
 
-  cNokogiriXmlXpathContext = klass;
+  rb_define_singleton_method(cNokogiriXmlXpathContext, "new", new, 1);
 
-  rb_define_singleton_method(klass, "new", new, 1);
-  rb_define_method(klass, "evaluate", evaluate, -1);
-  rb_define_method(klass, "register_variable", register_variable, 2);
-  rb_define_method(klass, "register_ns", register_ns, 2);
+  rb_define_method(cNokogiriXmlXpathContext, "evaluate", evaluate, -1);
+  rb_define_method(cNokogiriXmlXpathContext, "register_variable", register_variable, 2);
+  rb_define_method(cNokogiriXmlXpathContext, "register_ns", register_ns, 2);
 }

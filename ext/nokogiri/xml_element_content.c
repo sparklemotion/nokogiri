@@ -114,18 +114,13 @@ Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
 void
 noko_init_xml_element_content()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
+  cNokogiriXmlElementContent = rb_define_class_under(mNokogiriXml, "ElementContent", rb_cObject);
 
-  VALUE klass = rb_define_class_under(xml, "ElementContent", rb_cObject);
+  rb_define_method(cNokogiriXmlElementContent, "name", get_name, 0);
+  rb_define_method(cNokogiriXmlElementContent, "type", get_type, 0);
+  rb_define_method(cNokogiriXmlElementContent, "occur", get_occur, 0);
+  rb_define_method(cNokogiriXmlElementContent, "prefix", get_prefix, 0);
 
-  cNokogiriXmlElementContent = klass;
-
-  rb_define_method(klass, "name", get_name, 0);
-  rb_define_method(klass, "type", get_type, 0);
-  rb_define_method(klass, "occur", get_occur, 0);
-  rb_define_method(klass, "prefix", get_prefix, 0);
-
-  rb_define_private_method(klass, "c1", get_c1, 0);
-  rb_define_private_method(klass, "c2", get_c2, 0);
+  rb_define_private_method(cNokogiriXmlElementContent, "c1", get_c1, 0);
+  rb_define_private_method(cNokogiriXmlElementContent, "c2", get_c2, 0);
 }

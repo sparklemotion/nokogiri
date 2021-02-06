@@ -34,7 +34,6 @@ rb_foreign_error_handler(VALUE klass)
 void
 noko_init_test_global_handlers()
 {
-  VALUE mNokogiri = rb_define_module("Nokogiri");
   VALUE mNokogiriTest = rb_define_module_under(mNokogiri, "Test");
 
   rb_define_singleton_method(mNokogiriTest, "__foreign_error_handler", rb_foreign_error_handler, 0);

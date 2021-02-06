@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlSyntaxError;
+
 void
 Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state)
 {
@@ -45,8 +47,7 @@ Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
   klass = cNokogiriXmlSyntaxError;
 
   if (error && error->domain == XML_FROM_XPATH) {
-    VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
-    klass = rb_const_get(xpath, rb_intern("SyntaxError"));
+    klass = cNokogiriXmlXpathSyntaxError;
   }
 
   msg = (error && error->message) ? NOKOGIRI_STR_NEW2(error->message) : Qnil;
@@ -73,18 +74,12 @@ Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
   return e;
 }
 
-VALUE cNokogiriXmlSyntaxError;
 void
 noko_init_xml_syntax_error()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-
+  assert(cNokogiriSyntaxError);
   /*
    * The XML::SyntaxError is raised on parse errors
    */
-  VALUE syntax_error_mommy = rb_define_class_under(nokogiri, "SyntaxError", rb_eStandardError);
-  VALUE klass = rb_define_class_under(xml, "SyntaxError", syntax_error_mommy);
-  cNokogiriXmlSyntaxError = klass;
-
+  cNokogiriXmlSyntaxError = rb_define_class_under(mNokogiriXml, "SyntaxError", cNokogiriSyntaxError);
 }

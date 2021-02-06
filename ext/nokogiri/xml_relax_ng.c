@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlRelaxNG;
+
 static void
 dealloc(xmlRelaxNGPtr schema)
 {
@@ -68,7 +70,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
 
   scanned_args = rb_scan_args(argc, argv, "11", &content, &parse_options);
   if (scanned_args == 1) {
-    parse_options = rb_const_get(rb_const_get(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
+    parse_options = rb_const_get_at(rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
   }
 
   ctx = xmlRelaxNGNewMemParserCtxt((const char *)StringValuePtr(content), (int)RSTRING_LEN(content));
@@ -131,7 +133,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
   doc = doc->doc; /* In case someone passes us a node. ugh. */
 
   if (scanned_args == 1) {
-    parse_options = rb_const_get(rb_const_get(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
+    parse_options = rb_const_get_at(rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
   }
 
   ctx = xmlRelaxNGNewDocParserCtxt(doc);
@@ -170,17 +172,14 @@ from_document(int argc, VALUE *argv, VALUE klass)
   return rb_schema;
 }
 
-VALUE cNokogiriXmlRelaxNG;
 void
 noko_init_xml_relax_ng()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE klass = rb_define_class_under(xml, "RelaxNG", cNokogiriXmlSchema);
+  assert(cNokogiriXmlSchema);
+  cNokogiriXmlRelaxNG = rb_define_class_under(mNokogiriXml, "RelaxNG", cNokogiriXmlSchema);
 
-  cNokogiriXmlRelaxNG = klass;
+  rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", read_memory, -1);
+  rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", from_document, -1);
 
-  rb_define_singleton_method(klass, "read_memory", read_memory, -1);
-  rb_define_singleton_method(klass, "from_document", from_document, -1);
-  rb_define_private_method(klass, "validate_document", validate_document, 1);
+  rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", validate_document, 1);
 }

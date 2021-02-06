@@ -86,13 +86,11 @@ extern VALUE mNokogiriXml ;
 extern VALUE mNokogiriXmlSax ;
 extern VALUE mNokogiriXslt ;
 
-extern VALUE cNokogiriHtmlDocument ;
-extern VALUE cNokogiriHtmlElementDescription ;
-extern VALUE cNokogiriHtmlSaxParserContext;
-extern VALUE cNokogiriHtmlSaxPushParser ;
+extern VALUE cNokogiriSyntaxError;
 extern VALUE cNokogiriXmlAttr;
 extern VALUE cNokogiriXmlAttributeDecl;
 extern VALUE cNokogiriXmlCData;
+extern VALUE cNokogiriXmlCharacterData;
 extern VALUE cNokogiriXmlComment;
 extern VALUE cNokogiriXmlDocument ;
 extern VALUE cNokogiriXmlDocumentFragment;
@@ -115,7 +113,13 @@ extern VALUE cNokogiriXmlSchema;
 extern VALUE cNokogiriXmlSyntaxError;
 extern VALUE cNokogiriXmlText ;
 extern VALUE cNokogiriXmlXpathContext;
+extern VALUE cNokogiriXmlXpathSyntaxError;
 extern VALUE cNokogiriXsltStylesheet ;
+
+extern VALUE cNokogiriHtmlDocument ;
+extern VALUE cNokogiriHtmlSaxPushParser ;
+extern VALUE cNokogiriHtmlElementDescription ;
+extern VALUE cNokogiriHtmlSaxParserContext;
 
 typedef struct _nokogiriTuple {
   VALUE         doc;

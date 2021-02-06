@@ -1,9 +1,12 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlSaxParser ;
+static VALUE cNokogiriXmlSaxParserAttribute = 0;
+
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
 static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
-static ID id_cdata_block, id_cAttribute;
+static ID id_cdata_block;
 static ID id_processing_instruction;
 
 static void
@@ -92,7 +95,9 @@ attributes_as_list(
 {
   VALUE list = rb_ary_new2((long)nb_attributes);
 
-  VALUE attr_klass = rb_const_get(cNokogiriXmlSaxParser, id_cAttribute);
+  if (!cNokogiriXmlSaxParserAttribute) {
+    cNokogiriXmlSaxParserAttribute = rb_const_get_at(cNokogiriXmlSaxParser, rb_intern("Attribute"));
+  }
   if (attributes) {
     /* Each attribute is an array of [localname, prefix, URI, value, end] */
     int i;
@@ -107,7 +112,7 @@ attributes_as_list(
       argv[3] = NOKOGIRI_STR_NEW((const char *)attributes[i + 3],
                                  (attributes[i + 4] - attributes[i + 3]));
 
-      attribute = rb_class_new_instance(4, argv, attr_klass);
+      attribute = rb_class_new_instance(4, argv, cNokogiriXmlSaxParserAttribute);
       rb_ary_push(list, attribute);
     }
   }
@@ -287,30 +292,23 @@ allocate(VALUE klass)
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
 }
 
-VALUE cNokogiriXmlSaxParser ;
 void
 noko_init_xml_sax_parser()
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE sax       = rb_define_module_under(xml, "SAX");
-  VALUE klass     = rb_define_class_under(sax, "Parser", rb_cObject);
+  cNokogiriXmlSaxParser = rb_define_class_under(mNokogiriXmlSax, "Parser", rb_cObject);
 
-  cNokogiriXmlSaxParser = klass;
-
-  rb_define_alloc_func(klass, allocate);
+  rb_define_alloc_func(cNokogiriXmlSaxParser, allocate);
 
   id_start_document = rb_intern("start_document");
-  id_end_document   = rb_intern("end_document");
-  id_start_element  = rb_intern("start_element");
-  id_end_element    = rb_intern("end_element");
-  id_comment        = rb_intern("comment");
-  id_characters     = rb_intern("characters");
-  id_xmldecl        = rb_intern("xmldecl");
-  id_error          = rb_intern("error");
-  id_warning        = rb_intern("warning");
-  id_cdata_block    = rb_intern("cdata_block");
-  id_cAttribute     = rb_intern("Attribute");
+  id_end_document = rb_intern("end_document");
+  id_start_element = rb_intern("start_element");
+  id_end_element = rb_intern("end_element");
+  id_comment = rb_intern("comment");
+  id_characters = rb_intern("characters");
+  id_xmldecl = rb_intern("xmldecl");
+  id_error = rb_intern("error");
+  id_warning = rb_intern("warning");
+  id_cdata_block = rb_intern("cdata_block");
   id_start_element_namespace = rb_intern("start_element_namespace");
   id_end_element_namespace = rb_intern("end_element_namespace");
   id_processing_instruction = rb_intern("processing_instruction");

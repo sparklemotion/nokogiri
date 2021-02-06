@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlSaxPushParser ;
+
 static void
 deallocate(xmlParserCtxtPtr ctx)
 {
@@ -149,22 +151,18 @@ set_replace_entities(VALUE self, VALUE value)
   return value;
 }
 
-VALUE cNokogiriXmlSaxPushParser ;
 void
 noko_init_xml_sax_push_parser()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE sax = rb_define_module_under(xml, "SAX");
-  VALUE klass = rb_define_class_under(sax, "PushParser", rb_cObject);
+  cNokogiriXmlSaxPushParser = rb_define_class_under(mNokogiriXmlSax, "PushParser", rb_cObject);
 
-  cNokogiriXmlSaxPushParser = klass;
+  rb_define_alloc_func(cNokogiriXmlSaxPushParser, allocate);
 
-  rb_define_alloc_func(klass, allocate);
-  rb_define_private_method(klass, "initialize_native", initialize_native, 2);
-  rb_define_private_method(klass, "native_write", native_write, 2);
-  rb_define_method(klass, "options", get_options, 0);
-  rb_define_method(klass, "options=", set_options, 1);
-  rb_define_method(klass, "replace_entities", get_replace_entities, 0);
-  rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options", get_options, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options=", set_options, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities", get_replace_entities, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities=", set_replace_entities, 1);
+
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "initialize_native", initialize_native, 2);
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "native_write", native_write, 2);
 }

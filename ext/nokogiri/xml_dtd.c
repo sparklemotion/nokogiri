@@ -1,10 +1,12 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriXmlDtd;
+static VALUE cNokogiriXmlNotation = 0;
+
 static void
 notation_copier(void *payload, void *data, const xmlChar *name)
 {
   VALUE hash = (VALUE)data;
-  VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Notation"));
 
   xmlNotationPtr c_notation = (xmlNotationPtr)payload;
   VALUE notation;
@@ -13,7 +15,10 @@ notation_copier(void *payload, void *data, const xmlChar *name)
   argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
   argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
 
-  notation = rb_class_new_instance(3, argv, klass);
+  if (!cNokogiriXmlNotation) {
+    cNokogiriXmlNotation = rb_const_get_at(mNokogiriXml, rb_intern("Notation"));
+  }
+  notation = rb_class_new_instance(3, argv, cNokogiriXmlNotation);
 
   rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name), notation);
 }
@@ -186,27 +191,20 @@ external_id(VALUE self)
   return NOKOGIRI_STR_NEW2(dtd->ExternalID);
 }
 
-VALUE cNokogiriXmlDtd;
-
 void
 noko_init_xml_dtd()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * Nokogiri::XML::DTD wraps DTD nodes in an XML document
    */
-  VALUE klass = rb_define_class_under(xml, "DTD", node);
+  cNokogiriXmlDtd = rb_define_class_under(mNokogiriXml, "DTD", cNokogiriXmlNode);
 
-  cNokogiriXmlDtd = klass;
-
-  rb_define_method(klass, "notations", notations, 0);
-  rb_define_method(klass, "elements", elements, 0);
-  rb_define_method(klass, "entities", entities, 0);
-  rb_define_method(klass, "validate", validate, 1);
-  rb_define_method(klass, "attributes", attributes, 0);
-  rb_define_method(klass, "system_id", system_id, 0);
-  rb_define_method(klass, "external_id", external_id, 0);
+  rb_define_method(cNokogiriXmlDtd, "notations", notations, 0);
+  rb_define_method(cNokogiriXmlDtd, "elements", elements, 0);
+  rb_define_method(cNokogiriXmlDtd, "entities", entities, 0);
+  rb_define_method(cNokogiriXmlDtd, "validate", validate, 1);
+  rb_define_method(cNokogiriXmlDtd, "attributes", attributes, 0);
+  rb_define_method(cNokogiriXmlDtd, "system_id", system_id, 0);
+  rb_define_method(cNokogiriXmlDtd, "external_id", external_id, 0);
 }

@@ -263,22 +263,17 @@ get_recovery(VALUE self)
 void
 noko_init_xml_sax_parser_context()
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE sax       = rb_define_module_under(xml, "SAX");
-  VALUE klass     = rb_define_class_under(sax, "ParserContext", rb_cObject);
+  cNokogiriXmlSaxParserContext = rb_define_class_under(mNokogiriXmlSax, "ParserContext", rb_cObject);
 
-  cNokogiriXmlSaxParserContext = klass;
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "io", parse_io, 2);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "memory", parse_memory, 1);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "file", parse_file, 1);
 
-  rb_define_singleton_method(klass, "io", parse_io, 2);
-  rb_define_singleton_method(klass, "memory", parse_memory, 1);
-  rb_define_singleton_method(klass, "file", parse_file, 1);
-
-  rb_define_method(klass, "parse_with", parse_with, 1);
-  rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
-  rb_define_method(klass, "replace_entities", get_replace_entities, 0);
-  rb_define_method(klass, "recovery=", set_recovery, 1);
-  rb_define_method(klass, "recovery", get_recovery, 0);
-  rb_define_method(klass, "line", line, 0);
-  rb_define_method(klass, "column", column, 0);
+  rb_define_method(cNokogiriXmlSaxParserContext, "parse_with", parse_with, 1);
+  rb_define_method(cNokogiriXmlSaxParserContext, "replace_entities=", set_replace_entities, 1);
+  rb_define_method(cNokogiriXmlSaxParserContext, "replace_entities", get_replace_entities, 0);
+  rb_define_method(cNokogiriXmlSaxParserContext, "recovery=", set_recovery, 1);
+  rb_define_method(cNokogiriXmlSaxParserContext, "recovery", get_recovery, 0);
+  rb_define_method(cNokogiriXmlSaxParserContext, "line", line, 0);
+  rb_define_method(cNokogiriXmlSaxParserContext, "column", column, 0);
 }

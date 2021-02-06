@@ -91,17 +91,13 @@ new (int argc, VALUE *argv, VALUE klass)
 void
 noko_init_xml_attr()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * Attr represents a Attr node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "Attr", node);
+  cNokogiriXmlAttr = rb_define_class_under(mNokogiriXml, "Attr", cNokogiriXmlNode);
 
-  cNokogiriXmlAttr = klass;
+  rb_define_singleton_method(cNokogiriXmlAttr, "new", new, -1);
 
-  rb_define_singleton_method(klass, "new", new, -1);
-  rb_define_method(klass, "value=", set_value, 1);
+  rb_define_method(cNokogiriXmlAttr, "value=", set_value, 1);
 }

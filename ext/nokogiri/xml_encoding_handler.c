@@ -75,8 +75,7 @@ name(VALUE self)
 void
 noko_init_xml_encoding_handler()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE klass = rb_define_class_under(nokogiri, "EncodingHandler", rb_cObject);
+  VALUE klass = rb_define_class_under(mNokogiri, "EncodingHandler", rb_cObject);
 
   rb_define_singleton_method(klass, "[]", get, 1);
   rb_define_singleton_method(klass, "delete", delete, 1);
