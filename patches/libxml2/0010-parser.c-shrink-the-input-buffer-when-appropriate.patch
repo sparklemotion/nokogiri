@@ -1,0 +1,70 @@
+From ca565c1edef9a455453fa8564270cc9c5813e1b9 Mon Sep 17 00:00:00 2001
+From: Mike Dalessio <mike.dalessio@gmail.com>
+Date: Sun, 31 Jan 2021 09:53:56 -0500
+Subject: [PATCH] parser.c: shrink the input buffer when appropriate
+
+Fixes GNOME/libxml2#200
+
+Also see discussions at:
+- GNOME/libxml2#192
+- https://gitlab.gnome.org/nwellnhof/libxml2/-/commit/99bda1e
+- https://github.com/sparklemotion/nokogiri/issues/2132
+---
+ parser.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/parser.c b/parser.c
+index a7bdc7f..efde672 100644
+--- a/parser.c
++++ b/parser.c
+@@ -4204,6 +4204,7 @@ xmlParseSystemLiteral(xmlParserCtxtPtr ctxt) {
+ 	}
+ 	count++;
+ 	if (count > 50) {
++	    SHRINK;
+ 	    GROW;
+ 	    count = 0;
+             if (ctxt->instate == XML_PARSER_EOF) {
+@@ -4291,6 +4292,7 @@ xmlParsePubidLiteral(xmlParserCtxtPtr ctxt) {
+ 	buf[len++] = cur;
+ 	count++;
+ 	if (count > 50) {
++	    SHRINK;
+ 	    GROW;
+ 	    count = 0;
+             if (ctxt->instate == XML_PARSER_EOF) {
+@@ -4571,6 +4573,7 @@ xmlParseCharDataComplex(xmlParserCtxtPtr ctxt, int cdata) {
+ 	}
+ 	count++;
+ 	if (count > 50) {
++	    SHRINK;
+ 	    GROW;
+ 	    count = 0;
+             if (ctxt->instate == XML_PARSER_EOF)
+@@ -4776,6 +4779,7 @@ xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar *buf,
+ 
+ 	count++;
+ 	if (count > 50) {
++	    SHRINK;
+ 	    GROW;
+ 	    count = 0;
+             if (ctxt->instate == XML_PARSER_EOF) {
+@@ -5186,6 +5190,7 @@ xmlParsePI(xmlParserCtxtPtr ctxt) {
+ 		}
+ 		count++;
+ 		if (count > 50) {
++		    SHRINK;
+ 		    GROW;
+                     if (ctxt->instate == XML_PARSER_EOF) {
+                         xmlFree(buf);
+@@ -9783,6 +9788,7 @@ xmlParseCDSect(xmlParserCtxtPtr ctxt) {
+ 	sl = l;
+ 	count++;
+ 	if (count > 50) {
++	    SHRINK;
+ 	    GROW;
+             if (ctxt->instate == XML_PARSER_EOF) {
+ 		xmlFree(buf);
+-- 
+2.25.1
+
