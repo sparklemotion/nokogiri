@@ -1053,16 +1053,16 @@ attribute_nodes(VALUE self)
  *  object, or nil if there is no namespace for the element or attribute.
  */
 static VALUE
-namespace(VALUE self)
+namespace(VALUE rb_node)
 {
-xmlNodePtr node ;
-Data_Get_Struct(self, xmlNode, node);
+  xmlNodePtr c_node ;
+  Data_Get_Struct(rb_node, xmlNode, c_node);
 
-if (node->ns) {
-  return Nokogiri_wrap_xml_namespace(node->doc, node->ns);
-}
+  if (c_node->ns) {
+    return noko_xml_namespace_wrap(c_node->ns, c_node->doc);
+  }
 
-return Qnil ;
+  return Qnil ;
 }
 
 /*
@@ -1072,27 +1072,26 @@ return Qnil ;
  *  returns namespaces defined on self element directly, as an array of Namespace objects. Includes both a default namespace (as in"xmlns="), and prefixed namespaces (as in "xmlns:prefix=").
  */
 static VALUE
-namespace_definitions(VALUE self)
+namespace_definitions(VALUE rb_node)
 {
   /* this code in the mode of xmlHasProp() */
-  xmlNodePtr node ;
-  VALUE list;
-  xmlNsPtr ns;
+  xmlNodePtr c_node ;
+  xmlNsPtr c_namespace;
+  VALUE definitions = rb_ary_new();
 
-  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(rb_node, xmlNode, c_node);
 
-  list = rb_ary_new();
-
-  ns = node->nsDef;
-
-  if (!ns) { return list; }
-
-  while (NULL != ns) {
-    rb_ary_push(list, Nokogiri_wrap_xml_namespace(node->doc, ns));
-    ns = ns->next;
+  c_namespace = c_node->nsDef;
+  if (!c_namespace) {
+    return definitions;
   }
 
-  return list;
+  while (c_namespace != NULL) {
+    rb_ary_push(definitions, noko_xml_namespace_wrap(c_namespace, c_node->doc));
+    c_namespace = c_namespace->next;
+  }
+
+  return definitions;
 }
 
 /*
@@ -1105,26 +1104,26 @@ namespace_definitions(VALUE self)
  * namespaces for  ancestors, however, are not. See also #namespaces
  */
 static VALUE
-namespace_scopes(VALUE self)
+namespace_scopes(VALUE rb_node)
 {
-  xmlNodePtr node ;
-  VALUE list;
-  xmlNsPtr *ns_list;
+  xmlNodePtr c_node ;
+  xmlNsPtr *namespaces;
+  VALUE scopes = rb_ary_new();
   int j;
 
-  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(rb_node, xmlNode, c_node);
 
-  list = rb_ary_new();
-  ns_list = xmlGetNsList(node->doc, node);
-
-  if (!ns_list) { return list; }
-
-  for (j = 0 ; ns_list[j] != NULL ; ++j) {
-    rb_ary_push(list, Nokogiri_wrap_xml_namespace(node->doc, ns_list[j]));
+  namespaces = xmlGetNsList(c_node->doc, c_node);
+  if (!namespaces) {
+    return scopes;
   }
 
-  xmlFree(ns_list);
-  return list;
+  for (j = 0 ; namespaces[j] != NULL ; ++j) {
+    rb_ary_push(scopes, noko_xml_namespace_wrap(namespaces[j], c_node->doc));
+  }
+
+  xmlFree(namespaces);
+  return scopes;
 }
 
 /*
@@ -1416,36 +1415,33 @@ set_line(VALUE self, VALUE num)
  * when the node is serialized to XML.
  */
 static VALUE
-add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
+add_namespace_definition(VALUE rb_node, VALUE rb_prefix, VALUE rb_href)
 {
-  xmlNodePtr node, namespace;
-  xmlNsPtr ns;
+  xmlNodePtr c_node, element;
+  xmlNsPtr c_namespace;
+  const xmlChar *c_prefix = (const xmlChar *)(NIL_P(rb_prefix) ? NULL : StringValueCStr(rb_prefix));
 
-  Data_Get_Struct(self, xmlNode, node);
-  namespace = node ;
+  Data_Get_Struct(rb_node, xmlNode, c_node);
+  element = c_node ;
 
-  ns = xmlSearchNs(
-         node->doc,
-         node,
-         (const xmlChar *)(NIL_P(prefix) ? NULL : StringValueCStr(prefix))
-       );
+  c_namespace = xmlSearchNs(c_node->doc, c_node, c_prefix);
 
-  if (!ns) {
-    if (node->type != XML_ELEMENT_NODE) {
-      namespace = node->parent;
+  if (!c_namespace) {
+    if (c_node->type != XML_ELEMENT_NODE) {
+      element = c_node->parent;
     }
-    ns = xmlNewNs(
-           namespace,
-           (const xmlChar *)StringValueCStr(href),
-           (const xmlChar *)(NIL_P(prefix) ? NULL : StringValueCStr(prefix))
-         );
+    c_namespace = xmlNewNs(element, (const xmlChar *)StringValueCStr(rb_href), c_prefix);
   }
 
-  if (!ns) { return Qnil ; }
+  if (!c_namespace) {
+    return Qnil ;
+  }
 
-  if (NIL_P(prefix) || node != namespace) { xmlSetNs(node, ns); }
+  if (NIL_P(rb_prefix) || c_node != element) {
+    xmlSetNs(c_node, c_namespace);
+  }
 
-  return Nokogiri_wrap_xml_namespace(node->doc, ns);
+  return noko_xml_namespace_wrap(c_namespace, c_node->doc);
 }
 
 /*

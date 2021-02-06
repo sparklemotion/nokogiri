@@ -156,8 +156,8 @@ VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc
 VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
 VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
-VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node);
-VALUE Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr node);
+VALUE noko_xml_namespace_wrap(xmlNsPtr node, xmlDocPtr doc);
+VALUE noko_xml_namespace_wrap_xpath_copy(xmlNsPtr node);
 
 VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node) ;
 VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document) ;

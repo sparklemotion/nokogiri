@@ -500,26 +500,23 @@ create_entity(int argc, VALUE *argv, VALUE self)
 }
 
 static int
-block_caller(void *ctx, xmlNodePtr _node, xmlNodePtr _parent)
+block_caller(void *ctx, xmlNodePtr c_node, xmlNodePtr c_parent_node)
 {
-  VALUE block;
-  VALUE node;
-  VALUE parent;
+  VALUE block = (VALUE)ctx;
+  VALUE rb_node;
+  VALUE rb_parent_node;
   VALUE ret;
 
-  if (_node->type == XML_NAMESPACE_DECL) {
-    node = Nokogiri_wrap_xml_namespace(_parent->doc, (xmlNsPtr) _node);
+  if (c_node->type == XML_NAMESPACE_DECL) {
+    rb_node = noko_xml_namespace_wrap((xmlNsPtr)c_node, c_parent_node->doc);
   } else {
-    node   = Nokogiri_wrap_xml_node(Qnil, _node);
+    rb_node = Nokogiri_wrap_xml_node(Qnil, c_node);
   }
-  parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
-  block  = (VALUE)ctx;
+  rb_parent_node = c_parent_node ? Nokogiri_wrap_xml_node(Qnil, c_parent_node) : Qnil;
 
-  ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
+  ret = rb_funcall(block, rb_intern("call"), 2, rb_node, rb_parent_node);
 
-  if (Qfalse == ret || Qnil == ret) { return 0; }
-
-  return 1;
+  return (Qfalse == ret || Qnil == ret) ? 0 : 1;
 }
 
 /* call-seq:
@@ -591,30 +588,31 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
 }
 
 VALUE
-noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv)
+noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr c_document, int argc, VALUE *argv)
 {
-  nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
+  VALUE rb_document;
+  nokogiriTuplePtr tuple;
 
-  VALUE rb_doc = Data_Wrap_Struct(
-                   klass ? klass : cNokogiriXmlDocument,
-                   mark,
-                   dealloc,
-                   doc
-                 );
+  if (!klass) {
+    klass = cNokogiriXmlDocument;
+  }
 
-  VALUE cache = rb_ary_new();
-  rb_iv_set(rb_doc, "@decorators", Qnil);
-  rb_iv_set(rb_doc, "@errors", Qnil);
-  rb_iv_set(rb_doc, "@node_cache", cache);
+  rb_document = Data_Wrap_Struct(klass, mark, dealloc, c_document);
 
-  tuple->doc = rb_doc;
+  tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
+  tuple->doc = rb_document;
   tuple->unlinkedNodes = st_init_numtable_with_size(128);
-  tuple->node_cache = cache;
-  doc->_private = tuple ;
+  tuple->node_cache = rb_ary_new();
 
-  rb_obj_call_init(rb_doc, argc, argv);
+  c_document->_private = tuple ;
 
-  return rb_doc ;
+  rb_iv_set(rb_document, "@decorators", Qnil);
+  rb_iv_set(rb_document, "@errors", Qnil);
+  rb_iv_set(rb_document, "@node_cache", tuple->node_cache);
+
+  rb_obj_call_init(rb_document, argc, argv);
+
+  return rb_document ;
 }
 
 

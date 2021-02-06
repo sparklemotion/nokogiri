@@ -28,12 +28,8 @@ static void
 dealloc_namespace(xmlNsPtr ns)
 {
   /*
-   *
    * this deallocator is only used for namespace nodes that are part of an xpath
-   * node set.
-   *
-   * see Nokogiri_wrap_xml_namespace() for more details.
-   *
+   * node set. see noko_xml_namespace_wrap().
    */
   NOKOGIRI_DEBUG_START(ns) ;
   if (ns->href) {
@@ -82,42 +78,34 @@ href(VALUE self)
 }
 
 VALUE
-Nokogiri_xml_namespace__wrap_xpath_query_copy(xmlNsPtr c_namespace)
+noko_xml_namespace_wrap(xmlNsPtr c_namespace, xmlDocPtr c_document)
 {
   VALUE rb_namespace;
 
-  if (c_namespace->_private) { return (VALUE)c_namespace->_private; }
+  if (c_namespace->_private) {
+    return (VALUE)c_namespace->_private;
+  }
 
-  rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
+  if (c_document) {
+    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, c_namespace);
+
+    if (DOC_RUBY_OBJECT_TEST(c_document)) {
+      rb_iv_set(rb_namespace, "@document", DOC_RUBY_OBJECT(c_document));
+      rb_ary_push(DOC_NODE_CACHE(c_document), rb_namespace);
+    }
+  } else {
+    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
+  }
 
   c_namespace->_private = (void *)rb_namespace;
+
   return rb_namespace;
 }
 
 VALUE
-Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
+noko_xml_namespace_wrap_xpath_copy(xmlNsPtr c_namespace)
 {
-  VALUE ns = 0, document, node_cache;
-
-  assert(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE);
-
-  if (node->_private) { return (VALUE)node->_private; }
-
-  if (DOC_RUBY_OBJECT_TEST(doc)) {
-    document = DOC_RUBY_OBJECT(doc);
-
-    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
-    node_cache = rb_iv_get(document, "@node_cache");
-    rb_ary_push(node_cache, ns);
-
-    rb_iv_set(ns, "@document", document);
-  } else {
-    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
-  }
-
-  node->_private = (void *)ns;
-
-  return ns;
+  return noko_xml_namespace_wrap(c_namespace, NULL);
 }
 
 void

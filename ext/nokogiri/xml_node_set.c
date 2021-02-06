@@ -467,7 +467,7 @@ VALUE
 Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 {
   if (NOKOGIRI_NAMESPACE_EH(node)) {
-    return Nokogiri_xml_namespace__wrap_xpath_query_copy((xmlNsPtr)node);
+    return noko_xml_namespace_wrap_xpath_copy((xmlNsPtr)node);
   } else {
     return Nokogiri_wrap_xml_node(Qnil, node);
   }
