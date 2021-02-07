@@ -47,7 +47,7 @@ get_c1(VALUE self)
   Data_Get_Struct(self, xmlElementContent, elem);
 
   if (!elem->c1) { return Qnil; }
-  return Nokogiri_wrap_element_content(rb_iv_get(self, "@document"), elem->c1);
+  return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c1);
 }
 
 /*
@@ -63,7 +63,7 @@ get_c2(VALUE self)
   Data_Get_Struct(self, xmlElementContent, elem);
 
   if (!elem->c2) { return Qnil; }
-  return Nokogiri_wrap_element_content(rb_iv_get(self, "@document"), elem->c2);
+  return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c2);
 }
 
 /*
@@ -100,7 +100,7 @@ get_prefix(VALUE self)
 }
 
 VALUE
-Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
+noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element)
 {
   VALUE elem = Data_Wrap_Struct(cNokogiriXmlElementContent, 0, 0, element);
 

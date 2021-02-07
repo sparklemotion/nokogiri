@@ -158,11 +158,6 @@ public class XmlReader extends RubyObject {
         return currentNode().getAttributesNodes();
     }
 
-    @JRubyMethod
-    public IRubyObject attr_nodes(ThreadContext context) {
-        return currentNode().getAttributesNodes();
-    }
-
     @JRubyMethod(name = "attributes?")
     public IRubyObject attributes_p(ThreadContext context) {
         return currentNode().hasAttributes();

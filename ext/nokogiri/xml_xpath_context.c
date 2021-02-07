@@ -164,7 +164,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
         argv[i] = rb_float_new(obj->floatval);
         break;
       case XPATH_NODESET:
-        argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval, doc);
+        argv[i] = noko_xml_node_set_wrap(obj->nodesetval, doc);
         break;
       default:
         argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
@@ -319,7 +319,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
     xmlFree(xpath->stringval);
     break;
   case XPATH_NODESET:
-    thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
+    thing = noko_xml_node_set_wrap(xpath->nodesetval,
                                        DOC_RUBY_OBJECT(ctx->doc));
     break;
   case XPATH_NUMBER:
@@ -329,7 +329,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
     thing = xpath->boolval == 1 ? Qtrue : Qfalse;
     break;
   default:
-    thing = Nokogiri_wrap_xml_node_set(NULL, DOC_RUBY_OBJECT(ctx->doc));
+    thing = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(ctx->doc));
   }
 
   xmlXPathFreeNodeSetList(xpath);

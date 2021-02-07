@@ -27,7 +27,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   noko_xml_document_pin_node(node);
 
-  rb_node = Nokogiri_wrap_xml_node(klass, node) ;
+  rb_node = noko_xml_node_wrap(klass, node) ;
   rb_obj_call_init(rb_node, argc, argv);
 
   if (rb_block_given_p()) { rb_yield(rb_node); }

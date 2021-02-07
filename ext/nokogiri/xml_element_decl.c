@@ -32,7 +32,7 @@ content(VALUE self)
 
   if (!node->content) { return Qnil; }
 
-  return Nokogiri_wrap_element_content(
+  return noko_xml_element_content_wrap(
            rb_funcall(self, id_document, 0),
            node->content
          );

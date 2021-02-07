@@ -86,7 +86,8 @@ module Nokogiri
       private :initialize
 
       ###
-      # Get a list of attributes for the current node.
+      # Get the attributes of the current node as a Hash
+      # @return [Hash<String, String>] Attribute names and values
       def attributes
         attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
                        hash[node.name] = node.to_s
@@ -94,14 +95,6 @@ module Nokogiri
         ns = namespaces
         attrs_hash.merge!(ns) if ns
         attrs_hash
-      end
-
-      ###
-      # Get a list of attributes for the current node
-      def attribute_nodes
-        nodes = attr_nodes
-        nodes.each { |v| v.instance_variable_set(:@_r, self) }
-        nodes
       end
 
       ###

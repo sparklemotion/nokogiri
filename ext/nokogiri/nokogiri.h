@@ -156,21 +156,20 @@ int noko_io_read(void *ctx, char *buffer, int len);
 int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 
-VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
-VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
+VALUE noko_xml_node_wrap(VALUE klass, xmlNodePtr node) ;
+VALUE noko_xml_node_wrap_node_set_result(xmlNodePtr node, VALUE node_set) ;
+VALUE noko_xml_node_attrs(xmlNodePtr node) ;
 
 VALUE noko_xml_namespace_wrap(xmlNsPtr node, xmlDocPtr doc);
 VALUE noko_xml_namespace_wrap_xpath_copy(xmlNsPtr node);
 
-VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node) ;
-VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document) ;
-VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set) ;
-VALUE Nokogiri_wrap_xml_node_set_namespace(xmlNsPtr node, VALUE node_set) ;
+VALUE noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element);
 
-VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element);
+VALUE noko_xml_node_set_wrap(xmlNodeSetPtr node_set, VALUE document) ;
 
-void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash) ;
+VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
+VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)

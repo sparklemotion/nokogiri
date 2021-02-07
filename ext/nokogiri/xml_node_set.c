@@ -101,7 +101,7 @@ deallocate(xmlNodeSetPtr node_set)
 static VALUE
 allocate(VALUE klass)
 {
-  return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL), Qnil);
+  return noko_xml_node_set_wrap(xmlXPathNodeSetCreate(NULL), Qnil);
 }
 
 
@@ -122,7 +122,7 @@ duplicate(VALUE self)
 
   dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
-  return Nokogiri_wrap_xml_node_set(dupl, rb_iv_get(self, "@document"));
+  return noko_xml_node_set_wrap(dupl, rb_iv_get(self, "@document"));
 }
 
 /*
@@ -209,7 +209,7 @@ intersection(VALUE self, VALUE rb_other)
   Data_Get_Struct(rb_other, xmlNodeSet, other);
 
   intersection = xmlXPathIntersection(node_set, other);
-  return Nokogiri_wrap_xml_node_set(intersection, rb_iv_get(self, "@document"));
+  return noko_xml_node_set_wrap(intersection, rb_iv_get(self, "@document"));
 }
 
 
@@ -257,7 +257,7 @@ rb_xml_node_set_union(VALUE rb_node_set, VALUE rb_other)
   c_new_node_set = xmlXPathNodeSetMerge(NULL, c_node_set);
   c_new_node_set = xmlXPathNodeSetMerge(c_new_node_set, c_other);
 
-  return Nokogiri_wrap_xml_node_set(c_new_node_set, rb_iv_get(rb_node_set, "@document"));
+  return noko_xml_node_set_wrap(c_new_node_set, rb_iv_get(rb_node_set, "@document"));
 }
 
 /*
@@ -286,7 +286,7 @@ minus(VALUE self, VALUE rb_other)
     xpath_node_set_del(new, other->nodeTab[j]);
   }
 
-  return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
+  return noko_xml_node_set_wrap(new, rb_iv_get(self, "@document"));
 }
 
 
@@ -303,7 +303,7 @@ index_at(VALUE self, long offset)
 
   if (offset < 0) { offset += node_set->nodeNr ; }
 
-  return Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[offset], self);
+  return noko_xml_node_wrap_node_set_result(node_set->nodeTab[offset], self);
 }
 
 static VALUE
@@ -326,7 +326,7 @@ subseq(VALUE self, long beg, long len)
   for (j = beg ; j < beg + len ; ++j) {
     xmlXPathNodeSetAddUnique(new_set, node_set->nodeTab[j]);
   }
-  return Nokogiri_wrap_xml_node_set(new_set, rb_iv_get(self, "@document"));
+  return noko_xml_node_set_wrap(new_set, rb_iv_get(self, "@document"));
 }
 
 /*
@@ -402,7 +402,7 @@ to_array(VALUE self)
 
   list = rb_ary_new2(node_set->nodeNr);
   for (i = 0; i < node_set->nodeNr; i++) {
-    VALUE elt = Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[i], self);
+    VALUE elt = noko_xml_node_wrap_node_set_result(node_set->nodeTab[i], self);
     rb_ary_push(list, elt);
   }
 
@@ -428,7 +428,7 @@ unlink_nodeset(VALUE self)
     if (! NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) {
       VALUE node ;
       xmlNodePtr node_ptr;
-      node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
+      node = noko_xml_node_wrap(Qnil, node_set->nodeTab[j]);
       rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
       Data_Get_Struct(node, xmlNode, node_ptr);
       node_set->nodeTab[j] = node_ptr ;
@@ -439,7 +439,7 @@ unlink_nodeset(VALUE self)
 
 
 VALUE
-Nokogiri_wrap_xml_node_set(xmlNodeSetPtr c_node_set, VALUE document)
+noko_xml_node_set_wrap(xmlNodeSetPtr c_node_set, VALUE document)
 {
   int j;
   VALUE rb_node_set ;
@@ -457,19 +457,19 @@ Nokogiri_wrap_xml_node_set(xmlNodeSetPtr c_node_set, VALUE document)
 
   /* make sure we create ruby objects for all the results, so they'll be marked during the GC mark phase */
   for (j = 0 ; j < c_node_set->nodeNr ; j++) {
-    Nokogiri_wrap_xml_node_set_node(c_node_set->nodeTab[j], rb_node_set);
+    noko_xml_node_wrap_node_set_result(c_node_set->nodeTab[j], rb_node_set);
   }
 
   return rb_node_set ;
 }
 
 VALUE
-Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
+noko_xml_node_wrap_node_set_result(xmlNodePtr node, VALUE node_set)
 {
   if (NOKOGIRI_NAMESPACE_EH(node)) {
     return noko_xml_namespace_wrap_xpath_copy((xmlNsPtr)node);
   } else {
-    return Nokogiri_wrap_xml_node(Qnil, node);
+    return noko_xml_node_wrap(Qnil, node);
   }
 }
 

@@ -196,7 +196,7 @@ root(VALUE self)
   root = xmlDocGetRootElement(doc);
 
   if (!root) { return Qnil; }
-  return Nokogiri_wrap_xml_node(Qnil, root) ;
+  return noko_xml_node_wrap(Qnil, root) ;
 }
 
 /*
@@ -496,7 +496,7 @@ create_entity(int argc, VALUE *argv, VALUE self)
     return Qnil;
   }
 
-  return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
+  return noko_xml_node_wrap(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
 }
 
 static int
@@ -510,9 +510,9 @@ block_caller(void *ctx, xmlNodePtr c_node, xmlNodePtr c_parent_node)
   if (c_node->type == XML_NAMESPACE_DECL) {
     rb_node = noko_xml_namespace_wrap((xmlNsPtr)c_node, c_parent_node->doc);
   } else {
-    rb_node = Nokogiri_wrap_xml_node(Qnil, c_node);
+    rb_node = noko_xml_node_wrap(Qnil, c_node);
   }
-  rb_parent_node = c_parent_node ? Nokogiri_wrap_xml_node(Qnil, c_parent_node) : Qnil;
+  rb_parent_node = c_parent_node ? noko_xml_node_wrap(Qnil, c_parent_node) : Qnil;
 
   ret = rb_funcall(block, rb_intern("call"), 2, rb_node, rb_parent_node);
 

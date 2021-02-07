@@ -148,32 +148,37 @@ namespaces(VALUE self)
 }
 
 /*
- * call-seq:
- *   attribute_nodes
- *
- * Get a list of attributes for this Node
+ * @overload attribute_nodes()
+ *   Get the attributes of the current node as an Array of Attr
+ *   @return [Array<Nokogiri::XML::Attr>]
  */
 static VALUE
-attribute_nodes(VALUE self)
+rb_xml_reader_attribute_nodes(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
-  xmlNodePtr ptr;
-  VALUE attr ;
+  xmlTextReaderPtr c_reader;
+  xmlNodePtr c_node;
+  VALUE attr_nodes;
+  int j;
 
-  Data_Get_Struct(self, xmlTextReader, reader);
+  Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
 
-  attr = rb_ary_new() ;
-
-  if (! has_attributes(reader)) {
-    return attr ;
+  if (! has_attributes(c_reader)) {
+    return rb_ary_new() ;
   }
 
-  ptr = xmlTextReaderExpand(reader);
-  if (ptr == NULL) { return Qnil; }
+  c_node = xmlTextReaderExpand(c_reader);
+  if (c_node == NULL) {
+    return Qnil;
+  }
 
-  Nokogiri_xml_node_properties(ptr, attr);
+  attr_nodes = noko_xml_node_attrs(c_node);
 
-  return attr ;
+  /* ensure that the Reader won't be GCed as long as a node is referenced */
+  for (j = 0 ; j < RARRAY_LEN(attr_nodes) ; j++) {
+    rb_iv_set(rb_ary_entry(attr_nodes, j), "@reader", rb_reader);
+  }
+
+  return attr_nodes;
 }
 
 /*
@@ -660,28 +665,27 @@ noko_init_xml_reader()
   rb_define_singleton_method(cNokogiriXmlReader, "from_memory", from_memory, -1);
   rb_define_singleton_method(cNokogiriXmlReader, "from_io", from_io, -1);
 
-  rb_define_method(cNokogiriXmlReader, "read", read_more, 0);
-  rb_define_method(cNokogiriXmlReader, "inner_xml", inner_xml, 0);
-  rb_define_method(cNokogiriXmlReader, "outer_xml", outer_xml, 0);
-  rb_define_method(cNokogiriXmlReader, "state", state, 0);
-  rb_define_method(cNokogiriXmlReader, "node_type", node_type, 0);
-  rb_define_method(cNokogiriXmlReader, "name", name, 0);
-  rb_define_method(cNokogiriXmlReader, "local_name", local_name, 0);
-  rb_define_method(cNokogiriXmlReader, "namespace_uri", namespace_uri, 0);
-  rb_define_method(cNokogiriXmlReader, "prefix", prefix, 0);
-  rb_define_method(cNokogiriXmlReader, "value", value, 0);
-  rb_define_method(cNokogiriXmlReader, "lang", lang, 0);
-  rb_define_method(cNokogiriXmlReader, "xml_version", xml_version, 0);
-  rb_define_method(cNokogiriXmlReader, "depth", depth, 0);
-  rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
   rb_define_method(cNokogiriXmlReader, "attribute", reader_attribute, 1);
-  rb_define_method(cNokogiriXmlReader, "namespaces", namespaces, 0);
   rb_define_method(cNokogiriXmlReader, "attribute_at", attribute_at, 1);
-  rb_define_method(cNokogiriXmlReader, "empty_element?", empty_element_p, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute_nodes", rb_xml_reader_attribute_nodes, 0);
   rb_define_method(cNokogiriXmlReader, "attributes?", attributes_eh, 0);
-  rb_define_method(cNokogiriXmlReader, "value?", value_eh, 0);
-  rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
   rb_define_method(cNokogiriXmlReader, "base_uri", base_uri, 0);
-
-  rb_define_private_method(cNokogiriXmlReader, "attr_nodes", attribute_nodes, 0);
+  rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
+  rb_define_method(cNokogiriXmlReader, "depth", depth, 0);
+  rb_define_method(cNokogiriXmlReader, "empty_element?", empty_element_p, 0);
+  rb_define_method(cNokogiriXmlReader, "inner_xml", inner_xml, 0);
+  rb_define_method(cNokogiriXmlReader, "lang", lang, 0);
+  rb_define_method(cNokogiriXmlReader, "local_name", local_name, 0);
+  rb_define_method(cNokogiriXmlReader, "name", name, 0);
+  rb_define_method(cNokogiriXmlReader, "namespace_uri", namespace_uri, 0);
+  rb_define_method(cNokogiriXmlReader, "namespaces", namespaces, 0);
+  rb_define_method(cNokogiriXmlReader, "node_type", node_type, 0);
+  rb_define_method(cNokogiriXmlReader, "outer_xml", outer_xml, 0);
+  rb_define_method(cNokogiriXmlReader, "prefix", prefix, 0);
+  rb_define_method(cNokogiriXmlReader, "read", read_more, 0);
+  rb_define_method(cNokogiriXmlReader, "state", state, 0);
+  rb_define_method(cNokogiriXmlReader, "value", value, 0);
+  rb_define_method(cNokogiriXmlReader, "value?", value_eh, 0);
+  rb_define_method(cNokogiriXmlReader, "xml_version", xml_version, 0);
 }

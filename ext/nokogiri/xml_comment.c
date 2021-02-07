@@ -37,7 +37,7 @@ new (int argc, VALUE *argv, VALUE klass)
            (const xmlChar *)StringValueCStr(content)
          );
 
-  rb_node = Nokogiri_wrap_xml_node(klass, node);
+  rb_node = noko_xml_node_wrap(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
   noko_xml_document_pin_node(node);
