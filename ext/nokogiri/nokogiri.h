@@ -15,16 +15,13 @@
 #  include <windows.h>
 #endif
 
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <ruby.h>
-#include <ruby/st.h>
-#include <ruby/encoding.h>
-#include <ruby/util.h>
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -59,6 +56,12 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 
+
+#include <ruby.h>
+#include <ruby/st.h>
+#include <ruby/encoding.h>
+#include <ruby/util.h>
+
 #define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
 #define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
 #define RBSTR_OR_QNIL(_str) (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
@@ -78,6 +81,7 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #    define NORETURN(name) name
 #  endif
 #endif
+
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriHtml ;
