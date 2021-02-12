@@ -1,7 +1,6 @@
 #include <nokogiri.h>
 
 VALUE cNokogiriXmlSaxParser ;
-static VALUE cNokogiriXmlSaxParserAttribute = 0;
 
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
@@ -88,36 +87,32 @@ end_element(void *ctx, const xmlChar *name)
 }
 
 static VALUE
-attributes_as_list(
-  VALUE self,
-  int nb_attributes,
-  const xmlChar **attributes)
+attributes_as_array(int attributes_len, const xmlChar **c_attributes)
 {
-  VALUE list = rb_ary_new2((long)nb_attributes);
+  VALUE rb_array = rb_ary_new2((long)attributes_len);
+  VALUE cNokogiriXmlSaxParserAttribute;
 
-  if (!cNokogiriXmlSaxParserAttribute) {
-    cNokogiriXmlSaxParserAttribute = rb_const_get_at(cNokogiriXmlSaxParser, rb_intern("Attribute"));
-  }
-  if (attributes) {
+  cNokogiriXmlSaxParserAttribute = rb_const_get_at(cNokogiriXmlSaxParser, rb_intern("Attribute"));
+  if (c_attributes) {
     /* Each attribute is an array of [localname, prefix, URI, value, end] */
     int i;
-    for (i = 0; i < nb_attributes * 5; i += 5) {
-      VALUE argv[4], attribute;
+    for (i = 0; i < attributes_len * 5; i += 5) {
+      VALUE rb_constructor_args[4], rb_attribute;
 
-      argv[0] = RBSTR_OR_QNIL(attributes[i + 0]); /* localname */
-      argv[1] = RBSTR_OR_QNIL(attributes[i + 1]); /* prefix */
-      argv[2] = RBSTR_OR_QNIL(attributes[i + 2]); /* URI */
+      rb_constructor_args[0] = RBSTR_OR_QNIL(c_attributes[i + 0]); /* localname */
+      rb_constructor_args[1] = RBSTR_OR_QNIL(c_attributes[i + 1]); /* prefix */
+      rb_constructor_args[2] = RBSTR_OR_QNIL(c_attributes[i + 2]); /* URI */
 
       /* value */
-      argv[3] = NOKOGIRI_STR_NEW((const char *)attributes[i + 3],
-                                 (attributes[i + 4] - attributes[i + 3]));
+      rb_constructor_args[3] = NOKOGIRI_STR_NEW((const char *)c_attributes[i + 3],
+                                                (c_attributes[i + 4] - c_attributes[i + 3]));
 
-      attribute = rb_class_new_instance(4, argv, cNokogiriXmlSaxParserAttribute);
-      rb_ary_push(list, attribute);
+      rb_attribute = rb_class_new_instance(4, rb_constructor_args, cNokogiriXmlSaxParserAttribute);
+      rb_ary_push(rb_array, rb_attribute);
     }
   }
 
-  return list;
+  return rb_array;
 }
 
 static void
@@ -135,7 +130,7 @@ start_element_ns(
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
 
-  VALUE attribute_list = attributes_as_list(self, nb_attributes, attributes);
+  VALUE attribute_ary = attributes_as_array(nb_attributes, attributes);
 
   VALUE ns_list = rb_ary_new2((long)nb_namespaces);
 
@@ -155,7 +150,7 @@ start_element_ns(
              id_start_element_namespace,
              5,
              NOKOGIRI_STR_NEW2(localname),
-             attribute_list,
+             attribute_ary,
              RBSTR_OR_QNIL(prefix),
              RBSTR_OR_QNIL(uri),
              ns_list

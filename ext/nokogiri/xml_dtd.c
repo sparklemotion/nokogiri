@@ -1,37 +1,35 @@
 #include <nokogiri.h>
 
 VALUE cNokogiriXmlDtd;
-static VALUE cNokogiriXmlNotation = 0;
 
 static void
-notation_copier(void *payload, void *data, const xmlChar *name)
+notation_copier(void *c_notation_ptr, void *rb_hash_ptr, const xmlChar *name)
 {
-  VALUE hash = (VALUE)data;
+  VALUE rb_hash = (VALUE)rb_hash_ptr;
+  xmlNotationPtr c_notation = (xmlNotationPtr)c_notation_ptr;
+  VALUE rb_notation;
+  VALUE cNokogiriXmlNotation;
+  VALUE rb_constructor_args[3];
 
-  xmlNotationPtr c_notation = (xmlNotationPtr)payload;
-  VALUE notation;
-  VALUE argv[3];
-  argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
-  argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
-  argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
+  rb_constructor_args[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
+  rb_constructor_args[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
+  rb_constructor_args[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
 
-  if (!cNokogiriXmlNotation) {
-    cNokogiriXmlNotation = rb_const_get_at(mNokogiriXml, rb_intern("Notation"));
-  }
-  notation = rb_class_new_instance(3, argv, cNokogiriXmlNotation);
+  cNokogiriXmlNotation = rb_const_get_at(mNokogiriXml, rb_intern("Notation"));
+  rb_notation = rb_class_new_instance(3, rb_constructor_args, cNokogiriXmlNotation);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name), notation);
+  rb_hash_aset(rb_hash, NOKOGIRI_STR_NEW2(name), rb_notation);
 }
 
 static void
-element_copier(void *_payload, void *data, const xmlChar *name)
+element_copier(void *c_node_ptr, void *rb_hash_ptr, const xmlChar *c_name)
 {
-  VALUE hash = (VALUE)data;
-  xmlNodePtr payload = (xmlNodePtr)_payload;
+  VALUE rb_hash = (VALUE)rb_hash_ptr;
+  xmlNodePtr c_node = (xmlNodePtr)c_node_ptr;
 
-  VALUE element = noko_xml_node_wrap(Qnil, payload);
+  VALUE rb_node = noko_xml_node_wrap(Qnil, c_node);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name), element);
+  rb_hash_aset(rb_hash, NOKOGIRI_STR_NEW2(c_name), rb_node);
 }
 
 /*
