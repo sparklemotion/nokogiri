@@ -70,7 +70,7 @@ module Nokogiri
         exception_raised = false
         begin
           @xml.do_xinclude { |opts| opts.nowarning }
-        rescue Exception => e
+        rescue StandardError => e
           assert_equal Nokogiri::XML::SyntaxError, e.class
           exception_raised = true
         end
