@@ -97,7 +97,7 @@ class TestVersionInfo
   class Base < Nokogiri::TestCase
     let(:version_info) do
       version_info = Dir.chdir(ROOTDIR) do
-        %x(#{RUBYEXEC} -Ilib -rjson -e 'require "#{require_name}"; puts Nokogiri::VERSION_INFO.to_json')
+        `#{RUBYEXEC} -Ilib -rjson -e 'require "#{require_name}"; puts Nokogiri::VERSION_INFO.to_json'`
       end
       JSON.parse(version_info)
     end

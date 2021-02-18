@@ -536,7 +536,7 @@ do_help if arg_config('--help')
 do_clean if arg_config('--clean')
 
 if openbsd? && !using_system_libraries?
-  if %x(#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1) !~ /clang/
+  if `#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1` !~ /clang/
     (ENV['CC'] ||= find_executable('egcc')) ||
       abort("Please install gcc 4.9+ from ports using `pkg_add -v gcc`")
   end
@@ -783,8 +783,8 @@ cross_build_p) do |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
       File.join(recipe.path, "bin", "#{libname}-config").tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
-        $CPPFLAGS = %x(sh #{config} --cflags).strip << ' ' << $CPPFLAGS
-        %x(sh #{config} --libs).strip.shellsplit.each do |arg|
+        $CPPFLAGS = `sh #{config} --cflags`.strip << ' ' << $CPPFLAGS
+        `sh #{config} --libs`.strip.shellsplit.each do |arg|
           case arg
           when /\A-L(.+)\z/
             # Prioritize ports' directories
