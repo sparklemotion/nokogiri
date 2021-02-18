@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require "thread"
-
 module Nokogiri
   module CSS
     class Parser < Racc::Parser
