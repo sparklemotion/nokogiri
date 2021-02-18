@@ -834,16 +834,14 @@ module Nokogiri
         end
 
         def test_new
-          doc = nil
-          doc = Nokogiri::XML::Document.new
+                    doc = Nokogiri::XML::Document.new
           assert(doc)
           assert(doc.xml?)
           assert_nil(doc.root)
         end
 
         def test_set_root
-          doc = nil
-          doc = Nokogiri::XML::Document.new
+                    doc = Nokogiri::XML::Document.new
           assert(doc)
           assert(doc.xml?)
           assert_nil(doc.root)

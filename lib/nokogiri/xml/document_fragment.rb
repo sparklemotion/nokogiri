@@ -114,7 +114,7 @@ module Nokogiri
         rules, handler, ns, binds = extract_params(rules)
 
         rules.inject(NodeSet.new(document)) do |set, rule|
-          set += if rule =~ Searchable::LOOKS_LIKE_XPATH
+          += if rule =~ Searchable::LOOKS_LIKE_XPATH
                    xpath(*([rule, ns, handler, binds].compact))
                  else
                    children.css(*([rule, ns, handler].compact)) # 'children' is a smell here
