@@ -259,7 +259,7 @@ module Nokogiri
             @parser.parse_file("")
           end
           assert_raises(Errno::EISDIR) do
-            @parser.parse_file(File.expand_path(File.dirname(__FILE__)))
+            @parser.parse_file(__dir__)
           end
         end
 
