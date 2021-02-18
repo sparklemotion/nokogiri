@@ -111,7 +111,7 @@ module Nokogiri
 
       def test_empty_attributes
         dtd = Nokogiri::HTML("<html></html>").internal_subset
-        assert_equal Hash.new, dtd.attributes
+        assert_equal({}, dtd.attributes)
       end
 
       def test_attributes

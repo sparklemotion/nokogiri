@@ -16,7 +16,7 @@ module Nokogiri
                         :attrs_opt, :attrs_depr, :attrs_req)
 
       # This is filled in down below.
-      DefaultDescriptions = Hash.new()
+      DefaultDescriptions = {}
 
       def default_desc
         DefaultDescriptions[name.downcase]

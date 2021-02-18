@@ -214,7 +214,7 @@ module Nokogiri
 
       # Get the list of decorators given +key+
       def decorators key
-        @decorators ||= Hash.new
+        @decorators ||= {}
         @decorators[key] ||= []
       end
 
