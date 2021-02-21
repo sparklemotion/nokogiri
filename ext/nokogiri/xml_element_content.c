@@ -1,4 +1,4 @@
-#include <xml_element_content.h>
+#include <nokogiri.h>
 
 VALUE cNokogiriXmlElementContent;
 
@@ -8,12 +8,13 @@ VALUE cNokogiriXmlElementContent;
  *
  * Get the require element +name+
  */
-static VALUE get_name(VALUE self)
+static VALUE
+get_name(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  if(!elem->name) return Qnil;
+  if (!elem->name) { return Qnil; }
   return NOKOGIRI_STR_NEW2(elem->name);
 }
 
@@ -24,7 +25,8 @@ static VALUE get_name(VALUE self)
  * Get the element content +type+.  Possible values are PCDATA, ELEMENT, SEQ,
  * or OR.
  */
-static VALUE get_type(VALUE self)
+static VALUE
+get_type(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
@@ -38,13 +40,14 @@ static VALUE get_type(VALUE self)
  *
  * Get the first child.
  */
-static VALUE get_c1(VALUE self)
+static VALUE
+get_c1(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  if(!elem->c1) return Qnil;
-  return Nokogiri_wrap_element_content(rb_iv_get(self, "@document"), elem->c1);
+  if (!elem->c1) { return Qnil; }
+  return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c1);
 }
 
 /*
@@ -53,13 +56,14 @@ static VALUE get_c1(VALUE self)
  *
  * Get the first child.
  */
-static VALUE get_c2(VALUE self)
+static VALUE
+get_c2(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  if(!elem->c2) return Qnil;
-  return Nokogiri_wrap_element_content(rb_iv_get(self, "@document"), elem->c2);
+  if (!elem->c2) { return Qnil; }
+  return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c2);
 }
 
 /*
@@ -69,7 +73,8 @@ static VALUE get_c2(VALUE self)
  * Get the element content +occur+ flag.  Possible values are ONCE, OPT, MULT
  * or PLUS.
  */
-static VALUE get_occur(VALUE self)
+static VALUE
+get_occur(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
@@ -83,17 +88,19 @@ static VALUE get_occur(VALUE self)
  *
  * Get the element content namespace +prefix+.
  */
-static VALUE get_prefix(VALUE self)
+static VALUE
+get_prefix(VALUE self)
 {
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  if(!elem->prefix) return Qnil;
+  if (!elem->prefix) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(elem->prefix);
 }
 
-VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
+VALUE
+noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element)
 {
   VALUE elem = Data_Wrap_Struct(cNokogiriXmlElementContent, 0, 0, element);
 
@@ -104,20 +111,16 @@ VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
   return elem;
 }
 
-void init_xml_element_content()
+void
+noko_init_xml_element_content()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
+  cNokogiriXmlElementContent = rb_define_class_under(mNokogiriXml, "ElementContent", rb_cObject);
 
-  VALUE klass = rb_define_class_under(xml, "ElementContent", rb_cObject);
+  rb_define_method(cNokogiriXmlElementContent, "name", get_name, 0);
+  rb_define_method(cNokogiriXmlElementContent, "type", get_type, 0);
+  rb_define_method(cNokogiriXmlElementContent, "occur", get_occur, 0);
+  rb_define_method(cNokogiriXmlElementContent, "prefix", get_prefix, 0);
 
-  cNokogiriXmlElementContent = klass;
-
-  rb_define_method(klass, "name", get_name, 0);
-  rb_define_method(klass, "type", get_type, 0);
-  rb_define_method(klass, "occur", get_occur, 0);
-  rb_define_method(klass, "prefix", get_prefix, 0);
-
-  rb_define_private_method(klass, "c1", get_c1, 0);
-  rb_define_private_method(klass, "c2", get_c2, 0);
+  rb_define_private_method(cNokogiriXmlElementContent, "c1", get_c1, 0);
+  rb_define_private_method(cNokogiriXmlElementContent, "c2", get_c2, 0);
 }

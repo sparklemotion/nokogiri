@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -37,24 +37,32 @@ import javax.xml.xpath.XPathVariableResolver;
 
 /**
  * XPath variable support
- * 
+ *
  * @author Ken Bloom <kbloom@gmail.com>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriXPathVariableResolver implements XPathVariableResolver {
+public class NokogiriXPathVariableResolver implements XPathVariableResolver
+{
 
-    private final HashMap<QName,String> variables = new HashMap<QName,String>();
+  private final HashMap<QName, String> variables = new HashMap<QName, String>();
 
-    public static NokogiriXPathVariableResolver create() {
-        return new NokogiriXPathVariableResolver();
-    }
-    
-    private NokogiriXPathVariableResolver() {}
-    
-    public Object resolveVariable(QName variableName){
-        return variables.get(variableName);
-    }
-    public void registerVariable(String name,String value){
-        variables.put(new QName(name),value);
-    }
+  public static NokogiriXPathVariableResolver
+  create()
+  {
+    return new NokogiriXPathVariableResolver();
+  }
+
+  private
+  NokogiriXPathVariableResolver() {}
+
+  public Object
+  resolveVariable(QName variableName)
+  {
+    return variables.get(variableName);
+  }
+  public void
+  registerVariable(String name, String value)
+  {
+    variables.put(new QName(name), value);
+  }
 }

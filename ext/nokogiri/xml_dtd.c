@@ -1,30 +1,35 @@
-#include <xml_dtd.h>
+#include <nokogiri.h>
 
-static void notation_copier(void *payload, void *data, const xmlChar *name)
+VALUE cNokogiriXmlDtd;
+
+static void
+notation_copier(void *c_notation_ptr, void *rb_hash_ptr, const xmlChar *name)
 {
-  VALUE hash = (VALUE)data;
-  VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Notation"));
+  VALUE rb_hash = (VALUE)rb_hash_ptr;
+  xmlNotationPtr c_notation = (xmlNotationPtr)c_notation_ptr;
+  VALUE rb_notation;
+  VALUE cNokogiriXmlNotation;
+  VALUE rb_constructor_args[3];
 
-  xmlNotationPtr c_notation = (xmlNotationPtr)payload;
-  VALUE notation;
-  VALUE argv[3];
-  argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
-  argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
-  argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
+  rb_constructor_args[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
+  rb_constructor_args[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
+  rb_constructor_args[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
 
-  notation = rb_class_new_instance(3, argv, klass);
+  cNokogiriXmlNotation = rb_const_get_at(mNokogiriXml, rb_intern("Notation"));
+  rb_notation = rb_class_new_instance(3, rb_constructor_args, cNokogiriXmlNotation);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name),notation);
+  rb_hash_aset(rb_hash, NOKOGIRI_STR_NEW2(name), rb_notation);
 }
 
-static void element_copier(void *_payload, void *data, const xmlChar *name)
+static void
+element_copier(void *c_node_ptr, void *rb_hash_ptr, const xmlChar *c_name)
 {
-  VALUE hash = (VALUE)data;
-  xmlNodePtr payload = (xmlNodePtr)_payload;
+  VALUE rb_hash = (VALUE)rb_hash_ptr;
+  xmlNodePtr c_node = (xmlNodePtr)c_node_ptr;
 
-  VALUE element = Nokogiri_wrap_xml_node(Qnil, payload);
+  VALUE rb_node = noko_xml_node_wrap(Qnil, c_node);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name), element);
+  rb_hash_aset(rb_hash, NOKOGIRI_STR_NEW2(c_name), rb_node);
 }
 
 /*
@@ -33,14 +38,15 @@ static void element_copier(void *_payload, void *data, const xmlChar *name)
  *
  * Get a hash of the elements for this DTD.
  */
-static VALUE entities(VALUE self)
+static VALUE
+entities(VALUE self)
 {
   xmlDtdPtr dtd;
   VALUE hash;
 
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->entities) return Qnil;
+  if (!dtd->entities) { return Qnil; }
 
   hash = rb_hash_new();
 
@@ -55,14 +61,15 @@ static VALUE entities(VALUE self)
  *
  * Get a hash of the notations for this DTD.
  */
-static VALUE notations(VALUE self)
+static VALUE
+notations(VALUE self)
 {
   xmlDtdPtr dtd;
   VALUE hash;
 
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->notations) return Qnil;
+  if (!dtd->notations) { return Qnil; }
 
   hash = rb_hash_new();
 
@@ -77,7 +84,8 @@ static VALUE notations(VALUE self)
  *
  * Get a hash of the attributes for this DTD.
  */
-static VALUE attributes(VALUE self)
+static VALUE
+attributes(VALUE self)
 {
   xmlDtdPtr dtd;
   VALUE hash;
@@ -86,7 +94,7 @@ static VALUE attributes(VALUE self)
 
   hash = rb_hash_new();
 
-  if(!dtd->attributes) return hash;
+  if (!dtd->attributes) { return hash; }
 
   xmlHashScan((xmlHashTablePtr)dtd->attributes, element_copier, (void *)hash);
 
@@ -99,14 +107,15 @@ static VALUE attributes(VALUE self)
  *
  * Get a hash of the elements for this DTD.
  */
-static VALUE elements(VALUE self)
+static VALUE
+elements(VALUE self)
 {
   xmlDtdPtr dtd;
   VALUE hash;
 
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->elements) return Qnil;
+  if (!dtd->elements) { return Qnil; }
 
   hash = rb_hash_new();
 
@@ -121,7 +130,8 @@ static VALUE elements(VALUE self)
  *
  * Validate +document+ returning a list of errors
  */
-static VALUE validate(VALUE self, VALUE document)
+static VALUE
+validate(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlDtdPtr dtd;
@@ -151,12 +161,13 @@ static VALUE validate(VALUE self, VALUE document)
  *
  * Get the System ID for this DTD
  */
-static VALUE system_id(VALUE self)
+static VALUE
+system_id(VALUE self)
 {
   xmlDtdPtr dtd;
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->SystemID) return Qnil;
+  if (!dtd->SystemID) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(dtd->SystemID);
 }
@@ -167,36 +178,31 @@ static VALUE system_id(VALUE self)
  *
  * Get the External ID for this DTD
  */
-static VALUE external_id(VALUE self)
+static VALUE
+external_id(VALUE self)
 {
   xmlDtdPtr dtd;
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->ExternalID) return Qnil;
+  if (!dtd->ExternalID) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(dtd->ExternalID);
 }
 
-VALUE cNokogiriXmlDtd;
-
-void init_xml_dtd()
+void
+noko_init_xml_dtd()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * Nokogiri::XML::DTD wraps DTD nodes in an XML document
    */
-  VALUE klass = rb_define_class_under(xml, "DTD", node);
+  cNokogiriXmlDtd = rb_define_class_under(mNokogiriXml, "DTD", cNokogiriXmlNode);
 
-  cNokogiriXmlDtd = klass;
-
-  rb_define_method(klass, "notations", notations, 0);
-  rb_define_method(klass, "elements", elements, 0);
-  rb_define_method(klass, "entities", entities, 0);
-  rb_define_method(klass, "validate", validate, 1);
-  rb_define_method(klass, "attributes", attributes, 0);
-  rb_define_method(klass, "system_id", system_id, 0);
-  rb_define_method(klass, "external_id", external_id, 0);
+  rb_define_method(cNokogiriXmlDtd, "notations", notations, 0);
+  rb_define_method(cNokogiriXmlDtd, "elements", elements, 0);
+  rb_define_method(cNokogiriXmlDtd, "entities", entities, 0);
+  rb_define_method(cNokogiriXmlDtd, "validate", validate, 1);
+  rb_define_method(cNokogiriXmlDtd, "attributes", attributes, 0);
+  rb_define_method(cNokogiriXmlDtd, "system_id", system_id, 0);
+  rb_define_method(cNokogiriXmlDtd, "external_id", external_id, 0);
 }

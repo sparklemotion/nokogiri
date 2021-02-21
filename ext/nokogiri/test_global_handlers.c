@@ -1,9 +1,9 @@
 #include <nokogiri.h>
-#include "libxml/xmlerror.h"
 
 static VALUE foreign_error_handler_block = Qnil;
 
-static void foreign_error_handler(void* user_data, xmlErrorPtr c_error)
+static void
+foreign_error_handler(void *user_data, xmlErrorPtr c_error)
 {
   rb_funcall(foreign_error_handler_block, rb_intern("call"), 0);
 }
@@ -32,9 +32,8 @@ rb_foreign_error_handler(VALUE klass)
  *  Do NOT use this outside of the Nokogiri test suite.
  */
 void
-init_test_global_handlers()
+noko_init_test_global_handlers()
 {
-  VALUE mNokogiri = rb_define_module("Nokogiri");
   VALUE mNokogiriTest = rb_define_module_under(mNokogiri, "Test");
 
   rb_define_singleton_method(mNokogiriTest, "__foreign_error_handler", rb_foreign_error_handler, 0);

@@ -1,6 +1,9 @@
-#include <xml_sax_push_parser.h>
+#include <nokogiri.h>
 
-static void deallocate(xmlParserCtxtPtr ctx)
+VALUE cNokogiriXmlSaxPushParser ;
+
+static void
+deallocate(xmlParserCtxtPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);
   if (ctx != NULL) {
@@ -10,7 +13,8 @@ static void deallocate(xmlParserCtxtPtr ctx)
   NOKOGIRI_DEBUG_END(ctx);
 }
 
-static VALUE allocate(VALUE klass)
+static VALUE
+allocate(VALUE klass)
 {
   return Data_Wrap_Struct(klass, NULL, deallocate, NULL);
 }
@@ -21,10 +25,11 @@ static VALUE allocate(VALUE klass)
  *
  * Write +chunk+ to PushParser. +last_chunk+ triggers the end_document handle
  */
-static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
+static VALUE
+native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
-  const char * chunk  = NULL;
+  const char *chunk  = NULL;
   int size            = 0;
 
 
@@ -53,10 +58,11 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
  *
  * Initialize the push parser with +xml_sax+ using +filename+
  */
-static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
+static VALUE
+initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 {
   xmlSAXHandlerPtr sax;
-  const char * filename = NULL;
+  const char *filename = NULL;
   xmlParserCtxtPtr ctx;
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
@@ -81,7 +87,8 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   return self;
 }
 
-static VALUE get_options(VALUE self)
+static VALUE
+get_options(VALUE self)
 {
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
@@ -89,7 +96,8 @@ static VALUE get_options(VALUE self)
   return INT2NUM(ctx->options);
 }
 
-static VALUE set_options(VALUE self, VALUE options)
+static VALUE
+set_options(VALUE self, VALUE options)
 {
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
@@ -108,7 +116,8 @@ static VALUE set_options(VALUE self, VALUE options)
  * Should this parser replace entities?  &amp; will get converted to '&' if
  * set to true
  */
-static VALUE get_replace_entities(VALUE self)
+static VALUE
+get_replace_entities(VALUE self)
 {
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
@@ -127,7 +136,8 @@ static VALUE get_replace_entities(VALUE self)
  * Should this parser replace entities?  &amp; will get converted to '&' if
  * set to true
  */
-static VALUE set_replace_entities(VALUE self, VALUE value)
+static VALUE
+set_replace_entities(VALUE self, VALUE value)
 {
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
@@ -141,21 +151,18 @@ static VALUE set_replace_entities(VALUE self, VALUE value)
   return value;
 }
 
-VALUE cNokogiriXmlSaxPushParser ;
-void init_xml_sax_push_parser()
+void
+noko_init_xml_sax_push_parser()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE sax = rb_define_module_under(xml, "SAX");
-  VALUE klass = rb_define_class_under(sax, "PushParser", rb_cObject);
+  cNokogiriXmlSaxPushParser = rb_define_class_under(mNokogiriXmlSax, "PushParser", rb_cObject);
 
-  cNokogiriXmlSaxPushParser = klass;
+  rb_define_alloc_func(cNokogiriXmlSaxPushParser, allocate);
 
-  rb_define_alloc_func(klass, allocate);
-  rb_define_private_method(klass, "initialize_native", initialize_native, 2);
-  rb_define_private_method(klass, "native_write", native_write, 2);
-  rb_define_method(klass, "options", get_options, 0);
-  rb_define_method(klass, "options=", set_options, 1);
-  rb_define_method(klass, "replace_entities", get_replace_entities, 0);
-  rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options", get_options, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options=", set_options, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities", get_replace_entities, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities=", set_replace_entities, 1);
+
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "initialize_native", initialize_native, 2);
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "native_write", native_write, 2);
 }

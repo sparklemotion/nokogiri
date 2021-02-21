@@ -22,22 +22,29 @@ package nokogiri.internals.c14n;
 /**
  * @author Christian Geuer-Pollmann
  */
-public class Canonicalizer20010315WithComments extends Canonicalizer20010315 {
+public class Canonicalizer20010315WithComments extends Canonicalizer20010315
+{
 
-    /**
-     * Constructor Canonicalizer20010315WithXPathWithComments
-     */
-    public Canonicalizer20010315WithComments() {
-        super(true);
-    }
+  /**
+   * Constructor Canonicalizer20010315WithXPathWithComments
+   */
+  public
+  Canonicalizer20010315WithComments()
+  {
+    super(true);
+  }
 
-    /** @inheritDoc */
-    public final String engineGetURI() {
-        return Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS;
-    }
+  /** @inheritDoc */
+  public final String
+  engineGetURI()
+  {
+    return Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS;
+  }
 
-    /** @inheritDoc */
-    public final boolean engineGetIncludeComments() {
-        return true;
-    }
+  /** @inheritDoc */
+  public final boolean
+  engineGetIncludeComments()
+  {
+    return true;
+  }
 }

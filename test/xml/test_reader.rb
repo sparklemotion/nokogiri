@@ -419,6 +419,29 @@ module Nokogiri
                       reader.map(&:namespace_uri))
       end
 
+      def test_reader_node_attributes_keep_a_reference_to_the_reader
+        xml = <<~EOF
+          <root>
+            <content first_name="bob" last_name="loblaw"/>
+          </root>
+        EOF
+        attribute_nodes = []
+
+        reader = Nokogiri::XML::Reader.from_memory(xml)
+        reader.each do |element|
+          attribute_nodes += element.attribute_nodes
+        end
+        assert_operator(attribute_nodes.length, :>, 0)
+
+        # make sure that the only reference to the reader is from the nodes, and run a major GC
+        reader = nil
+        GC.start
+
+        # and now dereference the attributes. this will raise valgrind warnings if we haven't done
+        # it right.
+        attribute_nodes.inspect
+      end
+
       def test_namespaced_attributes
         reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
         <x xmlns:edi='http://ecommerce.example.org/schema' xmlns:commons="http://rets.org/xsd/RETSCommons">

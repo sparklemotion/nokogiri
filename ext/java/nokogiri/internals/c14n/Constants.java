@@ -27,16 +27,19 @@ package nokogiri.internals.c14n;
  *
  * @author $Author: coheigea $
  */
-public class Constants {
-    
-    /** The URI for XML spec*/
-    public static final String XML_LANG_SPACE_SpecNS = "http://www.w3.org/XML/1998/namespace";
-    
-    /** The URI for XMLNS spec*/
-    public static final String NamespaceSpecNS = "http://www.w3.org/2000/xmlns/";
+public class Constants
+{
 
-    private Constants() {
-        // we don't allow instantiation
-    }
+  /** The URI for XML spec*/
+  public static final String XML_LANG_SPACE_SpecNS = "http://www.w3.org/XML/1998/namespace";
+
+  /** The URI for XMLNS spec*/
+  public static final String NamespaceSpecNS = "http://www.w3.org/2000/xmlns/";
+
+  private
+  Constants()
+  {
+    // we don't allow instantiation
+  }
 
 }

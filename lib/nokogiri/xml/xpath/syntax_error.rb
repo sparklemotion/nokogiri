@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Nokogiri
   module XML
-    class XPath
+    module XPath
       class SyntaxError < XML::SyntaxError
         def to_s
           [super.chomp, str1].compact.join(': ')

@@ -1,4 +1,6 @@
-#include <xml_attr.h>
+#include <nokogiri.h>
+
+VALUE cNokogiriXmlAttr;
 
 /*
  * call-seq:
@@ -7,7 +9,8 @@
  * Set the value for this Attr to +content+. Use `nil` to remove the value
  * (e.g., a HTML boolean attribute).
  */
-static VALUE set_value(VALUE self, VALUE content)
+static VALUE
+set_value(VALUE self, VALUE content)
 {
   xmlAttrPtr attr;
   xmlChar *value;
@@ -49,7 +52,8 @@ static VALUE set_value(VALUE self, VALUE content)
  *
  * Create a new Attr element on the +document+ with +name+
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   VALUE document;
@@ -72,9 +76,9 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
            NULL
          );
 
-  nokogiri_root_node((xmlNodePtr)node);
+  noko_xml_document_pin_node((xmlNodePtr)node);
 
-  rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
+  rb_node = noko_xml_node_wrap(klass, (xmlNodePtr)node);
   rb_obj_call_init(rb_node, argc, argv);
 
   if (rb_block_given_p()) {
@@ -84,20 +88,16 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
-VALUE cNokogiriXmlAttr;
-void init_xml_attr()
+void
+noko_init_xml_attr()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-
+  assert(cNokogiriXmlNode);
   /*
    * Attr represents a Attr node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "Attr", node);
+  cNokogiriXmlAttr = rb_define_class_under(mNokogiriXml, "Attr", cNokogiriXmlNode);
 
-  cNokogiriXmlAttr = klass;
+  rb_define_singleton_method(cNokogiriXmlAttr, "new", new, -1);
 
-  rb_define_singleton_method(klass, "new", new, -1);
-  rb_define_method(klass, "value=", set_value, 1);
+  rb_define_method(cNokogiriXmlAttr, "value=", set_value, 1);
 }

@@ -124,7 +124,7 @@ module Nokogiri
         skip("JRuby doesn't do GC.") if Nokogiri.jruby?
         stress_memory_while do
           while node = @reader.read
-            nodes = node.send(:attr_nodes)
+            nodes = node.attribute_nodes
             nodes.first.name if nodes.first
           end
         end

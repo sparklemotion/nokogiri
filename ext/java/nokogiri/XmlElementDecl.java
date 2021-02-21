@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -51,97 +51,128 @@ import org.w3c.dom.Node;
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::XML::ElementDecl", parent="Nokogiri::XML::Node")
-public class XmlElementDecl extends XmlNode {
-    RubyArray attrDecls;
-    IRubyObject contentModel;
-    
-    public XmlElementDecl(Ruby runtime, RubyClass klazz) {
-        super(runtime, klazz);
-        attrDecls = RubyArray.newArray(runtime);
-        contentModel = runtime.getNil();
-    }
+@JRubyClass(name = "Nokogiri::XML::ElementDecl", parent = "Nokogiri::XML::Node")
+public class XmlElementDecl extends XmlNode
+{
+  RubyArray attrDecls;
+  IRubyObject contentModel;
 
-    /**
-     * Initialize based on an elementDecl node from a NekoDTD parsed DTD.
-     */
-    public XmlElementDecl(Ruby ruby, RubyClass klass, Node elemDeclNode) {
-        super(ruby, klass, elemDeclNode);
-    }
+  public
+  XmlElementDecl(Ruby runtime, RubyClass klazz)
+  {
+    super(runtime, klazz);
+    attrDecls = RubyArray.newArray(runtime);
+    contentModel = runtime.getNil();
+  }
 
-    @Override // gets called from constructor ^^^
-    public void setNode(Ruby runtime, Node node) {
-        super.setNode(runtime, node);
-        attrDecls = RubyArray.newArray(runtime);
-        contentModel = runtime.getNil();
-    }
+  /**
+   * Initialize based on an elementDecl node from a NekoDTD parsed DTD.
+   */
+  public
+  XmlElementDecl(Ruby ruby, RubyClass klass, Node elemDeclNode)
+  {
+    super(ruby, klass, elemDeclNode);
+  }
 
-    static XmlElementDecl create(ThreadContext context, Node elemDeclNode) {
-        return new XmlElementDecl(context.runtime,
-            getNokogiriClass(context.runtime, "Nokogiri::XML::ElementDecl"),
-            elemDeclNode
-        );
-    }
+  @Override // gets called from constructor ^^^
+  public void
+  setNode(Ruby runtime, Node node)
+  {
+    super.setNode(runtime, node);
+    attrDecls = RubyArray.newArray(runtime);
+    contentModel = runtime.getNil();
+  }
 
-    public IRubyObject element_name(ThreadContext context) {
-        return getAttribute(context, "ename");
-    }
+  static XmlElementDecl
+  create(ThreadContext context, Node elemDeclNode)
+  {
+    return new XmlElementDecl(context.runtime,
+                              getNokogiriClass(context.runtime, "Nokogiri::XML::ElementDecl"),
+                              elemDeclNode
+                             );
+  }
 
-    public void setContentModel(IRubyObject cm) {
-        contentModel = cm;
-    }
+  public IRubyObject
+  element_name(ThreadContext context)
+  {
+    return getAttribute(context, "ename");
+  }
 
-    @Override
-    @JRubyMethod
-    public IRubyObject content(ThreadContext context) {
-        return contentModel;
-    }
+  public void
+  setContentModel(IRubyObject cm)
+  {
+    contentModel = cm;
+  }
 
-    public boolean isEmpty() {
-        return "EMPTY".equals(getAttribute("model"));
-    }
+  @Override
+  @JRubyMethod
+  public IRubyObject
+  content(ThreadContext context)
+  {
+    return contentModel;
+  }
 
-    @JRubyMethod
-    public IRubyObject prefix(ThreadContext context) {
-        String enamePrefix = getPrefix(getAttribute("ename"));
-        if (enamePrefix == null) return context.nil;
-        return context.runtime.newString(enamePrefix);
-    }
+  public boolean
+  isEmpty()
+  {
+    return "EMPTY".equals(getAttribute("model"));
+  }
 
-    /**
-     * Returns the local part of the element name.
-     */
-    @Override
-    @JRubyMethod
-    public IRubyObject node_name(ThreadContext context) {
-        String ename = getLocalPart(getAttribute("ename"));
-        return context.runtime.newString(ename);
-    }
+  @JRubyMethod
+  public IRubyObject
+  prefix(ThreadContext context)
+  {
+    String enamePrefix = getPrefix(getAttribute("ename"));
+    if (enamePrefix == null) { return context.nil; }
+    return context.runtime.newString(enamePrefix);
+  }
 
-    @Override
-    @JRubyMethod(name = "node_name=")
-    public IRubyObject node_name_set(ThreadContext context, IRubyObject name) {
-        throw context.runtime.newRuntimeError("cannot change name of DTD decl");
-    }
+  /**
+   * Returns the local part of the element name.
+   */
+  @Override
+  @JRubyMethod
+  public IRubyObject
+  node_name(ThreadContext context)
+  {
+    String ename = getLocalPart(getAttribute("ename"));
+    return context.runtime.newString(ename);
+  }
 
-    @Override
-    @JRubyMethod
-    public IRubyObject attribute_nodes(ThreadContext context) {
-        return attrDecls;
-    }
+  @Override
+  @JRubyMethod(name = "node_name=")
+  public IRubyObject
+  node_name_set(ThreadContext context, IRubyObject name)
+  {
+    throw context.runtime.newRuntimeError("cannot change name of DTD decl");
+  }
 
-    @Override
-    @JRubyMethod
-    public IRubyObject attribute(ThreadContext context, IRubyObject name) {
-        throw context.runtime.newRuntimeError("attribute by name not implemented");
-    }
+  @Override
+  @JRubyMethod
+  public IRubyObject
+  attribute_nodes(ThreadContext context)
+  {
+    return attrDecls;
+  }
 
-    public void appendAttrDecl(XmlAttributeDecl decl) {
-        attrDecls.append(decl);
-    }
+  @Override
+  @JRubyMethod
+  public IRubyObject
+  attribute(ThreadContext context, IRubyObject name)
+  {
+    throw context.runtime.newRuntimeError("attribute by name not implemented");
+  }
 
-    @JRubyMethod
-    public IRubyObject element_type(ThreadContext context) {
-        return context.runtime.newFixnum(node.getNodeType());
-    }
+  public void
+  appendAttrDecl(XmlAttributeDecl decl)
+  {
+    attrDecls.append(decl);
+  }
+
+  @JRubyMethod
+  public IRubyObject
+  element_type(ThreadContext context)
+  {
+    return context.runtime.newFixnum(node.getNodeType());
+  }
 }

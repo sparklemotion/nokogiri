@@ -1,26 +1,67 @@
 #include <nokogiri.h>
 
-void init_test_global_handlers(); /* in lieu of test_global_handlers.h */
-
 VALUE mNokogiri ;
-VALUE mNokogiriXml ;
 VALUE mNokogiriHtml ;
-VALUE mNokogiriXslt ;
-VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
+VALUE mNokogiriXml ;
+VALUE mNokogiriXmlSax ;
+VALUE mNokogiriXmlXpath ;
+VALUE mNokogiriXslt ;
+
+VALUE cNokogiriSyntaxError;
+VALUE cNokogiriXmlCharacterData;
+VALUE cNokogiriXmlElement;
+VALUE cNokogiriXmlXpathSyntaxError;
+
+void noko_init_xml_attr();
+void noko_init_xml_attribute_decl();
+void noko_init_xml_cdata();
+void noko_init_xml_comment();
+void noko_init_xml_document();
+void noko_init_xml_document_fragment();
+void noko_init_xml_dtd();
+void noko_init_xml_element_content();
+void noko_init_xml_element_decl();
+void noko_init_xml_encoding_handler();
+void noko_init_xml_entity_decl();
+void noko_init_xml_entity_reference();
+void noko_init_xml_namespace();
+void noko_init_xml_node();
+void noko_init_xml_node_set();
+void noko_init_xml_processing_instruction();
+void noko_init_xml_reader();
+void noko_init_xml_relax_ng();
+void noko_init_xml_sax_parser();
+void noko_init_xml_sax_parser_context();
+void noko_init_xml_sax_push_parser();
+void noko_init_xml_schema();
+void noko_init_xml_syntax_error();
+void noko_init_xml_text();
+void noko_init_xml_xpath_context();
+void noko_init_xslt_stylesheet();
+void noko_init_html_document();
+void noko_init_html_element_description();
+void noko_init_html_entity_lookup();
+void noko_init_html_sax_parser_context();
+void noko_init_html_sax_push_parser();
+void noko_init_test_global_handlers();
+
+static ID id_read, id_write;
+
 
 #ifndef HAVE_VASPRINTF
 /*
  * Thank you Geoffroy Couprie for this implementation of vasprintf!
  */
-int vasprintf(char **strp, const char *fmt, va_list ap)
+int
+vasprintf(char **strp, const char *fmt, va_list ap)
 {
   /* Mingw32/64 have a broken vsnprintf implementation that fails when
    * using a zero-byte limit in order to retrieve the required size for malloc.
    * So we use a one byte buffer instead.
    */
   char tmp[1];
-  int len = vsnprintf (tmp, 1, fmt, ap) + 1;
+  int len = vsnprintf(tmp, 1, fmt, ap) + 1;
   char *res = (char *)malloc((unsigned int)len);
   if (res == NULL) {
     return -1;
@@ -30,41 +71,91 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
 }
 #endif
 
-#include "ruby/util.h"
 
-void nokogiri_root_node(xmlNodePtr node)
+static VALUE
+read_check(VALUE val)
 {
-  xmlDocPtr doc;
-  nokogiriTuplePtr tuple;
-
-  doc = node->doc;
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) { doc = doc->doc; }
-  tuple = (nokogiriTuplePtr)doc->_private;
-  st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
+  VALUE *args = (VALUE *)val;
+  return rb_funcall(args[0], id_read, 1, args[1]);
 }
 
-void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
-{
-  nokogiriTuplePtr tuple;
 
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) { doc = doc->doc; }
-  tuple = (nokogiriTuplePtr)doc->_private;
-  st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
+static VALUE
+read_failed(VALUE arg, VALUE exc)
+{
+  return Qundef;
 }
 
-void Init_nokogiri()
-{
-  xmlMemSetup(
-    (xmlFreeFunc)ruby_xfree,
-    (xmlMallocFunc)ruby_xmalloc,
-    (xmlReallocFunc)ruby_xrealloc,
-    ruby_strdup
-  );
 
+int
+noko_io_read(void *ctx, char *buffer, int len)
+{
+  VALUE string, args[2];
+  size_t str_len, safe_len;
+
+  args[0] = (VALUE)ctx;
+  args[1] = INT2NUM(len);
+
+  string = rb_rescue(read_check, (VALUE)args, read_failed, 0);
+
+  if (NIL_P(string)) { return 0; }
+  if (string == Qundef) { return -1; }
+  if (TYPE(string) != T_STRING) { return -1; }
+
+  str_len = (size_t)RSTRING_LEN(string);
+  safe_len = str_len > (size_t)len ? (size_t)len : str_len;
+  memcpy(buffer, StringValuePtr(string), safe_len);
+
+  return (int)safe_len;
+}
+
+
+static VALUE
+write_check(VALUE val)
+{
+  VALUE *args = (VALUE *)val;
+  return rb_funcall(args[0], id_write, 1, args[1]);
+}
+
+
+static VALUE
+write_failed(VALUE arg, VALUE exc)
+{
+  return Qundef;
+}
+
+
+int
+noko_io_write(void *ctx, char *buffer, int len)
+{
+  VALUE args[2], size;
+
+  args[0] = (VALUE)ctx;
+  args[1] = rb_str_new(buffer, (long)len);
+
+  size = rb_rescue(write_check, (VALUE)args, write_failed, 0);
+
+  if (size == Qundef) { return -1; }
+
+  return NUM2INT(size);
+}
+
+
+int
+noko_io_close(void *ctx)
+{
+  return 0;
+}
+
+
+void
+Init_nokogiri()
+{
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
   mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
+  mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
   mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
 
@@ -76,11 +167,11 @@ void Init_nokogiri()
 
 #ifdef NOKOGIRI_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
-#ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
+#  ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qtrue);
-#else
+#  else
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
-#endif
+#  endif
   rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATCHES), " "));
 #else
@@ -100,39 +191,56 @@ void Init_nokogiri()
   rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
 #endif
 
+  xmlMemSetup((xmlFreeFunc)ruby_xfree, (xmlMallocFunc)ruby_xmalloc, (xmlReallocFunc)ruby_xrealloc, ruby_strdup);
+
   xmlInitParser();
 
-  init_xml_document();
-  init_html_document();
-  init_xml_node();
-  init_xml_document_fragment();
-  init_xml_text();
-  init_xml_cdata();
-  init_xml_processing_instruction();
-  init_xml_attr();
-  init_xml_entity_reference();
-  init_xml_comment();
-  init_xml_node_set();
-  init_xml_xpath_context();
-  init_xml_sax_parser_context();
-  init_xml_sax_parser();
-  init_xml_sax_push_parser();
-  init_xml_reader();
-  init_xml_dtd();
-  init_xml_element_content();
-  init_xml_attribute_decl();
-  init_xml_element_decl();
-  init_xml_entity_decl();
-  init_xml_namespace();
-  init_html_sax_parser_context();
-  init_html_sax_push_parser();
-  init_xslt_stylesheet();
-  init_xml_syntax_error();
-  init_html_entity_lookup();
-  init_html_element_description();
-  init_xml_schema();
-  init_xml_relax_ng();
-  init_nokogiri_io();
-  init_xml_encoding_handler();
-  init_test_global_handlers();
+  cNokogiriSyntaxError = rb_define_class_under(mNokogiri, "SyntaxError", rb_eStandardError);
+  noko_init_xml_syntax_error();
+  assert(cNokogiriXmlSyntaxError);
+  cNokogiriXmlXpathSyntaxError = rb_define_class_under(mNokogiriXmlXpath, "SyntaxError", cNokogiriXmlSyntaxError);
+
+  noko_init_xml_element_content();
+  noko_init_xml_encoding_handler();
+  noko_init_xml_namespace();
+  noko_init_xml_node_set();
+  noko_init_xml_reader();
+  noko_init_xml_sax_parser();
+  noko_init_xml_xpath_context();
+  noko_init_xslt_stylesheet();
+  noko_init_html_element_description();
+  noko_init_html_entity_lookup();
+
+  noko_init_xml_schema();
+  noko_init_xml_relax_ng();
+
+  noko_init_xml_sax_parser_context();
+  noko_init_html_sax_parser_context();
+
+  noko_init_xml_sax_push_parser();
+  noko_init_html_sax_push_parser();
+
+  noko_init_xml_node();
+  noko_init_xml_attr();
+  noko_init_xml_attribute_decl();
+  noko_init_xml_dtd();
+  noko_init_xml_element_decl();
+  noko_init_xml_entity_decl();
+  noko_init_xml_entity_reference();
+  noko_init_xml_processing_instruction();
+  assert(cNokogiriXmlNode);
+  cNokogiriXmlElement = rb_define_class_under(mNokogiriXml, "Element", cNokogiriXmlNode);
+  cNokogiriXmlCharacterData = rb_define_class_under(mNokogiriXml, "CharacterData", cNokogiriXmlNode);
+  noko_init_xml_comment();
+  noko_init_xml_text();
+  noko_init_xml_cdata();
+
+  noko_init_xml_document_fragment();
+  noko_init_xml_document();
+  noko_init_html_document();
+
+  noko_init_test_global_handlers();
+
+  id_read = rb_intern("read");
+  id_write = rb_intern("write");
 }

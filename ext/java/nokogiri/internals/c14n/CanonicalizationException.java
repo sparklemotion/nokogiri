@@ -24,70 +24,83 @@ package nokogiri.internals.c14n;
  *
  * @author Christian Geuer-Pollmann
  */
-public class CanonicalizationException extends Exception {
+public class CanonicalizationException extends Exception
+{
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructor CanonicalizationException
-     *
-     */
-    public CanonicalizationException() {
-        super();
-    }
+  /**
+   * Constructor CanonicalizationException
+   *
+   */
+  public
+  CanonicalizationException()
+  {
+    super();
+  }
 
-    /**
-     * Constructor CanonicalizationException
-     *
-     * @param message
-     */
-    public CanonicalizationException(String message) {
-        super(message);
-    }
-    
-    /**
-     * Constructor CanonicalizationException
-     *
-     * @param message
-     * @param rootCause
-     */
-    public CanonicalizationException(Exception rootCause) {
-        super(rootCause);
-    }
+  /**
+   * Constructor CanonicalizationException
+   *
+   * @param message
+   */
+  public
+  CanonicalizationException(String message)
+  {
+    super(message);
+  }
 
-    /**
-     * Constructor CanonicalizationException
-     *
-     * @param msgID
-     * @param exArgs
-     */
-    public CanonicalizationException(String message, Object... exArgs) {     
-        super(C14nHelper.getErrorMessage(message, exArgs));
-    }
-    
-    /**
-     * Constructor CanonicalizationException
-     *
-     * @param message
-     * @param rootCause
-     */
-    public CanonicalizationException(String message, Exception rootCause) {
-        super(message, rootCause);
-    }
+  /**
+   * Constructor CanonicalizationException
+   *
+   * @param message
+   * @param rootCause
+   */
+  public
+  CanonicalizationException(Exception rootCause)
+  {
+    super(rootCause);
+  }
 
-    /**
-     * Constructor CanonicalizationException
-     *
-     * @param msgID
-     * @param exArgs
-     * @param originalException
-     */
-    public CanonicalizationException(String message, Exception rootCause, Object... exArgs) {
-        super(C14nHelper.getErrorMessage(message, exArgs), rootCause);
-    }
-    
-    
+  /**
+   * Constructor CanonicalizationException
+   *
+   * @param msgID
+   * @param exArgs
+   */
+  public
+  CanonicalizationException(String message, Object... exArgs)
+  {
+    super(C14nHelper.getErrorMessage(message, exArgs));
+  }
+
+  /**
+   * Constructor CanonicalizationException
+   *
+   * @param message
+   * @param rootCause
+   */
+  public
+  CanonicalizationException(String message, Exception rootCause)
+  {
+    super(message, rootCause);
+  }
+
+  /**
+   * Constructor CanonicalizationException
+   *
+   * @param msgID
+   * @param exArgs
+   * @param originalException
+   */
+  public
+  CanonicalizationException(String message, Exception rootCause, Object... exArgs)
+  {
+    super(C14nHelper.getErrorMessage(message, exArgs), rootCause);
+  }
+
+
 }

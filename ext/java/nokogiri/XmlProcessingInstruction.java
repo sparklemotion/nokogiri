@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -49,52 +49,62 @@ import nokogiri.internals.SaveContextVisitor;
 
 /**
  * Class for Nokogiri::XML::ProcessingInstruction
- * 
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::XML::ProcessingInstruction", parent="Nokogiri::XML::Node")
-public class XmlProcessingInstruction extends XmlNode {
+@JRubyClass(name = "Nokogiri::XML::ProcessingInstruction", parent = "Nokogiri::XML::Node")
+public class XmlProcessingInstruction extends XmlNode
+{
 
-    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz);
-    }
-    
-    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz, Node node) {
-        super(ruby, klazz, node);
-    }
+  public
+  XmlProcessingInstruction(Ruby ruby, RubyClass klazz)
+  {
+    super(ruby, klazz);
+  }
 
-    @JRubyMethod(name="new", meta=true, rest=true, required=3)
-    public static IRubyObject rbNew(ThreadContext context,
-                                    IRubyObject klazz,
-                                    IRubyObject[] args) {
+  public
+  XmlProcessingInstruction(Ruby ruby, RubyClass klazz, Node node)
+  {
+    super(ruby, klazz, node);
+  }
 
-        IRubyObject doc = args[0];
-        IRubyObject target = args[1];
-        IRubyObject data = args[2];
+  @JRubyMethod(name = "new", meta = true, rest = true, required = 3)
+  public static IRubyObject
+  rbNew(ThreadContext context,
+        IRubyObject klazz,
+        IRubyObject[] args)
+  {
 
-        Document document = ((XmlNode) doc).getOwnerDocument();
-        Node node =
-            document.createProcessingInstruction(rubyStringToString(target),
-                                                 rubyStringToString(data));
-        XmlProcessingInstruction self =
-            new XmlProcessingInstruction(context.getRuntime(),
-                                         (RubyClass) klazz,
-                                         node);
+    IRubyObject doc = args[0];
+    IRubyObject target = args[1];
+    IRubyObject data = args[2];
 
-        Helpers.invoke(context, self, "initialize", args);
+    Document document = ((XmlNode) doc).getOwnerDocument();
+    Node node =
+      document.createProcessingInstruction(rubyStringToString(target),
+                                           rubyStringToString(data));
+    XmlProcessingInstruction self =
+      new XmlProcessingInstruction(context.getRuntime(),
+                                   (RubyClass) klazz,
+                                   node);
 
-        // TODO: if_block_given.
+    Helpers.invoke(context, self, "initialize", args);
 
-        return self;
-    }
+    // TODO: if_block_given.
 
-    @Override
-    public boolean isProcessingInstruction() { return true; }
-    
-    @Override
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((ProcessingInstruction)node);
-        visitor.leave((ProcessingInstruction)node);
-    }
+    return self;
+  }
+
+  @Override
+  public boolean
+  isProcessingInstruction() { return true; }
+
+  @Override
+  public void
+  accept(ThreadContext context, SaveContextVisitor visitor)
+  {
+    visitor.enter((ProcessingInstruction)node);
+    visitor.leave((ProcessingInstruction)node);
+  }
 }

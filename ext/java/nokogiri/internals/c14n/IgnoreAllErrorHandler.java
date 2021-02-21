@@ -28,52 +28,59 @@ import org.xml.sax.SAXParseException;
  *
  * @author Christian Geuer-Pollmann
  */
-public class IgnoreAllErrorHandler implements ErrorHandler {
+public class IgnoreAllErrorHandler implements ErrorHandler
+{
 
-    /** Field throwExceptions */
-    private static final boolean warnOnExceptions =
-        System.getProperty("org.apache.xml.security.test.warn.on.exceptions", "false").equals("true");
+  /** Field throwExceptions */
+  private static final boolean warnOnExceptions =
+    System.getProperty("org.apache.xml.security.test.warn.on.exceptions", "false").equals("true");
 
-    /** Field throwExceptions           */
-    private static final boolean throwExceptions = 
-        System.getProperty("org.apache.xml.security.test.throw.exceptions", "false").equals("true");
+  /** Field throwExceptions           */
+  private static final boolean throwExceptions =
+    System.getProperty("org.apache.xml.security.test.throw.exceptions", "false").equals("true");
 
 
-    /** @inheritDoc */
-    public void warning(SAXParseException ex) throws SAXException {
-        if (IgnoreAllErrorHandler.warnOnExceptions) {
-            // TODO
-            // get handler from upper layer
-            //log.warn("", ex);
-        }
-        if (IgnoreAllErrorHandler.throwExceptions) {
-            throw ex;
-        }
+  /** @inheritDoc */
+  public void
+  warning(SAXParseException ex) throws SAXException
+  {
+    if (IgnoreAllErrorHandler.warnOnExceptions) {
+      // TODO
+      // get handler from upper layer
+      //log.warn("", ex);
     }
-
-
-    /** @inheritDoc */
-    public void error(SAXParseException ex) throws SAXException {
-        if (IgnoreAllErrorHandler.warnOnExceptions) {
-            // TODO
-            // get handler from upper layer
-            //log.error("", ex);
-        }
-        if (IgnoreAllErrorHandler.throwExceptions) {
-            throw ex;
-        }
+    if (IgnoreAllErrorHandler.throwExceptions) {
+      throw ex;
     }
+  }
 
 
-    /** @inheritDoc */
-    public void fatalError(SAXParseException ex) throws SAXException {
-        if (IgnoreAllErrorHandler.warnOnExceptions) {
-            // TODO
-            // get handler from upper layer
-            //log.warn("", ex);
-        }
-        if (IgnoreAllErrorHandler.throwExceptions) {
-            throw ex;
-        }
+  /** @inheritDoc */
+  public void
+  error(SAXParseException ex) throws SAXException
+  {
+    if (IgnoreAllErrorHandler.warnOnExceptions) {
+      // TODO
+      // get handler from upper layer
+      //log.error("", ex);
     }
+    if (IgnoreAllErrorHandler.throwExceptions) {
+      throw ex;
+    }
+  }
+
+
+  /** @inheritDoc */
+  public void
+  fatalError(SAXParseException ex) throws SAXException
+  {
+    if (IgnoreAllErrorHandler.warnOnExceptions) {
+      // TODO
+      // get handler from upper layer
+      //log.warn("", ex);
+    }
+    if (IgnoreAllErrorHandler.throwExceptions) {
+      throw ex;
+    }
+  }
 }

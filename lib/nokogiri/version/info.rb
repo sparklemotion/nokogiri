@@ -170,12 +170,7 @@ module Nokogiri
   if Nokogiri.jruby?
     require "nokogiri/jruby/dependencies"
   end
-  begin
-    ::RUBY_VERSION =~ /(\d+\.\d+)/
-    require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
-  rescue LoadError
-    require "nokogiri/nokogiri"
-  end
+  require "nokogiri/extension"
 
   # More complete version information about libxml
   VERSION_INFO = VersionInfo.instance.to_hash

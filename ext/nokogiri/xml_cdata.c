@@ -1,4 +1,6 @@
-#include <xml_cdata.h>
+#include <nokogiri.h>
+
+VALUE cNokogiriXmlCData;
 
 /*
  * call-seq:
@@ -9,7 +11,8 @@
  * If +content+ cannot be implicitly converted to a string, this method will
  * raise a TypeError exception.
  */
-static VALUE new(int argc, VALUE *argv, VALUE klass)
+static VALUE
+new (int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   xmlNodePtr node;
@@ -31,32 +34,24 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);
 
-  nokogiri_root_node(node);
+  noko_xml_document_pin_node(node);
 
-  rb_node = Nokogiri_wrap_xml_node(klass, node);
+  rb_node = noko_xml_node_wrap(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) { rb_yield(rb_node); }
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
 
-VALUE cNokogiriXmlCData;
-void init_xml_cdata()
+void
+noko_init_xml_cdata()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
-  VALUE text = rb_define_class_under(xml, "Text", char_data);
-
+  assert(cNokogiriXmlText);
   /*
    * CData represents a CData node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "CDATA", text);
+  cNokogiriXmlCData = rb_define_class_under(mNokogiriXml, "CDATA", cNokogiriXmlText);
 
-
-  cNokogiriXmlCData = klass;
-
-  rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlCData, "new", new, -1);
 }

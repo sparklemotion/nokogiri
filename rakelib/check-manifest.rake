@@ -38,7 +38,6 @@ task :check_manifest do
     CHANGELOG.md
     CODE_OF_CONDUCT.md
     CONTRIBUTING.md
-    C_CODING_STYLE.rdoc
     Gemfile?*
     ROADMAP.md
     Rakefile

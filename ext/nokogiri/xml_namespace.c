@@ -1,4 +1,4 @@
-#include <xml_namespace.h>
+#include <nokogiri.h>
 
 /*
  *  The lifecycle of a Namespace node is more complicated than other Nodes, for two reasons:
@@ -24,15 +24,12 @@
 
 VALUE cNokogiriXmlNamespace ;
 
-static void dealloc_namespace(xmlNsPtr ns)
+static void
+dealloc_namespace(xmlNsPtr ns)
 {
   /*
-   *
    * this deallocator is only used for namespace nodes that are part of an xpath
-   * node set.
-   *
-   * see Nokogiri_wrap_xml_namespace() for more details.
-   *
+   * node set. see noko_xml_namespace_wrap().
    */
   NOKOGIRI_DEBUG_START(ns) ;
   if (ns->href) {
@@ -52,12 +49,13 @@ static void dealloc_namespace(xmlNsPtr ns)
  *
  * Get the prefix for this namespace.  Returns +nil+ if there is no prefix.
  */
-static VALUE prefix(VALUE self)
+static VALUE
+prefix(VALUE self)
 {
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNs, ns);
-  if(!ns->prefix) return Qnil;
+  if (!ns->prefix) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->prefix);
 }
@@ -68,66 +66,53 @@ static VALUE prefix(VALUE self)
  *
  * Get the href for this namespace
  */
-static VALUE href(VALUE self)
+static VALUE
+href(VALUE self)
 {
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNs, ns);
-  if(!ns->href) return Qnil;
+  if (!ns->href) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->href);
 }
 
-static int part_of_an_xpath_node_set_eh(xmlNsPtr node)
+VALUE
+noko_xml_namespace_wrap(xmlNsPtr c_namespace, xmlDocPtr c_document)
 {
-  return (node->next && ! NOKOGIRI_NAMESPACE_EH(node->next));
-}
+  VALUE rb_namespace;
 
-VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
-{
-  VALUE ns = 0, document, node_cache;
-
-  assert(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE);
-
-  if (node->_private) return (VALUE)node->_private;
-
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
-
-  if (DOC_RUBY_OBJECT_TEST(doc)) {
-    document = DOC_RUBY_OBJECT(doc);
-
-    if (part_of_an_xpath_node_set_eh(node)) {
-      /*
-       *  this is a duplicate returned as part of an xpath query node set, and so
-       *  we need to make sure we manage this memory.
-       *
-       *  see comments in xml_node_set.c for more details.
-       */
-      ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, node);
-    } else {
-      ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
-      node_cache = rb_iv_get(document, "@node_cache");
-      rb_ary_push(node_cache, ns);
-    }
-
-    rb_iv_set(ns, "@document", document);
-  } else {
-    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
+  if (c_namespace->_private) {
+    return (VALUE)c_namespace->_private;
   }
 
-  node->_private = (void *)ns;
+  if (c_document) {
+    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, c_namespace);
 
-  return ns;
+    if (DOC_RUBY_OBJECT_TEST(c_document)) {
+      rb_iv_set(rb_namespace, "@document", DOC_RUBY_OBJECT(c_document));
+      rb_ary_push(DOC_NODE_CACHE(c_document), rb_namespace);
+    }
+  } else {
+    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
+  }
+
+  c_namespace->_private = (void *)rb_namespace;
+
+  return rb_namespace;
 }
 
-void init_xml_namespace()
+VALUE
+noko_xml_namespace_wrap_xpath_copy(xmlNsPtr c_namespace)
 {
-  VALUE nokogiri  = rb_define_module("Nokogiri");
-  VALUE xml       = rb_define_module_under(nokogiri, "XML");
-  VALUE klass     = rb_define_class_under(xml, "Namespace", rb_cObject);
+  return noko_xml_namespace_wrap(c_namespace, NULL);
+}
 
-  cNokogiriXmlNamespace = klass;
+void
+noko_init_xml_namespace()
+{
+  cNokogiriXmlNamespace = rb_define_class_under(mNokogiriXml, "Namespace", rb_cObject);
 
-  rb_define_method(klass, "prefix", prefix, 0);
-  rb_define_method(klass, "href", href, 0);
+  rb_define_method(cNokogiriXmlNamespace, "prefix", prefix, 0);
+  rb_define_method(cNokogiriXmlNamespace, "href", href, 0);
 }

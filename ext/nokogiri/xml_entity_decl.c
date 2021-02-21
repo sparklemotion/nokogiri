@@ -1,4 +1,6 @@
-#include <xml_entity_decl.h>
+#include <nokogiri.h>
+
+VALUE cNokogiriXmlEntityDecl;
 
 /*
  * call-seq:
@@ -6,12 +8,13 @@
  *
  * Get the original_content before ref substitution
  */
-static VALUE original_content(VALUE self)
+static VALUE
+original_content(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
 
-  if(!node->orig) return Qnil;
+  if (!node->orig) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(node->orig);
 }
@@ -22,12 +25,13 @@ static VALUE original_content(VALUE self)
  *
  * Get the content
  */
-static VALUE get_content(VALUE self)
+static VALUE
+get_content(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
 
-  if(!node->content) return Qnil;
+  if (!node->content) { return Qnil; }
 
   return NOKOGIRI_STR_NEW(node->content, node->length);
 }
@@ -38,7 +42,8 @@ static VALUE get_content(VALUE self)
  *
  * Get the entity type
  */
-static VALUE entity_type(VALUE self)
+static VALUE
+entity_type(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
@@ -52,12 +57,13 @@ static VALUE entity_type(VALUE self)
  *
  * Get the external identifier for PUBLIC
  */
-static VALUE external_id(VALUE self)
+static VALUE
+external_id(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
 
-  if(!node->ExternalID) return Qnil;
+  if (!node->ExternalID) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(node->ExternalID);
 }
@@ -68,43 +74,39 @@ static VALUE external_id(VALUE self)
  *
  * Get the URI for a SYSTEM or PUBLIC Entity
  */
-static VALUE system_id(VALUE self)
+static VALUE
+system_id(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
 
-  if(!node->SystemID) return Qnil;
+  if (!node->SystemID) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(node->SystemID);
 }
 
-VALUE cNokogiriXmlEntityDecl;
-
-void init_xml_entity_decl()
+void
+noko_init_xml_entity_decl()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE klass = rb_define_class_under(xml, "EntityDecl", node);
+  assert(cNokogiriXmlNode);
+  cNokogiriXmlEntityDecl = rb_define_class_under(mNokogiriXml, "EntityDecl", cNokogiriXmlNode);
 
-  cNokogiriXmlEntityDecl = klass;
-
-  rb_define_method(klass, "original_content", original_content, 0);
-  rb_define_method(klass, "content", get_content, 0);
-  rb_define_method(klass, "entity_type", entity_type, 0);
-  rb_define_method(klass, "external_id", external_id, 0);
-  rb_define_method(klass, "system_id", system_id, 0);
+  rb_define_method(cNokogiriXmlEntityDecl, "original_content", original_content, 0);
+  rb_define_method(cNokogiriXmlEntityDecl, "content", get_content, 0);
+  rb_define_method(cNokogiriXmlEntityDecl, "entity_type", entity_type, 0);
+  rb_define_method(cNokogiriXmlEntityDecl, "external_id", external_id, 0);
+  rb_define_method(cNokogiriXmlEntityDecl, "system_id", system_id, 0);
 
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_GENERAL"),
-      INT2NUM(XML_INTERNAL_GENERAL_ENTITY));
+               INT2NUM(XML_INTERNAL_GENERAL_ENTITY));
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_GENERAL_PARSED"),
-      INT2NUM(XML_EXTERNAL_GENERAL_PARSED_ENTITY));
+               INT2NUM(XML_EXTERNAL_GENERAL_PARSED_ENTITY));
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_GENERAL_UNPARSED"),
-      INT2NUM(XML_EXTERNAL_GENERAL_UNPARSED_ENTITY));
+               INT2NUM(XML_EXTERNAL_GENERAL_UNPARSED_ENTITY));
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_PARAMETER"),
-      INT2NUM(XML_INTERNAL_PARAMETER_ENTITY));
+               INT2NUM(XML_INTERNAL_PARAMETER_ENTITY));
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_PARAMETER"),
-      INT2NUM(XML_EXTERNAL_PARAMETER_ENTITY));
+               INT2NUM(XML_EXTERNAL_PARAMETER_ENTITY));
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_PREDEFINED"),
-      INT2NUM(XML_INTERNAL_PREDEFINED_ENTITY));
+               INT2NUM(XML_INTERNAL_PREDEFINED_ENTITY));
 }

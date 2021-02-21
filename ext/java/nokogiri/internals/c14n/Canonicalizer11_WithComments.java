@@ -22,17 +22,24 @@ package nokogiri.internals.c14n;
 /**
  * @author Sean Mullan
  */
-public class Canonicalizer11_WithComments extends Canonicalizer11 {
+public class Canonicalizer11_WithComments extends Canonicalizer11
+{
 
-    public Canonicalizer11_WithComments() {
-        super(true);
-    }
+  public
+  Canonicalizer11_WithComments()
+  {
+    super(true);
+  }
 
-    public final String engineGetURI() {
-        return Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS;
-    }
+  public final String
+  engineGetURI()
+  {
+    return Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS;
+  }
 
-    public final boolean engineGetIncludeComments() {
-        return true;
-    }
+  public final boolean
+  engineGetIncludeComments()
+  {
+    return true;
+  }
 }

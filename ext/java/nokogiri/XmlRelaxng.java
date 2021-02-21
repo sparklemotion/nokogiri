@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -63,89 +63,102 @@ import org.xml.sax.SAXException;
 
 /**
  * Class for Nokogiri::XML::RelaxNG
- * 
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::XML::RelaxNG", parent="Nokogiri::XML::Schema")
-public class XmlRelaxng extends XmlSchema {
-    private Verifier verifier;
+@JRubyClass(name = "Nokogiri::XML::RelaxNG", parent = "Nokogiri::XML::Schema")
+public class XmlRelaxng extends XmlSchema
+{
+  private Verifier verifier;
 
-    public XmlRelaxng(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz);
-    }
-    
-    private void setVerifier(Verifier verifier) {
-        this.verifier = verifier;
-    }
-    
-    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions) {
-        Ruby runtime = context.getRuntime();
-        XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, klazz);
+  public
+  XmlRelaxng(Ruby ruby, RubyClass klazz)
+  {
+    super(ruby, klazz);
+  }
 
-        if (parseOptions == null) {
-            parseOptions = defaultParseOptions(context.getRuntime());
-        }
+  private void
+  setVerifier(Verifier verifier)
+  {
+    this.verifier = verifier;
+  }
 
-        xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
-        xmlRelaxng.setInstanceVariable("@parse_options", parseOptions);
+  static XmlSchema
+  createSchemaInstance(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions)
+  {
+    Ruby runtime = context.getRuntime();
+    XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, klazz);
 
-        try {
-            Schema schema = xmlRelaxng.getSchema(source, context);
-            xmlRelaxng.setVerifier(schema.newVerifier());
-            return xmlRelaxng;
-        } catch (VerifierConfigurationException ex) {
-            throw context.getRuntime().newRuntimeError("Could not parse document: " + ex.getMessage());
-        }
+    if (parseOptions == null) {
+      parseOptions = defaultParseOptions(context.getRuntime());
     }
 
-    private Schema getSchema(Source source, ThreadContext context) {
-        InputStream is;
-        VerifierFactory factory = new com.thaiopensource.relaxng.jarv.VerifierFactoryImpl();
-        if (source instanceof StreamSource) {
-            StreamSource ss = (StreamSource)source;
-            is = ss.getInputStream();
-        } else { //if (this.source instanceof DOMSource)
-            DOMSource ds = (DOMSource)source;
-            StringWriter xmlAsWriter = new StringWriter();
-            StreamResult result = new StreamResult(xmlAsWriter);
-            try {
-                TransformerFactory.newInstance().newTransformer().transform(ds, result);
-            } catch (TransformerConfigurationException ex) {
-                throw context.getRuntime()
-                    .newRuntimeError("Could not parse document: "+ex.getMessage());
-            } catch (TransformerException ex) {
-                throw context.getRuntime()
-                    .newRuntimeError("Could not parse document: "+ex.getMessage());
-            }
-            try {
-                is = new ByteArrayInputStream(xmlAsWriter.toString().getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException ex) {
-                throw context.getRuntime()
-                    .newRuntimeError("Could not parse document: "+ex.getMessage());
-            }
-        }
+    xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
+    xmlRelaxng.setInstanceVariable("@parse_options", parseOptions);
 
-        try {
-            return factory.compileSchema(is);
-        } catch (VerifierConfigurationException ex) {
-            throw context.getRuntime()
-                .newRuntimeError("Could not parse document: "+ex.getMessage());
-        } catch (SAXException ex) {
-            throw context.getRuntime()
-                .newRuntimeError("Could not parse document: "+ex.getMessage());
-        } catch (IOException ex) {
-            throw context.getRuntime().newIOError(ex.getClass() + ": " + ex.getMessage());
-        }
+    try {
+      Schema schema = xmlRelaxng.getSchema(source, context);
+      xmlRelaxng.setVerifier(schema.newVerifier());
+      return xmlRelaxng;
+    } catch (VerifierConfigurationException ex) {
+      throw context.getRuntime().newRuntimeError("Could not parse document: " + ex.getMessage());
     }
-    
-    @Override
-    protected void setErrorHandler(ErrorHandler errorHandler) {
-        verifier.setErrorHandler(errorHandler);
+  }
+
+  private Schema
+  getSchema(Source source, ThreadContext context)
+  {
+    InputStream is;
+    VerifierFactory factory = new com.thaiopensource.relaxng.jarv.VerifierFactoryImpl();
+    if (source instanceof StreamSource) {
+      StreamSource ss = (StreamSource)source;
+      is = ss.getInputStream();
+    } else { //if (this.source instanceof DOMSource)
+      DOMSource ds = (DOMSource)source;
+      StringWriter xmlAsWriter = new StringWriter();
+      StreamResult result = new StreamResult(xmlAsWriter);
+      try {
+        TransformerFactory.newInstance().newTransformer().transform(ds, result);
+      } catch (TransformerConfigurationException ex) {
+        throw context.getRuntime()
+        .newRuntimeError("Could not parse document: " + ex.getMessage());
+      } catch (TransformerException ex) {
+        throw context.getRuntime()
+        .newRuntimeError("Could not parse document: " + ex.getMessage());
+      }
+      try {
+        is = new ByteArrayInputStream(xmlAsWriter.toString().getBytes("UTF-8"));
+      } catch (UnsupportedEncodingException ex) {
+        throw context.getRuntime()
+        .newRuntimeError("Could not parse document: " + ex.getMessage());
+      }
     }
-    
-    @Override
-    protected void validate(Document document) throws SAXException, IOException {
-        verifier.verify(document);
+
+    try {
+      return factory.compileSchema(is);
+    } catch (VerifierConfigurationException ex) {
+      throw context.getRuntime()
+      .newRuntimeError("Could not parse document: " + ex.getMessage());
+    } catch (SAXException ex) {
+      throw context.getRuntime()
+      .newRuntimeError("Could not parse document: " + ex.getMessage());
+    } catch (IOException ex) {
+      throw context.getRuntime().newIOError(ex.getClass() + ": " + ex.getMessage());
     }
+  }
+
+  @Override
+  protected void
+  setErrorHandler(ErrorHandler errorHandler)
+  {
+    verifier.setErrorHandler(errorHandler);
+  }
+
+  @Override
+  protected void
+  validate(Document document) throws SAXException, IOException
+  {
+    verifier.verify(document);
+  }
 }

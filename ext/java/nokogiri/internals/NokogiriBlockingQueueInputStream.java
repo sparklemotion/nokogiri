@@ -23,7 +23,8 @@ import nokogiri.XmlSaxPushParser;
  *
  * @author John Shahid <jvshahid@gmail.com>
  */
-public class NokogiriBlockingQueueInputStream extends InputStream {
+public class NokogiriBlockingQueueInputStream extends InputStream
+{
   private final LinkedBlockingQueue<Task>  queue;
   protected Task                           currentTask;
   protected ByteArrayInputStream           currentStream;
@@ -32,10 +33,13 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
 
   public static final ByteArrayInputStream END    = new ByteArrayInputStream(new byte[0]);
 
-  private static class Task extends FutureTask<Void> {
+  private static class Task extends FutureTask<Void>
+  {
     private final ByteArrayInputStream stream;
 
-    public Task(ByteArrayInputStream stream) {
+    public
+    Task(ByteArrayInputStream stream)
+    {
       super(new Callable<Void>() {
         @Override
         public Void call() throws Exception {
@@ -46,28 +50,38 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
       this.stream = stream;
     }
 
-    public ByteArrayInputStream getStream() {
+    public ByteArrayInputStream
+    getStream()
+    {
       return stream;
     }
 
     @Override
-    public void run() {
+    public void
+    run()
+    {
       // don't do anything
     }
 
     @Override
-    public boolean runAndReset() {
+    public boolean
+    runAndReset()
+    {
       // don't do anything
       return true;
     }
 
     @Override
-    public void set(Void v) {
+    public void
+    set(Void v)
+    {
       super.set(v);
     }
   }
 
-  public NokogiriBlockingQueueInputStream() {
+  public
+  NokogiriBlockingQueueInputStream()
+  {
     queue = new LinkedBlockingQueue<Task>();
   }
 
@@ -77,7 +91,9 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
    * that the read method will block indefinitely.
    */
   @Override
-  public synchronized void close() {
+  public synchronized void
+  close()
+  {
     closed = true;
     List<Task> tasks = new LinkedList<Task>();
     queue.drainTo(tasks);
@@ -98,9 +114,12 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
    *
    * @return
    */
-  public synchronized Future<Void> addChunk(ByteArrayInputStream stream) throws ClosedStreamException {
-    if (closed)
+  public synchronized Future<Void>
+  addChunk(ByteArrayInputStream stream) throws ClosedStreamException
+  {
+    if (closed) {
       throw new ClosedStreamException("Cannot add a chunk to a closed stream");
+    }
     Task task = new Task(stream);
     queue.add(task);
     return task;
@@ -112,10 +131,13 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
    * @see java.io.InputStream#read()
    */
   @Override
-  public int read() throws IOException {
+  public int
+  read() throws IOException
+  {
     if (currentTask == null || currentStream.available() == 0)
-      if (getNextTask() == -1)
+      if (getNextTask() == -1) {
         return -1;
+      }
     return currentStream.read();
   }
 
@@ -125,7 +147,9 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
    * @see java.io.InputStream#read(byte[], int, int)
    */
   @Override
-  public int read(byte[] bytes, int off, int len) {
+  public int
+  read(byte[] bytes, int off, int len)
+  {
     if (currentTask == null || currentStream.available() == 0) {
       if (getNextTask() == -1) {
         currentTask.set(null);
@@ -135,11 +159,14 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
     return currentStream.read(bytes, off, len);
   }
 
-  protected int getNextTask() {
+  protected int
+  getNextTask()
+  {
     while (true) {
       try {
-        if (currentTask != null)
+        if (currentTask != null) {
           currentTask.set(null);
+        }
         currentTask = queue.take();
         currentStream = currentTask.getStream();
         return currentStream.available() == 0 ? -1 : currentStream.available();
