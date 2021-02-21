@@ -1047,7 +1047,7 @@ attribute_nodes(VALUE rb_node)
  *  object, or nil if there is no namespace for the element or attribute.
  */
 static VALUE
-namespace(VALUE rb_node)
+noko_xml_node_namespace(VALUE rb_node)
 {
   xmlNodePtr c_node ;
   Data_Get_Struct(rb_node, xmlNode, c_node);
@@ -1787,7 +1787,7 @@ noko_init_xml_node()
   rb_define_method(cNokogiriXmlNode, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(cNokogiriXmlNode, "attribute", attr, 1);
   rb_define_method(cNokogiriXmlNode, "attribute_with_ns", attribute_with_ns, 2);
-  rb_define_method(cNokogiriXmlNode, "namespace", namespace, 0);
+  rb_define_method(cNokogiriXmlNode, "namespace", noko_xml_node_namespace, 0);
   rb_define_method(cNokogiriXmlNode, "namespace_definitions", namespace_definitions, 0);
   rb_define_method(cNokogiriXmlNode, "namespace_scopes", namespace_scopes, 0);
   rb_define_method(cNokogiriXmlNode, "encode_special_chars", encode_special_chars, 1);
