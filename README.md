@@ -243,10 +243,7 @@ See [`LICENSE-DEPENDENCIES.md`](LICENSE-DEPENDENCIES.md) for more information on
 
 ## Contributing
 
-```bash
-bundle install
-bundle exec rake compile test
-```
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for an intro guide to developing Nokogiri.
 
 
 ## Code of Conduct

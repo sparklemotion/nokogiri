@@ -18,7 +18,8 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Submitting Pull Requests](#submitting-pull-requests)
 - [How to set up your local development environment](#how-to-set-up-your-local-development-environment)
 - [How to run the tests](#how-to-run-the-tests)
-- [How Continuous Integration ("CI") is configured. Also known as our "automated test suite."](#how-continuous-integration-ci-is-configured-also-known-as-our-automated-test-suite)
+- [Style Guide](#style-guide)
+- [How Continuous Integration ("CI") is configured](#how-continuous-integration-ci-is-configured)
 - [Building gems](#building-gems)
 - [Other utilities](#other-utilities)
 - [Rake tasks](#rake-tasks)
@@ -156,7 +157,7 @@ You can format the C and Java code with `rake format`. Maybe someday I'll auto-f
 No, I don't want to talk to you about this.
 
 
-## How Continuous Integration ("CI") is configured. Also known as our "automated test suite."
+## How Continuous Integration ("CI") is configured
 
 This section could probably be an entire guide unto itself, so I'll try to be as brief as reasonable.
 
