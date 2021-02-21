@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -39,40 +39,55 @@ import org.xml.sax.SAXParseException;
 /**
  * Strict error handler. Even though strict is specified, Nokogiri allows to go further
  * when NOERROR or/both NOWARNING is/are true.
- * 
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriStrictErrorHandler extends NokogiriErrorHandler {
-    public NokogiriStrictErrorHandler(boolean noerror, boolean nowarning) {
-        super(noerror, nowarning);
-    }
+public class NokogiriStrictErrorHandler extends NokogiriErrorHandler
+{
+  public
+  NokogiriStrictErrorHandler(boolean noerror, boolean nowarning)
+  {
+    super(noerror, nowarning);
+  }
 
-    public void warning(SAXParseException spex) throws SAXException {
-        if (!nowarning) throw spex;
-        else errors.add(spex);
-    }
+  public void
+  warning(SAXParseException spex) throws SAXException
+  {
+    if (!nowarning) { throw spex; }
+    else { errors.add(spex); }
+  }
 
-    public void error(SAXParseException spex) throws SAXException {
-        if (!noerror) throw spex;
-        else errors.add(spex);
-    }
+  public void
+  error(SAXParseException spex) throws SAXException
+  {
+    if (!noerror) { throw spex; }
+    else { errors.add(spex); }
+  }
 
-    public void fatalError(SAXParseException spex) throws SAXException {
-        throw spex;
-    }
+  public void
+  fatalError(SAXParseException spex) throws SAXException
+  {
+    throw spex;
+  }
 
-    public void error(String domain, String key, XMLParseException e) throws XMLParseException {
-        if (!noerror) throw e;
-        else errors.add(e);
-    }
+  public void
+  error(String domain, String key, XMLParseException e) throws XMLParseException
+  {
+    if (!noerror) { throw e; }
+    else { errors.add(e); }
+  }
 
-    public void fatalError(String domain, String key, XMLParseException e) throws XMLParseException {
-        throw e;
-    }
+  public void
+  fatalError(String domain, String key, XMLParseException e) throws XMLParseException
+  {
+    throw e;
+  }
 
-    public void warning(String domain, String key, XMLParseException e) throws XMLParseException {
-        if (!nowarning) throw e;
-        if (!usesNekoHtml(domain)) errors.add(e);
-    }
+  public void
+  warning(String domain, String key, XMLParseException e) throws XMLParseException
+  {
+    if (!nowarning) { throw e; }
+    if (!usesNekoHtml(domain)) { errors.add(e); }
+  }
 }

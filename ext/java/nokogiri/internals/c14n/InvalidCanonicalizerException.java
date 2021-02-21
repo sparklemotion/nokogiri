@@ -19,58 +19,69 @@
 package nokogiri.internals.c14n;
 
 
-public class InvalidCanonicalizerException extends Exception {
+public class InvalidCanonicalizerException extends Exception
+{
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructor InvalidCanonicalizerException
-     *
-     */
-    public InvalidCanonicalizerException() {
-        super();
-    }
+  /**
+   * Constructor InvalidCanonicalizerException
+   *
+   */
+  public
+  InvalidCanonicalizerException()
+  {
+    super();
+  }
 
-    /**
-     * Constructor InvalidCanonicalizerException
-     *
-     * @param message
-     */
-    public InvalidCanonicalizerException(String message) {
-        super(message);
-    }
+  /**
+   * Constructor InvalidCanonicalizerException
+   *
+   * @param message
+   */
+  public
+  InvalidCanonicalizerException(String message)
+  {
+    super(message);
+  }
 
-    /**
-     * Constructor InvalidCanonicalizerException
-     *
-     * @param message
-     * @param exArgs
-     */
-    public InvalidCanonicalizerException(String message, Object... exArgs) {
-        super(C14nHelper.getErrorMessage(message, exArgs));
-    }
+  /**
+   * Constructor InvalidCanonicalizerException
+   *
+   * @param message
+   * @param exArgs
+   */
+  public
+  InvalidCanonicalizerException(String message, Object... exArgs)
+  {
+    super(C14nHelper.getErrorMessage(message, exArgs));
+  }
 
-    /**
-     * Constructor InvalidCanonicalizerException
-     *
-     * @param msgID
-     * @param originalException
-     */
-    public InvalidCanonicalizerException(String message, Exception rootCause) {
-        super(message, rootCause);
-    }
+  /**
+   * Constructor InvalidCanonicalizerException
+   *
+   * @param msgID
+   * @param originalException
+   */
+  public
+  InvalidCanonicalizerException(String message, Exception rootCause)
+  {
+    super(message, rootCause);
+  }
 
-    /**
-     * Constructor InvalidCanonicalizerException
-     *
-     * @param msgID
-     * @param exArgs
-     * @param originalException
-     */
-    public InvalidCanonicalizerException(String message, Exception rootCause, Object... exArgs) {
-        super(C14nHelper.getErrorMessage(message, exArgs), rootCause);
-    }
+  /**
+   * Constructor InvalidCanonicalizerException
+   *
+   * @param msgID
+   * @param exArgs
+   * @param originalException
+   */
+  public
+  InvalidCanonicalizerException(String message, Exception rootCause, Object... exArgs)
+  {
+    super(C14nHelper.getErrorMessage(message, exArgs), rootCause);
+  }
 }

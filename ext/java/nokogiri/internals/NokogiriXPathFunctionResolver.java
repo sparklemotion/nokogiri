@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -39,34 +39,44 @@ import javax.xml.xpath.XPathFunctionResolver;
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
- * Xpath function resolver class, which is used in XmlXpathContext. 
- * 
+ * Xpath function resolver class, which is used in XmlXpathContext.
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public final class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
+public final class NokogiriXPathFunctionResolver implements XPathFunctionResolver
+{
 
-    private IRubyObject handler;
-    
-    public static NokogiriXPathFunctionResolver create(IRubyObject handler) {
-        NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
-        if (!handler.isNil()) {
-            freshResolver.setHandler(handler);
-        }
-        return freshResolver;
-    }
-    
-    private NokogiriXPathFunctionResolver() {}
+  private IRubyObject handler;
 
-    public final IRubyObject getHandler() {
-        return handler;
+  public static NokogiriXPathFunctionResolver
+  create(IRubyObject handler)
+  {
+    NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
+    if (!handler.isNil()) {
+      freshResolver.setHandler(handler);
     }
+    return freshResolver;
+  }
 
-    public void setHandler(IRubyObject handler) {
-        this.handler = handler;
-    }
+  private
+  NokogiriXPathFunctionResolver() {}
 
-    public XPathFunction resolveFunction(QName name, int arity) {
-        return NokogiriXPathFunction.create(handler, name, arity);
-    }
+  public final IRubyObject
+  getHandler()
+  {
+    return handler;
+  }
+
+  public void
+  setHandler(IRubyObject handler)
+  {
+    this.handler = handler;
+  }
+
+  public XPathFunction
+  resolveFunction(QName name, int arity)
+  {
+    return NokogiriXPathFunction.create(handler, name, arity);
+  }
 }

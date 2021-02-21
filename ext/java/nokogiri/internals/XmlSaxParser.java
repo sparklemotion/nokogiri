@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -42,24 +42,31 @@ import org.apache.xerces.xni.XNIException;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
-public class XmlSaxParser extends SAXParser {
+public class XmlSaxParser extends SAXParser
+{
 
-    protected XmlDeclHandler xmlDeclHandler = null;
+  protected XmlDeclHandler xmlDeclHandler = null;
 
-    public XmlSaxParser() {
-        super();
+  public
+  XmlSaxParser()
+  {
+    super();
+  }
+
+  public void
+  setXmlDeclHandler(XmlDeclHandler xmlDeclHandler)
+  {
+    this.xmlDeclHandler = xmlDeclHandler;
+  }
+
+  @Override
+  public void
+  xmlDecl(String version, String encoding, String standalone,
+          Augmentations augs) throws XNIException
+  {
+    super.xmlDecl(version, encoding, standalone, augs);
+    if (xmlDeclHandler != null) {
+      xmlDeclHandler.xmlDecl(version, encoding, standalone);
     }
-
-    public void setXmlDeclHandler(XmlDeclHandler xmlDeclHandler) {
-        this.xmlDeclHandler = xmlDeclHandler;
-    }
-
-    @Override
-    public void xmlDecl(String version, String encoding, String standalone,
-                        Augmentations augs) throws XNIException {
-        super.xmlDecl(version, encoding, standalone, augs);
-        if (xmlDeclHandler != null) {
-            xmlDeclHandler.xmlDecl(version, encoding, standalone);
-        }
-    }
+  }
 }

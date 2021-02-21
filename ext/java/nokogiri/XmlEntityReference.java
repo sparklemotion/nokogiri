@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -47,55 +47,64 @@ import org.w3c.dom.Node;
 
 /**
  * Class for Nokogiri::XML::EntityReference
- * 
+ *
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::XML::EntityReference", parent="Nokogiri::XML::Node")
-public class XmlEntityReference extends XmlNode {
+@JRubyClass(name = "Nokogiri::XML::EntityReference", parent = "Nokogiri::XML::Node")
+public class XmlEntityReference extends XmlNode
+{
 
-    public XmlEntityReference(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz);
+  public
+  XmlEntityReference(Ruby ruby, RubyClass klazz)
+  {
+    super(ruby, klazz);
+  }
+
+  public
+  XmlEntityReference(Ruby ruby, RubyClass klass, Node node)
+  {
+    super(ruby, klass, node);
+  }
+
+  protected void
+  init(ThreadContext context, IRubyObject[] args)
+  {
+    if (args.length < 2) {
+      throw context.runtime.newArgumentError(args.length, 2);
     }
 
-    public XmlEntityReference(Ruby ruby, RubyClass klass, Node node) {
-        super(ruby, klass, node);
-    }
+    IRubyObject doc = args[0];
+    IRubyObject name = args[1];
 
-    protected void init(ThreadContext context, IRubyObject[] args) {
-        if (args.length < 2) {
-            throw context.runtime.newArgumentError(args.length, 2);
-        }
+    Document document = ((XmlNode) doc).getOwnerDocument();
+    // FIXME: disable error checking as a workaround for #719. this depends on the internals of Xerces.
+    CoreDocumentImpl internalDocument = (CoreDocumentImpl) document;
+    boolean oldErrorChecking = internalDocument.getErrorChecking();
+    internalDocument.setErrorChecking(false);
+    Node node = document.createEntityReference(rubyStringToString(name));
+    internalDocument.setErrorChecking(oldErrorChecking);
+    setNode(context.runtime, node);
+  }
 
-        IRubyObject doc = args[0];
-        IRubyObject name = args[1];
-
-        Document document = ((XmlNode) doc).getOwnerDocument();
-        // FIXME: disable error checking as a workaround for #719. this depends on the internals of Xerces.
-        CoreDocumentImpl internalDocument = (CoreDocumentImpl) document;
-        boolean oldErrorChecking = internalDocument.getErrorChecking();
-        internalDocument.setErrorChecking(false);
-        Node node = document.createEntityReference(rubyStringToString(name));
-        internalDocument.setErrorChecking(oldErrorChecking);
-        setNode(context.runtime, node);
+  @Override
+  public void
+  accept(ThreadContext context, SaveContextVisitor visitor)
+  {
+    visitor.enter(node);
+    Node child = node.getFirstChild();
+    while (child != null) {
+      IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
+      if (nokoNode instanceof XmlNode) {
+        XmlNode cur = (XmlNode) nokoNode;
+        cur.accept(context, visitor);
+      } else if (nokoNode instanceof XmlNamespace) {
+        XmlNamespace cur = (XmlNamespace) nokoNode;
+        cur.accept(context, visitor);
+      }
+      child = child.getNextSibling();
     }
-    
-    @Override
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter(node);
-        Node child = node.getFirstChild();
-        while (child != null) {
-            IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
-            if (nokoNode instanceof XmlNode) {
-                XmlNode cur = (XmlNode) nokoNode;
-                cur.accept(context, visitor);
-            } else if (nokoNode instanceof XmlNamespace) {
-                XmlNamespace cur = (XmlNamespace) nokoNode;
-                cur.accept(context, visitor);
-            }
-            child = child.getNextSibling();
-        }
-        visitor.leave(node);
-    }
+    visitor.leave(node);
+  }
 }

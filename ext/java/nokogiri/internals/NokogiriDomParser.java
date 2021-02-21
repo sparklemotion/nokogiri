@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -53,64 +53,79 @@ import org.xml.sax.SAXException;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
-public class NokogiriDomParser extends DOMParser {
-    protected DOMParser dtd;
-    protected boolean xInclude;
-    protected XMLParserConfiguration config;
+public class NokogiriDomParser extends DOMParser
+{
+  protected DOMParser dtd;
+  protected boolean xInclude;
+  protected XMLParserConfiguration config;
 
-    public NokogiriDomParser(XMLParserConfiguration config) {
-        super(config);
-        this.config = config;
-        initialize();
+  public
+  NokogiriDomParser(XMLParserConfiguration config)
+  {
+    super(config);
+    this.config = config;
+    initialize();
+  }
+
+  public
+  NokogiriDomParser(ParserContext.Options options)
+  {
+    xInclude = options.xInclude;
+    initialize();
+  }
+
+  protected void
+  initialize()
+  {
+    if (config == null) {
+      if (xInclude) {
+        config = new XIncludeParserConfiguration();
+      } else {
+        config = getXMLParserConfiguration();
+      }
     }
 
-    public NokogiriDomParser(ParserContext.Options options) {
-        xInclude = options.xInclude;
-        initialize();
+    DTDConfiguration dtdConfig = new DTDConfiguration();
+    dtd = new DOMParser(dtdConfig);
+
+    config.setDTDHandler(dtdConfig);
+    config.setDTDContentModelHandler(dtdConfig);
+  }
+
+  @Override
+  public void
+  parse(InputSource source) throws SAXException, IOException
+  {
+    dtd.reset();
+    if (xInclude) {
+      setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
+    }
+    super.parse(source);
+    Document doc = getDocument();
+    if (doc == null) {
+      throw new RuntimeException("null document");
     }
 
-    protected void initialize() {
-        if (config == null) {
-            if (xInclude) {
-                config = new XIncludeParserConfiguration();
-            } else {
-                config = getXMLParserConfiguration();
-            }
-        }
+    doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
+  }
 
-        DTDConfiguration dtdConfig = new DTDConfiguration();
-        dtd = new DOMParser(dtdConfig);
-
-        config.setDTDHandler(dtdConfig);
-        config.setDTDContentModelHandler(dtdConfig);
+  private static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver
+  {
+    InputSource source;
+    private
+    NokogiriXInlcudeEntityResolver(InputSource source)
+    {
+      this.source = source;
     }
 
     @Override
-    public void parse(InputSource source) throws SAXException, IOException {
-        dtd.reset();
-        if (xInclude) {
-            setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
-        }
-        super.parse(source);
-        Document doc = getDocument();
-        if (doc == null)
-            throw new RuntimeException("null document");
-
-        doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
+    public InputSource
+    resolveEntity(String publicId, String systemId)
+    throws SAXException, IOException
+    {
+      if (systemId != null) { source.setSystemId(systemId); }
+      if (publicId != null) { source.setPublicId(publicId); }
+      return source;
     }
-
-    private static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
-        InputSource source;
-        private NokogiriXInlcudeEntityResolver(InputSource source) {
-            this.source = source;
-        }
-
-        @Override
-        public InputSource resolveEntity(String publicId, String systemId)
-                throws SAXException, IOException {
-            if (systemId != null) source.setSystemId(systemId);
-            if (publicId != null) source.setPublicId(publicId);
-            return source;
-        }
-    }
+  }
 }

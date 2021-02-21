@@ -28,49 +28,50 @@ import org.w3c.dom.Node;
  *
  * @author Christian Geuer-Pollmann
  */
-public abstract class CanonicalizerSpi {
+public abstract class CanonicalizerSpi
+{
 
-    /** Reset the writer after a c14n */
-    protected boolean reset = false;
+  /** Reset the writer after a c14n */
+  protected boolean reset = false;
 
-    /**
-     * Returns the URI of this engine.
-     * @return the URI
-     */
-    public abstract String engineGetURI();
+  /**
+   * Returns the URI of this engine.
+   * @return the URI
+   */
+  public abstract String engineGetURI();
 
-    /**
-     * Returns true if comments are included
-     * @return true if comments are included
-     */
-    public abstract boolean engineGetIncludeComments();
+  /**
+   * Returns true if comments are included
+   * @return true if comments are included
+   */
+  public abstract boolean engineGetIncludeComments();
 
-    /**
-     * C14n a node tree.
-     *
-     * @param rootNode
-     * @return the c14n bytes
-     * @throws CanonicalizationException
-     */
-    public abstract byte[] engineCanonicalizeSubTree(Node rootNode, CanonicalFilter filter)
-        throws CanonicalizationException;
+  /**
+   * C14n a node tree.
+   *
+   * @param rootNode
+   * @return the c14n bytes
+   * @throws CanonicalizationException
+   */
+  public abstract byte[] engineCanonicalizeSubTree(Node rootNode, CanonicalFilter filter)
+  throws CanonicalizationException;
 
-    /**
-     * C14n a node tree.
-     *
-     * @param rootNode
-     * @param inclusiveNamespaces
-     * @return the c14n bytes
-     * @throws CanonicalizationException
-     */
-    public abstract byte[] engineCanonicalizeSubTree(Node rootNode, String inclusiveNamespaces, CanonicalFilter filter)
-        throws CanonicalizationException;
+  /**
+   * C14n a node tree.
+   *
+   * @param rootNode
+   * @param inclusiveNamespaces
+   * @return the c14n bytes
+   * @throws CanonicalizationException
+   */
+  public abstract byte[] engineCanonicalizeSubTree(Node rootNode, String inclusiveNamespaces, CanonicalFilter filter)
+  throws CanonicalizationException;
 
-    /**
-     * Sets the writer where the canonicalization ends. ByteArrayOutputStream if
-     * none is set.
-     * @param os
-     */
-    public abstract void setWriter(OutputStream os);
+  /**
+   * Sets the writer where the canonicalization ends. ByteArrayOutputStream if
+   * none is set.
+   * @param os
+   */
+  public abstract void setWriter(OutputStream os);
 
 }

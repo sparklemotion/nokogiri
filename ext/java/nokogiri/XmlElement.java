@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -44,25 +44,32 @@ import nokogiri.internals.SaveContextVisitor;
 
 /**
  * Class for Nokogiri::XML::Element
- * 
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gamil.com>
  */
-@JRubyClass(name="Nokogiri::XML::Element", parent="Nokogiri::XML::Node")
-public class XmlElement extends XmlNode {
+@JRubyClass(name = "Nokogiri::XML::Element", parent = "Nokogiri::XML::Node")
+public class XmlElement extends XmlNode
+{
 
-    public XmlElement(Ruby runtime, RubyClass klazz) {
-        super(runtime, klazz);
-    }
+  public
+  XmlElement(Ruby runtime, RubyClass klazz)
+  {
+    super(runtime, klazz);
+  }
 
-    public XmlElement(Ruby runtime, RubyClass klazz, Node element) {
-        super(runtime, klazz, element);
-    }
-    
-    @Override
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((Element) node);
-        acceptChildren(context, getChildren(), visitor);
-        visitor.leave((Element) node);
-    }
+  public
+  XmlElement(Ruby runtime, RubyClass klazz, Node element)
+  {
+    super(runtime, klazz, element);
+  }
+
+  @Override
+  public void
+  accept(ThreadContext context, SaveContextVisitor visitor)
+  {
+    visitor.enter((Element) node);
+    acceptChildren(context, getChildren(), visitor);
+    visitor.leave((Element) node);
+  }
 }

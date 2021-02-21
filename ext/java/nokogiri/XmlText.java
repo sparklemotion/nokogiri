@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -54,57 +54,68 @@ import org.w3c.dom.Text;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::XML::Text", parent="Nokogiri::XML::CharacterData")
-public class XmlText extends XmlNode {
+@JRubyClass(name = "Nokogiri::XML::Text", parent = "Nokogiri::XML::CharacterData")
+public class XmlText extends XmlNode
+{
 
-    private static final ByteList TEXT = ByteList.create("text");
-    static { TEXT.setEncoding(USASCIIEncoding.INSTANCE); }
+  private static final ByteList TEXT = ByteList.create("text");
+  static { TEXT.setEncoding(USASCIIEncoding.INSTANCE); }
 
-    public XmlText(Ruby runtime, RubyClass rubyClass, Node node) {
-        super(runtime, rubyClass, node);
+  public
+  XmlText(Ruby runtime, RubyClass rubyClass, Node node)
+  {
+    super(runtime, rubyClass, node);
+  }
+
+  public
+  XmlText(Ruby runtime, RubyClass klass)
+  {
+    super(runtime, klass);
+  }
+
+  @Override
+  protected void
+  init(ThreadContext context, IRubyObject[] args)
+  {
+    if (args.length < 2) {
+      throw context.runtime.newArgumentError(args.length, 2);
     }
 
-    public XmlText(Ruby runtime, RubyClass klass) {
-        super(runtime, klass);
-    }
+    content = args[0];
+    IRubyObject xNode = args[1];
 
-    @Override
-    protected void init(ThreadContext context, IRubyObject[] args) {
-        if (args.length < 2) {
-            throw context.runtime.newArgumentError(args.length, 2);
-        }
+    Document document = asXmlNode(context, xNode).getOwnerDocument();
+    // text node content should not be encoded when it is created by Text node.
+    // while content should be encoded when it is created by Element node.
+    Node node = document.createTextNode(rubyStringToString(content));
+    setNode(context.runtime, node);
+  }
 
-        content = args[0];
-        IRubyObject xNode = args[1];
+  @Override
+  protected IRubyObject
+  getNodeName(ThreadContext context)
+  {
+    if (name == null) { name = RubyString.newStringShared(context.runtime, TEXT); }
+    return name;
+  }
 
-        Document document = asXmlNode(context, xNode).getOwnerDocument();
-        // text node content should not be encoded when it is created by Text node.
-        // while content should be encoded when it is created by Element node.
-        Node node = document.createTextNode(rubyStringToString(content));
-        setNode(context.runtime, node);
+  @Override
+  public void
+  accept(ThreadContext context, SaveContextVisitor visitor)
+  {
+    visitor.enter((Text) node);
+    Node child = node.getFirstChild();
+    while (child != null) {
+      IRubyObject nokoNode = getCachedNodeOrCreate(context.runtime, child);
+      if (nokoNode instanceof XmlNode) {
+        XmlNode cur = (XmlNode) nokoNode;
+        cur.accept(context, visitor);
+      } else if (nokoNode instanceof XmlNamespace) {
+        XmlNamespace cur = (XmlNamespace) nokoNode;
+        cur.accept(context, visitor);
+      }
+      child = child.getNextSibling();
     }
-    
-    @Override
-    protected IRubyObject getNodeName(ThreadContext context) {
-        if (name == null) name = RubyString.newStringShared(context.runtime, TEXT);
-        return name;
-    }
-
-    @Override
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((Text) node);
-        Node child = node.getFirstChild();
-        while (child != null) {
-            IRubyObject nokoNode = getCachedNodeOrCreate(context.runtime, child);
-            if (nokoNode instanceof XmlNode) {
-                XmlNode cur = (XmlNode) nokoNode;
-                cur.accept(context, visitor);
-            } else if (nokoNode instanceof XmlNamespace) {
-                XmlNamespace cur = (XmlNamespace) nokoNode;
-                cur.accept(context, visitor);
-            }
-            child = child.getNextSibling();
-        }
-        visitor.leave(node);
-    }
+    visitor.leave(node);
+  }
 }

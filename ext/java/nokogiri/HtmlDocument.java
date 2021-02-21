@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -55,124 +55,147 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::HTML::Document", parent="Nokogiri::XML::Document")
-public class HtmlDocument extends XmlDocument {
-    private static final String DEFAULT_CONTENT_TYPE = "html";
-    private static final String DEFAULT_PUBLIC_ID = "-//W3C//DTD HTML 4.01//EN";
-    private static final String DEFAULT_SYTEM_ID = "http://www.w3.org/TR/html4/strict.dtd";
+@JRubyClass(name = "Nokogiri::HTML::Document", parent = "Nokogiri::XML::Document")
+public class HtmlDocument extends XmlDocument
+{
+  private static final String DEFAULT_CONTENT_TYPE = "html";
+  private static final String DEFAULT_PUBLIC_ID = "-//W3C//DTD HTML 4.01//EN";
+  private static final String DEFAULT_SYTEM_ID = "http://www.w3.org/TR/html4/strict.dtd";
 
-    private String parsed_encoding = null;
+  private String parsed_encoding = null;
 
-    public HtmlDocument(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz);
+  public
+  HtmlDocument(Ruby ruby, RubyClass klazz)
+  {
+    super(ruby, klazz);
+  }
+
+  public
+  HtmlDocument(Ruby runtime, Document document)
+  {
+    this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
+  }
+
+  public
+  HtmlDocument(Ruby ruby, RubyClass klazz, Document doc)
+  {
+    super(ruby, klazz, doc);
+  }
+
+  @JRubyMethod(name = "new", meta = true, rest = true, required = 0)
+  public static IRubyObject
+  rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
+  {
+    final Ruby runtime = context.runtime;
+    HtmlDocument htmlDocument;
+    try {
+      Document docNode = createNewDocument(runtime);
+      htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
+      htmlDocument.setDocumentNode(context.runtime, docNode);
+    } catch (Exception ex) {
+      throw asRuntimeError(runtime, "couldn't create document: ", ex);
     }
 
-    public HtmlDocument(Ruby runtime, Document document) {
-        this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
+    Helpers.invoke(context, htmlDocument, "initialize", args);
+
+    return htmlDocument;
+  }
+
+  public IRubyObject
+  getInternalSubset(ThreadContext context)
+  {
+    IRubyObject internalSubset = super.getInternalSubset(context);
+
+    // html documents are expected to have a default internal subset
+    // the default values are the same ones used when the following
+    // feature is turned on
+    // "http://cyberneko.org/html/features/insert-doctype"
+    // the reason we don't turn it on, is because it overrides the document's
+    // declared doctype declaration.
+
+    if (internalSubset.isNil()) {
+      internalSubset = XmlDtd.newEmpty(context.getRuntime(),
+                                       getDocument(),
+                                       context.getRuntime().newString(DEFAULT_CONTENT_TYPE),
+                                       context.getRuntime().newString(DEFAULT_PUBLIC_ID),
+                                       context.getRuntime().newString(DEFAULT_SYTEM_ID));
+      setInternalSubset(internalSubset);
     }
 
-    public HtmlDocument(Ruby ruby, RubyClass klazz, Document doc) {
-        super(ruby, klazz, doc);
-    }
+    return internalSubset;
+  }
 
-    @JRubyMethod(name="new", meta = true, rest = true, required=0)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
-        final Ruby runtime = context.runtime;
-        HtmlDocument htmlDocument;
-        try {
-            Document docNode = createNewDocument(runtime);
-            htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
-            htmlDocument.setDocumentNode(context.runtime, docNode);
-        } catch (Exception ex) {
-            throw asRuntimeError(runtime, "couldn't create document: ", ex);
+  @Override
+  void
+  init(Ruby runtime, Document document)
+  {
+    stabilizeTextContent(document);
+    document.normalize();
+    setInstanceVariable("@decorators", runtime.getNil());
+    if (document.getDocumentElement() != null) {
+      stabilizeAttrs(document.getDocumentElement());
+    }
+  }
+
+  private static void
+  stabilizeAttrs(Node node)
+  {
+    if (node.hasAttributes()) {
+      NamedNodeMap nodeMap = node.getAttributes();
+      for (int i = 0; i < nodeMap.getLength(); i++) {
+        Node n = nodeMap.item(i);
+        if (n instanceof Attr) {
+          stabilizeAttr((Attr) n);
         }
-
-        Helpers.invoke(context, htmlDocument, "initialize", args);
-
-        return htmlDocument;
+      }
     }
-
-    public IRubyObject getInternalSubset(ThreadContext context) {
-        IRubyObject internalSubset = super.getInternalSubset(context);
-
-        // html documents are expected to have a default internal subset
-        // the default values are the same ones used when the following
-        // feature is turned on
-        // "http://cyberneko.org/html/features/insert-doctype"
-        // the reason we don't turn it on, is because it overrides the document's
-        // declared doctype declaration.
-
-        if (internalSubset.isNil()) {
-            internalSubset = XmlDtd.newEmpty(context.getRuntime(),
-                                             getDocument(),
-                                             context.getRuntime().newString(DEFAULT_CONTENT_TYPE),
-                                             context.getRuntime().newString(DEFAULT_PUBLIC_ID),
-                                             context.getRuntime().newString(DEFAULT_SYTEM_ID));
-            setInternalSubset(internalSubset);
-        }
-
-        return internalSubset;
+    NodeList children = node.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      stabilizeAttrs(children.item(i));
     }
+  }
 
-    @Override
-    void init(Ruby runtime, Document document) {
-        stabilizeTextContent(document);
-        document.normalize();
-        setInstanceVariable("@decorators", runtime.getNil());
-        if (document.getDocumentElement() != null) {
-            stabilizeAttrs(document.getDocumentElement());
-        }
-    }
+  public void
+  setParsedEncoding(String encoding)
+  {
+    parsed_encoding = encoding;
+  }
 
-    private static void stabilizeAttrs(Node node) {
-        if (node.hasAttributes()) {
-            NamedNodeMap nodeMap = node.getAttributes();
-            for (int i=0; i<nodeMap.getLength(); i++) {
-                Node n = nodeMap.item(i);
-                if (n instanceof Attr) {
-                    stabilizeAttr((Attr) n);
-                }
-            }
-        }
-        NodeList children = node.getChildNodes();
-        for (int i=0; i<children.getLength(); i++) {
-            stabilizeAttrs(children.item(i));
-        }
-    }
-    
-    public void setParsedEncoding(String encoding) {
-        parsed_encoding = encoding;
-    }
-    
-    public String getPraedEncoding() {
-        return parsed_encoding;
-    }
+  public String
+  getPraedEncoding()
+  {
+    return parsed_encoding;
+  }
 
-    /*
-     * call-seq:
-     *  read_io(io, url, encoding, options)
-     *
-     * Read the HTML document from +io+ with given +url+, +encoding+,
-     * and +options+.  See Nokogiri::HTML.parse
-     */
-    @JRubyMethod(meta = true, required = 4)
-    public static IRubyObject read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args) {
-        HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
-        ctx.setIOInputSource(context, args[0], args[1]);
-        return ctx.parse(context, (RubyClass) klass, args[1]);
-    }
+  /*
+   * call-seq:
+   *  read_io(io, url, encoding, options)
+   *
+   * Read the HTML document from +io+ with given +url+, +encoding+,
+   * and +options+.  See Nokogiri::HTML.parse
+   */
+  @JRubyMethod(meta = true, required = 4)
+  public static IRubyObject
+  read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args)
+  {
+    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
+    ctx.setIOInputSource(context, args[0], args[1]);
+    return ctx.parse(context, (RubyClass) klass, args[1]);
+  }
 
-    /*
-     * call-seq:
-     *  read_memory(string, url, encoding, options)
-     *
-     * Read the HTML document contained in +string+ with given +url+, +encoding+,
-     * and +options+.  See Nokogiri::HTML.parse
-     */
-    @JRubyMethod(meta = true, required = 4)
-    public static IRubyObject read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args) {
-        HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
-        ctx.setStringInputSource(context, args[0], args[1]);
-        return ctx.parse(context, (RubyClass) klass, args[1]);
-    }
+  /*
+   * call-seq:
+   *  read_memory(string, url, encoding, options)
+   *
+   * Read the HTML document contained in +string+ with given +url+, +encoding+,
+   * and +options+.  See Nokogiri::HTML.parse
+   */
+  @JRubyMethod(meta = true, required = 4)
+  public static IRubyObject
+  read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args)
+  {
+    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
+    ctx.setStringInputSource(context, args[0], args[1]);
+    return ctx.parse(context, (RubyClass) klass, args[1]);
+  }
 }

@@ -63,265 +63,327 @@ import nokogiri.XmlSyntaxError;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
+public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
+{
 
-    StringBuilder charactersBuilder;
-    private final Ruby runtime;
-    private final RubyClass attrClass;
-    private final IRubyObject object;
+  StringBuilder charactersBuilder;
+  private final Ruby runtime;
+  private final RubyClass attrClass;
+  private final IRubyObject object;
 
-    /**
-     * Stores parse errors with the most-recent error last.
-     *
-     * TODO: should these be stored in the document 'errors' array?
-     * Currently only string messages are stored there.
-     */
-    private final LinkedList<RaiseException> errors = new LinkedList<RaiseException>();
+  /**
+   * Stores parse errors with the most-recent error last.
+   *
+   * TODO: should these be stored in the document 'errors' array?
+   * Currently only string messages are stored there.
+   */
+  private final LinkedList<RaiseException> errors = new LinkedList<RaiseException>();
 
-    private Locator locator;
-    private boolean needEmptyAttrCheck;
+  private Locator locator;
+  private boolean needEmptyAttrCheck;
 
-    public NokogiriHandler(Ruby runtime, IRubyObject object) {
-        assert object != null;
-        this.runtime = runtime;
-        this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
-        this.object = object;
-        charactersBuilder = new StringBuilder();
-        String objectName = object.getMetaClass().getName();
-        if ("Nokogiri::HTML::SAX::Parser".equals(objectName)) needEmptyAttrCheck = true;
-    }
+  public
+  NokogiriHandler(Ruby runtime, IRubyObject object)
+  {
+    assert object != null;
+    this.runtime = runtime;
+    this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
+    this.object = object;
+    charactersBuilder = new StringBuilder();
+    String objectName = object.getMetaClass().getName();
+    if ("Nokogiri::HTML::SAX::Parser".equals(objectName)) { needEmptyAttrCheck = true; }
+  }
 
-    @Override
-    public void skippedEntity(String skippedEntity) {
-        call("error", runtime.newString("Entity '" + skippedEntity + "' not defined\n"));
-    }
+  @Override
+  public void
+  skippedEntity(String skippedEntity)
+  {
+    call("error", runtime.newString("Entity '" + skippedEntity + "' not defined\n"));
+  }
 
-    @Override
-    public void setDocumentLocator(Locator locator) {
-        this.locator = locator;
-    }
+  @Override
+  public void
+  setDocumentLocator(Locator locator)
+  {
+    this.locator = locator;
+  }
 
-    @Override
-    public void startDocument() {
-        call("start_document");
-    }
+  @Override
+  public void
+  startDocument()
+  {
+    call("start_document");
+  }
 
-    @Override
-    public void xmlDecl(String version, String encoding, String standalone) {
-        call("xmldecl", stringOrNil(runtime, version), stringOrNil(runtime, encoding), stringOrNil(runtime, standalone));
-    }
+  @Override
+  public void
+  xmlDecl(String version, String encoding, String standalone)
+  {
+    call("xmldecl", stringOrNil(runtime, version), stringOrNil(runtime, encoding), stringOrNil(runtime, standalone));
+  }
 
-    @Override
-    public void endDocument() {
-        populateCharacters();
-        call("end_document");
-    }
+  @Override
+  public void
+  endDocument()
+  {
+    populateCharacters();
+    call("end_document");
+  }
 
-    @Override
-    public void processingInstruction(String target, String data) {
-        call("processing_instruction", runtime.newString(target), runtime.newString(data));
-    }
+  @Override
+  public void
+  processingInstruction(String target, String data)
+  {
+    call("processing_instruction", runtime.newString(target), runtime.newString(data));
+  }
 
-    /*
-     * This calls "start_element_namespace".
-     *
-     * Attributes that define namespaces are passed in a separate
-     * array of <code>[:prefix, :uri]</code> arrays and are not
-     * passed with the other attributes.
-     */
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-        final Ruby runtime = this.runtime;
-        final ThreadContext context = runtime.getCurrentContext();
+  /*
+   * This calls "start_element_namespace".
+   *
+   * Attributes that define namespaces are passed in a separate
+   * array of <code>[:prefix, :uri]</code> arrays and are not
+   * passed with the other attributes.
+   */
+  @Override
+  public void
+  startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException
+  {
+    final Ruby runtime = this.runtime;
+    final ThreadContext context = runtime.getCurrentContext();
 
-        // for attributes other than namespace attrs
-        RubyArray rubyAttr = RubyArray.newArray(runtime);
-        // for namespace defining attributes
-        RubyArray rubyNSAttr = RubyArray.newArray(runtime);
+    // for attributes other than namespace attrs
+    RubyArray rubyAttr = RubyArray.newArray(runtime);
+    // for namespace defining attributes
+    RubyArray rubyNSAttr = RubyArray.newArray(runtime);
 
-        boolean fromFragmentHandler = false; // isFromFragmentHandler();
+    boolean fromFragmentHandler = false; // isFromFragmentHandler();
 
-        for (int i = 0; i < attrs.getLength(); i++) {
-            String u = attrs.getURI(i);
-            String qn = attrs.getQName(i);
-            String ln = attrs.getLocalName(i);
-            String val = attrs.getValue(i);
-            String pre;
+    for (int i = 0; i < attrs.getLength(); i++) {
+      String u = attrs.getURI(i);
+      String qn = attrs.getQName(i);
+      String ln = attrs.getLocalName(i);
+      String val = attrs.getValue(i);
+      String pre;
 
-            pre = getPrefix(qn);
-            if (ln == null || ln.isEmpty()) ln = getLocalPart(qn);
+      pre = getPrefix(qn);
+      if (ln == null || ln.isEmpty()) { ln = getLocalPart(qn); }
 
-            if (isNamespace(qn) && !fromFragmentHandler) {
-                // I haven't figured the reason out yet, but, in somewhere,
-                // namespace is converted to array in array and cause
-                // TypeError at line 45 in fragment_handler.rb
-                if (ln.equals("xmlns")) ln = null;
-                rubyNSAttr.append( runtime.newArray( stringOrNil(runtime, ln), runtime.newString(val) ) );
-            } else {
-                IRubyObject[] args = null;
-                if (needEmptyAttrCheck) {
-                    if (isEmptyAttr(ln)) {
-                        args = new IRubyObject[] {
-                            stringOrNil(runtime, ln),
-                            stringOrNil(runtime, pre),
-                            stringOrNil(runtime, u)
-                        };
-                    }
-                }
-                if (args == null) {
-                    args = new IRubyObject[] {
-                        stringOrNil(runtime, ln),
-                        stringOrNil(runtime, pre),
-                        stringOrNil(runtime, u),
-                        stringOrNil(runtime, val)
-                    };
-                }
-
-                rubyAttr.append( Helpers.invoke(context, attrClass, "new", args) );
-            }
+      if (isNamespace(qn) && !fromFragmentHandler) {
+        // I haven't figured the reason out yet, but, in somewhere,
+        // namespace is converted to array in array and cause
+        // TypeError at line 45 in fragment_handler.rb
+        if (ln.equals("xmlns")) { ln = null; }
+        rubyNSAttr.append(runtime.newArray(stringOrNil(runtime, ln), runtime.newString(val)));
+      } else {
+        IRubyObject[] args = null;
+        if (needEmptyAttrCheck) {
+          if (isEmptyAttr(ln)) {
+            args = new IRubyObject[] {
+              stringOrNil(runtime, ln),
+              stringOrNil(runtime, pre),
+              stringOrNil(runtime, u)
+            };
+          }
+        }
+        if (args == null) {
+          args = new IRubyObject[] {
+            stringOrNil(runtime, ln),
+            stringOrNil(runtime, pre),
+            stringOrNil(runtime, u),
+            stringOrNil(runtime, val)
+          };
         }
 
-        if (localName == null || localName.isEmpty()) localName = getLocalPart(qName);
-        populateCharacters();
-        call("start_element_namespace",
-             stringOrNil(runtime, localName),
-             rubyAttr,
-             stringOrNil(runtime, getPrefix(qName)),
-             stringOrNil(runtime, uri),
-             rubyNSAttr);
+        rubyAttr.append(Helpers.invoke(context, attrClass, "new", args));
+      }
     }
 
-    static final Set<String> EMPTY_ATTRS;
-    static {
-        final String[] emptyAttrs = {
-            "checked", "compact", "declare", "defer", "disabled", "ismap", "multiple",
-            "noresize", "nohref", "noshade", "nowrap", "readonly", "selected"
-        };
-        EMPTY_ATTRS = new HashSet<String>(Arrays.asList(emptyAttrs));
-    }
-    
-    private static boolean isEmptyAttr(String name) {
-        return EMPTY_ATTRS.contains(name);
-    }
-    
-    public final Integer getLine() { // -1 if none is available
-        final int line = locator.getLineNumber();
-        return line == -1 ? null : line;
-    }
-    
-    public final Integer getColumn() { // -1 if none is available
-        final int column = locator.getColumnNumber();
-        return column == -1 ? null : column - 1;
-    }
+    if (localName == null || localName.isEmpty()) { localName = getLocalPart(qName); }
+    populateCharacters();
+    call("start_element_namespace",
+         stringOrNil(runtime, localName),
+         rubyAttr,
+         stringOrNil(runtime, getPrefix(qName)),
+         stringOrNil(runtime, uri),
+         rubyNSAttr);
+  }
 
-    @Override
-    public void endElement(String uri, String localName, String qName) {
-        populateCharacters();
-        call("end_element_namespace",
-             stringOrNil(runtime, localName),
-             stringOrNil(runtime, getPrefix(qName)),
-             stringOrNil(runtime, uri));
-    }
+  static final Set<String> EMPTY_ATTRS;
+  static
+  {
+    final String[] emptyAttrs = {
+      "checked", "compact", "declare", "defer", "disabled", "ismap", "multiple",
+      "noresize", "nohref", "noshade", "nowrap", "readonly", "selected"
+    };
+    EMPTY_ATTRS = new HashSet<String>(Arrays.asList(emptyAttrs));
+  }
 
-    @Override
-    public void characters(char[] ch, int start, int length) {
-        charactersBuilder.append(ch, start, length);
-    }
+  private static boolean
+  isEmptyAttr(String name)
+  {
+    return EMPTY_ATTRS.contains(name);
+  }
 
-    @Override
-    public void comment(char[] ch, int start, int length) {
-        populateCharacters();
-        call("comment", runtime.newString(new String(ch, start, length)));
-    }
+  public final Integer
+  getLine()   // -1 if none is available
+  {
+    final int line = locator.getLineNumber();
+    return line == -1 ? null : line;
+  }
 
-    @Override
-    public void startCDATA() {
-        populateCharacters();
-    }
+  public final Integer
+  getColumn()   // -1 if none is available
+  {
+    final int column = locator.getColumnNumber();
+    return column == -1 ? null : column - 1;
+  }
 
-    @Override
-    public void endCDATA() {
-        call("cdata_block", runtime.newString(charactersBuilder.toString()));
-        charactersBuilder.setLength(0);
-    }
+  @Override
+  public void
+  endElement(String uri, String localName, String qName)
+  {
+    populateCharacters();
+    call("end_element_namespace",
+         stringOrNil(runtime, localName),
+         stringOrNil(runtime, getPrefix(qName)),
+         stringOrNil(runtime, uri));
+  }
 
-    void handleError(SAXParseException ex) {
-        try {
-            final String msg = ex.getMessage();
-            call("error", runtime.newString(msg == null ? "" : msg));
-            addError(XmlSyntaxError.createError(runtime, ex).toThrowable());
-        } catch( RaiseException e) {
-            addError(e);
-            throw e;
-        }
-    }
+  @Override
+  public void
+  characters(char[] ch, int start, int length)
+  {
+    charactersBuilder.append(ch, start, length);
+  }
 
-    @Override
-    public void error(SAXParseException ex) {
-        handleError(ex);
-    }
+  @Override
+  public void
+  comment(char[] ch, int start, int length)
+  {
+    populateCharacters();
+    call("comment", runtime.newString(new String(ch, start, length)));
+  }
 
-    @Override
-    public void fatalError(SAXParseException ex) {
-        handleError(ex);
-    }
+  @Override
+  public void
+  startCDATA()
+  {
+    populateCharacters();
+  }
 
-    @Override
-    public void warning(SAXParseException ex) {
-        final String msg = ex.getMessage();
-        call("warning", runtime.newString(msg == null ? "" : msg));
-    }
+  @Override
+  public void
+  endCDATA()
+  {
+    call("cdata_block", runtime.newString(charactersBuilder.toString()));
+    charactersBuilder.setLength(0);
+  }
 
-    protected synchronized void addError(RaiseException e) {
-        errors.add(e);
+  void
+  handleError(SAXParseException ex)
+  {
+    try {
+      final String msg = ex.getMessage();
+      call("error", runtime.newString(msg == null ? "" : msg));
+      addError(XmlSyntaxError.createError(runtime, ex).toThrowable());
+    } catch (RaiseException e) {
+      addError(e);
+      throw e;
     }
+  }
 
-    public synchronized int getErrorCount() {
-        return errors.size();
-    }
+  @Override
+  public void
+  error(SAXParseException ex)
+  {
+    handleError(ex);
+  }
 
-    public synchronized RaiseException getLastError() {
-        return errors.getLast();
-    }
+  @Override
+  public void
+  fatalError(SAXParseException ex)
+  {
+    handleError(ex);
+  }
 
-    private void call(String methodName) {
-        ThreadContext context = runtime.getCurrentContext();
-        Helpers.invoke(context, document(context), methodName);
-    }
+  @Override
+  public void
+  warning(SAXParseException ex)
+  {
+    final String msg = ex.getMessage();
+    call("warning", runtime.newString(msg == null ? "" : msg));
+  }
 
-    private void call(String methodName, IRubyObject argument) {
-        ThreadContext context = runtime.getCurrentContext();
-        Helpers.invoke(context, document(context), methodName, argument);
-    }
+  protected synchronized void
+  addError(RaiseException e)
+  {
+    errors.add(e);
+  }
 
-    private void call(String methodName, IRubyObject arg1, IRubyObject arg2) {
-        ThreadContext context = runtime.getCurrentContext();
-        Helpers.invoke(context, document(context), methodName, arg1, arg2);
-    }
+  public synchronized int
+  getErrorCount()
+  {
+    return errors.size();
+  }
 
-    private void call(String methodName, IRubyObject arg1, IRubyObject arg2, IRubyObject arg3) {
-        ThreadContext context = runtime.getCurrentContext();
-        Helpers.invoke(context, document(context), methodName, arg1, arg2, arg3);
-    }
+  public synchronized RaiseException
+  getLastError()
+  {
+    return errors.getLast();
+  }
 
-    private void call(String methodName,
-                      IRubyObject arg0,
-                      IRubyObject arg1,
-                      IRubyObject arg2,
-                      IRubyObject arg3,
-                      IRubyObject arg4) {
-        ThreadContext context = runtime.getCurrentContext();
-        Helpers.invoke(context, document(context), methodName, arg0, arg1, arg2, arg3, arg4);
-    }
+  private void
+  call(String methodName)
+  {
+    ThreadContext context = runtime.getCurrentContext();
+    Helpers.invoke(context, document(context), methodName);
+  }
 
-    private IRubyObject document(ThreadContext context) {
-        return object.getInstanceVariables().getInstanceVariable("@document");
-    }
+  private void
+  call(String methodName, IRubyObject argument)
+  {
+    ThreadContext context = runtime.getCurrentContext();
+    Helpers.invoke(context, document(context), methodName, argument);
+  }
 
-    protected void populateCharacters() {
-        if (charactersBuilder.length() > 0) {
-            call("characters", runtime.newString(charactersBuilder.toString()));
-            charactersBuilder.setLength(0);
-        }
+  private void
+  call(String methodName, IRubyObject arg1, IRubyObject arg2)
+  {
+    ThreadContext context = runtime.getCurrentContext();
+    Helpers.invoke(context, document(context), methodName, arg1, arg2);
+  }
+
+  private void
+  call(String methodName, IRubyObject arg1, IRubyObject arg2, IRubyObject arg3)
+  {
+    ThreadContext context = runtime.getCurrentContext();
+    Helpers.invoke(context, document(context), methodName, arg1, arg2, arg3);
+  }
+
+  private void
+  call(String methodName,
+       IRubyObject arg0,
+       IRubyObject arg1,
+       IRubyObject arg2,
+       IRubyObject arg3,
+       IRubyObject arg4)
+  {
+    ThreadContext context = runtime.getCurrentContext();
+    Helpers.invoke(context, document(context), methodName, arg0, arg1, arg2, arg3, arg4);
+  }
+
+  private IRubyObject
+  document(ThreadContext context)
+  {
+    return object.getInstanceVariables().getInstanceVariable("@document");
+  }
+
+  protected void
+  populateCharacters()
+  {
+    if (charactersBuilder.length() > 0) {
+      call("characters", runtime.newString(charactersBuilder.toString()));
+      charactersBuilder.setLength(0);
     }
+  }
 }

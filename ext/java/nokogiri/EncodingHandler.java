@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -52,73 +52,92 @@ import org.jruby.runtime.builtin.IRubyObject;
  *
  * @author Patrick Mahoney <pat@polycrstal.org>
  */
-@JRubyClass(name="Nokogiri::EncodingHandler")
-public class EncodingHandler extends RubyObject {
-    protected static HashMap<String,String> map = new HashMap<String,String>();
-    static {
-        addInitial();
+@JRubyClass(name = "Nokogiri::EncodingHandler")
+public class EncodingHandler extends RubyObject
+{
+  protected static HashMap<String, String> map = new HashMap<String, String>();
+  static
+  {
+    addInitial();
+  }
+
+  protected String name;
+
+  protected static void
+  addInitial()
+  {
+    map.put("UTF-8", "UTF-8");
+  }
+
+  public
+  EncodingHandler(Ruby ruby, RubyClass klass, String value)
+  {
+    super(ruby, klass);
+    name = value;
+  }
+
+  @JRubyMethod(name = "[]", meta = true)
+  public static IRubyObject
+  get(ThreadContext context,
+      IRubyObject _klass,
+      IRubyObject keyObj)
+  {
+    Ruby ruby = context.getRuntime();
+    String key = keyObj.toString();
+    String value = map.get(key);
+    if (value == null) {
+      return ruby.getNil();
     }
 
-    protected String name;
+    return new EncodingHandler(
+             ruby,
+             getNokogiriClass(ruby, "Nokogiri::EncodingHandler"),
+             value);
+  }
 
-    protected static void addInitial() {
-        map.put("UTF-8", "UTF-8");
+  @JRubyMethod(meta = true)
+  public static IRubyObject
+  delete (ThreadContext context,
+          IRubyObject _klass,
+          IRubyObject keyObj)
+  {
+    String key = keyObj.toString();
+    String value = map.remove(key);
+    if (value == null) {
+      return context.getRuntime().getNil();
+    }
+    return context.getRuntime().newString(value);
+  }
+
+  @JRubyMethod(name = "clear_aliases!", meta = true)
+  public static IRubyObject
+  clear_aliases(ThreadContext context,
+                IRubyObject _klass)
+  {
+    map.clear();
+    addInitial();
+    return context.getRuntime().getNil();
+  }
+
+  @JRubyMethod(meta = true)
+  public static IRubyObject
+  alias(ThreadContext context,
+        IRubyObject _klass,
+        IRubyObject orig,
+        IRubyObject alias)
+  {
+    String value = map.get(orig.toString());
+    if (value != null) {
+      map.put(alias.toString(), value);
     }
 
-    public EncodingHandler(Ruby ruby, RubyClass klass, String value) {
-        super(ruby, klass);
-        name = value;
-    }
+    return context.getRuntime().getNil();
+  }
 
-    @JRubyMethod(name="[]", meta=true)
-    public static IRubyObject get(ThreadContext context,
-                                  IRubyObject _klass,
-                                  IRubyObject keyObj) {
-        Ruby ruby = context.getRuntime();
-        String key = keyObj.toString();
-        String value = map.get(key);
-        if (value == null)
-            return ruby.getNil();
-
-        return new EncodingHandler(
-            ruby,
-            getNokogiriClass(ruby, "Nokogiri::EncodingHandler"),
-            value);
-    }
-
-    @JRubyMethod(meta=true)
-    public static IRubyObject delete(ThreadContext context,
-                                     IRubyObject _klass,
-                                     IRubyObject keyObj) {
-        String key = keyObj.toString();
-        String value = map.remove(key);
-        if (value == null)
-            return context.getRuntime().getNil();
-        return context.getRuntime().newString(value);
-    }
-
-    @JRubyMethod(name="clear_aliases!", meta=true)
-    public static IRubyObject clear_aliases(ThreadContext context,
-                                            IRubyObject _klass) {
-        map.clear();
-        addInitial();
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod(meta=true)
-    public static IRubyObject alias(ThreadContext context,
-                                    IRubyObject _klass,
-                                    IRubyObject orig,
-                                    IRubyObject alias) {
-        String value = map.get(orig.toString());
-        if (value != null)
-            map.put(alias.toString(), value);
-
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject name(ThreadContext context) {
-        return context.getRuntime().newString(name);
-    }
+  @JRubyMethod
+  public IRubyObject
+  name(ThreadContext context)
+  {
+    return context.getRuntime().newString(name);
+  }
 }

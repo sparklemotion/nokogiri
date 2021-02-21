@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -52,31 +52,40 @@ import org.w3c.dom.Node;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 
-@JRubyClass(name="Nokogiri::XML::CDATA", parent="Nokogiri::XML::Text")
-public class XmlCdata extends XmlText {
-    public XmlCdata(Ruby ruby, RubyClass rubyClass) {
-        super(ruby, rubyClass);
-    }
-    
-    public XmlCdata(Ruby ruby, RubyClass rubyClass, Node node) {
-        super(ruby, rubyClass, node);
-    }
+@JRubyClass(name = "Nokogiri::XML::CDATA", parent = "Nokogiri::XML::Text")
+public class XmlCdata extends XmlText
+{
+  public
+  XmlCdata(Ruby ruby, RubyClass rubyClass)
+  {
+    super(ruby, rubyClass);
+  }
 
-    @Override
-    protected void init(ThreadContext context, IRubyObject[] args) {
-        if (args.length < 2) {
-            throw getRuntime().newArgumentError(args.length, 2);
-        }
-        IRubyObject doc = args[0];
-        content = args[1];
-        Document document = ((XmlNode) doc).getOwnerDocument();
-        Node node = document.createCDATASection(rubyStringToString(content));
-        setNode(context.runtime, node);
-    }
+  public
+  XmlCdata(Ruby ruby, RubyClass rubyClass, Node node)
+  {
+    super(ruby, rubyClass, node);
+  }
 
-    @Override
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((CDATASection)node);
-        visitor.leave((CDATASection)node);
+  @Override
+  protected void
+  init(ThreadContext context, IRubyObject[] args)
+  {
+    if (args.length < 2) {
+      throw getRuntime().newArgumentError(args.length, 2);
     }
+    IRubyObject doc = args[0];
+    content = args[1];
+    Document document = ((XmlNode) doc).getOwnerDocument();
+    Node node = document.createCDATASection(rubyStringToString(content));
+    setNode(context.runtime, node);
+  }
+
+  @Override
+  public void
+  accept(ThreadContext context, SaveContextVisitor visitor)
+  {
+    visitor.enter((CDATASection)node);
+    visitor.leave((CDATASection)node);
+  }
 }
