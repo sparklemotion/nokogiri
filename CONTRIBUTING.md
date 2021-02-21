@@ -147,6 +147,15 @@ That script also takes an optional command to run with the proper environment va
 
 
 
+## Style Guide
+
+I don't feel very strongly about code style, but when possible I follow [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code I use the `astyle` settings laid out in `/rakelib/format.rake`.
+
+You can format the C and Java code with `rake format`. Maybe someday I'll auto-format Ruby, but not today.
+
+No, I don't want to talk to you about this.
+
+
 ## How Continuous Integration ("CI") is configured. Also known as our "automated test suite."
 
 This section could probably be an entire guide unto itself, so I'll try to be as brief as reasonable.
