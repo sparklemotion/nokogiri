@@ -105,7 +105,7 @@ attributes_as_array(int attributes_len, const xmlChar **c_attributes)
 
       /* value */
       rb_constructor_args[3] = NOKOGIRI_STR_NEW((const char *)c_attributes[i + 3],
-                                                (c_attributes[i + 4] - c_attributes[i + 3]));
+                               (c_attributes[i + 4] - c_attributes[i + 3]));
 
       rb_attribute = rb_class_new_instance(4, rb_constructor_args, cNokogiriXmlSaxParserAttribute);
       rb_ary_push(rb_array, rb_attribute);

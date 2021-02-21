@@ -320,7 +320,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
     break;
   case XPATH_NODESET:
     thing = noko_xml_node_set_wrap(xpath->nodesetval,
-                                       DOC_RUBY_OBJECT(ctx->doc));
+                                   DOC_RUBY_OBJECT(ctx->doc));
     break;
   case XPATH_NUMBER:
     thing = rb_float_new(xpath->floatval);
