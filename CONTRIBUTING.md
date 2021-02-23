@@ -162,6 +162,7 @@ No, I don't want to talk to you about this.
 This section could probably be an entire guide unto itself, so I'll try to be as brief as reasonable.
 
 We currently have CI tests running in three places:
+
 - [Concourse](https://ci.nokogiri.org/?search=nokogiri): Linux, including many debugging and integration test
 - [Github Actions](https://github.com/sparklemotion/nokogiri/actions/workflows/macos.yml): for MacOS only
 - [Appveyor](https://ci.appveyor.com/project/flavorjones/nokogiri): for Windows only
@@ -179,11 +180,12 @@ We run the bulk of our tests under Concourse. Concourse is great for me because
 - I can run it locally on my dev machine
 - I have complete control over the images used
 
-The downside is, nobody in the Ruby communiuty besides me and Dr. Nic know how to operate it or configure it.
+The downside is, nobody in the Ruby community besides me and Dr. Nic know how to operate it or configure it.
 
 In any case, the general pipeline we use is the same for `main` and for PRs includes:
+
 - basic security sanity check: run rubocop
-- fast feedback for obvious failures: run against system libraries onvanilla ubuntu
+- fast feedback for obvious failures: run against system libraries on vanilla ubuntu
 - run on all supported versions of CRuby:
   - once with packaged libraries
   - once with system libraries
