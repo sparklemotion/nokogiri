@@ -187,25 +187,25 @@ In any case, the general pipeline we use is the same for `main` and for PRs incl
 - basic security sanity check: run rubocop
 - fast feedback for obvious failures: run against system libraries on vanilla ubuntu
 - run on all supported versions of CRuby:
-  - once with packaged libraries
-  - once with system libraries
-  - once on valgrind (to look for memory bugs)
+    - once with packaged libraries
+    - once with system libraries
+    - once on valgrind (to look for memory bugs)
 - run on JRuby
 - run on a Musl (Alpine) system:
-  - against system libraries
-  - with valgrind using packaged libraries
+    - against system libraries
+    - with valgrind using packaged libraries
 - run with libxml-ruby loaded (because this interacts with libxml2 in conflicting ways)
-  - against system libraries
-  - with valgrind using packaged libraries
+    - against system libraries
+    - with valgrind using packaged libraries
 - build a "ruby" platform gem
-  - install and test on vanilla ubuntu
-  - install and test on musl
+    - install and test on vanilla ubuntu
+    - install and test on musl
 - build a native 64-bit linux gem
-  - install and test on vanilla ubuntu with all supported versions of CRuby
-  - install and test on musl
+    - install and test on vanilla ubuntu with all supported versions of CRuby
+    - install and test on musl
 - build a native 32-bit linux gem
-  - install and test on vanilla ubuntu
-  - install and test on musl
+    - install and test on vanilla ubuntu
+    - install and test on musl
 - build a jruby gem, install and test it
 
 These pipelines are configured in `/concourse/nokogiri.yml` and `nokogiri-pr.yml`. Those files file are ... nontrivial, and I'm sorry about that. See https://github.com/flavorjones/concourse-gem for help.
