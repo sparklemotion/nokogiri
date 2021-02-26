@@ -5,6 +5,7 @@ require 'nokogiri'
 
 $CFLAGS += " -std=c99"
 $LDFLAGS.gsub!('-Wl,--no-undefined', '')
+$DLDFLAGS.gsub!('-Wl,--no-undefined', '')
 $warnflags = CONFIG['warnflags'] = '-Wall'
 
 NG_SPEC = Gem::Specification.find_by_name('nokogiri', "= #{Nokogiri::VERSION}")
