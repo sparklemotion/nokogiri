@@ -1,3 +1,5 @@
+image: Visual Studio 2019
+
 version: 1.0.{build}-{branch}
 
 cache:
@@ -6,14 +8,14 @@ cache:
 environment:
   NO_GUMBO_TESTS: true
   matrix:
-    - RUBY_VERSION: 23
-    - RUBY_VERSION: 23-x64
-    - RUBY_VERSION: 24
-    - RUBY_VERSION: 24-x64
     - RUBY_VERSION: 25
     - RUBY_VERSION: 25-x64
     - RUBY_VERSION: 26
     - RUBY_VERSION: 26-x64
+    - RUBY_VERSION: 27
+    - RUBY_VERSION: 27-x64
+    - RUBY_VERSION: 30
+    - RUBY_VERSION: 30-x64
 
 install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;C:\msys64\usr\bin;%PATH%
