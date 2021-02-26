@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 ### Security
 
+## next
+### Fixed
+- Support Mageia distros when libxml2/libxslt system libraries are install. #165 (Thank you,
+  @pterjan!)
+
 ## [2.0.4] - 2020-11-27
 ### Fixed
 - Fixed a bug where `Nokogiri::HTML5.fragment(nil)` would raise an error. Now
