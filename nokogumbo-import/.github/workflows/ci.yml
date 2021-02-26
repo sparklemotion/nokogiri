@@ -4,7 +4,12 @@ on:
   schedule:
     - cron: '0 0 * * 5'
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
 
 jobs:
   test:
