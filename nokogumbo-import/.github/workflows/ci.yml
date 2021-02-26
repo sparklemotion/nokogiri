@@ -4,7 +4,12 @@ on:
   schedule:
     - cron: '0 0 * * 5'
   push:
+    branches:
+      - master
   pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
 
 jobs:
   test:
@@ -12,21 +17,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
-        ruby: [2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7]
+        ruby: [2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.0]
         system_libraries: [true, false]
         exclude:
-        - os: macos
-          ruby: 2.1
-        - os: macos
-          ruby: 2.2
-        - os: macos
-          ruby: 2.3
-        - os: windows
-          ruby: 2.1
-        - os: windows
-          ruby: 2.2
-        - os: windows
-          ruby: 2.3
+        - {os: macos, ruby: 2.1}
+        - {os: macos, ruby: 2.2}
+        - {os: macos, ruby: 2.3}
+        - {os: windows, ruby: 2.1}
+        - {os: windows, ruby: 2.2}
+        - {os: windows, ruby: 2.3}
     runs-on: ${{ matrix.os }}-latest
 
     steps:
