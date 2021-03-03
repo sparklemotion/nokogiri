@@ -239,7 +239,7 @@ def ensure_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
 end
 
 def ensure_func(func, headers = nil)
-  have_func(func, headers) || abort_could_not_find_library(lib)
+  have_func(func, headers) || abort_could_not_find_library(func)
 end
 
 def preserving_globals
