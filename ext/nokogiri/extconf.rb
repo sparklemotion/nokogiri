@@ -741,6 +741,10 @@ cross_build_p) do |recipe|
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
+    if windows?
+      cflags = concat_flags(cflags, "-ULIBXML_STATIC", "-DIN_LIBXML")
+    end
+
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
