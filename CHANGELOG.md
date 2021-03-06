@@ -20,14 +20,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223)]
 
 
-## v1.11.1 / 2021-01-06
+## 1.11.1 / 2021-01-06
 
 ### Fixed
 
 * [CRuby] If `libxml-ruby` is loaded before `nokogiri`, the SAX and Push parsers no longer call `libxml-ruby`'s handlers. Instead, they defensively override the libxml2 global handler before parsing. [[#2168](https://github.com/sparklemotion/nokogiri/issues/2168)]
 
 
-## v1.11.0 / 2021-01-03
+## 1.11.0 / 2021-01-03
 
 ### Notes
 
