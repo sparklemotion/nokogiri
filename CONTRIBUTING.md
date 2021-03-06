@@ -47,6 +47,8 @@ Nokogiri supports both CRuby and JRuby, and has native code specific to each (th
 - Whenever possible, implement shared behavior as shared Ruby code (i.e., write as little native code as reasonable).
 - Whenever possible, write tests that are not platform-specific (which includes skipping).
 
+Notably, despite all parsers being standards-compliant, there are behavioral inconsistencies between the parsers used in the CRuby and JRuby implementations, and Nokogiri does not and should not attempt to remove these inconsistencies. Instead, we surface these differences in the test suite when they are important/semantic; or we intentionally write tests to depend only on the important/semantic bits (omitting whitespace from regex matchers on results, for example).
+
 
 Nokogiri is widely used in the Ruby ecosystem, and so extra care should be taken to avoid introducing breaking changes. Please read our [Semantic Versioning Policy](https://nokogiri.org/index.html#semantic-versioning-policy) to understand what we consider to be a breaking change.
 
