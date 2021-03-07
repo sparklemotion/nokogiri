@@ -82,8 +82,8 @@ module Nokogiri
           unless jruby?
             cppflags = ["-I#{header_directory.shellescape}"]
             if libxml2_using_packaged?
-              cppflags << "-I#{File.join(header_directory, "include").shellescape}"
-              cppflags << "-I#{File.join(header_directory, "include/libxml2").shellescape}"
+              cppflags << "-I#{File.join(header_directory, 'include').shellescape}"
+              cppflags << "-I#{File.join(header_directory, 'include/libxml2').shellescape}"
             end
             nokogiri["cppflags"] = cppflags
           end

@@ -64,6 +64,13 @@ class GdbTestTask < ValgrindTestTask
   end
 end
 
+class LldbTestTask < ValgrindTestTask
+  def ruby(*args, **options, &block)
+    command = "lldb #{RUBY} -- #{args.join(' ')}"
+    sh(command, **options, &block)
+  end
+end
+
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
   t.test_files = FileList["test/**/test_*.rb"]
@@ -80,6 +87,10 @@ namespace "test" do
   end
 
   GdbTestTask.new("gdb") do |t|
+    nokogiri_test_task_configuration(t)
+  end
+
+  LldbTestTask.new("lldb") do |t|
     nokogiri_test_task_configuration(t)
   end
 end

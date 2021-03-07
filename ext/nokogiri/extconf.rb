@@ -470,7 +470,7 @@ def process_recipe(name, version, static_p, cross_p)
         instead, then abort this installation process and install nokogiri as
         instructed at:
 
-          https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
+          https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries
 
       EOM
 
