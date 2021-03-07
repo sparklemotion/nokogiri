@@ -2,11 +2,11 @@
 
 # load the C or Java extension
 begin
-  RUBY_VERSION =~ /(\d+\.\d+)/
-  require "nokogiri/#{$1}/nokogiri"
+  ::RUBY_VERSION =~ /(\d+\.\d+)/
+  require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
 rescue LoadError => e
   if e.message =~ /GLIBC/
-    warn <<~EOM
+    warn(<<~EOM)
 
       ERROR: It looks like you're trying to use Nokogiri as a precompiled native gem on a system with glibc < 2.17:
 
