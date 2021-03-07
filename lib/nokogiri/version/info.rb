@@ -89,6 +89,11 @@ module Nokogiri
           nokogiri["version"] = Nokogiri::VERSION
 
           unless jruby?
+            #  enable gems like nokogumbo to build with the following in their extconf.rb:
+            #
+            #    append_cflags(Nokogiri::VERSION_INFO["nokogiri"]["cppflags"])
+            #    append_ldflags(Nokogiri::VERSION_INFO["nokogiri"]["ldflags"])
+            #
             cppflags = ["-I#{header_directory.shellescape}"]
             ldflags = []
 
