@@ -18,8 +18,9 @@ module TestVersionInfoTests
     if jruby?
       refute(Nokogiri::VERSION_INFO["nokogiri"].has_key?("cppflags"), "did not expect cppflags")
     else
-      # cppflags are more fully tested in scripts/test-gem-installation
-      assert_kind_of(Array, Nokogiri::VERSION_INFO["nokogiri"]["cppflags"], "expected cppflags to be an array")
+      # cppflags/ldflags are more fully tested in scripts/test-gem-installation
+      assert_kind_of(Array, Nokogiri::VERSION_INFO["nokogiri"]["cppflags"], "cppflags should be an array")
+      assert_kind_of(Array, Nokogiri::VERSION_INFO["nokogiri"]["ldflags"], "ldflags should be an array")
     end
 
     assert_equal(::RUBY_VERSION, Nokogiri::VERSION_INFO["ruby"]["version"])

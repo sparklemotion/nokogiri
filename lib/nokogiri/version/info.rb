@@ -10,6 +10,14 @@ module Nokogiri
       ::JRUBY_VERSION if ::RUBY_PLATFORM == "java"
     end
 
+    def windows?
+      ::RUBY_PLATFORM =~ /mingw|mswin/
+    end
+
+    def ruby_minor
+      Gem::Version.new(::RUBY_VERSION).segments[0..1].join(".")
+    end
+
     def engine
       defined?(::RUBY_ENGINE) ? ::RUBY_ENGINE : "mri"
     end
@@ -74,6 +82,7 @@ module Nokogiri
 
     def to_hash
       header_directory = File.expand_path(File.join(File.dirname(__FILE__), "../../../ext/nokogiri"))
+
       {}.tap do |vi|
         vi["warnings"] = []
         vi["nokogiri"] = {}.tap do |nokogiri|
@@ -81,11 +90,25 @@ module Nokogiri
 
           unless jruby?
             cppflags = ["-I#{header_directory.shellescape}"]
+            ldflags = []
+
             if libxml2_using_packaged?
               cppflags << "-I#{File.join(header_directory, 'include').shellescape}"
               cppflags << "-I#{File.join(header_directory, 'include/libxml2').shellescape}"
+
+              if windows?
+                # on windows, nokogumbo needs to link against nokogiri.so to resolve symbols. see #2167
+                lib_directory = File.expand_path(File.join(File.dirname(__FILE__), "../#{ruby_minor}"))
+                unless File.exist?(lib_directory)
+                  lib_directory = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+                end
+                ldflags << "-L#{lib_directory.shellescape}"
+                ldflags << "-l:nokogiri.so"
+              end
             end
+
             nokogiri["cppflags"] = cppflags
+            nokogiri["ldflags"] = ldflags
           end
         end
         vi["ruby"] = {}.tap do |ruby|
