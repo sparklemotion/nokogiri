@@ -29,7 +29,7 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
           Use system libraries instead of building and using the packaged libraries
 
       --disable-clean
-          Do not clean out intermediate files after successful build
+          Do not clean out intermediate files after successful build.
 
       --prevent-strip
           Take steps to prevent stripping the symbol table and debugging info from the shared
@@ -41,79 +41,79 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
       General:
 
         --with-opt-dir=DIRECTORY
-            Look for headers and libraries in DIRECTORY
+            Look for headers and libraries in DIRECTORY.
 
         --with-opt-lib=DIRECTORY
-            Look for libraries in DIRECTORY
+            Look for libraries in DIRECTORY.
 
         --with-opt-include=DIRECTORY
-            Look for headers in DIRECTORY
+            Look for headers in DIRECTORY.
 
 
       Related to zlib:
 
         --with-zlib-dir=DIRECTORY
-            Look for zlib headers and library in DIRECTORY
+            Look for zlib headers and library in DIRECTORY.
 
         --with-zlib-lib=DIRECTORY
-            Look for zlib library in DIRECTORY
+            Look for zlib library in DIRECTORY.
 
         --with-zlib-include=DIRECTORY
-            Look for zlib headers in DIRECTORY
+            Look for zlib headers in DIRECTORY.
 
 
       Related to iconv:
 
         --with-iconv-dir=DIRECTORY
-            Look for iconv headers and library in DIRECTORY
+            Look for iconv headers and library in DIRECTORY.
 
         --with-iconv-lib=DIRECTORY
-            Look for iconv library in DIRECTORY
+            Look for iconv library in DIRECTORY.
 
         --with-iconv-include=DIRECTORY
-            Look for iconv headers in DIRECTORY
+            Look for iconv headers in DIRECTORY.
 
 
       Related to libxml2:
 
         --with-xml2-dir=DIRECTORY
-            Look for xml2 headers and library in DIRECTORY
+            Look for xml2 headers and library in DIRECTORY.
 
         --with-xml2-lib=DIRECTORY
-            Look for xml2 library in DIRECTORY
+            Look for xml2 library in DIRECTORY.
 
         --with-xml2-include=DIRECTORY
-            Look for xml2 headers in DIRECTORY
+            Look for xml2 headers in DIRECTORY.
 
 
       Related to libxslt:
 
         --with-xslt-dir=DIRECTORY
-            Look for xslt headers and library in DIRECTORY
+            Look for xslt headers and library in DIRECTORY.
 
         --with-xslt-lib=DIRECTORY
-            Look for xslt library in DIRECTORY
+            Look for xslt library in DIRECTORY.
 
         --with-xslt-include=DIRECTORY
-            Look for xslt headers in DIRECTORY
+            Look for xslt headers in DIRECTORY.
 
 
       Related to libexslt:
 
         --with-exslt-dir=DIRECTORY
-            Look for exslt headers and library in DIRECTORY
+            Look for exslt headers and library in DIRECTORY.
 
         --with-exslt-lib=DIRECTORY
-            Look for exslt library in DIRECTORY
+            Look for exslt library in DIRECTORY.
 
         --with-exslt-include=DIRECTORY
-            Look for exslt headers in DIRECTORY
+            Look for exslt headers in DIRECTORY.
 
 
     Flags only used when building and using the packaged libraries:
 
       --disable-static
-          Do not statically link packaged libraries, instead use shared libraries
+          Do not statically link packaged libraries, instead use shared libraries.
 
       --enable-cross-build
           Enable cross-build mode. (You probably do not want to set this manually.)
