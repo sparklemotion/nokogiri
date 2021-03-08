@@ -61,15 +61,21 @@ end
 have_libxml2 = false
 have_ng = false
 
+def windows?
+  ::RUBY_PLATFORM =~ /mingw|mswin/
+end
+
 def modern_nokogiri?
   nokogiri_version = Gem::Version.new(Nokogiri::VERSION)
-  Gem::Requirement.new(">= 1.11.0.rc4").satisfied_by?(nokogiri_version)
+  requirement = windows? ? ">= 1.11.2" : ">= 1.11.0.rc4"
+  Gem::Requirement.new(requirement).satisfied_by?(nokogiri_version)
 end
 
 if !prohibited
   if modern_nokogiri?
     append_cflags(Nokogiri::VERSION_INFO["nokogiri"]["cppflags"])
-    have_libxml2 = have_header('libxml/tree.h')
+    append_ldflags(Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]) # may be nil for nokogiri pre-1.11.2
+    have_libxml2 = have_func("xmlNewDoc", "libxml/tree.h")
   end
 
   if !have_libxml2
