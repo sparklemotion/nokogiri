@@ -149,6 +149,18 @@ HELP
 #
 #  utility functions
 #
+def config_clean?
+  enable_config('clean', true)
+end
+
+def config_static?
+  enable_config("static", true)
+end
+
+def config_cross_build?
+  enable_config("cross-build")
+end
+
 def config_system_libraries?
   enable_config("system-libraries", ENV.key?("NOKOGIRI_USE_SYSTEM_LIBRARIES")) do |_, default|
     arg_config('--use-system-libraries', default)
@@ -524,7 +536,7 @@ def do_clean
       FileUtils.rm_rf(dir, verbose: true)
     end
 
-    if enable_config('static')
+    if config_static?
       # ports installation can be safely removed if statically linked.
       FileUtils.rm_rf(root + 'ports', verbose: true)
     else
@@ -618,10 +630,10 @@ if config_system_libraries?
 else
   message "Building nokogiri using packaged libraries.\n"
 
-  static_p = enable_config("static", true)
+  static_p = config_static?
   message "Static linking is #{static_p ? 'enabled' : 'disabled'}.\n"
 
-  cross_build_p = enable_config("cross-build")
+  cross_build_p = config_cross_build?
   message "Cross build is #{cross_build_p ? 'enabled' : 'disabled'}.\n"
 
   require 'yaml'
@@ -876,7 +888,7 @@ end
 
 create_makefile('nokogiri/nokogiri')
 
-if enable_config('clean', true)
+if config_clean?
   # Do not clean if run in a development work tree.
   File.open('Makefile', 'at') do |mk|
     mk.print(<<~EOF)
