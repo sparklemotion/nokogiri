@@ -26,7 +26,13 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
     Flags that are always valid:
 
       --use-system-libraries
-          Use system libraries instead of building and using the packaged libraries
+      --enable-system-libraries
+          Use system libraries instead of building and using the packaged libraries.
+
+      --disable-system-libraries
+          Use the packaged libraries, and ignore the system libraries. This is the default on most
+          platforms, and overrides `--use-system-libraries` and the environment variable
+          `NOKOGIRI_USE_SYSTEM_LIBRARIES`.
 
       --disable-clean
           Do not clean out intermediate files after successful build.
@@ -122,8 +128,7 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
     Environment variables used:
 
       NOKOGIRI_USE_SYSTEM_LIBRARIES
-          When set, even if nil or blank, use system libraries instead of building and using the
-          packaged libraries. Equivalent to `--use-system-libraries`.
+          Equivalent to `--enable-system-libraries` when set, even if nil or blank.
 
       CC
           Use this path to invoke the compiler instead of `RbConfig::CONFIG['CC']`
@@ -144,6 +149,12 @@ HELP
 #
 #  utility functions
 #
+def config_system_libraries?
+  enable_config("system-libraries", ENV.key?("NOKOGIRI_USE_SYSTEM_LIBRARIES")) do |_, default|
+    arg_config('--use-system-libraries', default)
+  end
+end
+
 def windows?
   RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
 end
@@ -290,11 +301,6 @@ def libflag_to_filename(ldflag)
   when /\A-l(.+)/
     "lib#{Regexp.last_match(1)}.#{$LIBEXT}"
   end
-end
-
-def using_system_libraries?
-  # NOTE: TruffleRuby uses this env var as it does not support using static libraries yet.
-  arg_config('--use-system-libraries', ENV.key?("NOKOGIRI_USE_SYSTEM_LIBRARIES"))
 end
 
 def have_libxml_headers?(version = nil)
@@ -535,7 +541,7 @@ end
 do_help if arg_config('--help')
 do_clean if arg_config('--clean')
 
-if openbsd? && !using_system_libraries?
+if openbsd? && !config_system_libraries?
   if %x(#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1) !~ /clang/
     (ENV['CC'] ||= find_executable('egcc')) ||
       abort("Please install gcc 4.9+ from ports using `pkg_add -v gcc`")
@@ -585,7 +591,7 @@ append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if
 
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
-if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
+if config_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
   append_cppflags("-I#{macos_mojave_sdk_include_path}")
 end
 
@@ -593,7 +599,7 @@ end
 # See https://sourceforge.net/p/mingw/bugs/2142
 append_cppflags(' "-Idummypath"') if windows?
 
-if using_system_libraries?
+if config_system_libraries?
   message "Building nokogiri using system libraries.\n"
   ensure_package_configuration(opt: "zlib", pc: "zlib", lib: "z",
                                headers: "zlib.h", func: "gzdopen")
@@ -854,7 +860,7 @@ have_func('vasprintf')
 other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k, v| [k, v].join(":") }.join(",")
 append_cppflags(%[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\\"#{other_library_versions_string}\\\""])
 
-unless using_system_libraries?
+unless config_system_libraries?
   if cross_build_p
     # When precompiling native gems, copy packaged libraries' headers to ext/nokogiri/include
     # These are packaged up by the cross-compiling callback in the ExtensionTask
