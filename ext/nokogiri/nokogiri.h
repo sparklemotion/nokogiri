@@ -15,6 +15,14 @@
 #  include <windows.h>
 #endif
 
+#if _WIN32
+#  define NOKOPUBFUN __declspec(dllexport)
+#  define NOKOPUBVAR __declspec(dllexport) extern
+#else
+#  define NOKOPUBFUN
+#  define NOKOPUBVAR extern
+#endif
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -83,47 +91,47 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #endif
 
 
-extern VALUE mNokogiri ;
-extern VALUE mNokogiriHtml ;
-extern VALUE mNokogiriHtmlSax ;
-extern VALUE mNokogiriXml ;
-extern VALUE mNokogiriXmlSax ;
-extern VALUE mNokogiriXslt ;
+NOKOPUBVAR VALUE mNokogiri ;
+NOKOPUBVAR VALUE mNokogiriHtml ;
+NOKOPUBVAR VALUE mNokogiriHtmlSax ;
+NOKOPUBVAR VALUE mNokogiriXml ;
+NOKOPUBVAR VALUE mNokogiriXmlSax ;
+NOKOPUBVAR VALUE mNokogiriXslt ;
 
-extern VALUE cNokogiriSyntaxError;
-extern VALUE cNokogiriXmlAttr;
-extern VALUE cNokogiriXmlAttributeDecl;
-extern VALUE cNokogiriXmlCData;
-extern VALUE cNokogiriXmlCharacterData;
-extern VALUE cNokogiriXmlComment;
-extern VALUE cNokogiriXmlDocument ;
-extern VALUE cNokogiriXmlDocumentFragment;
-extern VALUE cNokogiriXmlDtd;
-extern VALUE cNokogiriXmlElement ;
-extern VALUE cNokogiriXmlElementContent;
-extern VALUE cNokogiriXmlElementDecl;
-extern VALUE cNokogiriXmlEntityDecl;
-extern VALUE cNokogiriXmlEntityReference;
-extern VALUE cNokogiriXmlNamespace ;
-extern VALUE cNokogiriXmlNode ;
-extern VALUE cNokogiriXmlNodeSet ;
-extern VALUE cNokogiriXmlProcessingInstruction;
-extern VALUE cNokogiriXmlReader;
-extern VALUE cNokogiriXmlRelaxNG;
-extern VALUE cNokogiriXmlSaxParser ;
-extern VALUE cNokogiriXmlSaxParserContext;
-extern VALUE cNokogiriXmlSaxPushParser ;
-extern VALUE cNokogiriXmlSchema;
-extern VALUE cNokogiriXmlSyntaxError;
-extern VALUE cNokogiriXmlText ;
-extern VALUE cNokogiriXmlXpathContext;
-extern VALUE cNokogiriXmlXpathSyntaxError;
-extern VALUE cNokogiriXsltStylesheet ;
+NOKOPUBVAR VALUE cNokogiriSyntaxError;
+NOKOPUBVAR VALUE cNokogiriXmlAttr;
+NOKOPUBVAR VALUE cNokogiriXmlAttributeDecl;
+NOKOPUBVAR VALUE cNokogiriXmlCData;
+NOKOPUBVAR VALUE cNokogiriXmlCharacterData;
+NOKOPUBVAR VALUE cNokogiriXmlComment;
+NOKOPUBVAR VALUE cNokogiriXmlDocument ;
+NOKOPUBVAR VALUE cNokogiriXmlDocumentFragment;
+NOKOPUBVAR VALUE cNokogiriXmlDtd;
+NOKOPUBVAR VALUE cNokogiriXmlElement ;
+NOKOPUBVAR VALUE cNokogiriXmlElementContent;
+NOKOPUBVAR VALUE cNokogiriXmlElementDecl;
+NOKOPUBVAR VALUE cNokogiriXmlEntityDecl;
+NOKOPUBVAR VALUE cNokogiriXmlEntityReference;
+NOKOPUBVAR VALUE cNokogiriXmlNamespace ;
+NOKOPUBVAR VALUE cNokogiriXmlNode ;
+NOKOPUBVAR VALUE cNokogiriXmlNodeSet ;
+NOKOPUBVAR VALUE cNokogiriXmlProcessingInstruction;
+NOKOPUBVAR VALUE cNokogiriXmlReader;
+NOKOPUBVAR VALUE cNokogiriXmlRelaxNG;
+NOKOPUBVAR VALUE cNokogiriXmlSaxParser ;
+NOKOPUBVAR VALUE cNokogiriXmlSaxParserContext;
+NOKOPUBVAR VALUE cNokogiriXmlSaxPushParser ;
+NOKOPUBVAR VALUE cNokogiriXmlSchema;
+NOKOPUBVAR VALUE cNokogiriXmlSyntaxError;
+NOKOPUBVAR VALUE cNokogiriXmlText ;
+NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
+NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
+NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 
-extern VALUE cNokogiriHtmlDocument ;
-extern VALUE cNokogiriHtmlSaxPushParser ;
-extern VALUE cNokogiriHtmlElementDescription ;
-extern VALUE cNokogiriHtmlSaxParserContext;
+NOKOPUBVAR VALUE cNokogiriHtmlDocument ;
+NOKOPUBVAR VALUE cNokogiriHtmlSaxPushParser ;
+NOKOPUBVAR VALUE cNokogiriHtmlElementDescription ;
+NOKOPUBVAR VALUE cNokogiriHtmlSaxParserContext;
 
 typedef struct _nokogiriTuple {
   VALUE         doc;
@@ -169,7 +177,7 @@ VALUE noko_xml_node_set_wrap(xmlNodeSetPtr node_set, VALUE document) ;
 
 VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
 VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
-VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
+NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)

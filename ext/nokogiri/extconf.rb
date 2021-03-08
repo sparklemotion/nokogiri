@@ -239,7 +239,7 @@ def ensure_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
 end
 
 def ensure_func(func, headers = nil)
-  have_func(func, headers) || abort_could_not_find_library(lib)
+  have_func(func, headers) || abort_could_not_find_library(func)
 end
 
 def preserving_globals
@@ -739,6 +739,10 @@ cross_build_p) do |recipe|
 
     if darwin? && !cross_build_p
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+    end
+
+    if windows?
+      cflags = concat_flags(cflags, "-ULIBXML_STATIC", "-DIN_LIBXML")
     end
 
     recipe.configure_options += [
