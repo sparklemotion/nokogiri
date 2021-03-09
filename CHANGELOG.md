@@ -4,23 +4,28 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## 1.11.2 / 2021-03-11
 
 ### Fixed
 
-* [CRuby] `NodeSet` may now safely contain `Node` objects from multiple documents. Previously the GC lifecycle of the parent `Document` objects could lead to contained nodes being GCed while still in scope. [[#1952](https://github.com/sparklemotion/nokogiri/issues/1952)]
+* [CRuby] `NodeSet` may now safely contain `Node` objects from multiple documents. Previously the GC lifecycle of the parent `Document` objects could lead to nodes being GCed while still in scope. [[#1952](https://github.com/sparklemotion/nokogiri/issues/1952#issuecomment-770856928)]
 * [CRuby] Patch libxml2 to avoid "huge input lookup" errors on large CDATA elements. (See upstream [GNOME/libxml2#200](https://gitlab.gnome.org/GNOME/libxml2/-/issues/200) and [GNOME/libxml2!100](https://gitlab.gnome.org/GNOME/libxml2/-/merge_requests/100).) [[#2132](https://github.com/sparklemotion/nokogiri/issues/2132)].
-* [CRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was invoked twice on each object.
 * [CRuby+Windows] Enable Nokogumbo (and other downstream gems) to compile and link against `nokogiri.so` by including `LDFLAGS` in `Nokogiri::VERSION_INFO`. [[#2167](https://github.com/sparklemotion/nokogiri/issues/2167)]
+* [CRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was invoked twice on each object.
 * [JRuby] `{XML,HTML}::Document.parse` now invokes `#initialize` exactly once. Previously `#initialize` was not called, which was a problem for subclassing such as done by `Loofah`.
 
 
 ### Improved
 
 * Reduce the number of object allocations needed when parsing an HTML::DocumentFragment. [[#2087](https://github.com/sparklemotion/nokogiri/issues/2087)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
-* [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223)]
+* [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223), [#2177](https://github.com/sparklemotion/nokogiri/issues/2177)]
 * Introduce `--enable-system-libraries` and `--disable-system-libraries` flags to `extconf.rb`. These flags provide the same functionality as `--use-system-libraries` and the `NOKOGIRI_USE_SYSTEM_LIBRARIES` environment variable, but are more idiomatic. [[#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
-* [TruffleRuby] `--disable-static` is used by default on TruffleRuby, when `--disable-system-libraries` is set, which is more flexible and compiles faster, see [#2191](https://github.com/sparklemotion/nokogiri/issues/2191#issuecomment-780724627). [[#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
+* [TruffleRuby] `--disable-static` is now the default on TruffleRuby when the packaged libraries are used. This is more flexible and compiles faster. (Note, though, that the default on TR is still to use system libraries.) [[#2191](https://github.com/sparklemotion/nokogiri/issues/2191#issuecomment-780724627), [#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
+
+
+### Changed
+
+* `Nokogiri::XML::Path` is now a Module (previously it has been a Class). It has been acting solely as a Module since v1.0.0. See [8461c74](https://github.com/sparklemotion/nokogiri/commit/8461c74).
 
 
 ## 1.11.1 / 2021-01-06
