@@ -154,7 +154,8 @@ def config_clean?
 end
 
 def config_static?
-  enable_config("static", true)
+  default_static = !truffle?
+  enable_config("static", default_static)
 end
 
 def config_cross_build?
@@ -189,6 +190,10 @@ end
 
 def nix?
   !(windows? || solaris? || darwin?)
+end
+
+def truffle?
+  ::RUBY_ENGINE == 'truffleruby'
 end
 
 def concat_flags(*args)

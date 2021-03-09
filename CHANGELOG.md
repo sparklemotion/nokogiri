@@ -20,6 +20,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * Reduce the number of object allocations needed when parsing an HTML::DocumentFragment. [[#2087](https://github.com/sparklemotion/nokogiri/issues/2087)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223)]
 * Introduce `--enable-system-libraries` and `--disable-system-libraries` flags to `extconf.rb`. These flags provide the same functionality as `--use-system-libraries` and the `NOKOGIRI_USE_SYSTEM_LIBRARIES` environment variable, but are more idiomatic. [[#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
+* [TruffleRuby] `--disable-static` is used by default on TruffleRuby, when `--disable-system-libraries` is set, which is more flexible and compiles faster, see [#2191](https://github.com/sparklemotion/nokogiri/issues/2191#issuecomment-780724627). [[#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
 
 
 ## 1.11.1 / 2021-01-06
