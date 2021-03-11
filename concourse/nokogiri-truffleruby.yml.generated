@@ -19,7 +19,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--disable-system-libraries_--disable-static
   - config:
       image_resource:
         name: ""
@@ -35,7 +35,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--disable-system-libraries_--enable-static
   - config:
       image_resource:
         name: ""
@@ -51,7 +51,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--enable-system-libraries
   public: true
 - name: truffle-pr-nightly
   plan:
@@ -75,7 +75,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--disable-system-libraries_--disable-static
   - config:
       image_resource:
         name: ""
@@ -92,7 +92,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--disable-system-libraries_--enable-static
   - config:
       image_resource:
         name: ""
@@ -109,7 +109,7 @@ jobs:
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
+    task: rake-test_--enable-system-libraries
   public: true
 resource_types:
 - name: pull-request

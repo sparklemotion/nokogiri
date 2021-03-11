@@ -6,10 +6,9 @@
 #! 2021-03-10 omit stable until the changes related to nokogiri are shipping in v22
 #! #@ all_truffleruby_versions.extend(truffleruby_versions["supported"])
 
-#@ compile_flag_combos = ["--disable-system-libraries --disable-static",
-#@                        "--disable-system-libraries --enable-static",
-#@                        "--enable-system-libraries",
-#@                       ]
+#@ compile_flag_combos = [["--disable-system-libraries", "--disable-static"],
+#@                        ["--disable-system-libraries", "--enable-static"],
+#@                        ["--enable-system-libraries"]]
 
 ---
 #@ def registry_image(image_repo, image_tag):
@@ -80,12 +79,14 @@ jobs:
         #@ if/end previous_job_name:
         passed: #@ [previous_job_name]
       #@ for compile_flags in compile_flag_combos:
-      - task: rake-test
+      #@ task_name = ["rake-test"]
+      #@ task_name.extend(compile_flags)
+      - task: #@ "_".join(task_name)
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
           inputs: [{name: ci}, {name: nokogiri}]
           params:
-            COMPILE_FLAGS: #@ compile_flags
+            COMPILE_FLAGS: #@ " ".join(compile_flags)
           run: { path: ci/concourse/tasks/rake-test/run.sh }
       #@ end
 #@ previous_job_name = job_name
@@ -104,12 +105,14 @@ jobs:
         #@ if/end previous_job_name:
         passed: #@ [previous_job_name]
       #@ for compile_flags in compile_flag_combos:
-      - task: rake-test
+      #@ task_name = ["rake-test"]
+      #@ task_name.extend(compile_flags)
+      - task: #@ "_".join(task_name)
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
           inputs: [{name: ci}, {name: nokogiri-pr, path: nokogiri}]
           params:
-            COMPILE_FLAGS: #@ compile_flags
+            COMPILE_FLAGS: #@ " ".join(compile_flags)
           run: { path: ci/concourse/tasks/rake-test/run.sh }
       #@ end
 #@ previous_job_name = job_name
