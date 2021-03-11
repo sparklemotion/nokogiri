@@ -12,6 +12,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: bionic
@@ -39,6 +40,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: bionic
@@ -54,6 +56,7 @@ jobs:
     task: rake-test
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: bionic32
@@ -83,6 +86,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.5
@@ -98,6 +102,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.5
@@ -111,6 +116,7 @@ jobs:
     task: rake-test-vendored-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.5
@@ -140,6 +146,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.6
@@ -155,6 +162,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.6
@@ -168,6 +176,7 @@ jobs:
     task: rake-test-vendored-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.6
@@ -197,6 +206,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.7
@@ -212,6 +222,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.7
@@ -225,6 +236,7 @@ jobs:
     task: rake-test-vendored-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-2.7
@@ -254,6 +266,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-3.0
@@ -271,6 +284,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-3.0
@@ -284,6 +298,7 @@ jobs:
     task: rake-test-vendored-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-3.0
@@ -313,6 +328,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: jruby-9.2
@@ -343,6 +359,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: alpine
@@ -358,6 +375,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: alpine
@@ -390,6 +408,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-3.0
@@ -406,6 +425,7 @@ jobs:
     task: rake-test-system-libraries
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: mri-3.0
@@ -439,6 +459,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
           tag: 1.1.0
@@ -456,6 +477,7 @@ jobs:
       steps:
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: mri-3.0
@@ -470,6 +492,7 @@ jobs:
         task: install-and-test
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: alpine
@@ -502,6 +525,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
           tag: 1.1.0
@@ -521,6 +545,7 @@ jobs:
       steps:
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: mri-2.5
@@ -535,6 +560,7 @@ jobs:
         task: install-and-test-2.5
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: mri-2.6
@@ -549,6 +575,7 @@ jobs:
         task: install-and-test-2.6
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: mri-2.7
@@ -563,6 +590,7 @@ jobs:
         task: install-and-test-2.7
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: mri-3.0
@@ -577,6 +605,7 @@ jobs:
         task: install-and-test-3.0
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: alpine
@@ -609,6 +638,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: larskanis/rake-compiler-dock-mri-x86-linux
           tag: 1.1.0
@@ -628,6 +658,7 @@ jobs:
       steps:
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: bionic32
@@ -642,6 +673,7 @@ jobs:
         task: install-and-test-on-vanilla-ubuntu-32bit
       - config:
           image_resource:
+            name: ""
             source:
               repository: flavorjones/nokogiri-test
               tag: alpine32
@@ -670,6 +702,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: larskanis/rake-compiler-dock-jruby
           tag: 1.1.0
@@ -685,6 +718,7 @@ jobs:
     task: build
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: jruby-9.2
@@ -734,7 +768,7 @@ resources:
     adapter: DiscordAdapter
     url: ((discord-nokogiri-channel-webhook))
   type: webhook-notification
-- check_every: 5m
+- check_every: 5m0s
   icon: github
   name: nokogiri
   source:

@@ -6,6 +6,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: truffle-stable
@@ -25,6 +26,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: truffle-nightly
@@ -45,6 +47,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: truffle-stable
@@ -66,6 +69,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: flavorjones/nokogiri-test
           tag: truffle-nightly
@@ -92,7 +96,7 @@ resources:
     disable_ci_skip: true
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
-- check_every: 5m
+- check_every: 5m0s
   icon: github
   name: nokogiri
   source:
@@ -106,7 +110,7 @@ resources:
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
   webhook_token: ((nokogiri-main-webhook-token))
-- check_every: 15m
+- check_every: 15m0s
   icon: github
   name: nokogiri-pr
   source:
