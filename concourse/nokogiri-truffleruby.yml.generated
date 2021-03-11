@@ -1,24 +1,4 @@
 jobs:
-- name: truffle-stable
-  plan:
-  - get: ci
-  - get: nokogiri
-    trigger: true
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: truffle-stable
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
-  public: true
 - name: truffle-nightly
   plan:
   - get: ci
@@ -34,28 +14,40 @@ jobs:
       inputs:
       - name: ci
       - name: nokogiri
+      params:
+        COMPILE_FLAGS: --disable-system-libraries --disable-static
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test
-  public: true
-- name: truffle-pr-stable
-  plan:
-  - get: ci
-  - get: nokogiri-pr
-    trigger: true
-    version: every
   - config:
       image_resource:
         name: ""
         source:
           repository: flavorjones/nokogiri-test
-          tag: truffle-stable
+          tag: truffle-nightly
         type: registry-image
       inputs:
       - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
+      - name: nokogiri
+      params:
+        COMPILE_FLAGS: --disable-system-libraries --enable-static
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      params:
+        COMPILE_FLAGS: --enable-system-libraries
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -78,6 +70,42 @@ jobs:
       - name: ci
       - name: nokogiri-pr
         path: nokogiri
+      params:
+        COMPILE_FLAGS: --disable-system-libraries --disable-static
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri-pr
+        path: nokogiri
+      params:
+        COMPILE_FLAGS: --disable-system-libraries --enable-static
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri-pr
+        path: nokogiri
+      params:
+        COMPILE_FLAGS: --enable-system-libraries
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh

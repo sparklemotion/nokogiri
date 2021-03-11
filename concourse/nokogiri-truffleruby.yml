@@ -2,8 +2,14 @@
 
 #@ load("ruby.star", "truffleruby_versions")
 #@ all_truffleruby_versions = []
-#@ all_truffleruby_versions.extend(truffleruby_versions["supported"])
 #@ all_truffleruby_versions.extend(truffleruby_versions["beta"])
+#! 2021-03-10 omit stable until the changes related to nokogiri are shipping in v22
+#! #@ all_truffleruby_versions.extend(truffleruby_versions["supported"])
+
+#@ compile_flag_combos = ["--disable-system-libraries --disable-static",
+#@                        "--disable-system-libraries --enable-static",
+#@                        "--enable-system-libraries",
+#@                       ]
 
 ---
 #@ def registry_image(image_repo, image_tag):
@@ -62,6 +68,7 @@ resources:
         - "Vagrantfile"
 
 jobs:
+#@ previous_job_name = None
 #@ for ruby_version in all_truffleruby_versions:
 #@ job_name = "truffle-{}".format(ruby_version)
   - name: #@ job_name
@@ -70,15 +77,21 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
+        #@ if/end previous_job_name:
+        passed: #@ [previous_job_name]
+      #@ for compile_flags in compile_flag_combos:
       - task: rake-test
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
-          inputs:
-            - name: ci
-            - name: nokogiri
+          inputs: [{name: ci}, {name: nokogiri}]
+          params:
+            COMPILE_FLAGS: #@ compile_flags
           run: { path: ci/concourse/tasks/rake-test/run.sh }
+      #@ end
+#@ previous_job_name = job_name
 #@ end
 
+#@ previous_job_name = None
 #@ for ruby_version in all_truffleruby_versions:
 #@ job_name = "truffle-pr-{}".format(ruby_version)
   - name: #@ job_name
@@ -88,12 +101,16 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
+        #@ if/end previous_job_name:
+        passed: #@ [previous_job_name]
+      #@ for compile_flags in compile_flag_combos:
       - task: rake-test
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
+          inputs: [{name: ci}, {name: nokogiri-pr, path: nokogiri}]
+          params:
+            COMPILE_FLAGS: #@ compile_flags
           run: { path: ci/concourse/tasks/rake-test/run.sh }
+      #@ end
+#@ previous_job_name = job_name
 #@ end
