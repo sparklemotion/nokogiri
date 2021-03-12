@@ -61,41 +61,60 @@ end
 have_libxml2 = false
 have_ng = false
 
-if !prohibited
-  if Nokogiri::VERSION_INFO.include?('libxml') and
-     Nokogiri::VERSION_INFO['libxml']['source'] == 'packaged'
-    # Nokogiri has libxml2 built in. Find the headers.
-    libxml2_path = File.join(Nokogiri::VERSION_INFO['libxml']['libxml2_path'],
-                             'include/libxml2')
-    if find_header('libxml/tree.h', libxml2_path)
-      have_libxml2 = true
-    else
-      # Unfortunately, some versions of Nokogiri delete these files.
-      # https://github.com/sparklemotion/nokogiri/pull/1788
-      # Try to download them
-      libxml2_path = download_headers
-      unless libxml2_path.nil?
-        have_libxml2 = find_header('libxml/tree.h', libxml2_path)
-      end
-    end
-  else
-    # Nokogiri is compiled with system headers.
-    # Hack to work around broken mkmf on macOS
-    # (https://bugs.ruby-lang.org/issues/14992 fixed now)
-    if RbConfig::MAKEFILE_CONFIG['LIBPATHENV'] == 'DYLD_LIBRARY_PATH'
-      RbConfig::MAKEFILE_CONFIG['LIBPATHENV'] = 'DYLD_FALLBACK_LIBRARY_PATH'
-    end
+def windows?
+  ::RUBY_PLATFORM =~ /mingw|mswin/
+end
 
-    pkg_config('libxml-2.0')
-    have_libxml2 = have_library('xml2', 'xmlNewDoc')
+def modern_nokogiri?
+  nokogiri_version = Gem::Version.new(Nokogiri::VERSION)
+  requirement = windows? ? ">= 1.11.2" : ">= 1.11.0.rc4"
+  Gem::Requirement.new(requirement).satisfied_by?(nokogiri_version)
+end
+
+if !prohibited
+  if modern_nokogiri?
+    append_cflags(Nokogiri::VERSION_INFO["nokogiri"]["cppflags"])
+    append_ldflags(Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]) # may be nil for nokogiri pre-1.11.2
+    have_libxml2 = have_func("xmlNewDoc", "libxml/tree.h")
   end
+
+  if !have_libxml2
+    if Nokogiri::VERSION_INFO.include?('libxml') and
+       Nokogiri::VERSION_INFO['libxml']['source'] == 'packaged'
+      # Nokogiri has libxml2 built in. Find the headers.
+      libxml2_path = File.join(Nokogiri::VERSION_INFO['libxml']['libxml2_path'],
+                               'include/libxml2')
+      if find_header('libxml/tree.h', libxml2_path)
+        have_libxml2 = true
+      else
+        # Unfortunately, some versions of Nokogiri delete these files.
+        # https://github.com/sparklemotion/nokogiri/pull/1788
+        # Try to download them
+        libxml2_path = download_headers
+        unless libxml2_path.nil?
+          have_libxml2 = find_header('libxml/tree.h', libxml2_path)
+        end
+      end
+    else
+      # Nokogiri is compiled with system headers.
+      # Hack to work around broken mkmf on macOS
+      # (https://bugs.ruby-lang.org/issues/14992 fixed now)
+      if RbConfig::MAKEFILE_CONFIG['LIBPATHENV'] == 'DYLD_LIBRARY_PATH'
+        RbConfig::MAKEFILE_CONFIG['LIBPATHENV'] = 'DYLD_FALLBACK_LIBRARY_PATH'
+      end
+
+      pkg_config('libxml-2.0')
+      have_libxml2 = have_library('xml2', 'xmlNewDoc')
+    end
+  end
+
   if required and !have_libxml2
     abort "libxml2 required but could not be located"
   end
 
+
   if have_libxml2
-    # Find nokogiri.h
-    have_ng = find_header('nokogiri.h', File.join(NG_SPEC.gem_dir, 'ext/nokogiri'))
+    have_ng = have_header('nokogiri.h') || find_header('nokogiri.h', File.join(NG_SPEC.gem_dir, 'ext/nokogiri'))
   end
 end
 
@@ -105,7 +124,6 @@ end
 
 # Symlink gumbo-parser source files.
 ext_dir = File.dirname(__FILE__)
-gumbo_src = File.join(ext_dir, 'gumbo_src')
 
 Dir.chdir(ext_dir) do
   $srcs = Dir['*.c', '../../gumbo-parser/src/*.c']
