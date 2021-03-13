@@ -119,20 +119,45 @@ module Nokogiri
       end
 
       ##
-      # Create an element with +name+, and optionally setting the content and attributes.
+      # Create a new +Element+ with +name+ sharing GC lifecycle with the document, optionally
+      # setting contents or attributes.
       #
-      #   doc.create_element "div" # <div></div>
-      #   doc.create_element "div", :class => "container" # <div class='container'></div>
-      #   doc.create_element "div", "contents" # <div>contents</div>
-      #   doc.create_element "div", "contents", :class => "container" # <div class='container'>contents</div>
-      #   doc.create_element "div" { |node| node['class'] = "container" } # <div class='container'></div>
+      # Arguments may be passed to initialize the element:
+      # - a +Hash+ argument will be used to set attributes
+      # - a non-Hash object that responds to +#to_s+ will be used to set the new node's contents
       #
-      def create_element name, *args, &block
+      # A block may be passed to mutate the node.
+      #
+      # @param name [String]
+      # @param contents_or_attrs [#to_s,Hash]
+      # @yieldparam node [Nokogiri::XML::Element]
+      # @return [Nokogiri::XML::Element]
+      #
+      # @example An empty element without attributes
+      #   doc.create_element("div")
+      #   # => <div></div>
+      #
+      # @example An element with contents
+      #   doc.create_element("div", "contents")
+      #   # => <div>contents</div>
+      #
+      # @example An element with attributes
+      #   doc.create_element("div", {"class" => "container"})
+      #   # => <div class='container'></div>
+      #
+      # @example An element with contents and attributes
+      #   doc.create_element("div", "contents", {"class" => "container"})
+      #   # => <div class='container'>contents</div>
+      #
+      # @example Passing a block to mutate the element
+      #   doc.create_element("div") { |node| node["class"] = "blue" if before_noon? }
+      #
+      def create_element(name, *contents_or_attrs, &block)
         elm = Nokogiri::XML::Element.new(name, self, &block)
-        args.each do |arg|
+        contents_or_attrs.each do |arg|
           case arg
           when Hash
-            arg.each { |k,v|
+            arg.each do |k, v|
               key = k.to_s
               if key =~ NCNAME_RE
                 ns_name = Regexp.last_match(1)
@@ -140,12 +165,12 @@ module Nokogiri
               else
                 elm[k.to_s] = v.to_s
               end
-            }
+            end
           else
             elm.content = arg
           end
         end
-        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? or n.prefix == '' }
+        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == '') }
           elm.namespace = ns
         end
         elm
