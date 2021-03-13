@@ -638,10 +638,24 @@ module Nokogiri
           assert_equal('b', node_b.name)
         end
 
-        def test_new
+        def test_xml_node_new
           assert(node = Nokogiri::XML::Node.new('input', xml))
-          assert_equal(1, node.node_type)
+          assert_equal(Nokogiri::XML::Node::ELEMENT_NODE, node.node_type)
           assert_instance_of(Nokogiri::XML::Element, node)
+          assert_equal('input', node.name)
+          assert_equal(xml, node.document)
+        end
+
+        def test_xml_node_new_with_block
+          block_param = nil
+          block_called = false
+          node = Nokogiri::XML::Node.new('input', xml) do |node_param|
+            block_called = true
+            block_param = node_param
+          end
+          assert(node)
+          assert(block_called, "Node.new block should be called")
+          assert_equal(node, block_param, "Node.new block should be passed the new node")
         end
 
         def test_to_str
@@ -796,12 +810,6 @@ module Nokogiri
 
           assert(node = xml.at(:employee))
           assert(node.text =~ /EMP0001/)
-        end
-
-        def test_new_node
-          node = Nokogiri::XML::Node.new('form', xml)
-          assert_equal('form', node.name)
-          assert(node.document)
         end
 
         def test_encode_special_chars

@@ -93,6 +93,7 @@ module Nokogiri
       # Create a new node with +name+ sharing GC lifecycle with +document+.
       # @param name [String]
       # @param document [Nokogiri::XML::Document]
+      # @yieldparam node [Nokogiri::XML::Node]
       # @return [Nokogiri::XML::Node]
       # @see Nokogiri::XML::Node.new
       def initialize(name, document)
