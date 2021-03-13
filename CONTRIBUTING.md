@@ -4,7 +4,7 @@
 
 This doc is intended to be a short introduction on how to modify and maintain Nokogiri.
 
-If you're looking for guidance on filing a bug report or getting support, please head on over to the ["Getting Help" tutorial](http://www.nokogiri.org/tutorials/getting_help.html) at the [nokogiri.org](http://nokogiri.org) site.
+If you're looking for guidance on filing a bug report or getting support, please visit the ["Getting Help" tutorial](http://www.nokogiri.org/tutorials/getting_help.html) at the [nokogiri.org](http://nokogiri.org) site.
 
 ## Contents
 
@@ -31,7 +31,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 
 Hello there! I'm super excited that you're interested in contributing to Nokogiri. Welcome!
 
-This document is intended only to provide a brief introduction on how to contribute to Nokogiri. It's not a complete specification of everything you need to know, so if you want to know more then I encourage you to reach out to the maintainers in the [Discord channel](https://nokogiri.org/tutorials/getting_help.html#ask-for-help). We'd love to get to know you a bit better!
+This document is intended only to provide a brief introduction on how to contribute to Nokogiri. It's not a complete specification of everything you need to know, so if you want to know more, I encourage you to reach out to the maintainers in the [Discord channel](https://nokogiri.org/tutorials/getting_help.html#ask-for-help). We'd love to get to know you a bit better!
 
 ## Some guiding principles of the project
 
