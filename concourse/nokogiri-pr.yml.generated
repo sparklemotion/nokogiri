@@ -107,40 +107,42 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: bionic
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: bionic32
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-32bit
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: bionic
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: bionic32
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-32bit
   public: true
 - name: cruby-2.5
   on_abort:
@@ -189,55 +191,57 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.5
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.5
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-vendored-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.5
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.5
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.5
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-vendored-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.5
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: cruby-2.6
   on_abort:
@@ -286,55 +290,57 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.6
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.6
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-vendored-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.6
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.6
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.6
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-vendored-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.6
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: cruby-2.7
   on_abort:
@@ -383,55 +389,57 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.7
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.7
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-vendored-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.7
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.7
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.7
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-vendored-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-2.7
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: cruby-3.0
   on_abort:
@@ -480,56 +488,58 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-3.0
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-3.0
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-vendored-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-3.0
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-3.0
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-3.0
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-vendored-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-3.0
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: jruby-9.2
   on_abort:
@@ -643,40 +653,42 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: alpine
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: alpine
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: alpine
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: alpine
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: cruby-with-libxmlruby
   on_abort:
@@ -728,42 +740,44 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-3.0
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        BUNDLE_GEMFILE: Gemfile-libxml-ruby
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        name: ""
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-3.0
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        BUNDLE_GEMFILE: Gemfile-libxml-ruby
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-3.0
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            BUNDLE_GEMFILE: Gemfile-libxml-ruby
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-system-libraries
+      - config:
+          image_resource:
+            name: ""
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: mri-3.0
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri-pr
+            path: nokogiri
+          params:
+            BUNDLE_GEMFILE: Gemfile-libxml-ruby
+            TEST_WITH_VALGRIND: t
+          platform: linux
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        task: rake-test-valgrind
   public: true
 - name: cruby-gem-test
   on_abort:

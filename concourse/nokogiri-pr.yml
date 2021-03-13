@@ -144,22 +144,23 @@ jobs:
         version: every
         passed: ["rubocop"]
       - #@ pend_pr("nokogiri-pr", job_name)
-      - task: rake-test
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-      - task: rake-test-32bit
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+      - in_parallel:
+        - task: rake-test
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_SYSTEM_LIBRARIES: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
+        - task: rake-test-32bit
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_SYSTEM_LIBRARIES: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
 
 
 #@ for ruby_version in all_cruby_versions:
@@ -174,30 +175,31 @@ jobs:
         version: every
         passed: ["cruby-on-vanilla-ubuntu"]
       - #@ pend_pr("nokogiri-pr", job_name)
-      - task: rake-test-system-libraries
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-            #@ if/end ruby_version == cruby_versions["supported"][-1]:
-            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-      - task: rake-test-vendored-libraries
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
-          inputs: #@ task_inputs()
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-      - task: rake-test-valgrind
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+      - in_parallel:
+        - task: rake-test-system-libraries
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_SYSTEM_LIBRARIES: t
+              #@ if/end ruby_version == cruby_versions["supported"][-1]:
+              CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
+        - task: rake-test-vendored-libraries
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+            inputs: #@ task_inputs()
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
+        - task: rake-test-valgrind
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_VALGRIND: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
 #@ end
 
 #@ for ruby_version in all_jruby_versions:
@@ -231,22 +233,23 @@ jobs:
         trigger: true
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - #@ pend_pr("nokogiri-pr", job_name)
-      - task: rake-test-system-libraries
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-      - task: rake-test-valgrind
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
-          inputs: #@ task_inputs()
-          params:
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+      - in_parallel:
+        - task: rake-test-system-libraries
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_SYSTEM_LIBRARIES: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
+        - task: rake-test-valgrind
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
+            inputs: #@ task_inputs()
+            params:
+              TEST_WITH_VALGRIND: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
 
 
 #@ job_name = "cruby-with-libxmlruby"
@@ -260,24 +263,25 @@ jobs:
         version: every
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - #@ pend_pr("nokogiri-pr", job_name)
-      - task: rake-test-system-libraries
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
-          inputs: #@ task_inputs()
-          params:
-            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-      - task: rake-test-valgrind
-        config:
-          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
-          inputs: #@ task_inputs()
-          params:
-            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+      - in_parallel:
+        - task: rake-test-system-libraries
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
+            inputs: #@ task_inputs()
+            params:
+              BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+              TEST_WITH_SYSTEM_LIBRARIES: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
+        - task: rake-test-valgrind
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
+            inputs: #@ task_inputs()
+            params:
+              BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+              TEST_WITH_VALGRIND: t
+            run:
+              path: ci/concourse/tasks/rake-test/run.sh
 
 
 #@ job_name = "cruby-gem-test"
