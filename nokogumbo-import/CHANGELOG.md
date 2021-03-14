@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support Mageia distros when libxml2/libxslt system libraries are install. #165 (Thank you,
   @pterjan!)
 
+### Addded
+- Forward-looking support for a version of Nokogiri that will provide HTML5 parsing. #171
+
 ### Improved
 - Update extconf.rb to use Nokogiri v1.11's CPPFLAGS for more reliable installation.
 
