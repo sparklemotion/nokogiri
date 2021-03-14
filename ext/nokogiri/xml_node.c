@@ -1443,6 +1443,7 @@ add_namespace_definition(VALUE rb_node, VALUE rb_prefix, VALUE rb_href)
  *   Create a new node with +name+ sharing GC lifecycle with +document+.
  *   @param name [String]
  *   @param document [Nokogiri::XML::Document]
+ *   @yieldparam node [Nokogiri::XML::Node]
  *   @return [Nokogiri::XML::Node]
  *   @see Nokogiri::XML::Node#initialize
  */

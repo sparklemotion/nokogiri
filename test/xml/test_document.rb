@@ -203,6 +203,17 @@ module Nokogiri
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:SOAP-ENC"])
         end
 
+        def test_create_element_with_invalid_namespace
+          if Nokogiri.jruby?
+            assert_raises(Java::OrgW3cDom::DOMException) do
+              xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+            end
+          else
+            elm = xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+            refute_includes(elm.namespaces.keys, "xmlns:SOAP!ENC")
+          end
+        end
+
         def test_create_element_with_content
           elm = xml.create_element("foo", "needs more xml/violence")
           assert_equal("needs more xml/violence", elm.content)

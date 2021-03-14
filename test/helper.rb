@@ -21,7 +21,7 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 NOKOGIRI_MINITEST_REPORTERS_OPTIONS = { color: true, slow_count: 5, detailed_skip: false }
 NOKOGIRI_MINITEST_REPORTERS_OPTIONS[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
-puts NOKOGIRI_MINITEST_REPORTERS_OPTIONS
+puts "Minitest::Reporters options: #{NOKOGIRI_MINITEST_REPORTERS_OPTIONS}"
 Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(NOKOGIRI_MINITEST_REPORTERS_OPTIONS))
 
 require 'fileutils'
