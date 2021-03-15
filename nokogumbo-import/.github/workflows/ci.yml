@@ -64,6 +64,10 @@ jobs:
       if: matrix.os == 'ubuntu'
       run: sudo apt-get install -y ragel
 
+    - name: Install ragel
+      if: matrix.os == 'macos'
+      run: brew install ragel
+
     - name: Test Gumbo and gem packaging
       shell: bash
       run: ./scripts/ci-package-test.sh
