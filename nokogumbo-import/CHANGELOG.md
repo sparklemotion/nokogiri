@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 ### Security
 
-## [2.0.5] - 2021-03-17
+## [2.0.5] - 2021-03-19
 ### Fixed
 - Support Mageia distros when libxml2/libxslt system libraries are install. #165 (Thank you,
   @pterjan!)
