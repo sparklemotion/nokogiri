@@ -5,7 +5,7 @@ Nokogumbo provides the ability for a Ruby program to invoke
 and to access the result as a
 [Nokogiri::HTML::Document](http://rdoc.info/github/sparklemotion/nokogiri/Nokogiri/HTML/Document).
 
-[![Travis-CI Build Status](https://travis-ci.org/rubys/nokogumbo.svg)](https://travis-ci.org/rubys/nokogumbo) 
+[![Github Actions Build Status](https://github.com/rubys/nokogumbo/actions/workflows/ci.yml/badge.svg)](https://github.com/rubys/nokogumbo/actions)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rubys/nokogumbo)](https://ci.appveyor.com/project/rubys/nokogumbo/branch/master)
 
 ## Usage
