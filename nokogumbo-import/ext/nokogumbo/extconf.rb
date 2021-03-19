@@ -75,7 +75,11 @@ if !prohibited
   if modern_nokogiri?
     append_cflags(Nokogiri::VERSION_INFO["nokogiri"]["cppflags"])
     append_ldflags(Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]) # may be nil for nokogiri pre-1.11.2
-    have_libxml2 = have_func("xmlNewDoc", "libxml/tree.h")
+    have_libxml2 = if Nokogiri::VERSION_INFO["nokogiri"]["ldflags"].empty?
+                     have_header('libxml/tree.h')
+                   else
+                     have_func("xmlNewDoc", "libxml/tree.h")
+                   end
   end
 
   if !have_libxml2
