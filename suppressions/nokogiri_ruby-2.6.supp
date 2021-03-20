@@ -1,34 +1,211 @@
 {
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-2.6-valgrind/builds/11
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_marks_wb_unprotected_objects
-   fun:gc_marks_finish
-   ...
-   fun:ruby_finalize_?
-   fun:ruby_cleanup
-   ...
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-v1.10.x/jobs/ruby-2.6-valgrind/builds/3
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_stacked_objects
-   fun:gc_mark_stacked_objects_incremental
-   ...
-   fun:ruby_finalize_?
-   fun:ruby_cleanup
-   ...
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-libxmlruby-valgrind/builds/116,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-libxmlruby-valgrind/builds/13
+   node set enumerators seem to trigger this warning
    Memcheck:Addr8
    fun:mark_locations_array
    fun:gc_mark_stacked_objects
    fun:gc_mark_stacked_objects_all
    fun:gc_marks_rest
+   fun:gc_marks
+   fun:gc_start
+   fun:garbage_collect
    ...
-   fun:ruby_finalize_?
-   fun:ruby_cleanup
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_bmethod
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:rb_vm_invoke_bmethod
+   # fun:vm_call_bmethod_body
+   # fun:vm_call_bmethod
+   # fun:vm_call_method
+   # fun:vm_call_opt_send
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
+{
+   node set enumerators seem to trigger this warning
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_stacked_objects
+   fun:gc_mark_stacked_objects_incremental
+   fun:gc_marks_rest
+   fun:gc_rest.part.*
+   fun:gc_rest
+   fun:garbage_collect
    ...
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
+{
+   node set enumerators seem to trigger this warning
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_marks_wb_unprotected_objects
+   fun:gc_marks_finish
+   fun:gc_marks_rest
+   fun:gc_rest.part.*
+   fun:gc_rest
+   fun:garbage_collect
+   ...
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
 }

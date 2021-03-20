@@ -1,42 +1,287 @@
 {
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-rc-valgrind/builds/1
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_stacked_objects
-   fun:gc_mark_stacked_objects_incremental
-   fun:gc_marks_rest
+   ruby 2.7 startup
+   Memcheck:Addr4
+   fun:iseq_peephole_optimize
+   fun:iseq_optimize
+   fun:iseq_setup_insn
+   fun:iseq_setup_insn
+   fun:rb_iseq_compile_node
+   fun:rb_iseq_new_with_opt
+   fun:new_child_iseq
    ...
-   fun:rb_ec_cleanup
-   ...
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each0
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:new_child_iseq
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each0
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:new_child_iseq
+   # fun:iseq_compile_each0
+   # fun:iseq_compile_each0
+   # fun:rb_iseq_compile_node
+   # fun:rb_iseq_new_with_opt
+   # fun:rb_iseq_new_top
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method_each_type.part.410
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method_each_type.part.410
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method_each_type.part.410
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method_each_type.part.410
+   # fun:vm_call_method_each_type
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
 }
 {
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-rc-valgrind/builds/1
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_marks_wb_unprotected_objects
-   fun:gc_marks_finish
-   ...
-   fun:rb_ec_cleanup
-   ...
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-rc-valgrind/builds/3
+   node set enumerators seem to trigger this warning
    Memcheck:Addr8
    fun:mark_locations_array
    fun:gc_mark_stacked_objects
    fun:gc_mark_stacked_objects_all
    fun:gc_marks_rest
+   fun:gc_marks
+   fun:gc_start
+   fun:garbage_collect
    ...
-   fun:rb_ec_cleanup
-   ...
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_bmethod
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:rb_vm_invoke_bmethod
+   # fun:vm_call_bmethod_body
+   # fun:vm_call_bmethod
+   # fun:vm_call_method
+   # fun:vm_call_opt_send
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
 }
 {
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-valgrind/builds/1
-   Memcheck:Addr4
-   fun:iseq_peephole_optimize
-   fun:iseq_optimize
+   node set enumerators seem to trigger this warning
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_stacked_objects
+   fun:gc_mark_stacked_objects_incremental
+   fun:gc_marks_rest
+   fun:gc_rest.part.*
+   fun:gc_rest
+   fun:garbage_collect
    ...
-   fun:rb_iseq_compile_node
-   fun:rb_iseq_new_with_opt
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
+{
+   node set enumerators seem to trigger this warning
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_marks_wb_unprotected_objects
+   fun:gc_marks_finish
+   fun:gc_marks_rest
+   fun:gc_rest.part.*
+   fun:gc_rest
+   fun:garbage_collect
    ...
+   # fun:gc_start_internal
+   # fun:invoke_bf
+   # fun:vm_invoke_builtin_delegate
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_bh
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_call_method
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_block
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:vm_invoke_proc
+   # fun:rb_vm_invoke_proc
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
 }
