@@ -28,12 +28,6 @@ pushd nokogiri
   if [[ "${TEST_WITH_VALGRIND:-}" == "t" ]] ; then
     test_task="test:valgrind" # override
     # export TESTOPTS="-v" # see more verbose output to help narrow down warnings
-
-    # always use the CI suppressions if they exist
-    if [[ -d ../ci/suppressions ]] ; then
-      rm -rf suppressions
-      cp -var ../ci/suppressions .
-    fi
   fi
 
   code-climate-setup
