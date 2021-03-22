@@ -1150,6 +1150,22 @@ module Nokogiri
             doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
             doc2.root = doc.root
           end
+
+          it "raises an exception if passed something besides a Node" do
+            doc = Nokogiri::XML::Document.parse(<<~EOF)
+              <root>
+                <div>one</div>
+                <div>two</div>
+                <div>three</div>
+              </root>
+            EOF
+            node_set = doc.css("div")
+            assert_kind_of(Nokogiri::XML::NodeSet, node_set)
+            e = assert_raises(ArgumentError) do
+              doc.root = node_set
+            end
+            assert_equal("expected Nokogiri::XML::Node but received Nokogiri::XML::NodeSet", e.message);
+          end
         end
       end
     end

@@ -155,6 +155,12 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
   }
 
   if (!NIL_P(rb_new_root)) {
+    if (!rb_obj_is_kind_of(rb_new_root, cNokogiriXmlNode)) {
+      rb_raise(rb_eArgError,
+               "expected Nokogiri::XML::Node but received %"PRIsVALUE,
+               rb_obj_class(rb_new_root));
+    }
+
     Data_Get_Struct(rb_new_root, xmlNode, c_new_root);
 
     /* If the new root's document is not the same as the current document,
