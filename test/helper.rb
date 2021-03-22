@@ -174,6 +174,11 @@ module Nokogiri
     def i_am_in_a_systemd_container
       File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
     end
+
+    def i_am_running_in_valgrind
+      # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
+      ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
+    end
   end
 
   module SAX

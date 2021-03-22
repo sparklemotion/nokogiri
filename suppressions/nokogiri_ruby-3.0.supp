@@ -1,81 +1,8 @@
 {
-   generated on dev machine via "valgrind --gen-suppressions=all ruby -Ilib:test test/test_gem_platform.rb"
-   Memcheck:Cond
-   fun:iseq_peephole_optimize
-   fun:iseq_optimize
-   fun:iseq_setup_insn
-   fun:iseq_setup_insn
-   fun:rb_iseq_compile_node
-   fun:rb_iseq_new_with_opt
-   fun:new_child_iseq
-   ...
-   # fun:compile_iter
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:new_child_iseq
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:new_child_iseq
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:rb_iseq_new_top
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_method_each_type
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_method_each_type
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_method_each_type
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_method_each_type
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_ec_exec_node
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   generated manually in alpine 3.13.1 image on dev machine
+   ruby 3.0 startup
    Memcheck:Addr4
    fun:iseq_peephole_optimize
-   fun:iseq_optimize.isra.0
+   fun:iseq_optimize*
    fun:iseq_setup_insn
    fun:iseq_setup_insn
    fun:rb_iseq_compile_node
@@ -83,21 +10,12 @@
    fun:new_child_iseq
    ...
    # fun:iseq_compile_each0
-   # fun:iseq_compile_each
    # fun:iseq_compile_each0
-   # fun:iseq_compile_each
    # fun:rb_iseq_compile_node
    # fun:rb_iseq_new_with_opt
    # fun:new_child_iseq
    # fun:iseq_compile_each0
-   # fun:iseq_compile_each
    # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:new_child_iseq
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
    # fun:rb_iseq_compile_node
    # fun:rb_iseq_new_with_opt
    # fun:rb_iseq_new_top
@@ -105,78 +23,7 @@
    # fun:require_internal
    # fun:rb_require_string
    # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:vm_call0_body
-   # fun:rb_vm_call0
-   # fun:rb_call0
-   # fun:rb_call
-   # fun:rb_funcallv
-   # fun:autoload_require
-   # fun:rb_ensure
-   # fun:rb_autoload_load
-   # fun:vm_get_ev_const
-   # fun:vm_get_ev_const
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:vm_call0_body
-   # fun:rb_vm_call0
-   # fun:rb_call0
-   # fun:rb_call
-   # fun:rb_funcallv
-   # fun:autoload_require
-   # fun:rb_ensure
-   # fun:rb_autoload_load
-   # fun:rb_const_search_from
-}
-{
-   generated on dev machine via "valgrind --gen-suppressions=all ruby -Ilib:test test/test_gem_platform.rb"
-   Memcheck:Addr4
-   fun:iseq_peephole_optimize
-   fun:iseq_optimize
-   fun:iseq_setup_insn
-   fun:iseq_setup_insn
-   fun:rb_iseq_compile_node
-   fun:rb_iseq_new_with_opt
-   fun:new_child_iseq
-   ...
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:new_child_iseq
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:iseq_compile_each0
-   # fun:iseq_compile_each
-   # fun:rb_iseq_compile_node
-   # fun:rb_iseq_new_with_opt
-   # fun:rb_iseq_new_top
-   # fun:load_iseq_eval
-   # fun:require_internal
-   # fun:rb_require_string
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish
+   # fun:vm_sendish.constprop.531
    # fun:vm_exec_core
    # fun:rb_vm_exec
    # fun:load_iseq_eval
@@ -185,7 +32,7 @@
    # fun:vm_call_cfunc_with_frame
    # fun:vm_call_method_each_type
    # fun:vm_call_alias
-   # fun:vm_sendish
+   # fun:vm_sendish.constprop.531
    # fun:vm_exec_core
    # fun:rb_vm_exec
    # fun:load_iseq_eval
@@ -194,7 +41,7 @@
    # fun:vm_call_cfunc_with_frame
    # fun:vm_call_method_each_type
    # fun:vm_call_alias
-   # fun:vm_sendish
+   # fun:vm_sendish.constprop.531
    # fun:vm_exec_core
    # fun:rb_vm_exec
    # fun:load_iseq_eval
@@ -203,289 +50,13 @@
    # fun:vm_call_cfunc_with_frame
    # fun:vm_call_method_each_type
    # fun:vm_call_alias
-   # fun:vm_sendish
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_ec_exec_node
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   generated in flavorjones/nokogiri-test:mri-3.0 OCI container
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_mark_stacked_objects
-   ...
-   # fun:gc_mark_stacked_objects_incremental
-   fun:gc_marks_rest
-   ...
-   # fun:gc_rest.part.136
-   # fun:gc_rest
-   fun:garbage_collect
-   ...
-   # fun:newobj_slowpath
-   # fun:newobj_slowpath_wb_protected
-   # fun:newobj_of0
-   # fun:newobj_of
-   # fun:rb_wb_protected_newobj_of
-   # fun:str_alloc
-   # fun:str_duplicate
-   # fun:rb_str_resurrect
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_each
-   # fun:vm_call_cfunc_with_frame
    # fun:vm_sendish.constprop.531
    # fun:vm_exec_core
    # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_collect
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/cruby-3.0-rc/builds/83#L5fc5a950:645
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_mark_stacked_objects
-   ...
-   # fun:gc_mark_stacked_objects_all
-   fun:gc_marks_rest
-   ...
-   # fun:gc_marks
-   # fun:gc_start
-   fun:garbage_collect
-   ...
-   # fun:gc_start_internal
-   # fun:invoke_bf
-   # fun:vm_invoke_builtin
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_each
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.530
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_collect
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.530
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/cruby-3.0/builds/5#L5fc5adad:473
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_marks_wb_unprotected_objects
-   ...
-   # fun:gc_marks_finish
-   # fun:gc_marks_rest
-   # fun:gc_rest.part.136
-   fun:gc_rest
-   fun:garbage_collect
-   ...
-   # fun:gc_start_internal
-   # fun:invoke_bf
-   # fun:vm_invoke_builtin
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_each
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_collect
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/cruby-3.0/builds/11#L5fc5b89c:471
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_mark_stacked_objects
-   ...
-   # fun:gc_mark_stacked_objects_incremental
-   # fun:gc_marks_rest
-   # fun:gc_rest.part.136
-   # fun:gc_rest
-   # fun:objspace_each_objects
-   # fun:rb_objspace_each_objects
-   fun:rb_reset_coverages
-   fun:rb_coverage_result
-   ...
+   # fun:load_iseq_eval
+   # fun:require_internal
+   # fun:rb_require_string
    # fun:vm_call_cfunc_with_frame
    # fun:vm_call_method_each_type
-   # fun:vm_call_method
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/cruby-3.0/builds/11#L5fc5b89c:529
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_marks_wb_unprotected_objects
-   fun:gc_marks_finish
-   fun:gc_marks_rest
-   ...
-   # fun:gc_rest.part.136
-   # fun:gc_rest
-   # fun:objspace_each_objects
-   # fun:rb_objspace_each_objects
-   fun:rb_reset_coverages
-   fun:rb_coverage_result
-   ...
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_call_method_each_type
-   # fun:vm_call_method
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
-}
-{
-   https://ci.nokogiri.org/builds/14555#L5fc5c6b0:492
-   Memcheck:Addr8
-   fun:mark_locations_array
-   fun:gc_mark_children
-   fun:gc_mark_stacked_objects
-   fun:gc_mark_stacked_objects_incremental
-   fun:gc_marks_rest
-   fun:gc_marks_continue
-   fun:heap_prepare
-   fun:heap_next_freepage
-   ...
-   # fun:ractor_cache_slots
-   # fun:newobj_slowpath
-   # fun:newobj_slowpath_wb_protected
-   # fun:newobj_of0
-   # fun:newobj_of
-   # fun:rb_wb_protected_newobj_of
-   # fun:hash_alloc_flags
-   # fun:hash_alloc
-   # fun:rb_hash_new
-   # fun:rb_hash_new_with_size
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_each
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:invoke_block
-   # fun:invoke_iseq_block_from_c
-   # fun:invoke_block_from_c_bh
-   # fun:vm_yield
-   # fun:rb_yield_0
-   # fun:rb_yield_1
-   # fun:rb_yield
-   # fun:rb_ary_collect
-   # fun:vm_call_cfunc_with_frame
-   # fun:vm_sendish.constprop.531
-   # fun:vm_exec_core
-   # fun:rb_vm_exec
-   # fun:rb_vm_invoke_proc
-   # fun:rb_proc_call
-   # fun:exec_end_procs_chain
-   # fun:rb_ec_exec_end_proc
-   # fun:rb_ec_teardown
-   # fun:rb_ec_cleanup
-   # fun:ruby_run_node
-   # fun:main
+   # fun:vm_call_alias
 }
