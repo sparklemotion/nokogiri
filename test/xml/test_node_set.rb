@@ -739,6 +739,8 @@ module Nokogiri
               # So let's skip this test if we think that's where we are.
               skip("cannot use Ruby 2.5 Enumerator#each in a systemd container")
             end
+            skip("enumerators confuse valgrind") if i_am_running_in_valgrind
+
             employees = xml.search("//employee")
             enum = employees.each
             assert_instance_of(Enumerator, enum)
