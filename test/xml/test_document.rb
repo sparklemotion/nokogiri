@@ -77,11 +77,6 @@ module Nokogiri
           assert_equal(2, doc.children.size)
         end
 
-        def test_root_set_to_nil
-          xml.root = nil
-          assert_nil(xml.root)
-        end
-
         def test_million_laugh_attach
           doc = Nokogiri::XML(<<~EOF)
             <?xml version="1.0"?>
@@ -146,7 +141,7 @@ module Nokogiri
         end
 
         def test_subclass_initialize_modify # testing a segv
-          Class.new(Nokogiri::XML::Document) do
+          doc = Class.new(Nokogiri::XML::Document) do
             def initialize
               super
               body_node = Nokogiri::XML::Node.new("body", self)
@@ -154,6 +149,7 @@ module Nokogiri
               self.root = body_node
             end
           end.new
+          assert_equal("stuff", doc.root.content)
         end
 
         def test_create_text_node
@@ -417,18 +413,6 @@ module Nokogiri
           doc.prepend_child("<div>quack!</div>")
           assert_equal(1, doc.root.children.length)
           assert_equal("quack!", doc.root.children.first.content)
-        end
-
-        def test_move_root_to_document_with_no_root
-          sender = Nokogiri::XML("<root>foo</root>")
-          newdoc = Nokogiri::XML::Document.new
-          newdoc.root = sender.root
-        end
-
-        def test_move_root_with_existing_root_gets_gcd
-          doc = Nokogiri::XML("<root>test</root>")
-          doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
-          doc2.root = doc.root
         end
 
         def test_validate
@@ -852,20 +836,6 @@ module Nokogiri
           assert_nil(doc.root)
         end
 
-        def test_set_root
-          doc = nil
-          doc = Nokogiri::XML::Document.new
-          assert(doc)
-          assert(doc.xml?)
-          assert_nil(doc.root)
-          node = Nokogiri::XML::Node.new("b", doc) do |n|
-            n.content = "hello world"
-          end
-          assert_equal("hello world", node.content)
-          doc.root = node
-          assert_equal(node, doc.root)
-        end
-
         def test_remove_namespaces
           doc = Nokogiri::XML(<<~EOX)
             <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
@@ -958,6 +928,12 @@ module Nokogiri
           assert(xml.children.respond_to?(:awesome!))
         end
 
+        def test_can_be_closed
+          f = File.open(XML_FILE)
+          Nokogiri::XML(f)
+          f.close
+        end
+
         describe "JRuby-only methods" do
           describe "Document.wrap" do
             if Nokogiri.jruby?
@@ -1032,12 +1008,6 @@ module Nokogiri
               end
             end
           end
-        end
-
-        def test_can_be_closed
-          f = File.open(XML_FILE)
-          Nokogiri::XML(f)
-          f.close
         end
 
         describe "XML::Document.parse" do
@@ -1146,6 +1116,39 @@ module Nokogiri
               doc = klass.parse(File.read(XML_FILE))
               assert_equal xml.root.to_s, doc.root.to_s
             end
+          end
+        end
+
+        describe "#root=" do
+          it "assigns a root node" do
+            doc = Nokogiri::XML::Document.new
+            node = doc.create_element("div")
+            assert_nil(doc.root)
+
+            doc.root = node
+
+            assert_equal(node, doc.root)
+          end
+
+          it "allows removing the root node by setting to nil" do
+            assert_kind_of(Nokogiri::XML::Node, xml.root)
+            assert_nil(xml.root = nil)
+            assert_nil(xml.root)
+          end
+
+          it "supports moving nodes across documents" do
+            source = Nokogiri::XML("<root>foo</root>")
+            target = Nokogiri::XML::Document.new
+            assert_nil(target.root)
+            target.root = source.root
+            assert_equal("foo", target.root.content)
+          end
+
+          it "doesn't leak the replaced node" do
+            skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
+            doc = Nokogiri::XML("<root>test</root>")
+            doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
+            doc2.root = doc.root
           end
         end
       end

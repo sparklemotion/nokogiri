@@ -141,42 +141,35 @@ url(VALUE self)
  * Set the root element on this document
  */
 static VALUE
-set_root(VALUE self, VALUE root)
+rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
 {
-  xmlDocPtr doc;
-  xmlNodePtr new_root;
-  xmlNodePtr old_root;
+  xmlDocPtr c_document;
+  xmlNodePtr c_new_root = NULL, c_current_root;
 
-  Data_Get_Struct(self, xmlDoc, doc);
+  Data_Get_Struct(self, xmlDoc, c_document);
 
-  old_root = NULL;
-
-  if (NIL_P(root)) {
-    old_root = xmlDocGetRootElement(doc);
-
-    if (old_root) {
-      xmlUnlinkNode(old_root);
-      noko_xml_document_pin_node(old_root);
-    }
-
-    return root;
+  c_current_root = xmlDocGetRootElement(c_document);
+  if (c_current_root) {
+    xmlUnlinkNode(c_current_root);
+    noko_xml_document_pin_node(c_current_root);
   }
 
-  Data_Get_Struct(root, xmlNode, new_root);
+  if (!NIL_P(rb_new_root)) {
+    Data_Get_Struct(rb_new_root, xmlNode, c_new_root);
 
-
-  /* If the new root's document is not the same as the current document,
-   * then we need to dup the node in to this document. */
-  if (new_root->doc != doc) {
-    old_root = xmlDocGetRootElement(doc);
-    if (!(new_root = xmlDocCopyNode(new_root, doc, 1))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
+    /* If the new root's document is not the same as the current document,
+     * then we need to dup the node in to this document. */
+    if (c_new_root->doc != c_document) {
+      c_new_root = xmlDocCopyNode(c_new_root, c_document, 1);
+      if (!c_new_root) {
+        rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
+      }
     }
   }
 
-  xmlDocSetRootElement(doc, new_root);
-  if (old_root) { noko_xml_document_pin_node(old_root); }
-  return root;
+  xmlDocSetRootElement(c_document, c_new_root);
+
+  return rb_new_root;
 }
 
 /*
@@ -186,17 +179,19 @@ set_root(VALUE self, VALUE root)
  * Get the root node for this document.
  */
 static VALUE
-root(VALUE self)
+rb_xml_document_root(VALUE self)
 {
-  xmlDocPtr doc;
-  xmlNodePtr root;
+  xmlDocPtr c_document;
+  xmlNodePtr c_root;
 
-  Data_Get_Struct(self, xmlDoc, doc);
+  Data_Get_Struct(self, xmlDoc, c_document);
 
-  root = xmlDocGetRootElement(doc);
+  c_root = xmlDocGetRootElement(c_document);
+  if (!c_root) {
+    return Qnil;
+  }
 
-  if (!root) { return Qnil; }
-  return noko_xml_node_wrap(Qnil, root) ;
+  return noko_xml_node_wrap(Qnil, c_root) ;
 }
 
 /*
@@ -666,8 +661,8 @@ noko_init_xml_document()
   rb_define_singleton_method(cNokogiriXmlDocument, "read_io", read_io, 4);
   rb_define_singleton_method(cNokogiriXmlDocument, "new", new, -1);
 
-  rb_define_method(cNokogiriXmlDocument, "root", root, 0);
-  rb_define_method(cNokogiriXmlDocument, "root=", set_root, 1);
+  rb_define_method(cNokogiriXmlDocument, "root", rb_xml_document_root, 0);
+  rb_define_method(cNokogiriXmlDocument, "root=", rb_xml_document_root_set, 1);
   rb_define_method(cNokogiriXmlDocument, "encoding", encoding, 0);
   rb_define_method(cNokogiriXmlDocument, "encoding=", set_encoding, 1);
   rb_define_method(cNokogiriXmlDocument, "version", version, 0);
