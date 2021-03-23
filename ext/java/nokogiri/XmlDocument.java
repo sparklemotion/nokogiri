@@ -442,6 +442,9 @@ public class XmlDocument extends XmlNode
       getDocument().getDocumentElement().setUserData(NokogiriHelpers.ROOT_NODE_INVALID, Boolean.TRUE, null);
       return new_root;
     }
+    if (!(new_root instanceof XmlNode)) {
+        throw context.runtime.newArgumentError("expected Nokogiri::XML::Node but received " + new_root.getType());
+    }
     XmlNode newRoot = asXmlNode(context, new_root);
 
     IRubyObject root = root(context);

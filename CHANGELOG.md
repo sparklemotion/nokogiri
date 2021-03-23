@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [CRuby] Passing non-`Node` objects to `Document#root=` now raises an `ArgumentError` exception. Previously this likely segfaulted. [[#1900](https://github.com/sparklemotion/nokogiri/issues/1900)]
+* [JRuby] Passing non-`Node` objects to `Document#root=` now raises an `ArgumentError` exception. Previously this raised a `TypeError` exception.
+
+
 ## 1.11.2 / 2021-03-11
 
 ### Fixed
