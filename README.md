@@ -57,7 +57,7 @@ Your first stops for learning more about Nokogiri should be:
 
 There are a few ways to ask exploratory questions:
 
-- The Discord chat channel is `#nokogiri-💎` at https://discord.gg/UyQnKrT
+- The Ruby Discord chat server is active at https://discord.gg/UyQnKrT
 - The Nokogiri mailing list is active at https://groups.google.com/group/nokogiri-talk
 - Open an issue using the "Help Request" template at https://github.com/sparklemotion/nokogiri/issues
 
