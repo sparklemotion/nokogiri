@@ -1,11 +1,5 @@
 jobs:
 - name: rubocop
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -26,12 +20,6 @@ jobs:
     task: rubocop
   public: true
 - name: cruby-on-vanilla-ubuntu
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -74,12 +62,6 @@ jobs:
         task: rake-test-32bit
   public: true
 - name: cruby-2.5
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -136,12 +118,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: cruby-2.6
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -198,12 +174,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: cruby-2.7
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -260,12 +230,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: cruby-3.0
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -324,12 +288,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: jruby-9.2
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -352,12 +310,6 @@ jobs:
     task: rake-test
   public: true
 - name: cruby-on-musl
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -403,12 +355,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: cruby-with-libxmlruby
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -456,12 +402,6 @@ jobs:
         task: rake-test-valgrind
   public: true
 - name: cruby-gem-test
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -521,12 +461,6 @@ jobs:
         task: install-and-test-on-musl
   public: true
 - name: cruby-native-gem-test
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -634,12 +568,6 @@ jobs:
         task: install-and-test-on-musl
   public: true
 - name: cruby-native-gem-test-32bit
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -702,12 +630,6 @@ jobs:
         task: install-and-test-on-musl-32bit
   public: true
 - name: jruby-gem-test
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          status: failed
-        put: discord
   plan:
   - get: ci
   - get: nokogiri
@@ -758,9 +680,6 @@ jobs:
     - jruby-gem-test
     trigger: true
     version: every
-  - params:
-      status: succeeded
-    put: discord
   public: true
 resource_types:
 - name: webhook-notification
@@ -776,12 +695,6 @@ resources:
     disable_ci_skip: true
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
-- icon: bell
-  name: discord
-  source:
-    adapter: DiscordAdapter
-    url: ((discord-nokogiri-channel-webhook))
-  type: webhook-notification
 - check_every: 5m0s
   icon: github
   name: nokogiri

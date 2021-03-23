@@ -26,14 +26,6 @@ image_resource:
 #@ end
 
 ---
-#@ def notify_on_failure(job_name):
-on_failure:
-  in_parallel:
-    - put: discord
-      params: { status: "failed" }
-#@ end
-
----
 #@ def task_inputs():
 - name: ci
 - name: nokogiri
@@ -57,12 +49,6 @@ resources:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: main
       disable_ci_skip: true #! always get the latest pipeline configuration
-  - name: discord
-    type: webhook-notification
-    icon: bell
-    source:
-      adapter: DiscordAdapter
-      url: ((discord-nokogiri-channel-webhook))
   - name: nokogiri
     type: git
     icon: "github"
@@ -83,7 +69,6 @@ jobs:
 #@ job_name = "rubocop"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -98,7 +83,6 @@ jobs:
 #@ job_name = "cruby-on-vanilla-ubuntu"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -123,7 +107,6 @@ jobs:
 #@ job_name = "cruby-{}".format(ruby_version)
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -159,7 +142,6 @@ jobs:
 #@ job_name = "jruby-{}".format(ruby_version)
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -176,7 +158,6 @@ jobs:
 #@ job_name = "cruby-on-musl"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -200,7 +181,6 @@ jobs:
 #@ job_name = "cruby-with-libxmlruby"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -228,7 +208,6 @@ jobs:
 #@ job_name = "cruby-gem-test"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -262,7 +241,6 @@ jobs:
 #@ job_name = "cruby-native-gem-test"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -300,7 +278,6 @@ jobs:
 #@ job_name = "cruby-native-gem-test-32bit"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -336,7 +313,6 @@ jobs:
 #@ job_name = "jruby-gem-test"
   - name: #@ job_name
     public: true
-    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -371,5 +347,3 @@ jobs:
           - cruby-gem-test
           - cruby-native-gem-test
           - jruby-gem-test
-      - put: discord
-        params: { status: "succeeded" }
