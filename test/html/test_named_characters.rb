@@ -12,7 +12,7 @@ module Nokogiri
 
       def test_named_character2
         # this test, identical to the previous one, is only here to trigger failure during
-        # NOKOGIRI_TEST_GC_COMPACTION verification if we regress on registering the address of
+        # NOKOGIRI_TEST_GC_LEVEL=compact verification if we regress on registering the address of
         # cNokogiriHtmlEntityDescription in html_entity_lookup.c.
         #
         # if we ever write a second meaningful test for anything that calls EntityLookup#get then we

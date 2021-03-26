@@ -4,10 +4,10 @@
 # - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
 # - NOKOGIRI_TEST_GC_LEVEL:
 #   - "stress" - run tests with GC.stress set to true
+#   - "compact" - run tests with GC.stress set to true
 #   - "major" (default) - force a major GC cycle after each test
 #   - "minor" - force a minor GC cycle after each test
 #   - "none" - normal GC functionality
-# - NOKOGIRI_TEST_GC_COMPACTION: if set to anything, verify compaction references after every test
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
 require 'simplecov'
@@ -76,14 +76,13 @@ module Nokogiri
     unless Nokogiri.jruby?
       GC_LEVEL = if ["stress", "major", "minor", "none"].include?(ENV['NOKOGIRI_TEST_GC_LEVEL'])
         ENV['NOKOGIRI_TEST_GC_LEVEL']
+      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "compact") &&
+            (defined?(GC.verify_compaction_references) == 'method')
+        "compact"
       else
         "major" # the default
       end
       warn "#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{GC_LEVEL}"
-
-      GC_COMPACTION = !ENV['NOKOGIRI_TEST_GC_COMPACTION'].nil? &&
-                      (defined?(GC.verify_compaction_references) == 'method')
-      warn "#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_COMPACTION: #{GC_COMPACTION}"
     end
 
     def setup
@@ -103,13 +102,13 @@ module Nokogiri
 
     def teardown
       unless Nokogiri.jruby?
-        # https://alanwu.space/post/check-compaction/
-        GC.verify_compaction_references(double_heap: true, toward: :empty) if GC_COMPACTION
-
         if GC_LEVEL == "major"
           GC.start(full_mark: true)
         elsif GC_LEVEL == "minor"
           GC.start(full_mark: false)
+        elsif GC_LEVEL == "compact"
+          # https://alanwu.space/post/check-compaction/
+          GC.verify_compaction_references(double_heap: true, toward: :empty)
         elsif GC_LEVEL == "stress"
           GC.stress = false
         end
