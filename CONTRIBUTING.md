@@ -128,14 +128,17 @@ Note that by default the test suite will run a major GC after each test complete
 # see failure messages immediately
 NOKOGIRI_TEST_FAIL_FAST=t bundle exec rake compile test
 
+# ordinary GC behavior
+NOKOGIRI_TEST_GC_LEVEL=normal bundle exec rake compile test
+
 # minor GC after each test
 NOKOGIRI_TEST_GC_LEVEL=minor bundle exec rake compile test
 
-# ordinary GC behavior
-NOKOGIRI_TEST_GC_LEVEL=none bundle exec rake compile test
+# major GC and a compaction after each test
+NOKOGIRI_TEST_GC_LEVEL=compact bundle exec rake compile test
 
 # verify references after compaction after every test
-NOKOGIRI_TEST_GC_LEVEL=compact bundle exec rake compile test
+NOKOGIRI_TEST_GC_LEVEL=verify bundle exec rake compile test
 
 # run with GC "stress mode" on
 NOKOGIRI_TEST_GC_LEVEL=stress bundle exec rake compile test

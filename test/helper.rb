@@ -2,12 +2,13 @@
 #
 # Some environment variables that are used to configure the test suite:
 # - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
-# - NOKOGIRI_TEST_GC_LEVEL:
-#   - "stress" - run tests with GC.stress set to true
-#   - "compact" - run tests with GC.stress set to true
-#   - "major" (default) - force a major GC cycle after each test
+# - NOKOGIRI_TEST_GC_LEVEL: (roughly in order of stress)
+#   - "normal" - normal GC functionality
 #   - "minor" - force a minor GC cycle after each test
-#   - "none" - normal GC functionality
+#   - "major" (default for Rubies without compaction) - force a major GC cycle after each test
+#   - "compact" (default for Rubies with compaction) - force a major GC and a compaction after each test
+#   - "verify" - force a major GC, a compaction, and verify references after each test
+#   - "stress" - run tests with GC.stress set to true
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
 require 'simplecov'
@@ -74,13 +75,14 @@ module Nokogiri
     XPATH_FILE           = File.join(ASSETS_DIR, 'slow-xpath.xml')
 
     unless Nokogiri.jruby?
-      GC_LEVEL = if ["stress", "major", "minor", "none"].include?(ENV['NOKOGIRI_TEST_GC_LEVEL'])
+      GC_LEVEL = if ["stress", "major", "minor", "normal"].include?(ENV['NOKOGIRI_TEST_GC_LEVEL'])
         ENV['NOKOGIRI_TEST_GC_LEVEL']
-      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "compact") &&
-            (defined?(GC.verify_compaction_references) == 'method')
+      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "compact") && defined?(GC.compact)
         "compact"
+      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "verify") && defined?(GC.verify_compaction_references)
+        "verify"
       else
-        "major" # the default
+        defined?(GC.compact) ? "compact" : "major"
       end
       warn "#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{GC_LEVEL}"
     end
@@ -108,10 +110,12 @@ module Nokogiri
         when "major"
           GC.start(full_mark: true)
         when "compact"
+          GC.compact
+        when "verify"
           # https://alanwu.space/post/check-compaction/
           GC.verify_compaction_references(double_heap: true, toward: :empty)
           GC.start(full_mark: true)
-        when"stress"
+        when "stress"
           GC.stress = false
         end
       end
