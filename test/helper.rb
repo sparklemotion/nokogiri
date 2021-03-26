@@ -102,14 +102,16 @@ module Nokogiri
 
     def teardown
       unless Nokogiri.jruby?
-        if GC_LEVEL == "major"
-          GC.start(full_mark: true)
-        elsif GC_LEVEL == "minor"
+        case GC_LEVEL
+        when "minor"
           GC.start(full_mark: false)
-        elsif GC_LEVEL == "compact"
+        when "major"
+          GC.start(full_mark: true)
+        when "compact"
           # https://alanwu.space/post/check-compaction/
           GC.verify_compaction_references(double_heap: true, toward: :empty)
-        elsif GC_LEVEL == "stress"
+          GC.start(full_mark: true)
+        when"stress"
           GC.stress = false
         end
       end
