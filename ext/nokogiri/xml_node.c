@@ -2,7 +2,7 @@
 
 VALUE cNokogiriXmlNode ;
 
-static ID decorate, decorate_bang;
+static ID id_decorate, id_decorate_bang;
 
 #ifdef DEBUG
 static void
@@ -357,7 +357,7 @@ ok:
 
   reparented_obj = noko_xml_node_wrap(Qnil, reparented);
 
-  rb_funcall(reparented_obj, decorate_bang, 0);
+  rb_funcall(reparented_obj, id_decorate_bang, 0);
 
   return reparented_obj ;
 }
@@ -1656,85 +1656,83 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
 
 VALUE
-noko_xml_node_wrap(VALUE klass, xmlNodePtr node)
+noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
 {
-  VALUE document = Qnil ;
-  VALUE node_cache = Qnil ;
-  VALUE rb_node = Qnil ;
+  VALUE rb_document, rb_node_cache, rb_node;
   nokogiriTuplePtr node_has_a_document;
-  xmlDocPtr doc;
+  xmlDocPtr c_doc;
   void (*mark_method)(xmlNodePtr) = NULL ;
 
-  assert(node);
+  assert(c_node);
 
-  if (node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE) {
-    return DOC_RUBY_OBJECT(node->doc);
+  if (c_node->type == XML_DOCUMENT_NODE || c_node->type == XML_HTML_DOCUMENT_NODE) {
+    return DOC_RUBY_OBJECT(c_node->doc);
   }
 
   /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
   /* see https://github.com/sparklemotion/nokogiri/issues/95 */
   /* and https://github.com/sparklemotion/nokogiri/issues/439 */
-  doc = node->doc;
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) { doc = doc->doc; }
-  node_has_a_document = DOC_RUBY_OBJECT_TEST(doc);
+  c_doc = c_node->doc;
+  if (c_doc->type == XML_DOCUMENT_FRAG_NODE) { c_doc = c_doc->doc; }
+  node_has_a_document = DOC_RUBY_OBJECT_TEST(c_doc);
 
-  if (node->_private && node_has_a_document) {
-    return (VALUE)node->_private;
+  if (c_node->_private && node_has_a_document) {
+    return (VALUE)c_node->_private;
   }
 
-  if (!RTEST(klass)) {
-    switch (node->type) {
+  if (!RTEST(rb_class)) {
+    switch (c_node->type) {
     case XML_ELEMENT_NODE:
-      klass = cNokogiriXmlElement;
+      rb_class = cNokogiriXmlElement;
       break;
     case XML_TEXT_NODE:
-      klass = cNokogiriXmlText;
+      rb_class = cNokogiriXmlText;
       break;
     case XML_ATTRIBUTE_NODE:
-      klass = cNokogiriXmlAttr;
+      rb_class = cNokogiriXmlAttr;
       break;
     case XML_ENTITY_REF_NODE:
-      klass = cNokogiriXmlEntityReference;
+      rb_class = cNokogiriXmlEntityReference;
       break;
     case XML_COMMENT_NODE:
-      klass = cNokogiriXmlComment;
+      rb_class = cNokogiriXmlComment;
       break;
     case XML_DOCUMENT_FRAG_NODE:
-      klass = cNokogiriXmlDocumentFragment;
+      rb_class = cNokogiriXmlDocumentFragment;
       break;
     case XML_PI_NODE:
-      klass = cNokogiriXmlProcessingInstruction;
+      rb_class = cNokogiriXmlProcessingInstruction;
       break;
     case XML_ENTITY_DECL:
-      klass = cNokogiriXmlEntityDecl;
+      rb_class = cNokogiriXmlEntityDecl;
       break;
     case XML_CDATA_SECTION_NODE:
-      klass = cNokogiriXmlCData;
+      rb_class = cNokogiriXmlCData;
       break;
     case XML_DTD_NODE:
-      klass = cNokogiriXmlDtd;
+      rb_class = cNokogiriXmlDtd;
       break;
     case XML_ATTRIBUTE_DECL:
-      klass = cNokogiriXmlAttributeDecl;
+      rb_class = cNokogiriXmlAttributeDecl;
       break;
     case XML_ELEMENT_DECL:
-      klass = cNokogiriXmlElementDecl;
+      rb_class = cNokogiriXmlElementDecl;
       break;
     default:
-      klass = cNokogiriXmlNode;
+      rb_class = cNokogiriXmlNode;
     }
   }
 
   mark_method = node_has_a_document ? mark : NULL ;
 
-  rb_node = Data_Wrap_Struct(klass, mark_method, debug_node_dealloc, node) ;
-  node->_private = (void *)rb_node;
+  rb_node = Data_Wrap_Struct(rb_class, mark_method, debug_node_dealloc, c_node) ;
+  c_node->_private = (void *)rb_node;
 
   if (node_has_a_document) {
-    document = DOC_RUBY_OBJECT(doc);
-    node_cache = DOC_NODE_CACHE(doc);
-    rb_ary_push(node_cache, rb_node);
-    rb_funcall(document, decorate, 1, rb_node);
+    rb_document = DOC_RUBY_OBJECT(c_doc);
+    rb_node_cache = DOC_NODE_CACHE(c_doc);
+    rb_ary_push(rb_node_cache, rb_node);
+    rb_funcall(rb_document, id_decorate, 1, rb_node);
   }
 
   return rb_node ;
@@ -1819,8 +1817,8 @@ noko_init_xml_node()
   rb_define_private_method(cNokogiriXmlNode, "set_namespace", set_namespace, 1);
   rb_define_private_method(cNokogiriXmlNode, "compare", compare, 1);
 
-  decorate      = rb_intern("decorate");
-  decorate_bang = rb_intern("decorate!");
+  id_decorate      = rb_intern("decorate");
+  id_decorate_bang = rb_intern("decorate!");
 }
 
 /* vim: set noet sw=4 sws=4 */
