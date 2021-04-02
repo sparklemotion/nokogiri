@@ -10,7 +10,6 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] Passing non-`Node` objects to `Document#root=` now raises an `ArgumentError` exception. Previously this likely segfaulted. [[#1900](https://github.com/sparklemotion/nokogiri/issues/1900)]
 * [JRuby] Passing non-`Node` objects to `Document#root=` now raises an `ArgumentError` exception. Previously this raised a `TypeError` exception.
-* [CRuby] arm64/aarch64 systems (like Apple's M1) can now compile libxml2 and libxslt from source (though we continue to strongly advise users to install the native gems for the best possible experience)
 
 
 ## 1.11.2 / 2021-03-11
