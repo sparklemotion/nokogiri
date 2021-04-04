@@ -1,0 +1,2511 @@
+Update config.guess and config.sub to the versions present in automake v1.16.3, so that users on
+aarch64/arm64/M1 can compile.
+
+--- a/config.sub
++++ b/config.sub
+@@ -1,8 +1,8 @@
+ #! /bin/sh
+ # Configuration validation subroutine script.
+-#   Copyright 1992-2018 Free Software Foundation, Inc.
++#   Copyright 1992-2020 Free Software Foundation, Inc.
+ 
+-timestamp='2018-08-29'
++timestamp='2020-11-07'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -50,7 +50,7 @@
+ #	CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM
+ # It is wrong to echo any other type of specification.
+ 
+-me=`echo "$0" | sed -e 's,.*/,,'`
++me=$(echo "$0" | sed -e 's,.*/,,')
+ 
+ usage="\
+ Usage: $0 [OPTION] CPU-MFR-OPSYS or ALIAS
+@@ -67,7 +67,7 @@
+ version="\
+ GNU config.sub ($timestamp)
+ 
+-Copyright 1992-2018 Free Software Foundation, Inc.
++Copyright 1992-2020 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -89,7 +89,7 @@
+     - )	# Use stdin as input.
+        break ;;
+     -* )
+-       echo "$me: invalid option $1$help"
++       echo "$me: invalid option $1$help" >&2
+        exit 1 ;;
+ 
+     *local*)
+@@ -111,7 +111,8 @@
+ esac
+ 
+ # Split fields of configuration type
+-IFS="-" read -r field1 field2 field3 field4 <<EOF
++# shellcheck disable=SC2162
++IFS="-" read field1 field2 field3 field4 <<EOF
+ $1
+ EOF
+ 
+@@ -123,37 +124,36 @@
+ 		;;
+ 	*-*-*-*)
+ 		basic_machine=$field1-$field2
+-		os=$field3-$field4
++		basic_os=$field3-$field4
+ 		;;
+ 	*-*-*)
+ 		# Ambiguous whether COMPANY is present, or skipped and KERNEL-OS is two
+ 		# parts
+ 		maybe_os=$field2-$field3
+ 		case $maybe_os in
+-			nto-qnx* | linux-gnu* | linux-android* | linux-dietlibc \
+-			| linux-newlib* | linux-musl* | linux-uclibc* | uclinux-uclibc* \
++			nto-qnx* | linux-* | uclinux-uclibc* \
+ 			| uclinux-gnu* | kfreebsd*-gnu* | knetbsd*-gnu* | netbsd*-gnu* \
+ 			| netbsd*-eabi* | kopensolaris*-gnu* | cloudabi*-eabi* \
+ 			| storm-chaos* | os2-emx* | rtmk-nova*)
+ 				basic_machine=$field1
+-				os=$maybe_os
++				basic_os=$maybe_os
+ 				;;
+ 			android-linux)
+ 				basic_machine=$field1-unknown
+-				os=linux-android
++				basic_os=linux-android
+ 				;;
+ 			*)
+ 				basic_machine=$field1-$field2
+-				os=$field3
++				basic_os=$field3
+ 				;;
+ 		esac
+ 		;;
+ 	*-*)
+-		# A lone config we happen to match not fitting any patern
++		# A lone config we happen to match not fitting any pattern
+ 		case $field1-$field2 in
+ 			decstation-3100)
+ 				basic_machine=mips-dec
+-				os=
++				basic_os=
+ 				;;
+ 			*-*)
+ 				# Second component is usually, but not always the OS
+@@ -161,7 +161,7 @@
+ 					# Prevent following clause from handling this valid os
+ 					sun*os*)
+ 						basic_machine=$field1
+-						os=$field2
++						basic_os=$field2
+ 						;;
+ 					# Manufacturers
+ 					dec* | mips* | sequent* | encore* | pc533* | sgi* | sony* \
+@@ -174,11 +174,11 @@
+ 					| microblaze* | sim | cisco \
+ 					| oki | wec | wrs | winbond)
+ 						basic_machine=$field1-$field2
+-						os=
++						basic_os=
+ 						;;
+ 					*)
+ 						basic_machine=$field1
+-						os=$field2
++						basic_os=$field2
+ 						;;
+ 				esac
+ 			;;
+@@ -190,450 +190,451 @@
+ 		case $field1 in
+ 			386bsd)
+ 				basic_machine=i386-pc
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			a29khif)
+ 				basic_machine=a29k-amd
+-				os=udi
++				basic_os=udi
+ 				;;
+ 			adobe68k)
+ 				basic_machine=m68010-adobe
+-				os=scout
++				basic_os=scout
+ 				;;
+ 			alliant)
+ 				basic_machine=fx80-alliant
+-				os=
++				basic_os=
+ 				;;
+ 			altos | altos3068)
+ 				basic_machine=m68k-altos
+-				os=
++				basic_os=
+ 				;;
+ 			am29k)
+ 				basic_machine=a29k-none
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			amdahl)
+ 				basic_machine=580-amdahl
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			amiga)
+ 				basic_machine=m68k-unknown
+-				os=
++				basic_os=
+ 				;;
+ 			amigaos | amigados)
+ 				basic_machine=m68k-unknown
+-				os=amigaos
++				basic_os=amigaos
+ 				;;
+ 			amigaunix | amix)
+ 				basic_machine=m68k-unknown
+-				os=sysv4
++				basic_os=sysv4
+ 				;;
+ 			apollo68)
+ 				basic_machine=m68k-apollo
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			apollo68bsd)
+ 				basic_machine=m68k-apollo
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			aros)
+ 				basic_machine=i386-pc
+-				os=aros
++				basic_os=aros
+ 				;;
+ 			aux)
+ 				basic_machine=m68k-apple
+-				os=aux
++				basic_os=aux
+ 				;;
+ 			balance)
+ 				basic_machine=ns32k-sequent
+-				os=dynix
++				basic_os=dynix
+ 				;;
+ 			blackfin)
+ 				basic_machine=bfin-unknown
+-				os=linux
++				basic_os=linux
+ 				;;
+ 			cegcc)
+ 				basic_machine=arm-unknown
+-				os=cegcc
++				basic_os=cegcc
+ 				;;
+ 			convex-c1)
+ 				basic_machine=c1-convex
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			convex-c2)
+ 				basic_machine=c2-convex
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			convex-c32)
+ 				basic_machine=c32-convex
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			convex-c34)
+ 				basic_machine=c34-convex
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			convex-c38)
+ 				basic_machine=c38-convex
+-				os=bsd
++				basic_os=bsd
+ 				;;
+ 			cray)
+ 				basic_machine=j90-cray
+-				os=unicos
++				basic_os=unicos
+ 				;;
+ 			crds | unos)
+ 				basic_machine=m68k-crds
+-				os=
++				basic_os=
+ 				;;
+ 			da30)
+ 				basic_machine=m68k-da30
+-				os=
++				basic_os=
+ 				;;
+ 			decstation | pmax | pmin | dec3100 | decstatn)
+ 				basic_machine=mips-dec
+-				os=
++				basic_os=
+ 				;;
+ 			delta88)
+ 				basic_machine=m88k-motorola
+-				os=sysv3
++				basic_os=sysv3
+ 				;;
+ 			dicos)
+ 				basic_machine=i686-pc
+-				os=dicos
++				basic_os=dicos
+ 				;;
+ 			djgpp)
+ 				basic_machine=i586-pc
+-				os=msdosdjgpp
++				basic_os=msdosdjgpp
+ 				;;
+ 			ebmon29k)
+ 				basic_machine=a29k-amd
+-				os=ebmon
++				basic_os=ebmon
+ 				;;
+ 			es1800 | OSE68k | ose68k | ose | OSE)
+ 				basic_machine=m68k-ericsson
+-				os=ose
++				basic_os=ose
+ 				;;
+ 			gmicro)
+ 				basic_machine=tron-gmicro
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			go32)
+ 				basic_machine=i386-pc
+-				os=go32
++				basic_os=go32
+ 				;;
+ 			h8300hms)
+ 				basic_machine=h8300-hitachi
+-				os=hms
++				basic_os=hms
+ 				;;
+ 			h8300xray)
+ 				basic_machine=h8300-hitachi
+-				os=xray
++				basic_os=xray
+ 				;;
+ 			h8500hms)
+ 				basic_machine=h8500-hitachi
+-				os=hms
++				basic_os=hms
+ 				;;
+ 			harris)
+ 				basic_machine=m88k-harris
+-				os=sysv3
++				basic_os=sysv3
+ 				;;
+-			hp300)
++			hp300 | hp300hpux)
+ 				basic_machine=m68k-hp
++				basic_os=hpux
+ 				;;
+ 			hp300bsd)
+ 				basic_machine=m68k-hp
+-				os=bsd
+-				;;
+-			hp300hpux)
+-				basic_machine=m68k-hp
+-				os=hpux
++				basic_os=bsd
+ 				;;
+ 			hppaosf)
+ 				basic_machine=hppa1.1-hp
+-				os=osf
++				basic_os=osf
+ 				;;
+ 			hppro)
+ 				basic_machine=hppa1.1-hp
+-				os=proelf
++				basic_os=proelf
+ 				;;
+ 			i386mach)
+ 				basic_machine=i386-mach
+-				os=mach
+-				;;
+-			vsta)
+-				basic_machine=i386-pc
+-				os=vsta
++				basic_os=mach
+ 				;;
+ 			isi68 | isi)
+ 				basic_machine=m68k-isi
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			m68knommu)
+ 				basic_machine=m68k-unknown
+-				os=linux
++				basic_os=linux
+ 				;;
+ 			magnum | m3230)
+ 				basic_machine=mips-mips
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			merlin)
+ 				basic_machine=ns32k-utek
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			mingw64)
+ 				basic_machine=x86_64-pc
+-				os=mingw64
++				basic_os=mingw64
+ 				;;
+ 			mingw32)
+ 				basic_machine=i686-pc
+-				os=mingw32
++				basic_os=mingw32
+ 				;;
+ 			mingw32ce)
+ 				basic_machine=arm-unknown
+-				os=mingw32ce
++				basic_os=mingw32ce
+ 				;;
+ 			monitor)
+ 				basic_machine=m68k-rom68k
+-				os=coff
++				basic_os=coff
+ 				;;
+ 			morphos)
+ 				basic_machine=powerpc-unknown
+-				os=morphos
++				basic_os=morphos
+ 				;;
+ 			moxiebox)
+ 				basic_machine=moxie-unknown
+-				os=moxiebox
++				basic_os=moxiebox
+ 				;;
+ 			msdos)
+ 				basic_machine=i386-pc
+-				os=msdos
++				basic_os=msdos
+ 				;;
+ 			msys)
+ 				basic_machine=i686-pc
+-				os=msys
++				basic_os=msys
+ 				;;
+ 			mvs)
+ 				basic_machine=i370-ibm
+-				os=mvs
++				basic_os=mvs
+ 				;;
+ 			nacl)
+ 				basic_machine=le32-unknown
+-				os=nacl
++				basic_os=nacl
+ 				;;
+ 			ncr3000)
+ 				basic_machine=i486-ncr
+-				os=sysv4
++				basic_os=sysv4
+ 				;;
+ 			netbsd386)
+ 				basic_machine=i386-pc
+-				os=netbsd
++				basic_os=netbsd
+ 				;;
+ 			netwinder)
+ 				basic_machine=armv4l-rebel
+-				os=linux
++				basic_os=linux
+ 				;;
+ 			news | news700 | news800 | news900)
+ 				basic_machine=m68k-sony
+-				os=newsos
++				basic_os=newsos
+ 				;;
+ 			news1000)
+ 				basic_machine=m68030-sony
+-				os=newsos
++				basic_os=newsos
+ 				;;
+ 			necv70)
+ 				basic_machine=v70-nec
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			nh3000)
+ 				basic_machine=m68k-harris
+-				os=cxux
++				basic_os=cxux
+ 				;;
+ 			nh[45]000)
+ 				basic_machine=m88k-harris
+-				os=cxux
++				basic_os=cxux
+ 				;;
+ 			nindy960)
+ 				basic_machine=i960-intel
+-				os=nindy
++				basic_os=nindy
+ 				;;
+ 			mon960)
+ 				basic_machine=i960-intel
+-				os=mon960
++				basic_os=mon960
+ 				;;
+ 			nonstopux)
+ 				basic_machine=mips-compaq
+-				os=nonstopux
++				basic_os=nonstopux
+ 				;;
+ 			os400)
+ 				basic_machine=powerpc-ibm
+-				os=os400
++				basic_os=os400
+ 				;;
+ 			OSE68000 | ose68000)
+ 				basic_machine=m68000-ericsson
+-				os=ose
++				basic_os=ose
+ 				;;
+ 			os68k)
+ 				basic_machine=m68k-none
+-				os=os68k
++				basic_os=os68k
+ 				;;
+ 			paragon)
+ 				basic_machine=i860-intel
+-				os=osf
++				basic_os=osf
+ 				;;
+ 			parisc)
+ 				basic_machine=hppa-unknown
+-				os=linux
++				basic_os=linux
++				;;
++			psp)
++				basic_machine=mipsallegrexel-sony
++				basic_os=psp
+ 				;;
+ 			pw32)
+ 				basic_machine=i586-unknown
+-				os=pw32
++				basic_os=pw32
+ 				;;
+ 			rdos | rdos64)
+ 				basic_machine=x86_64-pc
+-				os=rdos
++				basic_os=rdos
+ 				;;
+ 			rdos32)
+ 				basic_machine=i386-pc
+-				os=rdos
++				basic_os=rdos
+ 				;;
+ 			rom68k)
+ 				basic_machine=m68k-rom68k
+-				os=coff
++				basic_os=coff
+ 				;;
+ 			sa29200)
+ 				basic_machine=a29k-amd
+-				os=udi
++				basic_os=udi
+ 				;;
+ 			sei)
+ 				basic_machine=mips-sei
+-				os=seiux
++				basic_os=seiux
+ 				;;
+ 			sequent)
+ 				basic_machine=i386-sequent
+-				os=
++				basic_os=
+ 				;;
+ 			sps7)
+ 				basic_machine=m68k-bull
+-				os=sysv2
++				basic_os=sysv2
+ 				;;
+ 			st2000)
+ 				basic_machine=m68k-tandem
+-				os=
++				basic_os=
+ 				;;
+ 			stratus)
+ 				basic_machine=i860-stratus
+-				os=sysv4
++				basic_os=sysv4
+ 				;;
+ 			sun2)
+ 				basic_machine=m68000-sun
+-				os=
++				basic_os=
+ 				;;
+ 			sun2os3)
+ 				basic_machine=m68000-sun
+-				os=sunos3
++				basic_os=sunos3
+ 				;;
+ 			sun2os4)
+ 				basic_machine=m68000-sun
+-				os=sunos4
++				basic_os=sunos4
+ 				;;
+ 			sun3)
+ 				basic_machine=m68k-sun
+-				os=
++				basic_os=
+ 				;;
+ 			sun3os3)
+ 				basic_machine=m68k-sun
+-				os=sunos3
++				basic_os=sunos3
+ 				;;
+ 			sun3os4)
+ 				basic_machine=m68k-sun
+-				os=sunos4
++				basic_os=sunos4
+ 				;;
+ 			sun4)
+ 				basic_machine=sparc-sun
+-				os=
++				basic_os=
+ 				;;
+ 			sun4os3)
+ 				basic_machine=sparc-sun
+-				os=sunos3
++				basic_os=sunos3
+ 				;;
+ 			sun4os4)
+ 				basic_machine=sparc-sun
+-				os=sunos4
++				basic_os=sunos4
+ 				;;
+ 			sun4sol2)
+ 				basic_machine=sparc-sun
+-				os=solaris2
++				basic_os=solaris2
+ 				;;
+ 			sun386 | sun386i | roadrunner)
+ 				basic_machine=i386-sun
+-				os=
++				basic_os=
+ 				;;
+ 			sv1)
+ 				basic_machine=sv1-cray
+-				os=unicos
++				basic_os=unicos
+ 				;;
+ 			symmetry)
+ 				basic_machine=i386-sequent
+-				os=dynix
++				basic_os=dynix
+ 				;;
+ 			t3e)
+ 				basic_machine=alphaev5-cray
+-				os=unicos
++				basic_os=unicos
+ 				;;
+ 			t90)
+ 				basic_machine=t90-cray
+-				os=unicos
++				basic_os=unicos
+ 				;;
+ 			toad1)
+ 				basic_machine=pdp10-xkl
+-				os=tops20
++				basic_os=tops20
+ 				;;
+ 			tpf)
+ 				basic_machine=s390x-ibm
+-				os=tpf
++				basic_os=tpf
+ 				;;
+ 			udi29k)
+ 				basic_machine=a29k-amd
+-				os=udi
++				basic_os=udi
+ 				;;
+ 			ultra3)
+ 				basic_machine=a29k-nyu
+-				os=sym1
++				basic_os=sym1
+ 				;;
+ 			v810 | necv810)
+ 				basic_machine=v810-nec
+-				os=none
++				basic_os=none
+ 				;;
+ 			vaxv)
+ 				basic_machine=vax-dec
+-				os=sysv
++				basic_os=sysv
+ 				;;
+ 			vms)
+ 				basic_machine=vax-dec
+-				os=vms
++				basic_os=vms
++				;;
++			vsta)
++				basic_machine=i386-pc
++				basic_os=vsta
+ 				;;
+ 			vxworks960)
+ 				basic_machine=i960-wrs
+-				os=vxworks
++				basic_os=vxworks
+ 				;;
+ 			vxworks68)
+ 				basic_machine=m68k-wrs
+-				os=vxworks
++				basic_os=vxworks
+ 				;;
+ 			vxworks29k)
+ 				basic_machine=a29k-wrs
+-				os=vxworks
++				basic_os=vxworks
+ 				;;
+ 			xbox)
+ 				basic_machine=i686-pc
+-				os=mingw32
++				basic_os=mingw32
+ 				;;
+ 			ymp)
+ 				basic_machine=ymp-cray
+-				os=unicos
++				basic_os=unicos
+ 				;;
+ 			*)
+ 				basic_machine=$1
+-				os=
++				basic_os=
+ 				;;
+ 		esac
+ 		;;
+@@ -685,17 +686,17 @@
+ 	bluegene*)
+ 		cpu=powerpc
+ 		vendor=ibm
+-		os=cnk
++		basic_os=cnk
+ 		;;
+ 	decsystem10* | dec10*)
+ 		cpu=pdp10
+ 		vendor=dec
+-		os=tops10
++		basic_os=tops10
+ 		;;
+ 	decsystem20* | dec20*)
+ 		cpu=pdp10
+ 		vendor=dec
+-		os=tops20
++		basic_os=tops20
+ 		;;
+ 	delta | 3300 | motorola-3300 | motorola-delta \
+ 	      | 3300-motorola | delta-motorola)
+@@ -705,7 +706,7 @@
+ 	dpx2*)
+ 		cpu=m68k
+ 		vendor=bull
+-		os=sysv3
++		basic_os=sysv3
+ 		;;
+ 	encore | umax | mmax)
+ 		cpu=ns32k
+@@ -714,7 +715,7 @@
+ 	elxsi)
+ 		cpu=elxsi
+ 		vendor=elxsi
+-		os=${os:-bsd}
++		basic_os=${basic_os:-bsd}
+ 		;;
+ 	fx2800)
+ 		cpu=i860
+@@ -727,7 +728,7 @@
+ 	h3050r* | hiux*)
+ 		cpu=hppa1.1
+ 		vendor=hitachi
+-		os=hiuxwe2
++		basic_os=hiuxwe2
+ 		;;
+ 	hp3k9[0-9][0-9] | hp9[0-9][0-9])
+ 		cpu=hppa1.0
+@@ -768,38 +769,38 @@
+ 		vendor=hp
+ 		;;
+ 	i*86v32)
+-		cpu=`echo "$1" | sed -e 's/86.*/86/'`
++		cpu=$(echo "$1" | sed -e 's/86.*/86/')
+ 		vendor=pc
+-		os=sysv32
++		basic_os=sysv32
+ 		;;
+ 	i*86v4*)
+-		cpu=`echo "$1" | sed -e 's/86.*/86/'`
++		cpu=$(echo "$1" | sed -e 's/86.*/86/')
+ 		vendor=pc
+-		os=sysv4
++		basic_os=sysv4
+ 		;;
+ 	i*86v)
+-		cpu=`echo "$1" | sed -e 's/86.*/86/'`
++		cpu=$(echo "$1" | sed -e 's/86.*/86/')
+ 		vendor=pc
+-		os=sysv
++		basic_os=sysv
+ 		;;
+ 	i*86sol2)
+-		cpu=`echo "$1" | sed -e 's/86.*/86/'`
++		cpu=$(echo "$1" | sed -e 's/86.*/86/')
+ 		vendor=pc
+-		os=solaris2
++		basic_os=solaris2
+ 		;;
+ 	j90 | j90-cray)
+ 		cpu=j90
+ 		vendor=cray
+-		os=${os:-unicos}
++		basic_os=${basic_os:-unicos}
+ 		;;
+ 	iris | iris4d)
+ 		cpu=mips
+ 		vendor=sgi
+-		case $os in
++		case $basic_os in
+ 		    irix*)
+ 			;;
+ 		    *)
+-			os=irix4
++			basic_os=irix4
+ 			;;
+ 		esac
+ 		;;
+@@ -810,24 +811,26 @@
+ 	*mint | mint[0-9]* | *MiNT | *MiNT[0-9]*)
+ 		cpu=m68k
+ 		vendor=atari
+-		os=mint
++		basic_os=mint
+ 		;;
+ 	news-3600 | risc-news)
+ 		cpu=mips
+ 		vendor=sony
+-		os=newsos
++		basic_os=newsos
+ 		;;
+ 	next | m*-next)
+ 		cpu=m68k
+ 		vendor=next
+-		case $os in
+-		    nextstep* )
++		case $basic_os in
++		    openstep*)
++		        ;;
++		    nextstep*)
+ 			;;
+ 		    ns2*)
+-		      os=nextstep2
++		      basic_os=nextstep2
+ 			;;
+ 		    *)
+-		      os=nextstep3
++		      basic_os=nextstep3
+ 			;;
+ 		esac
+ 		;;
+@@ -838,12 +841,12 @@
+ 	op50n-* | op60c-*)
+ 		cpu=hppa1.1
+ 		vendor=oki
+-		os=proelf
++		basic_os=proelf
+ 		;;
+ 	pa-hitachi)
+ 		cpu=hppa1.1
+ 		vendor=hitachi
+-		os=hiuxwe2
++		basic_os=hiuxwe2
+ 		;;
+ 	pbd)
+ 		cpu=sparc
+@@ -880,12 +883,12 @@
+ 	sde)
+ 		cpu=mipsisa32
+ 		vendor=sde
+-		os=${os:-elf}
++		basic_os=${basic_os:-elf}
+ 		;;
+ 	simso-wrs)
+ 		cpu=sparclite
+ 		vendor=wrs
+-		os=vxworks
++		basic_os=vxworks
+ 		;;
+ 	tower | tower-32)
+ 		cpu=m68k
+@@ -902,7 +905,7 @@
+ 	w89k-*)
+ 		cpu=hppa1.1
+ 		vendor=winbond
+-		os=proelf
++		basic_os=proelf
+ 		;;
+ 	none)
+ 		cpu=none
+@@ -914,11 +917,12 @@
+ 		;;
+ 	leon-*|leon[3-9]-*)
+ 		cpu=sparc
+-		vendor=`echo "$basic_machine" | sed 's/-.*//'`
++		vendor=$(echo "$basic_machine" | sed 's/-.*//')
+ 		;;
+ 
+ 	*-*)
+-		IFS="-" read -r cpu vendor <<EOF
++		# shellcheck disable=SC2162
++		IFS="-" read cpu vendor <<EOF
+ $basic_machine
+ EOF
+ 		;;
+@@ -950,15 +954,15 @@
+ 
+ # Decode basic machines in the full and proper CPU-Company form.
+ case $cpu-$vendor in
+-	# Here we handle the default manufacturer of certain CPU types in cannonical form. It is in
++	# Here we handle the default manufacturer of certain CPU types in canonical form. It is in
+ 	# some cases the only manufacturer, in others, it is the most popular.
+ 	craynv-unknown)
+ 		vendor=cray
+-		os=${os:-unicosmp}
++		basic_os=${basic_os:-unicosmp}
+ 		;;
+ 	c90-unknown | c90-cray)
+ 		vendor=cray
+-		os=${os:-unicos}
++		basic_os=${Basic_os:-unicos}
+ 		;;
+ 	fx80-unknown)
+ 		vendor=alliant
+@@ -1002,7 +1006,7 @@
+ 	dpx20-unknown | dpx20-bull)
+ 		cpu=rs6000
+ 		vendor=bull
+-		os=${os:-bosx}
++		basic_os=${basic_os:-bosx}
+ 		;;
+ 
+ 	# Here we normalize CPU types irrespective of the vendor
+@@ -1011,7 +1015,7 @@
+ 		;;
+ 	blackfin-*)
+ 		cpu=bfin
+-		os=linux
++		basic_os=linux
+ 		;;
+ 	c54x-*)
+ 		cpu=tic54x
+@@ -1024,7 +1028,7 @@
+ 		;;
+ 	e500v[12]-*)
+ 		cpu=powerpc
+-		os=$os"spe"
++		basic_os=${basic_os}"spe"
+ 		;;
+ 	mips3*-*)
+ 		cpu=mips64
+@@ -1034,7 +1038,7 @@
+ 		;;
+ 	m68knommu-*)
+ 		cpu=m68k
+-		os=linux
++		basic_os=linux
+ 		;;
+ 	m9s12z-* | m68hcs12z-* | hcs12z-* | s12z-*)
+ 		cpu=s12z
+@@ -1044,7 +1048,7 @@
+ 		;;
+ 	parisc-*)
+ 		cpu=hppa
+-		os=linux
++		basic_os=linux
+ 		;;
+ 	pentium-* | p5-* | k5-* | k6-* | nexgen-* | viac3-*)
+ 		cpu=i586
+@@ -1080,7 +1084,7 @@
+ 		cpu=mipsisa64sb1el
+ 		;;
+ 	sh5e[lb]-*)
+-		cpu=`echo "$cpu" | sed 's/^\(sh.\)e\(.\)$/\1\2e/'`
++		cpu=$(echo "$cpu" | sed 's/^\(sh.\)e\(.\)$/\1\2e/')
+ 		;;
+ 	spur-*)
+ 		cpu=spur
+@@ -1098,13 +1102,16 @@
+ 		cpu=x86_64
+ 		;;
+ 	xscale-* | xscalee[bl]-*)
+-		cpu=`echo "$cpu" | sed 's/^xscale/arm/'`
++		cpu=$(echo "$cpu" | sed 's/^xscale/arm/')
++		;;
++	arm64-*)
++		cpu=aarch64
+ 		;;
+ 
+-	# Recognize the cannonical CPU Types that limit and/or modify the
++	# Recognize the canonical CPU Types that limit and/or modify the
+ 	# company names they are paired with.
+ 	cr16-*)
+-		os=${os:-elf}
++		basic_os=${basic_os:-elf}
+ 		;;
+ 	crisv32-* | etraxfs*-*)
+ 		cpu=crisv32
+@@ -1115,7 +1122,7 @@
+ 		vendor=axis
+ 		;;
+ 	crx-*)
+-		os=${os:-elf}
++		basic_os=${basic_os:-elf}
+ 		;;
+ 	neo-tandem)
+ 		cpu=neo
+@@ -1137,20 +1144,16 @@
+ 		cpu=nsx
+ 		vendor=tandem
+ 		;;
+-	s390-*)
+-		cpu=s390
+-		vendor=ibm
+-		;;
+-	s390x-*)
+-		cpu=s390x
+-		vendor=ibm
++	mipsallegrexel-sony)
++		cpu=mipsallegrexel
++		vendor=sony
+ 		;;
+ 	tile*-*)
+-		os=${os:-linux-gnu}
++		basic_os=${basic_os:-linux-gnu}
+ 		;;
+ 
+ 	*)
+-		# Recognize the cannonical CPU types that are allowed with any
++		# Recognize the canonical CPU types that are allowed with any
+ 		# company name.
+ 		case $cpu in
+ 			1750a | 580 \
+@@ -1161,13 +1164,14 @@
+ 			| alpha64 | alpha64ev[4-8] | alpha64ev56 | alpha64ev6[78] \
+ 			| alphapca5[67] | alpha64pca5[67] \
+ 			| am33_2.0 \
++			| amdgcn \
+ 			| arc | arceb \
+-			| arm  | arm[lb]e | arme[lb] | armv* \
++			| arm | arm[lb]e | arme[lb] | armv* \
+ 			| avr | avr32 \
+ 			| asmjs \
+ 			| ba \
+ 			| be32 | be64 \
+-			| bfin | bs2000 \
++			| bfin | bpf | bs2000 \
+ 			| c[123]* | c30 | [cjt]90 | c4x \
+ 			| c8051 | clipper | craynv | csky | cydra \
+ 			| d10v | d30v | dlx | dsp16xx \
+@@ -1182,13 +1186,13 @@
+ 			| le32 | le64 \
+ 			| lm32 \
+ 			| m32c | m32r | m32rle \
+-			| m5200 | m68000 | m680[012346]0 | m68360 | m683?2 | m68k | v70 | w65 \
+-			| m6811 | m68hc11 | m6812 | m68hc12 | m68hcs12x | nvptx | picochip \
++			| m5200 | m68000 | m680[012346]0 | m68360 | m683?2 | m68k \
++			| m6811 | m68hc11 | m6812 | m68hc12 | m68hcs12x \
+ 			| m88110 | m88k | maxq | mb | mcore | mep | metag \
+ 			| microblaze | microblazeel \
+ 			| mips | mipsbe | mipseb | mipsel | mipsle \
+ 			| mips16 \
+-			| mips64 | mips64el \
++			| mips64 | mips64eb | mips64el \
+ 			| mips64octeon | mips64octeonel \
+ 			| mips64orion | mips64orionel \
+ 			| mips64r5900 | mips64r5900el \
+@@ -1215,19 +1219,22 @@
+ 			| nds32 | nds32le | nds32be \
+ 			| nfp \
+ 			| nios | nios2 | nios2eb | nios2el \
+-			| none | np1 | ns16k | ns32k \
++			| none | np1 | ns16k | ns32k | nvptx \
+ 			| open8 \
+ 			| or1k* \
+ 			| or32 \
+ 			| orion \
++			| picochip \
+ 			| pdp10 | pdp11 | pj | pjl | pn | power \
+ 			| powerpc | powerpc64 | powerpc64le | powerpcle | powerpcspe \
+ 			| pru \
+ 			| pyramid \
+ 			| riscv | riscv32 | riscv64 \
+ 			| rl78 | romp | rs6000 | rx \
++			| s390 | s390x \
+ 			| score \
+-			| sh | sh[1234] | sh[24]a | sh[24]ae[lb] | sh[23]e | she[lb] | sh[lb]e \
++			| sh | shl \
++			| sh[1234] | sh[24]a | sh[24]ae[lb] | sh[23]e | she[lb] | sh[lb]e \
+ 			| sh[1234]e[lb] |  sh[12345][lb]e | sh[23]ele | sh64 | sh64le \
+ 			| sparc | sparc64 | sparc64b | sparc64v | sparc86x | sparclet \
+ 			| sparclite \
+@@ -1237,10 +1244,11 @@
+ 			| tic30 | tic4x | tic54x | tic55x | tic6x | tic80 \
+ 			| tron \
+ 			| ubicom32 \
+-			| v850 | v850e | v850e1 | v850es | v850e2 | v850e2v3 \
++			| v70 | v850 | v850e | v850e1 | v850es | v850e2 | v850e2v3 \
+ 			| vax \
+ 			| visium \
+-			| wasm32 \
++			| w65 \
++			| wasm32 | wasm64 \
+ 			| we32k \
+ 			| x86 | x86_64 | xc16x | xgate | xps100 \
+ 			| xstormy16 | xtensa* \
+@@ -1270,8 +1278,47 @@
+ 
+ # Decode manufacturer-specific aliases for certain operating systems.
+ 
+-if [ x$os != x ]
++if test x$basic_os != x
+ then
++
++# First recognize some ad-hoc caes, or perhaps split kernel-os, or else just
++# set os.
++case $basic_os in
++	gnu/linux*)
++		kernel=linux
++		os=$(echo $basic_os | sed -e 's|gnu/linux|gnu|')
++		;;
++	os2-emx)
++		kernel=os2
++		os=$(echo $basic_os | sed -e 's|os2-emx|emx|')
++		;;
++	nto-qnx*)
++		kernel=nto
++		os=$(echo $basic_os | sed -e 's|nto-qnx|qnx|')
++		;;
++	*-*)
++		# shellcheck disable=SC2162
++		IFS="-" read kernel os <<EOF
++$basic_os
++EOF
++		;;
++	# Default OS when just kernel was specified
++	nto*)
++		kernel=nto
++		os=$(echo $basic_os | sed -e 's|nto|qnx|')
++		;;
++	linux*)
++		kernel=linux
++		os=$(echo $basic_os | sed -e 's|linux|gnu|')
++		;;
++	*)
++		kernel=
++		os=$basic_os
++		;;
++esac
++
++# Now, normalize the OS (knowing we just have one component, it's not a kernel,
++# etc.)
+ case $os in
+ 	# First match some system type aliases that might get confused
+ 	# with valid system types.
+@@ -1283,7 +1330,7 @@
+ 		os=cnk
+ 		;;
+ 	solaris1 | solaris1.*)
+-		os=`echo $os | sed -e 's|solaris1|sunos4|'`
++		os=$(echo $os | sed -e 's|solaris1|sunos4|')
+ 		;;
+ 	solaris)
+ 		os=solaris2
+@@ -1291,9 +1338,6 @@
+ 	unixware*)
+ 		os=sysv4.2uw
+ 		;;
+-	gnu/linux*)
+-		os=`echo $os | sed -e 's|gnu/linux|linux-gnu|'`
+-		;;
+ 	# es1800 is here to avoid being matched by es* (a different OS)
+ 	es1800*)
+ 		os=ose
+@@ -1315,12 +1359,9 @@
+ 		os=sco3.2v4
+ 		;;
+ 	sco3.2.[4-9]*)
+-		os=`echo $os | sed -e 's/sco3.2./sco3.2v/'`
+-		;;
+-	sco3.2v[4-9]* | sco5v6*)
+-		# Don't forget version if it is 3.2v4 or newer.
++		os=$(echo $os | sed -e 's/sco3.2./sco3.2v/')
+ 		;;
+-	scout)
++	sco*v* | scout)
+ 		# Don't match below
+ 		;;
+ 	sco*)
+@@ -1329,78 +1370,26 @@
+ 	psos*)
+ 		os=psos
+ 		;;
+-	# Now accept the basic system types.
+-	# The portable systems comes first.
+-	# Each alternative MUST end in a * to match a version number.
+-	# sysv* is not here because it comes later, after sysvr4.
+-	gnu* | bsd* | mach* | minix* | genix* | ultrix* | irix* \
+-	     | *vms* | esix* | aix* | cnk* | sunos | sunos[34]*\
+-	     | hpux* | unos* | osf* | luna* | dgux* | auroraux* | solaris* \
+-	     | sym* | kopensolaris* | plan9* \
+-	     | amigaos* | amigados* | msdos* | newsos* | unicos* | aof* \
+-	     | aos* | aros* | cloudabi* | sortix* \
+-	     | nindy* | vxsim* | vxworks* | ebmon* | hms* | mvs* \
+-	     | clix* | riscos* | uniplus* | iris* | isc* | rtu* | xenix* \
+-	     | knetbsd* | mirbsd* | netbsd* \
+-	     | bitrig* | openbsd* | solidbsd* | libertybsd* \
+-	     | ekkobsd* | kfreebsd* | freebsd* | riscix* | lynxos* \
+-	     | bosx* | nextstep* | cxux* | aout* | elf* | oabi* \
+-	     | ptx* | coff* | ecoff* | winnt* | domain* | vsta* \
+-	     | udi* | eabi* | lites* | ieee* | go32* | aux* | hcos* \
+-	     | chorusrdb* | cegcc* | glidix* \
+-	     | cygwin* | msys* | pe* | moss* | proelf* | rtems* \
+-	     | midipix* | mingw32* | mingw64* | linux-gnu* | linux-android* \
+-	     | linux-newlib* | linux-musl* | linux-uclibc* \
+-	     | uxpv* | beos* | mpeix* | udk* | moxiebox* \
+-	     | interix* | uwin* | mks* | rhapsody* | darwin* \
+-	     | openstep* | oskit* | conix* | pw32* | nonstopux* \
+-	     | storm-chaos* | tops10* | tenex* | tops20* | its* \
+-	     | os2* | vos* | palmos* | uclinux* | nucleus* \
+-	     | morphos* | superux* | rtmk* | windiss* \
+-	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
+-	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
+-	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
+-	     | midnightbsd*)
+-	# Remember, each alternative MUST END IN *, to match a version number.
+-		;;
+ 	qnx*)
+-		case $cpu in
+-		    x86 | i*86)
+-			;;
+-		    *)
+-			os=nto-$os
+-			;;
+-		esac
++		os=qnx
+ 		;;
+ 	hiux*)
+ 		os=hiuxwe2
+ 		;;
+-	nto-qnx*)
+-		;;
+-	nto*)
+-		os=`echo $os | sed -e 's|nto|nto-qnx|'`
+-		;;
+-	sim | xray | os68k* | v88r* \
+-	    | windows* | osx | abug | netware* | os9* \
+-	    | macos* | mpw* | magic* | mmixware* | mon960* | lnews*)
+-		;;
+-	linux-dietlibc)
+-		os=linux-dietlibc
+-		;;
+-	linux*)
+-		os=`echo $os | sed -e 's|linux|linux-gnu|'`
+-		;;
+ 	lynx*178)
+ 		os=lynxos178
+ 		;;
+ 	lynx*5)
+ 		os=lynxos5
+ 		;;
++	lynxos*)
++		# don't get caught up in next wildcard
++		;;
+ 	lynx*)
+ 		os=lynxos
+ 		;;
+-	mac*)
+-		os=`echo "$os" | sed -e 's|mac|macos|'`
++	mac[0-9]*)
++		os=$(echo "$os" | sed -e 's|mac|macos|')
+ 		;;
+ 	opened*)
+ 		os=openedition
+@@ -1409,10 +1398,10 @@
+ 		os=os400
+ 		;;
+ 	sunos5*)
+-		os=`echo "$os" | sed -e 's|sunos5|solaris2|'`
++		os=$(echo "$os" | sed -e 's|sunos5|solaris2|')
+ 		;;
+ 	sunos6*)
+-		os=`echo "$os" | sed -e 's|sunos6|solaris3|'`
++		os=$(echo "$os" | sed -e 's|sunos6|solaris3|')
+ 		;;
+ 	wince*)
+ 		os=wince
+@@ -1444,12 +1433,9 @@
+ 	ns2)
+ 		os=nextstep2
+ 		;;
+-	nsk*)
+-		os=nsk
+-		;;
+ 	# Preserve the version number of sinix5.
+ 	sinix5.*)
+-		os=`echo $os | sed -e 's|sinix|sysv|'`
++		os=$(echo $os | sed -e 's|sinix|sysv|')
+ 		;;
+ 	sinix*)
+ 		os=sysv4
+@@ -1472,18 +1458,12 @@
+ 	sysvr4)
+ 		os=sysv4
+ 		;;
+-	# This must come after sysvr4.
+-	sysv*)
+-		;;
+ 	ose*)
+ 		os=ose
+ 		;;
+ 	*mint | mint[0-9]* | *MiNT | MiNT[0-9]*)
+ 		os=mint
+ 		;;
+-	zvmoe)
+-		os=zvmoe
+-		;;
+ 	dicos*)
+ 		os=dicos
+ 		;;
+@@ -1500,19 +1480,11 @@
+ 			;;
+ 		esac
+ 		;;
+-	nacl*)
+-		;;
+-	ios)
+-		;;
+-	none)
+-		;;
+-	*-eabi)
+-		;;
+ 	*)
+-		echo Invalid configuration \`"$1"\': system \`"$os"\' not recognized 1>&2
+-		exit 1
++		# No normalization, but not necessarily accepted, that comes below.
+ 		;;
+ esac
++
+ else
+ 
+ # Here we handle the default operating systems that come with various machines.
+@@ -1525,6 +1497,7 @@
+ # will signal an error saying that MANUFACTURER isn't an operating
+ # system, and we'll never get to this point.
+ 
++kernel=
+ case $cpu-$vendor in
+ 	score-*)
+ 		os=elf
+@@ -1536,7 +1509,8 @@
+ 		os=riscix1.2
+ 		;;
+ 	arm*-rebel)
+-		os=linux
++		kernel=linux
++		os=gnu
+ 		;;
+ 	arm*-semi)
+ 		os=aout
+@@ -1702,84 +1676,173 @@
+ 		os=none
+ 		;;
+ esac
++
+ fi
+ 
++# Now, validate our (potentially fixed-up) OS.
++case $os in
++	# Sometimes we do "kernel-abi", so those need to count as OSes.
++	musl* | newlib* | uclibc*)
++		;;
++	# Likewise for "kernel-libc"
++	eabi | eabihf | gnueabi | gnueabihf)
++		;;
++	# Now accept the basic system types.
++	# The portable systems comes first.
++	# Each alternative MUST end in a * to match a version number.
++	gnu* | android* | bsd* | mach* | minix* | genix* | ultrix* | irix* \
++	     | *vms* | esix* | aix* | cnk* | sunos | sunos[34]* \
++	     | hpux* | unos* | osf* | luna* | dgux* | auroraux* | solaris* \
++	     | sym* |  plan9* | psp* | sim* | xray* | os68k* | v88r* \
++	     | hiux* | abug | nacl* | netware* | windows* \
++	     | os9* | macos* | osx* | ios* \
++	     | mpw* | magic* | mmixware* | mon960* | lnews* \
++	     | amigaos* | amigados* | msdos* | newsos* | unicos* | aof* \
++	     | aos* | aros* | cloudabi* | sortix* | twizzler* \
++	     | nindy* | vxsim* | vxworks* | ebmon* | hms* | mvs* \
++	     | clix* | riscos* | uniplus* | iris* | isc* | rtu* | xenix* \
++	     | mirbsd* | netbsd* | dicos* | openedition* | ose* \
++	     | bitrig* | openbsd* | solidbsd* | libertybsd* | os108* \
++	     | ekkobsd* | freebsd* | riscix* | lynxos* | os400* \
++	     | bosx* | nextstep* | cxux* | aout* | elf* | oabi* \
++	     | ptx* | coff* | ecoff* | winnt* | domain* | vsta* \
++	     | udi* | lites* | ieee* | go32* | aux* | hcos* \
++	     | chorusrdb* | cegcc* | glidix* \
++	     | cygwin* | msys* | pe* | moss* | proelf* | rtems* \
++	     | midipix* | mingw32* | mingw64* | mint* \
++	     | uxpv* | beos* | mpeix* | udk* | moxiebox* \
++	     | interix* | uwin* | mks* | rhapsody* | darwin* \
++	     | openstep* | oskit* | conix* | pw32* | nonstopux* \
++	     | storm-chaos* | tops10* | tenex* | tops20* | its* \
++	     | os2* | vos* | palmos* | uclinux* | nucleus* | morphos* \
++	     | scout* | superux* | sysv* | rtmk* | tpf* | windiss* \
++	     | powermax* | dnix* | nx6 | nx7 | sei* | dragonfly* \
++	     | skyos* | haiku* | rdos* | toppers* | drops* | es* \
++	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
++	     | midnightbsd* | amdhsa* | unleashed* | emscripten* | wasi* \
++	     | nsk* | powerunix* | genode* | zvmoe* | qnx* | emx*)
++		;;
++	# This one is extra strict with allowed versions
++	sco3.2v2 | sco3.2v[4-9]* | sco5v6*)
++		# Don't forget version if it is 3.2v4 or newer.
++		;;
++	none)
++		;;
++	*)
++		echo Invalid configuration \`"$1"\': OS \`"$os"\' not recognized 1>&2
++		exit 1
++		;;
++esac
++
++# As a final step for OS-related things, validate the OS-kernel combination
++# (given a valid OS), if there is a kernel.
++case $kernel-$os in
++	linux-gnu* | linux-dietlibc* | linux-android* | linux-newlib* | linux-musl* | linux-uclibc* )
++		;;
++	uclinux-uclibc* )
++		;;
++	-dietlibc* | -newlib* | -musl* | -uclibc* )
++		# These are just libc implementations, not actual OSes, and thus
++		# require a kernel.
++		echo "Invalid configuration \`$1': libc \`$os' needs explicit kernel." 1>&2
++		exit 1
++		;;
++	kfreebsd*-gnu* | kopensolaris*-gnu*)
++		;;
++	nto-qnx*)
++		;;
++	os2-emx)
++		;;
++	*-eabi* | *-gnueabi*)
++		;;
++	-*)
++		# Blank kernel with real OS is always fine.
++		;;
++	*-*)
++		echo "Invalid configuration \`$1': Kernel \`$kernel' not known to work with OS \`$os'." 1>&2
++		exit 1
++		;;
++esac
++
+ # Here we handle the case where we know the os, and the CPU type, but not the
+ # manufacturer.  We pick the logical manufacturer.
+ case $vendor in
+ 	unknown)
+-		case $os in
+-			riscix*)
++		case $cpu-$os in
++			*-riscix*)
+ 				vendor=acorn
+ 				;;
+-			sunos*)
++			*-sunos*)
+ 				vendor=sun
+ 				;;
+-			cnk*|-aix*)
++			*-cnk* | *-aix*)
+ 				vendor=ibm
+ 				;;
+-			beos*)
++			*-beos*)
+ 				vendor=be
+ 				;;
+-			hpux*)
++			*-hpux*)
+ 				vendor=hp
+ 				;;
+-			mpeix*)
++			*-mpeix*)
+ 				vendor=hp
+ 				;;
+-			hiux*)
++			*-hiux*)
+ 				vendor=hitachi
+ 				;;
+-			unos*)
++			*-unos*)
+ 				vendor=crds
+ 				;;
+-			dgux*)
++			*-dgux*)
+ 				vendor=dg
+ 				;;
+-			luna*)
++			*-luna*)
+ 				vendor=omron
+ 				;;
+-			genix*)
++			*-genix*)
+ 				vendor=ns
+ 				;;
+-			clix*)
++			*-clix*)
+ 				vendor=intergraph
+ 				;;
+-			mvs* | opened*)
++			*-mvs* | *-opened*)
++				vendor=ibm
++				;;
++			*-os400*)
+ 				vendor=ibm
+ 				;;
+-			os400*)
++			s390-* | s390x-*)
+ 				vendor=ibm
+ 				;;
+-			ptx*)
++			*-ptx*)
+ 				vendor=sequent
+ 				;;
+-			tpf*)
++			*-tpf*)
+ 				vendor=ibm
+ 				;;
+-			vxsim* | vxworks* | windiss*)
++			*-vxsim* | *-vxworks* | *-windiss*)
+ 				vendor=wrs
+ 				;;
+-			aux*)
++			*-aux*)
+ 				vendor=apple
+ 				;;
+-			hms*)
++			*-hms*)
+ 				vendor=hitachi
+ 				;;
+-			mpw* | macos*)
++			*-mpw* | *-macos*)
+ 				vendor=apple
+ 				;;
+-			*mint | mint[0-9]* | *MiNT | MiNT[0-9]*)
++			*-*mint | *-mint[0-9]* | *-*MiNT | *-MiNT[0-9]*)
+ 				vendor=atari
+ 				;;
+-			vos*)
++			*-vos*)
+ 				vendor=stratus
+ 				;;
+ 		esac
+ 		;;
+ esac
+ 
+-echo "$cpu-$vendor-$os"
++echo "$cpu-$vendor-${kernel:+$kernel-}$os"
+ exit
+ 
+ # Local variables:
+--- a/config.guess
++++ b/config.guess
+@@ -1,8 +1,8 @@
+ #! /bin/sh
+ # Attempt to guess a canonical system name.
+-#   Copyright 1992-2018 Free Software Foundation, Inc.
++#   Copyright 1992-2020 Free Software Foundation, Inc.
+ 
+-timestamp='2018-08-29'
++timestamp='2020-11-07'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -32,7 +32,7 @@
+ # Please send patches to <config-patches@gnu.org>.
+ 
+ 
+-me=`echo "$0" | sed -e 's,.*/,,'`
++me=$(echo "$0" | sed -e 's,.*/,,')
+ 
+ usage="\
+ Usage: $0 [OPTION]
+@@ -50,7 +50,7 @@
+ GNU config.guess ($timestamp)
+ 
+ Originally written by Per Bothner.
+-Copyright 1992-2018 Free Software Foundation, Inc.
++Copyright 1992-2020 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -96,13 +96,14 @@
+ 
+ tmp=
+ # shellcheck disable=SC2172
+-trap 'test -z "$tmp" || rm -fr "$tmp"' 1 2 13 15
+-trap 'exitcode=$?; test -z "$tmp" || rm -fr "$tmp"; exit $exitcode' 0
++trap 'test -z "$tmp" || rm -fr "$tmp"' 0 1 2 13 15
+ 
+ set_cc_for_build() {
++    # prevent multiple calls if $tmp is already set
++    test "$tmp" && return 0
+     : "${TMPDIR=/tmp}"
+     # shellcheck disable=SC2039
+-    { tmp=`(umask 077 && mktemp -d "$TMPDIR/cgXXXXXX") 2>/dev/null` && test -n "$tmp" && test -d "$tmp" ; } ||
++    { tmp=$( (umask 077 && mktemp -d "$TMPDIR/cgXXXXXX") 2>/dev/null) && test -n "$tmp" && test -d "$tmp" ; } ||
+ 	{ test -n "$RANDOM" && tmp=$TMPDIR/cg$$-$RANDOM && (umask 077 && mkdir "$tmp" 2>/dev/null) ; } ||
+ 	{ tmp=$TMPDIR/cg-$$ && (umask 077 && mkdir "$tmp" 2>/dev/null) && echo "Warning: creating insecure temp directory" >&2 ; } ||
+ 	{ echo "$me: cannot create a temporary directory in $TMPDIR" >&2 ; exit 1 ; }
+@@ -130,10 +131,10 @@
+ 	PATH=$PATH:/.attbin ; export PATH
+ fi
+ 
+-UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+-UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+-UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
+-UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
++UNAME_MACHINE=$( (uname -m) 2>/dev/null) || UNAME_MACHINE=unknown
++UNAME_RELEASE=$( (uname -r) 2>/dev/null) || UNAME_RELEASE=unknown
++UNAME_SYSTEM=$( (uname -s) 2>/dev/null) || UNAME_SYSTEM=unknown
++UNAME_VERSION=$( (uname -v) 2>/dev/null) || UNAME_VERSION=unknown
+ 
+ case "$UNAME_SYSTEM" in
+ Linux|GNU|GNU/*)
+@@ -149,17 +150,15 @@
+ 	#elif defined(__dietlibc__)
+ 	LIBC=dietlibc
+ 	#else
++	#include <stdarg.h>
++	#ifdef __DEFINED_va_list
++	LIBC=musl
++	#else
+ 	LIBC=gnu
+ 	#endif
++	#endif
+ 	EOF
+-	eval "`$CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^LIBC' | sed 's, ,,g'`"
+-
+-	# If ldd exists, use it to detect musl libc.
+-	if command -v ldd >/dev/null && \
+-		ldd --version 2>&1 | grep -q ^musl
+-	then
+-	    LIBC=musl
+-	fi
++	eval "$($CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^LIBC' | sed 's, ,,g')"
+ 	;;
+ esac
+ 
+@@ -178,19 +177,20 @@
+ 	# Note: NetBSD doesn't particularly care about the vendor
+ 	# portion of the name.  We always set it to "unknown".
+ 	sysctl="sysctl -n hw.machine_arch"
+-	UNAME_MACHINE_ARCH=`(uname -p 2>/dev/null || \
++	UNAME_MACHINE_ARCH=$( (uname -p 2>/dev/null || \
+ 	    "/sbin/$sysctl" 2>/dev/null || \
+ 	    "/usr/sbin/$sysctl" 2>/dev/null || \
+-	    echo unknown)`
++	    echo unknown))
+ 	case "$UNAME_MACHINE_ARCH" in
++	    aarch64eb) machine=aarch64_be-unknown ;;
+ 	    armeb) machine=armeb-unknown ;;
+ 	    arm*) machine=arm-unknown ;;
+ 	    sh3el) machine=shl-unknown ;;
+ 	    sh3eb) machine=sh-unknown ;;
+ 	    sh5el) machine=sh5le-unknown ;;
+ 	    earmv*)
+-		arch=`echo "$UNAME_MACHINE_ARCH" | sed -e 's,^e\(armv[0-9]\).*$,\1,'`
+-		endian=`echo "$UNAME_MACHINE_ARCH" | sed -ne 's,^.*\(eb\)$,\1,p'`
++		arch=$(echo "$UNAME_MACHINE_ARCH" | sed -e 's,^e\(armv[0-9]\).*$,\1,')
++		endian=$(echo "$UNAME_MACHINE_ARCH" | sed -ne 's,^.*\(eb\)$,\1,p')
+ 		machine="${arch}${endian}"-unknown
+ 		;;
+ 	    *) machine="$UNAME_MACHINE_ARCH"-unknown ;;
+@@ -221,7 +221,7 @@
+ 	case "$UNAME_MACHINE_ARCH" in
+ 	    earm*)
+ 		expr='s/^earmv[0-9]/-eabi/;s/eb$//'
+-		abi=`echo "$UNAME_MACHINE_ARCH" | sed -e "$expr"`
++		abi=$(echo "$UNAME_MACHINE_ARCH" | sed -e "$expr")
+ 		;;
+ 	esac
+ 	# The OS release
+@@ -234,7 +234,7 @@
+ 		release='-gnu'
+ 		;;
+ 	    *)
+-		release=`echo "$UNAME_RELEASE" | sed -e 's/[-_].*//' | cut -d. -f1,2`
++		release=$(echo "$UNAME_RELEASE" | sed -e 's/[-_].*//' | cut -d. -f1,2)
+ 		;;
+ 	esac
+ 	# Since CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM:
+@@ -243,15 +243,15 @@
+ 	echo "$machine-${os}${release}${abi-}"
+ 	exit ;;
+     *:Bitrig:*:*)
+-	UNAME_MACHINE_ARCH=`arch | sed 's/Bitrig.//'`
++	UNAME_MACHINE_ARCH=$(arch | sed 's/Bitrig.//')
+ 	echo "$UNAME_MACHINE_ARCH"-unknown-bitrig"$UNAME_RELEASE"
+ 	exit ;;
+     *:OpenBSD:*:*)
+-	UNAME_MACHINE_ARCH=`arch | sed 's/OpenBSD.//'`
++	UNAME_MACHINE_ARCH=$(arch | sed 's/OpenBSD.//')
+ 	echo "$UNAME_MACHINE_ARCH"-unknown-openbsd"$UNAME_RELEASE"
+ 	exit ;;
+     *:LibertyBSD:*:*)
+-	UNAME_MACHINE_ARCH=`arch | sed 's/^.*BSD\.//'`
++	UNAME_MACHINE_ARCH=$(arch | sed 's/^.*BSD\.//')
+ 	echo "$UNAME_MACHINE_ARCH"-unknown-libertybsd"$UNAME_RELEASE"
+ 	exit ;;
+     *:MidnightBSD:*:*)
+@@ -263,6 +263,9 @@
+     *:SolidBSD:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-solidbsd"$UNAME_RELEASE"
+ 	exit ;;
++    *:OS108:*:*)
++	echo "$UNAME_MACHINE"-unknown-os108_"$UNAME_RELEASE"
++	exit ;;
+     macppc:MirBSD:*:*)
+ 	echo powerpc-unknown-mirbsd"$UNAME_RELEASE"
+ 	exit ;;
+@@ -272,26 +275,29 @@
+     *:Sortix:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-sortix
+ 	exit ;;
++    *:Twizzler:*:*)
++	echo "$UNAME_MACHINE"-unknown-twizzler
++	exit ;;
+     *:Redox:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-redox
+ 	exit ;;
+     mips:OSF1:*.*)
+-        echo mips-dec-osf1
+-        exit ;;
++	echo mips-dec-osf1
++	exit ;;
+     alpha:OSF1:*:*)
+ 	case $UNAME_RELEASE in
+ 	*4.0)
+-		UNAME_RELEASE=`/usr/sbin/sizer -v | awk '{print $3}'`
++		UNAME_RELEASE=$(/usr/sbin/sizer -v | awk '{print $3}')
+ 		;;
+ 	*5.*)
+-		UNAME_RELEASE=`/usr/sbin/sizer -v | awk '{print $4}'`
++		UNAME_RELEASE=$(/usr/sbin/sizer -v | awk '{print $4}')
+ 		;;
+ 	esac
+ 	# According to Compaq, /usr/sbin/psrinfo has been available on
+ 	# OSF/1 and Tru64 systems produced since 1995.  I hope that
+ 	# covers most systems running today.  This code pipes the CPU
+ 	# types through head -n 1, so we only detect the type of CPU 0.
+-	ALPHA_CPU_TYPE=`/usr/sbin/psrinfo -v | sed -n -e 's/^  The alpha \(.*\) processor.*$/\1/p' | head -n 1`
++	ALPHA_CPU_TYPE=$(/usr/sbin/psrinfo -v | sed -n -e 's/^  The alpha \(.*\) processor.*$/\1/p' | head -n 1)
+ 	case "$ALPHA_CPU_TYPE" in
+ 	    "EV4 (21064)")
+ 		UNAME_MACHINE=alpha ;;
+@@ -329,7 +335,7 @@
+ 	# A Tn.n version is a released field test version.
+ 	# A Xn.n version is an unreleased experimental baselevel.
+ 	# 1.2 uses "1.2" for uname -r.
+-	echo "$UNAME_MACHINE"-dec-osf"`echo "$UNAME_RELEASE" | sed -e 's/^[PVTX]//' | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz`"
++	echo "$UNAME_MACHINE"-dec-osf"$(echo "$UNAME_RELEASE" | sed -e 's/^[PVTX]//' | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz)"
+ 	# Reset EXIT trap before exiting to avoid spurious non-zero exit code.
+ 	exitcode=$?
+ 	trap '' 0
+@@ -363,7 +369,7 @@
+ 	exit ;;
+     Pyramid*:OSx*:*:* | MIS*:OSx*:*:* | MIS*:SMP_DC-OSx*:*:*)
+ 	# akee@wpdis03.wpafb.af.mil (Earle F. Ake) contributed MIS and NILE.
+-	if test "`(/bin/universe) 2>/dev/null`" = att ; then
++	if test "$( (/bin/universe) 2>/dev/null)" = att ; then
+ 		echo pyramid-pyramid-sysv3
+ 	else
+ 		echo pyramid-pyramid-bsd
+@@ -376,54 +382,59 @@
+ 	echo sparc-icl-nx6
+ 	exit ;;
+     DRS?6000:UNIX_SV:4.2*:7* | DRS?6000:isis:4.2*:7*)
+-	case `/usr/bin/uname -p` in
++	case $(/usr/bin/uname -p) in
+ 	    sparc) echo sparc-icl-nx7; exit ;;
+ 	esac ;;
+     s390x:SunOS:*:*)
+-	echo "$UNAME_MACHINE"-ibm-solaris2"`echo "$UNAME_RELEASE" | sed -e 's/[^.]*//'`"
++	echo "$UNAME_MACHINE"-ibm-solaris2"$(echo "$UNAME_RELEASE" | sed -e 's/[^.]*//')"
+ 	exit ;;
+     sun4H:SunOS:5.*:*)
+-	echo sparc-hal-solaris2"`echo "$UNAME_RELEASE"|sed -e 's/[^.]*//'`"
++	echo sparc-hal-solaris2"$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*//')"
+ 	exit ;;
+     sun4*:SunOS:5.*:* | tadpole*:SunOS:5.*:*)
+-	echo sparc-sun-solaris2"`echo "$UNAME_RELEASE" | sed -e 's/[^.]*//'`"
++	echo sparc-sun-solaris2"$(echo "$UNAME_RELEASE" | sed -e 's/[^.]*//')"
+ 	exit ;;
+     i86pc:AuroraUX:5.*:* | i86xen:AuroraUX:5.*:*)
+ 	echo i386-pc-auroraux"$UNAME_RELEASE"
+ 	exit ;;
+     i86pc:SunOS:5.*:* | i86xen:SunOS:5.*:*)
+-	UNAME_REL="`echo "$UNAME_RELEASE" | sed -e 's/[^.]*//'`"
+-	case `isainfo -b` in
+-	    32)
+-		echo i386-pc-solaris2"$UNAME_REL"
+-		;;
+-	    64)
+-		echo x86_64-pc-solaris2"$UNAME_REL"
+-		;;
+-	esac
++	set_cc_for_build
++	SUN_ARCH=i386
++	# If there is a compiler, see if it is configured for 64-bit objects.
++	# Note that the Sun cc does not turn __LP64__ into 1 like gcc does.
++	# This test works for both compilers.
++	if test "$CC_FOR_BUILD" != no_compiler_found; then
++	    if (echo '#ifdef __amd64'; echo IS_64BIT_ARCH; echo '#endif') | \
++		(CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
++		grep IS_64BIT_ARCH >/dev/null
++	    then
++		SUN_ARCH=x86_64
++	    fi
++	fi
++	echo "$SUN_ARCH"-pc-solaris2"$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*//')"
+ 	exit ;;
+     sun4*:SunOS:6*:*)
+ 	# According to config.sub, this is the proper way to canonicalize
+ 	# SunOS6.  Hard to guess exactly what SunOS6 will be like, but
+ 	# it's likely to be more like Solaris than SunOS4.
+-	echo sparc-sun-solaris3"`echo "$UNAME_RELEASE"|sed -e 's/[^.]*//'`"
++	echo sparc-sun-solaris3"$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*//')"
+ 	exit ;;
+     sun4*:SunOS:*:*)
+-	case "`/usr/bin/arch -k`" in
++	case "$(/usr/bin/arch -k)" in
+ 	    Series*|S4*)
+-		UNAME_RELEASE=`uname -v`
++		UNAME_RELEASE=$(uname -v)
+ 		;;
+ 	esac
+ 	# Japanese Language versions have a version number like `4.1.3-JL'.
+-	echo sparc-sun-sunos"`echo "$UNAME_RELEASE"|sed -e 's/-/_/'`"
++	echo sparc-sun-sunos"$(echo "$UNAME_RELEASE"|sed -e 's/-/_/')"
+ 	exit ;;
+     sun3*:SunOS:*:*)
+ 	echo m68k-sun-sunos"$UNAME_RELEASE"
+ 	exit ;;
+     sun*:*:4.2BSD:*)
+-	UNAME_RELEASE=`(sed 1q /etc/motd | awk '{print substr($5,1,3)}') 2>/dev/null`
++	UNAME_RELEASE=$( (sed 1q /etc/motd | awk '{print substr($5,1,3)}') 2>/dev/null)
+ 	test "x$UNAME_RELEASE" = x && UNAME_RELEASE=3
+-	case "`/bin/arch`" in
++	case "$(/bin/arch)" in
+ 	    sun3)
+ 		echo m68k-sun-sunos"$UNAME_RELEASE"
+ 		;;
+@@ -503,8 +514,8 @@
+ 	}
+ EOF
+ 	$CC_FOR_BUILD -o "$dummy" "$dummy.c" &&
+-	  dummyarg=`echo "$UNAME_RELEASE" | sed -n 's/\([0-9]*\).*/\1/p'` &&
+-	  SYSTEM_NAME=`"$dummy" "$dummyarg"` &&
++	  dummyarg=$(echo "$UNAME_RELEASE" | sed -n 's/\([0-9]*\).*/\1/p') &&
++	  SYSTEM_NAME=$("$dummy" "$dummyarg") &&
+ 	    { echo "$SYSTEM_NAME"; exit; }
+ 	echo mips-mips-riscos"$UNAME_RELEASE"
+ 	exit ;;
+@@ -531,11 +542,11 @@
+ 	exit ;;
+     AViiON:dgux:*:*)
+ 	# DG/UX returns AViiON for all architectures
+-	UNAME_PROCESSOR=`/usr/bin/uname -p`
+-	if [ "$UNAME_PROCESSOR" = mc88100 ] || [ "$UNAME_PROCESSOR" = mc88110 ]
++	UNAME_PROCESSOR=$(/usr/bin/uname -p)
++	if test "$UNAME_PROCESSOR" = mc88100 || test "$UNAME_PROCESSOR" = mc88110
+ 	then
+-	    if [ "$TARGET_BINARY_INTERFACE"x = m88kdguxelfx ] || \
+-	       [ "$TARGET_BINARY_INTERFACE"x = x ]
++	    if test "$TARGET_BINARY_INTERFACE"x = m88kdguxelfx || \
++	       test "$TARGET_BINARY_INTERFACE"x = x
+ 	    then
+ 		echo m88k-dg-dgux"$UNAME_RELEASE"
+ 	    else
+@@ -559,17 +570,17 @@
+ 	echo m68k-tektronix-bsd
+ 	exit ;;
+     *:IRIX*:*:*)
+-	echo mips-sgi-irix"`echo "$UNAME_RELEASE"|sed -e 's/-/_/g'`"
++	echo mips-sgi-irix"$(echo "$UNAME_RELEASE"|sed -e 's/-/_/g')"
+ 	exit ;;
+     ????????:AIX?:[12].1:2)   # AIX 2.2.1 or AIX 2.1.1 is RT/PC AIX.
+ 	echo romp-ibm-aix     # uname -m gives an 8 hex-code CPU id
+-	exit ;;               # Note that: echo "'`uname -s`'" gives 'AIX '
++	exit ;;               # Note that: echo "'$(uname -s)'" gives 'AIX '
+     i*86:AIX:*:*)
+ 	echo i386-ibm-aix
+ 	exit ;;
+     ia64:AIX:*:*)
+-	if [ -x /usr/bin/oslevel ] ; then
+-		IBM_REV=`/usr/bin/oslevel`
++	if test -x /usr/bin/oslevel ; then
++		IBM_REV=$(/usr/bin/oslevel)
+ 	else
+ 		IBM_REV="$UNAME_VERSION.$UNAME_RELEASE"
+ 	fi
+@@ -589,7 +600,7 @@
+ 			exit(0);
+ 			}
+ EOF
+-		if $CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=`"$dummy"`
++		if $CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=$("$dummy")
+ 		then
+ 			echo "$SYSTEM_NAME"
+ 		else
+@@ -602,15 +613,15 @@
+ 	fi
+ 	exit ;;
+     *:AIX:*:[4567])
+-	IBM_CPU_ID=`/usr/sbin/lsdev -C -c processor -S available | sed 1q | awk '{ print $1 }'`
++	IBM_CPU_ID=$(/usr/sbin/lsdev -C -c processor -S available | sed 1q | awk '{ print $1 }')
+ 	if /usr/sbin/lsattr -El "$IBM_CPU_ID" | grep ' POWER' >/dev/null 2>&1; then
+ 		IBM_ARCH=rs6000
+ 	else
+ 		IBM_ARCH=powerpc
+ 	fi
+-	if [ -x /usr/bin/lslpp ] ; then
+-		IBM_REV=`/usr/bin/lslpp -Lqc bos.rte.libc |
+-			   awk -F: '{ print $3 }' | sed s/[0-9]*$/0/`
++	if test -x /usr/bin/lslpp ; then
++		IBM_REV=$(/usr/bin/lslpp -Lqc bos.rte.libc |
++			   awk -F: '{ print $3 }' | sed s/[0-9]*$/0/)
+ 	else
+ 		IBM_REV="$UNAME_VERSION.$UNAME_RELEASE"
+ 	fi
+@@ -638,14 +649,14 @@
+ 	echo m68k-hp-bsd4.4
+ 	exit ;;
+     9000/[34678]??:HP-UX:*:*)
+-	HPUX_REV=`echo "$UNAME_RELEASE"|sed -e 's/[^.]*.[0B]*//'`
++	HPUX_REV=$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*.[0B]*//')
+ 	case "$UNAME_MACHINE" in
+ 	    9000/31?)            HP_ARCH=m68000 ;;
+ 	    9000/[34]??)         HP_ARCH=m68k ;;
+ 	    9000/[678][0-9][0-9])
+-		if [ -x /usr/bin/getconf ]; then
+-		    sc_cpu_version=`/usr/bin/getconf SC_CPU_VERSION 2>/dev/null`
+-		    sc_kernel_bits=`/usr/bin/getconf SC_KERNEL_BITS 2>/dev/null`
++		if test -x /usr/bin/getconf; then
++		    sc_cpu_version=$(/usr/bin/getconf SC_CPU_VERSION 2>/dev/null)
++		    sc_kernel_bits=$(/usr/bin/getconf SC_KERNEL_BITS 2>/dev/null)
+ 		    case "$sc_cpu_version" in
+ 		      523) HP_ARCH=hppa1.0 ;; # CPU_PA_RISC1_0
+ 		      528) HP_ARCH=hppa1.1 ;; # CPU_PA_RISC1_1
+@@ -657,7 +668,7 @@
+ 			esac ;;
+ 		    esac
+ 		fi
+-		if [ "$HP_ARCH" = "" ]; then
++		if test "$HP_ARCH" = ""; then
+ 		    set_cc_for_build
+ 		    sed 's/^		//' << EOF > "$dummy.c"
+ 
+@@ -692,11 +703,11 @@
+ 		    exit (0);
+ 		}
+ EOF
+-		    (CCOPTS="" $CC_FOR_BUILD -o "$dummy" "$dummy.c" 2>/dev/null) && HP_ARCH=`"$dummy"`
++		    (CCOPTS="" $CC_FOR_BUILD -o "$dummy" "$dummy.c" 2>/dev/null) && HP_ARCH=$("$dummy")
+ 		    test -z "$HP_ARCH" && HP_ARCH=hppa
+ 		fi ;;
+ 	esac
+-	if [ "$HP_ARCH" = hppa2.0w ]
++	if test "$HP_ARCH" = hppa2.0w
+ 	then
+ 	    set_cc_for_build
+ 
+@@ -720,7 +731,7 @@
+ 	echo "$HP_ARCH"-hp-hpux"$HPUX_REV"
+ 	exit ;;
+     ia64:HP-UX:*:*)
+-	HPUX_REV=`echo "$UNAME_RELEASE"|sed -e 's/[^.]*.[0B]*//'`
++	HPUX_REV=$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*.[0B]*//')
+ 	echo ia64-hp-hpux"$HPUX_REV"
+ 	exit ;;
+     3050*:HI-UX:*:*)
+@@ -750,7 +761,7 @@
+ 	  exit (0);
+ 	}
+ EOF
+-	$CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=`"$dummy"` &&
++	$CC_FOR_BUILD -o "$dummy" "$dummy.c" && SYSTEM_NAME=$("$dummy") &&
+ 		{ echo "$SYSTEM_NAME"; exit; }
+ 	echo unknown-hitachi-hiuxwe2
+ 	exit ;;
+@@ -770,7 +781,7 @@
+ 	echo hppa1.0-hp-osf
+ 	exit ;;
+     i*86:OSF1:*:*)
+-	if [ -x /usr/sbin/sysversion ] ; then
++	if test -x /usr/sbin/sysversion ; then
+ 	    echo "$UNAME_MACHINE"-unknown-osf1mk
+ 	else
+ 	    echo "$UNAME_MACHINE"-unknown-osf1
+@@ -819,14 +830,14 @@
+ 	echo craynv-cray-unicosmp"$UNAME_RELEASE" | sed -e 's/\.[^.]*$/.X/'
+ 	exit ;;
+     F30[01]:UNIX_System_V:*:* | F700:UNIX_System_V:*:*)
+-	FUJITSU_PROC=`uname -m | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz`
+-	FUJITSU_SYS=`uname -p | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/\///'`
+-	FUJITSU_REL=`echo "$UNAME_RELEASE" | sed -e 's/ /_/'`
++	FUJITSU_PROC=$(uname -m | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz)
++	FUJITSU_SYS=$(uname -p | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/\///')
++	FUJITSU_REL=$(echo "$UNAME_RELEASE" | sed -e 's/ /_/')
+ 	echo "${FUJITSU_PROC}-fujitsu-${FUJITSU_SYS}${FUJITSU_REL}"
+ 	exit ;;
+     5000:UNIX_System_V:4.*:*)
+-	FUJITSU_SYS=`uname -p | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/\///'`
+-	FUJITSU_REL=`echo "$UNAME_RELEASE" | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/ /_/'`
++	FUJITSU_SYS=$(uname -p | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/\///')
++	FUJITSU_REL=$(echo "$UNAME_RELEASE" | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz | sed -e 's/ /_/')
+ 	echo "sparc-fujitsu-${FUJITSU_SYS}${FUJITSU_REL}"
+ 	exit ;;
+     i*86:BSD/386:*:* | i*86:BSD/OS:*:* | *:Ascend\ Embedded/OS:*:*)
+@@ -839,25 +850,25 @@
+ 	echo "$UNAME_MACHINE"-unknown-bsdi"$UNAME_RELEASE"
+ 	exit ;;
+     arm:FreeBSD:*:*)
+-	UNAME_PROCESSOR=`uname -p`
++	UNAME_PROCESSOR=$(uname -p)
+ 	set_cc_for_build
+ 	if echo __ARM_PCS_VFP | $CC_FOR_BUILD -E - 2>/dev/null \
+ 	    | grep -q __ARM_PCS_VFP
+ 	then
+-	    echo "${UNAME_PROCESSOR}"-unknown-freebsd"`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`"-gnueabi
++	    echo "${UNAME_PROCESSOR}"-unknown-freebsd"$(echo ${UNAME_RELEASE}|sed -e 's/[-(].*//')"-gnueabi
+ 	else
+-	    echo "${UNAME_PROCESSOR}"-unknown-freebsd"`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`"-gnueabihf
++	    echo "${UNAME_PROCESSOR}"-unknown-freebsd"$(echo ${UNAME_RELEASE}|sed -e 's/[-(].*//')"-gnueabihf
+ 	fi
+ 	exit ;;
+     *:FreeBSD:*:*)
+-	UNAME_PROCESSOR=`/usr/bin/uname -p`
++	UNAME_PROCESSOR=$(/usr/bin/uname -p)
+ 	case "$UNAME_PROCESSOR" in
+ 	    amd64)
+ 		UNAME_PROCESSOR=x86_64 ;;
+ 	    i386)
+ 		UNAME_PROCESSOR=i586 ;;
+ 	esac
+-	echo "$UNAME_PROCESSOR"-unknown-freebsd"`echo "$UNAME_RELEASE"|sed -e 's/[-(].*//'`"
++	echo "$UNAME_PROCESSOR"-unknown-freebsd"$(echo "$UNAME_RELEASE"|sed -e 's/[-(].*//')"
+ 	exit ;;
+     i*:CYGWIN*:*)
+ 	echo "$UNAME_MACHINE"-pc-cygwin
+@@ -890,18 +901,18 @@
+ 	echo "$UNAME_MACHINE"-pc-uwin
+ 	exit ;;
+     amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+-	echo x86_64-unknown-cygwin
++	echo x86_64-pc-cygwin
+ 	exit ;;
+     prep*:SunOS:5.*:*)
+-	echo powerpcle-unknown-solaris2"`echo "$UNAME_RELEASE"|sed -e 's/[^.]*//'`"
++	echo powerpcle-unknown-solaris2"$(echo "$UNAME_RELEASE"|sed -e 's/[^.]*//')"
+ 	exit ;;
+     *:GNU:*:*)
+ 	# the GNU system
+-	echo "`echo "$UNAME_MACHINE"|sed -e 's,[-/].*$,,'`-unknown-$LIBC`echo "$UNAME_RELEASE"|sed -e 's,/.*$,,'`"
++	echo "$(echo "$UNAME_MACHINE"|sed -e 's,[-/].*$,,')-unknown-$LIBC$(echo "$UNAME_RELEASE"|sed -e 's,/.*$,,')"
+ 	exit ;;
+     *:GNU/*:*:*)
+ 	# other systems with GNU libc and userland
+-	echo "$UNAME_MACHINE-unknown-`echo "$UNAME_SYSTEM" | sed 's,^[^/]*/,,' | tr "[:upper:]" "[:lower:]"``echo "$UNAME_RELEASE"|sed -e 's/[-(].*//'`-$LIBC"
++	echo "$UNAME_MACHINE-unknown-$(echo "$UNAME_SYSTEM" | sed 's,^[^/]*/,,' | tr "[:upper:]" "[:lower:]")$(echo "$UNAME_RELEASE"|sed -e 's/[-(].*//')-$LIBC"
+ 	exit ;;
+     *:Minix:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-minix
+@@ -914,7 +925,7 @@
+ 	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
+ 	exit ;;
+     alpha:Linux:*:*)
+-	case `sed -n '/^cpu model/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo` in
++	case $(sed -n '/^cpu model/s/^.*: \(.*\)/\1/p' /proc/cpuinfo 2>/dev/null) in
+ 	  EV5)   UNAME_MACHINE=alphaev5 ;;
+ 	  EV56)  UNAME_MACHINE=alphaev56 ;;
+ 	  PCA56) UNAME_MACHINE=alphapca56 ;;
+@@ -981,22 +992,50 @@
+ 	exit ;;
+     mips:Linux:*:* | mips64:Linux:*:*)
+ 	set_cc_for_build
++	IS_GLIBC=0
++	test x"${LIBC}" = xgnu && IS_GLIBC=1
+ 	sed 's/^	//' << EOF > "$dummy.c"
+ 	#undef CPU
+-	#undef ${UNAME_MACHINE}
+-	#undef ${UNAME_MACHINE}el
++	#undef mips
++	#undef mipsel
++	#undef mips64
++	#undef mips64el
++	#if ${IS_GLIBC} && defined(_ABI64)
++	LIBCABI=gnuabi64
++	#else
++	#if ${IS_GLIBC} && defined(_ABIN32)
++	LIBCABI=gnuabin32
++	#else
++	LIBCABI=${LIBC}
++	#endif
++	#endif
++
++	#if ${IS_GLIBC} && defined(__mips64) && defined(__mips_isa_rev) && __mips_isa_rev>=6
++	CPU=mipsisa64r6
++	#else
++	#if ${IS_GLIBC} && !defined(__mips64) && defined(__mips_isa_rev) && __mips_isa_rev>=6
++	CPU=mipsisa32r6
++	#else
++	#if defined(__mips64)
++	CPU=mips64
++	#else
++	CPU=mips
++	#endif
++	#endif
++	#endif
++
+ 	#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
+-	CPU=${UNAME_MACHINE}el
++	MIPS_ENDIAN=el
+ 	#else
+ 	#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)
+-	CPU=${UNAME_MACHINE}
++	MIPS_ENDIAN=
+ 	#else
+-	CPU=
++	MIPS_ENDIAN=
+ 	#endif
+ 	#endif
+ EOF
+-	eval "`$CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^CPU'`"
+-	test "x$CPU" != x && { echo "$CPU-unknown-linux-$LIBC"; exit; }
++	eval "$($CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^CPU\|^MIPS_ENDIAN\|^LIBCABI')"
++	test "x$CPU" != x && { echo "$CPU${MIPS_ENDIAN}-unknown-linux-$LIBCABI"; exit; }
+ 	;;
+     mips64el:Linux:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
+@@ -1015,7 +1054,7 @@
+ 	exit ;;
+     parisc:Linux:*:* | hppa:Linux:*:*)
+ 	# Look for CPU level
+-	case `grep '^cpu[^a-z]*:' /proc/cpuinfo 2>/dev/null | cut -d' ' -f2` in
++	case $(grep '^cpu[^a-z]*:' /proc/cpuinfo 2>/dev/null | cut -d' ' -f2) in
+ 	  PA7*) echo hppa1.1-unknown-linux-"$LIBC" ;;
+ 	  PA8*) echo hppa2.0-unknown-linux-"$LIBC" ;;
+ 	  *)    echo hppa-unknown-linux-"$LIBC" ;;
+@@ -1055,7 +1094,17 @@
+ 	echo "$UNAME_MACHINE"-dec-linux-"$LIBC"
+ 	exit ;;
+     x86_64:Linux:*:*)
+-	echo "$UNAME_MACHINE"-pc-linux-"$LIBC"
++	set_cc_for_build
++	LIBCABI=$LIBC
++	if test "$CC_FOR_BUILD" != no_compiler_found; then
++	    if (echo '#ifdef __ILP32__'; echo IS_X32; echo '#endif') | \
++		(CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
++		grep IS_X32 >/dev/null
++	    then
++		LIBCABI="$LIBC"x32
++	    fi
++	fi
++	echo "$UNAME_MACHINE"-pc-linux-"$LIBCABI"
+ 	exit ;;
+     xtensa*:Linux:*:*)
+ 	echo "$UNAME_MACHINE"-unknown-linux-"$LIBC"
+@@ -1095,7 +1144,7 @@
+ 	echo "$UNAME_MACHINE"-pc-msdosdjgpp
+ 	exit ;;
+     i*86:*:4.*:*)
+-	UNAME_REL=`echo "$UNAME_RELEASE" | sed 's/\/MP$//'`
++	UNAME_REL=$(echo "$UNAME_RELEASE" | sed 's/\/MP$//')
+ 	if grep Novell /usr/include/link.h >/dev/null 2>/dev/null; then
+ 		echo "$UNAME_MACHINE"-univel-sysv"$UNAME_REL"
+ 	else
+@@ -1104,19 +1153,19 @@
+ 	exit ;;
+     i*86:*:5:[678]*)
+ 	# UnixWare 7.x, OpenUNIX and OpenServer 6.
+-	case `/bin/uname -X | grep "^Machine"` in
++	case $(/bin/uname -X | grep "^Machine") in
+ 	    *486*)	     UNAME_MACHINE=i486 ;;
+ 	    *Pentium)	     UNAME_MACHINE=i586 ;;
+ 	    *Pent*|*Celeron) UNAME_MACHINE=i686 ;;
+ 	esac
+-	echo "$UNAME_MACHINE-unknown-sysv${UNAME_RELEASE}${UNAME_SYSTEM}{$UNAME_VERSION}"
++	echo "$UNAME_MACHINE-unknown-sysv${UNAME_RELEASE}${UNAME_SYSTEM}${UNAME_VERSION}"
+ 	exit ;;
+     i*86:*:3.2:*)
+ 	if test -f /usr/options/cb.name; then
+-		UNAME_REL=`sed -n 's/.*Version //p' </usr/options/cb.name`
++		UNAME_REL=$(sed -n 's/.*Version //p' </usr/options/cb.name)
+ 		echo "$UNAME_MACHINE"-pc-isc"$UNAME_REL"
+ 	elif /bin/uname -X 2>/dev/null >/dev/null ; then
+-		UNAME_REL=`(/bin/uname -X|grep Release|sed -e 's/.*= //')`
++		UNAME_REL=$( (/bin/uname -X|grep Release|sed -e 's/.*= //'))
+ 		(/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
+ 		(/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
+ 			&& UNAME_MACHINE=i586
+@@ -1166,7 +1215,7 @@
+     3[345]??:*:4.0:3.0 | 3[34]??A:*:4.0:3.0 | 3[34]??,*:*:4.0:3.0 | 3[34]??/*:*:4.0:3.0 | 4400:*:4.0:3.0 | 4850:*:4.0:3.0 | SKA40:*:4.0:3.0 | SDS2:*:4.0:3.0 | SHG2:*:4.0:3.0 | S7501*:*:4.0:3.0)
+ 	OS_REL=''
+ 	test -r /etc/.relid \
+-	&& OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
++	&& OS_REL=.$(sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid)
+ 	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+ 	  && { echo i486-ncr-sysv4.3"$OS_REL"; exit; }
+ 	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
+@@ -1177,7 +1226,7 @@
+     NCR*:*:4.2:* | MPRAS*:*:4.2:*)
+ 	OS_REL='.3'
+ 	test -r /etc/.relid \
+-	    && OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
++	    && OS_REL=.$(sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid)
+ 	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+ 	    && { echo i486-ncr-sysv4.3"$OS_REL"; exit; }
+ 	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
+@@ -1210,7 +1259,7 @@
+ 	exit ;;
+     *:SINIX-*:*:*)
+ 	if uname -p 2>/dev/null >/dev/null ; then
+-		UNAME_MACHINE=`(uname -p) 2>/dev/null`
++		UNAME_MACHINE=$( (uname -p) 2>/dev/null)
+ 		echo "$UNAME_MACHINE"-sni-sysv4
+ 	else
+ 		echo ns32k-sni-sysv
+@@ -1244,7 +1293,7 @@
+ 	echo mips-sony-newsos6
+ 	exit ;;
+     R[34]000:*System_V*:*:* | R4000:UNIX_SYSV:*:* | R*000:UNIX_SV:*:*)
+-	if [ -d /usr/nec ]; then
++	if test -d /usr/nec; then
+ 		echo mips-nec-sysv"$UNAME_RELEASE"
+ 	else
+ 		echo mips-unknown-sysv"$UNAME_RELEASE"
+@@ -1292,44 +1341,48 @@
+     *:Rhapsody:*:*)
+ 	echo "$UNAME_MACHINE"-apple-rhapsody"$UNAME_RELEASE"
+ 	exit ;;
++    arm64:Darwin:*:*)
++	echo aarch64-apple-darwin"$UNAME_RELEASE"
++	exit ;;
+     *:Darwin:*:*)
+-	UNAME_PROCESSOR=`uname -p` || UNAME_PROCESSOR=unknown
+-	set_cc_for_build
+-	if test "$UNAME_PROCESSOR" = unknown ; then
+-	    UNAME_PROCESSOR=powerpc
++	UNAME_PROCESSOR=$(uname -p)
++	case $UNAME_PROCESSOR in
++	    unknown) UNAME_PROCESSOR=powerpc ;;
++	esac
++	if command -v xcode-select > /dev/null 2> /dev/null && \
++		! xcode-select --print-path > /dev/null 2> /dev/null ; then
++	    # Avoid executing cc if there is no toolchain installed as
++	    # cc will be a stub that puts up a graphical alert
++	    # prompting the user to install developer tools.
++	    CC_FOR_BUILD=no_compiler_found
++	else
++	    set_cc_for_build
+ 	fi
+-	if test "`echo "$UNAME_RELEASE" | sed -e 's/\..*//'`" -le 10 ; then
+-	    if [ "$CC_FOR_BUILD" != no_compiler_found ]; then
+-		if (echo '#ifdef __LP64__'; echo IS_64BIT_ARCH; echo '#endif') | \
+-		       (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
+-		       grep IS_64BIT_ARCH >/dev/null
+-		then
+-		    case $UNAME_PROCESSOR in
+-			i386) UNAME_PROCESSOR=x86_64 ;;
+-			powerpc) UNAME_PROCESSOR=powerpc64 ;;
+-		    esac
+-		fi
+-		# On 10.4-10.6 one might compile for PowerPC via gcc -arch ppc
+-		if (echo '#ifdef __POWERPC__'; echo IS_PPC; echo '#endif') | \
+-		       (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
+-		       grep IS_PPC >/dev/null
+-		then
+-		    UNAME_PROCESSOR=powerpc
+-		fi
++	if test "$CC_FOR_BUILD" != no_compiler_found; then
++	    if (echo '#ifdef __LP64__'; echo IS_64BIT_ARCH; echo '#endif') | \
++		   (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
++		   grep IS_64BIT_ARCH >/dev/null
++	    then
++		case $UNAME_PROCESSOR in
++		    i386) UNAME_PROCESSOR=x86_64 ;;
++		    powerpc) UNAME_PROCESSOR=powerpc64 ;;
++		esac
++	    fi
++	    # On 10.4-10.6 one might compile for PowerPC via gcc -arch ppc
++	    if (echo '#ifdef __POWERPC__'; echo IS_PPC; echo '#endif') | \
++		   (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
++		   grep IS_PPC >/dev/null
++	    then
++		UNAME_PROCESSOR=powerpc
+ 	    fi
+ 	elif test "$UNAME_PROCESSOR" = i386 ; then
+-	    # Avoid executing cc on OS X 10.9, as it ships with a stub
+-	    # that puts up a graphical alert prompting to install
+-	    # developer tools.  Any system running Mac OS X 10.7 or
+-	    # later (Darwin 11 and later) is required to have a 64-bit
+-	    # processor. This is not true of the ARM version of Darwin
+-	    # that Apple uses in portable devices.
+-	    UNAME_PROCESSOR=x86_64
++	    # uname -m returns i386 or x86_64
++	    UNAME_PROCESSOR=$UNAME_MACHINE
+ 	fi
+ 	echo "$UNAME_PROCESSOR"-apple-darwin"$UNAME_RELEASE"
+ 	exit ;;
+     *:procnto*:*:* | *:QNX:[0123456789]*:*)
+-	UNAME_PROCESSOR=`uname -p`
++	UNAME_PROCESSOR=$(uname -p)
+ 	if test "$UNAME_PROCESSOR" = x86; then
+ 		UNAME_PROCESSOR=i386
+ 		UNAME_MACHINE=pc
+@@ -1397,10 +1450,10 @@
+ 	echo mips-sei-seiux"$UNAME_RELEASE"
+ 	exit ;;
+     *:DragonFly:*:*)
+-	echo "$UNAME_MACHINE"-unknown-dragonfly"`echo "$UNAME_RELEASE"|sed -e 's/[-(].*//'`"
++	echo "$UNAME_MACHINE"-unknown-dragonfly"$(echo "$UNAME_RELEASE"|sed -e 's/[-(].*//')"
+ 	exit ;;
+     *:*VMS:*:*)
+-	UNAME_MACHINE=`(uname -p) 2>/dev/null`
++	UNAME_MACHINE=$( (uname -p) 2>/dev/null)
+ 	case "$UNAME_MACHINE" in
+ 	    A*) echo alpha-dec-vms ; exit ;;
+ 	    I*) echo ia64-dec-vms ; exit ;;
+@@ -1410,7 +1463,7 @@
+ 	echo i386-pc-xenix
+ 	exit ;;
+     i*86:skyos:*:*)
+-	echo "$UNAME_MACHINE"-pc-skyos"`echo "$UNAME_RELEASE" | sed -e 's/ .*$//'`"
++	echo "$UNAME_MACHINE"-pc-skyos"$(echo "$UNAME_RELEASE" | sed -e 's/ .*$//')"
+ 	exit ;;
+     i*86:rdos:*:*)
+ 	echo "$UNAME_MACHINE"-pc-rdos
+@@ -1424,8 +1477,148 @@
+     amd64:Isilon\ OneFS:*:*)
+ 	echo x86_64-unknown-onefs
+ 	exit ;;
++    *:Unleashed:*:*)
++	echo "$UNAME_MACHINE"-unknown-unleashed"$UNAME_RELEASE"
++	exit ;;
+ esac
+ 
++# No uname command or uname output not recognized.
++set_cc_for_build
++cat > "$dummy.c" <<EOF
++#ifdef _SEQUENT_
++#include <sys/types.h>
++#include <sys/utsname.h>
++#endif
++#if defined(ultrix) || defined(_ultrix) || defined(__ultrix) || defined(__ultrix__)
++#if defined (vax) || defined (__vax) || defined (__vax__) || defined(mips) || defined(__mips) || defined(__mips__) || defined(MIPS) || defined(__MIPS__)
++#include <signal.h>
++#if defined(_SIZE_T_) || defined(SIGLOST)
++#include <sys/utsname.h>
++#endif
++#endif
++#endif
++main ()
++{
++#if defined (sony)
++#if defined (MIPSEB)
++  /* BFD wants "bsd" instead of "newsos".  Perhaps BFD should be changed,
++     I don't know....  */
++  printf ("mips-sony-bsd\n"); exit (0);
++#else
++#include <sys/param.h>
++  printf ("m68k-sony-newsos%s\n",
++#ifdef NEWSOS4
++  "4"
++#else
++  ""
++#endif
++  ); exit (0);
++#endif
++#endif
++
++#if defined (NeXT)
++#if !defined (__ARCHITECTURE__)
++#define __ARCHITECTURE__ "m68k"
++#endif
++  int version;
++  version=$( (hostinfo | sed -n 's/.*NeXT Mach \([0-9]*\).*/\1/p') 2>/dev/null);
++  if (version < 4)
++    printf ("%s-next-nextstep%d\n", __ARCHITECTURE__, version);
++  else
++    printf ("%s-next-openstep%d\n", __ARCHITECTURE__, version);
++  exit (0);
++#endif
++
++#if defined (MULTIMAX) || defined (n16)
++#if defined (UMAXV)
++  printf ("ns32k-encore-sysv\n"); exit (0);
++#else
++#if defined (CMU)
++  printf ("ns32k-encore-mach\n"); exit (0);
++#else
++  printf ("ns32k-encore-bsd\n"); exit (0);
++#endif
++#endif
++#endif
++
++#if defined (__386BSD__)
++  printf ("i386-pc-bsd\n"); exit (0);
++#endif
++
++#if defined (sequent)
++#if defined (i386)
++  printf ("i386-sequent-dynix\n"); exit (0);
++#endif
++#if defined (ns32000)
++  printf ("ns32k-sequent-dynix\n"); exit (0);
++#endif
++#endif
++
++#if defined (_SEQUENT_)
++  struct utsname un;
++
++  uname(&un);
++  if (strncmp(un.version, "V2", 2) == 0) {
++    printf ("i386-sequent-ptx2\n"); exit (0);
++  }
++  if (strncmp(un.version, "V1", 2) == 0) { /* XXX is V1 correct? */
++    printf ("i386-sequent-ptx1\n"); exit (0);
++  }
++  printf ("i386-sequent-ptx\n"); exit (0);
++#endif
++
++#if defined (vax)
++#if !defined (ultrix)
++#include <sys/param.h>
++#if defined (BSD)
++#if BSD == 43
++  printf ("vax-dec-bsd4.3\n"); exit (0);
++#else
++#if BSD == 199006
++  printf ("vax-dec-bsd4.3reno\n"); exit (0);
++#else
++  printf ("vax-dec-bsd\n"); exit (0);
++#endif
++#endif
++#else
++  printf ("vax-dec-bsd\n"); exit (0);
++#endif
++#else
++#if defined(_SIZE_T_) || defined(SIGLOST)
++  struct utsname un;
++  uname (&un);
++  printf ("vax-dec-ultrix%s\n", un.release); exit (0);
++#else
++  printf ("vax-dec-ultrix\n"); exit (0);
++#endif
++#endif
++#endif
++#if defined(ultrix) || defined(_ultrix) || defined(__ultrix) || defined(__ultrix__)
++#if defined(mips) || defined(__mips) || defined(__mips__) || defined(MIPS) || defined(__MIPS__)
++#if defined(_SIZE_T_) || defined(SIGLOST)
++  struct utsname *un;
++  uname (&un);
++  printf ("mips-dec-ultrix%s\n", un.release); exit (0);
++#else
++  printf ("mips-dec-ultrix\n"); exit (0);
++#endif
++#endif
++#endif
++
++#if defined (alliant) && defined (i860)
++  printf ("i860-alliant-bsd\n"); exit (0);
++#endif
++
++  exit (1);
++}
++EOF
++
++$CC_FOR_BUILD -o "$dummy" "$dummy.c" 2>/dev/null && SYSTEM_NAME=$($dummy) &&
++	{ echo "$SYSTEM_NAME"; exit; }
++
++# Apollos put the system type in the environment.
++test -d /usr/apollo && { echo "$ISP-apollo-$SYSTYPE"; exit; }
++
+ echo "$0: unable to guess system type" >&2
+ 
+ case "$UNAME_MACHINE:$UNAME_SYSTEM" in
+@@ -1448,6 +1641,12 @@
+   https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess
+ and
+   https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub
++EOF
++
++year=$(echo $timestamp | sed 's,-.*,,')
++# shellcheck disable=SC2003
++if test "$(expr "$(date +%Y)" - "$year")" -lt 3 ; then
++   cat >&2 <<EOF
+ 
+ If $0 has already been updated, send the following data and any
+ information you think might be pertinent to config-patches@gnu.org to
+@@ -1455,26 +1654,27 @@
+ 
+ config.guess timestamp = $timestamp
+ 
+-uname -m = `(uname -m) 2>/dev/null || echo unknown`
+-uname -r = `(uname -r) 2>/dev/null || echo unknown`
+-uname -s = `(uname -s) 2>/dev/null || echo unknown`
+-uname -v = `(uname -v) 2>/dev/null || echo unknown`
+-
+-/usr/bin/uname -p = `(/usr/bin/uname -p) 2>/dev/null`
+-/bin/uname -X     = `(/bin/uname -X) 2>/dev/null`
+-
+-hostinfo               = `(hostinfo) 2>/dev/null`
+-/bin/universe          = `(/bin/universe) 2>/dev/null`
+-/usr/bin/arch -k       = `(/usr/bin/arch -k) 2>/dev/null`
+-/bin/arch              = `(/bin/arch) 2>/dev/null`
+-/usr/bin/oslevel       = `(/usr/bin/oslevel) 2>/dev/null`
+-/usr/convex/getsysinfo = `(/usr/convex/getsysinfo) 2>/dev/null`
++uname -m = $( (uname -m) 2>/dev/null || echo unknown)
++uname -r = $( (uname -r) 2>/dev/null || echo unknown)
++uname -s = $( (uname -s) 2>/dev/null || echo unknown)
++uname -v = $( (uname -v) 2>/dev/null || echo unknown)
++
++/usr/bin/uname -p = $( (/usr/bin/uname -p) 2>/dev/null)
++/bin/uname -X     = $( (/bin/uname -X) 2>/dev/null)
++
++hostinfo               = $( (hostinfo) 2>/dev/null)
++/bin/universe          = $( (/bin/universe) 2>/dev/null)
++/usr/bin/arch -k       = $( (/usr/bin/arch -k) 2>/dev/null)
++/bin/arch              = $( (/bin/arch) 2>/dev/null)
++/usr/bin/oslevel       = $( (/usr/bin/oslevel) 2>/dev/null)
++/usr/convex/getsysinfo = $( (/usr/convex/getsysinfo) 2>/dev/null)
+ 
+ UNAME_MACHINE = "$UNAME_MACHINE"
+ UNAME_RELEASE = "$UNAME_RELEASE"
+ UNAME_SYSTEM  = "$UNAME_SYSTEM"
+ UNAME_VERSION = "$UNAME_VERSION"
+ EOF
++fi
+ 
+ exit 1
+ 
