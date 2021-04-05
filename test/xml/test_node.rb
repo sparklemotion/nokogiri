@@ -1197,9 +1197,11 @@ module Nokogiri
         end
 
         def test_text_node_robustness_gh1426
+          skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
           skip("No need to test libxml-ruby workarounds on JRuby") if Nokogiri.jruby?
           # notably, the original bug report was about libxml-ruby interactions
           # this test should blow up under valgrind if we regress on libxml-ruby workarounds
+          # side note: this was fixed in libxml-ruby 2.9.0 by https://github.com/xml4r/libxml-ruby/pull/119
           message = "<section><h2>BOOM!</h2></section>"
           10_000.times do
             node = Nokogiri::HTML::DocumentFragment.parse(message).at_css("h2")

@@ -889,13 +889,18 @@ module Nokogiri
               <?xml version="1.0" encoding="UTF-8"?>
               <container></container>
             EOF
+
+            # proc that returns Nodes but allows the Documents to be GCed
             scope = lambda do
               Nokogiri::XML::Document.parse(xml).css("container") + Nokogiri::XML::Document.parse(xml).css("container")
             end
-            stress_memory_while do
-              node_set = scope.call
-              node_set.to_s
-            end
+            node_set = scope.call
+
+            # kick off major GC
+            GC.start
+
+            # see if everything's still there
+            node_set.to_s
           end
 
           it "should handle this case just fine" do

@@ -61,14 +61,14 @@ module Nokogiri
           end
           rd.close
         end
-        sleep(1)              # sleep for one second to make sure the reader will actually block for input
+        sleep(0.1) # sleep to make sure the reader will actually block for input
         begin
           wr.puts "<foo>"
           wr.puts "<bar/>" * 10000
           wr.flush
         rescue Errno::EPIPE
         end
-        res = t.join(5)    # wait 5 seconds for the thread to finish
+        res = t.join(1) # give the thread a moment to finish
         wr.close
         refute_nil node_out, "Didn't read any nodes, exclude the trivial case"
         refute_nil res, "Reader blocks trying to read the entire stream"
