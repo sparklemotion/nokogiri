@@ -122,7 +122,7 @@ module Nokogiri
 
       def test_value_lookup_segfault
         skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
-        skip("JRuby doesn't do GC.") if Nokogiri.jruby?
+        skip_unless_libxml2
         stress_memory_while do
           while node = @reader.read
             nodes = node.attribute_nodes

@@ -63,16 +63,17 @@ module Nokogiri
       end
 
       def test_namespaces_under_memory_pressure_issue1155
-        skip("JRuby doesn't do GC.") if Nokogiri.jruby?
+        skip_unless_libxml2("valgrind tests should only run with libxml2")
 
-        # this test is here to emit warnings when run under valgrind
-        # see https://github.com/sparklemotion/nokogiri/issues/1155 for background
-        filename = File.join ASSETS_DIR, 'namespace_pressure_test.xml'
-        doc = Nokogiri::XML File.open(filename)
+        refute_valgrind_errors do
+          # see https://github.com/sparklemotion/nokogiri/issues/1155 for background
+          filename = File.join ASSETS_DIR, 'namespace_pressure_test.xml'
+          doc = Nokogiri::XML File.open(filename)
 
-        # bizarrely, can't repro without the call to #to_a
-        doc.xpath('//namespace::*').to_a.each do |ns|
-          ns.inspect
+          # bizarrely, can't repro without the call to #to_a
+          doc.xpath('//namespace::*').to_a.each do |ns|
+            ns.inspect
+          end
         end
       end
     end

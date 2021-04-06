@@ -127,7 +127,7 @@ module Nokogiri
 
     def stress_memory_while(&block)
       # force the test to explicitly declare a skip
-      raise "JRuby doesn't do GC" if Nokogiri.jruby?
+      raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
 
       old_stress = GC.stress
       begin
@@ -135,6 +135,23 @@ module Nokogiri
         yield
       ensure
         GC.stress = old_stress
+      end
+    end
+
+    def skip_unless_libxml2(msg="this test should only run with libxml2")
+      skip(msg) unless Nokogiri.uses_libxml?
+    end
+
+    def skip_unless_jruby(msg="this test should only run with jruby")
+      skip(msg) unless Nokogiri.jruby?
+    end
+
+    def refute_valgrind_errors
+      # force the test to explicitly declare a skip
+      raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
+
+      yield.tap do
+        GC.start(full_mark: true) if GC_LEVEL == "minor"
       end
     end
 

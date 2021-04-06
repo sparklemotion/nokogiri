@@ -96,8 +96,9 @@ module Nokogiri
         assert !node.namespaced_key?('foo', 'foo')
       end
 
-      def test_set_attribute_frees_nodes # testing a segv
-        skip("JRuby doesn't do GC.") if Nokogiri.jruby?
+      def test_set_attribute_frees_nodes
+        # testing a segv
+        skip_unless_libxml2("JRuby doesn't do GC.")
         document = Nokogiri::XML.parse("<foo></foo>")
 
         node = document.root

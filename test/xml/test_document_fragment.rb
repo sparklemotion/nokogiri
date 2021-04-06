@@ -250,13 +250,12 @@ module Nokogiri
           Nokogiri::XML::DocumentFragment.parse(input) # assert_nothing_raised
         end
 
-        if Nokogiri.uses_libxml?
-          def test_dup_should_exist_in_a_new_document
-            # https://github.com/sparklemotion/nokogiri/issues/1063
-            original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
-            duplicate = original.dup
-            assert_not_equal(original.document, duplicate.document)
-          end
+        def test_dup_should_exist_in_a_new_document
+          skip_unless_libxml2("this is only true in the C extension")
+          # https://github.com/sparklemotion/nokogiri/issues/1063
+          original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+          duplicate = original.dup
+          assert_not_equal(original.document, duplicate.document)
         end
 
         def test_dup_should_create_an_xml_document_fragment
@@ -280,21 +279,22 @@ module Nokogiri
           assert_not_nil(duplicate.at_css("b"))
         end
 
-        if Nokogiri.uses_libxml?
-          def test_for_libxml_in_context_fragment_parsing_bug_workaround
-            10.times do
-              fragment = Nokogiri::XML.fragment("<div></div>")
-              parent = fragment.children.first
-              child = parent.parse("<h1></h1>").first
-              parent.add_child(child)
+        def test_for_libxml_in_context_fragment_parsing_bug_workaround
+          skip_unless_libxml2("valgrind tests should only run with libxml2")
 
-              GC.start
-            end
+          refute_valgrind_errors do
+            fragment = Nokogiri::XML.fragment("<div></div>")
+            parent = fragment.children.first
+            child = parent.parse("<h1></h1>").first
+            parent.add_child(child)
           end
+        end
 
-          def test_for_libxml_in_context_memory_badness_when_encountering_encoding_errors
-            # see issue #643 for background
-            # this test exists solely to raise an error during valgrind test runs.
+        def test_for_libxml_in_context_memory_badness_when_encountering_encoding_errors
+          skip_unless_libxml2("valgrind tests should only run with libxml2")
+
+          # see issue #643 for background
+          refute_valgrind_errors do
             html = <<~EOHTML
               <html>
                 <head>

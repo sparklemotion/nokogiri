@@ -338,7 +338,7 @@ module Nokogiri
         end
 
         def test_parse_document
-          skip("JRuby SAXParser only parses well-formed XML documents") unless Nokogiri.uses_libxml?
+          skip_unless_libxml2("JRuby SAXParser only parses well-formed XML documents")
           @parser.parse_memory(<<~eoxml)
             <p>Paragraph 1</p>
             <p>Paragraph 2</p>
