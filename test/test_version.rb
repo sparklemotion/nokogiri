@@ -28,13 +28,9 @@ module TestVersionInfoTests
     assert_equal(::Gem::Platform.local.to_s, Nokogiri::VERSION_INFO["ruby"]["gem_platform"])
   end
 
-  def test_version_info_for_xerces
-    skip_unless_jruby("xerces is only used for JRuby")
+  def test_version_info_for_xerces_and_nekohtml
+    skip_unless_jruby("xerces/nekohtml is only used for JRuby")
     assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xerces"])
-  end
-
-  def test_version_info_for_nekohtml
-    skip_unless_jruby("nekohtml is only used for JRuby")
     assert_equal(Nokogiri::NEKO_VERSION, version_info["other_libraries"]["nekohtml"])
   end
 
