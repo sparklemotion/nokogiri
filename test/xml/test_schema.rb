@@ -9,7 +9,7 @@ module Nokogiri
       end
 
       def test_issue_1985_segv_on_schema_parse
-        skip("Pure Java version doesn't have this bug") unless Nokogiri.uses_libxml?
+        skip_unless_libxml2("Pure Java version doesn't have this bug")
 
         # This is a test for a workaround for a bug in LibXML2.  The upstream
         # bug is here: https://gitlab.gnome.org/GNOME/libxml2/issues/148

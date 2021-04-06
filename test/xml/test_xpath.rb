@@ -317,31 +317,35 @@ module Nokogiri
       end
 
       def test_custom_xpath_handler_with_args_under_gc_pressure
-        # see http://github.com/sparklemotion/nokogiri/issues/#issue/345
-        tool_inspector = Class.new do
-          def name_equals(nodeset, name, *args)
-            nodeset.all? do |node|
-              args.each { |thing| thing.inspect }
-              node["name"] == name
+        skip_unless_libxml2("valgrind tests should only run with libxml2")
+
+        refute_valgrind_errors do
+          # see http://github.com/sparklemotion/nokogiri/issues/#issue/345
+          tool_inspector = Class.new do
+            def name_equals(nodeset, name, *args)
+              nodeset.all? do |node|
+                args.each { |thing| thing.inspect }
+                node["name"] == name
+              end
             end
-          end
-        end.new
+          end.new
 
-        xml = <<-EOXML
-          <toolbox>
-            #{"<tool name='hammer'/><tool name='wrench'/>" * 10}
-          </toolbox>
-        EOXML
-        doc = Nokogiri::XML xml
+          xml = <<~EOXML
+            <toolbox>
+              #{"<tool name='hammer'/><tool name='wrench'/>" * 10}
+            </toolbox>
+          EOXML
+          doc = Nokogiri::XML xml
 
-        # long list of long arguments, to apply GC pressure during
-        # ruby_funcall argument marshalling
-        xpath = ["//tool[name_equals(.,'hammer'"]
-        1000.times { xpath << "'unused argument #{'x' * 1000}'" }
-        xpath << "'unused argument')]"
-        xpath = xpath.join(',')
+          # long list of long arguments, to apply GC pressure during
+          # ruby_funcall argument marshalling
+          xpath = ["//tool[name_equals(.,'hammer'"]
+          1000.times { xpath << "'unused argument #{'x' * 1000}'" }
+          xpath << "'unused argument')]"
+          xpath = xpath.join(',')
 
-        assert_equal doc.xpath("//tool[@name='hammer']"), doc.xpath(xpath, tool_inspector)
+          assert_equal doc.xpath("//tool[@name='hammer']"), doc.xpath(xpath, tool_inspector)
+        end
       end
 
       def test_custom_xpath_without_arguments

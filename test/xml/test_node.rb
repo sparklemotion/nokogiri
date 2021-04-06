@@ -187,7 +187,7 @@ module Nokogiri
         end
 
         def test_dup_to_another_document
-          skip("Node.dup with new_parent arg is only implemented on CRuby") unless Nokogiri.uses_libxml?
+          skip_unless_libxml2("Node.dup with new_parent arg is only implemented on CRuby")
           doc1 = HTML::Document.parse("<root><div><p>hello</p></div></root>")
           doc2 = HTML::Document.parse("<div></div>")
 
@@ -1049,7 +1049,7 @@ module Nokogiri
           #  describe how we handle microsoft word's HTML formatting.
           #  this test is descriptive, not prescriptive.
           #
-          skip("Xerces handles this edge case completely differently") unless Nokogiri.uses_libxml?
+          skip_unless_libxml2("Xerces handles this edge case completely differently")
 
           xml = Nokogiri::HTML.parse(<<~EOF)
             <div><o:p>foo</o:p></div>
@@ -1198,7 +1198,7 @@ module Nokogiri
 
         def test_text_node_robustness_gh1426
           skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
-          skip("No need to test libxml-ruby workarounds on JRuby") if Nokogiri.jruby?
+          skip_unless_libxml2("No need to test libxml-ruby workarounds on JRuby")
           # notably, the original bug report was about libxml-ruby interactions
           # this test should blow up under valgrind if we regress on libxml-ruby workarounds
           # side note: this was fixed in libxml-ruby 2.9.0 by https://github.com/xml4r/libxml-ruby/pull/119
@@ -1240,7 +1240,7 @@ module Nokogiri
 
         describe "#line=" do
           it "overrides the line number of a node" do
-            skip("Xerces does not have line numbers for nodes") unless Nokogiri.uses_libxml?
+            skip_unless_libxml2("Xerces does not have line numbers for nodes")
             document = Nokogiri::XML::Document.new
             node = document.create_element('a')
             node.line = 54321

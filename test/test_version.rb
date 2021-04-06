@@ -29,17 +29,17 @@ module TestVersionInfoTests
   end
 
   def test_version_info_for_xerces
-    skip("xerces is only used for JRuby") unless Nokogiri.jruby?
+    skip_unless_jruby("xerces is only used for JRuby")
     assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xerces"])
   end
 
   def test_version_info_for_nekohtml
-    skip("nekohtml is only used for JRuby") unless Nokogiri.jruby?
+    skip_unless_jruby("nekohtml is only used for JRuby")
     assert_equal(Nokogiri::NEKO_VERSION, version_info["other_libraries"]["nekohtml"])
   end
 
   def test_version_info_for_libxml
-    skip("libxml2 is only used for CRuby") unless Nokogiri.uses_libxml?
+    skip_unless_libxml2("libxml2 is only used for CRuby")
 
     if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
       assert_equal("packaged", version_info["libxml"]["source"])
@@ -66,7 +66,7 @@ module TestVersionInfoTests
   end
 
   def test_version_info_for_libxslt
-    skip("libxslt is only used for CRuby") unless Nokogiri.uses_libxml?
+    skip_unless_libxml2("libxslt is only used for CRuby")
 
     if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
       assert_equal("packaged", version_info["libxslt"]["source"])

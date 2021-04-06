@@ -203,7 +203,7 @@ module Nokogiri
         end
 
         def test_broken_encoding
-          skip("ultra hard to fix for pure Java version") if Nokogiri.jruby?
+          skip_unless_libxml2("ultra hard to fix for pure Java version")
           @parser.options |= XML::ParseOptions::RECOVER
           # This is ISO_8859-1:
           @parser.<< "<?xml version='1.0' encoding='UTF-8'?><r>Gau\337</r>"
@@ -236,7 +236,7 @@ module Nokogiri
         end
 
         def test_untouched_entities
-          skip("entities are always replaced in pure Java version") if Nokogiri.jruby?
+          skip_unless_libxml2("entities are always replaced in pure Java version")
           @parser.<<(<<-eoxml)
             <p id="asdf&amp;asdf">
               <!-- This is a comment -->

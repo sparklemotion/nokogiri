@@ -204,10 +204,6 @@ module Nokogiri
               let(:doc) { Nokogiri::XML::Document.parse(xml) }
               let(:context_node) { doc.at_css("context") }
 
-              after do
-                GC.start
-              end
-
               describe "with a parent" do
                 let(:expected_callee) do
                   if which == :self
@@ -659,9 +655,11 @@ module Nokogiri
         end
 
         describe "unlinking a node and then reparenting it" do
-          it "not blow up" do
-            # see http://github.com/sparklemotion/nokogiri/issues#issue/22
-            10.times do
+          it "should not cause illegal memory access during GC" do
+            skip_unless_libxml2("valgrind tests should only run with libxml2")
+
+            refute_valgrind_errors do
+              # see http://github.com/sparklemotion/nokogiri/issues#issue/22
               doc = Nokogiri::XML(<<~EOHTML)
                 <root>
                   <a>
@@ -677,8 +675,6 @@ module Nokogiri
               assert c = a.at("c")
               a.add_next_sibling(b.unlink)
               c.unlink
-
-              GC.start
             end
           end
         end

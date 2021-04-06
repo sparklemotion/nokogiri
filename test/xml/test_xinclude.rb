@@ -10,7 +10,7 @@ module Nokogiri
       end
 
       def test_xinclude_on_document_parse
-        skip("Pure Java version XInlcude has a conflict with NekoDTD setting. This will be fixed later.") if Nokogiri.jruby?
+        skip_unless_libxml2("Pure Java version XInlcude has a conflict with NekoDTD setting. This will be fixed later.")
         # first test that xinclude works when requested
         xml_doc = nil
 
@@ -38,7 +38,7 @@ module Nokogiri
       end
 
       def test_xinclude_on_document_node
-        skip("Pure Java version turns XInlcude on against a parser.") if Nokogiri.jruby?
+        skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
         assert_nil @xml.at_xpath('//included')
         @xml.do_xinclude
         assert_not_nil included = @xml.at_xpath('//included')
@@ -46,7 +46,7 @@ module Nokogiri
       end
 
       def test_xinclude_on_element_subtree
-        skip("Pure Java version turns XInlcude on against a parser.") if Nokogiri.jruby? 
+        skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
         assert_nil @xml.at_xpath('//included')
         @xml.root.do_xinclude
         assert_not_nil included = @xml.at_xpath('//included')
@@ -63,7 +63,7 @@ module Nokogiri
       end
 
       def test_include_nonexistent_throws_exception
-        skip("Pure Java version behaves differently") if Nokogiri.jruby?
+        skip_unless_libxml2("Pure Java version behaves differently")
         # break inclusion deliberately
         @xml.at_xpath('//xi:include')['href'] = "nonexistent.xml"
 

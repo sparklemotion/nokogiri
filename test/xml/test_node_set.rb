@@ -883,21 +883,16 @@ module Nokogiri
         describe "adding nodes from different documents to the same NodeSet" do
           # see https://github.com/sparklemotion/nokogiri/issues/1952
           it "should not segfault" do
-            skip("this tests a libxml2-specific issue") if Nokogiri.jruby?
+            skip_unless_libxml2("valgrind tests should only run with libxml2")
 
-            xml = <<~EOF
-              <?xml version="1.0" encoding="UTF-8"?>
-              <container></container>
-            EOF
+            node_set = refute_valgrind_errors do
+              xml = <<~EOF
+                <?xml version="1.0" encoding="UTF-8"?>
+                <container></container>
+              EOF
 
-            # proc that returns Nodes but allows the Documents to be GCed
-            scope = lambda do
               Nokogiri::XML::Document.parse(xml).css("container") + Nokogiri::XML::Document.parse(xml).css("container")
             end
-            node_set = scope.call
-
-            # kick off major GC
-            GC.start
 
             # see if everything's still there
             node_set.to_s
