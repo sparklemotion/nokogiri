@@ -1,0 +1,12 @@
+Gemfile.lock
+ext/nokogumbo/*
+!ext/nokogumbo/extconf.rb
+!ext/nokogumbo/nokogumbo.c
+/lib/nokogumbo/nokogumbo.bundle
+/lib/nokogumbo/nokogumbo.so
+/lib/nokogumbo/nokogumbo.dll
+/pkg
+/tmp
+/gumbo-parser/googletest
+/gumbo-parser/build
+/test/html5lib-tests
