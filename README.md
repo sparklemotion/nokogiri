@@ -271,6 +271,9 @@ Some additional libraries may be distributed with your version of Nokogiri. Plea
 - Akinori MUSHA
 - John Shahid
 - Karol Bucek
+- Sam Ruby
+- Craig Barnes
+- Stephen Checkoway
 - Lars Kanis
 - Sergio Arbeo
 - Timothy Elliott

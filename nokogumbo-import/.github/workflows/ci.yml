@@ -1,0 +1,86 @@
+name: CI Test
+
+on:
+  schedule:
+    - cron: '0 0 * * 5'
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        ruby: [2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.0]
+        system_libraries: [true, false]
+        exclude:
+        - {os: macos, ruby: 2.1}
+        - {os: macos, ruby: 2.2}
+        - {os: macos, ruby: 2.3}
+        - {os: windows, ruby: 2.1}
+        - {os: windows, ruby: 2.2}
+        - {os: windows, ruby: 2.3}
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+        
+    - name: install html5lib tests
+      run: git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
+
+    - name: Run tests
+      env:
+        USE_SYSTEM_LIBRARIES: ${{ matrix.system_libraries }}
+      shell: bash
+      run: ./scripts/ci-test.sh
+
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+        bundler-cache: true
+
+    - name: Install ragel
+      if: matrix.os == 'ubuntu'
+      run: sudo apt-get install -y ragel
+
+    - name: Install ragel
+      if: matrix.os == 'macos'
+      run: brew install ragel
+
+    - name: Test Gumbo and gem packaging
+      shell: bash
+      run: ./scripts/ci-package-test.sh
+
+  gentoo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker pull
+      run: docker pull stevecheckoway/gentoo-ruby
+
+    - name: Test Gentoo Linux
+      shell: bash
+      run: ./scripts/gentoo-test.sh
