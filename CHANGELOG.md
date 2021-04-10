@@ -26,7 +26,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Improved
 
-* Reduce the number of object allocations needed when parsing an HTML::DocumentFragment. [[#2087](https://github.com/sparklemotion/nokogiri/issues/2087)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
+* Reduce the number of object allocations needed when parsing an `HTML::DocumentFragment`. [[#2087](https://github.com/sparklemotion/nokogiri/issues/2087)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * [JRuby] Update the algorithm used to calculate `Node#line` to be wrong less-often. The underlying parser, Xerces, does not track line numbers, and so we've always used a hacky solution for this method. [[#1223](https://github.com/sparklemotion/nokogiri/issues/1223), [#2177](https://github.com/sparklemotion/nokogiri/issues/2177)]
 * Introduce `--enable-system-libraries` and `--disable-system-libraries` flags to `extconf.rb`. These flags provide the same functionality as `--use-system-libraries` and the `NOKOGIRI_USE_SYSTEM_LIBRARIES` environment variable, but are more idiomatic. [[#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
 * [TruffleRuby] `--disable-static` is now the default on TruffleRuby when the packaged libraries are used. This is more flexible and compiles faster. (Note, though, that the default on TR is still to use system libraries.) [[#2191](https://github.com/sparklemotion/nokogiri/issues/2191#issuecomment-780724627), [#2193](https://github.com/sparklemotion/nokogiri/issues/2193)] (Thanks, [@eregon](https://github.com/eregon)!)
@@ -108,7 +108,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 ### Improved
 
 * [CRuby] Handle incorrectly-closed HTML comments as WHATWG recommends for browsers. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
-* {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
+* `{HTML,XML}::Document#parse` now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
 * [CRuby] Nokogumbo builds faster because it can now use header files provided by Nokogiri. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
@@ -120,7 +120,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute. commit e45dedd
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
-* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
+* [JRuby] `XML::Schema` XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [[#1890](https://github.com/sparklemotion/nokogiri/issues/1890), [#2148](https://github.com/sparklemotion/nokogiri/issues/2148)]
 * [JRuby] Clarify exception message when custom XPath functions can't be resolved.
@@ -312,17 +312,17 @@ This CVE's public notice is [#1915](https://github.com/sparklemotion/nokogiri/is
 * `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [[#1800](https://github.com/sparklemotion/nokogiri/issues/1800)]
 * Introduce `XML::Node#wrap` which does what `XML::NodeSet#wrap` has always done, but for a single node. [[#1531](https://github.com/sparklemotion/nokogiri/issues/1531)] (Thanks, [@ethirajsrinivasan](https://github.com/ethirajsrinivasan)!)
 * [MRI] Improve installation experience on macOS High Sierra (Darwin). [[#1812](https://github.com/sparklemotion/nokogiri/issues/1812), [#1813](https://github.com/sparklemotion/nokogiri/issues/1813)] (Thanks, [@gpakosz](https://github.com/gpakosz) and [@nurse](https://github.com/nurse)!)
-* [MRI] Node#dup supports copying a node directly to a new document. See the method documentation for details.
-* [MRI] DocumentFragment#dup is now more memory-efficient, avoiding making unnecessary copies. [[#1063](https://github.com/sparklemotion/nokogiri/issues/1063)]
-* [JRuby] NodeSet has been rewritten to improve performance! [[#1795](https://github.com/sparklemotion/nokogiri/issues/1795)]
+* [MRI] `Node#dup` supports copying a node directly to a new document. See the method documentation for details.
+* [MRI] `DocumentFragment#dup` is now more memory-efficient, avoiding making unnecessary copies. [[#1063](https://github.com/sparklemotion/nokogiri/issues/1063)]
+* [JRuby] `NodeSet` has been rewritten to improve performance! [[#1795](https://github.com/sparklemotion/nokogiri/issues/1795)]
 
 
 ### Fixed
 
 * `NodeSet#each` now returns `self` instead of zero. [[#1822](https://github.com/sparklemotion/nokogiri/issues/1822)] (Thanks, [@olehif](https://github.com/olehif)!)
-* [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [[#1810](https://github.com/sparklemotion/nokogiri/issues/1810)]
+* [MRI] Address a memory leak when using `XML::Builder` to create nodes with namespaces. [[#1810](https://github.com/sparklemotion/nokogiri/issues/1810)]
 * [MRI] Address a memory leak when unparenting a DTD. [[#1784](https://github.com/sparklemotion/nokogiri/issues/1784)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
-* [MRI] Use RbConfig::CONFIG instead of ::MAKEFILE_CONFIG to fix installations that use Makefile macros. [[#1820](https://github.com/sparklemotion/nokogiri/issues/1820)] (Thanks, [@nobu](https://github.com/nobu)!)
+* [MRI] Use `RbConfig::CONFIG` instead of `::MAKEFILE_CONFIG` to fix installations that use Makefile macros. [[#1820](https://github.com/sparklemotion/nokogiri/issues/1820)] (Thanks, [@nobu](https://github.com/nobu)!)
 * [JRuby] Decrease large memory usage when making nested XPath queries. [[#1749](https://github.com/sparklemotion/nokogiri/issues/1749)]
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [[#1774](https://github.com/sparklemotion/nokogiri/issues/1774)]
@@ -385,10 +385,10 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 
 ### Added
 
-* Node#classes, #add_class, #append_class, and #remove_class are added.
-* NodeSet#append_class is added.
-* NodeSet#remove_attribute is a new alias for NodeSet#remove_attr.
-* NodeSet#each now returns an Enumerator when no block is passed (Thanks, [@park53kr](https://github.com/park53kr)!)
+* `Node#classes`, `#add_class`, `#append_class`, and `#remove_class` are added.
+* `NodeSet#append_class` is added.
+* `NodeSet#remove_attribute` is a new alias for `NodeSet#remove_attr`.
+* `NodeSet#each` now returns an `Enumerator` when no block is passed (Thanks, [@park53kr](https://github.com/park53kr)!)
 * [JRuby] General improvements in JRuby implementation (Thanks, [@kares](https://github.com/kares)!)
 
 
@@ -397,7 +397,7 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 * CSS attribute selectors now gracefully handle queries using integers. [[#711](https://github.com/sparklemotion/nokogiri/issues/711)]
 * Handle ASCII-8BIT encoding on fragment input [[#553](https://github.com/sparklemotion/nokogiri/issues/553)]
 * Handle non-string return values within `Reader` [[#898](https://github.com/sparklemotion/nokogiri/issues/898)]
-* [JRuby] Allow Node#replace to insert Comment and CDATA nodes. [[#1666](https://github.com/sparklemotion/nokogiri/issues/1666)]
+* [JRuby] Allow `Node#replace` to insert Comment and CDATA nodes. [[#1666](https://github.com/sparklemotion/nokogiri/issues/1666)]
 * [JRuby] Stability and speed improvements to `Node`, `Sax::PushParser`, and the JRuby implementation [[#1708](https://github.com/sparklemotion/nokogiri/issues/1708), [#1710](https://github.com/sparklemotion/nokogiri/issues/1710), [#1501](https://github.com/sparklemotion/nokogiri/issues/1501)]
 
 
@@ -422,7 +422,7 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 
 ### Fixed
 
-* Node#serialize once again returns UTF-8-encoded strings. [[#1659](https://github.com/sparklemotion/nokogiri/issues/1659)]
+* `Node#serialize` once again returns UTF-8-encoded strings. [[#1659](https://github.com/sparklemotion/nokogiri/issues/1659)]
 * [JRuby] made SAX parsing of characters consistent with C implementation [[#1676](https://github.com/sparklemotion/nokogiri/issues/1676)] (Thanks, [[@andrew](https://github.com/andrew)-aladev](https://github.com/andrew-aladev)!)
 * [MRI] Predefined entities, when inspected, no longer cause a segfault. [[#1238](https://github.com/sparklemotion/nokogiri/issues/1238)]
 
@@ -439,7 +439,7 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 
 ### Fixed
 
-* NodeSet#first with an integer argument longer than the length of the NodeSet now correctly clamps the length of the returned NodeSet to the original length. [[#1650](https://github.com/sparklemotion/nokogiri/issues/1650)] (Thanks, [@Derenge](https://github.com/Derenge)!)
+* `NodeSet#first` with an integer argument longer than the length of the NodeSet now correctly clamps the length of the returned NodeSet to the original length. [[#1650](https://github.com/sparklemotion/nokogiri/issues/1650)] (Thanks, [@Derenge](https://github.com/Derenge)!)
 * [MRI] Ensure CData.new raises TypeError if the `content` argument is not implicitly convertible into a string. [[#1669](https://github.com/sparklemotion/nokogiri/issues/1669)]
 
 
@@ -463,10 +463,10 @@ Please note that this deprecation note only applies to the precompiled Windows g
 
 ### Added
 
-* NodeSet#clone is now an alias for NodeSet#dup [[#1503](https://github.com/sparklemotion/nokogiri/issues/1503)] (Thanks, [@stephankaag](https://github.com/stephankaag)!)
+* `NodeSet#clone` is now an alias for `NodeSet#dup` [[#1503](https://github.com/sparklemotion/nokogiri/issues/1503)] (Thanks, [@stephankaag](https://github.com/stephankaag)!)
 * Allow Processing Instructions and Comments as children of a document root. [[#1033](https://github.com/sparklemotion/nokogiri/issues/1033)] (Thanks, [@windwiny](https://github.com/windwiny)!)
-* [MRI] PushParser#replace_entities and #replace_entities= will control whether entities are replaced or not. [[#1017](https://github.com/sparklemotion/nokogiri/issues/1017)] (Thanks, [@spraints](https://github.com/spraints)!)
-* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [[#1304](https://github.com/sparklemotion/nokogiri/issues/1304), [#1637](https://github.com/sparklemotion/nokogiri/issues/1637)] (Thanks, [@spk](https://github.com/spk) and [@ccarruitero](https://github.com/ccarruitero)!)
+* [MRI] `PushParser#replace_entities` and `#replace_entities=` will control whether entities are replaced or not. [[#1017](https://github.com/sparklemotion/nokogiri/issues/1017)] (Thanks, [@spraints](https://github.com/spraints)!)
+* [MRI] `SyntaxError#to_s` now includes line number, column number, and log level if made available by the parser. [[#1304](https://github.com/sparklemotion/nokogiri/issues/1304), [#1637](https://github.com/sparklemotion/nokogiri/issues/1637)] (Thanks, [@spk](https://github.com/spk) and [@ccarruitero](https://github.com/ccarruitero)!)
 * [MRI] Cross-built Windows gems now support Ruby 2.4
 * [MRI] Support for frozen string literals. [[#1413](https://github.com/sparklemotion/nokogiri/issues/1413)]
 * [MRI] Support for installing Nokogiri on a machine in FIPS-enabled mode [[#1544](https://github.com/sparklemotion/nokogiri/issues/1544)]
@@ -478,15 +478,15 @@ Please note that this deprecation note only applies to the precompiled Windows g
 
 ### Fixed
 
-* HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [[#1577](https://github.com/sparklemotion/nokogiri/issues/1577)] (Thanks for the test case, [@gregors](https://github.com/gregors)!)
+* `HTML::SAX::Parser#parse_io` now correctly parses HTML and not XML [[#1577](https://github.com/sparklemotion/nokogiri/issues/1577)] (Thanks for the test case, [@gregors](https://github.com/gregors)!)
 * Support installation on systems with a `lib64` site config. [[#1562](https://github.com/sparklemotion/nokogiri/issues/1562)]
 * [MRI] on OpenBSD, do not require gcc if using system libraries [[#1515](https://github.com/sparklemotion/nokogiri/issues/1515)] (Thanks, [@jeremyevans](https://github.com/jeremyevans)!)
-* [MRI] XML::Attr.new checks type of Document arg to prevent segfaults. [[#1477](https://github.com/sparklemotion/nokogiri/issues/1477)]
+* [MRI] `XML::Attr.new` checks type of Document arg to prevent segfaults. [[#1477](https://github.com/sparklemotion/nokogiri/issues/1477)]
 * [MRI] Prefer xmlCharStrdup (and friends) to strdup (and friends), which can cause problems on some platforms. [[#1517](https://github.com/sparklemotion/nokogiri/issues/1517)] (Thanks, [@jeremy](https://github.com/jeremy)!)
 * [JRuby] correctly append a text node before another text node [[#1318](https://github.com/sparklemotion/nokogiri/issues/1318)] (Thanks, [@jkraemer](https://github.com/jkraemer)!)
 * [JRuby] custom xpath functions returning an integer now work correctly [[#1595](https://github.com/sparklemotion/nokogiri/issues/1595)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [[#1281](https://github.com/sparklemotion/nokogiri/issues/1281), [#1440](https://github.com/sparklemotion/nokogiri/issues/1440)] (Thanks, [@kares](https://github.com/kares)!)
-* [JRuby] XML::Reader now returns parse errors [[#1586](https://github.com/sparklemotion/nokogiri/issues/1586)] (Thanks, [@kares](https://github.com/kares)!)
+* [JRuby] `XML::Reader` now returns parse errors [[#1586](https://github.com/sparklemotion/nokogiri/issues/1586)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] Empty NodeSets are now decorated properly. [[#1319](https://github.com/sparklemotion/nokogiri/issues/1319)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] Merged nodes no longer results in Java exceptions during XPath queries. [[#1320](https://github.com/sparklemotion/nokogiri/issues/1320)] (Thanks, [@kares](https://github.com/kares)!)
 
@@ -582,10 +582,10 @@ See this libxslt email post for more:
 
 Several changes were made to improve performance:
 
-* [MRI] Simplify NodeSet#to_a with a minor speed-up. ([#1397](https://github.com/sparklemotion/nokogiri/issues/1397))
-* XML::Node#ancestors optimization. ([#1297](https://github.com/sparklemotion/nokogiri/issues/1297)) (Thanks, Bruno Sutic!)
-* Use Symbol#to_proc where we weren't previously. ([#1296](https://github.com/sparklemotion/nokogiri/issues/1296)) (Thanks, Bruno Sutic!)
-* XML::DTD#each uses implicit block calls. (Thanks, [@glaucocustodio](https://github.com/glaucocustodio)!)
+* [MRI] Simplify `NodeSet#to_a` with a minor speed-up. ([#1397](https://github.com/sparklemotion/nokogiri/issues/1397))
+* `XML::Node#ancestors` optimization. ([#1297](https://github.com/sparklemotion/nokogiri/issues/1297)) (Thanks, Bruno Sutic!)
+* Use `Symbol#to_proc` where we weren't previously. ([#1296](https://github.com/sparklemotion/nokogiri/issues/1296)) (Thanks, Bruno Sutic!)
+* `XML::DTD#each` uses implicit block calls. (Thanks, [@glaucocustodio](https://github.com/glaucocustodio)!)
 * Fall back to the `pkg-config` gem if we're having trouble finding the system libxml2. This should help many FreeBSD users. ([#1417](https://github.com/sparklemotion/nokogiri/issues/1417))
 * Set document encoding appropriately even on blank document. ([#1043](https://github.com/sparklemotion/nokogiri/issues/1043)) (Thanks, [@batter](https://github.com/batter)!)
 
@@ -594,7 +594,7 @@ Several changes were made to improve performance:
 
 * [JRuby] fix slow add_child ([#692](https://github.com/sparklemotion/nokogiri/issues/692))
 * [JRuby] fix load errors when deploying to JRuby/Torquebox ([#1114](https://github.com/sparklemotion/nokogiri/issues/1114)) (Thanks, [@atambo](https://github.com/atambo) and [@jvshahid](https://github.com/jvshahid)!)
-* [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop ([#1042](https://github.com/sparklemotion/nokogiri/issues/1042)) (Thanks, [@mkristian](https://github.com/mkristian)!)
+* [JRuby] fix NPE when inspecting nodes returned by `NodeSet#drop` ([#1042](https://github.com/sparklemotion/nokogiri/issues/1042)) (Thanks, [@mkristian](https://github.com/mkristian)!)
 * [JRuby] fix nil attriubte node's namespace in reader ([#1327](https://github.com/sparklemotion/nokogiri/issues/1327)) (Thanks, [@codekitchen](https://github.com/codekitchen)!)
 * [JRuby] fix Nokogiri munging unicode characters that require more than 2 bytes ([#1113](https://github.com/sparklemotion/nokogiri/issues/1113)) (Thanks, [@mkristian](https://github.com/mkristian)!)
 * [JRuby] allow unlinking an unparented node ([#1112](https://github.com/sparklemotion/nokogiri/issues/1112), [#1152](https://github.com/sparklemotion/nokogiri/issues/1152)) (Thanks, [@esse](https://github.com/esse)!)
@@ -605,7 +605,7 @@ Several changes were made to improve performance:
 * [MRI] Ensure C strings are null-terminated. ([#1381](https://github.com/sparklemotion/nokogiri/issues/1381))
 * [MRI] Ensure Rubygems is loaded before using mini_portile2 at installation. ([#1393](https://github.com/sparklemotion/nokogiri/issues/1393), [#1411](https://github.com/sparklemotion/nokogiri/issues/1411)) (Thanks, [@JonRowe](https://github.com/JonRowe)!)
 * [MRI] Handling another edge case where the `libxml-ruby` gem's global callbacks were smashing the heap. ([#1426](https://github.com/sparklemotion/nokogiri/issues/1426)). (Thanks to [@bbergstrom](https://github.com/bbergstrom) for providing an isolated test case!)
-* [MRI] Ensure encodings are passed to Sax::Parser xmldecl callback. ([#844](https://github.com/sparklemotion/nokogiri/issues/844))
+* [MRI] Ensure encodings are passed to `Sax::Parser` xmldecl callback. ([#844](https://github.com/sparklemotion/nokogiri/issues/844))
 * [MRI] Ensure default ns prefix is applied correctly when reparenting nodes to another document. ([#391](https://github.com/sparklemotion/nokogiri/issues/391)) (Thanks, [@ylecuyer](https://github.com/ylecuyer)!)
 * [MRI] Ensure Reader handles non-existent attributes as expected. ([#1254](https://github.com/sparklemotion/nokogiri/issues/1254)) (Thanks, [@ccutrer](https://github.com/ccutrer)!)
 * [MRI] Cleanup around namespace handling when reparenting nodes. ([#1332](https://github.com/sparklemotion/nokogiri/issues/1332), [#1333](https://github.com/sparklemotion/nokogiri/issues/1333), [#1444](https://github.com/sparklemotion/nokogiri/issues/1444)) (Thanks, [@cuttrer](https://github.com/cuttrer) and [@bradleybeddoes](https://github.com/bradleybeddoes)!)
@@ -679,7 +679,7 @@ See [#1374](https://github.com/sparklemotion/nokogiri/issues/1374) and [#1376](h
 ### Fixed
 
 * [JRuby] reset the namespace cache when replacing the document's innerHtml ([#1265](https://github.com/sparklemotion/nokogiri/issues/1265)) (Thanks, [@mkristian](https://github.com/mkristian)!)
-* [JRuby] Document#parse should support IO objects that respond to #read. ([#1124](https://github.com/sparklemotion/nokogiri/issues/1124)) (Thanks, Jake Byman!)
+* [JRuby] `Document#parse` should support IO objects that respond to `#read`. ([#1124](https://github.com/sparklemotion/nokogiri/issues/1124)) (Thanks, Jake Byman!)
 * [MRI] Duplicate-id errors when setting the `id` attribute on HTML documents are now silenced. ([#1262](https://github.com/sparklemotion/nokogiri/issues/1262))
 * [JRuby] SAX parser cuts texts in pieces when square brackets exist. ([#1261](https://github.com/sparklemotion/nokogiri/issues/1261))
 * [JRuby] Namespaced attributes aren't removed by remove_attribute. ([#1299](https://github.com/sparklemotion/nokogiri/issues/1299))
@@ -723,19 +723,19 @@ Note that 1.6.6.0 was not released.
 
 ### Added
 
-* Unified Node and NodeSet implementations of #search, #xpath and #css.
-* Added Node#lang and Node#lang=.
-* bin/nokogiri passes the URI to parse() if an HTTP URL is given.
-* bin/nokogiri now loads ~/.nokogirirc so user can define helper methods, etc.
-* bin/nokogiri can be configured to use Pry instead of IRB by adding a couple of lines to ~/.nokogirirc. ([#1198](https://github.com/sparklemotion/nokogiri/issues/1198))
-* bin/nokogiri can better handle urls from STDIN (aiding use of xargs). ([#1065](https://github.com/sparklemotion/nokogiri/issues/1065))
+* Unified `Node` and `NodeSet` implementations of `#search`, `#xpath` and `#css`.
+* Added `Node#lang` and `Node#lang=`.
+* `bin/nokogiri` passes the URI to `parse()` if an HTTP URL is given.
+* `bin/nokogiri` now loads `~/.nokogirirc` so user can define helper methods, etc.
+* `bin/nokogiri` can be configured to use Pry instead of IRB by adding a couple of lines to ~/.nokogirirc. ([#1198](https://github.com/sparklemotion/nokogiri/issues/1198))
+* `bin/nokogiri` can better handle urls from STDIN (aiding use of xargs). ([#1065](https://github.com/sparklemotion/nokogiri/issues/1065))
 * JRuby 9K support.
 
 
 ### Fixed
 
-* DocumentFragment#search now matches against root nodes. ([#1205](https://github.com/sparklemotion/nokogiri/issues/1205))
-* (MRI) More fixes related to handling libxml2 parse errors during DocumentFragment#dup. ([#1196](https://github.com/sparklemotion/nokogiri/issues/1196))
+* `DocumentFragment#search` now matches against root nodes. ([#1205](https://github.com/sparklemotion/nokogiri/issues/1205))
+* (MRI) More fixes related to handling libxml2 parse errors during `DocumentFragment#dup`. ([#1196](https://github.com/sparklemotion/nokogiri/issues/1196))
 * (JRuby) Builder now handles namespace hrefs properly when there is a default ns. ([#1039](https://github.com/sparklemotion/nokogiri/issues/1039))
 * (JRuby) Clear the XPath cache on attr removal. ([#1109](https://github.com/sparklemotion/nokogiri/issues/1109))
 * `XML::Comment.new` argument types are now consistent and safe (and documented) across MRI and JRuby. ([#1224](https://github.com/sparklemotion/nokogiri/issues/1224))
@@ -748,14 +748,14 @@ Note that 1.6.6.0 was not released.
 
 ### Added
 
-* Implement Slop#respond_to_missing?. ([#1176](https://github.com/sparklemotion/nokogiri/issues/1176))
+* Implement `Slop#respond_to_missing?`. ([#1176](https://github.com/sparklemotion/nokogiri/issues/1176))
 * Optimized the XPath query generated by an `an+b` CSS query.
 
 
 ### Fixed
 
-* Capture non-parse errors from Document#dup in Document#errors. ([#1196](https://github.com/sparklemotion/nokogiri/issues/1196))
-* (JRuby) Document#canonicalize parameters are now consistent with MRI. ([#1189](https://github.com/sparklemotion/nokogiri/issues/1189))
+* Capture non-parse errors from `Document#dup` in `Document#errors`. ([#1196](https://github.com/sparklemotion/nokogiri/issues/1196))
+* (JRuby) `Document#canonicalize` parameters are now consistent with MRI. ([#1189](https://github.com/sparklemotion/nokogiri/issues/1189))
 
 
 ## 1.6.4.1 / 2014-11-05
@@ -778,7 +778,7 @@ Note that 1.6.6.0 was not released.
 
 ### Fixed
 
-* (MRI) Fix DocumentFragment#element_children ([#1138](https://github.com/sparklemotion/nokogiri/issues/1138)).
+* (MRI) Fix `DocumentFragment#element_children` ([#1138](https://github.com/sparklemotion/nokogiri/issues/1138)).
 * Fix a bug with CSS attribute selector without any prefix where "foo [bar]" was treated as "foo[bar]". ([#1174](https://github.com/sparklemotion/nokogiri/issues/1174))
 
 
@@ -793,7 +793,7 @@ Note that 1.6.6.0 was not released.
 
 ### Added
 
-* Added Node#document? and Node#processing_instruction?
+* Added `Node#document?` and `Node#processing_instruction?`
 
 
 ### Fixed
@@ -801,8 +801,8 @@ Note that 1.6.6.0 was not released.
 * [JRuby] Fix Ruby memory exhaustion vulnerability. [#1087](https://github.com/sparklemotion/nokogiri/issues/1087) (Thanks, [@ocher](https://github.com/ocher))
 * [MRI] Fix segfault during GC when using `libxml-ruby` and `nokogiri` together in multi-threaded environment. [#895](https://github.com/sparklemotion/nokogiri/issues/895) (Thanks, [@ender672](https://github.com/ender672)!)
 * Building on OSX 10.9 stock ruby 2.0.0 now works. [#1101](https://github.com/sparklemotion/nokogiri/issues/1101) (Thanks, [@zenspider](https://github.com/zenspider)!)
-* Node#parse now works again for HTML document nodes (broken in 1.6.2+).
-* Processing instructions can now be added via Node#add_next_sibling.
+* `Node#parse` now works again for HTML document nodes (broken in 1.6.2+).
+* Processing instructions can now be added via `Node#add_next_sibling`.
 
 
 ## 1.6.2.1 / 2014-05-13
@@ -834,31 +834,31 @@ Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
 
 * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32) and add support for native builds on Windows. [#864](https://github.com/sparklemotion/nokogiri/issues/864), [#989](https://github.com/sparklemotion/nokogiri/issues/989), [#1072](https://github.com/sparklemotion/nokogiri/issues/1072)
 * (MRI) Alias CP932 to Windows-31J if iconv does not support Windows-31J.
-* (MRI) Nokogiri now links packaged libraries statically. To disable static linking, pass --disable-static to extconf.rb. [#923](https://github.com/sparklemotion/nokogiri/issues/923)
+* (MRI) Nokogiri now links packaged libraries statically. To disable static linking, pass --disable-static to `extconf.rb`. [#923](https://github.com/sparklemotion/nokogiri/issues/923)
 * (MRI) Fix a library path (LIBPATH) precedence problem caused by CRuby bug [#9760](https://github.com/sparklemotion/nokogiri/issues/9760).
-* (MRI) Nokogiri automatically deletes directories of packaged libraries only used during build. To keep them for debugging purposes, pass --disable-clean to extconf.rb. [#952](https://github.com/sparklemotion/nokogiri/issues/952)
+* (MRI) Nokogiri automatically deletes directories of packaged libraries only used during build. To keep them for debugging purposes, pass --disable-clean to `extconf.rb`. [#952](https://github.com/sparklemotion/nokogiri/issues/952)
 * (MRI) Nokogiri now builds libxml2 properly with iconv support on platforms where libiconv is installed outside the system default directories, such as FreeBSD.
 * Add support for an-b in nth selectors. [#886](https://github.com/sparklemotion/nokogiri/issues/886) (Thanks, Magnus Bergmark!)
 * Add support for bare and multiple :not() functions in selectors. [#887](https://github.com/sparklemotion/nokogiri/issues/887) (Thanks, Magnus Bergmark!)
-* (MRI) Add an extconf.rb option --use-system-libraries, alternative to setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
+* (MRI) Add an `extconf.rb` option --use-system-libraries, alternative to setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
 * (MRI) Update packaged libraries: libxslt to 1.1.28, zlib to 1.2.8, and libiconv to 1.14, respectively.
-* Nokogiri::HTML::Document#title= and #meta_encoding= now always add an element if not present, trying hard to find the best place to put it.
-* Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
-* Nokogiri::XML::Node#prepend_child is added. [#664](https://github.com/sparklemotion/nokogiri/issues/664)
-* Nokogiri::XML::SAX::ParserContext#recovery is added. [#453](https://github.com/sparklemotion/nokogiri/issues/453)
-* Fix documentation for XML::Node#namespace. [#803](https://github.com/sparklemotion/nokogiri/issues/803) [#802](https://github.com/sparklemotion/nokogiri/issues/802) (Thanks, Hoylen Sue)
-* Allow Nokogiri::XML::Node#parse from unparented non-element nodes. [#407](https://github.com/sparklemotion/nokogiri/issues/407)
+* `Nokogiri::HTML::Document#title=` and `#meta_encoding`= now always add an element if not present, trying hard to find the best place to put it.
+* `Nokogiri::XML::DTD#html_dtd?` and `#html5_dtd?` are added.
+* `Nokogiri::XML::Node#prepend_child` is added. [#664](https://github.com/sparklemotion/nokogiri/issues/664)
+* `Nokogiri::XML::SAX::ParserContext#recovery` is added. [#453](https://github.com/sparklemotion/nokogiri/issues/453)
+* Fix documentation for `XML::Node#namespace`. [#803](https://github.com/sparklemotion/nokogiri/issues/803) [#802](https://github.com/sparklemotion/nokogiri/issues/802) (Thanks, Hoylen Sue)
+* Allow `Nokogiri::XML::Node#parse` from unparented non-element nodes. [#407](https://github.com/sparklemotion/nokogiri/issues/407)
 
 ### Fixed
 
 * Ensure :only-child pseudo class works within :not pseudo class. [#858](https://github.com/sparklemotion/nokogiri/issues/858) (Thanks, Yamagishi Kazutoshi!)
-* Don't call pkg_config when using bundled libraries in extconf.rb [#931](https://github.com/sparklemotion/nokogiri/issues/931) (Thanks, Shota Fukumori!)
+* Don't call pkg_config when using bundled libraries in `extconf.rb` [#931](https://github.com/sparklemotion/nokogiri/issues/931) (Thanks, Shota Fukumori!)
 * Nokogiri.parse() does not mistake a non-HTML document like a RSS document as HTML document. [#932](https://github.com/sparklemotion/nokogiri/issues/932) (Thanks, Yamagishi Kazutoshi!)
 * (MRI) Perform a node type check before adding a child node to another. Previously adding a text node to another as a child could cause a SEGV. [#1092](https://github.com/sparklemotion/nokogiri/issues/1092)
 * (JRuby) XSD validation crashes in Java version. [#373](https://github.com/sparklemotion/nokogiri/issues/373)
 * (JRuby) Document already has a root node error while using Builder. [#646](https://github.com/sparklemotion/nokogiri/issues/646)
 * (JRuby) c14n tests are all passing on JRuby. [#226](https://github.com/sparklemotion/nokogiri/issues/226)
-* Parsing empty documents raise SyntaxError in strict mode. [#1005](https://github.com/sparklemotion/nokogiri/issues/1005)
+* Parsing empty documents raise `SyntaxError` in strict mode. [#1005](https://github.com/sparklemotion/nokogiri/issues/1005)
 * (JRuby) Make xpath faster by caching the xpath context. [#741](https://github.com/sparklemotion/nokogiri/issues/741)
 * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. [#998](https://github.com/sparklemotion/nokogiri/issues/998)
 * (JRuby) Inconsistent behavior aliasing the default namespace. [#940](https://github.com/sparklemotion/nokogiri/issues/940)
@@ -947,7 +947,7 @@ mentioned in the notes for v1.5.10.
 
 * (JRuby) Fix EmptyStackException thrown by elements with xlink:href attributes and no base_uri [#534](https://github.com/sparklemotion/nokogiri/issues/534), [#805](https://github.com/sparklemotion/nokogiri/issues/805). (Thanks, Patrick Quinn and Brian Hoffman!)
 * Fixes duplicate attributes issue introduced in 1.5.7. [#865](https://github.com/sparklemotion/nokogiri/issues/865)
-* Allow use of a prefixed namespace on a root node using Nokogiri::XML::Builder [#868](https://github.com/sparklemotion/nokogiri/issues/868)
+* Allow use of a prefixed namespace on a root node using `Nokogiri::XML::Builder` [#868](https://github.com/sparklemotion/nokogiri/issues/868)
 
 
 ## 1.5.7 / 2013-03-18
@@ -959,14 +959,14 @@ mentioned in the notes for v1.5.10.
 
 ### Fixed
 
-* SAX::Parser.parse_io throw an error when used with lower case encoding. [#828](https://github.com/sparklemotion/nokogiri/issues/828)
+* `SAX::Parser.parse_io` throw an error when used with lower case encoding. [#828](https://github.com/sparklemotion/nokogiri/issues/828)
 * (JRuby) Java Nokogiri is finally green (passes all tests) under 1.8 and 1.9 mode. High five everyone. [#798](https://github.com/sparklemotion/nokogiri/issues/798), [#705](https://github.com/sparklemotion/nokogiri/issues/705)
-* (JRuby) Nokogiri::XML::Reader broken (as a pull parser) on jruby - reads the whole XML document. [#831](https://github.com/sparklemotion/nokogiri/issues/831)
+* (JRuby) `Nokogiri::XML::Reader` broken (as a pull parser) on jruby - reads the whole XML document. [#831](https://github.com/sparklemotion/nokogiri/issues/831)
 * (JRuby) JRuby hangs parsing "&amp;". [#837](https://github.com/sparklemotion/nokogiri/issues/837)
 * (JRuby) JRuby NPE parsing an invalid XML instruction. [#838](https://github.com/sparklemotion/nokogiri/issues/838)
-* (JRuby) Node#content= incompatibility. [#839](https://github.com/sparklemotion/nokogiri/issues/839)
+* (JRuby) `Node#content=` incompatibility. [#839](https://github.com/sparklemotion/nokogiri/issues/839)
 * (JRuby) to_xhtml doesn't print the last slash for self-closing tags in JRuby. [#834](https://github.com/sparklemotion/nokogiri/issues/834)
-* (JRuby) Adding an EntityReference after a Text node mangles the entity in JRuby. [#835](https://github.com/sparklemotion/nokogiri/issues/835)
+* (JRuby) Adding an `EntityReference` after a Text node mangles the entity in JRuby. [#835](https://github.com/sparklemotion/nokogiri/issues/835)
 * (JRuby) JRuby version inconsistency: nil for empty attributes. [#818](https://github.com/sparklemotion/nokogiri/issues/818)
 * CSS queries for classes (e.g., ".foo") now treat all whitespace identically. [#854](https://github.com/sparklemotion/nokogiri/issues/854)
 * Namespace behavior cleaned up and made consistent between JRuby and MRI. [#846](https://github.com/sparklemotion/nokogiri/issues/846), [#801](https://github.com/sparklemotion/nokogiri/issues/801) (Thanks, Michael Klein!)
@@ -977,14 +977,14 @@ mentioned in the notes for v1.5.10.
 
 ### Added
 
-* Improved performance of XML::Document#collect_namespaces. [#761](https://github.com/sparklemotion/nokogiri/issues/761) (Thanks, Juergen Mangler!)
-* New callback SAX::Document#processing_instruction (Thanks, Kitaiti Makoto!)
-* Node#native_content= allows setting unescaped node contant. [#768](https://github.com/sparklemotion/nokogiri/issues/768)
+* Improved performance of `XML::Document#collect_namespaces`. [#761](https://github.com/sparklemotion/nokogiri/issues/761) (Thanks, Juergen Mangler!)
+* New callback `SAX::Document#processing_instruction` (Thanks, Kitaiti Makoto!)
+* `Node#native_content=` allows setting unescaped node content. [#768](https://github.com/sparklemotion/nokogiri/issues/768)
 * XPath lookup with namespaces supports symbol keys. [#729](https://github.com/sparklemotion/nokogiri/issues/729) (Thanks, Ben Langfeld.)
-* XML::Node#[]= stringifies values. [#729](https://github.com/sparklemotion/nokogiri/issues/729) (Thanks, Ben Langfeld.)
-* bin/nokogiri will process a document from $stdin
-* bin/nokogiri -e will execute a program from the command line
-* (JRuby) bin/nokogiri --version will print the Xerces and NekoHTML versions.
+* `XML::Node#[]=` stringifies values. [#729](https://github.com/sparklemotion/nokogiri/issues/729) (Thanks, Ben Langfeld.)
+* `bin/nokogiri` will process a document from $stdin
+* `bin/nokogiri -e` will execute a program from the command line
+* (JRuby) `bin/nokogiri --version` will print the Xerces and NekoHTML versions.
 
 
 ### Fixed
@@ -994,15 +994,15 @@ mentioned in the notes for v1.5.10.
 * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. [#756](https://github.com/sparklemotion/nokogiri/issues/756) (Thanks, Bradley Schaefer!)
 * Prefixed element inconsistency between CRuby and JRuby. [#712](https://github.com/sparklemotion/nokogiri/issues/712)
 * (JRuby) space prior to xml preamble causes nokogiri to fail parsing. (fixed along with [#748](https://github.com/sparklemotion/nokogiri/issues/748)) [#790](https://github.com/sparklemotion/nokogiri/issues/790)
-* (JRuby) Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. [#794](https://github.com/sparklemotion/nokogiri/issues/794), [#797](https://github.com/sparklemotion/nokogiri/issues/797)
+* (JRuby) Fixed the bug `Nokogiri::XML::Node#content` inconsistency between Java and C. [#794](https://github.com/sparklemotion/nokogiri/issues/794), [#797](https://github.com/sparklemotion/nokogiri/issues/797)
 * (JRuby) raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. [#719](https://github.com/sparklemotion/nokogiri/issues/719)
 * (JRuby) doesn't coerce namespaces out of strings on a direct subclass of Node. [#715](https://github.com/sparklemotion/nokogiri/issues/715)
-* (JRuby) Node#content now renders newlines properly. [#737](https://github.com/sparklemotion/nokogiri/issues/737) (Thanks, Piotr Szmielew!)
+* (JRuby) `Node#content` now renders newlines properly. [#737](https://github.com/sparklemotion/nokogiri/issues/737) (Thanks, Piotr Szmielew!)
 * (JRuby) Unknown namespace are ignore when the recover option is used. [#748](https://github.com/sparklemotion/nokogiri/issues/748)
 * (JRuby) XPath queries for namespaces should not throw exceptions when called twice in a row. [#764](https://github.com/sparklemotion/nokogiri/issues/764)
 * (JRuby) More consistent (with libxml2) whitespace formatting when emitting XML. [#771](https://github.com/sparklemotion/nokogiri/issues/771)
 * (JRuby) namespaced attributes broken when appending raw xml to builder. [#770](https://github.com/sparklemotion/nokogiri/issues/770)
-* (JRuby) Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. [#781](https://github.com/sparklemotion/nokogiri/issues/781)
+* (JRuby) `Nokogiri::XML::Document#wrap` raises undefined method `length' for nil:NilClass when trying to << to a node. [#781](https://github.com/sparklemotion/nokogiri/issues/781)
 * (JRuby) Fixed "bad file descriptor" bug when closing open file descriptors. [#495](https://github.com/sparklemotion/nokogiri/issues/495)
 * (JRuby) JRuby/CRuby incompatibility for attribute decorators. [#785](https://github.com/sparklemotion/nokogiri/issues/785)
 * (JRuby) Issues parsing valid XML with no internal subset in the DTD. [#547](https://github.com/sparklemotion/nokogiri/issues/547), [#811](https://github.com/sparklemotion/nokogiri/issues/811)
@@ -1029,7 +1029,7 @@ mentioned in the notes for v1.5.10.
 * When xpath evaluation returns empty NodeSet, decorating NodeSet's base document raises exception. [#514](https://github.com/sparklemotion/nokogiri/issues/514)
 * JRuby raises exception when xpath with namespace is specified. pull request [#681](https://github.com/sparklemotion/nokogiri/issues/681) (Thanks, Piotr Szmielew)
 * JRuby renders nodes without their namespace when subclassing Node. [#695](https://github.com/sparklemotion/nokogiri/issues/695)
-* JRuby raises NAMESPACE_ERR (org.w3c.dom.DOMException) while instantiating RDF::RDFXML::Writer. [#683](https://github.com/sparklemotion/nokogiri/issues/683)
+* JRuby raises NAMESPACE_ERR (org.w3c.dom.DOMException) while instantiating `RDF::RDFXML::Writer`. [#683](https://github.com/sparklemotion/nokogiri/issues/683)
 * JRuby is not able to use namespaces in xpath. [#493](https://github.com/sparklemotion/nokogiri/issues/493)
 * JRuby's Entity resolving should be consistent with C-Nokogiri [#704](https://github.com/sparklemotion/nokogiri/issues/704), [#647](https://github.com/sparklemotion/nokogiri/issues/647), [#703](https://github.com/sparklemotion/nokogiri/issues/703)
 
@@ -1071,13 +1071,13 @@ Insert your own joke about double-negatives here.
 ### Fixed
 
 * Custom xpath functions with empty nodeset arguments cause a segfault. [#634](https://github.com/sparklemotion/nokogiri/issues/634).
-* Nokogiri::XML::Node#css now works for XML documents with default namespaces when the rule contains attribute selector without namespace.
+* `Nokogiri::XML::Node#css` now works for XML documents with default namespaces when the rule contains attribute selector without namespace.
 * Fixed marshalling bugs around how arguments are passed to (and returned from) XSLT custom xpath functions. [#640](https://github.com/sparklemotion/nokogiri/issues/640).
-* Nokogiri::XML::Reader#outer_xml is broken in JRuby [#617](https://github.com/sparklemotion/nokogiri/issues/617)
-* Nokogiri::XML::Attribute on JRuby returns a nil namespace [#647](https://github.com/sparklemotion/nokogiri/issues/647)
-* Nokogiri::XML::Node#namespace= cannot set a namespace without a prefix on JRuby [#648](https://github.com/sparklemotion/nokogiri/issues/648)
+* `Nokogiri::XML::Reader#outer_xml` is broken in JRuby [#617](https://github.com/sparklemotion/nokogiri/issues/617)
+* `Nokogiri::XML::Attribute` on JRuby returns a nil namespace [#647](https://github.com/sparklemotion/nokogiri/issues/647)
+* `Nokogiri::XML::Node#namespace=` cannot set a namespace without a prefix on JRuby [#648](https://github.com/sparklemotion/nokogiri/issues/648)
 * (JRuby) 1.9 mode causes dead lock while running rake [#571](https://github.com/sparklemotion/nokogiri/issues/571)
-* HTML::Document#meta_encoding does not raise exception on docs with malformed content-type. [#655](https://github.com/sparklemotion/nokogiri/issues/655)
+* `HTML::Document#meta_encoding` does not raise exception on docs with malformed content-type. [#655](https://github.com/sparklemotion/nokogiri/issues/655)
 * Fixing segfault related to unsupported encodings in in-context parsing on 1.8.7. [#643](https://github.com/sparklemotion/nokogiri/issues/643)
 * (JRuby) Concurrency issue in XPath parsing. [#682](https://github.com/sparklemotion/nokogiri/issues/682)
 
@@ -1091,9 +1091,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* XML::Builder#comment allows creation of comment nodes.
+* `XML::Builder#comment` allows creation of comment nodes.
 * CSS searches now support namespaced attributes. [#593](https://github.com/sparklemotion/nokogiri/issues/593)
-* Java integration feature is added. Now, XML::Document.wrap and XML::Document#to_java methods are available.
+* Java integration feature is added. Now, `XML::Document.wrap` and `XML::Document#to_java` methods are available.
 * RelaxNG validator support in the `nokogiri` cli utility. [#591](https://github.com/sparklemotion/nokogiri/issues/591) (thanks, Dan Radez!)
 
 ### Fixed
@@ -1101,15 +1101,15 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 * Fix many memory leaks and segfault opportunities. Thanks, Tim Elliott!
 * extconf searches homebrew paths if homebrew is installed.
 * Inconsistent behavior of Nokogiri 1.5.0 Java [#620](https://github.com/sparklemotion/nokogiri/issues/620)
-* Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails [#560](https://github.com/sparklemotion/nokogiri/issues/560)
-* XML::Attr nodes are not allowed to be added as node children, so an exception is raised. [#558](https://github.com/sparklemotion/nokogiri/issues/558)
-* No longer defensively "pickle" adjacent text nodes on Node#add_next_sibling and Node#add_previous_sibling calls. [#595](https://github.com/sparklemotion/nokogiri/issues/595).
+* Inheriting from `Nokogiri::XML::Node` on JRuby (1.6.4/5) fails [#560](https://github.com/sparklemotion/nokogiri/issues/560)
+* `XML::Attr` nodes are not allowed to be added as node children, so an exception is raised. [#558](https://github.com/sparklemotion/nokogiri/issues/558)
+* No longer defensively "pickle" adjacent text nodes on `Node#add_next_sibling` and `Node#add_previous_sibling` calls. [#595](https://github.com/sparklemotion/nokogiri/issues/595).
 * Java version inconsistency: it returns nil for empty attributes [#589](https://github.com/sparklemotion/nokogiri/issues/589)
-* to_xhtml incorrectly generates <p /></p> when tag is empty [#557](https://github.com/sparklemotion/nokogiri/issues/557)
-* Document#add_child now accepts a Node, NodeSet, DocumentFragment, or String. [#546](https://github.com/sparklemotion/nokogiri/issues/546).
-* Document#create_element now recognizes namespaces containing non-word characters (like "SOAP-ENV"). This is mostly relevant to users of Builder, which calls Document#create_element for nearly everything. [#531](https://github.com/sparklemotion/nokogiri/issues/531).
+* to_xhtml incorrectly generates `<p /></p>` when tag is empty [#557](https://github.com/sparklemotion/nokogiri/issues/557)
+* `Document#add_child` now accepts a `Node`, `NodeSet`, `DocumentFragment`, or `String`. [#546](https://github.com/sparklemotion/nokogiri/issues/546).
+* `Document#create_element` now recognizes namespaces containing non-word characters (like "SOAP-ENV"). This is mostly relevant to users of Builder, which calls `Document#create_element` for nearly everything. [#531](https://github.com/sparklemotion/nokogiri/issues/531).
 * File encoding broken in 1.5.0 / jruby / windows [#529](https://github.com/sparklemotion/nokogiri/issues/529)
-* Java version does not return namespace defs as attrs for ::HTML [#542](https://github.com/sparklemotion/nokogiri/issues/542)
+* Java version does not return namespace defs as attrs for `::HTML` [#542](https://github.com/sparklemotion/nokogiri/issues/542)
 * Bad file descriptor with Nokogiri 1.5.0 [#495](https://github.com/sparklemotion/nokogiri/issues/495)
 * remove_namespace! doesn't work in pure java version [#492](https://github.com/sparklemotion/nokogiri/issues/492)
 * The Nokogiri Java native build throws a null pointer exception when ActiveSupport's .blank? method is called directly on a parsed object. [#489](https://github.com/sparklemotion/nokogiri/issues/489)
@@ -1118,9 +1118,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 * Nokogiri 1.5.0 XML generation broken on JRuby [#484](https://github.com/sparklemotion/nokogiri/issues/484)
 * Do not allow multiple root nodes. [#550](https://github.com/sparklemotion/nokogiri/issues/550)
 * Fixes for custom XPath functions. [#605](https://github.com/sparklemotion/nokogiri/issues/605), [#606](https://github.com/sparklemotion/nokogiri/issues/606) (thanks, Juan Wajnerman!)
-* Node#to_xml does not override :save_with if it is provided. [#505](https://github.com/sparklemotion/nokogiri/issues/505)
-* Node#set is a private method (JRuby). [#564](https://github.com/sparklemotion/nokogiri/issues/564) (thanks, Nick Sieger!)
-* C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) [#563](https://github.com/sparklemotion/nokogiri/issues/563)
+* `Node#to_xml` does not override `:save_with` if it is provided. [#505](https://github.com/sparklemotion/nokogiri/issues/505)
+* `Node#set` is a private method (JRuby). [#564](https://github.com/sparklemotion/nokogiri/issues/564) (thanks, Nick Sieger!)
+* C14n cleanup and `Node#canonicalize` (thanks, Ivan Pirlik!) [#563](https://github.com/sparklemotion/nokogiri/issues/563)
 
 
 ## 1.5.0 / 2011-07-01
@@ -1131,14 +1131,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+* extracted sets of `Node::SaveOptions` into `Node::SaveOptions::DEFAULT_{X,H,XH}TML` (refactor)
 
 ### Fixed
 
 * default output of XML on JRuby is no longer formatted due to inconsistent whitespace handling. [#415](https://github.com/sparklemotion/nokogiri/issues/415)
 * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. [#443](https://github.com/sparklemotion/nokogiri/issues/443)
 * Fix a bug in advanced encoding detection that leads to partially duplicated document when parsing an HTML file with unknown encoding.
-* Add support for <meta charset="...">.
+* Add support for `<meta charset="...">`.
 
 
 ## 1.5.0 beta3 / 2010-12-02
@@ -1150,7 +1150,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Fixed
 
-* Node#inner_text no longer returns nil. (JRuby) [#264](https://github.com/sparklemotion/nokogiri/issues/264)
+* `Node#inner_text` no longer returns nil. (JRuby) [#264](https://github.com/sparklemotion/nokogiri/issues/264)
 
 
 ## 1.5.0 beta2 / 2010-07-30
@@ -1195,68 +1195,68 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* Nokogiri::HTML::Document#title accessor gets and sets the document title.
-* extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
-* Raise an exception if a string is passed to Nokogiri::XML::Schema#validate. [#406](https://github.com/sparklemotion/nokogiri/issues/406)
+* `Nokogiri::HTML::Document#title` accessor gets and sets the document title.
+* extracted sets of `Node::SaveOptions` into `Node::SaveOptions::DEFAULT_{X,H,XH}TML` (refactor)
+* Raise an exception if a string is passed to `Nokogiri::XML::Schema#validate`. [#406](https://github.com/sparklemotion/nokogiri/issues/406)
 
 ### Fixed
 
-* Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
-* Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
+* `Node#serialize`-and-friends now accepts a `SaveOption` object as the, erm, save object.
+* `Nokogiri::CSS::Parser` has-a `Nokogiri::CSS::Tokenizer`
 * (JRUBY+FFI only) Weak references are now threadsafe. [#355](https://github.com/sparklemotion/nokogiri/issues/355)
-* Make direct start_element() callback (currently used for HTML::SAX::Parser) pass attributes in assoc array, just as emulated start_element() callback does.  rel. [#356](https://github.com/sparklemotion/nokogiri/issues/356)
-* HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
+* Make direct start_element() callback (currently used for `HTML::SAX::Parser`) pass attributes in assoc array, just as emulated `start_element()` callback does.  rel. [#356](https://github.com/sparklemotion/nokogiri/issues/356)
+* `HTML::SAX::Parser` should call back a block given to parse*() if any, just as `XML::SAX::Parser` does.
 * Add further encoding detection to HTML parser that libxml2 does not do.
-* Document#remove_namespaces! now handles attributes with namespaces. [#396](https://github.com/sparklemotion/nokogiri/issues/396)
-* XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. [#452](https://github.com/sparklemotion/nokogiri/issues/452)
-* XML::Reader no longer segfaults when under GC pressure. [#439](https://github.com/sparklemotion/nokogiri/issues/439)
+* `Document#remove_namespaces!` now handles attributes with namespaces. [#396](https://github.com/sparklemotion/nokogiri/issues/396)
+* `XSLT::Stylesheet#transform` no longer segfaults when handed a non-`XML::Document`. [#452](https://github.com/sparklemotion/nokogiri/issues/452)
+* `XML::Reader` no longer segfaults when under GC pressure. [#439](https://github.com/sparklemotion/nokogiri/issues/439)
 
 
 ## 1.4.4 / 2010-11-15
 
 ### Added
 
-* XML::Node#children= sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
+* `XML::Node#children=` sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
 * XSLT supports function extensions. [#336](https://github.com/sparklemotion/nokogiri/issues/336)
 * XPath bind parameter substitution. [#329](https://github.com/sparklemotion/nokogiri/issues/329)
-* XML::Reader node type constants. [#369](https://github.com/sparklemotion/nokogiri/issues/369)
+* `XML::Reader` node type constants. [#369](https://github.com/sparklemotion/nokogiri/issues/369)
 * SAX Parser context provides line and column information
 
 ### Fixed
 
-* XML::DTD#attributes returns an empty hash instead of nil when there are no attributes.
-* XML::DTD#{keys,each} now work as expected. [#324](https://github.com/sparklemotion/nokogiri/issues/324)
-* {XML,HTML}::DocumentFragment.{new,parse} no longer strip leading and trailing whitespace. [#319](https://github.com/sparklemotion/nokogiri/issues/319)
-* XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} return a NodeSet when passed a string.
+* `XML::DTD#attributes` returns an empty hash instead of nil when there are no attributes.
+* `XML::DTD#{keys,each}` now work as expected. [#324](https://github.com/sparklemotion/nokogiri/issues/324)
+* `{XML,HTML}::DocumentFragment.{new,parse}` no longer strip leading and trailing whitespace. [#319](https://github.com/sparklemotion/nokogiri/issues/319)
+* `XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace}` return a `NodeSet` when passed a string.
 * Unclosed tags parsed more robustly in fragments. [#315](https://github.com/sparklemotion/nokogiri/issues/315)
-* XML::Node#{replace,add_previous_sibling,add_next_sibling} edge cases fixed related to libxml's text node merging. [#308](https://github.com/sparklemotion/nokogiri/issues/308)
+* `XML::Node#{replace,add_previous_sibling,add_next_sibling}` edge cases fixed related to libxml's text node merging. [#308](https://github.com/sparklemotion/nokogiri/issues/308)
 * Fixed a segfault when GC occurs during xpath handler argument marshalling. [#345](https://github.com/sparklemotion/nokogiri/issues/345)
-* Added hack to Slop decorator to work with previously defined methods. [#330](https://github.com/sparklemotion/nokogiri/issues/330)
+* Added hack to `Slop` decorator to work with previously defined methods. [#330](https://github.com/sparklemotion/nokogiri/issues/330)
 * Fix a memory leak when duplicating child nodes. [#353](https://github.com/sparklemotion/nokogiri/issues/353)
-* Fixed off-by-one bug with nth-last-{child,of-type} CSS selectors when NOT using an+b notation. [#354](https://github.com/sparklemotion/nokogiri/issues/354)
-* Fixed passing of non-namespace attributes to SAX::Document#start_element. [#356](https://github.com/sparklemotion/nokogiri/issues/356)
+* Fixed off-by-one bug with `nth-last-{child,of-type}` CSS selectors when NOT using `an+b` notation. [#354](https://github.com/sparklemotion/nokogiri/issues/354)
+* Fixed passing of non-namespace attributes to `SAX::Document#start_element`. [#356](https://github.com/sparklemotion/nokogiri/issues/356)
 * Workaround for libxml2 in-context parsing bug. [#362](https://github.com/sparklemotion/nokogiri/issues/362)
-* Fixed NodeSet#wrap on nodes within a fragment. [#331](https://github.com/sparklemotion/nokogiri/issues/331)
+* Fixed `NodeSet#wrap` on nodes within a fragment. [#331](https://github.com/sparklemotion/nokogiri/issues/331)
 
 
 ## 1.4.3 / 2010-07-28
 
 ### Added
 
-* XML::Reader#empty_element? returns true for empty elements. [#262](https://github.com/sparklemotion/nokogiri/issues/262)
-* Node#remove_namespaces! now removes namespace *declarations* as well. [#294](https://github.com/sparklemotion/nokogiri/issues/294)
-* NodeSet#at_xpath, NodeSet#at_css and NodeSet#> do what the corresponding methods of Node do.
+* `XML::Reader#empty_element?` returns true for empty elements. [#262](https://github.com/sparklemotion/nokogiri/issues/262)
+* `Node#remove_namespaces!` now removes namespace *declarations* as well. [#294](https://github.com/sparklemotion/nokogiri/issues/294)
+* `NodeSet#at_xpath`, `NodeSet#at_css` and `NodeSet#>` do what the corresponding methods of `Node` do.
 
 ### Fixed
 
-* XML::NodeSet#{include?,delete,push} accept an XML::Namespace
-* XML::Document#parse added for parsing in the context of a document
-* XML::DocumentFragment#inner_html= works with contextual parsing! [#298](https://github.com/sparklemotion/nokogiri/issues/298), [#281](https://github.com/sparklemotion/nokogiri/issues/281)
-* lib/nokogiri/css/parser.y Combined CSS functions + pseudo selectors fixed
+* `XML::NodeSet#{include?,delete,push}` accept an `XML::Namespace`
+* `XML::Document#parse` added for parsing in the context of a document
+* `XML::DocumentFragment#inner_html=` works with contextual parsing! [#298](https://github.com/sparklemotion/nokogiri/issues/298), [#281](https://github.com/sparklemotion/nokogiri/issues/281)
+* `lib/nokogiri/css/parser.y` Combined CSS functions + pseudo selectors fixed
 * Reparenting text nodes is safe, even when the operation frees adjacent merged nodes. [#283](https://github.com/sparklemotion/nokogiri/issues/283)
-* Fixed libxml2 versionitis issue with xmlFirstElementChild et al. [#303](https://github.com/sparklemotion/nokogiri/issues/303)
-* XML::Attr#add_namespace now works as expected. [#252](https://github.com/sparklemotion/nokogiri/issues/252)
-* HTML::DocumentFragment uses the string's encoding. [#305](https://github.com/sparklemotion/nokogiri/issues/305)
+* Fixed libxml2 versionitis issue with `xmlFirstElementChild` et al. [#303](https://github.com/sparklemotion/nokogiri/issues/303)
+* `XML::Attr#add_namespace` now works as expected. [#252](https://github.com/sparklemotion/nokogiri/issues/252)
+* `HTML::DocumentFragment` uses the string's encoding. [#305](https://github.com/sparklemotion/nokogiri/issues/305)
 * Fix the CSS3 selector translation rule for the general sibling combinator (a.k.a. preceding selector) that incorrectly converted "E ~ F G" to "//F//G[preceding-sibling::E]".
 
 
@@ -1264,32 +1264,32 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* XML::Node#parse will parse XML or HTML fragments with respect to the context node.
-* XML::Node#namespaces returns all namespaces defined in the node and all ancestor nodes (previously did not return ancestors' namespace definitions).
-* Added Enumerable to XML::Node
-* Nokogiri::XML::Schema#validate now uses xmlSchemaValidateFile if a filename is passed, which is faster and more memory-efficient. GH [#219](https://github.com/sparklemotion/nokogiri/issues/219)
-* XML::Document#create_entity will create new EntityDecl objects. GH [#174](https://github.com/sparklemotion/nokogiri/issues/174)
-* JRuby FFI implementation no longer uses ObjectSpace._id2ref, instead using Charles Nutter's rocking Weakling gem.
-* Nokogiri::XML::Node#first_element_child fetch the first child node that is an ELEMENT node.
-* Nokogiri::XML::Node#last_element_child fetch the last child node that is an ELEMENT node.
-* Nokogiri::XML::Node#elements fetch all children nodes that are ELEMENT nodes.
-* Nokogiri::XML::Node#add_child, #add_previous_sibling, #before, #add_next_sibling, #after, #inner_html, #swap and #replace all now accept a Node, DocumentFragment, NodeSet, or a string containing markup.
-* Node#fragment? indicates whether a node is a DocumentFragment.
+* `XML::Node#parse` will parse XML or HTML fragments with respect to the context node.
+* `XML::Node#namespaces` returns all namespaces defined in the node and all ancestor nodes (previously did not return ancestors' namespace definitions).
+* Added `Enumerable` to `XML::Node`
+* `Nokogiri::XML::Schema#validate` now uses xmlSchemaValidateFile if a filename is passed, which is faster and more memory-efficient. GH [#219](https://github.com/sparklemotion/nokogiri/issues/219)
+* `XML::Document#create_entity` will create new `EntityDecl` objects. GH [#174](https://github.com/sparklemotion/nokogiri/issues/174)
+* JRuby FFI implementation no longer uses `ObjectSpace._id2ref`, instead using Charles Nutter's rocking Weakling gem.
+* `Nokogiri::XML::Node#first_element_child` fetch the first child node that is an ELEMENT node.
+* `Nokogiri::XML::Node#last_element_child` fetch the last child node that is an ELEMENT node.
+* `Nokogiri::XML::Node#elements` fetch all children nodes that are ELEMENT nodes.
+* `Nokogiri::XML::Node#add_child`, `#add_previous_sibling`, `#before`, `#add_next_sibling`, `#after`, `#inner_html`, `#swap` and `#replace` all now accept a `Node`, `DocumentFragment`, `NodeSet`, or a string containing markup.
+* `Node#fragment?` indicates whether a node is a `DocumentFragment`.
 
 ### Fixed
 
-* XML::NodeSet is now always decorated (if the document has decorators). GH [#198](https://github.com/sparklemotion/nokogiri/issues/198)
-* XML::NodeSet#slice gracefully handles offset+length larger than the set length. GH [#200](https://github.com/sparklemotion/nokogiri/issues/200)
-* XML::Node#content= safely unlinks previous content. GH [#203](https://github.com/sparklemotion/nokogiri/issues/203)
-* XML::Node#namespace= takes nil as a parameter
-* XML::Node#xpath returns things other than NodeSet objects. GH [#208](https://github.com/sparklemotion/nokogiri/issues/208)
-* XSLT::StyleSheet#transform accepts hashes for parameters. GH [#223](https://github.com/sparklemotion/nokogiri/issues/223)
+* `XML::NodeSet` is now always decorated (if the document has decorators). GH [#198](https://github.com/sparklemotion/nokogiri/issues/198)
+* `XML::NodeSet#slice` gracefully handles offset+length larger than the set length. GH [#200](https://github.com/sparklemotion/nokogiri/issues/200)
+* `XML::Node#content=` safely unlinks previous content. GH [#203](https://github.com/sparklemotion/nokogiri/issues/203)
+* `XML::Node#namespace=` takes nil as a parameter
+* `XML::Node#xpath` returns things other than NodeSet objects. GH [#208](https://github.com/sparklemotion/nokogiri/issues/208)
+* `XSLT::StyleSheet#transform` accepts hashes for parameters. GH [#223](https://github.com/sparklemotion/nokogiri/issues/223)
 * Psuedo selectors inside not() work. GH [#205](https://github.com/sparklemotion/nokogiri/issues/205)
-* XML::Builder doesn't break when nodes are unlinked. Thanks to vihai! GH [#228](https://github.com/sparklemotion/nokogiri/issues/228)
+* `XML::Builder` doesn't break when nodes are unlinked. Thanks to vihai! GH [#228](https://github.com/sparklemotion/nokogiri/issues/228)
 * Encoding can be forced on the SAX parser. Thanks Eugene Pimenov! GH [#204](https://github.com/sparklemotion/nokogiri/issues/204)
-* XML::DocumentFragment uses XML::Node#parse to determine children.
+* `XML::DocumentFragment` uses `XML::Node#parse` to determine children.
 * Fixed a memory leak in xml reader. Thanks sdor! GH [#244](https://github.com/sparklemotion/nokogiri/issues/244)
-* Node#replace returns the new child node as claimed in the RDoc. Previously returned +self+.
+* `Node#replace` returns the new child node as claimed in the RDoc. Previously returned +self+.
 
 ### Notes
 
@@ -1300,30 +1300,30 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* Added Nokogiri::LIBXML_ICONV_ENABLED
-* Alias Node#[] to Node#attr
-* XML::Node#next_element added
-* XML::Node#> added for searching a nodes immediate children
-* XML::NodeSet#reverse added
-* Added fragment support to Node#add_child, Node#add_next_sibling, Node#add_previous_sibling, and Node#replace.
-* XML::Node#previous_element implemented
+* Added `Nokogiri::LIBXML_ICONV_ENABLED`
+* Alias `Node#[]` to `Node#attr`
+* `XML::Node#next_element` added
+* `XML::Node#>` added for searching a nodes immediate children
+* `XML::NodeSet#reverse` added
+* Added fragment support to `Node#add_child`, `Node#add_next_sibling`, `Node#add_previous_sibling`, and `Node#replace`.
+* `XML::Node#previous_element` implemented
 * Rubinius support
 * Ths CSS selector engine now supports :has()
-* XML::NodeSet#filter() was added
-* XML::Node.next= and .previous= are aliases for add_next_sibling and add_previous_sibling. GH [#183](https://github.com/sparklemotion/nokogiri/issues/183)
+* `XML::NodeSet#filter()` was added
+* `XML::Node.next=` and .previous= are aliases for add_next_sibling and add_previous_sibling. GH [#183](https://github.com/sparklemotion/nokogiri/issues/183)
 
 ### Fixed
 
 * XML fragments with namespaces do not raise an exception (regression in 1.4.0)
-* Node#matches? works in nodes contained by a DocumentFragment. GH [#158](https://github.com/sparklemotion/nokogiri/issues/158)
-* Document should not define add_namespace() method. GH [#169](https://github.com/sparklemotion/nokogiri/issues/169)
-* XPath queries returning namespace declarations do not segfault.
-* Node#replace works with nodes from different documents. GH [#162](https://github.com/sparklemotion/nokogiri/issues/162)
-* Adding XML::Document#collect_namespaces
+* `Node#matches?` works in nodes contained by a `DocumentFragment`. GH [#158](https://github.com/sparklemotion/nokogiri/issues/158)
+* `Document` should not define add_namespace() method. GH [#169](https://github.com/sparklemotion/nokogiri/issues/169)
+* `XPath` queries returning namespace declarations do not segfault.
+* `Node#replace` works with nodes from different documents. GH [#162](https://github.com/sparklemotion/nokogiri/issues/162)
+* Adding `XML::Document#collect_namespaces`
 * Fixed bugs in the SOAP4R adapter
-* Fixed bug in XML::Node#next_element for certain edge cases
+* Fixed bug in `XML::Node#next_element` for certain edge cases
 * Fixed load path issue with JRuby under Windows. GH [#160](https://github.com/sparklemotion/nokogiri/issues/160).
-* XSLT#apply_to will honor the "output method". Thanks richardlehane!
+* `XSLT#apply_to` will honor the "output method". Thanks richardlehane!
 * Fragments containing leading text nodes with newlines now parse properly. GH [#178](https://github.com/sparklemotion/nokogiri/issues/178).
 
 
@@ -1331,35 +1331,35 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* Node#at_xpath returns the first element of the NodeSet matching the XPath expression.
-* Node#at_css returns the first element of the NodeSet matching the CSS selector.
-* NodeSet#| for unions GH [#119](https://github.com/sparklemotion/nokogiri/issues/119) (Thanks Serabe!)
-* NodeSet#inspect makes prettier output
-* Node#inspect implemented for more rubyish document inspecting
-* Added XML::DTD#external_id
-* Added XML::DTD#system_id
-* Added XML::ElementContent for DTD Element content validity
-* Better namespace declaration support in Nokogiri::XML::Builder
-* Added XML::Node#external_subset
-* Added XML::Node#create_external_subset
-* Added XML::Node#create_internal_subset
+* `Node#at_xpath` returns the first element of the NodeSet matching the XPath expression.
+* `Node#at_css` returns the first element of the NodeSet matching the CSS selector.
+* `NodeSet#|` for unions GH [#119](https://github.com/sparklemotion/nokogiri/issues/119) (Thanks Serabe!)
+* `NodeSet#inspect` makes prettier output
+* `Node#inspect` implemented for more rubyish document inspecting
+* Added `XML::DTD#external_id`
+* Added `XML::DTD#system_id`
+* Added `XML::ElementContent` for DTD Element content validity
+* Better namespace declaration support in `Nokogiri::XML::Builder`
+* Added `XML::Node#external_subset`
+* Added `XML::Node#create_external_subset`
+* Added `XML::Node#create_internal_subset`
 * XML Builder can append raw strings (GH [#141](https://github.com/sparklemotion/nokogiri/issues/141), patch from dudleyf)
-* XML::SAX::ParserContext added
-* XML::Document#remove_namespaces! for the namespace-impaired
+* `XML::SAX::ParserContext` added
+* `XML::Document#remove_namespaces!` for the namespace-impaired
 
 ### Fixed
 
 * returns nil when HTML documents do not declare a meta encoding tag. GH [#115](https://github.com/sparklemotion/nokogiri/issues/115)
-* Uses RbConfig::CONFIG['host_os'] to adjust ENV['PATH'] GH [#113](https://github.com/sparklemotion/nokogiri/issues/113)
-* NodeSet#search is more efficient GH [#119](https://github.com/sparklemotion/nokogiri/issues/119) (Thanks Serabe!)
-* NodeSet#xpath handles custom xpath functions
-* Fixing a SEGV when XML::Reader gets attributes for current node
-* Node#inner_html takes the same arguments as Node#to_html GH [#117](https://github.com/sparklemotion/nokogiri/issues/117)
-* DocumentFragment#css delegates to it's child nodes GH [#123](https://github.com/sparklemotion/nokogiri/issues/123)
-* NodeSet#[] works with slices larger than NodeSet#length GH [#131](https://github.com/sparklemotion/nokogiri/issues/131)
+* Uses `RbConfig::CONFIG['host_os']` to adjust `ENV['PATH']` GH [#113](https://github.com/sparklemotion/nokogiri/issues/113)
+* `NodeSet#search` is more efficient GH [#119](https://github.com/sparklemotion/nokogiri/issues/119) (Thanks Serabe!)
+* `NodeSet#xpath` handles custom xpath functions
+* Fixing a SEGV when `XML::Reader` gets attributes for current node
+* `Node#inner_html` takes the same arguments as `Node#to_html` GH [#117](https://github.com/sparklemotion/nokogiri/issues/117)
+* `DocumentFragment#css` delegates to it's child nodes GH [#123](https://github.com/sparklemotion/nokogiri/issues/123)
+* `NodeSet#[]` works with slices larger than `NodeSet#length` GH [#131](https://github.com/sparklemotion/nokogiri/issues/131)
 * Reparented nodes maintain their namespace. GH [#134](https://github.com/sparklemotion/nokogiri/issues/134)
-* Fixed SEGV when adding an XML::Document to NodeSet
-* XML::SyntaxError can be duplicated. GH [#148](https://github.com/sparklemotion/nokogiri/issues/148)
+* Fixed SEGV when adding an `XML::Document` to `NodeSet`
+* `XML::SyntaxError` can be duplicated. GH [#148](https://github.com/sparklemotion/nokogiri/issues/148)
 
 ### Removed
 
@@ -1370,13 +1370,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* NodeSet#children returns all children of all nodes
+* `NodeSet#children` returns all children of all nodes
 
 ### Fixed
 
 * Override libxml-ruby's global error handler
-* ParseOption#strict fixed
-* Fixed a segfault when sending an empty string to Node#inner_html= GH [#88](https://github.com/sparklemotion/nokogiri/issues/88)
+* `ParseOption#strict` fixed
+* Fixed a segfault when sending an empty string to `Node#inner_html=` GH [#88](https://github.com/sparklemotion/nokogiri/issues/88)
 * String encoding is now set to UTF-8 in Ruby 1.9
 * Fixed a segfault when moving root nodes between documents. GH [#91](https://github.com/sparklemotion/nokogiri/issues/91)
 * Fixed an O(n) penalty on node creation. GH [#101](https://github.com/sparklemotion/nokogiri/issues/101)
@@ -1391,29 +1391,29 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* Nokogiri::XML::DTD#validate will validate your document
+* `Nokogiri::XML::DTD#validate` will validate your document
 
 ### Fixed
 
-* Nokogiri::XML::NodeSet#search will search top level nodes. GH [#73](https://github.com/sparklemotion/nokogiri/issues/73)
-* Removed namespace related methods from Nokogiri::XML::Document
+* `Nokogiri::XML::NodeSet#search` will search top level nodes. GH [#73](https://github.com/sparklemotion/nokogiri/issues/73)
+* Removed namespace related methods from `Nokogiri::XML::Document`
 * Fixed a segfault when a namespace was added twice
 * Made nokogiri work with Snow Leopard GH [#79](https://github.com/sparklemotion/nokogiri/issues/79)
 * Mailing list has moved to: http://groups.google.com/group/nokogiri-talk
 * HTML fragments now correctly handle comments and CDATA blocks. GH [#78](https://github.com/sparklemotion/nokogiri/issues/78)
-* Nokogiri::XML::Document#clone is now an alias of dup
+* `Nokogiri::XML::Document#clone` is now an alias of dup
 
 ### Deprecations
 
-* Nokogiri::XML::SAX::Document#start_element_ns is deprecated, please switch to Nokogiri::XML::SAX::Document#start_element_namespace
-* Nokogiri::XML::SAX::Document#end_element_ns is deprecated, please switch to Nokogiri::XML::SAX::Document#end_element_namespace
+* `Nokogiri::XML::SAX::Document#start_element_ns` is deprecated, please switch to `Nokogiri::XML::SAX::Document#start_element_namespace`
+* `Nokogiri::XML::SAX::Document#end_element_ns` is deprecated, please switch to `Nokogiri::XML::SAX::Document#end_element_namespace`
 
 
 ## 1.3.1 / 2009-06-07
 
 ### Fixed
 
-* extconf.rb checks for optional RelaxNG and Schema functions
+* `extconf.rb` checks for optional RelaxNG and Schema functions
 * Namespace nodes are added to the Document node cache
 
 
@@ -1423,24 +1423,24 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 * Builder changes scope based on block arity
 * Builder supports methods ending in underscore similar to tagz
-* Nokogiri::XML::Node#<=> compares nodes based on Document position
-* Nokogiri::XML::Node#matches? returns true if Node can be found with given selector.
-* Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
-* Nokogiri::XML::Node#ancestors will match parents against optional selector
-* Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
-* Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
-* Nokogiri::XML::Document#encoding= to set the document encoding
-* Nokogiri::XML::Schema for validating documents against XSD schema
-* Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
-* Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
-* Nokogiri::XML::Node#description to fetch the node description
-* Nokogiri::XML::Node#accept implements Visitor pattern
-* bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
-* Nokogiri::XML::NodeSet now supports more Array and Enumerable operators: index, delete, slice, - (difference), + (concatenation), & (intersection), push, pop, shift, ==
-* Nokogiri.XML, Nokogiri.HTML take blocks that receive Nokogiri::XML::ParseOptions objects
-* Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
-* Nokogiri::XML::Node#namespace= for setting a node's namespace
-* Nokogiri::XML::DocumentFragment and Nokogiri::HTML::DocumentFragment have a sensible API and a more robust implementation.
+* `Nokogiri::XML::Node#<=>` compares nodes based on Document position
+* `Nokogiri::XML::Node#matches?` returns true if Node can be found with given selector.
+* `Nokogiri::XML::Node#ancestors` now returns an `Nokogiri::XML::NodeSet`
+* `Nokogiri::XML::Node#ancestors` will match parents against optional selector
+* `Nokogiri::HTML::Document#meta_encoding` for getting the meta encoding
+* `Nokogiri::HTML::Document#meta_encoding=` for setting the meta encoding
+* `Nokogiri::XML::Document#encoding=` to set the document encoding
+* `Nokogiri::XML::Schema` for validating documents against XSD schema
+* `Nokogiri::XML::RelaxNG` for validating documents against RelaxNG schema
+* `Nokogiri::HTML::ElementDescription` for fetching HTML element descriptions
+* `Nokogiri::XML::Node#description` to fetch the node description
+* `Nokogiri::XML::Node#accept` implements Visitor pattern
+* `bin/nokogiri` for easily examining documents (Thanks Yutaka HARA!)
+* `Nokogiri::XML::NodeSet` now supports more Array and Enumerable operators: index, delete, slice, - (difference), + (concatenation), & (intersection), push, pop, shift, ==
+* `Nokogiri.XML`, `Nokogiri.HTML` take blocks that receive `Nokogiri::XML::ParseOptions` objects
+* `Nokogiri::XML::Node#namespace` returns a `Nokogiri::XML::Namespace`
+* `Nokogiri::XML::Node#namespace=` for setting a node's namespace
+* `Nokogiri::XML::DocumentFragment` and `Nokogiri::HTML::DocumentFragment` have a sensible API and a more robust implementation.
 * JRuby 1.3.0 support via FFI.
 
 ### Fixed
@@ -1452,17 +1452,17 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 * Fixed bug with unlinking a node then reparenting it. (GH[#22](https://github.com/sparklemotion/nokogiri/issues/22))
 * Fixed failure to catch errors during XSLT parsing (GH[#32](https://github.com/sparklemotion/nokogiri/issues/32))
 * Fixed a bug with attribute conditions in CSS selectors (GH[#36](https://github.com/sparklemotion/nokogiri/issues/36))
-* Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH[#35](https://github.com/sparklemotion/nokogiri/issues/35))
+* Fixed intolerance of HTML attributes without values in `Node#{before/after/inner_html=}`. (GH[#35](https://github.com/sparklemotion/nokogiri/issues/35))
 
 
 ## 1.2.3 / 2009-03-22
 
 ### Fixed
 
-* Fixing bug where a node is passed in to Node#new
+* Fixing bug where a node is passed in to `Node#new`
 * Namespace should be assigned on DocumentFragment creation. LH [#66](https://github.com/sparklemotion/nokogiri/issues/66)
-* Nokogiri::XML::NodeSet#dup works GH [#10](https://github.com/sparklemotion/nokogiri/issues/10)
-* Nokogiri::HTML returns an empty Document when given a blank string GH[#11](https://github.com/sparklemotion/nokogiri/issues/11)
+* `Nokogiri::XML::NodeSet#dup` works GH [#10](https://github.com/sparklemotion/nokogiri/issues/10)
+* `Nokogiri::HTML` returns an empty Document when given a blank string GH[#11](https://github.com/sparklemotion/nokogiri/issues/11)
 * Adding a child will remove duplicate namespace declarations LH [#67](https://github.com/sparklemotion/nokogiri/issues/67)
 * Builder methods take a hash as a second argument
 
@@ -1471,27 +1471,27 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Added
 
-* Nokogiri may be used with soap4r. See XSD::XMLParser::Nokogiri
-* Nokogiri::XML::Node#inner_html= to set the inner html for a node
+* Nokogiri may be used with soap4r. See `XSD::XMLParser::Nokogiri`
+* `Nokogiri::XML::Node#inner_html=` to set the inner html for a node
 * Nokogiri builder interface improvements
-* Nokogiri::XML::Node#swap swaps html for current node (LH [#50](https://github.com/sparklemotion/nokogiri/issues/50))
+* `Nokogiri::XML::Node#swap` swaps html for current node (LH [#50](https://github.com/sparklemotion/nokogiri/issues/50))
 
 ### Fixed
 
 * Fixed a tag nesting problem in the Builder API (LH [#41](https://github.com/sparklemotion/nokogiri/issues/41))
-* Nokogiri::HTML.fragment will properly handle text only nodes (LH [#43](https://github.com/sparklemotion/nokogiri/issues/43))
-* Nokogiri::XML::Node#before will prepend text nodes (LH [#44](https://github.com/sparklemotion/nokogiri/issues/44))
-* Nokogiri::XML::Node#after will append text nodes
-* Nokogiri::XML::Node#search automatically registers root namespaces (LH [#42](https://github.com/sparklemotion/nokogiri/issues/42))
-* Nokogiri::XML::NodeSet#search automatically registers namespaces
-* Nokogiri::HTML::NamedCharacters delegates to libxml2
-* Nokogiri::XML::Node#[] can take a symbol (LH [#48](https://github.com/sparklemotion/nokogiri/issues/48))
+* `Nokogiri::HTML.fragment` will properly handle text only nodes (LH [#43](https://github.com/sparklemotion/nokogiri/issues/43))
+* `Nokogiri::XML::Node#before` will prepend text nodes (LH [#44](https://github.com/sparklemotion/nokogiri/issues/44))
+* `Nokogiri::XML::Node#after` will append text nodes
+* `Nokogiri::XML::Node#search` automatically registers root namespaces (LH [#42](https://github.com/sparklemotion/nokogiri/issues/42))
+* `Nokogiri::XML::NodeSet#search` automatically registers namespaces
+* `Nokogiri::HTML::NamedCharacters` delegates to libxml2
+* `Nokogiri::XML::Node#[]` can take a symbol (LH [#48](https://github.com/sparklemotion/nokogiri/issues/48))
 * vasprintf for windows updated.  Thanks Geoffroy Couprie!
-* Nokogiri::XML::Node#[]= should not encode entities (LH [#55](https://github.com/sparklemotion/nokogiri/issues/55))
+* `Nokogiri::XML::Node#[]=` should not encode entities (LH [#55](https://github.com/sparklemotion/nokogiri/issues/55))
 * Namespaces should be copied to reparented nodes (LH [#56](https://github.com/sparklemotion/nokogiri/issues/56))
 * Nokogiri uses encoding set on the string for default in Ruby 1.9
-* Document#dup should create a new document of the same type (LH [#59](https://github.com/sparklemotion/nokogiri/issues/59))
-* Document should not have a parent method (LH [#64](https://github.com/sparklemotion/nokogiri/issues/64))
+* `Document#dup` should create a new document of the same type (LH [#59](https://github.com/sparklemotion/nokogiri/issues/59))
+* `Document` should not have a parent method (LH [#64](https://github.com/sparklemotion/nokogiri/issues/64))
 
 
 ## 1.2.1 / 2009-02-23
@@ -1509,69 +1509,69 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 * CSS search now supports CSS3 namespace queries
 * Namespaces on the root node are automatically registered
 * CSS queries use the default namespace
-* Nokogiri::XML::Document#encoding get encoding used for this document
-* Nokogiri::XML::Document#url get the document url
-* Nokogiri::XML::Node#add_namespace add a namespace to the node LH[#38](https://github.com/sparklemotion/nokogiri/issues/38)
-* Nokogiri::XML::Node#each iterate over attribute name, value pairs
-* Nokogiri::XML::Node#keys get all attribute names
-* Nokogiri::XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
-* Nokogiri::XML::Node#serialize now takes an optional encoding parameter
-* Nokogiri::XML::Node#to_html, to_xml, and to_xhtml take an optional encoding
-* Nokogiri::XML::Node#to_str
-* Nokogiri::XML::Node#to_xhtml to produce XHTML documents
-* Nokogiri::XML::Node#values get all attribute values
-* Nokogiri::XML::Node#write_to writes the node to an IO object with optional encoding
-* Nokogiri::XML::ProcessingInstrunction.new
-* Nokogiri::XML::SAX::PushParser for all your push parsing needs.
+* `Nokogiri::XML::Document#encoding` get encoding used for this document
+* `Nokogiri::XML::Document#url` get the document url
+* `Nokogiri::XML::Node#add_namespace` add a namespace to the node LH[#38](https://github.com/sparklemotion/nokogiri/issues/38)
+* `Nokogiri::XML::Node#each` iterate over attribute name, value pairs
+* `Nokogiri::XML::Node#keys` get all attribute names
+* `Nokogiri::XML::Node#line` get the line number for a node (Thanks Dirkjan Bussink!)
+* `Nokogiri::XML::Node#serialize` now takes an optional encoding parameter
+* `Nokogiri::XML::Node#to_html`, to_xml, and to_xhtml take an optional encoding
+* `Nokogiri::XML::Node#to_str`
+* `Nokogiri::XML::Node#to_xhtml` to produce XHTML documents
+* `Nokogiri::XML::Node#values` get all attribute values
+* `Nokogiri::XML::Node#write_to` writes the node to an IO object with optional encoding
+* `Nokogiri::XML::ProcessingInstruction.new`
+* `Nokogiri::XML::SAX::PushParser` for all your push parsing needs.
 
 ### Fixed
 
-* Fixed Nokogiri::XML::Document#dup
+* Fixed `Nokogiri::XML::Document#dup`
 * Fixed header detection. Thanks rubikitch!
 * Fixed a problem where invalid CSS would cause the parser to hang
 
 ### Deprecations
 
-* Nokogiri::XML::Node.new_from_str will be deprecated in 1.3.0
+* `Nokogiri::XML::Node.new_from_str` will be deprecated in 1.3.0
 
 ### Changed
 
-* Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH [#32](https://github.com/sparklemotion/nokogiri/issues/32))
+* `Nokogiri::HTML.fragment` now returns an XML::DocumentFragment (LH [#32](https://github.com/sparklemotion/nokogiri/issues/32))
 
 
 ## 1.1.1
 
 ### Added
 
-* Added XML::Node#elem?
-* Added XML::Node#attribute_nodes
-* Added XML::Attr
-* XML::Node#delete added.
-* XML::NodeSet#inner_html added.
+* Added `XML::Node#elem?`
+* Added `XML::Node#attribute_nodes`
+* Added `XML::Attr`
+* `XML::Node#delete` added.
+* `XML::NodeSet#inner_html` added.
 
 ### Fixed
 
 * Not including an HTML entity for \r for HTML nodes.
-* Removed CSS::SelectorHandler and XML::XPathHandler
-* XML::Node#attributes returns an Attr node for the value.
-* XML::NodeSet implements to_xml
+* Removed `CSS::SelectorHandler` and `XML::XPathHandler`
+* `XML::Node#attributes` returns an `Attr` node for the value.
+* `XML::NodeSet` implements `to_xml`
 
 
 ## 1.1.0
 
 ### Added
 
-* Custom XPath functions are now supported.  See Nokogiri::XML::Node#xpath
-* Custom CSS pseudo classes are now supported.  See Nokogiri::XML::Node#css
-* Nokogiri::XML::Node#<< will add a child to the current node
+* Custom XPath functions are now supported.  See `Nokogiri::XML::Node#xpath`
+* Custom CSS pseudo classes are now supported.  See `Nokogiri::XML::Node#css`
+* `Nokogiri::XML::Node#<<` will add a child to the current node
 
 ### Fixed
 
 * Mutex lock on CSS cache access
 * Fixed build problems with GCC 3.3.5
-* XML::Node#to_xml now takes an indentation argument
-* XML::Node#dup takes an optional depth argument
-* XML::Node#add_previous_sibling returns new sibling node.
+* `XML::Node#to_xml` now takes an indentation argument
+* `XML::Node#dup` takes an optional depth argument
+* `XML::Node#add_previous_sibling` returns new sibling node.
 
 
 ## 1.0.7
@@ -1590,10 +1590,10 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Fixed
 
-* XPath Parser raises a SyntaxError on parse failure
-* CSS Parser raises a SyntaxError on parse failure
-* filter() and not() hpricot compatibility added
-* CSS searches via Node#search are now always relative
+* XPath Parser raises a `SyntaxError` on parse failure
+* CSS Parser raises a `SyntaxError` on parse failure
+* `filter()` and `not()` hpricot compatibility added
+* CSS searches via `Node#search` are now always relative
 * CSS to XPath conversion is now cached
 
 
@@ -1601,9 +1601,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 
 ### Fixed
 
-* Added mailing list and ticket tracking information to the README.txt
-* Sets ENV['PATH'] on windows if it doesn't exist
-* Caching results of NodeSet#[] on Document
+* Added mailing list and ticket tracking information to the `README.txt`
+* Sets `ENV['PATH']` on windows if it doesn't exist
+* Caching results of `NodeSet#[]` on `Document`
 
 
 ## 1.0.4
@@ -1620,24 +1620,24 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631]
 ### Fixed
 
 * NodeSet now implements to_ary
-* XML::Document should not implement parent
+* `XML::Document` should not implement parent
 * More GC Bugs fixed.  (Mike is AWESOME!)
 * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
-* inner_html fixed. (Thanks Yehuda!)
+* `inner_html` fixed. (Thanks Yehuda!)
 
 
 ## 1.0.2
 
 ### Fixed
 
-* extconf.rb should not check for frex and racc
+* `extconf.rb` should not check for frex and racc
 
 
 ## 1.0.1
 
 ### Fixed
 
-* Made sure extconf.rb searched libdir and prefix so that ports libxml/ruby will link properly.  Thanks lucsky!
+* Made sure `extconf.rb` searched libdir and prefix so that ports libxml/ruby will link properly.  Thanks lucsky!
 
 
 ## 1.0.0 / 2008-07-13
