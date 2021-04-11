@@ -27,10 +27,11 @@ module Nokogiri
           XSLT.register(url, klass)
         end
 
+        doc = XML::Document.parse(string, nil, nil, XML::ParseOptions::DEFAULT_XSLT)
         if Nokogiri.jruby?
-          Stylesheet.parse_stylesheet_doc(XML.parse(string), string)
+          Stylesheet.parse_stylesheet_doc(doc, string)
         else
-          Stylesheet.parse_stylesheet_doc(XML.parse(string))
+          Stylesheet.parse_stylesheet_doc(doc)
         end
       end
 

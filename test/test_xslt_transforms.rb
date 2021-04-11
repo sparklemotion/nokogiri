@@ -367,5 +367,38 @@ class Nokogiri::TestCase
       end
       assert_match(/decimal/, exception.message)
     end
+
+    describe "DEFAULT_XSLT parse options" do
+      it "is the union of DEFAULT_XML and libxslt's XSLT_PARSE_OPTIONS" do
+        xslt_parse_options = Nokogiri::XML::ParseOptions.new.noent.dtdload.dtdattr.nocdata
+        expected = Nokogiri::XML::ParseOptions::DEFAULT_XML | xslt_parse_options.options
+        assert_equal(expected, Nokogiri::XML::ParseOptions::DEFAULT_XSLT)
+      end
+
+      it "parses docs the same as xsltproc" do
+        skip_unless_libxml2("JRuby implementation disallows this edge case XSLT")
+
+        # see https://github.com/sparklemotion/nokogiri/issues/1940
+        xml = "<t></t>"
+        xsl = <<~EOF
+          <?xml version="1.0"?>
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:output method="text" omit-xml-declaration="no" />
+            <xsl:template match="/">
+              <xsl:text disable-output-escaping="yes"><![CDATA[<>]]></xsl:text>
+            </xsl:template>
+          </xsl:stylesheet>
+        EOF
+
+        doc = Nokogiri::XML(xml)
+        stylesheet = Nokogiri::XSLT(xsl)
+
+        # TODO: ideally I'd like to be able to access the parse options in the final object
+        # assert_equal(Nokogiri::XML::ParseOptions::DEFAULT_XSLT, stylesheet.document.parse_options)
+
+        result = stylesheet.transform(doc)
+        assert_equal("<>", result.children.to_xml)
+      end
+    end
   end
 end

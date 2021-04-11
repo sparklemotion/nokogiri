@@ -71,6 +71,8 @@ module Nokogiri
 
       # the default options used for parsing XML documents
       DEFAULT_XML  = RECOVER | NONET
+      # the default options used for parsing XSLT stylesheets
+      DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA
       # the default options used for parsing HTML documents
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
       # the default options used for parsing XML schemas
