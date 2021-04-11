@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'nokogiri/xslt/stylesheet'
+require "nokogiri/xslt/stylesheet"
 
 module Nokogiri
   class << self
@@ -22,9 +22,9 @@ module Nokogiri
     class << self
       ###
       # Parse the stylesheet in +string+, register any +modules+
-      def parse string, modules = {}
+      def parse(string, modules = {})
         modules.each do |url, klass|
-          XSLT.register url, klass
+          XSLT.register(url, klass)
         end
 
         if Nokogiri.jruby?
@@ -36,18 +36,17 @@ module Nokogiri
 
       ###
       # Quote parameters in +params+ for stylesheet safety
-      def quote_params params
+      def quote_params(params)
         parray = (params.instance_of?(Hash) ? params.to_a.flatten : params).dup
-        parray.each_with_index do |v,i|
-          if i % 2 > 0
-            parray[i]=
-              if v =~ /'/
-                "concat('#{ v.gsub(/'/, %q{', "'", '}) }')"
-              else
-                "'#{v}'";
-              end
+        parray.each_with_index do |v, i|
+          parray[i] = if i % 2 > 0
+            if v =~ /'/
+              "concat('#{v.gsub(/'/, %q{', "'", '})}')"
+            else
+              "'#{v}'"
+            end
           else
-            parray[i] = v.to_s
+            v.to_s
           end
         end
         parray.flatten

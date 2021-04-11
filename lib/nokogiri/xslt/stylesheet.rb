@@ -18,7 +18,7 @@ module Nokogiri
       # Apply an XSLT stylesheet to an XML::Document.
       # +params+ is an array of strings used as XSLT parameters.
       # returns serialized document
-      def apply_to document, params = []
+      def apply_to(document, params = [])
         serialize(transform(document, params))
       end
     end
