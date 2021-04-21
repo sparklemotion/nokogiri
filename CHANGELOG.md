@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Changed
+
+* Introduce `Nokogiri::XML::ParseOptions::DEFAULT_XSLT` which adds the libxslt-preferred options of `NOENT | DTDLOAD | DTDATTR | NOCDATA` to `ParseOptions::DEFAULT_XML`.
+* `Nokogiri.XSLT` parses the stylesheet using `ParseOptions::DEFAULT_XSLT`, which should make some edge-case XSL transformations match libxslt's default behavior. [[#1940](https://github.com/sparklemotion/nokogiri/issues/1940)]
+
+
 ## 1.11.3 / 2021-04-07
 
 ### Fixed
