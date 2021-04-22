@@ -15,6 +15,7 @@ require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
+require 'nokogiri/html5' if Nokogiri.uses_gumbo?
 require 'nokogiri/decorators/slop'
 require 'nokogiri/css'
 require 'nokogiri/html/builder'
