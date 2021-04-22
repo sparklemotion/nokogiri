@@ -16,6 +16,7 @@ task :check_manifest do
     coverage
     doc
     gems
+    nokogumbo-import
     patches
     pkg
     ports
