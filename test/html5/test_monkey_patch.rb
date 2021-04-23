@@ -1,8 +1,7 @@
 # encoding: utf-8
-require 'nokogumbo'
-require 'minitest/autorun'
+require 'helper'
 
-class TestNokogumbo < Minitest::Test
+class TestHtml5SerializationMonkeyPatch < Nokogiri::TestCase
   def test_to_xml
     xml = Nokogiri.HTML5('<!DOCTYPE html><source>').to_xml
     assert_match(/\A<\?xml version/, xml)
@@ -13,4 +12,4 @@ class TestNokogumbo < Minitest::Test
     frag = Nokogiri::HTML.fragment('<span></span>')
     assert frag.is_a?(Nokogiri::HTML::DocumentFragment)
   end
-end
+end if Nokogiri.uses_gumbo?

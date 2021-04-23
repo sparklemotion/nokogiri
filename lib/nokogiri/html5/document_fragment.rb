@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-require 'nokogiri'
+require 'nokogiri/html/document_fragment'
 
 module Nokogiri
   module HTML5
@@ -29,11 +29,11 @@ module Nokogiri
         self.errors = []
         return self unless tags
 
-        max_attributes = options[:max_attributes] || Nokogumbo::DEFAULT_MAX_ATTRIBUTES
-        max_errors = options[:max_errors] || Nokogumbo::DEFAULT_MAX_ERRORS
-        max_depth = options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH
+        max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
+        max_errors = options[:max_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
+        max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
         tags = Nokogiri::HTML5.read_and_encode(tags, nil)
-        Nokogumbo.fragment(self, tags, ctx, max_attributes, max_errors, max_depth)
+        Nokogiri::Gumbo.fragment(self, tags, ctx, max_attributes, max_errors, max_depth)
       end
 
       def serialize(options = {}, &block)

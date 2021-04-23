@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-require 'nokogiri'
+require 'nokogiri/xml/node'
 
 module Nokogiri
   module HTML5
@@ -41,7 +41,7 @@ module Nokogiri
 
       def inner_html(options = {})
         return super(options) unless document.is_a?(HTML5::Document)
-        result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? "\n" : ""
+        result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? String.new("\n") : String.new
         result << children.map { |child| child.to_html(options) }.join
         result
       end
