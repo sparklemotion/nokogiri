@@ -758,9 +758,6 @@ static VALUE fragment_continue(VALUE parse_args) {
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void Init_nokogumbo() {
-  rb_funcall(rb_mKernel, rb_intern_const("gem"), 1, rb_utf8_str_new_static("nokogiri", 8));
-  rb_require("nokogiri");
-
   VALUE line_supported = Qtrue;
 
 #if !NGLIB
@@ -796,7 +793,7 @@ void Init_nokogumbo() {
   parent = rb_intern_const("parent");
 
   // Define Nokogumbo module with parse and fragment methods.
-  VALUE Gumbo = rb_define_module("Nokogumbo");
+  VALUE Gumbo = rb_define_module_under(mNokogiri, "Gumbo");
   rb_define_singleton_method(Gumbo, "parse", parse, 5);
   rb_define_singleton_method(Gumbo, "fragment", fragment, 6);
 

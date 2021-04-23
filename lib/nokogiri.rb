@@ -15,10 +15,14 @@ require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
-require 'nokogiri/html5' if Nokogiri.uses_gumbo?
 require 'nokogiri/decorators/slop'
 require 'nokogiri/css'
 require 'nokogiri/html/builder'
+
+if Nokogiri.uses_gumbo?
+  require 'nokogiri/html5'
+  require 'nokogumbo/nokogumbo'
+end
 
 # Nokogiri parses and searches XML/HTML very quickly, and also has
 # correctly implemented CSS3 selector support as well as XPath 1.0
