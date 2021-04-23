@@ -372,4 +372,9 @@ else
       end
     end
   end
+
+  Rake::ExtensionTask.new 'nokogumbo' do |e|
+    e.lib_dir = 'lib/nokogumbo'
+    e.source_pattern = '{,../../gumbo-parser/src/}*.[hc]'
+  end
 end
