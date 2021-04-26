@@ -45,15 +45,21 @@ static ID parent;
 #define ONIG_ESCAPE_UCHAR_COLLISION 1
 #include <ruby/encoding.h>
 
-static VALUE rb_utf8_str_new(const char *str, long length) {
+static VALUE
+rb_utf8_str_new(const char *str, long length)
+{
   return rb_enc_str_new(str, length, rb_utf8_encoding());
 }
 
-static VALUE rb_utf8_str_new_cstr(const char *str) {
+static VALUE
+rb_utf8_str_new_cstr(const char *str)
+{
   return rb_enc_str_new_cstr(str, rb_utf8_encoding());
 }
 
-static VALUE rb_utf8_str_new_static(const char *str, long length) {
+static VALUE
+rb_utf8_str_new_static(const char *str, long length)
+{
   return rb_enc_str_new(str, length, rb_utf8_encoding());
 }
 #endif
@@ -64,29 +70,35 @@ static VALUE rb_utf8_str_new_static(const char *str, long length) {
 
 // URI = system id
 // external id = public id
-static xmlDocPtr new_html_doc(const char *dtd_name, const char *system, const char *public)
+static xmlDocPtr
+new_html_doc(const char *dtd_name, const char *system, const char *public)
 {
   // These two libxml2 functions take the public and system ids in
   // opposite orders.
   htmlDocPtr doc = htmlNewDocNoDtD(/* URI */ NULL, /* ExternalID */NULL);
   assert(doc);
-  if (dtd_name)
+  if (dtd_name) {
     xmlCreateIntSubset(doc, BAD_CAST dtd_name, BAD_CAST public, BAD_CAST system);
+  }
   return doc;
 }
 
-static xmlNodePtr get_parent(xmlNodePtr node) {
+static xmlNodePtr
+get_parent(xmlNodePtr node)
+{
   return node->parent;
 }
 
-static GumboOutput *perform_parse(const GumboOptions *options, VALUE input) {
+static GumboOutput *
+perform_parse(const GumboOptions *options, VALUE input)
+{
   assert(RTEST(input));
   Check_Type(input, T_STRING);
-  GumboOutput *output = gumbo_parse_with_options (
-    options,
-    RSTRING_PTR(input),
-    RSTRING_LEN(input)
-  );
+  GumboOutput *output = gumbo_parse_with_options(
+                          options,
+                          RSTRING_PTR(input),
+                          RSTRING_LEN(input)
+                        );
 
   const char *status_string = gumbo_status_to_string(output->status);
   switch (output->status) {
@@ -103,40 +115,48 @@ static GumboOutput *perform_parse(const GumboOptions *options, VALUE input) {
   return output;
 }
 
-static xmlNsPtr lookup_or_add_ns (
+static xmlNsPtr
+lookup_or_add_ns(
   xmlDocPtr doc,
   xmlNodePtr root,
   const char *href,
   const char *prefix
-) {
+)
+{
   xmlNsPtr ns = xmlSearchNs(doc, root, BAD_CAST prefix);
-  if (ns)
+  if (ns) {
     return ns;
+  }
   return xmlNewNs(root, BAD_CAST href, BAD_CAST prefix);
 }
 
-static void set_line(xmlNodePtr node, size_t line) {
+static void
+set_line(xmlNodePtr node, size_t line)
+{
   // libxml2 uses 65535 to mean look elsewhere for the line number on some
   // nodes.
-  if (line < 65535)
+  if (line < 65535) {
     node->line = (unsigned short)line;
+  }
 }
 
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
 // at gumbo_node.
-static void build_tree (
+static void
+build_tree(
   xmlDocPtr doc,
   xmlNodePtr xml_output_node,
   const GumboNode *gumbo_node
-) {
+)
+{
   xmlNodePtr xml_root = NULL;
   xmlNodePtr xml_node = xml_output_node;
   size_t child_index = 0;
 
   while (true) {
     assert(gumbo_node != NULL);
-    const GumboVector *children = gumbo_node->type == GUMBO_NODE_DOCUMENT?
-      &gumbo_node->v.document.children : &gumbo_node->v.element.children;
+    const GumboVector *children = gumbo_node->type == GUMBO_NODE_DOCUMENT ?
+                                  &gumbo_node->v.document.children : &gumbo_node->v.element.children;
     if (child_index >= children->length) {
       // Move up the tree and to the next child.
       if (xml_node == xml_output_node) {
@@ -150,94 +170,98 @@ static void build_tree (
       // it'll be set below. In the non-fragment case, this will only happen
       // after the html element has been finished at which point there are no
       // further elements.
-      if (xml_node == xml_output_node)
+      if (xml_node == xml_output_node) {
         xml_root = NULL;
+      }
       continue;
     }
     const GumboNode *gumbo_child = children->data[child_index++];
     xmlNodePtr xml_child;
 
     switch (gumbo_child->type) {
-      case GUMBO_NODE_DOCUMENT:
-        abort(); // Bug in Gumbo.
+    case GUMBO_NODE_DOCUMENT:
+      abort(); // Bug in Gumbo.
 
-      case GUMBO_NODE_TEXT:
-      case GUMBO_NODE_WHITESPACE:
-        xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
-        set_line(xml_child, gumbo_child->v.text.start_pos.line);
-        xmlAddChild(xml_node, xml_child);
-        break;
+    case GUMBO_NODE_TEXT:
+    case GUMBO_NODE_WHITESPACE:
+      xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
+      set_line(xml_child, gumbo_child->v.text.start_pos.line);
+      xmlAddChild(xml_node, xml_child);
+      break;
 
-      case GUMBO_NODE_CDATA:
-        xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
-                                     (int) strlen(gumbo_child->v.text.text));
-        set_line(xml_child, gumbo_child->v.text.start_pos.line);
-        xmlAddChild(xml_node, xml_child);
-        break;
+    case GUMBO_NODE_CDATA:
+      xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
+                                   (int) strlen(gumbo_child->v.text.text));
+      set_line(xml_child, gumbo_child->v.text.start_pos.line);
+      xmlAddChild(xml_node, xml_child);
+      break;
 
-      case GUMBO_NODE_COMMENT:
-        xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
-        set_line(xml_child, gumbo_child->v.text.start_pos.line);
-        xmlAddChild(xml_node, xml_child);
-        break;
+    case GUMBO_NODE_COMMENT:
+      xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
+      set_line(xml_child, gumbo_child->v.text.start_pos.line);
+      xmlAddChild(xml_node, xml_child);
+      break;
 
-      case GUMBO_NODE_TEMPLATE:
-        // XXX: Should create a template element and a new DocumentFragment
-      case GUMBO_NODE_ELEMENT:
-      {
-        xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
-        set_line(xml_child, gumbo_child->v.element.start_pos.line);
-        if (xml_root == NULL)
-          xml_root = xml_child;
-        xmlNsPtr ns = NULL;
-        switch (gumbo_child->v.element.tag_namespace) {
-        case GUMBO_NAMESPACE_HTML:
-          break;
-        case GUMBO_NAMESPACE_SVG:
-          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/svg", "svg");
-          break;
-        case GUMBO_NAMESPACE_MATHML:
-          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1998/Math/MathML", "math");
-          break;
-        }
-        if (ns != NULL)
-          xmlSetNs(xml_child, ns);
-        xmlAddChild(xml_node, xml_child);
-
-        // Add the attributes.
-        const GumboVector* attrs = &gumbo_child->v.element.attributes;
-        for (size_t i=0; i < attrs->length; i++) {
-          const GumboAttribute *attr = attrs->data[i];
-
-          switch (attr->attr_namespace) {
-            case GUMBO_ATTR_NAMESPACE_XLINK:
-              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1999/xlink", "xlink");
-              break;
-
-            case GUMBO_ATTR_NAMESPACE_XML:
-              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/XML/1998/namespace", "xml");
-              break;
-
-            case GUMBO_ATTR_NAMESPACE_XMLNS:
-              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/xmlns/", "xmlns");
-              break;
-
-            default:
-              ns = NULL;
-          }
-          xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
-        }
-
-        // Add children for this element.
-        child_index = 0;
-        gumbo_node = gumbo_child;
-        xml_node = xml_child;
+    case GUMBO_NODE_TEMPLATE:
+    // XXX: Should create a template element and a new DocumentFragment
+    case GUMBO_NODE_ELEMENT: {
+      xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
+      set_line(xml_child, gumbo_child->v.element.start_pos.line);
+      if (xml_root == NULL) {
+        xml_root = xml_child;
       }
+      xmlNsPtr ns = NULL;
+      switch (gumbo_child->v.element.tag_namespace) {
+      case GUMBO_NAMESPACE_HTML:
+        break;
+      case GUMBO_NAMESPACE_SVG:
+        ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/svg", "svg");
+        break;
+      case GUMBO_NAMESPACE_MATHML:
+        ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1998/Math/MathML", "math");
+        break;
+      }
+      if (ns != NULL) {
+        xmlSetNs(xml_child, ns);
+      }
+      xmlAddChild(xml_node, xml_child);
+
+      // Add the attributes.
+      const GumboVector *attrs = &gumbo_child->v.element.attributes;
+      for (size_t i = 0; i < attrs->length; i++) {
+        const GumboAttribute *attr = attrs->data[i];
+
+        switch (attr->attr_namespace) {
+        case GUMBO_ATTR_NAMESPACE_XLINK:
+          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1999/xlink", "xlink");
+          break;
+
+        case GUMBO_ATTR_NAMESPACE_XML:
+          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/XML/1998/namespace", "xml");
+          break;
+
+        case GUMBO_ATTR_NAMESPACE_XMLNS:
+          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/xmlns/", "xmlns");
+          break;
+
+        default:
+          ns = NULL;
+        }
+        xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
+      }
+
+      // Add children for this element.
+      child_index = 0;
+      gumbo_node = gumbo_child;
+      xml_node = xml_child;
+    }
     }
   }
 }
 
-static void add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url) {
+static void
+add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
+{
   const char *input_str = RSTRING_PTR(input);
   size_t input_len = RSTRING_LEN(input);
 
@@ -246,7 +270,7 @@ static void add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE
     const GumboVector *errors = &output->errors;
     VALUE rerrors = rb_ary_new2(errors->length);
 
-    for (size_t i=0; i < errors->length; i++) {
+    for (size_t i = 0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
       GumboSourcePosition position = gumbo_error_position(err);
       char *msg;
@@ -255,7 +279,7 @@ static void add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE
       free(msg);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
       const char *error_code = gumbo_error_code(err);
-      VALUE str1 = error_code? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
+      VALUE str1 = error_code ? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
@@ -279,7 +303,9 @@ typedef struct {
   xmlDocPtr doc;
 } ParseArgs;
 
-static void parse_args_mark(void *parse_args) {
+static void
+parse_args_mark(void *parse_args)
+{
   ParseArgs *args = parse_args;
   rb_gc_mark_maybe(args->input);
   rb_gc_mark_maybe(args->url_or_frag);
@@ -287,33 +313,42 @@ static void parse_args_mark(void *parse_args) {
 
 // Wrap a ParseArgs pointer. The underlying ParseArgs must outlive the
 // wrapper.
-static VALUE wrap_parse_args(ParseArgs *args) {
+static VALUE
+wrap_parse_args(ParseArgs *args)
+{
   return Data_Wrap_Struct(rb_cData, parse_args_mark, RUBY_NEVER_FREE, args);
 }
 
 // Returnsd the underlying ParseArgs wrapped by wrap_parse_args.
-static ParseArgs *unwrap_parse_args(VALUE obj) {
+static ParseArgs *
+unwrap_parse_args(VALUE obj)
+{
   ParseArgs *args;
   Data_Get_Struct(obj, ParseArgs, args);
   return args;
 }
 
-static VALUE parse_cleanup(VALUE parse_args) {
+static VALUE
+parse_cleanup(VALUE parse_args)
+{
   ParseArgs *args = unwrap_parse_args(parse_args);
   gumbo_destroy_output(args->output);
   // Make sure garbage collection doesn't mark the objects as being live based
   // on references from the ParseArgs. This may be unnecessary.
   args->input = Qnil;
   args->url_or_frag = Qnil;
-  if (args->doc != NULL)
+  if (args->doc != NULL) {
     xmlFreeDoc(args->doc);
+  }
   return Qnil;
 }
 
 static VALUE parse_continue(VALUE parse_args);
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth) {
+static VALUE
+parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth)
+{
   GumboOptions options = kGumboDefaultOptions;
   options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
@@ -331,7 +366,9 @@ static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VAL
   return rb_ensure(parse_continue, parse_args, parse_cleanup, parse_args);
 }
 
-static VALUE parse_continue(VALUE parse_args) {
+static VALUE
+parse_continue(VALUE parse_args)
+{
   ParseArgs *args = unwrap_parse_args(parse_args);
   GumboOutput *output = args->output;
   xmlDocPtr doc;
@@ -353,14 +390,17 @@ static VALUE parse_continue(VALUE parse_args) {
   return rdoc;
 }
 
-static int lookup_namespace(VALUE node, bool require_known_ns) {
+static int
+lookup_namespace(VALUE node, bool require_known_ns)
+{
   ID namespace, href;
   CONST_ID(namespace, "namespace");
   CONST_ID(href, "href");
   VALUE ns = rb_funcall(node, namespace, 0);
 
-  if (NIL_P(ns))
+  if (NIL_P(ns)) {
     return GUMBO_NAMESPACE_HTML;
+  }
   ns = rb_funcall(ns, href, 0);
   assert(RTEST(ns));
   Check_Type(ns, T_STRING);
@@ -368,19 +408,25 @@ static int lookup_namespace(VALUE node, bool require_known_ns) {
   const char *href_ptr = RSTRING_PTR(ns);
   size_t href_len = RSTRING_LEN(ns);
 #define NAMESPACE_P(uri) (href_len == sizeof uri - 1 && !memcmp(href_ptr, uri, href_len))
-  if (NAMESPACE_P("http://www.w3.org/1999/xhtml"))
+  if (NAMESPACE_P("http://www.w3.org/1999/xhtml")) {
     return GUMBO_NAMESPACE_HTML;
-  if (NAMESPACE_P("http://www.w3.org/1998/Math/MathML"))
+  }
+  if (NAMESPACE_P("http://www.w3.org/1998/Math/MathML")) {
     return GUMBO_NAMESPACE_MATHML;
-  if (NAMESPACE_P("http://www.w3.org/2000/svg"))
+  }
+  if (NAMESPACE_P("http://www.w3.org/2000/svg")) {
     return GUMBO_NAMESPACE_SVG;
+  }
 #undef NAMESPACE_P
-  if (require_known_ns)
+  if (require_known_ns) {
     rb_raise(rb_eArgError, "Unexpected namespace URI \"%*s\"", (int)href_len, href_ptr);
+  }
   return -1;
 }
 
-static xmlNodePtr extract_xml_node(VALUE node) {
+static xmlNodePtr
+extract_xml_node(VALUE node)
+{
   xmlNodePtr xml_node;
   Data_Get_Struct(node, xmlNode, xml_node);
   return xml_node;
@@ -388,7 +434,8 @@ static xmlNodePtr extract_xml_node(VALUE node) {
 
 static VALUE fragment_continue(VALUE parse_args);
 
-static VALUE fragment (
+static VALUE
+fragment(
   VALUE self,
   VALUE doc_fragment,
   VALUE tags,
@@ -396,7 +443,8 @@ static VALUE fragment (
   VALUE max_attributes,
   VALUE max_errors,
   VALUE max_depth
-) {
+)
+{
   ID name = rb_intern_const("name");
   const char *ctx_tag;
   GumboNamespaceEnum ctx_ns;
@@ -415,29 +463,32 @@ static VALUE fragment (
     if (colon) {
       switch (colon - ctx_tag) {
       case 3:
-        if (st_strncasecmp(ctx_tag, "svg", 3) != 0)
+        if (st_strncasecmp(ctx_tag, "svg", 3) != 0) {
           goto error;
+        }
         ctx_ns = GUMBO_NAMESPACE_SVG;
         break;
       case 4:
-        if (st_strncasecmp(ctx_tag, "html", 4) == 0)
+        if (st_strncasecmp(ctx_tag, "html", 4) == 0) {
           ctx_ns = GUMBO_NAMESPACE_HTML;
-        else if (st_strncasecmp(ctx_tag, "math", 4) == 0)
+        } else if (st_strncasecmp(ctx_tag, "math", 4) == 0) {
           ctx_ns = GUMBO_NAMESPACE_MATHML;
-        else
+        } else {
           goto error;
+        }
         break;
       default:
-      error:
+error:
         rb_raise(rb_eArgError, "Invalid context namespace '%*s'", (int)(colon - ctx_tag), ctx_tag);
       }
-      ctx_tag = colon+1;
+      ctx_tag = colon + 1;
     } else {
       // For convenience, put 'svg' and 'math' in their namespaces.
-      if (len == 3 && st_strncasecmp(ctx_tag, "svg", 3) == 0)
+      if (len == 3 && st_strncasecmp(ctx_tag, "svg", 3) == 0) {
         ctx_ns = GUMBO_NAMESPACE_SVG;
-      else if (len == 4 && st_strncasecmp(ctx_tag, "math", 4) == 0)
+      } else if (len == 4 && st_strncasecmp(ctx_tag, "math", 4) == 0) {
         ctx_ns = GUMBO_NAMESPACE_MATHML;
+      }
     }
 
     // Check if it's a form.
@@ -458,8 +509,9 @@ static VALUE fragment (
     for (VALUE node = ctx;
          !NIL_P(node);
          node = rb_respond_to(node, parent) ? rb_funcall(node, parent, 0) : Qnil) {
-      if (!RTEST(rb_funcall(node, element_, 0)))
+      if (!RTEST(rb_funcall(node, element_, 0))) {
         continue;
+      }
       VALUE element_name = rb_funcall(node, name, 0);
       if (RSTRING_LEN(element_name) == 4
           && !st_strcasecmp(RSTRING_PTR(element_name), "form")
@@ -490,11 +542,11 @@ static VALUE fragment (
     VALUE dtd_name = rb_funcall(dtd, name, 0);
     VALUE pubid = rb_funcall(dtd, rb_intern_const("external_id"), 0);
     VALUE sysid = rb_funcall(dtd, rb_intern_const("system_id"), 0);
-    quirks_mode = gumbo_compute_quirks_mode (
-      NIL_P(dtd_name)? NULL:StringValueCStr(dtd_name),
-      NIL_P(pubid)? NULL:StringValueCStr(pubid),
-      NIL_P(sysid)? NULL:StringValueCStr(sysid)
-    );
+    quirks_mode = gumbo_compute_quirks_mode(
+                    NIL_P(dtd_name) ? NULL : StringValueCStr(dtd_name),
+                    NIL_P(pubid) ? NULL : StringValueCStr(pubid),
+                    NIL_P(sysid) ? NULL : StringValueCStr(sysid)
+                  );
   }
 
   // Perform a fragment parse.
@@ -522,7 +574,9 @@ static VALUE fragment (
   return Qnil;
 }
 
-static VALUE fragment_continue(VALUE parse_args) {
+static VALUE
+fragment_continue(VALUE parse_args)
+{
   ParseArgs *args = unwrap_parse_args(parse_args);
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
@@ -536,7 +590,9 @@ static VALUE fragment_continue(VALUE parse_args) {
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
-void Init_nokogumbo() {
+void
+Init_nokogumbo()
+{
   VALUE line_supported = Qtrue;
 
   // Class constants.

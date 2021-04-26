@@ -177,7 +177,8 @@ VALUE noko_xml_node_set_wrap(xmlNodeSetPtr node_set, VALUE document) ;
 
 VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
 VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
-NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
+NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
+    xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
