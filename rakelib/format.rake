@@ -3,7 +3,7 @@
 namespace "format" do
   def assert_astyle
     require "mkmf"
-    find_executable("astyle") || raise("Could not find command 'astyle'")
+    find_executable0("astyle") || raise("Could not find command 'astyle'")
   end
 
   def astyle_args
@@ -60,7 +60,6 @@ namespace "format" do
 
   CLEAN.add(astyle_c_files.map { |f| "#{f}.orig" })
   CLEAN.add(astyle_java_files.map { |f| "#{f}.orig" })
-  CLEAN.add("mkmf.log") # because of find_executable
 end
 
 task "format" => ["format:c", "format:java"]
