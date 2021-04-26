@@ -897,8 +897,10 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
 
     def compile
       cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
-      command = [make_cmd, "CC=#{gcc_cmd}", "CFLAGS=#{cflags}"]
-      execute("compile", command)
+
+      env = {"CC" => gcc_cmd, "CFLAGS" => cflags}
+
+      execute("compile", make_cmd, {env: env})
     end
   end
 end
