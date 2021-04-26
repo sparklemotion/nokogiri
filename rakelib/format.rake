@@ -37,11 +37,11 @@ namespace "format" do
   end
 
   def astyle_c_files
-    FileList.new("ext/nokogiri/*.[ch]")
+    FileList.new("ext/**/*.[ch]")
   end
 
   def astyle_java_files
-    FileList.new("ext/java/nokogiri/**/*.java")
+    FileList.new("ext/**/*.java")
   end
 
   desc "Format Nokogiri's C code"
