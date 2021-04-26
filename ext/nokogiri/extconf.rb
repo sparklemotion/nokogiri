@@ -899,6 +899,15 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
       cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
 
       env = {"CC" => gcc_cmd, "CFLAGS" => cflags}
+      if config_cross_build?
+        if host =~ /darwin/
+          env["AR"] = "#{host}-libtool"
+          env["ARFLAGS"] = "-o"
+        else
+          env["AR"] = "#{host}-ar"
+        end
+        env["RANLIB"] = "#{host}-ranlib"
+      end
 
       execute("compile", make_cmd, {env: env})
     end
