@@ -296,31 +296,26 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
   end
 
   def test_line_text
-    skip unless Nokogiri::Gumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\ntext node")
     assert_equal(2, doc.at_xpath("/html/body/text()").line)
   end
 
   def test_line_comment
-    skip unless Nokogiri::Gumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<!-- comment -->")
     assert_equal(3, doc.at_xpath("/comment()").line)
   end
 
   def test_line_element
-    skip unless Nokogiri::Gumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n<p>")
     assert_equal(2, doc.at_xpath("/html/body/p").line)
   end
 
   def test_line_template
-    skip unless Nokogiri::Gumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<template></template>")
     assert_equal(3, doc.at_xpath("/html/head/template").line)
   end
 
   def test_line_cdata
-    skip unless Nokogiri::Gumbo.const_get(:LINE_SUPPORTED)
     html = "<!DOCTYPE html>\n<svg>\n<script><![CDATA[ ]]></script></svg>"
     doc = Nokogiri.HTML5(html)
     node = doc.at_xpath("/html/body/svg:svg/svg:script/text()")

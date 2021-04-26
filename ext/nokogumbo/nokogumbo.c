@@ -593,8 +593,6 @@ fragment_continue(VALUE parse_args)
 void
 Init_nokogumbo()
 {
-  VALUE line_supported = Qtrue;
-
   // Class constants.
   VALUE HTML5 = rb_const_get(mNokogiri, rb_intern_const("HTML5"));
   Document = rb_const_get(HTML5, rb_intern_const("Document"));
@@ -608,11 +606,6 @@ Init_nokogumbo()
   VALUE Gumbo = rb_define_module_under(mNokogiri, "Gumbo");
   rb_define_singleton_method(Gumbo, "parse", parse, 5);
   rb_define_singleton_method(Gumbo, "fragment", fragment, 6);
-
-  // Add private constant for testing.
-  rb_define_const(Gumbo, "LINE_SUPPORTED", line_supported);
-  rb_funcall(Gumbo, rb_intern_const("private_constant"), 1,
-             rb_utf8_str_new_cstr("LINE_SUPPORTED"));
 }
 
 // vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:
