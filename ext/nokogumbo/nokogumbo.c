@@ -21,17 +21,10 @@
 //     def parse(utf8_string) # returns Nokogiri::HTML5::Document
 //   end
 //
-// Processing starts by calling gumbo_parse_with_options.  The resulting
-// document tree is then walked:
-//
-//  * if Nokogiri and libxml2 headers are available at compile time,
-//    (if NGLIB) then a parallel libxml2 tree is constructed, and the
-//    final document is then wrapped using Nokogiri_wrap_xml_document.
-//    This approach reduces memory and CPU requirements as Ruby objects
-//    are only built when necessary.
-//
-//  * if the necessary headers are not available at compile time, Nokogiri
-//    methods are called instead, producing the equivalent functionality.
+// Processing starts by calling gumbo_parse_with_options. The resulting document tree
+// is then walked, a parallel libxml2 tree is constructed, and the final document is
+// then wrapped using Nokogiri_wrap_xml_document. This approach reduces memory and CPU
+// requirements as Ruby objects are only built when necessary.
 //
 
 #include <assert.h>
@@ -65,178 +58,14 @@ static VALUE rb_utf8_str_new_static(const char *str, long length) {
 }
 #endif
 
-#if NGLIB
 #include <nokogiri.h>
 #include <libxml/tree.h>
 #include <libxml/HTMLtree.h>
-
-#define NIL NULL
-#else
-#define NIL Qnil
-
-// These are defined by nokogiri.h
-static VALUE cNokogiriXmlSyntaxError;
-static VALUE cNokogiriXmlElement;
-static VALUE cNokogiriXmlText;
-static VALUE cNokogiriXmlCData;
-static VALUE cNokogiriXmlComment;
-
-// Interned symbols.
-static ID new;
-static ID node_name_;
-
-// Map libxml2 types to Ruby VALUE.
-typedef VALUE xmlNodePtr;
-typedef VALUE xmlDocPtr;
-typedef VALUE xmlNsPtr;
-typedef VALUE xmlDtdPtr;
-typedef char xmlChar;
-#define BAD_CAST
-
-// Redefine libxml2 API as Ruby function calls.
-static xmlNodePtr xmlNewDocNode(xmlDocPtr doc, xmlNsPtr ns, const xmlChar *name, const xmlChar *content) {
-  assert(ns == NIL && content == NULL);
-  return rb_funcall(cNokogiriXmlElement, new, 2, rb_utf8_str_new_cstr(name), doc);
-}
-
-static xmlNodePtr xmlNewDocText(xmlDocPtr doc, const xmlChar *content) {
-  VALUE str = rb_utf8_str_new_cstr(content);
-  return rb_funcall(cNokogiriXmlText, new, 2, str, doc);
-}
-
-static xmlNodePtr xmlNewCDataBlock(xmlDocPtr doc, const xmlChar *content, int len) {
-  VALUE str = rb_utf8_str_new(content, len);
-  // CDATA.new takes arguments in the opposite order from Text.new.
-  return rb_funcall(cNokogiriXmlCData, new, 2, doc, str);
-}
-
-static xmlNodePtr xmlNewDocComment(xmlDocPtr doc, const xmlChar *content) {
-  VALUE str = rb_utf8_str_new_cstr(content);
-  return rb_funcall(cNokogiriXmlComment, new, 2, doc, str);
-}
-
-static xmlNodePtr xmlAddChild(xmlNodePtr parent, xmlNodePtr cur) {
-  ID add_child;
-  CONST_ID(add_child, "add_child");
-  return rb_funcall(parent, add_child, 1, cur);
-}
-
-static void xmlSetNs(xmlNodePtr node, xmlNsPtr ns) {
-  ID namespace_;
-  CONST_ID(namespace_, "namespace=");
-  rb_funcall(node, namespace_, 1, ns);
-}
-
-static void xmlFreeDoc(xmlDocPtr doc) { }
-
-static VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc) {
-  return doc;
-}
-
-static VALUE find_dummy_key(VALUE collection) {
-  VALUE r_dummy = Qnil;
-  char dummy[5] = "a";
-  size_t len = 1;
-  ID key_;
-  CONST_ID(key_, "key?");
-  while (len < sizeof dummy) {
-    r_dummy = rb_utf8_str_new(dummy, len);
-    if (rb_funcall(collection, key_, 1, r_dummy) == Qfalse)
-      return r_dummy;
-    for (size_t i = 0; ; ++i) {
-      if (dummy[i] == 0) {
-        dummy[i] = 'a';
-        ++len;
-        break;
-      }
-      if (dummy[i] == 'z')
-        dummy[i] = 'a';
-      else {
-        ++dummy[i];
-        break;
-      }
-    }
-  }
-  // This collection has 475254 elements?? Give up.
-  rb_raise(rb_eArgError, "Failed to find a dummy key.");
-}
-
-// This should return an xmlAttrPtr, but we don't need it and it's easier to
-// not get the result.
-static void xmlNewNsProp (
-  xmlNodePtr node,
-  xmlNsPtr ns,
-  const xmlChar *name,
-  const xmlChar *value
-) {
-  ID set_attribute;
-  CONST_ID(set_attribute, "set_attribute");
-
-  VALUE rvalue = rb_utf8_str_new_cstr(value);
-
-  if (RTEST(ns)) {
-    // This is an easy case, we have a namespace so it's enough to do
-    // node["#{ns.prefix}:#{name}"] = value
-    ID prefix;
-    CONST_ID(prefix, "prefix");
-    VALUE ns_prefix = rb_funcall(ns, prefix, 0);
-    VALUE qname = rb_sprintf("%" PRIsVALUE ":%s", ns_prefix, name);
-    rb_funcall(node, set_attribute, 2, qname, rvalue);
-    return;
-  }
-
-  size_t len = strlen(name);
-  VALUE rname = rb_utf8_str_new(name, len);
-  if (memchr(name, ':', len) == NULL) {
-    // This is the easiest case. There's no colon so we can do
-    // node[name] = value.
-    rb_funcall(node, set_attribute, 2, rname, rvalue);
-    return;
-  }
-
-  // Nokogiri::XML::Node#set_attribute calls xmlSetProp(node, name, value)
-  // which behaves roughly as
-  // if name is a QName prefix:local
-  //   if node->doc has a namespace ns corresponding to prefix
-  //     return xmlSetNsProp(node, ns, local, value)
-  // return xmlSetNsProp(node, NULL, name, value)
-  //
-  // If the prefix is "xml", then the namespace lookup will create it.
-  //
-  // By contrast, xmlNewNsProp does not do this parsing and creates an attribute
-  // with the name and value exactly as given. This is the behavior that we
-  // want.
-  //
-  // Thus, for attribute names like "xml:lang", #set_attribute will create an
-  // attribute with namespace "xml" and name "lang". This is incorrect for
-  // html elements (but correct for foreign elements).
-  //
-  // Work around this by inserting a dummy attribute and then changing the
-  // name, if needed.
-
-  // Find a dummy attribute string that doesn't already exist.
-  VALUE dummy = find_dummy_key(node);
-  // Add the dummy attribute.
-  rb_funcall(node, set_attribute, 2, dummy, rvalue);
-
-  // Remove the old attribute, if it exists.
-  ID remove_attribute;
-  CONST_ID(remove_attribute, "remove_attribute");
-  rb_funcall(node, remove_attribute, 1, rname);
-
-  // Rename the dummy
-  ID attribute;
-  CONST_ID(attribute, "attribute");
-  VALUE attr = rb_funcall(node, attribute, 1, dummy);
-  rb_funcall(attr, node_name_, 1, rname);
-}
-#endif
 
 // URI = system id
 // external id = public id
 static xmlDocPtr new_html_doc(const char *dtd_name, const char *system, const char *public)
 {
-#if NGLIB
   // These two libxml2 functions take the public and system ids in
   // opposite orders.
   htmlDocPtr doc = htmlNewDocNoDtD(/* URI */ NULL, /* ExternalID */NULL);
@@ -244,44 +73,10 @@ static xmlDocPtr new_html_doc(const char *dtd_name, const char *system, const ch
   if (dtd_name)
     xmlCreateIntSubset(doc, BAD_CAST dtd_name, BAD_CAST public, BAD_CAST system);
   return doc;
-#else
-  // remove internal subset from newly created documents
-  VALUE doc;
-  // If system and public are both NULL, Document#new is going to set default
-  // values for them so we're going to have to remove the internal subset
-  // which seems to leak memory in Nokogiri, so leak as little as possible.
-  if (system == NULL && public == NULL) {
-    ID remove;
-    CONST_ID(remove, "remove");
-    doc = rb_funcall(Document, new, 2, /* URI */ Qnil, /* external_id */ rb_utf8_str_new_static("", 0));
-    rb_funcall(rb_funcall(doc, internal_subset, 0), remove, 0);
-    if (dtd_name) {
-      // We need to create an internal subset now.
-      ID create_internal_subset;
-      CONST_ID(create_internal_subset, "create_internal_subset");
-      rb_funcall(doc, create_internal_subset, 3, rb_utf8_str_new_cstr(dtd_name), Qnil, Qnil);
-    }
-  } else {
-    assert(dtd_name);
-    // Rather than removing and creating the internal subset as we did above,
-    // just create and then rename one.
-    VALUE r_system = system ? rb_utf8_str_new_cstr(system) : Qnil;
-    VALUE r_public = public ? rb_utf8_str_new_cstr(public) : Qnil;
-    doc = rb_funcall(Document, new, 2, r_system, r_public);
-    rb_funcall(rb_funcall(doc, internal_subset, 0), node_name_, 1, rb_utf8_str_new_cstr(dtd_name));
-  }
-  return doc;
-#endif
 }
 
 static xmlNodePtr get_parent(xmlNodePtr node) {
-#if NGLIB
   return node->parent;
-#else
-  if (!rb_respond_to(node, parent))
-    return Qnil;
-  return rb_funcall(node, parent, 0);
-#endif
 }
 
 static GumboOutput *perform_parse(const GumboOptions *options, VALUE input) {
@@ -314,29 +109,17 @@ static xmlNsPtr lookup_or_add_ns (
   const char *href,
   const char *prefix
 ) {
-#if NGLIB
   xmlNsPtr ns = xmlSearchNs(doc, root, BAD_CAST prefix);
   if (ns)
     return ns;
   return xmlNewNs(root, BAD_CAST href, BAD_CAST prefix);
-#else
-  ID add_namespace_definition;
-  CONST_ID(add_namespace_definition, "add_namespace_definition");
-  VALUE rprefix = rb_utf8_str_new_cstr(prefix);
-  VALUE rhref = rb_utf8_str_new_cstr(href);
-  return rb_funcall(root, add_namespace_definition, 2, rprefix, rhref);
-#endif
 }
 
 static void set_line(xmlNodePtr node, size_t line) {
-#if NGLIB
   // libxml2 uses 65535 to mean look elsewhere for the line number on some
   // nodes.
   if (line < 65535)
     node->line = (unsigned short)line;
-#else
-  // XXX: If Nokogiri gets a `#line=` method, we'll use that.
-#endif
 }
 
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
@@ -346,7 +129,7 @@ static void build_tree (
   xmlNodePtr xml_output_node,
   const GumboNode *gumbo_node
 ) {
-  xmlNodePtr xml_root = NIL;
+  xmlNodePtr xml_root = NULL;
   xmlNodePtr xml_node = xml_output_node;
   size_t child_index = 0;
 
@@ -368,7 +151,7 @@ static void build_tree (
       // after the html element has been finished at which point there are no
       // further elements.
       if (xml_node == xml_output_node)
-        xml_root = NIL;
+        xml_root = NULL;
       continue;
     }
     const GumboNode *gumbo_child = children->data[child_index++];
@@ -402,11 +185,11 @@ static void build_tree (
         // XXX: Should create a template element and a new DocumentFragment
       case GUMBO_NODE_ELEMENT:
       {
-        xml_child = xmlNewDocNode(doc, NIL, BAD_CAST gumbo_child->v.element.name, NULL);
+        xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
         set_line(xml_child, gumbo_child->v.element.start_pos.line);
-        if (xml_root == NIL)
+        if (xml_root == NULL)
           xml_root = xml_child;
-        xmlNsPtr ns = NIL;
+        xmlNsPtr ns = NULL;
         switch (gumbo_child->v.element.tag_namespace) {
         case GUMBO_NAMESPACE_HTML:
           break;
@@ -417,7 +200,7 @@ static void build_tree (
           ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1998/Math/MathML", "math");
           break;
         }
-        if (ns != NIL)
+        if (ns != NULL)
           xmlSetNs(xml_child, ns);
         xmlAddChild(xml_node, xml_child);
 
@@ -440,7 +223,7 @@ static void build_tree (
               break;
 
             default:
-              ns = NIL;
+              ns = NULL;
           }
           xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
         }
@@ -522,7 +305,7 @@ static VALUE parse_cleanup(VALUE parse_args) {
   // on references from the ParseArgs. This may be unnecessary.
   args->input = Qnil;
   args->url_or_frag = Qnil;
-  if (args->doc != NIL)
+  if (args->doc != NULL)
     xmlFreeDoc(args->doc);
   return Qnil;
 }
@@ -541,7 +324,7 @@ static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VAL
     .output = output,
     .input = input,
     .url_or_frag = url,
-    .doc = NIL,
+    .doc = NULL,
   };
   VALUE parse_args = wrap_parse_args(&args);
 
@@ -565,7 +348,7 @@ static VALUE parse_continue(VALUE parse_args) {
   args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
   VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
-  args->doc = NIL; // The Ruby runtime now owns doc so don't delete it.
+  args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
 }
@@ -598,13 +381,9 @@ static int lookup_namespace(VALUE node, bool require_known_ns) {
 }
 
 static xmlNodePtr extract_xml_node(VALUE node) {
-#if NGLIB
   xmlNodePtr xml_node;
   Data_Get_Struct(node, xmlNode, xml_node);
   return xml_node;
-#else
-  return node;
-#endif
 }
 
 static VALUE fragment_continue(VALUE parse_args);
@@ -749,7 +528,7 @@ static VALUE fragment_continue(VALUE parse_args) {
   VALUE doc_fragment = args->url_or_frag;
   xmlDocPtr xml_doc = args->doc;
 
-  args->doc = NIL; // The Ruby runtime owns doc so make sure we don't delete it.
+  args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
   add_errors(output, doc_fragment, args->input, rb_utf8_str_new_static("#fragment", 9));
@@ -759,29 +538,6 @@ static VALUE fragment_continue(VALUE parse_args) {
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void Init_nokogumbo() {
   VALUE line_supported = Qtrue;
-
-#if !NGLIB
-  // Class constants.
-  VALUE mNokogiri = rb_const_get(rb_cObject, rb_intern_const("Nokogiri"));
-  VALUE mNokogiriXml = rb_const_get(mNokogiri, rb_intern_const("XML"));
-  cNokogiriXmlSyntaxError = rb_const_get(mNokogiriXml, rb_intern_const("SyntaxError"));
-  rb_gc_register_mark_object(cNokogiriXmlSyntaxError);
-  cNokogiriXmlElement = rb_const_get(mNokogiriXml, rb_intern_const("Element"));
-  rb_gc_register_mark_object(cNokogiriXmlElement);
-  cNokogiriXmlText = rb_const_get(mNokogiriXml, rb_intern_const("Text"));
-  rb_gc_register_mark_object(cNokogiriXmlText);
-  cNokogiriXmlCData = rb_const_get(mNokogiriXml, rb_intern_const("CDATA"));
-  rb_gc_register_mark_object(cNokogiriXmlCData);
-  cNokogiriXmlComment = rb_const_get(mNokogiriXml, rb_intern_const("Comment"));
-  rb_gc_register_mark_object(cNokogiriXmlComment);
-
-  // Interned symbols.
-  new = rb_intern_const("new");
-  node_name_ = rb_intern_const("node_name=");
-
-  // #line is not supported (returns 0)
-  line_supported = Qfalse;
-#endif
 
   // Class constants.
   VALUE HTML5 = rb_const_get(mNokogiri, rb_intern_const("HTML5"));

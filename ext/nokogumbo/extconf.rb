@@ -30,8 +30,6 @@ append_cflags("-I../../../../tmp/x86_64-linux/nokogiri/2.7.2/include/libxml2")
 have_header('libxml/tree.h') || raise("could not find libxml2 headers")
 have_header('nokogiri.h') || raise("could not find nokogiri.h")
 
-append_cflags("-DNGLIB=1")
-
 # Symlink gumbo-parser source files.
 ext_dir = File.dirname(__FILE__)
 
