@@ -27,14 +27,11 @@
 // requirements as Ruby objects are only built when necessary.
 //
 
-#include <assert.h>
-#include <ruby.h>
-#include <ruby/version.h>
+#include <nokogiri.h>
 
 #include "gumbo.h"
 
-// class constants
-static VALUE Document;
+VALUE cNokogiriHtml5Document;
 
 // Interned symbols
 static ID internal_subset;
@@ -384,7 +381,7 @@ parse_continue(VALUE parse_args)
   }
   args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
-  VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
+  VALUE rdoc = Nokogiri_wrap_xml_document(cNokogiriHtml5Document, doc);
   args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
@@ -591,21 +588,19 @@ fragment_continue(VALUE parse_args)
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void
-Init_nokogumbo()
+noko_init_gumbo()
 {
   // Class constants.
-  VALUE HTML5 = rb_const_get(mNokogiri, rb_intern_const("HTML5"));
-  Document = rb_const_get(HTML5, rb_intern_const("Document"));
-  rb_gc_register_mark_object(Document);
+  cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtmlDocument);
+  rb_gc_register_mark_object(cNokogiriHtml5Document);
 
   // Interned symbols.
   internal_subset = rb_intern_const("internal_subset");
   parent = rb_intern_const("parent");
 
   // Define Nokogumbo module with parse and fragment methods.
-  VALUE Gumbo = rb_define_module_under(mNokogiri, "Gumbo");
-  rb_define_singleton_method(Gumbo, "parse", parse, 5);
-  rb_define_singleton_method(Gumbo, "fragment", fragment, 6);
+  rb_define_singleton_method(mNokogiriGumbo, "parse", parse, 5);
+  rb_define_singleton_method(mNokogiriGumbo, "fragment", fragment, 6);
 }
 
 // vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:

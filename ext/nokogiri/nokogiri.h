@@ -69,6 +69,7 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #include <ruby/st.h>
 #include <ruby/encoding.h>
 #include <ruby/util.h>
+#include <ruby/version.h>
 
 #define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
 #define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
@@ -92,10 +93,13 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 
 
 NOKOPUBVAR VALUE mNokogiri ;
+NOKOPUBVAR VALUE mNokogiriGumbo ;
 NOKOPUBVAR VALUE mNokogiriHtml ;
 NOKOPUBVAR VALUE mNokogiriHtmlSax ;
+NOKOPUBVAR VALUE mNokogiriHtml5 ;
 NOKOPUBVAR VALUE mNokogiriXml ;
 NOKOPUBVAR VALUE mNokogiriXmlSax ;
+NOKOPUBVAR VALUE mNokogiriXmlXpath ;
 NOKOPUBVAR VALUE mNokogiriXslt ;
 
 NOKOPUBVAR VALUE cNokogiriSyntaxError;
@@ -129,6 +133,7 @@ NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 
 NOKOPUBVAR VALUE cNokogiriHtmlDocument ;
+NOKOPUBVAR VALUE cNokogiriHtml5Document ;
 NOKOPUBVAR VALUE cNokogiriHtmlSaxPushParser ;
 NOKOPUBVAR VALUE cNokogiriHtmlElementDescription ;
 NOKOPUBVAR VALUE cNokogiriHtmlSaxParserContext;

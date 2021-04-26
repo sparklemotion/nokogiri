@@ -1,8 +1,10 @@
 #include <nokogiri.h>
 
 VALUE mNokogiri ;
+VALUE mNokogiriGumbo ;
 VALUE mNokogiriHtml ;
 VALUE mNokogiriHtmlSax ;
+VALUE mNokogiriHtml5 ;
 VALUE mNokogiriXml ;
 VALUE mNokogiriXmlSax ;
 VALUE mNokogiriXmlXpath ;
@@ -44,6 +46,7 @@ void noko_init_html_element_description();
 void noko_init_html_entity_lookup();
 void noko_init_html_sax_parser_context();
 void noko_init_html_sax_push_parser();
+void noko_init_gumbo();
 void noko_init_test_global_handlers();
 
 static ID id_read, id_write;
@@ -152,12 +155,14 @@ void
 Init_nokogiri()
 {
   mNokogiri         = rb_define_module("Nokogiri");
-  mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
+  mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");
   mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
-  mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
-  mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
-  mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
   mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
+  mNokogiriHtml5    = rb_define_module_under(mNokogiri, "HTML5");
+  mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
+  mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
+  mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
+  mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
 
   rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
@@ -238,6 +243,7 @@ Init_nokogiri()
   noko_init_xml_document_fragment();
   noko_init_xml_document();
   noko_init_html_document();
+  noko_init_gumbo();
 
   noko_init_test_global_handlers();
 

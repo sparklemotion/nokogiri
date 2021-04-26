@@ -19,10 +19,7 @@ require 'nokogiri/decorators/slop'
 require 'nokogiri/css'
 require 'nokogiri/html/builder'
 
-if Nokogiri.uses_gumbo?
-  require 'nokogiri/html5'
-  require 'nokogumbo/nokogumbo'
-end
+require 'nokogiri/html5' if Nokogiri.uses_gumbo?
 
 # Nokogiri parses and searches XML/HTML very quickly, and also has
 # correctly implemented CSS3 selector support as well as XPath 1.0
