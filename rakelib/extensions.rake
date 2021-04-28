@@ -307,6 +307,7 @@ if java?
     jruby_home = RbConfig::CONFIG['prefix']
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
 
+    # Note: we keep the C files because they have docstrings and Java files don't
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
 
     ext.ext_dir = 'ext/java'
