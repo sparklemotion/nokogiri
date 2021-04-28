@@ -1,0 +1,50 @@
+# this is a work in progress!
+name: windows
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+
+jobs:
+  windows:
+    name: "windows, sys: ${{ matrix.sys }}, ${{ matrix.ruby }}"
+
+    env:
+      MAKEFLAGS: -j2
+
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: [ enable, disable ]
+        ruby: [ "2.5", "2.6", "2.7", "3.0", "mingw" ]
+
+    steps:
+      - name: configure git crlf on windows
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: load Ruby and bundle install
+        uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          mingw: libxml2 libxslt
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-${{ hashFiles('**/dependencies.yml') }}
+          restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-
+      - name: bundle exec rake compile
+        run: |
+          bundle exec rake compile -- --${{ matrix.sys }}-system-libraries
+      - name: bundle exec rake test
+        run:  bundle exec rake test
