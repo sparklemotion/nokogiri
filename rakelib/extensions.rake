@@ -307,8 +307,9 @@ if java?
     jruby_home = RbConfig::CONFIG['prefix']
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
 
-    # Note: we keep the C files because they have docstrings and Java files don't
+    # Keep the extension C files because they have docstrings (and Java files don't)
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
+    ext.gem_spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
 
     ext.ext_dir = 'ext/java'
     ext.lib_dir = 'lib/nokogiri'
@@ -355,6 +356,7 @@ else
     ext.cross_config_options << "--enable-cross-build"
     ext.cross_compiling do |spec|
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
       spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
 
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
