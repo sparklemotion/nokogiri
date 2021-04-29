@@ -78,7 +78,7 @@ describe File.basename(gemfile) do
       assert_operator(actual, :>, 60, "expected gemfile to contain more than #{actual} files")
     end
 
-    it "gemspec is a Gem::Specfication" do
+    it "gemspec is a Gem::Specification" do
       assert_equal(Gem::Specification, gemspec.class)
     end
   end
