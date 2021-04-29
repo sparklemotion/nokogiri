@@ -443,7 +443,7 @@ public class XmlDocument extends XmlNode
       return new_root;
     }
     if (!(new_root instanceof XmlNode)) {
-        throw context.runtime.newArgumentError("expected Nokogiri::XML::Node but received " + new_root.getType());
+      throw context.runtime.newArgumentError("expected Nokogiri::XML::Node but received " + new_root.getType());
     }
     XmlNode newRoot = asXmlNode(context, new_root);
 

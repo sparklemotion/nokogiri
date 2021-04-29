@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
@@ -14,9 +15,9 @@
 #  limitations under the License.
 #
 
-require 'nokogumbo/html5/document'
-require 'nokogumbo/html5/document_fragment'
-require 'nokogumbo/html5/node'
+require_relative 'html5/document'
+require_relative 'html5/document_fragment'
+require_relative 'html5/node'
 
 module Nokogiri
   # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
@@ -266,3 +267,5 @@ module Nokogiri
     end
   end
 end
+
+require_relative 'gumbo'

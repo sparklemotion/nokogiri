@@ -14,7 +14,7 @@ RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
 # The gem version constraint in the Rakefile is not respected at install time.
 # Keep this version in sync with the one in the Rakefile !
-REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.0"
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.1"
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 # Keep track of what versions of what libraries we build against
@@ -402,7 +402,7 @@ def process_recipe(name, version, static_p, cross_p)
   require 'mini_portile2'
   message("Using mini_portile version #{MiniPortile::VERSION}\n")
 
-  if name != "libxml2" && name != "libxslt"
+  unless ["libxml2", "libxslt"].include?(name)
     OTHER_LIBRARY_VERSIONS[name] = version
   end
 
@@ -486,7 +486,7 @@ def process_recipe(name, version, static_p, cross_p)
         end
       end
 
-      message(<<~EOM)
+      message(<<~EOM) if name != "libgumbo"
 
         The Nokogiri maintainers intend to provide timely security updates, but if
         this is a concern for you and want to use your OS/distro system library
@@ -498,7 +498,7 @@ def process_recipe(name, version, static_p, cross_p)
       EOM
 
       message(<<~EOM) if name == 'libxml2'
-        Note, however, that nokogiri cannot guarantee compatiblity with every
+        Note, however, that nokogiri cannot guarantee compatibility with every
         version of libxml2 that may be provided by OS/package vendors.
 
       EOM
@@ -867,6 +867,56 @@ cross_build_p) do |recipe|
   ensure_func("xsltParseStylesheetDoc", "libxslt/xslt.h")
   ensure_func("exsltFuncRegister", "libexslt/exslt.h")
 end
+
+libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p) do |recipe|
+  recipe.configure_options = []
+
+  class << recipe
+    def downloaded?
+      true
+    end
+
+    def extract
+      target = File.join(tmp_path, "gumbo-parser")
+      output "Copying gumbo-parser files into #{target}..."
+      FileUtils.mkdir_p target
+      FileUtils.cp Dir.glob(File.join(PACKAGE_ROOT_DIR, "gumbo-parser/src/*")), target
+    end
+
+    def configured?
+      true
+    end
+
+    def install
+      lib_dir = File.join(port_path, "lib")
+      inc_dir = File.join(port_path, "include")
+      FileUtils.mkdir_p([lib_dir, inc_dir])
+      FileUtils.cp File.join(work_path, "libgumbo.a"), lib_dir
+      FileUtils.cp Dir.glob(File.join(work_path, "*.h")), inc_dir
+    end
+
+    def compile
+      cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
+
+      env = {"CC" => gcc_cmd, "CFLAGS" => cflags}
+      if config_cross_build?
+        if host =~ /darwin/
+          env["AR"] = "#{host}-libtool"
+          env["ARFLAGS"] = "-o"
+        else
+          env["AR"] = "#{host}-ar"
+        end
+        env["RANLIB"] = "#{host}-ranlib"
+      end
+
+      execute("compile", make_cmd, {env: env})
+    end
+  end
+end
+append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
+$libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
+$LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
+ensure_func("gumbo_parse_with_options", "gumbo.h")
 
 have_func('xmlHasFeature') || abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
 have_func('xmlFirstElementChild') # introduced in libxml 2.7.3

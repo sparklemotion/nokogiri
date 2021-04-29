@@ -190,6 +190,10 @@ module Nokogiri
     Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 
+  def self.uses_gumbo?
+    uses_libxml? # TODO: replace with Gumbo functionality
+  end
+
   def self.jruby? # :nodoc:
     VersionInfo.instance.jruby?
   end

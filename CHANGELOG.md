@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Dependencies
+
+* [MRI] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`.
+
+
 ### Changed
 
 * Introduce `Nokogiri::XML::ParseOptions::DEFAULT_XSLT` which adds the libxslt-preferred options of `NOENT | DTDLOAD | DTDATTR | NOCDATA` to `ParseOptions::DEFAULT_XML`.

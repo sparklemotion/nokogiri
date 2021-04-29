@@ -307,7 +307,9 @@ if java?
     jruby_home = RbConfig::CONFIG['prefix']
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
 
+    # Keep the extension C files because they have docstrings (and Java files don't)
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
+    ext.gem_spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
 
     ext.ext_dir = 'ext/java'
     ext.lib_dir = 'lib/nokogiri'
@@ -326,7 +328,7 @@ else
   dependencies = YAML.load_file("dependencies.yml")
 
   task gem_build_path do
-    NOKOGIRI_SPEC.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+    NOKOGIRI_SPEC.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ["libxml2", "libxslt"].each do |lib|
       version = dependencies[lib]["version"]
@@ -345,7 +347,7 @@ else
   end
 
   Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
-    ext.gem_spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+    ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
@@ -354,6 +356,7 @@ else
     ext.cross_config_options << "--enable-cross-build"
     ext.cross_compiling do |spec|
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
       spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
 
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include

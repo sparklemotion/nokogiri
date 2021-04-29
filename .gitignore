@@ -9,6 +9,8 @@
 /gems/
 /lib/nokogiri/**/nokogiri.bundle
 /lib/nokogiri/**/nokogiri.so
+/lib/nokogumbo/**/nokogumbo.bundle
+/lib/nokogumbo/**/nokogumbo.so
 /lib/nokogiri/nokogiri.jar
 /pkg/
 /ports/

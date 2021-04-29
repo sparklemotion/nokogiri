@@ -78,7 +78,7 @@ describe File.basename(gemfile) do
       assert_operator(actual, :>, 60, "expected gemfile to contain more than #{actual} files")
     end
 
-    it "gemspec is a Gem::Specfication" do
+    it "gemspec is a Gem::Specification" do
       assert_equal(Gem::Specification, gemspec.class)
     end
   end
@@ -93,6 +93,19 @@ describe File.basename(gemfile) do
   end
 
   describe "ruby platform" do
+    it "depends on mini_portile2" do
+      assert(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
+    end
+
+    it "contains ext/nokogiri C and header files" do
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 0)
+    end
+
+    it "includes C files in extra_rdoc_files" do
+      assert_operator(gemspec.extra_rdoc_files.grep(%r{ext/nokogiri/.*\.c$}).length, :>, 10)
+    end
+
     it "contains the port files" do
       actual_ports = gemfile_contents.grep(%r{^ports/})
       assert_equal(1, actual_ports.grep(/libxml2-\d+\.\d+\.\d+\.tar\.gz/).length,
@@ -106,31 +119,37 @@ describe File.basename(gemfile) do
       assert_operator(gemfile_contents.grep(%r{^patches/}).length, :>, 0)
     end
 
-    it "contains ext/nokogiri C and header files" do
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 0)
-    end
-
     it "does not contain packaged libraries' header files" do
       # these files are present after installation if the packaged libraries are used
       assert_empty(gemfile_contents.grep(%r{^ext/nokogiri/include/}))
+    end
+
+    it "contains the gumbo parser source code" do
+      assert_includes(gemfile_contents, "gumbo-parser/src/Makefile")
+      assert_operator(gemfile_contents.grep(%r{^gumbo-parser/src/.*\.c}).length, :>, 10)
+      assert_operator(gemfile_contents.grep(%r{^gumbo-parser/src/.*\.h}).length, :>, 10)
     end
 
     it "does not contain java files" do
       assert_empty(gemfile_contents.grep(%r{^ext/java/}))
       assert_empty(gemfile_contents.grep(/.*\.jar$/))
     end
+  end if gemspec.platform == Gem::Platform::RUBY
 
-    it "depends on mini_portile2" do
-      assert(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
+  describe "native platform" do
+    it "does not depend on mini_portile2" do
+      refute(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
+    end
+
+    it "contains ext/nokogiri C and header files" do
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 20)
     end
 
     it "includes C files in extra_rdoc_files" do
       assert_operator(gemspec.extra_rdoc_files.grep(%r{ext/nokogiri/.*\.c$}).length, :>, 10)
     end
-  end if gemspec.platform == Gem::Platform::RUBY
 
-  describe "native platform" do
     it "does not contain the port files" do
       assert_empty(gemfile_contents.grep(%r{^ports/}))
     end
@@ -139,28 +158,19 @@ describe File.basename(gemfile) do
       assert_empty(gemfile_contents.grep(%r{^patches/}))
     end
 
-    it "contains ext/nokogiri C and header files" do
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}).length, :>, 20)
-    end
-
     it "contains packaged libraries' header files" do
       assert_includes(gemfile_contents, "ext/nokogiri/include/libxml2/libxml/tree.h")
       assert_includes(gemfile_contents, "ext/nokogiri/include/libxslt/xslt.h")
       assert_includes(gemfile_contents, "ext/nokogiri/include/libexslt/exslt.h")
     end
 
+    it "does not contain the gumbo parser source code" do
+      assert_empty(gemfile_contents.grep(%r{^gumbo-parser/src/}))
+    end
+
     it "does not contain java files" do
       assert_empty(gemfile_contents.grep(%r{^ext/java/}))
       assert_empty(gemfile_contents.grep(/.*\.jar$/))
-    end
-
-    it "does not depend on mini_portile2" do
-      refute(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
-    end
-
-    it "includes C files in extra_rdoc_files" do
-      assert_operator(gemspec.extra_rdoc_files.grep(%r{ext/nokogiri/.*\.c$}).length, :>, 10)
     end
 
     it "contains expected shared library files " do
@@ -184,6 +194,23 @@ describe File.basename(gemfile) do
   end if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
 
   describe "java platform" do
+    it "does not depend on mini_portile2" do
+      refute(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
+    end
+
+    it "contains ext/nokogiri C files" do
+      # Note: we keep the C files because they have docstrings and Java files don't
+      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
+    end
+
+    it "does not contain ext/nokogiri header files" do
+      assert_empty(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}))
+    end
+
+    it "includes C files in extra_rdoc_files" do
+      assert_operator(gemspec.extra_rdoc_files.grep(%r{ext/nokogiri/.*\.c$}).length, :>, 10)
+    end
+
     it "does not contain the port files" do
       assert_empty(gemfile_contents.grep(%r{^ports/}))
     end
@@ -192,16 +219,16 @@ describe File.basename(gemfile) do
       assert_empty(gemfile_contents.grep(%r{^patches/}))
     end
 
-    it "contains ext/nokogiri C files" do
-      assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
-    end
-
-    it "does not contain ext/nokogiri header files" do
-      assert_empty(gemfile_contents.grep(%r{^ext/nokogiri/.*\.h}))
-    end
-
     it "does not contain packaged libraries' header files" do
       assert_empty(gemfile_contents.grep(%r{^ext/nokogiri/include/}))
+    end
+
+    it "does not contain the gumbo parser source code" do
+      assert_empty(gemfile_contents.grep(%r{^gumbo-parser/src/}))
+    end
+
+    it "contains java source files" do
+      assert_operator(gemfile_contents.grep(%r{^ext/java/.*\.java}).length, :>, 20)
     end
 
     it "contains the java jar files" do
@@ -220,10 +247,6 @@ describe File.basename(gemfile) do
       expected_jars.each do |jar|
         assert_equal(1, actual_jars.grep(%r{/#{jar}\.jar$}).length, "expected to contain #{jar}.jar")
       end
-    end
-
-    it "does not depend on mini_portile2" do
-      refute(gemspec.dependencies.find { |d| d.name == "mini_portile2" })
     end
   end if gemspec.platform == Gem::Platform.new("java")
 end

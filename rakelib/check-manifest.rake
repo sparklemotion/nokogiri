@@ -16,6 +16,7 @@ task :check_manifest do
     coverage
     doc
     gems
+    nokogumbo-import
     patches
     pkg
     ports
@@ -33,8 +34,6 @@ task :check_manifest do
     .editorconfig
     .gitignore
     .yardopts
-    appveyor.yml
-    nokogiri.gemspec
     CHANGELOG.md
     CODE_OF_CONDUCT.md
     CONTRIBUTING.md
@@ -44,8 +43,11 @@ task :check_manifest do
     SECURITY.md
     STANDARD_RESPONSES.md
     Vagrantfile
-    [0-9]+-.*
-    [a-z.]+.(log|out)
+    [a-z]*.{log,out}
+    appveyor.yml
+    gumbo-parser/test/*
+    lib/nokogiri/**/nokogiri.{jar,so}
+    nokogiri.gemspec
   ]
 
   intended_directories = Dir.children(".")
@@ -54,10 +56,11 @@ task :check_manifest do
 
   intended_files = Dir.children(".")
     .select { |filename| File.file?(filename) }
-    .reject { |filename| ignore_files.any? { |ig| File.fnmatch?(ig, filename) } }
+    .reject { |filename| ignore_files.any? { |ig| File.fnmatch?(ig, filename, File::FNM_EXTGLOB) } }
 
   intended_files += Dir.glob(intended_directories.map { |d| File.join(d, "/**/*") })
     .select { |filename| File.file?(filename) }
+    .reject { |filename| ignore_files.any? { |ig| File.fnmatch?(ig, filename, File::FNM_EXTGLOB) } }
     .sort
 
   spec_files = raw_gemspec.files.sort
