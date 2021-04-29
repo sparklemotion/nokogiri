@@ -12,6 +12,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * `Nokogiri.XSLT` parses the stylesheet using `ParseOptions::DEFAULT_XSLT`, which should make some edge-case XSL transformations match libxslt's default behavior. [[#1940](https://github.com/sparklemotion/nokogiri/issues/1940)]
 
 
+### Improved
+
+* [MRI] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option.
+
+
 ## 1.11.3 / 2021-04-07
 
 ### Fixed
