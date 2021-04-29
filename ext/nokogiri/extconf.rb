@@ -714,6 +714,7 @@ cross_build_p) do |recipe|
         cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
         recipe.configure_options += [
+          "--disable-dependency-tracking",
           "CPPFLAGS=-Wall",
           "CFLAGS=#{cflags}",
           "CXXFLAGS=#{cflags}",
@@ -769,6 +770,7 @@ cross_build_p) do |recipe|
     end
 
     recipe.configure_options += [
+      "--disable-dependency-tracking",
       "--without-python",
       "--without-readline",
       "--with-c14n",
@@ -791,6 +793,7 @@ cross_build_p) do |recipe|
     end
 
     recipe.configure_options += [
+      "--disable-dependency-tracking",
       "--without-python",
       "--without-crypto",
       "--with-debug",
