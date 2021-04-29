@@ -45,6 +45,7 @@ task :check_manifest do
     Vagrantfile
     [a-z]*.{log,out}
     appveyor.yml
+    gumbo-parser/test/*
     lib/nokogiri/**/nokogiri.{jar,so}
     nokogiri.gemspec
   ]
