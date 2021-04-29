@@ -1,0 +1,24 @@
+# this is a work in progress!
+
+name: valgrind
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-3.0
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        bundle install --local || bundle install
+        bundle exec rake compile -- --enable-system-libraries
+        bundle exec rake test:valgrind TESTOPTS=-v
