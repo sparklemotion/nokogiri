@@ -327,7 +327,7 @@ else
   dependencies = YAML.load_file("dependencies.yml")
 
   task gem_build_path do
-    NOKOGIRI_SPEC.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+    NOKOGIRI_SPEC.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ["libxml2", "libxslt"].each do |lib|
       version = dependencies[lib]["version"]
@@ -346,7 +346,7 @@ else
   end
 
   Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
-    ext.gem_spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+    ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
