@@ -166,7 +166,7 @@ static VALUE
 reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
+  xmlNodePtr reparentee, original_reparentee, pivot, reparented, next_text, new_next_text, parent ;
   int original_ns_prefix_is_default = 0 ;
 
   if (!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode)) {
@@ -252,7 +252,7 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
   }
 
 ok:
-  xmlUnlinkNode(reparentee);
+  original_reparentee = reparentee;
 
   if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {
     /*
@@ -308,6 +308,8 @@ ok:
       reparentee->ns->prefix = NULL;
     }
   }
+
+  xmlUnlinkNode(original_reparentee);
 
   if (prf != xmlAddPrevSibling && prf != xmlAddNextSibling
       && reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {

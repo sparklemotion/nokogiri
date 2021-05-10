@@ -23,6 +23,11 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 * `Nokogiri.XSLT` parses stylesheets using `ParseOptions::DEFAULT_XSLT`, which should make some edge-case XSL transformations match libxslt's default behavior. [[#1940](https://github.com/sparklemotion/nokogiri/issues/1940)]
 
 
+### Fixed
+
+* [CRuby] Namespaced attributes are handled properly when their parent node is reparented into another document. Previously, the namespace may have gotten dropped. [[#2228](https://github.com/sparklemotion/nokogiri/issues/2228)]
+
+
 ### Improved
 
 * [CRuby] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option. ("ruby" platform gem only.)
