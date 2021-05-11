@@ -195,43 +195,43 @@ public class XMLUtils
     final String namespaceNs = Constants.NamespaceSpecNS;
     do {
       switch (node.getNodeType()) {
-      case Node.ELEMENT_NODE :
-        Element element = (Element) node;
-        if (!element.hasChildNodes()) {
-          break;
-        }
-        if (element.hasAttributes()) {
-          NamedNodeMap attributes = element.getAttributes();
-          int attributesLength = attributes.getLength();
+        case Node.ELEMENT_NODE :
+          Element element = (Element) node;
+          if (!element.hasChildNodes()) {
+            break;
+          }
+          if (element.hasAttributes()) {
+            NamedNodeMap attributes = element.getAttributes();
+            int attributesLength = attributes.getLength();
 
-          for (Node child = element.getFirstChild(); child != null;
-               child = child.getNextSibling()) {
+            for (Node child = element.getFirstChild(); child != null;
+                 child = child.getNextSibling()) {
 
-            if (child.getNodeType() != Node.ELEMENT_NODE) {
-              continue;
-            }
-            Element childElement = (Element) child;
-
-            for (int i = 0; i < attributesLength; i++) {
-              Attr currentAttr = (Attr) attributes.item(i);
-              if (!namespaceNs.equals(currentAttr.getNamespaceURI())) {
+              if (child.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
               }
-              if (childElement.hasAttributeNS(namespaceNs,
-                                              currentAttr.getLocalName())) {
-                continue;
+              Element childElement = (Element) child;
+
+              for (int i = 0; i < attributesLength; i++) {
+                Attr currentAttr = (Attr) attributes.item(i);
+                if (!namespaceNs.equals(currentAttr.getNamespaceURI())) {
+                  continue;
+                }
+                if (childElement.hasAttributeNS(namespaceNs,
+                                                currentAttr.getLocalName())) {
+                  continue;
+                }
+                childElement.setAttributeNS(namespaceNs,
+                                            currentAttr.getName(),
+                                            currentAttr.getNodeValue());
               }
-              childElement.setAttributeNS(namespaceNs,
-                                          currentAttr.getName(),
-                                          currentAttr.getNodeValue());
             }
           }
-        }
-      case Node.ENTITY_REFERENCE_NODE :
-      case Node.DOCUMENT_NODE :
-        parent = node;
-        sibling = node.getFirstChild();
-        break;
+        case Node.ENTITY_REFERENCE_NODE :
+        case Node.DOCUMENT_NODE :
+          parent = node;
+          sibling = node.getFirstChild();
+          break;
       }
       while ((sibling == null) && (parent != null)) {
         sibling = parent.getNextSibling();

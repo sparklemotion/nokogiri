@@ -296,30 +296,30 @@ public class SaveContextVisitor
     for (int i = 0; i < str.length(); i++) {
       char c;
       switch (c = str.charAt(i)) {
-      case '\n':
-        buffer.append("&#10;");
-        break;
-      case '\r':
-        buffer.append("&#13;");
-        break;
-      case '\t':
-        buffer.append("&#9;");
-        break;
-      case '"':
-        if (htmlDoc) { buffer.append("%22"); }
-        else { buffer.append("&quot;"); }
-        break;
-      case '<':
-        buffer.append("&lt;");
-        break;
-      case '>':
-        buffer.append("&gt;");
-        break;
-      case '&':
-        buffer.append("&amp;");
-        break;
-      default:
-        buffer.append(c);
+        case '\n':
+          buffer.append("&#10;");
+          break;
+        case '\r':
+          buffer.append("&#13;");
+          break;
+        case '\t':
+          buffer.append("&#9;");
+          break;
+        case '"':
+          if (htmlDoc) { buffer.append("%22"); }
+          else { buffer.append("&quot;"); }
+          break;
+        case '<':
+          buffer.append("&lt;");
+          break;
+        case '>':
+          buffer.append("&gt;");
+          break;
+        case '&':
+          buffer.append("&amp;");
+          break;
+        default:
+          buffer.append(c);
       }
     }
 

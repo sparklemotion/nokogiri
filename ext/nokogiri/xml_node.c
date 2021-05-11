@@ -197,59 +197,59 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
 
   if (parent) {
     switch (parent->type) {
-    case XML_DOCUMENT_NODE:
-    case XML_HTML_DOCUMENT_NODE:
-      switch (reparentee->type) {
+      case XML_DOCUMENT_NODE:
+      case XML_HTML_DOCUMENT_NODE:
+        switch (reparentee->type) {
+          case XML_ELEMENT_NODE:
+          case XML_PI_NODE:
+          case XML_COMMENT_NODE:
+          case XML_DOCUMENT_TYPE_NODE:
+          /*
+           * The DOM specification says no to adding text-like nodes
+           * directly to a document, but we allow it for compatibility.
+           */
+          case XML_TEXT_NODE:
+          case XML_CDATA_SECTION_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
+      case XML_DOCUMENT_FRAG_NODE:
+      case XML_ENTITY_REF_NODE:
       case XML_ELEMENT_NODE:
-      case XML_PI_NODE:
-      case XML_COMMENT_NODE:
-      case XML_DOCUMENT_TYPE_NODE:
-      /*
-       * The DOM specification says no to adding text-like nodes
-       * directly to a document, but we allow it for compatibility.
-       */
+        switch (reparentee->type) {
+          case XML_ELEMENT_NODE:
+          case XML_PI_NODE:
+          case XML_COMMENT_NODE:
+          case XML_TEXT_NODE:
+          case XML_CDATA_SECTION_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
+      case XML_ATTRIBUTE_NODE:
+        switch (reparentee->type) {
+          case XML_TEXT_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
       case XML_TEXT_NODE:
-      case XML_CDATA_SECTION_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
+        /*
+         * xmlAddChild() breaks the DOM specification in that it allows
+         * adding a text node to another, in which case text nodes are
+         * coalesced, but since our JRuby version does not support such
+         * operation, we should inhibit it.
+         */
+        break;
       default:
         break;
-      }
-      break;
-    case XML_DOCUMENT_FRAG_NODE:
-    case XML_ENTITY_REF_NODE:
-    case XML_ELEMENT_NODE:
-      switch (reparentee->type) {
-      case XML_ELEMENT_NODE:
-      case XML_PI_NODE:
-      case XML_COMMENT_NODE:
-      case XML_TEXT_NODE:
-      case XML_CDATA_SECTION_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
-      default:
-        break;
-      }
-      break;
-    case XML_ATTRIBUTE_NODE:
-      switch (reparentee->type) {
-      case XML_TEXT_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
-      default:
-        break;
-      }
-      break;
-    case XML_TEXT_NODE:
-      /*
-       * xmlAddChild() breaks the DOM specification in that it allows
-       * adding a text node to another, in which case text nodes are
-       * coalesced, but since our JRuby version does not support such
-       * operation, we should inhibit it.
-       */
-      break;
-    default:
-      break;
     }
 
     rb_raise(rb_eArgError, "cannot reparent %s there", rb_obj_classname(reparentee_obj));
@@ -1633,12 +1633,12 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
   /* FIXME: This probably needs to handle more constants... */
   switch (error) {
-  case XML_ERR_INTERNAL_ERROR:
-  case XML_ERR_NO_MEMORY:
-    rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
-    break;
-  default:
-    break;
+    case XML_ERR_INTERNAL_ERROR:
+    case XML_ERR_NO_MEMORY:
+      rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
+      break;
+    default:
+      break;
   }
 
   set = xmlXPathNodeSetCreate(NULL);
@@ -1682,44 +1682,44 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
 
   if (!RTEST(rb_class)) {
     switch (c_node->type) {
-    case XML_ELEMENT_NODE:
-      rb_class = cNokogiriXmlElement;
-      break;
-    case XML_TEXT_NODE:
-      rb_class = cNokogiriXmlText;
-      break;
-    case XML_ATTRIBUTE_NODE:
-      rb_class = cNokogiriXmlAttr;
-      break;
-    case XML_ENTITY_REF_NODE:
-      rb_class = cNokogiriXmlEntityReference;
-      break;
-    case XML_COMMENT_NODE:
-      rb_class = cNokogiriXmlComment;
-      break;
-    case XML_DOCUMENT_FRAG_NODE:
-      rb_class = cNokogiriXmlDocumentFragment;
-      break;
-    case XML_PI_NODE:
-      rb_class = cNokogiriXmlProcessingInstruction;
-      break;
-    case XML_ENTITY_DECL:
-      rb_class = cNokogiriXmlEntityDecl;
-      break;
-    case XML_CDATA_SECTION_NODE:
-      rb_class = cNokogiriXmlCData;
-      break;
-    case XML_DTD_NODE:
-      rb_class = cNokogiriXmlDtd;
-      break;
-    case XML_ATTRIBUTE_DECL:
-      rb_class = cNokogiriXmlAttributeDecl;
-      break;
-    case XML_ELEMENT_DECL:
-      rb_class = cNokogiriXmlElementDecl;
-      break;
-    default:
-      rb_class = cNokogiriXmlNode;
+      case XML_ELEMENT_NODE:
+        rb_class = cNokogiriXmlElement;
+        break;
+      case XML_TEXT_NODE:
+        rb_class = cNokogiriXmlText;
+        break;
+      case XML_ATTRIBUTE_NODE:
+        rb_class = cNokogiriXmlAttr;
+        break;
+      case XML_ENTITY_REF_NODE:
+        rb_class = cNokogiriXmlEntityReference;
+        break;
+      case XML_COMMENT_NODE:
+        rb_class = cNokogiriXmlComment;
+        break;
+      case XML_DOCUMENT_FRAG_NODE:
+        rb_class = cNokogiriXmlDocumentFragment;
+        break;
+      case XML_PI_NODE:
+        rb_class = cNokogiriXmlProcessingInstruction;
+        break;
+      case XML_ENTITY_DECL:
+        rb_class = cNokogiriXmlEntityDecl;
+        break;
+      case XML_CDATA_SECTION_NODE:
+        rb_class = cNokogiriXmlCData;
+        break;
+      case XML_DTD_NODE:
+        rb_class = cNokogiriXmlDtd;
+        break;
+      case XML_ATTRIBUTE_DECL:
+        rb_class = cNokogiriXmlAttributeDecl;
+        break;
+      case XML_ELEMENT_DECL:
+        rb_class = cNokogiriXmlElementDecl;
+        break;
+      default:
+        rb_class = cNokogiriXmlNode;
     }
   }
 

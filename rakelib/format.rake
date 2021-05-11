@@ -13,6 +13,7 @@ namespace "format" do
     [
       # indentation
       "--indent=spaces=2",
+      "--indent-switches",
 
       # brackets
       "--style=1tbs",

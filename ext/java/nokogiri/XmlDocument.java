@@ -657,17 +657,17 @@ public class XmlDocument extends XmlNode
     }
     String algorithmURI = null;
     switch (mode) {
-    case 0:  // XML_C14N_1_0
-      if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS; }
-      else { algorithmURI = Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS; }
-      break;
-    case 1:  // XML_C14N_EXCLUSIVE_1_0
-      if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_WITH_COMMENTS; }
-      else { algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS; }
-      break;
-    case 2: // XML_C14N_1_1 = 2
-      if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS; }
-      else { algorithmURI = Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS; }
+      case 0:  // XML_C14N_1_0
+        if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS; }
+        else { algorithmURI = Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS; }
+        break;
+      case 1:  // XML_C14N_EXCLUSIVE_1_0
+        if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_WITH_COMMENTS; }
+        else { algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS; }
+        break;
+      case 2: // XML_C14N_1_1 = 2
+        if (with_comments) { algorithmURI = Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS; }
+        else { algorithmURI = Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS; }
     }
     try {
       Canonicalizer canonicalizer = Canonicalizer.getInstance(algorithmURI);

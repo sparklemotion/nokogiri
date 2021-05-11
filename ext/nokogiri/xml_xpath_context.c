@@ -154,20 +154,20 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
     do {
       obj = valuePop(ctx);
       switch (obj->type) {
-      case XPATH_STRING:
-        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
-        break;
-      case XPATH_BOOLEAN:
-        argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
-        break;
-      case XPATH_NUMBER:
-        argv[i] = rb_float_new(obj->floatval);
-        break;
-      case XPATH_NODESET:
-        argv[i] = noko_xml_node_set_wrap(obj->nodesetval, doc);
-        break;
-      default:
-        argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
+        case XPATH_STRING:
+          argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
+          break;
+        case XPATH_BOOLEAN:
+          argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
+          break;
+        case XPATH_NUMBER:
+          argv[i] = rb_float_new(obj->floatval);
+          break;
+        case XPATH_NODESET:
+          argv[i] = noko_xml_node_set_wrap(obj->nodesetval, doc);
+          break;
+        default:
+          argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
       }
       xmlXPathFreeNodeSetList(obj);
     } while (i-- > 0);
@@ -181,43 +181,43 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
   free(argv);
 
   switch (TYPE(result)) {
-  case T_FLOAT:
-  case T_BIGNUM:
-  case T_FIXNUM:
-    xmlXPathReturnNumber(ctx, NUM2DBL(result));
-    break;
-  case T_STRING:
-    xmlXPathReturnString(
-      ctx,
-      xmlCharStrdup(StringValueCStr(result))
-    );
-    break;
-  case T_TRUE:
-    xmlXPathReturnTrue(ctx);
-    break;
-  case T_FALSE:
-    xmlXPathReturnFalse(ctx);
-    break;
-  case T_NIL:
-    break;
-  case T_ARRAY: {
-    VALUE args[2];
-    args[0] = doc;
-    args[1] = result;
-    node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-    Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-    xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
-  }
-  break;
-  case T_DATA:
-    if (rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
-      Data_Get_Struct(result, xmlNodeSet, xml_node_set);
-      /* Copy the node set, otherwise it will get GC'd. */
-      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+    case T_FLOAT:
+    case T_BIGNUM:
+    case T_FIXNUM:
+      xmlXPathReturnNumber(ctx, NUM2DBL(result));
       break;
+    case T_STRING:
+      xmlXPathReturnString(
+        ctx,
+        xmlCharStrdup(StringValueCStr(result))
+      );
+      break;
+    case T_TRUE:
+      xmlXPathReturnTrue(ctx);
+      break;
+    case T_FALSE:
+      xmlXPathReturnFalse(ctx);
+      break;
+    case T_NIL:
+      break;
+    case T_ARRAY: {
+      VALUE args[2];
+      args[0] = doc;
+      args[1] = result;
+      node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
+      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
+      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
     }
-  default:
-    rb_raise(rb_eRuntimeError, "Invalid return type");
+    break;
+    case T_DATA:
+      if (rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
+        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
+        /* Copy the node set, otherwise it will get GC'd. */
+        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+        break;
+      }
+    default:
+      rb_raise(rb_eRuntimeError, "Invalid return type");
   }
 }
 
@@ -314,22 +314,22 @@ evaluate(int argc, VALUE *argv, VALUE self)
   assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
 
   switch (xpath->type) {
-  case XPATH_STRING:
-    thing = NOKOGIRI_STR_NEW2(xpath->stringval);
-    xmlFree(xpath->stringval);
-    break;
-  case XPATH_NODESET:
-    thing = noko_xml_node_set_wrap(xpath->nodesetval,
-                                   DOC_RUBY_OBJECT(ctx->doc));
-    break;
-  case XPATH_NUMBER:
-    thing = rb_float_new(xpath->floatval);
-    break;
-  case XPATH_BOOLEAN:
-    thing = xpath->boolval == 1 ? Qtrue : Qfalse;
-    break;
-  default:
-    thing = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(ctx->doc));
+    case XPATH_STRING:
+      thing = NOKOGIRI_STR_NEW2(xpath->stringval);
+      xmlFree(xpath->stringval);
+      break;
+    case XPATH_NODESET:
+      thing = noko_xml_node_set_wrap(xpath->nodesetval,
+                                     DOC_RUBY_OBJECT(ctx->doc));
+      break;
+    case XPATH_NUMBER:
+      thing = rb_float_new(xpath->floatval);
+      break;
+    case XPATH_BOOLEAN:
+      thing = xpath->boolval == 1 ? Qtrue : Qfalse;
+      break;
+    default:
+      thing = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(ctx->doc));
   }
 
   xmlXPathFreeNodeSetList(xpath);

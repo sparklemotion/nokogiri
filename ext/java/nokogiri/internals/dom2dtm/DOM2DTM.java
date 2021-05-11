@@ -885,26 +885,26 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   {
 
     switch (node.getNodeType()) {
-    case Node.DOCUMENT_FRAGMENT_NODE :
-    case Node.DOCUMENT_NODE :
-    case Node.ELEMENT_NODE : {
-      for (Node child = node.getFirstChild(); null != child;
-           child = child.getNextSibling()) {
-        getNodeData(child, buf);
+      case Node.DOCUMENT_FRAGMENT_NODE :
+      case Node.DOCUMENT_NODE :
+      case Node.ELEMENT_NODE : {
+        for (Node child = node.getFirstChild(); null != child;
+             child = child.getNextSibling()) {
+          getNodeData(child, buf);
+        }
       }
-    }
-    break;
-    case Node.TEXT_NODE :
-    case Node.CDATA_SECTION_NODE :
-    case Node.ATTRIBUTE_NODE :	// Never a child but might be our starting node
-      buf.append(node.getNodeValue());
       break;
-    case Node.PROCESSING_INSTRUCTION_NODE :
-      // warning(XPATHErrorResources.WG_PARSING_AND_PREPARING);
-      break;
-    default :
-      // ignore
-      break;
+      case Node.TEXT_NODE :
+      case Node.CDATA_SECTION_NODE :
+      case Node.ATTRIBUTE_NODE :	// Never a child but might be our starting node
+        buf.append(node.getNodeValue());
+        break;
+      case Node.PROCESSING_INSTRUCTION_NODE :
+        // warning(XPATHErrorResources.WG_PARSING_AND_PREPARING);
+        break;
+      default :
+        // ignore
+        break;
     }
   }
 
@@ -943,30 +943,30 @@ public class DOM2DTM extends DTMDefaultBaseIterators
     short type = getNodeType(nodeHandle);
 
     switch (type) {
-    case DTM.NAMESPACE_NODE : {
-      Node node = getNode(nodeHandle);
+      case DTM.NAMESPACE_NODE : {
+        Node node = getNode(nodeHandle);
 
-      // assume not null.
-      name = node.getNodeName();
-      if (name.startsWith("xmlns:")) {
-        name = QName.getLocalPart(name);
-      } else if (name.equals("xmlns")) {
-        name = "";
+        // assume not null.
+        name = node.getNodeName();
+        if (name.startsWith("xmlns:")) {
+          name = QName.getLocalPart(name);
+        } else if (name.equals("xmlns")) {
+          name = "";
+        }
       }
-    }
-    break;
-    case DTM.ATTRIBUTE_NODE :
-    case DTM.ELEMENT_NODE :
-    case DTM.ENTITY_REFERENCE_NODE :
-    case DTM.PROCESSING_INSTRUCTION_NODE : {
-      Node node = getNode(nodeHandle);
+      break;
+      case DTM.ATTRIBUTE_NODE :
+      case DTM.ELEMENT_NODE :
+      case DTM.ENTITY_REFERENCE_NODE :
+      case DTM.PROCESSING_INSTRUCTION_NODE : {
+        Node node = getNode(nodeHandle);
 
-      // assume not null.
-      name = node.getNodeName();
-    }
-    break;
-    default :
-      name = "";
+        // assume not null.
+        name = node.getNodeName();
+      }
+      break;
+      default :
+        name = "";
     }
 
     return name;
@@ -1056,29 +1056,29 @@ public class DOM2DTM extends DTMDefaultBaseIterators
     short type = getNodeType(nodeHandle);
 
     switch (type) {
-    case DTM.NAMESPACE_NODE : {
-      Node node = getNode(nodeHandle);
+      case DTM.NAMESPACE_NODE : {
+        Node node = getNode(nodeHandle);
 
-      // assume not null.
-      String qname = node.getNodeName();
-      int index = qname.indexOf(':');
+        // assume not null.
+        String qname = node.getNodeName();
+        int index = qname.indexOf(':');
 
-      prefix = (index < 0) ? "" : qname.substring(index + 1);
-    }
-    break;
-    case DTM.ATTRIBUTE_NODE :
-    case DTM.ELEMENT_NODE : {
-      Node node = getNode(nodeHandle);
+        prefix = (index < 0) ? "" : qname.substring(index + 1);
+      }
+      break;
+      case DTM.ATTRIBUTE_NODE :
+      case DTM.ELEMENT_NODE : {
+        Node node = getNode(nodeHandle);
 
-      // assume not null.
-      String qname = node.getNodeName();
-      int index = qname.indexOf(':');
+        // assume not null.
+        String qname = node.getNodeName();
+        int index = qname.indexOf(':');
 
-      prefix = (index < 0) ? "" : qname.substring(0, index);
-    }
-    break;
-    default :
-      prefix = "";
+        prefix = (index < 0) ? "" : qname.substring(0, index);
+      }
+      break;
+      default :
+        prefix = "";
     }
 
     return prefix;
@@ -1616,38 +1616,38 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   {
 
     switch (node.getNodeType()) {
-    case Node.DOCUMENT_FRAGMENT_NODE :
-    case Node.DOCUMENT_NODE :
-    case Node.ELEMENT_NODE : {
-      for (Node child = node.getFirstChild(); null != child;
-           child = child.getNextSibling()) {
-        dispatchNodeData(child, ch, depth + 1);
-      }
-    }
-    break;
-    case Node.PROCESSING_INSTRUCTION_NODE : // %REVIEW%
-    case Node.COMMENT_NODE :
-      if (0 != depth) {
-        break;
-      }
-    // NOTE: Because this operation works in the DOM space, it does _not_ attempt
-    // to perform Text Coalition. That should only be done in DTM space.
-    case Node.TEXT_NODE :
-    case Node.CDATA_SECTION_NODE :
-    case Node.ATTRIBUTE_NODE :
-      String str = node.getNodeValue();
-      if (ch instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler) {
-        ((org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler)ch).characters(node);
-      } else {
-        ch.characters(str.toCharArray(), 0, str.length());
+      case Node.DOCUMENT_FRAGMENT_NODE :
+      case Node.DOCUMENT_NODE :
+      case Node.ELEMENT_NODE : {
+        for (Node child = node.getFirstChild(); null != child;
+             child = child.getNextSibling()) {
+          dispatchNodeData(child, ch, depth + 1);
+        }
       }
       break;
+      case Node.PROCESSING_INSTRUCTION_NODE : // %REVIEW%
+      case Node.COMMENT_NODE :
+        if (0 != depth) {
+          break;
+        }
+      // NOTE: Because this operation works in the DOM space, it does _not_ attempt
+      // to perform Text Coalition. That should only be done in DTM space.
+      case Node.TEXT_NODE :
+      case Node.CDATA_SECTION_NODE :
+      case Node.ATTRIBUTE_NODE :
+        String str = node.getNodeValue();
+        if (ch instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler) {
+          ((org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler)ch).characters(node);
+        } else {
+          ch.characters(str.toCharArray(), 0, str.length());
+        }
+        break;
 //    /* case Node.PROCESSING_INSTRUCTION_NODE :
 //      // warning(XPATHErrorResources.WG_PARSING_AND_PREPARING);
 //      break; */
-    default :
-      // ignore
-      break;
+      default :
+        // ignore
+        break;
     }
   }
 

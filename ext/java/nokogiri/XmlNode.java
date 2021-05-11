@@ -1516,56 +1516,56 @@ public class XmlNode extends RubyObject
   {
     String type;
     switch (node.getNodeType()) {
-    case Node.ELEMENT_NODE:
-      if (this instanceof XmlElementDecl) {
-        type = "ELEMENT_DECL";
-      } else if (this instanceof XmlAttributeDecl) {
-        type = "ATTRIBUTE_DECL";
-      } else if (this instanceof XmlEntityDecl) {
-        type = "ENTITY_DECL";
-      } else {
-        type = "ELEMENT_NODE";
-      }
-      break;
-    case Node.ATTRIBUTE_NODE:
-      type = "ATTRIBUTE_NODE";
-      break;
-    case Node.TEXT_NODE:
-      type = "TEXT_NODE";
-      break;
-    case Node.CDATA_SECTION_NODE:
-      type = "CDATA_SECTION_NODE";
-      break;
-    case Node.ENTITY_REFERENCE_NODE:
-      type = "ENTITY_REF_NODE";
-      break;
-    case Node.ENTITY_NODE:
-      type = "ENTITY_NODE";
-      break;
-    case Node.PROCESSING_INSTRUCTION_NODE:
-      type = "PI_NODE";
-      break;
-    case Node.COMMENT_NODE:
-      type = "COMMENT_NODE";
-      break;
-    case Node.DOCUMENT_NODE:
-      if (this instanceof HtmlDocument) {
-        type = "HTML_DOCUMENT_NODE";
-      } else {
-        type = "DOCUMENT_NODE";
-      }
-      break;
-    case Node.DOCUMENT_TYPE_NODE:
-      type = "DOCUMENT_TYPE_NODE";
-      break;
-    case Node.DOCUMENT_FRAGMENT_NODE:
-      type = "DOCUMENT_FRAG_NODE";
-      break;
-    case Node.NOTATION_NODE:
-      type = "NOTATION_NODE";
-      break;
-    default:
-      return context.runtime.newFixnum(0);
+      case Node.ELEMENT_NODE:
+        if (this instanceof XmlElementDecl) {
+          type = "ELEMENT_DECL";
+        } else if (this instanceof XmlAttributeDecl) {
+          type = "ATTRIBUTE_DECL";
+        } else if (this instanceof XmlEntityDecl) {
+          type = "ENTITY_DECL";
+        } else {
+          type = "ELEMENT_NODE";
+        }
+        break;
+      case Node.ATTRIBUTE_NODE:
+        type = "ATTRIBUTE_NODE";
+        break;
+      case Node.TEXT_NODE:
+        type = "TEXT_NODE";
+        break;
+      case Node.CDATA_SECTION_NODE:
+        type = "CDATA_SECTION_NODE";
+        break;
+      case Node.ENTITY_REFERENCE_NODE:
+        type = "ENTITY_REF_NODE";
+        break;
+      case Node.ENTITY_NODE:
+        type = "ENTITY_NODE";
+        break;
+      case Node.PROCESSING_INSTRUCTION_NODE:
+        type = "PI_NODE";
+        break;
+      case Node.COMMENT_NODE:
+        type = "COMMENT_NODE";
+        break;
+      case Node.DOCUMENT_NODE:
+        if (this instanceof HtmlDocument) {
+          type = "HTML_DOCUMENT_NODE";
+        } else {
+          type = "DOCUMENT_NODE";
+        }
+        break;
+      case Node.DOCUMENT_TYPE_NODE:
+        type = "DOCUMENT_TYPE_NODE";
+        break;
+      case Node.DOCUMENT_FRAGMENT_NODE:
+        type = "DOCUMENT_FRAG_NODE";
+        break;
+      case Node.NOTATION_NODE:
+        type = "NOTATION_NODE";
+        break;
+      default:
+        return context.runtime.newFixnum(0);
     }
 
     return getNokogiriClass(context.runtime, "Nokogiri::XML::Node").getConstant(type);
@@ -1676,23 +1676,23 @@ public class XmlNode extends RubyObject
       Node parent = thisNode.getParentNode();
 
       switch (scheme) {
-      case CHILD:
-        Node[] children = adoptAsChild(thisNode, otherNode);
-        if (children.length == 1 && otherNode == children[0]) {
+        case CHILD:
+          Node[] children = adoptAsChild(thisNode, otherNode);
+          if (children.length == 1 && otherNode == children[0]) {
+            break;
+          } else {
+            nodeOrTags = nodeArrayToRubyArray(context.runtime, children);
+          }
           break;
-        } else {
-          nodeOrTags = nodeArrayToRubyArray(context.runtime, children);
-        }
-        break;
-      case PREV_SIBLING:
-        adoptAsPrevSibling(context, parent, thisNode, otherNode);
-        break;
-      case NEXT_SIBLING:
-        adoptAsNextSibling(context, parent, thisNode, otherNode);
-        break;
-      case REPLACEMENT:
-        adoptAsReplacement(context, parent, thisNode, otherNode);
-        break;
+        case PREV_SIBLING:
+          adoptAsPrevSibling(context, parent, thisNode, otherNode);
+          break;
+        case NEXT_SIBLING:
+          adoptAsNextSibling(context, parent, thisNode, otherNode);
+          break;
+        case REPLACEMENT:
+          adoptAsReplacement(context, parent, thisNode, otherNode);
+          break;
       }
     } catch (Exception e) {
       throw context.runtime.newRuntimeError(e.toString());

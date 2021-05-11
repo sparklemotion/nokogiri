@@ -213,12 +213,12 @@ public class XsltStylesheet extends RubyObject
     }
 
     switch (elistener.getErrorType()) {
-    case ERROR:
-    case FATAL:
-      throw runtime.newRuntimeError(elistener.getErrorMessage());
-    case WARNING:
-    default:
-      // no-op
+      case ERROR:
+      case FATAL:
+        throw runtime.newRuntimeError(elistener.getErrorMessage());
+      case WARNING:
+      default:
+        // no-op
     }
 
     if (stringResult == null) {
