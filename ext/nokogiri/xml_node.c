@@ -36,6 +36,7 @@ static void
 relink_namespace(xmlNodePtr reparented)
 {
   xmlNodePtr child;
+  xmlAttrPtr attr;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
@@ -132,10 +133,10 @@ relink_namespace(xmlNodePtr reparented)
   }
 
   if (reparented->type == XML_ELEMENT_NODE) {
-    child = (xmlNodePtr)((xmlElementPtr)reparented)->attributes;
-    while (NULL != child) {
-      relink_namespace(child);
-      child = child->next;
+    attr = reparented->properties;
+    while (NULL != attr) {
+      relink_namespace((xmlNodePtr)attr);
+      attr = attr->next;
     }
   }
 }

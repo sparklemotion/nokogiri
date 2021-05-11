@@ -7,7 +7,7 @@ module Nokogiri
         super
         @doc = Nokogiri::XML('<fruit xmlns="ns:fruit" xmlns:veg="ns:veg" xmlns:xlink="http://www.w3.org/1999/xlink"/>')
         pear = @doc.create_element('pear')
-        bosc = @doc.create_element('bosc')
+        bosc = @doc.create_element('bosc', {"veg:any" => "none"})
         pear.add_child(bosc)
         @doc.root << pear
         @doc.root.add_child('<orange/>')
@@ -37,6 +37,9 @@ module Nokogiri
       end
       def test_created_grandparent_default_ns
         assert_equal 'ns:fruit', check_namespace(@doc.root.elements[0].elements[0])
+      end
+      def test_created_attribute_with_ns
+        assert_equal 'ns:veg', check_namespace(@doc.root.elements[0].elements[0].attribute_nodes.first)
       end
       def test_created_parent_nondefault_ns
         assert_equal 'ns:veg',   check_namespace(@doc.root.elements[2])
