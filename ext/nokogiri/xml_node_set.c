@@ -20,20 +20,20 @@ ruby_object_get(xmlNodePtr c_node)
 {
   /* see xmlElementType in libxml2 tree.h */
   switch (c_node->type) {
-  case XML_NAMESPACE_DECL:
-    /* _private is later in the namespace struct */
-    return (VALUE)(((xmlNsPtr)c_node)->_private);
+    case XML_NAMESPACE_DECL:
+      /* _private is later in the namespace struct */
+      return (VALUE)(((xmlNsPtr)c_node)->_private);
 
-  case XML_DOCUMENT_NODE:
-  case XML_HTML_DOCUMENT_NODE:
-    /* in documents we use _private to store a tuple */
-    if (DOC_RUBY_OBJECT_TEST(((xmlDocPtr)c_node))) {
-      return DOC_RUBY_OBJECT((xmlDocPtr)c_node);
-    }
-    return (VALUE)NULL;
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      /* in documents we use _private to store a tuple */
+      if (DOC_RUBY_OBJECT_TEST(((xmlDocPtr)c_node))) {
+        return DOC_RUBY_OBJECT((xmlDocPtr)c_node);
+      }
+      return (VALUE)NULL;
 
-  default:
-    return (VALUE)(c_node->_private);
+    default:
+      return (VALUE)(c_node->_private);
   }
 }
 
@@ -373,12 +373,12 @@ slice(int argc, VALUE *argv, VALUE self)
 
   /* if arg is Range */
   switch (rb_range_beg_len(arg, &beg, &len, (long)node_set->nodeNr, 0)) {
-  case Qfalse:
-    break;
-  case Qnil:
-    return Qnil;
-  default:
-    return subseq(self, beg, len);
+    case Qfalse:
+      break;
+    case Qnil:
+      return Qnil;
+    default:
+      return subseq(self, beg, len);
   }
 
   return index_at(self, NUM2LONG(arg));

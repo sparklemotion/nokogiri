@@ -30,12 +30,12 @@ start_document(void *ctx)
       version = ctxt->version ? NOKOGIRI_STR_NEW2(ctxt->version) : Qnil;
 
       switch (ctxt->standalone) {
-      case 0:
-        standalone = NOKOGIRI_STR_NEW2("no");
-        break;
-      case 1:
-        standalone = NOKOGIRI_STR_NEW2("yes");
-        break;
+        case 0:
+          standalone = NOKOGIRI_STR_NEW2("no");
+          break;
+        case 1:
+          standalone = NOKOGIRI_STR_NEW2("yes");
+          break;
       }
 
       rb_funcall(doc, id_xmldecl, 3, version, encoding, standalone);

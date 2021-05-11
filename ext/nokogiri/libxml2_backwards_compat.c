@@ -20,14 +20,14 @@ xmlFirstElementChild(xmlNodePtr parent)
     return (NULL);
   }
   switch (parent->type) {
-  case XML_ELEMENT_NODE:
-  case XML_ENTITY_NODE:
-  case XML_DOCUMENT_NODE:
-  case XML_HTML_DOCUMENT_NODE:
-    cur = parent->children;
-    break;
-  default:
-    return (NULL);
+    case XML_ELEMENT_NODE:
+    case XML_ENTITY_NODE:
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      cur = parent->children;
+      break;
+    default:
+      return (NULL);
   }
   while (cur != NULL) {
     if (cur->type == XML_ELEMENT_NODE) {
@@ -57,20 +57,20 @@ xmlNextElementSibling(xmlNodePtr node)
     return (NULL);
   }
   switch (node->type) {
-  case XML_ELEMENT_NODE:
-  case XML_TEXT_NODE:
-  case XML_CDATA_SECTION_NODE:
-  case XML_ENTITY_REF_NODE:
-  case XML_ENTITY_NODE:
-  case XML_PI_NODE:
-  case XML_COMMENT_NODE:
-  case XML_DTD_NODE:
-  case XML_XINCLUDE_START:
-  case XML_XINCLUDE_END:
-    node = node->next;
-    break;
-  default:
-    return (NULL);
+    case XML_ELEMENT_NODE:
+    case XML_TEXT_NODE:
+    case XML_CDATA_SECTION_NODE:
+    case XML_ENTITY_REF_NODE:
+    case XML_ENTITY_NODE:
+    case XML_PI_NODE:
+    case XML_COMMENT_NODE:
+    case XML_DTD_NODE:
+    case XML_XINCLUDE_START:
+    case XML_XINCLUDE_END:
+      node = node->next;
+      break;
+    default:
+      return (NULL);
   }
   while (node != NULL) {
     if (node->type == XML_ELEMENT_NODE) {
@@ -101,14 +101,14 @@ xmlLastElementChild(xmlNodePtr parent)
     return (NULL);
   }
   switch (parent->type) {
-  case XML_ELEMENT_NODE:
-  case XML_ENTITY_NODE:
-  case XML_DOCUMENT_NODE:
-  case XML_HTML_DOCUMENT_NODE:
-    cur = parent->last;
-    break;
-  default:
-    return (NULL);
+    case XML_ELEMENT_NODE:
+    case XML_ENTITY_NODE:
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      cur = parent->last;
+      break;
+    default:
+      return (NULL);
   }
   while (cur != NULL) {
     if (cur->type == XML_ELEMENT_NODE) {

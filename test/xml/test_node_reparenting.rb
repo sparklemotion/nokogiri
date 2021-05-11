@@ -360,6 +360,30 @@ module Nokogiri
                 assert_match(%r{<first xmlns=\"http://tenderlovemaking.com/\">}, @doc.to_xml)
               end
             end
+
+            describe "and a child node has a namespaced attribute" do
+              # https://github.com/sparklemotion/nokogiri/issues/2228
+              it "should not lose attribute namespace" do
+                source_doc = Nokogiri::XML::Document.parse(<<~EOXML)
+                  <pre1:root xmlns:pre1="ns1" xmlns:pre2="ns2">
+                    <pre1:child pre2:attr="attrval">
+                  </pre1:root>
+                EOXML
+                assert(source_node = source_doc.at_xpath("//pre1:child", {"pre1" => "ns1"}))
+                assert_equal("attrval", source_node.attribute_with_ns("attr", "ns2")&.value)
+
+                dest_doc = Nokogiri::XML::Document.parse(<<~EOXML)
+                  <pre1:root xmlns:pre1="ns1" xmlns:pre2="ns2">
+                  </pre1:root>
+                EOXML
+                assert(dest_node = dest_doc.at_xpath("//pre1:root", {"pre1" => "ns1"}))
+
+                inserted = dest_node.add_child(source_node)
+
+                assert_equal("attrval", inserted.attribute_with_ns("attr", "ns2")&.value,
+                             "inserted node attribute should be namespaced")
+              end
+            end
           end
 
           describe "given a parent node with a default and non-default namespace" do

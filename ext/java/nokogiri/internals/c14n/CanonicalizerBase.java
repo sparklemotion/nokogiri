@@ -202,75 +202,75 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
     do {
       switch (currentNode.getNodeType()) {
 
-      case Node.ENTITY_NODE :
-      case Node.NOTATION_NODE :
-      case Node.ATTRIBUTE_NODE :
-        // illegal node type during traversal
-        throw new CanonicalizationException("empty");
+        case Node.ENTITY_NODE :
+        case Node.NOTATION_NODE :
+        case Node.ATTRIBUTE_NODE :
+          // illegal node type during traversal
+          throw new CanonicalizationException("empty");
 
-      case Node.DOCUMENT_FRAGMENT_NODE :
-      case Node.DOCUMENT_NODE :
-        ns.outputNodePush();
-        sibling = currentNode.getFirstChild();
-        break;
-
-      case Node.COMMENT_NODE :
-        if (includeComments) {
-          outputCommentToWriter((Comment) currentNode, writer, documentLevel);
-        }
-        break;
-
-      case Node.PROCESSING_INSTRUCTION_NODE :
-        outputPItoWriter((ProcessingInstruction) currentNode, writer, documentLevel);
-        break;
-
-      case Node.TEXT_NODE :
-      case Node.CDATA_SECTION_NODE :
-        outputTextToWriter(currentNode.getNodeValue(), writer);
-        break;
-
-      case Node.ELEMENT_NODE :
-        documentLevel = NODE_NOT_BEFORE_OR_AFTER_DOCUMENT_ELEMENT;
-        if (currentNode == excludeNode) {
+        case Node.DOCUMENT_FRAGMENT_NODE :
+        case Node.DOCUMENT_NODE :
+          ns.outputNodePush();
+          sibling = currentNode.getFirstChild();
           break;
-        }
-        if (filter != null && !filter.includeNodes(currentNode, parentNode)) {
-          break;
-        }
 
-        Element currentElement = (Element)currentNode;
-        //Add a level to the nssymbtable. So latter can be pop-back.
-        ns.outputNodePush();
-        writer.write('<');
-        String name = currentElement.getTagName();
-        UtfHelpper.writeByte(name, writer, cache);
-
-        Iterator<Attr> attrs = this.handleAttributesSubtree(currentElement, ns);
-        if (attrs != null) {
-          //we output all Attrs which are available
-          while (attrs.hasNext()) {
-            Attr attr = attrs.next();
-            outputAttrToWriter(attr.getNodeName(), attr.getNodeValue(), writer, cache);
+        case Node.COMMENT_NODE :
+          if (includeComments) {
+            outputCommentToWriter((Comment) currentNode, writer, documentLevel);
           }
-        }
-        writer.write('>');
-        sibling = currentNode.getFirstChild();
-        if (sibling == null) {
-          writer.write(END_TAG);
-          UtfHelpper.writeStringToUtf8(name, writer);
+          break;
+
+        case Node.PROCESSING_INSTRUCTION_NODE :
+          outputPItoWriter((ProcessingInstruction) currentNode, writer, documentLevel);
+          break;
+
+        case Node.TEXT_NODE :
+        case Node.CDATA_SECTION_NODE :
+          outputTextToWriter(currentNode.getNodeValue(), writer);
+          break;
+
+        case Node.ELEMENT_NODE :
+          documentLevel = NODE_NOT_BEFORE_OR_AFTER_DOCUMENT_ELEMENT;
+          if (currentNode == excludeNode) {
+            break;
+          }
+          if (filter != null && !filter.includeNodes(currentNode, parentNode)) {
+            break;
+          }
+
+          Element currentElement = (Element)currentNode;
+          //Add a level to the nssymbtable. So latter can be pop-back.
+          ns.outputNodePush();
+          writer.write('<');
+          String name = currentElement.getTagName();
+          UtfHelpper.writeByte(name, writer, cache);
+
+          Iterator<Attr> attrs = this.handleAttributesSubtree(currentElement, ns);
+          if (attrs != null) {
+            //we output all Attrs which are available
+            while (attrs.hasNext()) {
+              Attr attr = attrs.next();
+              outputAttrToWriter(attr.getNodeName(), attr.getNodeValue(), writer, cache);
+            }
+          }
           writer.write('>');
-          //We finished with this level, pop to the previous definitions.
-          ns.outputNodePop();
-          if (parentNode != null) {
-            sibling = currentNode.getNextSibling();
+          sibling = currentNode.getFirstChild();
+          if (sibling == null) {
+            writer.write(END_TAG);
+            UtfHelpper.writeStringToUtf8(name, writer);
+            writer.write('>');
+            //We finished with this level, pop to the previous definitions.
+            ns.outputNodePop();
+            if (parentNode != null) {
+              sibling = currentNode.getNextSibling();
+            }
+          } else {
+            parentNode = currentElement;
           }
-        } else {
-          parentNode = currentElement;
-        }
-        break;
-      case Node.DOCUMENT_TYPE_NODE :
-      default :
-        break;
+          break;
+        case Node.DOCUMENT_TYPE_NODE :
+        default :
+          break;
       }
       while (sibling == null && parentNode != null) {
         writer.write(END_TAG);
@@ -477,37 +477,37 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
 
       switch (c) {
 
-      case '&' :
-        toWrite = AMP;
-        break;
+        case '&' :
+          toWrite = AMP;
+          break;
 
-      case '<' :
-        toWrite = LT;
-        break;
+        case '<' :
+          toWrite = LT;
+          break;
 
-      case '"' :
-        toWrite = QUOT;
-        break;
+        case '"' :
+          toWrite = QUOT;
+          break;
 
-      case 0x09 :    // '\t'
-        toWrite = X9;
-        break;
+        case 0x09 :    // '\t'
+          toWrite = X9;
+          break;
 
-      case 0x0A :    // '\n'
-        toWrite = XA;
-        break;
+        case 0x0A :    // '\n'
+          toWrite = XA;
+          break;
 
-      case 0x0D :    // '\r'
-        toWrite = XD;
-        break;
+        case 0x0D :    // '\r'
+          toWrite = XD;
+          break;
 
-      default :
-        if (c < 0x80) {
-          writer.write(c);
-        } else {
-          UtfHelpper.writeCharToUtf8(c, writer);
-        }
-        continue;
+        default :
+          if (c < 0x80) {
+            writer.write(c);
+          } else {
+            UtfHelpper.writeCharToUtf8(c, writer);
+          }
+          continue;
       }
       writer.write(toWrite);
     }
@@ -629,29 +629,29 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
 
       switch (c) {
 
-      case '&' :
-        toWrite = AMP;
-        break;
+        case '&' :
+          toWrite = AMP;
+          break;
 
-      case '<' :
-        toWrite = LT;
-        break;
+        case '<' :
+          toWrite = LT;
+          break;
 
-      case '>' :
-        toWrite = GT;
-        break;
+        case '>' :
+          toWrite = GT;
+          break;
 
-      case 0xD :
-        toWrite = XD;
-        break;
+        case 0xD :
+          toWrite = XD;
+          break;
 
-      default :
-        if (c < 0x80) {
-          writer.write(c);
-        } else {
-          UtfHelpper.writeCharToUtf8(c, writer);
-        }
-        continue;
+        default :
+          if (c < 0x80) {
+            writer.write(c);
+          } else {
+            UtfHelpper.writeCharToUtf8(c, writer);
+          }
+          continue;
       }
       writer.write(toWrite);
     }

@@ -203,15 +203,15 @@ public class XmlXpathContext extends RubyObject
     }
 
     switch (xobj.getType()) {
-    case XObject.CLASS_BOOLEAN :
-      return context.runtime.newBoolean(xobj.bool());
-    case XObject.CLASS_NUMBER :
-      return context.runtime.newFloat(xobj.num());
-    case XObject.CLASS_NODESET :
-      IRubyObject[] nodes = nodeListToRubyArray(context.runtime, xobj.nodelist());
-      return XmlNodeSet.newNodeSet(context.runtime, nodes, this.context);
-    default :
-      return context.runtime.newString(xobj.str());
+      case XObject.CLASS_BOOLEAN :
+        return context.runtime.newBoolean(xobj.bool());
+      case XObject.CLASS_NUMBER :
+        return context.runtime.newFloat(xobj.num());
+      case XObject.CLASS_NODESET :
+        IRubyObject[] nodes = nodeListToRubyArray(context.runtime, xobj.nodelist());
+        return XmlNodeSet.newNodeSet(context.runtime, nodes, this.context);
+      default :
+        return context.runtime.newString(xobj.str());
     }
   }
 

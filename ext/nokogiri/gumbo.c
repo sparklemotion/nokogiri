@@ -99,15 +99,15 @@ perform_parse(const GumboOptions *options, VALUE input)
 
   const char *status_string = gumbo_status_to_string(output->status);
   switch (output->status) {
-  case GUMBO_STATUS_OK:
-    break;
-  case GUMBO_STATUS_TOO_MANY_ATTRIBUTES:
-  case GUMBO_STATUS_TREE_TOO_DEEP:
-    gumbo_destroy_output(output);
-    rb_raise(rb_eArgError, "%s", status_string);
-  case GUMBO_STATUS_OUT_OF_MEMORY:
-    gumbo_destroy_output(output);
-    rb_raise(rb_eNoMemError, "%s", status_string);
+    case GUMBO_STATUS_OK:
+      break;
+    case GUMBO_STATUS_TOO_MANY_ATTRIBUTES:
+    case GUMBO_STATUS_TREE_TOO_DEEP:
+      gumbo_destroy_output(output);
+      rb_raise(rb_eArgError, "%s", status_string);
+    case GUMBO_STATUS_OUT_OF_MEMORY:
+      gumbo_destroy_output(output);
+      rb_raise(rb_eNoMemError, "%s", status_string);
   }
   return output;
 }
@@ -176,82 +176,82 @@ build_tree(
     xmlNodePtr xml_child;
 
     switch (gumbo_child->type) {
-    case GUMBO_NODE_DOCUMENT:
-      abort(); // Bug in Gumbo.
+      case GUMBO_NODE_DOCUMENT:
+        abort(); // Bug in Gumbo.
 
-    case GUMBO_NODE_TEXT:
-    case GUMBO_NODE_WHITESPACE:
-      xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
-      set_line(xml_child, gumbo_child->v.text.start_pos.line);
-      xmlAddChild(xml_node, xml_child);
-      break;
-
-    case GUMBO_NODE_CDATA:
-      xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
-                                   (int) strlen(gumbo_child->v.text.text));
-      set_line(xml_child, gumbo_child->v.text.start_pos.line);
-      xmlAddChild(xml_node, xml_child);
-      break;
-
-    case GUMBO_NODE_COMMENT:
-      xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
-      set_line(xml_child, gumbo_child->v.text.start_pos.line);
-      xmlAddChild(xml_node, xml_child);
-      break;
-
-    case GUMBO_NODE_TEMPLATE:
-    // XXX: Should create a template element and a new DocumentFragment
-    case GUMBO_NODE_ELEMENT: {
-      xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
-      set_line(xml_child, gumbo_child->v.element.start_pos.line);
-      if (xml_root == NULL) {
-        xml_root = xml_child;
-      }
-      xmlNsPtr ns = NULL;
-      switch (gumbo_child->v.element.tag_namespace) {
-      case GUMBO_NAMESPACE_HTML:
+      case GUMBO_NODE_TEXT:
+      case GUMBO_NODE_WHITESPACE:
+        xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
-      case GUMBO_NAMESPACE_SVG:
-        ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/svg", "svg");
+
+      case GUMBO_NODE_CDATA:
+        xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
+                                     (int) strlen(gumbo_child->v.text.text));
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
-      case GUMBO_NAMESPACE_MATHML:
-        ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1998/Math/MathML", "math");
+
+      case GUMBO_NODE_COMMENT:
+        xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
-      }
-      if (ns != NULL) {
-        xmlSetNs(xml_child, ns);
-      }
-      xmlAddChild(xml_node, xml_child);
 
-      // Add the attributes.
-      const GumboVector *attrs = &gumbo_child->v.element.attributes;
-      for (size_t i = 0; i < attrs->length; i++) {
-        const GumboAttribute *attr = attrs->data[i];
-
-        switch (attr->attr_namespace) {
-        case GUMBO_ATTR_NAMESPACE_XLINK:
-          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1999/xlink", "xlink");
-          break;
-
-        case GUMBO_ATTR_NAMESPACE_XML:
-          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/XML/1998/namespace", "xml");
-          break;
-
-        case GUMBO_ATTR_NAMESPACE_XMLNS:
-          ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/xmlns/", "xmlns");
-          break;
-
-        default:
-          ns = NULL;
+      case GUMBO_NODE_TEMPLATE:
+      // XXX: Should create a template element and a new DocumentFragment
+      case GUMBO_NODE_ELEMENT: {
+        xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
+        set_line(xml_child, gumbo_child->v.element.start_pos.line);
+        if (xml_root == NULL) {
+          xml_root = xml_child;
         }
-        xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
-      }
+        xmlNsPtr ns = NULL;
+        switch (gumbo_child->v.element.tag_namespace) {
+          case GUMBO_NAMESPACE_HTML:
+            break;
+          case GUMBO_NAMESPACE_SVG:
+            ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/svg", "svg");
+            break;
+          case GUMBO_NAMESPACE_MATHML:
+            ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1998/Math/MathML", "math");
+            break;
+        }
+        if (ns != NULL) {
+          xmlSetNs(xml_child, ns);
+        }
+        xmlAddChild(xml_node, xml_child);
 
-      // Add children for this element.
-      child_index = 0;
-      gumbo_node = gumbo_child;
-      xml_node = xml_child;
-    }
+        // Add the attributes.
+        const GumboVector *attrs = &gumbo_child->v.element.attributes;
+        for (size_t i = 0; i < attrs->length; i++) {
+          const GumboAttribute *attr = attrs->data[i];
+
+          switch (attr->attr_namespace) {
+            case GUMBO_ATTR_NAMESPACE_XLINK:
+              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/1999/xlink", "xlink");
+              break;
+
+            case GUMBO_ATTR_NAMESPACE_XML:
+              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/XML/1998/namespace", "xml");
+              break;
+
+            case GUMBO_ATTR_NAMESPACE_XMLNS:
+              ns = lookup_or_add_ns(doc, xml_root, "http://www.w3.org/2000/xmlns/", "xmlns");
+              break;
+
+            default:
+              ns = NULL;
+          }
+          xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
+        }
+
+        // Add children for this element.
+        child_index = 0;
+        gumbo_node = gumbo_child;
+        xml_node = xml_child;
+      }
     }
   }
 }
@@ -459,24 +459,24 @@ fragment(
     const char *colon = memchr(ctx_tag, ':', len);
     if (colon) {
       switch (colon - ctx_tag) {
-      case 3:
-        if (st_strncasecmp(ctx_tag, "svg", 3) != 0) {
-          goto error;
-        }
-        ctx_ns = GUMBO_NAMESPACE_SVG;
-        break;
-      case 4:
-        if (st_strncasecmp(ctx_tag, "html", 4) == 0) {
-          ctx_ns = GUMBO_NAMESPACE_HTML;
-        } else if (st_strncasecmp(ctx_tag, "math", 4) == 0) {
-          ctx_ns = GUMBO_NAMESPACE_MATHML;
-        } else {
-          goto error;
-        }
-        break;
-      default:
+        case 3:
+          if (st_strncasecmp(ctx_tag, "svg", 3) != 0) {
+            goto error;
+          }
+          ctx_ns = GUMBO_NAMESPACE_SVG;
+          break;
+        case 4:
+          if (st_strncasecmp(ctx_tag, "html", 4) == 0) {
+            ctx_ns = GUMBO_NAMESPACE_HTML;
+          } else if (st_strncasecmp(ctx_tag, "math", 4) == 0) {
+            ctx_ns = GUMBO_NAMESPACE_MATHML;
+          } else {
+            goto error;
+          }
+          break;
+        default:
 error:
-        rb_raise(rb_eArgError, "Invalid context namespace '%*s'", (int)(colon - ctx_tag), ctx_tag);
+          rb_raise(rb_eArgError, "Invalid context namespace '%*s'", (int)(colon - ctx_tag), ctx_tag);
       }
       ctx_tag = colon + 1;
     } else {

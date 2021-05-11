@@ -6,20 +6,36 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-### Dependencies
+### Added
 
-* [MRI] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`.
+__HTML5 support__ has been added (to CRuby only) by merging [Nokogumbo](https://github.com/rubys/nokogumbo) into Nokogiri. The Nokogumbo public API has been preserved, so this functionality is available under the `Nokogiri::HTML5` namespace. [[#2204](https://github.com/sparklemotion/nokogiri/issues/2204)]
+
+Please note that HTML5 support is not available for JRuby in this version. However, we feel it is important to think about JRuby and we hope to work on this in the future. If you're interested in helping with HTML5 support on JRuby, please reach out to the maintainers by commenting on issue [#2227](https://github.com/sparklemotion/nokogiri/issues/2227).
+
+Please also note that the `Nokogiri::HTML` parse methods still use libxml2's HTML4 parser in the v1.12 release series. Future releases of Nokogiri may change this behavior, but we'll proceed cautiously to avoid breaking existing applications.
+
+Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and maintaining Nokogumbo and supporting the Gumbo HTML5 parser. They're now Nokogiri core contributors with all the powers and privileges pertaining thereto. 🙌
 
 
 ### Changed
 
-* Introduce `Nokogiri::XML::ParseOptions::DEFAULT_XSLT` which adds the libxslt-preferred options of `NOENT | DTDLOAD | DTDATTR | NOCDATA` to `ParseOptions::DEFAULT_XML`.
-* `Nokogiri.XSLT` parses the stylesheet using `ParseOptions::DEFAULT_XSLT`, which should make some edge-case XSL transformations match libxslt's default behavior. [[#1940](https://github.com/sparklemotion/nokogiri/issues/1940)]
+* Introduce a new constant, `Nokogiri::XML::ParseOptions::DEFAULT_XSLT`, which adds the libxslt-preferred options of `NOENT | DTDLOAD | DTDATTR | NOCDATA` to `ParseOptions::DEFAULT_XML`.
+* `Nokogiri.XSLT` parses stylesheets using `ParseOptions::DEFAULT_XSLT`, which should make some edge-case XSL transformations match libxslt's default behavior. [[#1940](https://github.com/sparklemotion/nokogiri/issues/1940)]
+
+
+### Fixed
+
+* [CRuby] Namespaced attributes are handled properly when their parent node is reparented into another document. Previously, the namespace may have gotten dropped. [[#2228](https://github.com/sparklemotion/nokogiri/issues/2228)]
 
 
 ### Improved
 
-* [MRI] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option.
+* [CRuby] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option. ("ruby" platform gem only.)
+
+
+### Dependencies
+
+* [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`. ("ruby" platform gem only.)
 
 
 ## 1.11.3 / 2021-04-07

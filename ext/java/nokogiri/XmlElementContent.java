@@ -142,11 +142,11 @@ public class XmlElementContent extends RubyObject
     right = runtime.getNil();
 
     switch (type) {
-    case SEQ:
-    case OR:
-      applyGroup(runtime, klass, doc, iter);
-    default:
-      // noop
+      case SEQ:
+      case OR:
+        applyGroup(runtime, klass, doc, iter);
+      default:
+        // noop
     }
   }
 

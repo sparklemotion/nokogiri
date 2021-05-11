@@ -6,19 +6,19 @@ static int
 dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
 {
   switch (node->type) {
-  case XML_ATTRIBUTE_NODE:
-    xmlFreePropList((xmlAttrPtr)node);
-    break;
-  case XML_NAMESPACE_DECL:
-    xmlFreeNs((xmlNsPtr)node);
-    break;
-  case XML_DTD_NODE:
-    xmlFreeDtd((xmlDtdPtr)node);
-    break;
-  default:
-    if (node->parent == NULL) {
-      xmlAddChild((xmlNodePtr)doc, node);
-    }
+    case XML_ATTRIBUTE_NODE:
+      xmlFreePropList((xmlAttrPtr)node);
+      break;
+    case XML_NAMESPACE_DECL:
+      xmlFreeNs((xmlNsPtr)node);
+      break;
+    case XML_DTD_NODE:
+      xmlFreeDtd((xmlDtdPtr)node);
+      break;
+    default:
+      if (node->parent == NULL) {
+        xmlAddChild((xmlNodePtr)doc, node);
+      }
   }
   return ST_CONTINUE;
 }

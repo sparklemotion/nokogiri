@@ -36,6 +36,7 @@ static void
 relink_namespace(xmlNodePtr reparented)
 {
   xmlNodePtr child;
+  xmlAttrPtr attr;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
@@ -67,11 +68,6 @@ relink_namespace(xmlNodePtr reparented)
 
   /* Avoid segv when relinking against unlinked nodes. */
   if (reparented->type != XML_ELEMENT_NODE || !reparented->parent) { return; }
-
-  /* Make sure that our reparented node has the correct namespaces */
-  if (!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent) {
-    xmlSetNs(reparented, reparented->parent->ns);
-  }
 
   /* Search our parents for an existing definition */
   if (reparented->nsDef) {
@@ -132,10 +128,10 @@ relink_namespace(xmlNodePtr reparented)
   }
 
   if (reparented->type == XML_ELEMENT_NODE) {
-    child = (xmlNodePtr)((xmlElementPtr)reparented)->attributes;
-    while (NULL != child) {
-      relink_namespace(child);
-      child = child->next;
+    attr = reparented->properties;
+    while (NULL != attr) {
+      relink_namespace((xmlNodePtr)attr);
+      attr = attr->next;
     }
   }
 }
@@ -170,7 +166,7 @@ static VALUE
 reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
+  xmlNodePtr reparentee, original_reparentee, pivot, reparented, next_text, new_next_text, parent ;
   int original_ns_prefix_is_default = 0 ;
 
   if (!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode)) {
@@ -197,66 +193,66 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
 
   if (parent) {
     switch (parent->type) {
-    case XML_DOCUMENT_NODE:
-    case XML_HTML_DOCUMENT_NODE:
-      switch (reparentee->type) {
+      case XML_DOCUMENT_NODE:
+      case XML_HTML_DOCUMENT_NODE:
+        switch (reparentee->type) {
+          case XML_ELEMENT_NODE:
+          case XML_PI_NODE:
+          case XML_COMMENT_NODE:
+          case XML_DOCUMENT_TYPE_NODE:
+          /*
+           * The DOM specification says no to adding text-like nodes
+           * directly to a document, but we allow it for compatibility.
+           */
+          case XML_TEXT_NODE:
+          case XML_CDATA_SECTION_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
+      case XML_DOCUMENT_FRAG_NODE:
+      case XML_ENTITY_REF_NODE:
       case XML_ELEMENT_NODE:
-      case XML_PI_NODE:
-      case XML_COMMENT_NODE:
-      case XML_DOCUMENT_TYPE_NODE:
-      /*
-       * The DOM specification says no to adding text-like nodes
-       * directly to a document, but we allow it for compatibility.
-       */
+        switch (reparentee->type) {
+          case XML_ELEMENT_NODE:
+          case XML_PI_NODE:
+          case XML_COMMENT_NODE:
+          case XML_TEXT_NODE:
+          case XML_CDATA_SECTION_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
+      case XML_ATTRIBUTE_NODE:
+        switch (reparentee->type) {
+          case XML_TEXT_NODE:
+          case XML_ENTITY_REF_NODE:
+            goto ok;
+          default:
+            break;
+        }
+        break;
       case XML_TEXT_NODE:
-      case XML_CDATA_SECTION_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
+        /*
+         * xmlAddChild() breaks the DOM specification in that it allows
+         * adding a text node to another, in which case text nodes are
+         * coalesced, but since our JRuby version does not support such
+         * operation, we should inhibit it.
+         */
+        break;
       default:
         break;
-      }
-      break;
-    case XML_DOCUMENT_FRAG_NODE:
-    case XML_ENTITY_REF_NODE:
-    case XML_ELEMENT_NODE:
-      switch (reparentee->type) {
-      case XML_ELEMENT_NODE:
-      case XML_PI_NODE:
-      case XML_COMMENT_NODE:
-      case XML_TEXT_NODE:
-      case XML_CDATA_SECTION_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
-      default:
-        break;
-      }
-      break;
-    case XML_ATTRIBUTE_NODE:
-      switch (reparentee->type) {
-      case XML_TEXT_NODE:
-      case XML_ENTITY_REF_NODE:
-        goto ok;
-      default:
-        break;
-      }
-      break;
-    case XML_TEXT_NODE:
-      /*
-       * xmlAddChild() breaks the DOM specification in that it allows
-       * adding a text node to another, in which case text nodes are
-       * coalesced, but since our JRuby version does not support such
-       * operation, we should inhibit it.
-       */
-      break;
-    default:
-      break;
     }
 
     rb_raise(rb_eArgError, "cannot reparent %s there", rb_obj_classname(reparentee_obj));
   }
 
 ok:
-  xmlUnlinkNode(reparentee);
+  original_reparentee = reparentee;
 
   if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {
     /*
@@ -312,6 +308,8 @@ ok:
       reparentee->ns->prefix = NULL;
     }
   }
+
+  xmlUnlinkNode(original_reparentee);
 
   if (prf != xmlAddPrevSibling && prf != xmlAddNextSibling
       && reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {
@@ -1633,12 +1631,12 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
   /* FIXME: This probably needs to handle more constants... */
   switch (error) {
-  case XML_ERR_INTERNAL_ERROR:
-  case XML_ERR_NO_MEMORY:
-    rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
-    break;
-  default:
-    break;
+    case XML_ERR_INTERNAL_ERROR:
+    case XML_ERR_NO_MEMORY:
+      rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
+      break;
+    default:
+      break;
   }
 
   set = xmlXPathNodeSetCreate(NULL);
@@ -1682,44 +1680,44 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
 
   if (!RTEST(rb_class)) {
     switch (c_node->type) {
-    case XML_ELEMENT_NODE:
-      rb_class = cNokogiriXmlElement;
-      break;
-    case XML_TEXT_NODE:
-      rb_class = cNokogiriXmlText;
-      break;
-    case XML_ATTRIBUTE_NODE:
-      rb_class = cNokogiriXmlAttr;
-      break;
-    case XML_ENTITY_REF_NODE:
-      rb_class = cNokogiriXmlEntityReference;
-      break;
-    case XML_COMMENT_NODE:
-      rb_class = cNokogiriXmlComment;
-      break;
-    case XML_DOCUMENT_FRAG_NODE:
-      rb_class = cNokogiriXmlDocumentFragment;
-      break;
-    case XML_PI_NODE:
-      rb_class = cNokogiriXmlProcessingInstruction;
-      break;
-    case XML_ENTITY_DECL:
-      rb_class = cNokogiriXmlEntityDecl;
-      break;
-    case XML_CDATA_SECTION_NODE:
-      rb_class = cNokogiriXmlCData;
-      break;
-    case XML_DTD_NODE:
-      rb_class = cNokogiriXmlDtd;
-      break;
-    case XML_ATTRIBUTE_DECL:
-      rb_class = cNokogiriXmlAttributeDecl;
-      break;
-    case XML_ELEMENT_DECL:
-      rb_class = cNokogiriXmlElementDecl;
-      break;
-    default:
-      rb_class = cNokogiriXmlNode;
+      case XML_ELEMENT_NODE:
+        rb_class = cNokogiriXmlElement;
+        break;
+      case XML_TEXT_NODE:
+        rb_class = cNokogiriXmlText;
+        break;
+      case XML_ATTRIBUTE_NODE:
+        rb_class = cNokogiriXmlAttr;
+        break;
+      case XML_ENTITY_REF_NODE:
+        rb_class = cNokogiriXmlEntityReference;
+        break;
+      case XML_COMMENT_NODE:
+        rb_class = cNokogiriXmlComment;
+        break;
+      case XML_DOCUMENT_FRAG_NODE:
+        rb_class = cNokogiriXmlDocumentFragment;
+        break;
+      case XML_PI_NODE:
+        rb_class = cNokogiriXmlProcessingInstruction;
+        break;
+      case XML_ENTITY_DECL:
+        rb_class = cNokogiriXmlEntityDecl;
+        break;
+      case XML_CDATA_SECTION_NODE:
+        rb_class = cNokogiriXmlCData;
+        break;
+      case XML_DTD_NODE:
+        rb_class = cNokogiriXmlDtd;
+        break;
+      case XML_ATTRIBUTE_DECL:
+        rb_class = cNokogiriXmlAttributeDecl;
+        break;
+      case XML_ELEMENT_DECL:
+        rb_class = cNokogiriXmlElementDecl;
+        break;
+      default:
+        rb_class = cNokogiriXmlNode;
     }
   }
 
