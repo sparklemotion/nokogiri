@@ -70,17 +70,6 @@ module Nokogiri
         def test_default_options
           assert_equal(0, @parser.options)
         end
-
-        def test_broken_encoding
-          skip_unless_libxml2("ultra hard to fix for pure Java version")
-          @parser.options |= XML::ParseOptions::RECOVER
-          # This is ISO_8859-1:
-          @parser.<< "<?xml version='1.0' encoding='UTF-8'?><r>Gau\337</r>"
-          @parser.finish
-          assert(@parser.document.errors.size >= 1)
-          assert_equal("Gau\337", @parser.document.data.join)
-          assert_equal([["r"], ["body"], ["html"]], @parser.document.end_elements)
-        end
       end
     end
   end
