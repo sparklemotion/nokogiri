@@ -8,7 +8,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Security
 
-[CRuby] Vendored libxml2 upgraded to v2.9.12 which addresses [CVE-2021-3541](https://blog.hartwork.org/posts/cve-2021-3541-parameter-laughs-fixed-in-libxml2-2-9-11/). [[#2233](https://github.com/sparklemotion/nokogiri/issues/2233)]
+[CRuby] Vendored libxml2 upgraded to v2.9.12 which addresses:
+
+- [CVE-2019-20388](https://security.archlinux.org/CVE-2019-20388)
+- [CVE-2020-24977](https://security.archlinux.org/CVE-2020-24977)
+- [CVE-2021-3517](https://security.archlinux.org/CVE-2021-3517)
+- [CVE-2021-3518](https://security.archlinux.org/CVE-2021-3518)
+- [CVE-2021-3537](https://security.archlinux.org/CVE-2021-3537)
+- [CVE-2021-3541](https://security.archlinux.org/CVE-2021-3541)
+
+Note that two additional CVEs were addressed upstream but are not relevant to this release. [CVE-2021-3516](https://security.archlinux.org/CVE-2021-3516) via `xmllint` is not present in Nokogiri, and [CVE-2020-7595](https://security.archlinux.org/CVE-2020-7595) has been patched in Nokogiri since v1.10.8 (see #1992).
+
+Please see #2233 for a more complete analysis of these CVEs and patches.
 
 
 ### Dependencies
