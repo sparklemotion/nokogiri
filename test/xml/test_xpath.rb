@@ -340,7 +340,7 @@ module Nokogiri
           # long list of long arguments, to apply GC pressure during
           # ruby_funcall argument marshalling
           xpath = ["//tool[name_equals(.,'hammer'"]
-          1000.times { xpath << "'unused argument #{'x' * 1000}'" }
+          500.times { xpath << "'unused argument #{'x' * 1000}'" }
           xpath << "'unused argument')]"
           xpath = xpath.join(',')
 
