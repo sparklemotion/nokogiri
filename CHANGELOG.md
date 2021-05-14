@@ -51,9 +51,9 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 - [CVE-2021-3537](https://security.archlinux.org/CVE-2021-3537)
 - [CVE-2021-3541](https://security.archlinux.org/CVE-2021-3541)
 
-Note that two additional CVEs were addressed upstream but are not relevant to this release. [CVE-2021-3516](https://security.archlinux.org/CVE-2021-3516) via `xmllint` is not present in Nokogiri, and [CVE-2020-7595](https://security.archlinux.org/CVE-2020-7595) has been patched in Nokogiri since v1.10.8 (see #1992).
+Note that two additional CVEs were addressed upstream but are not relevant to this release. [CVE-2021-3516](https://security.archlinux.org/CVE-2021-3516) via `xmllint` is not present in Nokogiri, and [CVE-2020-7595](https://security.archlinux.org/CVE-2020-7595) has been patched in Nokogiri since v1.10.8 (see [#1992](https://github.com/sparklemotion/nokogiri/issues/1992)).
 
-Please see #2233 for a more complete analysis of these CVEs and patches.
+Please see [nokogiri/GHSA-7rrm-v45f-jp64 ](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-7rrm-v45f-jp64) or [#2233](https://github.com/sparklemotion/nokogiri/issues/2233) for a more complete analysis of these CVEs and patches.
 
 
 ### Dependencies
