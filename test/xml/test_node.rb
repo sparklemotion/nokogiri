@@ -1055,13 +1055,15 @@ module Nokogiri
           node = html.at("div").children.first
           assert_not_nil(node)
 
-          if Nokogiri.uses_libxml?
+          if Nokogiri.uses_libxml?(">= 2.9.12")
+            assert_empty(node.namespaces.keys)
+            assert_equal("<p>foo</p>", node.to_html)
+          elsif Nokogiri.uses_libxml?
             assert_equal(1, node.namespaces.keys.size)
             assert(node.namespaces.has_key?('xmlns:o'))
             assert_nil(node.namespaces['xmlns:o'])
             assert_equal("<p>foo</p>", node.to_html)
-          else
-            # Xerces does something completely different
+          else # jruby
             assert_empty(node.namespaces.keys)
             assert_equal("<o:p>foo</o:p>", node.to_html)
           end
