@@ -16,7 +16,7 @@ index cf96d41..1372d8b 100644
  	}
  
 -libxml2.la: $(libxml2_la_OBJECTS) $(libxml2_la_DEPENDENCIES) $(EXTRA_libxml2_la_DEPENDENCIES) 
-+$(top_builddir)/libxml2.la: $(libxml2_la_OBJECTS) $(libxml2_la_DEPENDENCIES) $(EXTRA_libxml2_la_DEPENDENCIES) 
++$(top_builddir)/libxml2.la: $(libxml2_la_OBJECTS) $(libxml2_la_DEPENDENCIES) $(EXTRA_libxml2_la_DEPENDENCIES)
  	$(AM_V_CCLD)$(libxml2_la_LINK) -rpath $(libdir) $(libxml2_la_OBJECTS) $(libxml2_la_LIBADD) $(LIBS)
  
  testdso.la: $(testdso_la_OBJECTS) $(testdso_la_DEPENDENCIES) $(EXTRA_testdso_la_DEPENDENCIES) 
