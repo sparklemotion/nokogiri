@@ -38,6 +38,18 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`. ("ruby" platform gem only.)
 
 
+## 1.11.4 / unreleased
+
+### Security
+
+[CRuby] Vendored libxml2 upgraded to v2.9.12 which addresses [CVE-2021-3541](https://blog.hartwork.org/posts/cve-2021-3541-parameter-laughs-fixed-in-libxml2-2-9-11/). [[#2233](https://github.com/sparklemotion/nokogiri/issues/2233)]
+
+
+### Dependencies
+
+* [CRuby] vendored libxml2 is updated from 2.9.10 to 2.9.12. (Note that 2.9.11 was skipped because it was superseded by 2.9.12 a few hours after its release.)
+
+
 ## 1.11.3 / 2021-04-07
 
 ### Fixed
