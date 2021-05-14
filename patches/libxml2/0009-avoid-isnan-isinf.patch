@@ -51,7 +51,7 @@ diff --git a/xpath.c b/xpath.c
 index 9f64ab9..5b6d999 100644
 --- a/xpath.c
 +++ b/xpath.c
-@@ -509,11 +509,7 @@ xmlXPathInit(void) {
+@@ -515,11 +515,7 @@ xmlXPathInit(void) {
   */
  int
  xmlXPathIsNaN(double val) {
@@ -63,16 +63,16 @@ index 9f64ab9..5b6d999 100644
  }
  
  /**
-@@ -524,15 +520,11 @@ xmlXPathIsNaN(double val) {
+@@ -530,15 +530,11 @@ xmlXPathIsNaN(double val) {
   */
  int
  xmlXPathIsInf(double val) {
 -#ifdef isinf
 -    return isinf(val) ? (val > 0 ? 1 : -1) : 0;
 -#else
-     if (val >= INFINITY)
+     if (val >= xmlXPathPINF)
          return 1;
-     if (val <= -INFINITY)
+     if (val <= -xmlXPathPINF)
          return -1;
      return 0;
 -#endif
