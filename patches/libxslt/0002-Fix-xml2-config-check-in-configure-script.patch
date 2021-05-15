@@ -1,0 +1,19 @@
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Fri, 15 Nov 2019 11:53:11 +0100
+Subject: [PATCH] Fix xml2-config check in configure script
+
+A 'print' option has never been supported. After a recent change to
+libxml2, invalid options cause xml2-config to fail.
+diff --git a/configure b/configure
+index c63adc5..6061227 100755
+--- a/configure
++++ b/configure
+@@ -14860,7 +14860,7 @@ PKG_CONFIG=$_save_PKG_CONFIG
+ fi
+ 
+ 
+-if test "x$LIBXML_LIBS" = "x" && ${XML_CONFIG} --libs print > /dev/null 2>&1
++if test "x$LIBXML_LIBS" = "x" && ${XML_CONFIG} --libs > /dev/null 2>&1
+ then
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libxml libraries >= $LIBXML_REQUIRED_VERSION" >&5
+ $as_echo_n "checking for libxml libraries >= $LIBXML_REQUIRED_VERSION... " >&6; }
