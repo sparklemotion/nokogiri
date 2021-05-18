@@ -663,6 +663,8 @@ noko_init_xml_document()
    */
   cNokogiriXmlDocument = rb_define_class_under(mNokogiriXml, "Document", cNokogiriXmlNode);
 
+  rb_undef_alloc_func(cNokogiriXmlDocument);
+
   rb_define_singleton_method(cNokogiriXmlDocument, "read_memory", read_memory, 4);
   rb_define_singleton_method(cNokogiriXmlDocument, "read_io", read_io, 4);
   rb_define_singleton_method(cNokogiriXmlDocument, "new", new, -1);

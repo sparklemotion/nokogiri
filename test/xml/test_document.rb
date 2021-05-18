@@ -15,6 +15,12 @@ module Nokogiri
 
         let(:xml) { Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) }
 
+        def test_allocation_is_not_allowed
+          assert_raises(TypeError) do
+            Nokogiri::XML::Document.allocate
+          end
+        end
+
         def test_dtd_with_empty_internal_subset
           doc = Nokogiri::XML(<<~eoxml)
             <?xml version="1.0"?>
