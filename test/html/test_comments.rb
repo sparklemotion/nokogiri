@@ -113,8 +113,7 @@ module Nokogiri
         let(:subject) { doc.at_css("div#under-test") }
         let(:inner_div) { doc.at_css("div#do-i-exist") }
 
-        if Nokogiri.uses_libxml? && Nokogiri::VersionInfo.instance.libxml2_using_packaged?
-          # see patches/libxml2/0006-htmlParseComment-treat-as-if-it-closed-the-comment.patch
+        if Nokogiri::VersionInfo.instance.libxml2_using_packaged? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?(">=2.9.11"))
           it "behaves as if the comment is normally closed" do # COMPLIANT
             assert_equal 3, subject.children.length
             assert subject.children[0].comment?
@@ -128,9 +127,7 @@ module Nokogiri
           end
         end
 
-        if Nokogiri.jruby? || Nokogiri::VersionInfo.instance.libxml2_using_system?
-          # this behavior may change to the above in libxml v2.9.11 depending on whether
-          # https://gitlab.gnome.org/GNOME/libxml2/-/merge_requests/82 is merged
+        if Nokogiri.jruby? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?("<2.9.11"))
           it "behaves as if the comment encompasses the inner div" do # NON-COMPLIANT
             assert_equal 1, subject.children.length
             assert subject.children.first.comment?
