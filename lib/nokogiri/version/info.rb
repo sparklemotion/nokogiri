@@ -137,6 +137,7 @@ module Nokogiri
             else
               libxml["source"] = "system"
             end
+            libxml["memory_management"] = Nokogiri::LIBXML_MEMORY_MANAGEMENT
             libxml["iconv_enabled"] = libxml2_has_iconv?
             libxml["compiled"] = compiled_libxml_version.to_s
             libxml["loaded"] = loaded_libxml_version.to_s
