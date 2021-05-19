@@ -4,6 +4,22 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.11.5 / 2021-05-19
+
+### Fixed
+
+[Windows CRuby] Work around segfault at process exit on Windows when using libxml2 system DLLs.
+
+libxml 2.9.12 introduced new behavior to avoid memory leaks when unloading libxml2 shared libraries (see [libxml/!66](https://gitlab.gnome.org/GNOME/libxml2/-/merge_requests/66)). Early testing caught this segfault on non-Windows platforms (see [#2059](https://github.com/sparklemotion/nokogiri/issues/2059) and [libxml@956534e](https://gitlab.gnome.org/GNOME/libxml2/-/commit/956534e02ef280795a187c16f6ac04e107f23c5d)) but it was incompletely fixed and is still an issue on Windows platforms that are using system DLLs.
+
+We work around this by configuring libxml2 in this situation to use its default memory management functions. Note that if Nokogiri is not on Windows, or is not using shared system libraries, it will will continue to configure libxml2 to use Ruby's memory management functions. `Nokogiri::VERSION_INFO["libxml"]["memory_management"]` will allow you to verify when the default memory management functions are being used. [[#2241](https://github.com/sparklemotion/nokogiri/issues/2241)]
+
+
+### Changed
+
+`Nokogiri::VERSION_INFO["libxml"]` now contains the key `"memory_management"` to declare whether libxml2 is using its `default` memory management functions, or whether it uses the memory management functions from `ruby`. See above for more details.
+
+
 ## 1.11.4 / 2021-05-14
 
 ### Security
