@@ -192,7 +192,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby", "jruby-head"]
+        ruby: ["jruby-9.2", "jruby-head"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

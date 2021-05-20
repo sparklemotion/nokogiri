@@ -14,7 +14,6 @@ on:
 
 jobs:
   rubocop:
-    name: rubocop
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-3.0
@@ -30,7 +29,6 @@ jobs:
       matrix:
         image: ["bionic", "bionic32"]
         sys: ["enable"]
-    name: "basic / ${{matrix.image}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:${{matrix.image}}
@@ -47,7 +45,6 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ["2.5", "2.6", "2.7", "3.0"]
-    name: "linux / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
@@ -70,7 +67,6 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ["2.5", "2.6", "2.7", "3.0"]
-    name: "valgrind / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
@@ -86,13 +82,12 @@ jobs:
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 
-  linux-musl:
+  musl:
     needs: ["basic"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable"]
-    name: "musl / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:alpine
@@ -103,13 +98,12 @@ jobs:
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
-  linux-musl-valgrind:
-    needs: ["linux-musl"]
+  musl-valgrind:
+    needs: ["musl"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["disable"]
-    name: "musl-valgrind / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:alpine
@@ -129,7 +123,6 @@ jobs:
         ruby: ["3.0"]
     env:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-    name: "libxmlruby / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
@@ -154,7 +147,6 @@ jobs:
         ruby: ["3.0"]
     env:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-    name: "libxmlruby-valgrind / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
@@ -176,7 +168,6 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-    name: "linux / head / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -200,7 +191,6 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-    name: "valgrind / head / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -225,7 +215,6 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ["2.5", "2.6", "2.7", "3.0"]
-    name: "osx / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -249,7 +238,6 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ["2.5", "2.6", "2.7", "3.0", "mingw"]
-    name: "windows / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
     runs-on: windows-latest
     steps:
       - name: configure git crlf
@@ -276,8 +264,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby", "jruby-head"]
-    name: "${{matrix.ruby}}"
+        ruby: ["jruby-9.2", "jruby-head"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
