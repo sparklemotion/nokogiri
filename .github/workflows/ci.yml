@@ -35,7 +35,7 @@ jobs:
     container:
       image: flavorjones/nokogiri-test:${{matrix.image}}
     steps:
-      - uses: actions/checkout@v1 # v1 because we need this to work in a 32-bit image, see https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -71,6 +71,90 @@ jobs:
         sys: ["enable", "disable"]
         ruby: ["2.5", "2.6", "2.7", "3.0"]
     name: "valgrind / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test:valgrind
+
+  linux-musl:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable"]
+    name: "musl / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:alpine
+    steps:
+      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      # skip cache because of https://github.com/actions/checkout/issues/334
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  linux-musl-valgrind:
+    needs: ["linux-musl"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["disable"]
+    name: "musl-valgrind / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:alpine
+    steps:
+      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      # skip cache because of https://github.com/actions/checkout/issues/334
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test:valgrind
+
+  libxmlruby:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable"]
+        ruby: ["3.0"]
+    env:
+      BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+    name: "libxmlruby / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  libxmlruby-valgrind:
+    needs: ["libxmlruby"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["disable"]
+        ruby: ["3.0"]
+    env:
+      BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+    name: "libxmlruby-valgrind / syslib-${{matrix.sys}}"
     runs-on: ubuntu-latest
     container:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
