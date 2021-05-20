@@ -334,7 +334,7 @@ module Nokogiri
           assert_equal(0, namespace_definitions.length)
         end
 
-        def test_namespace_goes_to_children
+        def test_default_namespace_goes_to_children
           fruits = Nokogiri::XML(<<~eoxml)
             <Fruit xmlns='www.fruits.org'>
             </Fruit>
@@ -345,6 +345,22 @@ module Nokogiri
           fruits.root << apple
           assert(fruits.at('//fruit:Orange', { 'fruit' => 'www.fruits.org' }))
           assert(fruits.at('//fruit:Apple', { 'fruit' => 'www.fruits.org' }))
+        end
+
+        def test_parent_namespace_is_not_inherited
+          fruits = Nokogiri::XML(<<-eoxml)
+            <fruit xmlns:fruit="http://fruits.org">
+              <fruit:apple />
+            </fruit>
+          eoxml
+
+          apple = fruits.at_xpath('//fruit:apple', {"fruit" => "http://fruits.org"})
+          assert(apple)
+
+          orange = Nokogiri::XML::Node.new('orange', fruits)
+          apple.add_child(orange)
+
+          assert_equal(orange, fruits.at_xpath('//orange'))
         end
 
         def test_description
