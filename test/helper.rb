@@ -87,7 +87,11 @@ module Nokogiri
       warn "#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{GC_LEVEL}"
     end
 
+    COMPACT_EVERY = 20
+    @@test_count = 0
+
     def setup
+      @@test_count += 1
       if Nokogiri.uses_libxml?
         @fake_error_handler_called = false
         Nokogiri::Test.__foreign_error_handler do
@@ -110,10 +114,16 @@ module Nokogiri
         when "major"
           GC.start(full_mark: true)
         when "compact"
-          GC.compact
+          if @@test_count % COMPACT_EVERY == 0
+            GC.compact
+          else
+            GC.start(full_mark: true)
+          end
         when "verify"
-          # https://alanwu.space/post/check-compaction/
-          GC.verify_compaction_references(double_heap: true, toward: :empty)
+          if @@test_count % COMPACT_EVERY == 0
+            # https://alanwu.space/post/check-compaction/
+            GC.verify_compaction_references(double_heap: true, toward: :empty)
+          end
           GC.start(full_mark: true)
         when "stress"
           GC.stress = false
