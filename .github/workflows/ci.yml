@@ -134,6 +134,59 @@ jobs:
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 
+  osx:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    name: "osx / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  windows:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0", "mingw"]
+    name: "windows / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
+    runs-on: windows-latest
+    steps:
+      - name: configure git crlf
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+          mingw: "libxml2 libxslt"
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
   jruby:
     needs: ["basic"]
     strategy:
