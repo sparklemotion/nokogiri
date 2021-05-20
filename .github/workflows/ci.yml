@@ -1,0 +1,152 @@
+name: ci
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v*.*.x
+    tags:
+      - v*.*.*
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+
+jobs:
+  rubocop:
+    name: rubocop
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-3.0
+    steps:
+      - uses: actions/checkout@v2
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake rubocop
+
+  basic:
+    needs: ["rubocop"]
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["bionic", "bionic32"]
+        sys: ["enable"]
+    name: "basic / ${{matrix.image}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:${{matrix.image}}
+    steps:
+      - uses: actions/checkout@v1 # v1 because we need this to work in a 32-bit image, see https://github.com/actions/checkout/issues/334
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  linux:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    name: "linux / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  valgrind:
+    needs: ["linux"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    name: "valgrind / ${{matrix.ruby}} / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test:valgrind
+
+  ruby-head:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    name: "linux / head / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "head"
+          apt-get: "libxml2-dev libxslt1-dev pkg-config"
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test
+
+  ruby-head-valgrind:
+    needs: ["ruby-head"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    name: "valgrind / head / syslib-${{matrix.sys}}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "head"
+          apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'disable'
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test:valgrind
+
+  jruby:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["jruby", "jruby-head"]
+    name: "${{matrix.ruby}}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{matrix.ruby}}
+          bundler-cache: true
+      - run: bundle exec rake compile
+      - run: bundle exec rake test
