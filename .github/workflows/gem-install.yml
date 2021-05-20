@@ -107,3 +107,30 @@ jobs:
           name: cruby-x86_64-gem
           path: gems
           retention-days: 1
+
+  jruby-package:
+    name: "jruby-package"
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-jruby:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/test-gem-build gems java
+      - uses: actions/upload-artifact@v2
+        with:
+          name: jruby-gem
+          path: gems
+          retention-days: 1
+
+  jruby-install:
+    needs: ["jruby-package"]
+    runs-on: ubuntu-latest
+    container:
+      image: "flavorjones/nokogiri-test:jruby-9.2"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: jruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems

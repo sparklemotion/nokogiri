@@ -7,19 +7,21 @@ if [[ $# -lt 2 ]] ; then
   exit 1
 fi
 
+set -e -u
+
 OUTPUT_DIR=$1
 BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
-if [[ "${BUILD_NATIVE_GEM}" != "ruby" ]] ; then
+if [[ "${XRUBIES:-}" != "" ]] ; then
   # normally part of rake-compiler-dock runas which we can't easily use in concourse
   . /etc/rubybashrc
   ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
   export RAKE_EXTENSION_TASK_NO_NATIVE=true
 fi
 
-set -e -x -u
+set -x
 
 bundle install --local || bundle install
 bundle exec rake set-version-to-timestamp
@@ -28,6 +30,8 @@ if [[ "${BUILD_NATIVE_GEM}" == "ruby" ]] ; then
   # TODO we're only compiling so that we retrieve libxml2/libxslt tarballs, we can do better.
   bundle exec rake clean compile
   bundle exec rake gem
+elif [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
+  bundle exec rake java gem
 else
   bundle exec rake gem:${BUILD_NATIVE_GEM}:builder FORCE_CROSS_COMPILING=true
 fi
