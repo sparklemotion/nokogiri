@@ -15,7 +15,7 @@ libxml 2.9.12 introduced new behavior to avoid memory leaks when unloading libxm
 We work around this by configuring libxml2 in this situation to use its default memory management functions. Note that if Nokogiri is not on Windows, or is not using shared system libraries, it will will continue to configure libxml2 to use Ruby's memory management functions. `Nokogiri::VERSION_INFO["libxml"]["memory_management"]` will allow you to verify when the default memory management functions are being used. [[#2241](https://github.com/sparklemotion/nokogiri/issues/2241)]
 
 
-### Changed
+### Added
 
 `Nokogiri::VERSION_INFO["libxml"]` now contains the key `"memory_management"` to declare whether libxml2 is using its `default` memory management functions, or whether it uses the memory management functions from `ruby`. See above for more details.
 
