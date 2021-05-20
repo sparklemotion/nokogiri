@@ -38,11 +38,14 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0", "head"]
     runs-on: ubuntu-latest
-    container:
-      image: "flavorjones/nokogiri-test:mri-3.0"
     steps:
       - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+          apt-get: "libxml2-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v2
         with:
           name: cruby-gem
@@ -120,10 +123,11 @@ jobs:
       matrix:
         ruby: ["2.5", "2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
-    container:
-      image: "flavorjones/nokogiri-test:mri-${{matrix.ruby}}"
     steps:
       - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v2
         with:
           name: cruby-x86_64-linux-gem
@@ -185,11 +189,16 @@ jobs:
 
   jruby-install:
     needs: ["jruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["jruby", "jruby-head"]
     runs-on: ubuntu-latest
-    container:
-      image: "flavorjones/nokogiri-test:jruby-9.2"
     steps:
       - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v2
         with:
           name: jruby-gem
