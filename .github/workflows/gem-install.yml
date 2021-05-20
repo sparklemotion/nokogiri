@@ -1,0 +1,106 @@
+name: gem-install
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v*.*.x
+    tags:
+      - v*.*.*
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+
+jobs:
+  cruby-package:
+    name: "cruby-package"
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: ./scripts/test-gem-build gems ruby
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+          retention-days: 1
+
+  cruby-linux-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: ubuntu-latest
+    container:
+      image: "flavorjones/nokogiri-test:mri-3.0"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+
+  cruby-osx-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+
+  cruby-windows-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "3.0"
+          mingw: "libxml2 libxslt"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: gem install --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
+
+  cruby-x86_64-package:
+    name: "cruby-x86_64-package"
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: ./scripts/test-gem-build gems x86_64-linux
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cruby-x86_64-gem
+          path: gems
+          retention-days: 1
