@@ -23,6 +23,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Building gems](#building-gems)
 - [Other utilities](#other-utilities)
 - [Rake tasks](#rake-tasks)
+- [Making a release](#making-a-release)
 - [Code of Conduct](#code-of-conduct)
 
 <!-- tocstop -->
@@ -247,6 +248,19 @@ There's a `Vagrantfile` in the project root which I've used once or twice to try
 ## Rake tasks
 
 The `Rakefile` used to be a big fat mess. It's now decomposed into a small set of files in `/rakelib`. If you've got a new rake task you'd like to introduce, please consider whether it belongs in one of the existing concerns, or needs a new file. Please don't add it to `Rakefile` without compelling reasons.
+
+
+## Making a release
+
+A quick checklist:
+
+- [ ] make sure CI is green!
+- [ ] update `CHANGELOG.md` and `lib/nokogiri/version/constant.rb`
+- [ ] create a git tag
+- [ ] run `scripts/build-gems` and make sure it completes and all the tests pass
+- [ ] `for g in gems/*.gem ; do gem push $g ; done`
+- [ ] create a release at https://github.com/sparklemotion/nokogiri/releases
+- [ ] if security-related, email ruby-security-ann@googlegroups.com and ruby-talk@ruby-lang.org
 
 
 ## Code of Conduct
