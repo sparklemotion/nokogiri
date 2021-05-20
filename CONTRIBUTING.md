@@ -259,8 +259,9 @@ A quick checklist:
 - [ ] create a git tag
 - [ ] run `scripts/build-gems` and make sure it completes and all the tests pass
 - [ ] `for g in gems/*.gem ; do gem push $g ; done`
-- [ ] create a release at https://github.com/sparklemotion/nokogiri/releases
+- [ ] create a release at https://github.com/sparklemotion/nokogiri/releases and provide sha2 checksums
 - [ ] if security-related, email ruby-security-ann@googlegroups.com and ruby-talk@ruby-lang.org
+- [ ] update nokogiri.org
 
 
 ## Code of Conduct
