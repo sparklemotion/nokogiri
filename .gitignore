@@ -42,5 +42,6 @@ tags
 # Vagrant
 /.vagrant/
 
-# directories named after issues
-/[0-9][0-9][0-9]*/
+# directories or files named after issues, and debugging
+/[0-9][0-9][0-9]*
+/*.log
