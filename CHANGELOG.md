@@ -26,6 +26,7 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 ### Fixed
 
 * [CRuby] Namespaced attributes are handled properly when their parent node is reparented into another document. Previously, the namespace may have gotten dropped. [[#2228](https://github.com/sparklemotion/nokogiri/issues/2228)]
+* [CRuby] Reparented nodes no longer inherit their parent's namespace. Previously, a node without a namespace was forced to adopt its parent's namespace. [[#1712](https://github.com/sparklemotion/nokogiri/issues/1712)]
 
 
 ### Improved

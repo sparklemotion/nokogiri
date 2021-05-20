@@ -107,6 +107,26 @@ module Nokogiri
         assert_equal "one", b.doc.at("hello", "xmlns" => "one").namespace.href
       end
 
+      def test_builder_namespace_children_do_not_inherit
+        # see https://github.com/sparklemotion/nokogiri/issues/1712
+        result = Nokogiri::XML::Builder.new(encoding: 'utf-8') do |xml|
+          xml['soapenv'].Envelope('xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/', 'xmlns:emer' => 'http://dashcs.com/api/v1/emergency') do
+            xml['soapenv'].Header
+            xml['soapenv'].Body do
+              xml['emer'].validateLocation do
+                # these should not have a namespace
+                xml.location do
+                  xml.address 'Some place over the rainbow'
+                end
+              end
+            end
+          end
+        end
+        assert(result.doc.at_xpath("//emer:validateLocation", {"emer" => "http://dashcs.com/api/v1/emergency"}),
+                                   "expected validateLocation node to have a namespace")
+        assert(result.doc.at_xpath("//location"), "expected location node to not have a namespace")
+      end
+
       def test_specify_namespace
         b = Nokogiri::XML::Builder.new { |xml|
           xml.root("xmlns:foo" => "bar") do
