@@ -84,7 +84,10 @@ jobs:
         with:
           name: cruby-gem
           path: gems
-      - run: gem install --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
+      - run: |
+          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
+          gem list -d nokogiri
+          nokogiri -v
 
   cruby-x86_64-package:
     name: "cruby-x86_64-package"
