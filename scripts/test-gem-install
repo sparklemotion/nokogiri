@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+#
+#  run as part of CI, see gem-install.yml
+#
+if [[ $# -lt 1 ]] ; then
+  echo "usage: $(basename $0) <gems_dir> [install_flags]"
+  exit 1
+fi
+
+GEMS_DIR=$1
+shift
+INSTALL_FLAGS=$*
+
+test -e /etc/os-release && cat /etc/os-release
+
+set -e -x -u
+
+pushd $GEMS_DIR
+
+  gemfile=$(ls *.gem | head -n1)
+  ls -l ${gemfile}
+  gem install --no-document ${gemfile} -- ${INSTALL_FLAGS}
+  gem list -d nokogiri
+  nokogiri -v
+
+popd
+
+if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
+  export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
+fi
+
+bundle install --local || bundle install
+
+rm -rf lib ext # ensure we don't use the local files
+rake test
+
+./scripts/test-gem-installation
+
+# delete the Gemfile because that's confusing to older versions of rubygems (e.g., bionic32)
+rm -f Gemfile Gemfile.lock
+./scripts/test-nokogumbo-compatibility
