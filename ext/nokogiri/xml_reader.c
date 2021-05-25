@@ -662,6 +662,8 @@ noko_init_xml_reader()
    */
   cNokogiriXmlReader = rb_define_class_under(mNokogiriXml, "Reader", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlReader);
+
   rb_define_singleton_method(cNokogiriXmlReader, "from_memory", from_memory, -1);
   rb_define_singleton_method(cNokogiriXmlReader, "from_io", from_io, -1);
 

@@ -274,6 +274,8 @@ noko_init_html_element_description()
 {
   cNokogiriHtmlElementDescription = rb_define_class_under(mNokogiriHtml, "ElementDescription", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriHtmlElementDescription);
+
   rb_define_singleton_method(cNokogiriHtmlElementDescription, "[]", get_description, 1);
 
   rb_define_method(cNokogiriHtmlElementDescription, "name", name, 0);

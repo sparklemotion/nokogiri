@@ -373,6 +373,8 @@ noko_init_xml_xpath_context(void)
    */
   cNokogiriXmlXpathContext = rb_define_class_under(mNokogiriXml, "XPathContext", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlXpathContext);
+
   rb_define_singleton_method(cNokogiriXmlXpathContext, "new", new, 1);
 
   rb_define_method(cNokogiriXmlXpathContext, "evaluate", evaluate, -1);

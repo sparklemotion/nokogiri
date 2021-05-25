@@ -113,6 +113,8 @@ noko_init_xml_namespace()
 {
   cNokogiriXmlNamespace = rb_define_class_under(mNokogiriXml, "Namespace", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlNamespace);
+
   rb_define_method(cNokogiriXmlNamespace, "prefix", prefix, 0);
   rb_define_method(cNokogiriXmlNamespace, "href", href, 0);
 }

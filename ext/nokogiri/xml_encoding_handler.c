@@ -80,6 +80,8 @@ noko_init_xml_encoding_handler()
 {
   cNokogiriEncodingHandler = rb_define_class_under(mNokogiri, "EncodingHandler", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriEncodingHandler);
+
   rb_define_singleton_method(cNokogiriEncodingHandler, "[]", get, 1);
   rb_define_singleton_method(cNokogiriEncodingHandler, "delete", delete, 1);
   rb_define_singleton_method(cNokogiriEncodingHandler, "alias", alias, 2);

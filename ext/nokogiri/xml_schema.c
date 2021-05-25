@@ -274,6 +274,8 @@ noko_init_xml_schema()
 {
   cNokogiriXmlSchema = rb_define_class_under(mNokogiriXml, "Schema", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlSchema);
+
   rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", read_memory, -1);
   rb_define_singleton_method(cNokogiriXmlSchema, "from_document", from_document, -1);
 

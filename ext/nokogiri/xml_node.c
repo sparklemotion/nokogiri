@@ -1760,6 +1760,8 @@ noko_init_xml_node()
 {
   cNokogiriXmlNode = rb_define_class_under(mNokogiriXml, "Node", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlNode);
+
   rb_define_singleton_method(cNokogiriXmlNode, "new", rb_xml_node_new, -1);
 
   rb_define_method(cNokogiriXmlNode, "add_namespace_definition", add_namespace_definition, 2);
