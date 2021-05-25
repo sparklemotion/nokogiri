@@ -1,5 +1,8 @@
 #include <nokogiri.h>
 
+VALUE cNokogiriEncodingHandler;
+
+
 /*
  * call-seq: Nokogiri::EncodingHandler.[](name)
  *
@@ -75,11 +78,11 @@ name(VALUE self)
 void
 noko_init_xml_encoding_handler()
 {
-  VALUE klass = rb_define_class_under(mNokogiri, "EncodingHandler", rb_cObject);
+  cNokogiriEncodingHandler = rb_define_class_under(mNokogiri, "EncodingHandler", rb_cObject);
 
-  rb_define_singleton_method(klass, "[]", get, 1);
-  rb_define_singleton_method(klass, "delete", delete, 1);
-  rb_define_singleton_method(klass, "alias", alias, 2);
-  rb_define_singleton_method(klass, "clear_aliases!", clear_aliases, 0);
-  rb_define_method(klass, "name", name, 0);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "[]", get, 1);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "delete", delete, 1);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "alias", alias, 2);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "clear_aliases!", clear_aliases, 0);
+  rb_define_method(cNokogiriEncodingHandler, "name", name, 0);
 }
