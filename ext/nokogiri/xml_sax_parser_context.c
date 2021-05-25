@@ -265,6 +265,8 @@ noko_init_xml_sax_parser_context()
 {
   cNokogiriXmlSaxParserContext = rb_define_class_under(mNokogiriXmlSax, "ParserContext", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlSaxParserContext);
+
   rb_define_singleton_method(cNokogiriXmlSaxParserContext, "io", parse_io, 2);
   rb_define_singleton_method(cNokogiriXmlSaxParserContext, "memory", parse_memory, 1);
   rb_define_singleton_method(cNokogiriXmlSaxParserContext, "file", parse_file, 1);

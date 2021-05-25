@@ -116,6 +116,8 @@ noko_init_xml_element_content()
 {
   cNokogiriXmlElementContent = rb_define_class_under(mNokogiriXml, "ElementContent", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXmlElementContent);
+
   rb_define_method(cNokogiriXmlElementContent, "name", get_name, 0);
   rb_define_method(cNokogiriXmlElementContent, "type", get_type, 0);
   rb_define_method(cNokogiriXmlElementContent, "occur", get_occur, 0);

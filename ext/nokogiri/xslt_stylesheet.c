@@ -257,6 +257,8 @@ noko_init_xslt_stylesheet()
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
 
+  rb_undef_alloc_func(cNokogiriXsltStylesheet);
+
   rb_define_singleton_method(cNokogiriXsltStylesheet, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(cNokogiriXsltStylesheet, "serialize", serialize, 1);
   rb_define_method(cNokogiriXsltStylesheet, "transform", transform, -1);

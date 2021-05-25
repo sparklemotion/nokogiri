@@ -102,6 +102,7 @@ NOKOPUBVAR VALUE mNokogiriXmlSax ;
 NOKOPUBVAR VALUE mNokogiriXmlXpath ;
 NOKOPUBVAR VALUE mNokogiriXslt ;
 
+NOKOPUBVAR VALUE cNokogiriEncodingHandler;
 NOKOPUBVAR VALUE cNokogiriSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXmlAttr;
 NOKOPUBVAR VALUE cNokogiriXmlAttributeDecl;
