@@ -1292,17 +1292,25 @@ get_name(VALUE self)
  * Returns the path associated with this Node
  */
 static VALUE
-path(VALUE self)
+noko_xml_node_path(VALUE rb_node)
 {
-  xmlNodePtr node;
-  xmlChar *path ;
+  xmlNodePtr c_node;
+  xmlChar *c_path ;
   VALUE rval;
 
-  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(rb_node, xmlNode, c_node);
 
-  path = xmlGetNodePath(node);
-  rval = NOKOGIRI_STR_NEW2(path);
-  xmlFree(path);
+  c_path = xmlGetNodePath(c_node);
+  if (c_path == NULL) {
+    // see https://github.com/sparklemotion/nokogiri/issues/2250
+    // this behavior is clearly undesirable, but is what libxml <= 2.9.10 returned, and so we
+    // do this for now to preserve the behavior across libxml2 versions.
+    rval = NOKOGIRI_STR_NEW2("?");
+  } else {
+    rval = NOKOGIRI_STR_NEW2(c_path);
+    xmlFree(c_path);
+  }
+
   return rval ;
 }
 
@@ -1779,7 +1787,7 @@ noko_init_xml_node()
   rb_define_method(cNokogiriXmlNode, "next_element", next_element, 0);
   rb_define_method(cNokogiriXmlNode, "previous_element", previous_element, 0);
   rb_define_method(cNokogiriXmlNode, "node_type", node_type, 0);
-  rb_define_method(cNokogiriXmlNode, "path", path, 0);
+  rb_define_method(cNokogiriXmlNode, "path", noko_xml_node_path, 0);
   rb_define_method(cNokogiriXmlNode, "key?", key_eh, 1);
   rb_define_method(cNokogiriXmlNode, "namespaced_key?", namespaced_key_eh, 2);
   rb_define_method(cNokogiriXmlNode, "blank?", blank_eh, 0);

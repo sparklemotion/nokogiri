@@ -1167,6 +1167,18 @@ module Nokogiri
             assert_equal("expected Nokogiri::XML::Node but received Nokogiri::XML::NodeSet", e.message);
           end
         end
+
+        describe "#path" do
+          it "should return '/'" do
+            xml = <<~EOF
+              <root></root>
+            EOF
+
+            doc = Nokogiri::XML::Document.parse(xml)
+            assert_equal("/", doc.path)
+            assert_equal(doc, doc.at_xpath(doc.path)) # make sure we can round-trip
+          end
+        end
       end
     end
   end
