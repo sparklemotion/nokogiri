@@ -59,6 +59,7 @@
     - [#572](https://github.com/sparklemotion/nokogiri/issues/572)
   could we fix this by making DocumentFragment be a subclass of NodeSet?
 
+* potentially related, we should figure out a way that we can round-trip `DocumentFragment#path` through `#xpath` and get the `DocumentFragment back again - [#2250](https://github.com/sparklemotion/nokogiri/issues/2250)
 
 ## Better Syntax for custom XPath function handler
 
