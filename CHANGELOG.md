@@ -4,11 +4,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## 1.11.6 / unreleased
+## 1.11.6 / 2021-05-26
 
 ### Fixed
 
-* [CRuby] `DocumentFragment#xpath` checks for error case introduced in libxml > 2.9.10. In v1.11.4 and v1.11.5, calling `DocumentFragment#path` results in a segfault.
+* [CRuby] `DocumentFragment#path` now does proper error-checking to handle behavior introduced in libxml > 2.9.10. In v1.11.4 and v1.11.5, calling `DocumentFragment#path` could result in a segfault.
 
 
 ## 1.11.5 / 2021-05-19
