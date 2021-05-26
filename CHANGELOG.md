@@ -39,6 +39,13 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`. ("ruby" platform gem only.)
 
 
+## 1.11.6 / 2021-05-26
+
+### Fixed
+
+* [CRuby] `DocumentFragment#path` now does proper error-checking to handle behavior introduced in libxml > 2.9.10. In v1.11.4 and v1.11.5, calling `DocumentFragment#path` could result in a segfault.
+
+
 ## 1.11.5 / 2021-05-19
 
 ### Fixed
