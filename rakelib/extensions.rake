@@ -347,6 +347,7 @@ else
   end
 
   Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
+    ext.source_pattern = "*.{c,cc,cpp,h}"
     ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
