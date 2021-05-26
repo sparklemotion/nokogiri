@@ -363,6 +363,25 @@ module Nokogiri
             end
           end
         end
+
+        describe "#path" do
+          it "should return '?'" do
+            # see https://github.com/sparklemotion/nokogiri/issues/2250
+            # this behavior is clearly undesirable, but is what libxml <= 2.9.10 returned, and so we
+            # do this for now to preserve the behavior across libxml2 versions.
+            xml = <<~EOF
+              <root1></root1>
+              <root2></root2>
+            EOF
+
+            frag = Nokogiri::XML::DocumentFragment.parse(xml)
+            assert_equal "?", frag.path
+
+            # # TODO: we should circle back and fix both the `#path` behavior and the `#xpath`
+            # # behavior so we can round-trip and get the DocumentFragment back again.
+            # assert_equal(frag, frag.at_xpath(doc.path)) # make sure we can round-trip
+          end
+        end
       end
     end
   end
