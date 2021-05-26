@@ -518,7 +518,7 @@ module Nokogiri
 
         def test_xpath_syntax_error
           assert_raises(Nokogiri::XML::XPath::SyntaxError) do
-            xml.xpath('\\')
+            xml.xpath("\\")
           end
         end
 
@@ -704,7 +704,7 @@ module Nokogiri
 
           # an arbitrary assertion on the structure of the document
           assert_equal(20, doc.xpath("/xmlns:feed/xmlns:entry/xmlns:author",
-                                     "xmlns" => "http://www.w3.org/2005/Atom").length)
+            "xmlns" => "http://www.w3.org/2005/Atom").length)
           assert_equal(XML_ATOM_FILE, doc.url)
         end
 
@@ -742,7 +742,7 @@ module Nokogiri
 
         def test_bad_xpath_raises_syntax_error
           assert_raises(XML::XPath::SyntaxError) do
-            xml.xpath('\\')
+            xml.xpath("\\")
           end
         end
 
@@ -957,16 +957,16 @@ module Nokogiri
                 rb_doc = Nokogiri::XML::Document.wrap(java_doc)
                 assert_equal(0, rb_doc.root.children.length)
 
-                java_doc.getFirstChild().appendChild(java_doc.createElement("bar"))
+                java_doc.getFirstChild.appendChild(java_doc.createElement("bar"))
                 assert_equal(1, rb_doc.root.children.length)
               end
 
               it "shares the same data structure as shown when modified via Nokogiri" do
                 rb_doc = Nokogiri::XML::Document.wrap(java_doc)
-                assert_equal(0, java_doc.getFirstChild().getChildNodes().getLength())
+                assert_equal(0, java_doc.getFirstChild.getChildNodes.getLength)
 
                 rb_doc.root.add_child("<bar />")
-                assert_equal(1, java_doc.getFirstChild().getChildNodes().getLength())
+                assert_equal(1, java_doc.getFirstChild.getChildNodes.getLength)
               end
             else
               it "does not have the method" do
@@ -984,22 +984,22 @@ module Nokogiri
               it "returns the underlying java object" do
                 java_doc = rb_doc.to_java
                 assert_kind_of(org.w3c.dom.Document, java_doc)
-                assert_equal("foo", java_doc.getDocumentElement().getTagName())
+                assert_equal("foo", java_doc.getDocumentElement.getTagName)
               end
 
               it "shares the same data structure as shown when modified via Nokogiri" do
                 java_doc = rb_doc.to_java
-                assert_equal(1, java_doc.getFirstChild().getChildNodes().getLength())
+                assert_equal(1, java_doc.getFirstChild.getChildNodes.getLength)
 
                 rb_doc.root.add_child("<baz />")
-                assert_equal(2, java_doc.getFirstChild().getChildNodes().getLength())
+                assert_equal(2, java_doc.getFirstChild.getChildNodes.getLength)
               end
 
               it "shares the same data structure as shown when modified via Java interop" do
                 java_doc = rb_doc.to_java
                 assert_equal(1, rb_doc.root.children.length)
 
-                java_doc.getFirstChild().appendChild(java_doc.createElement("baz"))
+                java_doc.getFirstChild.appendChild(java_doc.createElement("baz"))
                 assert_equal(2, rb_doc.root.children.length)
               end
             else
@@ -1145,9 +1145,9 @@ module Nokogiri
           end
 
           it "doesn't leak the replaced node" do
-            skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
+            skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
             doc = Nokogiri::XML("<root>test</root>")
-            doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
+            doc2 = Nokogiri::XML("<root>#{"x" * 5000000}</root>")
             doc2.root = doc.root
           end
 
@@ -1164,7 +1164,7 @@ module Nokogiri
             e = assert_raises(ArgumentError) do
               doc.root = node_set
             end
-            assert_equal("expected Nokogiri::XML::Node but received Nokogiri::XML::NodeSet", e.message);
+            assert_equal("expected Nokogiri::XML::Node but received Nokogiri::XML::NodeSet", e.message)
           end
         end
       end

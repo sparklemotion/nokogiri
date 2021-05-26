@@ -11,26 +11,26 @@ module Nokogiri
           html = "foo"
           doc = Nokogiri::XML::DocumentFragment.parse(html)
           doc.children[0].replace("bar")
-          assert_equal('bar', doc.children[0].content)
+          assert_equal("bar", doc.children[0].content)
         end
 
         def test_fragment_is_relative
           doc      = Nokogiri::XML('<root><a xmlns="blah" /></root>')
           ctx      = doc.root.child
-          fragment = Nokogiri::XML::DocumentFragment.new(doc, '<hello />', ctx)
+          fragment = Nokogiri::XML::DocumentFragment.new(doc, "<hello />", ctx)
           hello    = fragment.child
 
-          assert_equal('hello', hello.name)
+          assert_equal("hello", hello.name)
           assert_equal(doc.root.child.namespace, hello.namespace)
         end
 
         def test_node_fragment_is_relative
           doc = Nokogiri::XML('<root><a xmlns="blah" /></root>')
           assert(doc.root.child)
-          fragment = doc.root.child.fragment('<hello />')
+          fragment = doc.root.child.fragment("<hello />")
           hello    = fragment.child
 
-          assert_equal('hello', hello.name)
+          assert_equal("hello", hello.name)
           assert_equal(doc.root.child.namespace, hello.namespace)
         end
 
@@ -45,7 +45,7 @@ module Nokogiri
 
         def test_name
           fragment = Nokogiri::XML::DocumentFragment.new(xml)
-          assert_equal('#document-fragment', fragment.name)
+          assert_equal("#document-fragment", fragment.name)
         end
 
         def test_static_method
@@ -112,12 +112,12 @@ module Nokogiri
           fragment = Nokogiri::XML::Document.new.fragment(
             '<div><p id="content">hi</p></div>'
           )
-          expected = fragment.children.xpath('.//p')
+          expected = fragment.children.xpath(".//p")
           assert_equal(1, expected.length)
 
-          css          = fragment.children.css('p')
-          search_css   = fragment.children.search('p')
-          search_xpath = fragment.children.search('.//p')
+          css          = fragment.children.css("p")
+          search_css   = fragment.children.search("p")
+          search_xpath = fragment.children.search(".//p")
           assert_equal(expected, css)
           assert_equal(expected, search_css)
           assert_equal(expected, search_xpath)
@@ -130,14 +130,14 @@ module Nokogiri
           fragment = Nokogiri::XML::DocumentFragment.parse(<<~EOXML)
             <p id="content">hi</p> x <!--y--> <p>another paragraph</p>
           EOXML
-          children = fragment.css('p')
+          children = fragment.css("p")
           assert_equal(2, children.length)
           # removing the last node instead does not yield the error. Probably the
           # node removal leaves around two consecutive text nodes which make the
           # css search crash?
           children.first.remove
-          assert_equal(1, fragment.xpath('.//p | self::p').length)
-          assert_equal(1, fragment.css('p').length)
+          assert_equal(1, fragment.xpath(".//p | self::p").length)
+          assert_equal(1, fragment.css("p").length)
         end
 
         def test_fragment_search_three_ways
@@ -146,13 +146,13 @@ module Nokogiri
           assert_equal(2, expected.length)
 
           [
-            [:css, '#content'],
-            [:search, '#content'],
-            [:search, './*[@id = \'content\']'],
+            [:css, "#content"],
+            [:search, "#content"],
+            [:search, "./*[@id = 'content']"],
           ].each do |method, query|
             result = frag.send(method, query)
             assert_equal(expected, result,
-                         "fragment search with :#{method} using '#{query}' expected '#{expected}' got '#{result}'")
+              "fragment search with :#{method} using '#{query}' expected '#{expected}' got '#{result}'")
           end
         end
 
@@ -169,9 +169,9 @@ module Nokogiri
           fragment = Nokogiri::XML.fragment(xml)
           assert_kind_of(Nokogiri::XML::DocumentFragment, fragment)
 
-          assert_equal(3, fragment.xpath('.//div', './/p').length)
-          assert_equal(3, fragment.css('.title', '.content', 'p').length)
-          assert_equal(3, fragment.search('.//div', 'p.blah').length)
+          assert_equal(3, fragment.xpath(".//div", ".//p").length)
+          assert_equal(3, fragment.css(".title", ".content", "p").length)
+          assert_equal(3, fragment.search(".//div", "p.blah").length)
         end
 
         def test_fragment_without_a_namespace_does_not_get_a_namespace
@@ -215,7 +215,7 @@ module Nokogiri
           util_decorate(xml, x)
           fragment = Nokogiri::XML::DocumentFragment.new(xml, "<div>a</div><div>b</div>")
 
-          assert(node_set = fragment.css('div'))
+          assert(node_set = fragment.css("div"))
           assert(node_set.respond_to?(:awesome!))
           node_set.each do |node|
             assert(node.respond_to?(:awesome!), node.class)
@@ -234,8 +234,8 @@ module Nokogiri
         end
 
         def test_add_node_to_doc_fragment_segfault
-          frag = Nokogiri::XML::DocumentFragment.new(xml, '<p>hello world</p>')
-          Nokogiri::XML::Comment.new(frag, 'moo')
+          frag = Nokogiri::XML::DocumentFragment.new(xml, "<p>hello world</p>")
+          Nokogiri::XML::Comment.new(frag, "moo")
         end
 
         def test_issue_1077_parsing_of_frozen_strings
