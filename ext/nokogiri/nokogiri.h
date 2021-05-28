@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
-#if _MSC_VER
+#ifdef _MSC_VER
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif /* WIN32_LEAN_AND_MEAN */
@@ -15,7 +15,7 @@
 #  include <windows.h>
 #endif
 
-#if _WIN32
+#ifdef _WIN32
 #  define NOKOPUBFUN __declspec(dllexport)
 #  define NOKOPUBVAR __declspec(dllexport) extern
 #else
