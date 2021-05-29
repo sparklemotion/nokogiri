@@ -91,6 +91,9 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
         --with-xml2-include=DIRECTORY
             Look for xml2 headers in DIRECTORY.
 
+        --with-xml2-source-dir=DIRECTORY
+            (dev only) Build libxml2 from the source code in DIRECTORY
+
 
       Related to libxslt:
 
@@ -102,6 +105,9 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
         --with-xslt-include=DIRECTORY
             Look for xslt headers in DIRECTORY.
+
+        --with-xslt-source-dir=DIRECTORY
+            (dev only) Build libxslt from the source code in DIRECTORY
 
 
       Related to libexslt:
@@ -411,7 +417,6 @@ def process_recipe(name, version, static_p, cross_p)
     # Prefer host_alias over host in order to use i586-mingw32msvc as
     # correct compiler prefix for cross build, but use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
-    recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", name, "*.patch")].sort
     recipe.configure_options << "--libdir=#{File.join(recipe.path, "lib")}"
 
     yield recipe
@@ -469,7 +474,7 @@ def process_recipe(name, version, static_p, cross_p)
     end
 
     checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
-    if File.exist?(checkpoint)
+    if File.exist?(checkpoint) && !recipe.source_directory
       message("Building Nokogiri with a packaged version of #{name}-#{version}.\n")
     else
       message(<<~EOM)
@@ -503,9 +508,7 @@ def process_recipe(name, version, static_p, cross_p)
 
       EOM
 
-      chdir_for_build do
-        recipe.cook
-      end
+      chdir_for_build { recipe.cook }
       FileUtils.touch(checkpoint)
     end
     recipe.activate
@@ -743,10 +746,16 @@ else
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
-    recipe.files = [{
-      url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
-      sha256: dependencies["libxml2"]["sha256"],
-    }]
+    source_dir = arg_config("--with-xml2-source-dir")
+    if source_dir
+      recipe.source_directory = source_dir
+    else
+      recipe.files = [{
+        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        sha256: dependencies["libxml2"]["sha256"],
+      }]
+      recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxml2", "*.patch")].sort
+    end
 
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
@@ -769,8 +778,13 @@ else
       cflags = concat_flags(cflags, "-ULIBXML_STATIC", "-DIN_LIBXML")
     end
 
+    recipe.configure_options << if source_dir
+      "--config-cache"
+    else
+      "--disable-dependency-tracking"
+    end
+
     recipe.configure_options += [
-      "--disable-dependency-tracking",
       "--without-python",
       "--without-readline",
       "--with-c14n",
@@ -781,10 +795,16 @@ else
   end
 
   libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]["version"], static_p, cross_build_p) do |recipe|
-    recipe.files = [{
-      url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
-      sha256: dependencies["libxslt"]["sha256"],
-    }]
+    source_dir = arg_config("--with-xslt-source-dir")
+    if source_dir
+      recipe.source_directory = source_dir
+    else
+      recipe.files = [{
+        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        sha256: dependencies["libxslt"]["sha256"],
+      }]
+      recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxslt", "*.patch")].sort
+    end
 
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
@@ -792,8 +812,13 @@ else
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
+    recipe.configure_options << if source_dir
+      "--config-cache"
+    else
+      "--disable-dependency-tracking"
+    end
+
     recipe.configure_options += [
-      "--disable-dependency-tracking",
       "--without-python",
       "--without-crypto",
       "--with-debug",
