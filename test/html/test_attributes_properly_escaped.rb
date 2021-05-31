@@ -5,7 +5,9 @@ module Nokogiri
     class TestAttributesProperlyEscaped < Nokogiri::TestCase
 
       def test_attribute_macros_are_escaped
-        skip if Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?
+        if Nokogiri.uses_libxml? && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0001-Remove-script-macro-support.patch")
+          skip("libxml2 has not been patched to be safe against attribute macros")
+        end
 
         html = "<p><i for=\"&{<test>}\"></i></p>"
         document = Nokogiri::HTML::Document.new
@@ -15,7 +17,9 @@ module Nokogiri
       end
 
       def test_libxml_escapes_server_side_includes
-        skip if Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?
+        if Nokogiri.uses_libxml? && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0002-Update-entities-to-remove-handling-of-ssi.patch")
+          skip("libxml2 has not been patched to be safe against SSI")
+        end
 
         original_html = %(<p><a href='<!--"><test>-->'></a></p>)
         document = Nokogiri::HTML::Document.new
@@ -25,7 +29,9 @@ module Nokogiri
       end
 
       def test_libxml_escapes_server_side_includes_without_nested_quotes
-        skip if Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?
+        if Nokogiri.uses_libxml? && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0002-Update-entities-to-remove-handling-of-ssi.patch")
+          skip("libxml2 has not been patched to be safe against SSI")
+        end
 
         original_html = %(<p><i for="<!--<test>-->"></i></p>)
         document = Nokogiri::HTML::Document.new
