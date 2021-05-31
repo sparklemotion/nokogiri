@@ -162,52 +162,6 @@ jobs:
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 
-  ruby-head:
-    needs: ["basic"]
-    strategy:
-      fail-fast: false
-      matrix:
-        sys: ["enable", "disable"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "head"
-          apt-get: "libxml2-dev libxslt1-dev pkg-config"
-          bundler-cache: true
-      - uses: actions/cache@v2
-        if: matrix.sys == 'disable'
-        with:
-          path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
-      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
-      - run: bundle exec rake test
-
-  ruby-head-valgrind:
-    needs: ["ruby-head"]
-    strategy:
-      fail-fast: false
-      matrix:
-        sys: ["enable", "disable"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "head"
-          apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
-          bundler-cache: true
-      - uses: actions/cache@v2
-        if: matrix.sys == 'disable'
-        with:
-          path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
-      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
-      - run: bundle exec rake test:valgrind
-
   osx:
     needs: ["basic"]
     strategy:
@@ -264,7 +218,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.2", "jruby-head"]
+        ruby: ["jruby-9.2"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
