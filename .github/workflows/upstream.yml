@@ -1,0 +1,40 @@
+name: upstream
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v*.*.x
+    tags:
+      - v*.*.*
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+  schedule:
+    - cron: "0 8 * * 1,3,5" # At 08:00 on Monday, Wednesday, and Friday # https://crontab.guru/#0_8_*_*_1,3,5
+
+jobs:
+  xmlsoft:
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-3.0
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup libxml2
+        run: |
+          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
+          cd libxml2
+          env NOCONFIGURE=t ./autogen.sh
+      - name: Setup libxslt
+        run: |
+          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
+          cd libxslt
+          env NOCONFIGURE=t ./autogen.sh
+      - name: "Run bundle install"
+        run: "bundle install --local || bundle install"
+      - name: "Compile against libxml2 and libxslt source directories"
+        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+      - name: "Run bundle exec rake test"
+        run: "env NOKOGIRI_TEST_GC_LEVEL=minor bundle exec rake test"
+      - run: "bundle exec rake test:valgrind"
