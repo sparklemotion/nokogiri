@@ -470,6 +470,27 @@ module Nokogiri
         end
       end
 
+      def test_huge_xpath_query
+        if Nokogiri.uses_libxml?("~>2.9.11") && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0007-Fix-XPath-recursion-limit.patch")
+          skip("libxml2 under test is broken with respect to xpath query recusion depth")
+        end
+
+        # real world example
+        # from https://github.com/sparklemotion/nokogiri/issues/2257
+        query = File.read(File.join(ASSETS_DIR, 'huge-xpath-query.txt'))
+
+        doc = Nokogiri::XML::Document.parse("<root></root>")
+        handler = Class.new do
+          def seconds(context)
+            42
+          end
+          def add(context, rhs)
+            42
+          end
+        end
+        doc.xpath(query, {"ct" => "https://test.nokogiri.org/ct", "date" => "https://test.nokogiri.org/date"}, handler.new)
+      end
+
       describe "nokogiri-builtin:css-class xpath function" do
         before do
           @doc = Nokogiri::HTML::Document.parse("<html></html>")
