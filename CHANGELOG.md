@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## 1.11.7 / unreleased
+## 1.11.7 / 2021-06-02
 
 * [CRuby] Backporting an upstream fix to XPath recursion depth limits which impacted some users of complex XPath queries. This issue is present in libxml 2.9.11 and 2.9.12. [[#2257](https://github.com/sparklemotion/nokogiri/issues/2257)]
 
