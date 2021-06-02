@@ -39,6 +39,11 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`. ("ruby" platform gem only.)
 
 
+## 1.11.7 / unreleased
+
+* [CRuby] Backporting an upstream fix to XPath recursion depth limits which impacted some users of complex XPath queries. This issue is present in libxml 2.9.11 and 2.9.12. [[#2257](https://github.com/sparklemotion/nokogiri/issues/2257)]
+
+
 ## 1.11.6 / 2021-05-26
 
 ### Fixed
