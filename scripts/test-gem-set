@@ -4,7 +4,7 @@
 #  - test-gem-file-contents
 #  - conditionally, if the local system can do it, test-gem-installation
 #
-source "$HOME/.rvm/scripts/rvm"
+eval "$(rbenv init - bash)"
 
 set -o errexit
 set -o pipefail
@@ -18,9 +18,8 @@ function remove_all_nokogiris {
 function install_and_test {
   gem=$1
   if [[ $gem =~ "java" ]] ; then
-    rvm use jruby
-  else
-    rvm use default
+    jruby_version=$(rbenv versions --bare | fgrep jruby | sort | tail -1)
+    rbenv shell ${jruby_version}
   fi
   remove_all_nokogiris
   gem install --local $gem
@@ -34,8 +33,6 @@ function install_and_test {
 }
 
 gems=$*
-
-rvm use default
 
 for gem in $gems ; do
   ./scripts/test-gem-file-contents $gem
