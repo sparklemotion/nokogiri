@@ -20,6 +20,8 @@ function install_and_test {
   if [[ $gem =~ "java" ]] ; then
     jruby_version=$(rbenv versions --bare | fgrep jruby | sort | tail -1)
     rbenv shell ${jruby_version}
+  else
+    rbenv shell --unset
   fi
   remove_all_nokogiris
   gem install --local $gem
@@ -33,6 +35,8 @@ function install_and_test {
 }
 
 gems=$*
+
+rbenv shell --unset
 
 for gem in $gems ; do
   ./scripts/test-gem-file-contents $gem
