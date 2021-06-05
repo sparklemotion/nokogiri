@@ -1,0 +1,206 @@
+name: gem-install
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v*.*.x
+    tags:
+      - v*.*.*
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+
+jobs:
+  cruby-package:
+    name: "cruby-package"
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: ./scripts/test-gem-build gems ruby
+      - uses: actions/upload-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+          retention-days: 1
+
+  cruby-linux-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+        ruby: ["2.5", "2.6", "2.7", "3.0", "head"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+          apt-get: "libxml2-dev libxslt1-dev pkg-config"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+
+  cruby-osx-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+
+  cruby-windows-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "3.0"
+          mingw: "libxml2 libxslt"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: |
+          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
+          gem list -d nokogiri
+          nokogiri -v
+
+
+  cruby-native-package:
+    name: "cruby-native-package"
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32"]
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          restore-keys: tarballs-
+      - run: "./scripts/test-gem-build gems ${{matrix.plat}}"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: "cruby-${{matrix.plat}}-gem"
+          path: gems
+          retention-days: 1
+
+  cruby-x86_64-linux-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x86_64-linux-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+
+  cruby-x86_64-darwin-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x86_64-darwin-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+
+  cruby-x64-mingw32-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+    runs-on: windows-latest
+    steps:
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x64-mingw32-gem
+          path: gems
+      - run: |
+          gem install --verbose --no-document gems/*.gem
+          gem list -d nokogiri
+          nokogiri -v
+
+
+  jruby-package:
+    name: "jruby-package"
+    runs-on: ubuntu-latest
+    container:
+      image: "larskanis/rake-compiler-dock-jruby:1.1.0"
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./scripts/test-gem-build gems java
+      - uses: actions/upload-artifact@v2
+        with:
+          name: jruby-gem
+          path: gems
+          retention-days: 1
+
+  jruby-install:
+    needs: ["jruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["jruby-9.2", "jruby-head"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v2
+        with:
+          name: jruby-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
