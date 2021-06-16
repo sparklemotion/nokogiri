@@ -209,6 +209,8 @@ The `gem-install.yml` pipeline includes jobs to:
     - install and test on musl
 - build a jruby gem, install and test it
 
+The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes and PRs. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
+
 
 ### Valgrind
 
