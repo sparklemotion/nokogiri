@@ -12,11 +12,11 @@ task :check_manifest do
     .github
     .vagrant
     .yardoc
-    concourse
     coverage
     doc
     gems
     nokogumbo-import
+    oci-images
     patches
     pkg
     ports

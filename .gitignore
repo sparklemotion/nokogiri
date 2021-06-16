@@ -16,10 +16,8 @@
 /ports/
 /tmp/
 
-# CI
-/concourse/docker-compose.yml
-/concourse/private.yml
-/concourse/images/*.generated
+# containers for testing
+/oci-images/nokogiri-test/*.generated
 
 # code coverage
 /coverage/

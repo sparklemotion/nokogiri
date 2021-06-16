@@ -319,7 +319,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency("mini_portile2", "~> 2.6.1") unless java_p # keep version in sync with extconf.rb
 
   spec.add_development_dependency("bundler", "~> 2.2")
-  spec.add_development_dependency("concourse", "~> 0.41")
   spec.add_development_dependency("hoe-markdown", "~> 1.4")
   spec.add_development_dependency("minitest", "~> 5.8")
   spec.add_development_dependency("minitest-reporters", "~> 1.4")

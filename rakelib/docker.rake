@@ -2,7 +2,14 @@
 # docker docker docker
 #
 namespace "docker" do
-  IMAGE_DIR = "concourse/images"
+  IMAGE_DIR = "oci-images/nokogiri-test"
+  RUBIES = {
+    :mri=>["2.5", "2.6", "2.7", "3.0"],
+    :jruby=>["9.2"],
+    :rbx=>["latest"],
+    :windows=>["2.3", "2.4", "2.5", "2.6"],
+    :truffle=>["stable", "nightly"],
+  }
 
   def docker_tag_for(engine, version = nil)
     [engine, version].compact.join("-")
@@ -19,9 +26,9 @@ namespace "docker" do
   def docker_files_each
     Dir[File.join(IMAGE_DIR, "Dockerfile.*.erb")].each do |template_path|
       tag_or_engine = File.basename(template_path).gsub(/Dockerfile\.(.*)\.erb/, '\1').to_sym
-      if Concourse::RUBIES.keys.include?(tag_or_engine)
+      if RUBIES.keys.include?(tag_or_engine)
         # engine
-        Concourse::RUBIES[tag_or_engine].each do |version|
+        RUBIES[tag_or_engine].each do |version|
           dockerfile_path = docker_file_for(tag_or_engine, version)
           yield File.read(template_path), dockerfile_path, version, docker_image_for(tag_or_engine, version)
         end
@@ -35,6 +42,7 @@ namespace "docker" do
 
   desc "Generate Dockerfiles"
   task "generate" do
+    require "erb"
     docker_files_each do |template, dockerfile_path, version, _|
       puts "writing #{dockerfile_path} ..."
       File.open(dockerfile_path, "w") do |dockerfile|
@@ -76,3 +84,5 @@ end
 
 desc "Build and push a docker image for testing"
 task "docker" => ["docker:generate", "docker:pull", "docker:build", "docker:push"]
+
+CLEAN.add("oci-images/nokogiri-test/*.generated")
