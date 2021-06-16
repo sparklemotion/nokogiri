@@ -33,12 +33,22 @@ test_script:
 
 environment:
   matrix:
-    - ruby_version: 30
-    - ruby_version: 30
+    - ruby_version: head-x64
+    - ruby_version: head-x64
+      INSTALL_PACKAGES: "mingw-w64-ucrt-x86_64-libxslt"
+      EXTCONF_PARAMS: "--use-system-libraries"
+
+    - ruby_version: head-x86
+    - ruby_version: head-x86
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
 
-    - ruby_version: 27
-    - ruby_version: 27
+    - ruby_version: 25
+    - ruby_version: 25
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
+
+matrix:
+  allow_failures:
+    - ruby_version: head-x64
+    - ruby_version: head-x86
