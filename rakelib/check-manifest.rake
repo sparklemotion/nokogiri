@@ -44,9 +44,11 @@ task :check_manifest do
     STANDARD_RESPONSES.md
     Vagrantfile
     [a-z]*.{log,out}
+    [0-9]*
     appveyor.yml
     gumbo-parser/test/*
     lib/nokogiri/**/nokogiri.{jar,so}
+    lib/nokogiri/nokogiri.{jar,so}
     nokogiri.gemspec
   ]
 
