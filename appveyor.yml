@@ -34,8 +34,9 @@ test_script:
 environment:
   matrix:
     - ruby_version: head-x64
+      INSTALL_PACKAGES: "mingw-w64-ucrt-x86_64-gcc"
     - ruby_version: head-x64
-      INSTALL_PACKAGES: "mingw-w64-ucrt-x86_64-libxslt"
+      INSTALL_PACKAGES: "mingw-w64-ucrt-x86_64-libxslt mingw-w64-ucrt-x86_64-gcc"
       EXTCONF_PARAMS: "--use-system-libraries"
 
     - ruby_version: head-x86
