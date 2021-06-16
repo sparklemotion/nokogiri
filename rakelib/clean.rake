@@ -1,6 +1,5 @@
 require "rake/clean"
 CLEAN.add(
-  "concourse/images/*.generated",
   "coverage",
   "ext/nokogiri/include",
   "lib/nokogiri/[0-9].[0-9]",

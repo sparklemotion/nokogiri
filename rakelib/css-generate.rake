@@ -22,5 +22,3 @@ end
 
 task "compile" => "css:generate"
 task "check_manifest" => "css:generate"
-
-task "generate" => "css:generate" # backwards compatibility, see concourse/tasks/rake-test/run.sh
