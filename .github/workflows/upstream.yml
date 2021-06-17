@@ -77,12 +77,13 @@ jobs:
           git config --system core.autocrlf false
           git config --system core.eol lf
       - uses: actions/checkout@v2
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: MSP-Greg/setup-ruby-pkgs@ucrt
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-          mingw: "libxml2 libxslt"
+          mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/00-win-ucrt
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
