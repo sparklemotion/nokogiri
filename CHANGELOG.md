@@ -36,7 +36,7 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 
 ### Dependencies
 
-* [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.5.1`. ("ruby" platform gem only.)
+* [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.6.1`. ("ruby" platform gem only.)
 
 
 ## 1.11.7 / 2021-06-02
