@@ -16,6 +16,10 @@ Please also note that the `Nokogiri::HTML` parse methods still use libxml2's HTM
 
 Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and maintaining Nokogumbo and supporting the Gumbo HTML5 parser. They're now Nokogiri core contributors with all the powers and privileges pertaining thereto. 🙌
 
+#### Other
+
+* [CRuby] `Nokogiri::VERSION_INFO["libxslt"]["datetime_enabled"]` is a new boolean value which describes whether libxslt (or, more properly, libexslt) has compiled-in datetime support. This generally going to be `true`, but some distros ship without this support (e.g., some mingw UCRT-based packages, see https://github.com/msys2/MINGW-packages/pull/8957). See [#2272](https://github.com/sparklemotion/nokogiri/issues/2272) for more details.
+
 
 ### Changed
 

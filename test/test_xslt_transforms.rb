@@ -218,10 +218,12 @@ class Nokogiri::TestCase
 
       assert_equal("func-result", result_doc.at("/root/function").content)
       assert_equal(3, result_doc.at("/root/max").content.to_i)
-      assert_match(
-        /\d{4}-\d\d-\d\d([-|+]\d\d:\d\d)?/,
-        result_doc.at("/root/date").content
-      )
+      if Nokogiri::VersionInfo.instance.libxslt_has_datetime?
+        assert_match(
+          /\d{4}-\d\d-\d\d([-|+]\d\d:\d\d)?/,
+          result_doc.at("/root/date").content
+        )
+      end
       result_doc.xpath("/root/params/*").each do |p|
         assert_equal(p.content, params[p.name.intern])
       end

@@ -218,6 +218,13 @@ Init_nokogiri()
 #endif
 
   xmlInitParser();
+  exsltRegisterAll();
+
+  if (xsltExtModuleFunctionLookup((xmlChar*)"date-time", EXSLT_DATE_NAMESPACE)) {
+    rb_const_set(mNokogiri, rb_intern("LIBXSLT_DATETIME_ENABLED"), Qtrue);
+  } else {
+    rb_const_set(mNokogiri, rb_intern("LIBXSLT_DATETIME_ENABLED"), Qfalse);
+  }
 
   cNokogiriSyntaxError = rb_define_class_under(mNokogiri, "SyntaxError", rb_eStandardError);
   noko_init_xml_syntax_error();
