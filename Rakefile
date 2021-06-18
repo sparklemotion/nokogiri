@@ -6,4 +6,4 @@
 require "bundler"
 NOKOGIRI_SPEC = Bundler.load_gemspec("nokogiri.gemspec")
 
-task default: [:rubocop, :compile, :test]
+task default: [:rubocop, :gumbo, :compile, :test]
