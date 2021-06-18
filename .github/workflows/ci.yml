@@ -57,7 +57,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -79,7 +79,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -135,7 +135,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -159,7 +159,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -183,7 +183,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-macos-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -211,7 +211,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-windows-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
