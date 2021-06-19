@@ -1,2 +1,3 @@
 build
+googletest
 src/*.o

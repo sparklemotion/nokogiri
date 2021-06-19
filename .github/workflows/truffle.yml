@@ -22,6 +22,8 @@ jobs:
       image: flavorjones/nokogiri-test:truffle-nightly
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: actions/cache@v2
         with:
           path: ports/archives

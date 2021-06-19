@@ -153,6 +153,21 @@ If you want to build Nokogiri against a modified version of libxml2, clone libxm
 That script also takes an optional command to run with the proper environment variables set to use the local libxml2 library, which can be useful when trying to `git bisect` against libxml2.
 
 
+### gumbo HTML5 parser
+
+To run the test suite for the gumbo parser:
+
+``` sh
+bundle exec rake gumbo
+```
+
+To make sure to run additional html5lib tests for Nokogiri's HTML5 parser:
+
+``` sh
+git submodule update --init # test/html5lib-tests
+bundle exec rake compile test
+```
+
 
 ## Style Guide
 
@@ -182,6 +197,7 @@ The `ci.yml` pipeline includes jobs to:
 
 - basic security sanity check: run rubocop
 - fast feedback for obvious failures: run against system libraries on vanilla ubuntu
+- run the gumbo parser tests on ubuntu, macos, and windows
 - run on all supported versions of CRuby:
     - once with packaged libraries
     - once with system libraries
@@ -215,6 +231,13 @@ The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different comp
 ### Valgrind
 
 We rely heavily on Valgrind to catch memory bugs by running in combination with every version of CRuby. We use suppressions, too -- because some Rubies seem to have memory issues? See the files in the `/suppressions` directory and `/rakelib/test.rake` for more information.
+
+
+### Conventions
+
+- Always checkout the source code including submodules (for the html5lib tests)
+- When testing packaged libraries (not system libraries), cache either `ports/` (for compiled libraries) or `ports/archives/` (for just tarballs)
+  - note that `libgumbo` is built outside of `ports/` to allow us to do this caching safely
 
 
 ## Building gems

@@ -33,6 +33,7 @@ task :check_manifest do
     .cross_rubies
     .editorconfig
     .gitignore
+    .gitmodules
     .yardopts
     CHANGELOG.md
     CODE_OF_CONDUCT.md

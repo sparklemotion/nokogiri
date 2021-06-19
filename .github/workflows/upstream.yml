@@ -24,6 +24,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-3.0
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Setup libxml2
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
@@ -47,6 +49,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-3.0
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Setup libxml2
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
@@ -77,6 +81,8 @@ jobs:
           git config --system core.autocrlf false
           git config --system core.eol lf
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@ucrt
         with:
           ruby-version: "head"
@@ -101,6 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "head"
@@ -118,6 +126,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "jruby-head"

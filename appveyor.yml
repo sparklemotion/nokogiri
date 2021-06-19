@@ -22,6 +22,7 @@ install:
   - ruby --version
   - gem --version
   - gem install bundler --conservative
+  - git submodule update --init
   - bundle config --local path vendor/bundle
   - bundle install
   - IF DEFINED INSTALL_PACKAGES ( ridk exec pacman --noconfirm --needed --sync %INSTALL_PACKAGES% )

@@ -22,8 +22,35 @@ jobs:
       image: flavorjones/nokogiri-test:mri-3.0
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - run: bundle install --local || bundle install
       - run: bundle exec rake rubocop
+
+  gumbo:
+    needs: ["rubocop"]
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ["ubuntu", "windows", "macos"]
+    runs-on: ${{matrix.plat}}-latest
+    steps:
+      - name: configure git crlf
+        if: matrix.plat == 'windows'
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "3.0"
+          apt-get: "ragel"
+          brew: "ragel"
+          mingw: "ragel"
+          bundler-cache: true
+      - run: bundle exec rake gumbo:test
 
   basic:
     needs: ["rubocop"]
@@ -37,6 +64,8 @@ jobs:
       image: flavorjones/nokogiri-test:${{matrix.image}}
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+        with:
+          submodules: true
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -53,6 +82,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -74,6 +105,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -94,6 +127,8 @@ jobs:
       image: flavorjones/nokogiri-test:alpine
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+        with:
+          submodules: true
       # skip cache because of https://github.com/actions/checkout/issues/334
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -110,6 +145,8 @@ jobs:
       image: flavorjones/nokogiri-test:alpine
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+        with:
+          submodules: true
       # skip cache because of https://github.com/actions/checkout/issues/334
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
@@ -129,6 +166,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -152,6 +191,8 @@ jobs:
       image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -171,6 +212,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
@@ -197,6 +240,8 @@ jobs:
           git config --system core.autocrlf false
           git config --system core.eol lf
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
@@ -219,6 +264,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{matrix.ruby}}
