@@ -59,6 +59,7 @@ module TestVersionInfoTests
     assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxml"]["loaded"])
 
     assert(version_info["libxml"].key?("iconv_enabled"))
+    assert(version_info["libxslt"].key?("datetime_enabled"))
   end
 
   def test_version_info_for_libxslt

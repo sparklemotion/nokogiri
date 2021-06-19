@@ -64,7 +64,6 @@ parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
   VALUE errstr, exception;
   xsltStylesheetPtr ss ;
   Data_Get_Struct(xmldocobj, xmlDoc, xml);
-  exsltRegisterAll();
 
   errstr = rb_str_new(0, 0);
   xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);

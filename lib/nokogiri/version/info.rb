@@ -52,6 +52,10 @@ module Nokogiri
       defined?(Nokogiri::LIBXML_ICONV_ENABLED) && Nokogiri::LIBXML_ICONV_ENABLED
     end
 
+    def libxslt_has_datetime?
+      defined?(Nokogiri::LIBXSLT_DATETIME_ENABLED) && Nokogiri::LIBXSLT_DATETIME_ENABLED
+    end
+
     def libxml2_using_packaged?
       libxml2? && Nokogiri::PACKAGED_LIBRARIES
     end
@@ -151,6 +155,7 @@ module Nokogiri
             else
               libxslt["source"] = "system"
             end
+            libxslt["datetime_enabled"] = libxslt_has_datetime?
             libxslt["compiled"] = compiled_libxslt_version.to_s
             libxslt["loaded"] = loaded_libxslt_version.to_s
           end

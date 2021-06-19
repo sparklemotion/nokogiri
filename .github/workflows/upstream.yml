@@ -77,18 +77,18 @@ jobs:
           git config --system core.autocrlf false
           git config --system core.eol lf
       - uses: actions/checkout@v2
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: MSP-Greg/setup-ruby-pkgs@ucrt
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-          mingw: "libxml2 libxslt"
+          mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/00-win-ucrt
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
           path: ports/archives
           key: tarballs-${{matrix.plat}}-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
@@ -111,7 +111,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 

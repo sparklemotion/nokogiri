@@ -58,7 +58,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -80,7 +79,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
@@ -136,7 +134,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -160,7 +157,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
@@ -184,7 +180,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-macos-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
@@ -212,7 +207,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-windows-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 

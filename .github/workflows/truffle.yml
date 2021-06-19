@@ -26,7 +26,6 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
-          restore-keys: tarballs-
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- ${{matrix.flags}}
       - run: bundle exec rake test
