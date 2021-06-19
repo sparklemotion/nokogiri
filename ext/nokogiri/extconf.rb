@@ -402,7 +402,7 @@ def iconv_configure_flags
   abort_could_not_find_library("libiconv")
 end
 
-def process_recipe(name, version, static_p, cross_p)
+def process_recipe(name, version, static_p, cross_p, cacheable_p=true)
   require "rubygems"
   gem("mini_portile2", REQUIRED_MINI_PORTILE_VERSION)
   require "mini_portile2"
@@ -413,7 +413,7 @@ def process_recipe(name, version, static_p, cross_p)
   end
 
   MiniPortile.new(name, version).tap do |recipe|
-    recipe.target = File.join(PACKAGE_ROOT_DIR, "ports")
+    recipe.target = File.join(PACKAGE_ROOT_DIR, "ports") if cacheable_p
     # Prefer host_alias over host in order to use i586-mingw32msvc as
     # correct compiler prefix for cross build, but use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
@@ -893,7 +893,7 @@ else
   ensure_func("exsltFuncRegister", "libexslt/exslt.h")
 end
 
-libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p) do |recipe|
+libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
   recipe.configure_options = []
 
   class << recipe
