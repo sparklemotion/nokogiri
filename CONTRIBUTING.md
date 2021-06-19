@@ -135,10 +135,14 @@ NOKOGIRI_TEST_GC_LEVEL=normal bundle exec rake compile test
 # minor GC after each test
 NOKOGIRI_TEST_GC_LEVEL=minor bundle exec rake compile test
 
-# major GC and a compaction after each test
+# major GC after each test
+NOKOGIRI_TEST_GC_LEVEL=major bundle exec rake compile test
+
+# major GC after each test and GC compaction after every 20 tests
 NOKOGIRI_TEST_GC_LEVEL=compact bundle exec rake compile test
 
-# verify references after compaction after every test
+# verify references after compaction after every 20 tests
+# (see https://alanwu.space/post/check-compaction/)
 NOKOGIRI_TEST_GC_LEVEL=verify bundle exec rake compile test
 
 # run with GC "stress mode" on

@@ -6,8 +6,8 @@
 #   - "normal" - normal GC functionality
 #   - "minor" - force a minor GC cycle after each test
 #   - "major" (default for Rubies without compaction) - force a major GC cycle after each test
-#   - "compact" (default for Rubies with compaction) - force a major GC and a compaction after each test
-#   - "verify" - force a major GC, a compaction, and verify references after each test
+#   - "compact" (default for Rubies with compaction) - force a major GC after each test and GC compaction after every 20 tests
+#   - "verify" - force a major GC after each test and verify references-after-compaction after every 20 tests
 #   - "stress" - run tests with GC.stress set to true
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
