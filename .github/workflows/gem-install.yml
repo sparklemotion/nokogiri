@@ -26,7 +26,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: ./scripts/test-gem-build gems ruby
       - uses: actions/upload-artifact@v2
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ports/archives
-          key: tarballs-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
           restore-keys: tarballs-
       - run: "./scripts/test-gem-build gems ${{matrix.plat}}"
       - uses: actions/upload-artifact@v2
