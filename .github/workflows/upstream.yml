@@ -87,8 +87,8 @@ jobs:
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
-          path: ports/archives
-          key: tarballs-${{matrix.plat}}-${{hashFiles('**/dependencies.yml')}}
+          path: ports
+          key: ports-${{matrix.plat}}-${{hashFiles('**/dependencies.yml')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
@@ -109,8 +109,8 @@ jobs:
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
-          path: ports/archives
-          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
+          path: ports
+          key: ports-ubuntu-${{hashFiles('**/dependencies.yml')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 
