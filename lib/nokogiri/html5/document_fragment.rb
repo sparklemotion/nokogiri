@@ -19,6 +19,8 @@ require 'nokogiri/html/document_fragment'
 
 module Nokogiri
   module HTML5
+    # @since v1.12.0
+    # @note HTML5 functionality is not available when running JRuby.
     class DocumentFragment < Nokogiri::HTML::DocumentFragment
       attr_accessor :document
       attr_accessor :errors

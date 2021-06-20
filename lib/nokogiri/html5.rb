@@ -20,11 +20,15 @@ require_relative 'html5/document_fragment'
 require_relative 'html5/node'
 
 module Nokogiri
+  # @since v1.12.0
+  # @note HTML5 functionality is not available when running JRuby.
   # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
   def self.HTML5(string_or_io, url = nil, encoding = nil, **options, &block)
     Nokogiri::HTML5::Document.parse(string_or_io, url, encoding, **options, &block)
   end
 
+  # @since v1.12.0
+  # @note HTML5 functionality is not available when running JRuby.
   module HTML5
     # HTML uses the XHTML namespace.
     HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml'.freeze

@@ -19,6 +19,8 @@ require 'nokogiri/xml/node'
 
 module Nokogiri
   module HTML5
+    # @since v1.12.0
+    # @note HTML5 functionality is not available when running JRuby.
     module Node
       # HTML elements can have attributes that contain colons.
       # Nokogiri::XML::Node#[]= treats names with colons as a prefixed QName
