@@ -1,5 +1,8 @@
 --embed-mixins
 --main=README.md
+--exclude=lib/nokogiri/css/tokenizer.rb
+--exclude=lib/nokogiri/css/parser.rb
+--exclude=ext/nokogiri/test_global_handlers.c
 lib/**/*.rb
 ext/nokogiri/*.c
 -
