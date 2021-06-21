@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-require 'nokogiri/xml/node'
+require_relative "../xml/node"
 
 module Nokogiri
   module HTML5
@@ -40,20 +40,20 @@ module Nokogiri
           save_options = options[:save_with] || options[1] || XML::Node::SaveOptions::FORMAT
           indent_times = options[:indent] || 2
         end
-        indent_string = (options[:indent_text] || ' ') * indent_times
+        indent_string = (options[:indent_text] || " ") * indent_times
 
         config = XML::Node::SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
         config_options = config.options
-        if (config_options & (XML::Node::SaveOptions::AS_XML | XML::Node::SaveOptions::AS_XHTML) != 0)
+        if config_options & (XML::Node::SaveOptions::AS_XML | XML::Node::SaveOptions::AS_XHTML) != 0
           # Use Nokogiri's serializing code.
           native_write_to(io, encoding, indent_string, config_options)
         else
           # Serialize including the current node.
           encoding ||= document.encoding || Encoding::UTF_8
           internal_ops = {
-            preserve_newline: options[:preserve_newline] || false
+            preserve_newline: options[:preserve_newline] || false,
           }
           HTML5.serialize_node_internal(self, io, encoding, internal_ops)
         end
@@ -78,13 +78,12 @@ module Nokogiri
         # this method wouldn't handle.
         # https://github.com/sparklemotion/nokogiri/issues/1790
         add_child_node(node)
-        #node.attribute_nodes.find_all { |a| a.namespace }.each do |attr|
+        # node.attribute_nodes.find_all { |a| a.namespace }.each do |attr|
         #  attr.remove
         #  ns = attr.namespace
         #  a["#{ns.prefix}:#{attr.name}"] = attr.value
-        #end
+        # end
       end
-
     end
     # Monkey patch
     XML::Node.prepend(HTML5::Node)

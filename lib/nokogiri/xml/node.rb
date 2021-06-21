@@ -1,7 +1,6 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 require "stringio"
-require "nokogiri/xml/node/save_options"
 
 module Nokogiri
   module XML
@@ -1235,3 +1234,5 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
     end
   end
 end
+
+require_relative "node/save_options"

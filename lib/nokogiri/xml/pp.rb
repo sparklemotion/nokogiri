@@ -1,3 +1,3 @@
 # frozen_string_literal: true
-require 'nokogiri/xml/pp/node'
-require 'nokogiri/xml/pp/character_data'
+require_relative "pp/node"
+require_relative "pp/character_data"

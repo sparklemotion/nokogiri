@@ -8,7 +8,7 @@
 require 'racc/parser.rb'
 
 
-require 'nokogiri/css/parser_extras'
+require_relative "parser_extras"
 
 module Nokogiri
   module CSS

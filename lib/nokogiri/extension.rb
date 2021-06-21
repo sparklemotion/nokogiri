@@ -3,7 +3,7 @@
 # load the C or Java extension
 begin
   ::RUBY_VERSION =~ /(\d+\.\d+)/
-  require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
+  require_relative "#{Regexp.last_match(1)}/nokogiri"
 rescue LoadError => e
   if e.message =~ /GLIBC/
     warn(<<~EOM)
@@ -22,5 +22,5 @@ rescue LoadError => e
     EOM
     raise e
   end
-  require 'nokogiri/nokogiri'
+  require_relative "nokogiri"
 end
