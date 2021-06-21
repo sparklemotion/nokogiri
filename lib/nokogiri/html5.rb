@@ -250,6 +250,14 @@ module Nokogiri
     #  * :follow_limit => number of redirects which are followed
     #  * :basic_auth => [username, password]
     def self.get(uri, options={})
+      warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
+           uplevel: 1, category: :deprecated)
+      get_impl(uri, options)
+    end
+
+    private
+
+    def self.get_impl(uri, options={})
       headers = options.clone
       headers = {:follow_limit => headers} if Numeric === headers # deprecated
       limit=headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
@@ -292,13 +300,11 @@ module Nokogiri
       when Net::HTTPRedirection
         response.value if limit <= 1
         location = URI.join(uri, response['location'])
-        get(location, options.merge(:follow_limit => limit-1))
+        get_impl(location, options.merge(:follow_limit => limit-1))
       else
         response.value
       end
     end
-
-    private
 
     def self.read_and_encode(string, encoding)
       # Read the string with the given encoding.

@@ -46,6 +46,11 @@ Future releases of Nokogiri may deprecate `HTML` methods or otherwise change thi
 * [CRuby] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option. ("ruby" platform gem only.)
 
 
+### Deprecated
+
+* Deprecating Nokogumbo's `Nokogiri::HTML5.get`. This method will be removed in a future version of Nokogiri.
+
+
 ### Dependencies
 
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.5.0` to `~> 2.6.1`. ("ruby" platform gem only.)
