@@ -342,7 +342,9 @@ parse_cleanup(VALUE parse_args)
 
 static VALUE parse_continue(VALUE parse_args);
 
-// Parse a string using gumbo_parse into a Nokogiri document
+/*
+ *  @!visibility protected
+ */
 static VALUE
 parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth)
 {
@@ -431,6 +433,9 @@ extract_xml_node(VALUE node)
 
 static VALUE fragment_continue(VALUE parse_args);
 
+/*
+ *  @!visibility protected
+ */
 static VALUE
 fragment(
   VALUE self,
@@ -591,7 +596,7 @@ void
 noko_init_gumbo()
 {
   // Class constants.
-  cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtmlDocument);
+  cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtml4Document);
   rb_gc_register_mark_object(cNokogiriHtml5Document);
 
   // Interned symbols.

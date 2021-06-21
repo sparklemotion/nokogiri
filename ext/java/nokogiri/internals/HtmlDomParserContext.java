@@ -4,7 +4,7 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
-import nokogiri.HtmlDocument;
+import nokogiri.Html4Document;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Parser for HtmlDocument. This class actually parses HtmlDocument using NekoHtml.
+ * Parser for Html4Document. This class actually parses Html4Document using NekoHtml.
  *
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
@@ -115,12 +115,12 @@ public class HtmlDomParserContext extends XmlDomParserContext
   protected XmlDocument
   wrapDocument(ThreadContext context, RubyClass klass, Document document)
   {
-    HtmlDocument htmlDocument = new HtmlDocument(context.runtime, klass, document);
+    Html4Document htmlDocument = new Html4Document(context.runtime, klass, document);
     htmlDocument.setDocumentNode(context.runtime, document);
     Helpers.invoke(context, htmlDocument, "initialize");
 
     if (ruby_encoding.isNil()) {
-      // ruby_encoding might have detected by HtmlDocument::EncodingReader
+      // ruby_encoding might have detected by Html4Document::EncodingReader
       if (detected_encoding != null && !detected_encoding.isNil()) {
         ruby_encoding = detected_encoding;
       } else {

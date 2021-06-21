@@ -6,17 +6,25 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-### Added
+### Notable Addition: HTML5 Support (CRuby only)
 
 __HTML5 support__ has been added (to CRuby only) by merging [Nokogumbo](https://github.com/rubys/nokogumbo) into Nokogiri. The Nokogumbo public API has been preserved, so this functionality is available under the `Nokogiri::HTML5` namespace. [[#2204](https://github.com/sparklemotion/nokogiri/issues/2204)]
 
 Please note that HTML5 support is not available for JRuby in this version. However, we feel it is important to think about JRuby and we hope to work on this in the future. If you're interested in helping with HTML5 support on JRuby, please reach out to the maintainers by commenting on issue [#2227](https://github.com/sparklemotion/nokogiri/issues/2227).
 
-Please also note that the `Nokogiri::HTML` parse methods still use libxml2's HTML4 parser in the v1.12 release series. Future releases of Nokogiri may change this behavior, but we'll proceed cautiously to avoid breaking existing applications.
-
 Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and maintaining Nokogumbo and supporting the Gumbo HTML5 parser. They're now Nokogiri core contributors with all the powers and privileges pertaining thereto. 🙌
 
-#### Other
+
+### Notable Change: `Nokogiri::HTML4` module and namespace
+
+`Nokogiri::HTML` has been renamed to `Nokogiri::HTML4`, and `Nokogiri::HTML` is aliased to preserve backwards-compatibility. `Nokogiri::HTML` and `Nokogiri::HTML4` parse methods still use libxml2's (or NekoHTML's) HTML4 parser in the v1.12 release series. 
+
+Take special note that if you rely on the class name of an object in your code, objects will now report a class of `Nokogiri::HTML4::Foo` where they previously reported `Nokogiri::HTML::Foo`. Instead of relying on the string returned by `Object#class`, prefer `Class#===` or `Object#is_a?` or `Object#instance_of?`.
+
+Future releases of Nokogiri may deprecate `HTML` methods or otherwise change this behavior, so please start using `HTML4` in place of `HTML`.
+
+
+### Added
 
 * [CRuby] `Nokogiri::VERSION_INFO["libxslt"]["datetime_enabled"]` is a new boolean value which describes whether libxslt (or, more properly, libexslt) has compiled-in datetime support. This generally going to be `true`, but some distros ship without this support (e.g., some mingw UCRT-based packages, see https://github.com/msys2/MINGW-packages/pull/8957). See [#2272](https://github.com/sparklemotion/nokogiri/issues/2272) for more details.
 
@@ -36,6 +44,11 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 ### Improved
 
 * [CRuby] Speed up (slightly) the compile time of packaged libraries `libiconv`, `libxml2`, and `libxslt` by using autoconf's `--disable-dependency-tracking` option. ("ruby" platform gem only.)
+
+
+### Deprecated
+
+* Deprecating Nokogumbo's `Nokogiri::HTML5.get`. This method will be removed in a future version of Nokogiri.
 
 
 ### Dependencies

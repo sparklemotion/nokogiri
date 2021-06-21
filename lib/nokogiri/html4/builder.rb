@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Nokogiri
-  module HTML
+  module HTML4
     ###
     # Nokogiri HTML builder is used for building HTML documents.  It is very
     # similar to the Nokogiri::XML::Builder.  In fact, you should go read the
@@ -12,7 +12,7 @@ module Nokogiri
     # Create an HTML document with a body that has an onload attribute, and a
     # span tag with a class of "bold" that has content of "Hello world".
     #
-    #   builder = Nokogiri::HTML::Builder.new do |doc|
+    #   builder = Nokogiri::HTML4::Builder.new do |doc|
     #     doc.html {
     #       doc.body(:onload => 'some_func();') {
     #         doc.span.bold {

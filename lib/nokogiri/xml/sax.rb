@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'nokogiri/xml/sax/document'
-require 'nokogiri/xml/sax/parser_context'
-require 'nokogiri/xml/sax/parser'
-require 'nokogiri/xml/sax/push_parser'
+require_relative "sax/document"
+require_relative "sax/parser_context"
+require_relative "sax/parser"
+require_relative "sax/push_parser"

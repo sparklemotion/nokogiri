@@ -645,7 +645,7 @@ public class XmlNode extends RubyObject
 
     final XmlDocument doc = document(context.runtime);
     for (int i = 0; i < nodeMap.getLength(); i++) {
-      if ((doc instanceof HtmlDocument) || !NokogiriHelpers.isNamespace(nodeMap.item(i))) {
+      if ((doc instanceof Html4Document) || !NokogiriHelpers.isNamespace(nodeMap.item(i))) {
         attr.append(getCachedNodeOrCreate(runtime, nodeMap.item(i)));
       }
     }
@@ -811,8 +811,8 @@ public class XmlNode extends RubyObject
     XmlDocument document = document(runtime);
     if (document == null) { return context.nil; }
 
-    if (document instanceof HtmlDocument) {
-      klass = getNokogiriClass(runtime, "Nokogiri::HTML::Document");
+    if (document instanceof Html4Document) {
+      klass = getNokogiriClass(runtime, "Nokogiri::HTML4::Document");
       ctx = new HtmlDomParserContext(runtime, options);
       ((HtmlDomParserContext) ctx).enableDocumentFragment();
       ctx.setStringInputSource(context, str, context.nil);
@@ -824,7 +824,7 @@ public class XmlNode extends RubyObject
 
     // TODO: for some reason, document.getEncoding() can be null or nil (don't know why)
     // run `test_parse_with_unparented_html_text_context_node' few times to see this happen
-    if (document instanceof HtmlDocument && !(document.getEncoding() == null || document.getEncoding().isNil())) {
+    if (document instanceof Html4Document && !(document.getEncoding() == null || document.getEncoding().isNil())) {
       HtmlDomParserContext htmlCtx = (HtmlDomParserContext) ctx;
       htmlCtx.setEncoding(document.getEncoding().asJavaString());
     }
@@ -1148,7 +1148,7 @@ public class XmlNode extends RubyObject
   namespace(ThreadContext context)
   {
     final XmlDocument doc = document(context.runtime);
-    if (doc instanceof HtmlDocument) { return context.nil; }
+    if (doc instanceof Html4Document) { return context.nil; }
 
     String namespaceURI = node.getNamespaceURI();
     if (namespaceURI == null || namespaceURI.isEmpty()) {
@@ -1183,7 +1183,7 @@ public class XmlNode extends RubyObject
     // updated.
     final XmlDocument doc = document(context.runtime);
     if (doc == null) { return context.runtime.newEmptyArray(); }
-    if (doc instanceof HtmlDocument) { return context.runtime.newEmptyArray(); }
+    if (doc instanceof Html4Document) { return context.runtime.newEmptyArray(); }
 
     List<XmlNamespace> namespaces = doc.getNamespaceCache().get(node);
     return context.runtime.newArray((List) namespaces);
@@ -1199,7 +1199,7 @@ public class XmlNode extends RubyObject
   {
     final XmlDocument doc = document(context.runtime);
     if (doc == null) { return context.runtime.newEmptyArray(); }
-    if (doc instanceof HtmlDocument) { return context.runtime.newEmptyArray(); }
+    if (doc instanceof Html4Document) { return context.runtime.newEmptyArray(); }
 
     Node previousNode;
     if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -1335,7 +1335,7 @@ public class XmlNode extends RubyObject
   private boolean
   isHtmlDoc(ThreadContext context)
   {
-    return document(context).getMetaClass().isKindOfModule(getNokogiriClass(context.runtime, "Nokogiri::HTML::Document"));
+    return document(context).getMetaClass().isKindOfModule(getNokogiriClass(context.runtime, "Nokogiri::HTML4::Document"));
   }
 
   private boolean
@@ -1549,7 +1549,7 @@ public class XmlNode extends RubyObject
         type = "COMMENT_NODE";
         break;
       case Node.DOCUMENT_NODE:
-        if (this instanceof HtmlDocument) {
+        if (this instanceof Html4Document) {
           type = "HTML_DOCUMENT_NODE";
         } else {
           type = "DOCUMENT_NODE";

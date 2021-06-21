@@ -14,7 +14,7 @@ Some guiding principles Nokogiri tries to follow:
 
 ## Features Overview
 
-- DOM Parser for XML and HTML4
+- DOM Parser for XML, HTML4, and HTML5
 - SAX Parser for XML and HTML4
 - Push Parser for XML and HTML4
 - Document search via XPath 1.0

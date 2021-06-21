@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 module Nokogiri
-  module HTML
+  module HTML4
     module SAX
       class PushParser
         
-        # The Nokogiri::HTML::SAX::Document on which the PushParser will be
+        # The Nokogiri::HTML4::SAX::Document on which the PushParser will be
         # operating
         attr_accessor :document
         
-        def initialize(doc = HTML::SAX::Document.new, file_name = nil, encoding = 'UTF-8')
+        def initialize(doc = HTML4::SAX::Document.new, file_name = nil, encoding = 'UTF-8')
           @document = doc
           @encoding = encoding
-          @sax_parser = HTML::SAX::Parser.new(doc, @encoding)
+          @sax_parser = HTML4::SAX::Parser.new(doc, @encoding)
 
           ## Create our push parser context
           initialize_native(@sax_parser, file_name, encoding)
@@ -27,7 +27,7 @@ module Nokogiri
 
         ###
         # Finish the parsing.  This method is only necessary for
-        # Nokogiri::HTML::SAX::Document#end_document to be called.
+        # Nokogiri::HTML4::SAX::Document#end_document to be called.
         def finish
           write '', true
         end

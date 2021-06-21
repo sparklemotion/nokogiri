@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Nokogiri
-  module HTML
+  module HTML4
     class ElementDescription
 
       # Methods are defined protected by method_defined? because at

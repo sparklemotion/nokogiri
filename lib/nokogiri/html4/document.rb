@@ -3,7 +3,7 @@
 require 'pathname'
 
 module Nokogiri
-  module HTML
+  module HTML4
     class Document < Nokogiri::XML::Document
       ###
       # Get the meta tag encoding for this document.  If there is no meta tag,
@@ -268,12 +268,12 @@ module Nokogiri
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
             catch(:encoding_found) {
-              Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
+              Nokogiri::HTML4::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
               nil
             }
           else
             handler = SAXHandler.new
-            parser = Nokogiri::HTML::SAX::PushParser.new(handler)
+            parser = Nokogiri::HTML4::SAX::PushParser.new(handler)
             parser << chunk rescue Nokogiri::SyntaxError
             handler.encoding
           end
@@ -286,7 +286,7 @@ module Nokogiri
         end
 
         # This method is used by the C extension so that
-        # Nokogiri::HTML::Document#read_io() does not leak memory when
+        # Nokogiri::HTML4::Document#read_io() does not leak memory when
         # EncodingFound is raised.
         attr_reader :encoding_found
 

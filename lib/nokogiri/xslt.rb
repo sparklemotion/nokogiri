@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require "nokogiri/xslt/stylesheet"
-
 module Nokogiri
   class << self
     ###
@@ -55,3 +53,5 @@ module Nokogiri
     end
   end
 end
+
+require_relative "xslt/stylesheet"

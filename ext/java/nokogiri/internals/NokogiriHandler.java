@@ -59,7 +59,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
     this.object = object;
     charactersBuilder = new StringBuilder();
     String objectName = object.getMetaClass().getName();
-    if ("Nokogiri::HTML::SAX::Parser".equals(objectName)) { needEmptyAttrCheck = true; }
+    if ("Nokogiri::HTML4::SAX::Parser".equals(objectName)) { needEmptyAttrCheck = true; }
   }
 
   @Override

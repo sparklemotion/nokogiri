@@ -253,7 +253,7 @@ end
 
 ---- header
 
-require 'nokogiri/css/parser_extras'
+require_relative "parser_extras"
 
 ---- inner
 

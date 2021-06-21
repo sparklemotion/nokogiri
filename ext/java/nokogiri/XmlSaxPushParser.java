@@ -211,7 +211,7 @@ public class XmlSaxPushParser extends RubyObject
     futureTask = null;
   }
 
-  // SHARED for HtmlSaxPushParser
+  // SHARED for Html4SaxPushParser
   static void
   terminateExecution(final ExecutorService executor, final NokogiriBlockingQueueInputStream stream,
                      final FutureTask<?> futureTask)
@@ -248,7 +248,7 @@ public class XmlSaxPushParser extends RubyObject
       this(context, handler, parse(context.runtime, stream), stream);
     }
 
-    // IMPL with HtmlSaxPushParser
+    // IMPL with Html4SaxPushParser
     protected
     ParserTask(ThreadContext context, IRubyObject handler, XmlSaxParserContext parser, InputStream stream)
     {

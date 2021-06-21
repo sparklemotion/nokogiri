@@ -1,7 +1,6 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 require "stringio"
-require "nokogiri/xml/node/save_options"
 
 module Nokogiri
   module XML
@@ -837,7 +836,7 @@ module Nokogiri
         node_set = in_context(contents, options.to_i)
         if (node_set.empty? && (document.errors.length > error_count))
           if options.recover?
-            fragment = Nokogiri::HTML::DocumentFragment.parse contents
+            fragment = Nokogiri::HTML4::DocumentFragment.parse contents
             node_set = fragment.children
           else
             raise document.errors[error_count]
@@ -883,7 +882,7 @@ module Nokogiri
         type == DOCUMENT_NODE
       end
 
-      # Returns true if this is an HTML::Document node
+      # Returns true if this is an HTML4::Document node
       def html?
         type == HTML_DOCUMENT_NODE
       end
@@ -909,11 +908,11 @@ module Nokogiri
       end
 
       ###
-      # Fetch the Nokogiri::HTML::ElementDescription for this node.  Returns
+      # Fetch the Nokogiri::HTML4::ElementDescription for this node.  Returns
       # nil on XML documents and on unknown tags.
       def description
         return nil if document.xml?
-        Nokogiri::HTML::ElementDescription[name]
+        Nokogiri::HTML4::ElementDescription[name]
       end
 
       ###
@@ -1235,3 +1234,5 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
     end
   end
 end
+
+require_relative "node/save_options"

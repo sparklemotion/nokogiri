@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import nokogiri.HtmlDocument;
+import nokogiri.Html4Document;
 import nokogiri.NokogiriService;
 import nokogiri.XmlAttr;
 import nokogiri.XmlCdata;
@@ -89,7 +89,7 @@ public class NokogiriHelpers
     if (node == null) { return runtime.getNil(); }
     if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
       XmlDocument xmlDocument = (XmlDocument) node.getOwnerDocument().getUserData(CACHED_NODE);
-      if (!(xmlDocument instanceof HtmlDocument)) {
+      if (!(xmlDocument instanceof Html4Document)) {
         String prefix = getLocalNameForNamespace(((Attr) node).getName(), null);
         String href = ((Attr) node).getValue();
         XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
@@ -723,8 +723,8 @@ public class NokogiriHelpers
   public static CharSequence
   convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str)
   {
-    if (!(doc instanceof HtmlDocument)) { return str; }
-    String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();
+    if (!(doc instanceof Html4Document)) { return str; }
+    String parsed_encoding = ((Html4Document)doc).getPraedEncoding();
     if (parsed_encoding == null) { return str; }
     String ruby_encoding = rubyStringToString(doc.getEncoding());
     if (ruby_encoding == null) { return str; }

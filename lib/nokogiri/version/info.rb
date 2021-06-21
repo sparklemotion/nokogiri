@@ -206,9 +206,9 @@ module Nokogiri
 
   # Ensure constants used in this file are loaded - see #1896
   if Nokogiri.jruby?
-    require "nokogiri/jruby/dependencies"
+    require_relative "../jruby/dependencies"
   end
-  require "nokogiri/extension"
+  require_relative "../extension"
 
   # More complete version information about libxml
   VERSION_INFO = VersionInfo.instance.to_hash

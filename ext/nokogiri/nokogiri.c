@@ -2,8 +2,8 @@
 
 VALUE mNokogiri ;
 VALUE mNokogiriGumbo ;
-VALUE mNokogiriHtml ;
-VALUE mNokogiriHtmlSax ;
+VALUE mNokogiriHtml4 ;
+VALUE mNokogiriHtml4Sax ;
 VALUE mNokogiriHtml5 ;
 VALUE mNokogiriXml ;
 VALUE mNokogiriXmlSax ;
@@ -156,8 +156,8 @@ Init_nokogiri()
 {
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");
-  mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
-  mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
+  mNokogiriHtml4     = rb_define_module_under(mNokogiri, "HTML4");
+  mNokogiriHtml4Sax  = rb_define_module_under(mNokogiriHtml4, "SAX");
   mNokogiriHtml5    = rb_define_module_under(mNokogiri, "HTML5");
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");

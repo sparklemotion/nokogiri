@@ -15,13 +15,13 @@
 #  limitations under the License.
 #
 
-require 'nokogiri/html/document_fragment'
+require_relative "../html4/document_fragment"
 
 module Nokogiri
   module HTML5
     # @since v1.12.0
     # @note HTML5 functionality is not available when running JRuby.
-    class DocumentFragment < Nokogiri::HTML::DocumentFragment
+    class DocumentFragment < Nokogiri::HTML4::DocumentFragment
       attr_accessor :document
       attr_accessor :errors
 
@@ -48,11 +48,11 @@ module Nokogiri
       def self.parse(tags, encoding = nil, options = {})
         doc = HTML5::Document.new
         tags = HTML5.read_and_encode(tags, encoding)
-        doc.encoding = 'UTF-8'
+        doc.encoding = "UTF-8"
         new(doc, tags, nil, options)
       end
 
-      def extract_params params # :nodoc:
+      def extract_params(params) # :nodoc:
         handler = params.find do |param|
           ![Hash, String, Symbol].include?(param.class)
         end
@@ -67,14 +67,13 @@ module Nokogiri
 
         ns ||=
           begin
-            ns = Hash.new
+            ns = {}
             children.each { |child| ns.merge!(child.namespaces) }
             ns
           end
 
         [params, handler, ns, binds]
       end
-
     end
   end
 end

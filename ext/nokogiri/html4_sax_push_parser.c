@@ -1,6 +1,6 @@
 #include <nokogiri.h>
 
-VALUE cNokogiriHtmlSaxPushParser;
+VALUE cNokogiriHtml4SaxPushParser;
 
 /*
  * call-seq:
@@ -88,8 +88,8 @@ void
 noko_init_html_sax_push_parser()
 {
   assert(cNokogiriXmlSaxPushParser);
-  cNokogiriHtmlSaxPushParser = rb_define_class_under(mNokogiriHtmlSax, "PushParser", cNokogiriXmlSaxPushParser);
+  cNokogiriHtml4SaxPushParser = rb_define_class_under(mNokogiriHtml4Sax, "PushParser", cNokogiriXmlSaxPushParser);
 
-  rb_define_private_method(cNokogiriHtmlSaxPushParser, "initialize_native", initialize_native, 3);
-  rb_define_private_method(cNokogiriHtmlSaxPushParser, "native_write", native_write, 2);
+  rb_define_private_method(cNokogiriHtml4SaxPushParser, "initialize_native", initialize_native, 3);
+  rb_define_private_method(cNokogiriHtml4SaxPushParser, "native_write", native_write, 2);
 }
