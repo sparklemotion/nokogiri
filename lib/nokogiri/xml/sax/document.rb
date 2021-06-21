@@ -2,20 +2,19 @@
 module Nokogiri
   module XML
     ###
-    # SAX Parsers are event driven parsers.  Nokogiri provides two different
-    # event based parsers when dealing with XML.  If you want to do SAX style
-    # parsing using HTML, check out Nokogiri::HTML::SAX.
+    # SAX Parsers are event driven parsers. Nokogiri provides two different event based parsers when
+    # dealing with XML. If you want to do SAX style parsing using HTML, check out
+    # Nokogiri::HTML4::SAX.
     #
-    # The basic way a SAX style parser works is by creating a parser,
-    # telling the parser about the events we're interested in, then giving
-    # the parser some XML to process.  The parser will notify you when
-    # it encounters events you said you would like to know about.
+    # The basic way a SAX style parser works is by creating a parser, telling the parser about the
+    # events we're interested in, then giving the parser some XML to process. The parser will notify
+    # you when it encounters events you said you would like to know about.
     #
-    # To register for events, you simply subclass Nokogiri::XML::SAX::Document,
-    # and implement the methods for which you would like notification.
+    # To register for events, you simply subclass Nokogiri::XML::SAX::Document, and implement the
+    # methods for which you would like notification.
     #
-    # For example, if I want to be notified when a document ends, and when an
-    # element starts, I would write a class like this:
+    # For example, if I want to be notified when a document ends, and when an element starts, I
+    # would write a class like this:
     #
     #   class MyDocument < Nokogiri::XML::SAX::Document
     #     def end_document
@@ -27,8 +26,7 @@ module Nokogiri
     #     end
     #   end
     #
-    # Then I would instantiate a SAX parser with this document, and feed the
-    # parser some XML
+    # Then I would instantiate a SAX parser with this document, and feed the parser some XML
     #
     #   # Create a new parser
     #   parser = Nokogiri::XML::SAX::Parser.new(MyDocument.new)
@@ -36,25 +34,21 @@ module Nokogiri
     #   # Feed the parser some XML
     #   parser.parse(File.open(ARGV[0]))
     #
-    # Now my document handler will be called when each node starts, and when
-    # then document ends.  To see what kinds of events are available, take
-    # a look at Nokogiri::XML::SAX::Document.
+    # Now my document handler will be called when each node starts, and when then document ends. To
+    # see what kinds of events are available, take a look at Nokogiri::XML::SAX::Document.
     #
-    # Two SAX parsers for XML are available, a parser that reads from a string
-    # or IO object as it feels necessary, and a parser that lets you spoon
-    # feed it XML.  If you want to let Nokogiri deal with reading your XML,
-    # use the Nokogiri::XML::SAX::Parser.  If you want to have fine grain
+    # Two SAX parsers for XML are available, a parser that reads from a string or IO object as it
+    # feels necessary, and a parser that lets you spoon feed it XML. If you want to let Nokogiri
+    # deal with reading your XML, use the Nokogiri::XML::SAX::Parser. If you want to have fine grain
     # control over the XML input, use the Nokogiri::XML::SAX::PushParser.
     module SAX
       ###
-      # This class is used for registering types of events you are interested
-      # in handling.  All of the methods on this class are available as
-      # possible events while parsing an XML document.  To register for any
-      # particular event, just subclass this class and implement the methods
-      # you are interested in knowing about.
+      # This class is used for registering types of events you are interested in handling. All of
+      # the methods on this class are available as possible events while parsing an XML document. To
+      # register for any particular event, just subclass this class and implement the methods you
+      # are interested in knowing about.
       #
-      # To only be notified about start and end element events, write a class
-      # like this:
+      # To only be notified about start and end element events, write a class like this:
       #
       #   class MyDocument < Nokogiri::XML::SAX::Document
       #     def start_element name, attrs = []
@@ -66,8 +60,8 @@ module Nokogiri
       #     end
       #   end
       #
-      # You can use this event handler for any SAX style parser included with
-      # Nokogiri.  See Nokogiri::XML::SAX, and Nokogiri::HTML::SAX.
+      # You can use this event handler for any SAX style parser included with Nokogiri. See
+      # Nokogiri::XML::SAX, and Nokogiri::HTML4::SAX.
       class Document
         ###
         # Called when an XML declaration is parsed
@@ -129,7 +123,7 @@ module Nokogiri
         end
 
         ###
-        # Characters read between a tag.  This method might be called multiple
+        # Characters read between a tag. This method might be called multiple
         # times given one contiguous string of characters.
         #
         # +string+ contains the character data

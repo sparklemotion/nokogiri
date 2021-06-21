@@ -24,8 +24,8 @@ module Nokogiri
   # @since v1.12.0
   # @note HTML5 functionality is not available when running JRuby.
   # Parse an HTML5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
-  def self.HTML5(string_or_io, url = nil, encoding = nil, **options, &block)
-    Nokogiri::HTML5::Document.parse(string_or_io, url, encoding, **options, &block)
+  def self.HTML5(input, url = nil, encoding = nil, **options, &block)
+    Nokogiri::HTML5::Document.parse(input, url, encoding, **options, &block)
   end
 
   # == Usage
@@ -209,7 +209,7 @@ module Nokogiri
   # * The {Nokogiri::HTML5.fragment} function takes a string and parses it
   #   as a HTML5 document.  The +<html>+, +<head>+, and +<body>+ elements are
   #   removed from this document, and any children of these elements that remain
-  #   are returned as a {Nokogiri::HTML::DocumentFragment}.
+  #   are returned as a {Nokogiri::HTML5::DocumentFragment}.
   #
   # * The {Nokogiri::HTML5.parse} function takes a string and passes it to the
   #   <code>gumbo_parse_with_options</code> method, using the default options.
@@ -324,15 +324,14 @@ module Nokogiri
       string
     end
 
-    # Charset sniffing is a complex and controversial topic that understandably
-    # isn't done _by default_ by the Ruby Net::HTTP library.  This being said,
-    # it is a very real problem for consumers of HTML as the default for HTML
-    # is iso-8859-1, most "good" producers use utf-8, and the Gumbo parser
-    # *only* supports utf-8.
+    # Charset sniffing is a complex and controversial topic that understandably isn't done _by
+    # default_ by the Ruby Net::HTTP library.  This being said, it is a very real problem for
+    # consumers of HTML as the default for HTML is iso-8859-1, most "good" producers use utf-8, and
+    # the Gumbo parser *only* supports utf-8.
     #
-    # Accordingly, Nokogiri::HTML::Document.parse provides limited encoding
-    # detection.  Following this lead, Nokogiri::HTML5 attempts to do likewise,
-    # while attempting to more closely follow the HTML5 standard.
+    # Accordingly, Nokogiri::HTML4::Document.parse provides limited encoding detection.  Following
+    # this lead, Nokogiri::HTML5 attempts to do likewise, while attempting to more closely follow
+    # the HTML5 standard.
     #
     # http://bugs.ruby-lang.org/issues/2567
     # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding

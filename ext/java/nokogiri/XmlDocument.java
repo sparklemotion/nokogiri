@@ -280,8 +280,8 @@ public class XmlDocument extends XmlNode
     XmlDocument xmlDocument;
     try {
       Document docNode = createNewDocument(runtime);
-      if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
-        xmlDocument = new HtmlDocument(context.runtime, (RubyClass) klazz, docNode);
+      if ("Nokogiri::HTML4::Document".equals(((RubyClass)klazz).getName())) {
+        xmlDocument = new Html4Document(context.runtime, (RubyClass) klazz, docNode);
       } else {
         xmlDocument = new XmlDocument(context.runtime, (RubyClass) klazz, docNode);
       }

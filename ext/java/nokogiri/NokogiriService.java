@@ -40,9 +40,9 @@ public class NokogiriService implements BasicLibraryService
   {
     Map<String, RubyClass> nokogiriClassCache = new HashMap<String, RubyClass>();
     nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
-    nokogiriClassCache.put("Nokogiri::HTML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::Document"));
-    nokogiriClassCache.put("Nokogiri::HTML::ElementDescription",
-                           (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::ElementDescription"));
+    nokogiriClassCache.put("Nokogiri::HTML4::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::Document"));
+    nokogiriClassCache.put("Nokogiri::HTML4::ElementDescription",
+                           (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::ElementDescription"));
     nokogiriClassCache.put("Nokogiri::XML::Attr", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Attr"));
     nokogiriClassCache.put("Nokogiri::XML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Document"));
     nokogiriClassCache.put("Nokogiri::XML::DocumentFragment",
@@ -81,7 +81,7 @@ public class NokogiriService implements BasicLibraryService
     RubyModule nokogiri = ruby.defineModule("Nokogiri");
     RubyModule xmlModule = nokogiri.defineModuleUnder("XML");
     RubyModule xmlSaxModule = xmlModule.defineModuleUnder("SAX");
-    RubyModule htmlModule = nokogiri.defineModuleUnder("HTML");
+    RubyModule htmlModule = nokogiri.defineModuleUnder("HTML4");
     RubyModule htmlSaxModule = htmlModule.defineModuleUnder("SAX");
     RubyModule xsltModule = nokogiri.defineModuleUnder("XSLT");
 
@@ -201,11 +201,11 @@ public class NokogiriService implements BasicLibraryService
   {
     RubyClass htmlElemDesc = htmlModule.defineClassUnder("ElementDescription", ruby.getObject(),
                              HTML_ELEMENT_DESCRIPTION_ALLOCATOR);
-    htmlElemDesc.defineAnnotatedMethods(HtmlElementDescription.class);
+    htmlElemDesc.defineAnnotatedMethods(Html4ElementDescription.class);
 
     RubyClass htmlEntityLookup = htmlModule.defineClassUnder("EntityLookup", ruby.getObject(),
                                  HTML_ENTITY_LOOKUP_ALLOCATOR);
-    htmlEntityLookup.defineAnnotatedMethods(HtmlEntityLookup.class);
+    htmlEntityLookup.defineAnnotatedMethods(Html4EntityLookup.class);
   }
 
   private void
@@ -216,7 +216,7 @@ public class NokogiriService implements BasicLibraryService
 
     //RubyModule htmlDoc = html.defineOrGetClassUnder("Document", document);
     RubyModule htmlDocument = htmlModule.defineClassUnder("Document", xmlDocument, HTML_DOCUMENT_ALLOCATOR);
-    htmlDocument.defineAnnotatedMethods(HtmlDocument.class);
+    htmlDocument.defineAnnotatedMethods(Html4Document.class);
   }
 
   private void
@@ -231,11 +231,11 @@ public class NokogiriService implements BasicLibraryService
 
     RubyClass htmlSaxPushParser = htmlSaxModule.defineClassUnder("PushParser", ruby.getObject(),
                                   HTML_SAXPUSHPARSER_ALLOCATOR);
-    htmlSaxPushParser.defineAnnotatedMethods(HtmlSaxPushParser.class);
+    htmlSaxPushParser.defineAnnotatedMethods(Html4SaxPushParser.class);
 
     RubyClass htmlSaxParserContext = htmlSaxModule.defineClassUnder("ParserContext", xmlSaxParserContext,
                                      HTML_SAXPARSER_CONTEXT_ALLOCATOR);
-    htmlSaxParserContext.defineAnnotatedMethods(HtmlSaxParserContext.class);
+    htmlSaxParserContext.defineAnnotatedMethods(Html4SaxParserContext.class);
   }
 
   private void
@@ -255,30 +255,30 @@ public class NokogiriService implements BasicLibraryService
 
   public static final ObjectAllocator HTML_DOCUMENT_ALLOCATOR = new ObjectAllocator()
   {
-    private HtmlDocument htmlDocument = null;
+    private Html4Document htmlDocument = null;
     public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      if (htmlDocument == null) { htmlDocument = new HtmlDocument(runtime, klazz); }
+      if (htmlDocument == null) { htmlDocument = new Html4Document(runtime, klazz); }
       try {
-        HtmlDocument clone = (HtmlDocument) htmlDocument.clone();
+        Html4Document clone = (Html4Document) htmlDocument.clone();
         clone.setMetaClass(klazz);
         return clone;
       } catch (CloneNotSupportedException e) {
-        return new HtmlDocument(runtime, klazz);
+        return new Html4Document(runtime, klazz);
       }
     }
   };
 
   private static final ObjectAllocator HTML_SAXPARSER_CONTEXT_ALLOCATOR = new ObjectAllocator()
   {
-    private HtmlSaxParserContext htmlSaxParserContext = null;
+    private Html4SaxParserContext htmlSaxParserContext = null;
     public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      if (htmlSaxParserContext == null) { htmlSaxParserContext = new HtmlSaxParserContext(runtime, klazz); }
+      if (htmlSaxParserContext == null) { htmlSaxParserContext = new Html4SaxParserContext(runtime, klazz); }
       try {
-        HtmlSaxParserContext clone = (HtmlSaxParserContext) htmlSaxParserContext.clone();
+        Html4SaxParserContext clone = (Html4SaxParserContext) htmlSaxParserContext.clone();
         clone.setMetaClass(klazz);
         return clone;
       } catch (CloneNotSupportedException e) {
-        return new HtmlSaxParserContext(runtime, klazz);
+        return new Html4SaxParserContext(runtime, klazz);
       }
     }
   };
@@ -287,7 +287,7 @@ public class NokogiriService implements BasicLibraryService
     new ObjectAllocator()
   {
     public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new HtmlElementDescription(runtime, klazz);
+      return new Html4ElementDescription(runtime, klazz);
     }
   };
 
@@ -295,7 +295,7 @@ public class NokogiriService implements BasicLibraryService
     new ObjectAllocator()
   {
     public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new HtmlEntityLookup(runtime, klazz);
+      return new Html4EntityLookup(runtime, klazz);
     }
   };
 
@@ -571,7 +571,7 @@ public class NokogiriService implements BasicLibraryService
   private static final ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator()
   {
     public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new HtmlSaxPushParser(runtime, klazz);
+      return new Html4SaxPushParser(runtime, klazz);
     }
   };
 

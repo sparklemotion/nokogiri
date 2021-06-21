@@ -16,12 +16,12 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
- * Class for Nokogiri::HTML::ElementDescription.
+ * Class for Nokogiri::HTML4::ElementDescription.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
-@JRubyClass(name = "Nokogiri::HTML::ElementDescription")
-public class HtmlElementDescription extends RubyObject
+@JRubyClass(name = "Nokogiri::HTML4::ElementDescription")
+public class Html4ElementDescription extends RubyObject
 {
 
   /**
@@ -38,7 +38,7 @@ public class HtmlElementDescription extends RubyObject
   protected HTMLElements.Element element;
 
   public
-  HtmlElementDescription(Ruby runtime, RubyClass rubyClass)
+  Html4ElementDescription(Ruby runtime, RubyClass rubyClass)
   {
     super(runtime, rubyClass);
   }
@@ -89,8 +89,8 @@ public class HtmlElementDescription extends RubyObject
       return context.nil;
     }
 
-    HtmlElementDescription desc =
-      new HtmlElementDescription(context.getRuntime(), (RubyClass)klazz);
+    Html4ElementDescription desc =
+      new Html4ElementDescription(context.getRuntime(), (RubyClass)klazz);
     desc.element = elem;
     return desc;
   }

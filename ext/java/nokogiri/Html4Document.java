@@ -18,13 +18,13 @@ import nokogiri.internals.HtmlDomParserContext;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
 /**
- * Class for Nokogiri::HTML::Document.
+ * Class for Nokogiri::HTML4::Document.
  *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name = "Nokogiri::HTML::Document", parent = "Nokogiri::XML::Document")
-public class HtmlDocument extends XmlDocument
+@JRubyClass(name = "Nokogiri::HTML4::Document", parent = "Nokogiri::XML::Document")
+public class Html4Document extends XmlDocument
 {
   private static final String DEFAULT_CONTENT_TYPE = "html";
   private static final String DEFAULT_PUBLIC_ID = "-//W3C//DTD HTML 4.01//EN";
@@ -33,19 +33,19 @@ public class HtmlDocument extends XmlDocument
   private String parsed_encoding = null;
 
   public
-  HtmlDocument(Ruby ruby, RubyClass klazz)
+  Html4Document(Ruby ruby, RubyClass klazz)
   {
     super(ruby, klazz);
   }
 
   public
-  HtmlDocument(Ruby runtime, Document document)
+  Html4Document(Ruby runtime, Document document)
   {
     this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
   }
 
   public
-  HtmlDocument(Ruby ruby, RubyClass klazz, Document doc)
+  Html4Document(Ruby ruby, RubyClass klazz, Document doc)
   {
     super(ruby, klazz, doc);
   }
@@ -55,10 +55,10 @@ public class HtmlDocument extends XmlDocument
   rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {
     final Ruby runtime = context.runtime;
-    HtmlDocument htmlDocument;
+    Html4Document htmlDocument;
     try {
       Document docNode = createNewDocument(runtime);
-      htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
+      htmlDocument = (Html4Document) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
       htmlDocument.setDocumentNode(context.runtime, docNode);
     } catch (Exception ex) {
       throw asRuntimeError(runtime, "couldn't create document: ", ex);
@@ -135,13 +135,6 @@ public class HtmlDocument extends XmlDocument
     return parsed_encoding;
   }
 
-  /*
-   * call-seq:
-   *  read_io(io, url, encoding, options)
-   *
-   * Read the HTML document from +io+ with given +url+, +encoding+,
-   * and +options+.  See Nokogiri::HTML.parse
-   */
   @JRubyMethod(meta = true, required = 4)
   public static IRubyObject
   read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args)
@@ -151,13 +144,6 @@ public class HtmlDocument extends XmlDocument
     return ctx.parse(context, (RubyClass) klass, args[1]);
   }
 
-  /*
-   * call-seq:
-   *  read_memory(string, url, encoding, options)
-   *
-   * Read the HTML document contained in +string+ with given +url+, +encoding+,
-   * and +options+.  See Nokogiri::HTML.parse
-   */
   @JRubyMethod(meta = true, required = 4)
   public static IRubyObject
   read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args)

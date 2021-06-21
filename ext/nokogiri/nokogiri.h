@@ -94,8 +94,8 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 
 NOKOPUBVAR VALUE mNokogiri ;
 NOKOPUBVAR VALUE mNokogiriGumbo ;
-NOKOPUBVAR VALUE mNokogiriHtml ;
-NOKOPUBVAR VALUE mNokogiriHtmlSax ;
+NOKOPUBVAR VALUE mNokogiriHtml4 ;
+NOKOPUBVAR VALUE mNokogiriHtml4Sax ;
 NOKOPUBVAR VALUE mNokogiriHtml5 ;
 NOKOPUBVAR VALUE mNokogiriXml ;
 NOKOPUBVAR VALUE mNokogiriXmlSax ;
@@ -133,11 +133,11 @@ NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
 NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 
-NOKOPUBVAR VALUE cNokogiriHtmlDocument ;
+NOKOPUBVAR VALUE cNokogiriHtml4Document ;
+NOKOPUBVAR VALUE cNokogiriHtml4SaxPushParser ;
+NOKOPUBVAR VALUE cNokogiriHtml4ElementDescription ;
+NOKOPUBVAR VALUE cNokogiriHtml4SaxParserContext;
 NOKOPUBVAR VALUE cNokogiriHtml5Document ;
-NOKOPUBVAR VALUE cNokogiriHtmlSaxPushParser ;
-NOKOPUBVAR VALUE cNokogiriHtmlElementDescription ;
-NOKOPUBVAR VALUE cNokogiriHtmlSaxParserContext;
 
 typedef struct _nokogiriTuple {
   VALUE         doc;

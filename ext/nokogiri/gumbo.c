@@ -591,7 +591,7 @@ void
 noko_init_gumbo()
 {
   // Class constants.
-  cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtmlDocument);
+  cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtml4Document);
   rb_gc_register_mark_object(cNokogiriHtml5Document);
 
   // Interned symbols.

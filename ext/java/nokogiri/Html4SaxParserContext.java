@@ -24,27 +24,27 @@ import nokogiri.internals.NokogiriHandler;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
- * Class for Nokogiri::HTML::SAX::ParserContext.
+ * Class for Nokogiri::HTML4::SAX::ParserContext.
  *
  * @author serabe
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
 
-@JRubyClass(name = "Nokogiri::HTML::SAX::ParserContext", parent = "Nokogiri::XML::SAX::ParserContext")
-public class HtmlSaxParserContext extends XmlSaxParserContext
+@JRubyClass(name = "Nokogiri::HTML4::SAX::ParserContext", parent = "Nokogiri::XML::SAX::ParserContext")
+public class Html4SaxParserContext extends XmlSaxParserContext
 {
 
-  static HtmlSaxParserContext
+  static Html4SaxParserContext
   newInstance(final Ruby runtime, final RubyClass klazz)
   {
-    HtmlSaxParserContext instance = new HtmlSaxParserContext(runtime, klazz);
+    Html4SaxParserContext instance = new Html4SaxParserContext(runtime, klazz);
     instance.initialize(runtime);
     return instance;
   }
 
   public
-  HtmlSaxParserContext(Ruby ruby, RubyClass rubyClass)
+  Html4SaxParserContext(Ruby ruby, RubyClass rubyClass)
   {
     super(ruby, rubyClass);
   }
@@ -68,7 +68,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext
       return parser;
     } catch (SAXException ex) {
       throw new SAXException(
-        "Problem while creating HTML SAX Parser: " + ex.toString());
+        "Problem while creating HTML4 SAX Parser: " + ex.toString());
     }
   }
 
@@ -79,7 +79,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext
                IRubyObject data,
                IRubyObject encoding)
   {
-    HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klazz);
+    Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klazz);
     String javaEncoding = findEncodingName(context, encoding);
     if (javaEncoding != null) {
       CharSequence input = applyEncoding(rubyStringToString(data.convertToString()), javaEncoding);
@@ -231,7 +231,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext
              IRubyObject data,
              IRubyObject encoding)
   {
-    HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klass);
+    Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klass);
     ctx.setInputSourceFile(context, data);
     String javaEncoding = findEncodingName(context, encoding);
     if (javaEncoding != null) {
@@ -247,7 +247,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext
            IRubyObject data,
            IRubyObject encoding)
   {
-    HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klass);
+    Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klass);
     ctx.setIOInputSource(context, data, context.nil);
     String javaEncoding = findEncodingName(context, encoding);
     if (javaEncoding != null) {
@@ -258,12 +258,12 @@ public class HtmlSaxParserContext extends XmlSaxParserContext
 
   /**
    * Create a new parser context that will read from a raw input stream.
-   * Meant to be run in a separate thread by HtmlSaxPushParser.
+   * Meant to be run in a separate thread by Html4SaxPushParser.
    */
-  static HtmlSaxParserContext
+  static Html4SaxParserContext
   parse_stream(final Ruby runtime, RubyClass klass, InputStream stream)
   {
-    HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(runtime, klass);
+    Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(runtime, klass);
     ctx.setInputSource(stream);
     return ctx;
   }

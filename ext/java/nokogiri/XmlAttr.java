@@ -117,7 +117,7 @@ public class XmlAttr extends XmlNode
     String attrName = ((Attr) node).getName();
     if (attrName == null) { return context.nil; }
 
-    if (node.getNamespaceURI() != null && !(document(context.runtime) instanceof HtmlDocument)) {
+    if (node.getNamespaceURI() != null && !(document(context.runtime) instanceof Html4Document)) {
       attrName = NokogiriHelpers.getLocalPart(attrName);
       if (attrName == null) { return context.nil; }
     }
@@ -137,7 +137,7 @@ public class XmlAttr extends XmlNode
   isHtml(ThreadContext context)
   {
     return document(context).getMetaClass().isKindOfModule(getNokogiriClass(context.getRuntime(),
-           "Nokogiri::HTML::Document"));
+           "Nokogiri::HTML4::Document"));
   }
 
   @Override

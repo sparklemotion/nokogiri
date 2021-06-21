@@ -1,17 +1,17 @@
 #include <nokogiri.h>
 
-static VALUE cNokogiriHtmlEntityLookup;
+static VALUE cNokogiriHtml4EntityLookup;
 
 /*
  * call-seq:
  *  get(key)
  *
- * Get the HTML::EntityDescription for +key+
+ * Get the HTML4::EntityDescription for +key+
  */
 static VALUE
 get(VALUE _, VALUE rb_entity_name)
 {
-  VALUE cNokogiriHtmlEntityDescription;
+  VALUE cNokogiriHtml4EntityDescription;
   const htmlEntityDesc *c_entity_desc;
   VALUE rb_constructor_args[3];
 
@@ -24,14 +24,14 @@ get(VALUE _, VALUE rb_entity_name)
   rb_constructor_args[1] = NOKOGIRI_STR_NEW2(c_entity_desc->name);
   rb_constructor_args[2] = NOKOGIRI_STR_NEW2(c_entity_desc->desc);
 
-  cNokogiriHtmlEntityDescription = rb_const_get_at(mNokogiriHtml, rb_intern("EntityDescription"));
-  return rb_class_new_instance(3, rb_constructor_args, cNokogiriHtmlEntityDescription);
+  cNokogiriHtml4EntityDescription = rb_const_get_at(mNokogiriHtml4, rb_intern("EntityDescription"));
+  return rb_class_new_instance(3, rb_constructor_args, cNokogiriHtml4EntityDescription);
 }
 
 void
 noko_init_html_entity_lookup()
 {
-  cNokogiriHtmlEntityLookup = rb_define_class_under(mNokogiriHtml, "EntityLookup", rb_cObject);
+  cNokogiriHtml4EntityLookup = rb_define_class_under(mNokogiriHtml4, "EntityLookup", rb_cObject);
 
-  rb_define_method(cNokogiriHtmlEntityLookup, "get", get, 1);
+  rb_define_method(cNokogiriHtml4EntityLookup, "get", get, 1);
 }

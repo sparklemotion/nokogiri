@@ -1,6 +1,6 @@
 #include <nokogiri.h>
 
-VALUE cNokogiriHtmlSaxParserContext ;
+VALUE cNokogiriHtml4SaxParserContext ;
 
 static void
 deallocate(xmlParserCtxtPtr ctxt)
@@ -110,10 +110,10 @@ void
 noko_init_html_sax_parser_context()
 {
   assert(cNokogiriXmlSaxParserContext);
-  cNokogiriHtmlSaxParserContext = rb_define_class_under(mNokogiriHtmlSax, "ParserContext", cNokogiriXmlSaxParserContext);
+  cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext", cNokogiriXmlSaxParserContext);
 
-  rb_define_singleton_method(cNokogiriHtmlSaxParserContext, "memory", parse_memory, 2);
-  rb_define_singleton_method(cNokogiriHtmlSaxParserContext, "file", parse_file, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory", parse_memory, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file", parse_file, 2);
 
-  rb_define_method(cNokogiriHtmlSaxParserContext, "parse_with", parse_with, 1);
+  rb_define_method(cNokogiriHtml4SaxParserContext, "parse_with", parse_with, 1);
 }

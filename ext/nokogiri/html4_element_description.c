@@ -1,6 +1,6 @@
 #include <nokogiri.h>
 
-VALUE cNokogiriHtmlElementDescription ;
+VALUE cNokogiriHtml4ElementDescription ;
 
 /*
  * call-seq:
@@ -272,23 +272,23 @@ get_description(VALUE klass, VALUE tag_name)
 void
 noko_init_html_element_description()
 {
-  cNokogiriHtmlElementDescription = rb_define_class_under(mNokogiriHtml, "ElementDescription", rb_cObject);
+  cNokogiriHtml4ElementDescription = rb_define_class_under(mNokogiriHtml4, "ElementDescription", rb_cObject);
 
-  rb_undef_alloc_func(cNokogiriHtmlElementDescription);
+  rb_undef_alloc_func(cNokogiriHtml4ElementDescription);
 
-  rb_define_singleton_method(cNokogiriHtmlElementDescription, "[]", get_description, 1);
+  rb_define_singleton_method(cNokogiriHtml4ElementDescription, "[]", get_description, 1);
 
-  rb_define_method(cNokogiriHtmlElementDescription, "name", name, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "implied_start_tag?", implied_start_tag_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "implied_end_tag?", implied_end_tag_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "save_end_tag?", save_end_tag_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "empty?", empty_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "deprecated?", deprecated_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "inline?", inline_eh, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "description", description, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "sub_elements", sub_elements, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "default_sub_element", default_sub_element, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "optional_attributes", optional_attributes, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "deprecated_attributes", deprecated_attributes, 0);
-  rb_define_method(cNokogiriHtmlElementDescription, "required_attributes", required_attributes, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "name", name, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "implied_start_tag?", implied_start_tag_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "implied_end_tag?", implied_end_tag_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "save_end_tag?", save_end_tag_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "empty?", empty_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "deprecated?", deprecated_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "inline?", inline_eh, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "description", description, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "sub_elements", sub_elements, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "default_sub_element", default_sub_element, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "optional_attributes", optional_attributes, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "deprecated_attributes", deprecated_attributes, 0);
+  rb_define_method(cNokogiriHtml4ElementDescription, "required_attributes", required_attributes, 0);
 }

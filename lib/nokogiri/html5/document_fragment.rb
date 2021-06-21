@@ -15,13 +15,13 @@
 #  limitations under the License.
 #
 
-require_relative "../html/document_fragment"
+require_relative "../html4/document_fragment"
 
 module Nokogiri
   module HTML5
     # @since v1.12.0
     # @note HTML5 functionality is not available when running JRuby.
-    class DocumentFragment < Nokogiri::HTML::DocumentFragment
+    class DocumentFragment < Nokogiri::HTML4::DocumentFragment
       attr_accessor :document
       attr_accessor :errors
 

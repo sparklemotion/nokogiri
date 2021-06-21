@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 module Nokogiri
-  module HTML
+  module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
       def self.parse(tags, encoding = nil)
-        doc = HTML::Document.new
+        doc = HTML4::Document.new
 
         encoding ||= if tags.respond_to?(:encoding)
           encoding = tags.encoding
@@ -39,7 +39,7 @@ module Nokogiri
             "/html/body/node()"
           end
 
-          temp_doc = HTML::Document.parse("<html><body>#{tags}", nil, document.encoding)
+          temp_doc = HTML4::Document.parse("<html><body>#{tags}", nil, document.encoding)
           temp_doc.xpath(path).each { |child| child.parent = self }
           self.errors = temp_doc.errors
         end

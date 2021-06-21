@@ -15,16 +15,16 @@ require_relative "nokogiri/extension"
 # support.
 #
 # Parsing a document returns either a Nokogiri::XML::Document, or a
-# Nokogiri::HTML::Document depending on the kind of document you parse.
+# Nokogiri::HTML4::Document depending on the kind of document you parse.
 #
 # Here is an example:
 #
 #   require 'nokogiri'
 #   require 'open-uri'
 #
-#   # Get a Nokogiri::HTML:Document for the page we’re interested in...
+#   # Get a Nokogiri::HTML4::Document for the page we’re interested in...
 #
-#   doc = Nokogiri::HTML(URI.open('http://www.google.com/search?q=tenderlove'))
+#   doc = Nokogiri::HTML4(URI.open('http://www.google.com/search?q=tenderlove'))
 #
 #   # Do funky things with it using Nokogiri::XML::Node methods...
 #
@@ -46,7 +46,7 @@ module Nokogiri
         # Expect an HTML indicator to appear within the first 512
         # characters of a document. (<?xml ?> + <?xml-stylesheet ?>
         # shouldn't be that long)
-        Nokogiri.HTML(string, url, encoding,
+        Nokogiri.HTML4(string, url, encoding,
           options || XML::ParseOptions::DEFAULT_HTML)
       else
         Nokogiri.XML(string, url, encoding,
@@ -60,7 +60,7 @@ module Nokogiri
     # Create a new Nokogiri::XML::DocumentFragment
     def make(input = nil, opts = {}, &blk)
       if input
-        Nokogiri::HTML.fragment(input).children.first
+        Nokogiri::HTML4.fragment(input).children.first
       else
         Nokogiri(&blk)
       end
@@ -100,14 +100,13 @@ module Nokogiri
 end
 
 ###
-# Parse a document contained in +args+.  Nokogiri will try to guess what
-# type of document you are attempting to parse.  For more information, see
-# Nokogiri.parse
+# Parse a document contained in +args+.  Nokogiri will try to guess what type of document you are
+# attempting to parse.  For more information, see Nokogiri.parse
 #
-# To specify the type of document, use Nokogiri.XML or Nokogiri.HTML.
+# To specify the type of document, use {Nokogiri.XML}, {Nokogiri.HTML4}, or {Nokogiri.HTML5}.
 def Nokogiri(*args, &block)
   if block_given?
-    Nokogiri::HTML::Builder.new(&block).doc.root
+    Nokogiri::HTML4::Builder.new(&block).doc.root
   else
     Nokogiri.parse(*args)
   end
@@ -117,9 +116,10 @@ require_relative "nokogiri/version"
 require_relative "nokogiri/syntax_error"
 require_relative "nokogiri/xml"
 require_relative "nokogiri/xslt"
+require_relative "nokogiri/html4"
 require_relative "nokogiri/html"
 require_relative "nokogiri/decorators/slop"
 require_relative "nokogiri/css"
-require_relative "nokogiri/html/builder"
+require_relative "nokogiri/html4/builder"
 
 require_relative "nokogiri/html5" if Nokogiri.uses_gumbo?

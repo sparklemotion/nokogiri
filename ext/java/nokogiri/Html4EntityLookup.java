@@ -12,16 +12,16 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
- * Class for Nokogiri::HTML::EntityLookup.
+ * Class for Nokogiri::HTML4::EntityLookup.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
-@JRubyClass(name = "Nokogiri::HTML::EntityLookup")
-public class HtmlEntityLookup extends RubyObject
+@JRubyClass(name = "Nokogiri::HTML4::EntityLookup")
+public class Html4EntityLookup extends RubyObject
 {
 
   public
-  HtmlEntityLookup(Ruby runtime, RubyClass rubyClass)
+  Html4EntityLookup(Ruby runtime, RubyClass rubyClass)
   {
     super(runtime, rubyClass);
   }
@@ -41,7 +41,7 @@ public class HtmlEntityLookup extends RubyObject
     if (val == -1) { return ruby.getNil(); }
 
     IRubyObject edClass =
-      ruby.getClassFromPath("Nokogiri::HTML::EntityDescription");
+      ruby.getClassFromPath("Nokogiri::HTML4::EntityDescription");
     IRubyObject edObj = invoke(context, edClass, "new",
                                ruby.newFixnum(val), ruby.newString(name),
                                ruby.newString(name + " entity"));

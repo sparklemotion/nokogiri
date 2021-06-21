@@ -15,11 +15,13 @@
 #  limitations under the License.
 #
 
+require_relative "../html4/document"
+
 module Nokogiri
   module HTML5
     # @since v1.12.0
     # @note HTML5 functionality is not available when running JRuby.
-    class Document < Nokogiri::HTML::Document
+    class Document < Nokogiri::HTML4::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
         yield options if block_given?
 	string_or_io = '' unless string_or_io

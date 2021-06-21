@@ -1,6 +1,6 @@
 #include <nokogiri.h>
 
-VALUE cNokogiriHtmlDocument ;
+VALUE cNokogiriHtml4Document ;
 
 static ID id_encoding_found;
 static ID id_to_s;
@@ -34,7 +34,7 @@ rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)
  *  read_io(io, url, encoding, options)
  *
  * Read the HTML document from +io+ with given +url+, +encoding+,
- * and +options+.  See Nokogiri::HTML.parse
+ * and +options+.  See Nokogiri::HTML4.parse
  */
 static VALUE
 rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
@@ -92,7 +92,7 @@ rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_enco
  *  read_memory(string, url, encoding, options)
  *
  * Read the HTML document contained in +string+ with given +url+, +encoding+,
- * and +options+.  See Nokogiri::HTML.parse
+ * and +options+.  See Nokogiri::HTML4.parse
  */
 static VALUE
 rb_html_document_s_read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE rb_encoding, VALUE rb_options)
@@ -153,13 +153,13 @@ void
 noko_init_html_document()
 {
   assert(cNokogiriXmlDocument);
-  cNokogiriHtmlDocument = rb_define_class_under(mNokogiriHtml, "Document", cNokogiriXmlDocument);
+  cNokogiriHtml4Document = rb_define_class_under(mNokogiriHtml4, "Document", cNokogiriXmlDocument);
 
-  rb_define_singleton_method(cNokogiriHtmlDocument, "read_memory", rb_html_document_s_read_memory, 4);
-  rb_define_singleton_method(cNokogiriHtmlDocument, "read_io", rb_html_document_s_read_io, 4);
-  rb_define_singleton_method(cNokogiriHtmlDocument, "new", rb_html_document_s_new, -1);
+  rb_define_singleton_method(cNokogiriHtml4Document, "read_memory", rb_html_document_s_read_memory, 4);
+  rb_define_singleton_method(cNokogiriHtml4Document, "read_io", rb_html_document_s_read_io, 4);
+  rb_define_singleton_method(cNokogiriHtml4Document, "new", rb_html_document_s_new, -1);
 
-  rb_define_method(cNokogiriHtmlDocument, "type", rb_html_document_type, 0);
+  rb_define_method(cNokogiriHtml4Document, "type", rb_html_document_type, 0);
 
   id_encoding_found = rb_intern("encoding_found");
   id_to_s = rb_intern("to_s");

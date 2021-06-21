@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Nokogiri
-  module HTML
+  module HTML4
     class EntityDescription < Struct.new(:value, :name, :description); end
 
     class EntityLookup

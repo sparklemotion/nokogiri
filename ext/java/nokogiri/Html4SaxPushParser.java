@@ -27,13 +27,13 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
- * Class for Nokogiri::HTML::SAX::PushParser
+ * Class for Nokogiri::HTML4::SAX::PushParser
  *
  * @author
  * @author Piotr Szmielew <p.szmielew@ava.waw.pl> - based on Nokogiri::XML::SAX::PushParser
  */
-@JRubyClass(name = "Nokogiri::HTML::SAX::PushParser")
-public class HtmlSaxPushParser extends RubyObject
+@JRubyClass(name = "Nokogiri::HTML4::SAX::PushParser")
+public class Html4SaxPushParser extends RubyObject
 {
   ParserContext.Options options;
   IRubyObject saxParser;
@@ -41,11 +41,11 @@ public class HtmlSaxPushParser extends RubyObject
   NokogiriBlockingQueueInputStream stream;
 
   private ParserTask parserTask = null;
-  private FutureTask<HtmlSaxParserContext> futureTask = null;
+  private FutureTask<Html4SaxParserContext> futureTask = null;
   private ExecutorService executor = null;
 
   public
-  HtmlSaxPushParser(Ruby ruby, RubyClass rubyClass)
+  Html4SaxPushParser(Ruby ruby, RubyClass rubyClass)
   {
     super(ruby, rubyClass);
   }
@@ -111,7 +111,7 @@ public class HtmlSaxPushParser extends RubyObject
     final ByteArrayInputStream data = NokogiriHelpers.stringBytesToStream(chunk);
     if (data == null) {
       terminateTask(context.runtime);
-      throw XmlSyntaxError.createHTMLSyntaxError(context.runtime).toThrowable(); // Nokogiri::HTML::SyntaxError
+      throw XmlSyntaxError.createHTMLSyntaxError(context.runtime).toThrowable(); // Nokogiri::HTML4::SyntaxError
     }
 
     int errorCount0 = parserTask.getErrorCount();
@@ -149,12 +149,12 @@ public class HtmlSaxPushParser extends RubyObject
 
       assert saxParser != null : "saxParser null";
       parserTask = new ParserTask(context, saxParser, stream);
-      futureTask = new FutureTask<HtmlSaxParserContext>((Callable) parserTask);
+      futureTask = new FutureTask<Html4SaxParserContext>((Callable) parserTask);
       executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
           Thread t = new Thread(r);
-          t.setName("HtmlSaxPushParser");
+          t.setName("Html4SaxPushParser");
           t.setDaemon(true);
           return t;
         }
@@ -187,14 +187,14 @@ public class HtmlSaxPushParser extends RubyObject
     futureTask = null;
   }
 
-  private static HtmlSaxParserContext
+  private static Html4SaxParserContext
   parse(final Ruby runtime, final InputStream stream)
   {
-    RubyClass klazz = getNokogiriClass(runtime, "Nokogiri::HTML::SAX::ParserContext");
-    return HtmlSaxParserContext.parse_stream(runtime, klazz, stream);
+    RubyClass klazz = getNokogiriClass(runtime, "Nokogiri::HTML4::SAX::ParserContext");
+    return Html4SaxParserContext.parse_stream(runtime, klazz, stream);
   }
 
-  static class ParserTask extends XmlSaxPushParser.ParserTask /* <HtmlSaxPushParser> */
+  static class ParserTask extends XmlSaxPushParser.ParserTask /* <Html4SaxPushParser> */
   {
 
     private
@@ -204,10 +204,10 @@ public class HtmlSaxPushParser extends RubyObject
     }
 
     @Override
-    public HtmlSaxParserContext
+    public Html4SaxParserContext
     call() throws Exception
     {
-      return (HtmlSaxParserContext) super.call();
+      return (Html4SaxParserContext) super.call();
     }
 
   }

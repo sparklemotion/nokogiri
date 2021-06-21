@@ -286,7 +286,7 @@ public class XsltStylesheet extends RubyObject
   createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult)
   {
     if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
-      return new HtmlDocument(context.runtime, (Document) domResult.getNode());
+      return new Html4Document(context.runtime, (Document) domResult.getNode());
     } else {
       return new XmlDocument(context.runtime, (Document) domResult.getNode());
     }
@@ -322,7 +322,7 @@ public class XsltStylesheet extends RubyObject
     RubyClass parse_options = (RubyClass)runtime.getClassFromPath("Nokogiri::XML::ParseOptions");
     if (htmlish) {
       args[3] = parse_options.getConstant("DEFAULT_HTML");
-      RubyClass htmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::HTML::Document");
+      RubyClass htmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::HTML4::Document");
       return Helpers.invoke(context, htmlDocumentClass, "parse", args);
     } else {
       args[3] = parse_options.getConstant("DEFAULT_XML");
