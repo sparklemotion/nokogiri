@@ -211,6 +211,15 @@ module Nokogiri
       # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
       ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
     end
+
+    def i_am_running_with_asan
+      # https://stackoverflow.com/questions/35012059/check-whether-sanitizer-like-addresssanitizer-is-active
+      begin
+        %x"ldd #{Gem.ruby}" =~ /libasan\.so/
+      rescue
+        false
+      end
+    end
   end
 
   module SAX

@@ -740,6 +740,7 @@ module Nokogiri
               skip("cannot use Ruby 2.5 Enumerator#each in a systemd container")
             end
             skip("enumerators confuse valgrind") if i_am_running_in_valgrind
+            skip("enumerators confuse ASan") if i_am_running_with_asan
 
             employees = xml.search("//employee")
             enum = employees.each
