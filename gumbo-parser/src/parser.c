@@ -4418,6 +4418,7 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
         || token_has_attribute(token, "size")
       )
     )
+    || tag_in(token, kEndTag, &(const TagSet) { TAG(BR), TAG(P) })
   ) {
     /* Parse error */
     parser_add_parse_error(parser, token);
@@ -4427,20 +4428,17 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
      * fragment parsing algorithm, then act as described in the "any other
      * start tag" entry below.
      */
-    if (!is_fragment_parser(parser)) {
-      do {
-        pop_current_node(parser);
-      } while (
-        !(
-          is_mathml_integration_point(get_current_node(parser))
-          || is_html_integration_point(get_current_node(parser))
-          || get_current_node(parser)->v.element.tag_namespace == GUMBO_NAMESPACE_HTML
-        )
-      );
-      parser->_parser_state->_reprocess_current_token = true;
-      return;
+    while (
+      !(
+        is_mathml_integration_point(get_current_node(parser))
+        || is_html_integration_point(get_current_node(parser))
+        || get_current_node(parser)->v.element.tag_namespace == GUMBO_NAMESPACE_HTML
+      )
+    ) {
+      pop_current_node(parser);
     }
-    // This is a start tag so the next if's then branch will be taken.
+    handle_in_body(parser, token);
+    return;
   }
 
   if (token->type == GUMBO_TOKEN_START_TAG) {
