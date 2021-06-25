@@ -77,9 +77,14 @@ if Nokogiri.uses_gumbo?
         node[:name] = $~[1]
         node[:public_id] = $~[2].nil? || $~[2].empty? ? nil : $~[2]
         node[:system_id] = $~[3].nil? || $~[3].empty? ? nil : $~[3]
-      elsif /^<!-- (.*) -->$/ =~ node_text
+      elsif node_text.start_with?('<!-- ')
+        loop do
+          break if lines[index].end_with?(' -->')
+          index += 1
+          node_text << "\n" + lines[index]
+        end
         node[:type] = :comment
-        node[:contents] = $~[1]
+        node[:contents] = node_text[5..-5]
       elsif /^<(svg |math )?(.+)>$/ =~ node_text
         node[:type] = :element
         node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
@@ -154,7 +159,7 @@ if Nokogiri.uses_gumbo?
           assert_equal(attr[:value], value)
         end
         assert_equal(node[:children].length, ng_node.children.length,
-          "Element <#{node[:tag]}> has wrong number of children: #{ng_node.children.map { |c| c.name }}")
+          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
       when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
         # We preserve the CDATA in the tree, but the tests represent it as text.
         assert_equal(node[:type], :text)
@@ -167,7 +172,8 @@ if Nokogiri.uses_gumbo?
         assert_equal(node[:children].length, ng_node.children.length)
       when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
         assert_equal(node[:type], :fragment)
-        assert_equal(node[:children].length, ng_node.children.length)
+        assert_equal(node[:children].length, ng_node.children.length,
+          "Fragment node has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
       when Nokogiri::XML::Node::DTD_NODE
         assert_equal(node[:type], :doctype)
         assert_equal(node[:name], ng_node.name)
@@ -212,7 +218,7 @@ if Nokogiri.uses_gumbo?
       end
 
       # Test the errors.
-      assert_equal(@test[:errors].length, doc.errors.length)
+      assert_equal(@test[:errors].length, doc.errors.length, "Wrong number of errors for #{@test[:data]}")
 
       # The new, standardized tokenizer errors live in @test[:new_errors]. Let's
       # match each one to exactly one error in doc.errors. Unfortunately, the
@@ -224,7 +230,7 @@ if Nokogiri.uses_gumbo?
       errors.reject! { |err| err[:code] == "generic-parser" }
       error_regex = /^\((?<line>\d+):(?<column>\d+)(?:-\d+:\d+)?\) (?<code>.*)$/
       @test[:new_errors].each do |err|
-        assert_match(error_regex, err)
+        assert_match(error_regex, err, "New error format does not match: #{mu_pp(err)}")
         m = err.match(error_regex)
         line = m[:line].to_i
         column = m[:column].to_i
@@ -236,7 +242,7 @@ if Nokogiri.uses_gumbo?
         end
         # This error should be the first error in the list.
         # refute_nil(idx, "Expected to find error #{code} at #{line}:#{column}")
-        assert_equal(0, idx, "Expected to find error #{code} at #{line}:#{column}")
+        assert_equal(0, idx, "Expected to find error #{code} at #{line}:#{column} in #{@test[:data]}")
         errors.delete_at(idx)
       end
     end
