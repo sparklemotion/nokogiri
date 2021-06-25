@@ -2220,4 +2220,24 @@ TEST_F(GumboParserTest, FragmentWithoutForm) {
   EXPECT_EQ(0, GetChildCount(span));
 }
 
+TEST_F(GumboParserTest, ForeignFragment) {
+  ParseFragment("</p><foo>", "svg", GUMBO_NAMESPACE_SVG);
+  EXPECT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  EXPECT_EQ(2, GetChildCount(html));
+
+  ASSERT_EQ(2, GetChildCount(html));
+  GumboNode* p = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, p->type);
+  ASSERT_EQ(GUMBO_TAG_P, p->v.element.tag);
+  ASSERT_EQ(GUMBO_NAMESPACE_HTML, p->v.element.tag_namespace);
+
+  GumboNode* foo = GetChild(html, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, foo->type);
+  ASSERT_EQ(std::string("foo"), foo->v.element.name);
+  ASSERT_EQ(GUMBO_NAMESPACE_SVG, foo->v.element.tag_namespace);
+}
+
 }  // namespace
