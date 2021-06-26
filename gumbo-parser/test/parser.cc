@@ -2240,4 +2240,76 @@ TEST_F(GumboParserTest, ForeignFragment) {
   ASSERT_EQ(GUMBO_NAMESPACE_SVG, foo->v.element.tag_namespace);
 }
 
+TEST_F(GumboParserTest, FosterParenting) {
+  Parse("<!doctype><body><table><colgroup><svg><g>foo</g><g>bar</g><p>baz</table><p>quux");
+  EXPECT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  EXPECT_EQ(2, GetChildCount(html));
+
+  GumboNode* body = GetChild(html, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, body->type);
+  EXPECT_EQ(GUMBO_TAG_BODY, body->v.element.tag);
+  EXPECT_EQ(4, GetChildCount(body));
+
+  GumboNode* svg = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, svg->type);
+  EXPECT_EQ(GUMBO_TAG_SVG, svg->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_SVG, svg->v.element.tag_namespace);
+  EXPECT_EQ(2, GetChildCount(svg));
+
+  GumboNode* g = GetChild(svg, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, g->type);
+  EXPECT_EQ(std::string("g"), g->v.element.name);
+  EXPECT_EQ(GUMBO_NAMESPACE_SVG, g->v.element.tag_namespace);
+  EXPECT_EQ(1, GetChildCount(g));
+
+  GumboNode* text = GetChild(g, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_EQ(std::string("foo"), text->v.text.text);
+
+  g = GetChild(svg, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, g->type);
+  EXPECT_EQ(std::string("g"), g->v.element.name);
+  EXPECT_EQ(GUMBO_NAMESPACE_SVG, g->v.element.tag_namespace);
+  EXPECT_EQ(1, GetChildCount(g));
+
+  text = GetChild(g, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_EQ(std::string("bar"), text->v.text.text);
+
+  GumboNode* p = GetChild(body, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, p->type);
+  EXPECT_EQ(GUMBO_TAG_P, p->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, p->v.element.tag_namespace);
+  EXPECT_EQ(1, GetChildCount(p));
+
+  text = GetChild(p, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_EQ(std::string("baz"), text->v.text.text);
+
+  GumboNode* table = GetChild(body, 2);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, table->type);
+  EXPECT_EQ(GUMBO_TAG_TABLE, table->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, table->v.element.tag_namespace);
+  EXPECT_EQ(1, GetChildCount(table));
+
+  GumboNode* colgroup = GetChild(table, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, colgroup->type);
+  EXPECT_EQ(GUMBO_TAG_COLGROUP, colgroup->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, colgroup->v.element.tag_namespace);
+  EXPECT_EQ(0, GetChildCount(colgroup));
+
+  p = GetChild(body, 3);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, p->type);
+  EXPECT_EQ(GUMBO_TAG_P, p->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, p->v.element.tag_namespace);
+  EXPECT_EQ(1, GetChildCount(p));
+
+  text = GetChild(p, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_EQ(std::string("quux"), text->v.text.text);
+}
+
 }  // namespace
