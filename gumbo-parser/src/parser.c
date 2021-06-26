@@ -4437,7 +4437,13 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
     ) {
       pop_current_node(parser);
     }
-    handle_in_body(parser, token);
+    // XXX: The spec currently says to handle this using the in body insertion
+    // mode rules. That seems wrong. See
+    // <https://github.com/whatwg/html/issues/6808>. Instead, use the current
+    // insertion mode which seems like it works.
+    //
+    // handle_in_body(parser, token);
+    handle_html_content(parser, token);
     return;
   }
 
