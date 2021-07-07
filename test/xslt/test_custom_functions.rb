@@ -41,14 +41,14 @@ module Nokogiri
             xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
             xmlns:f="http://e.org/functions"
             extension-element-prefixes="f">
-            <xsl:template match="text()">
-              <xsl:copy-of select="f:capitalize(.)"/>
-            </xsl:template>
             <xsl:template match="@*|node()">
               <xsl:copy>
                 <xsl:apply-templates select="@*|node()"/>
                 <xsl:apply-imports/>
               </xsl:copy>
+            </xsl:template>
+            <xsl:template match="text()">
+              <xsl:copy-of select="f:capitalize(.)"/>
             </xsl:template>
           </xsl:stylesheet>
         EOXSL
@@ -108,14 +108,14 @@ module Nokogiri
             xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
             xmlns:f="http://e.org/functions"
             extension-element-prefixes="f">
-            <xsl:template match="text()">
-              <xsl:copy-of select="f:america(.)"/>
-            </xsl:template>
             <xsl:template match="@*|node()">
               <xsl:copy>
                 <xsl:apply-templates select="@*|node()"/>
                 <xsl:apply-imports/>
               </xsl:copy>
+            </xsl:template>
+            <xsl:template match="text()">
+              <xsl:copy-of select="f:america(.)"/>
             </xsl:template>
           </xsl:stylesheet>
         EOXSL
