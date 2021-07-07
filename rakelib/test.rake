@@ -75,6 +75,7 @@ def nokogiri_test_task_configuration(t)
   t.libs << "test"
   t.test_files = FileList["test/**/test_*.rb"]
   t.verbose = true
+  t.options = "-v" if ENV["CI"]
 end
 
 Rake::TestTask.new do |t|
