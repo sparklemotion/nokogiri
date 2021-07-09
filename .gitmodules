@@ -1,4 +1,4 @@
 [submodule "test/html5lib-tests"]
 	path = test/html5lib-tests
-	url = https://github.com/stevecheckoway/html5lib-tests.git
-	branch = all-error-fixes
+	url = https://github.com/html5lib/html5lib-tests.git
+	branch = master
