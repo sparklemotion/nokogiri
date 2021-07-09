@@ -53,9 +53,9 @@ module Nokogiri
   #
   # === Error reporting
   #
-  # Nokogumbo contains an experimental parse error reporting facility. By default, no parse errors
-  # are reported but this can be configured by passing the +:max_errors+ option to {HTML5.parse} or
-  # {HTML5.fragment}.
+  # Nokogiri contains an experimental HTML5 parse error reporting facility. By default, no parse
+  # errors are reported but this can be configured by passing the +:max_errors+ option to
+  # {HTML5.parse} or {HTML5.fragment}.
   #
   # For example, this script:
   #
@@ -88,7 +88,7 @@ module Nokogiri
   # parsing HTML. The parse errors in the "tree construction" stage do not have standardized error
   # codes (yet).
   #
-  # As a convenience to Nokogumbo users, the defined error codes are available via
+  # As a convenience to Nokogiri users, the defined error codes are available via
   # {Nokogiri::XML::SyntaxError#str1} method.
   #
   #   doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />', max_errors: 10)
@@ -104,7 +104,7 @@ module Nokogiri
   # stage and doesn't have a standardized error code.
   #
   # For the purposes of semantic versioning, the error messages, error locations, and error codes
-  # are not part of Nokogumbo's public API. That is, these are subject to change without Nokogumbo's
+  # are not part of Nokogiri's public API. That is, these are subject to change without Nokogiri's
   # major version number changing. These may be stabilized in the future.
   #
   # === Maximum tree depth
@@ -113,8 +113,8 @@ module Nokogiri
   # +:max_tree_depth+ option. If the depth of the tree would exceed this limit, then an
   # {::ArgumentError} is thrown.
   #
-  # This limit (which defaults to <tt>Nokogumbo::DEFAULT_MAX_TREE_DEPTH = 400</tt>) can be removed
-  # by giving the option <tt>max_tree_depth: -1</tt>.
+  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH = 400</tt>) can be
+  # removed by giving the option <tt>max_tree_depth: -1</tt>.
   #
   #   html = '<!DOCTYPE html>' + '<div>' * 1000
   #   doc = Nokogiri.HTML5(html)
@@ -126,8 +126,8 @@ module Nokogiri
   # The maximum number of attributes per DOM element is configurable by the +:max_attributes+
   # option. If a given element would exceed this limit, then an {::ArgumentError} is thrown.
   #
-  # This limit (which defaults to <tt>Nokogumbo::DEFAULT_MAX_ATTRIBUTES = 400</tt>) can be removed
-  # by giving the option <tt>max_attributes: -1</tt>.
+  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES = 400</tt>) can be
+  # removed by giving the option <tt>max_attributes: -1</tt>.
   #
   #   html = '<!DOCTYPE html><div ' + (1..1000).map { |x| "attr-#{x}" }.join(' ') + '>'
   #   # "<!DOCTYPE html><div attr-1 attr-2 attr-3 ... attr-1000>"
@@ -182,7 +182,7 @@ module Nokogiri
   #
   # == Encodings
   #
-  # Nokogumbo always parses HTML using {https://en.wikipedia.org/wiki/UTF-8 UTF-8}; however, the
+  # Nokogiri always parses HTML5 using {https://en.wikipedia.org/wiki/UTF-8 UTF-8}; however, the
   # encoding of the input can be explicitly selected via the optional +encoding+ parameter. This is
   # most useful when the input comes not from a string but from an IO object.
   #
