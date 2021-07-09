@@ -134,3 +134,25 @@ jobs:
           bundler-cache: true
       - run: bundle exec rake compile
       - run: bundle exec rake test
+
+  html5lib-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: flavorjones/nokogiri-test:mri-3.0
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/cache@v2
+        with:
+          path: ports
+          key: ports-ubuntu-${{hashFiles('**/dependencies.yml')}}
+      - name: Update html5lib-tests
+        run: |
+          cd test/html5lib-tests
+          git remote update origin
+          git checkout origin/master
+          git log --pretty=oneline -n1
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --disable-system-libraries
+      - run: bundle exec rake test
