@@ -295,52 +295,39 @@ add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
 
 typedef struct {
   GumboOutput *output;
-  VALUE input;
-  VALUE url_or_frag;
   xmlDocPtr doc;
-} ParseArgs;
+} ParseData;
 
 static void
-parse_args_mark(void *parse_args)
+parse_data_free(void *parse_data)
 {
-  ParseArgs *args = parse_args;
-  rb_gc_mark_maybe(args->input);
-  rb_gc_mark_maybe(args->url_or_frag);
-}
-
-// Wrap a ParseArgs pointer. The underlying ParseArgs must outlive the
-// wrapper.
-static VALUE
-wrap_parse_args(ParseArgs *args)
-{
-  return Data_Wrap_Struct(rb_cObject, parse_args_mark, RUBY_NEVER_FREE, args);
-}
-
-// Returnsd the underlying ParseArgs wrapped by wrap_parse_args.
-static ParseArgs *
-unwrap_parse_args(VALUE obj)
-{
-  ParseArgs *args;
-  Data_Get_Struct(obj, ParseArgs, args);
-  return args;
-}
-
-static VALUE
-parse_cleanup(VALUE parse_args)
-{
-  ParseArgs *args = unwrap_parse_args(parse_args);
-  gumbo_destroy_output(args->output);
-  // Make sure garbage collection doesn't mark the objects as being live based
-  // on references from the ParseArgs. This may be unnecessary.
-  args->input = Qnil;
-  args->url_or_frag = Qnil;
-  if (args->doc != NULL) {
-    xmlFreeDoc(args->doc);
+  ParseData *data = parse_data;
+  if (data->output) {
+    gumbo_destroy_output(data->output);
   }
-  return Qnil;
+  if (data->doc != NULL) {
+    xmlFreeDoc(data->doc);
+  }
+  free(data);
 }
 
-static VALUE parse_continue(VALUE parse_args);
+static size_t
+parse_data_size(const void *parse_data)
+{
+  return sizeof(ParseData);
+}
+
+static const rb_data_type_t ParseDataType =
+{
+  .wrap_struct_name = "ParseData",
+  .function = {
+    .dmark = NULL,
+    .dfree = parse_data_free,
+    .dsize = parse_data_size,
+  },
+  .data = NULL,
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 /*
  *  @!visibility protected
@@ -354,22 +341,15 @@ parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors
   options.max_tree_depth = NUM2INT(max_depth);
 
   GumboOutput *output = perform_parse(&options, input);
-  ParseArgs args = {
-    .output = output,
-    .input = input,
-    .url_or_frag = url,
-    .doc = NULL,
-  };
-  VALUE parse_args = wrap_parse_args(&args);
 
-  return rb_ensure(parse_continue, parse_args, parse_cleanup, parse_args);
-}
+  // Wrap the output from the parse in a Ruby object to take advantage of
+  // Ruby's garbage collection to free memory in the event of a raised
+  // exception while building the tree.
+  ParseData *data = malloc(sizeof *data);
+  data->output = output;
+  data->doc = NULL;
+  VALUE parse_data = TypedData_Wrap_Struct(rb_cData, &ParseDataType, data);
 
-static VALUE
-parse_continue(VALUE parse_args)
-{
-  ParseArgs *args = unwrap_parse_args(parse_args);
-  GumboOutput *output = args->output;
   xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
     const char *name   = output->document->v.document.name;
@@ -381,11 +361,14 @@ parse_continue(VALUE parse_args)
   } else {
     doc = new_html_doc(NULL, NULL, NULL);
   }
-  args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
+  data->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
   VALUE rdoc = Nokogiri_wrap_xml_document(cNokogiriHtml5Document, doc);
-  args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
-  add_errors(output, rdoc, args->input, args->url_or_frag);
+  data->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
+  add_errors(output, rdoc, input, url);
+
+  // Make sure the parse_data lives until this point.
+  RB_GC_GUARD(parse_data);
   return rdoc;
 }
 
@@ -430,8 +413,6 @@ extract_xml_node(VALUE node)
   Data_Get_Struct(node, xmlNode, xml_node);
   return xml_node;
 }
-
-static VALUE fragment_continue(VALUE parse_args);
 
 /*
  *  @!visibility protected
@@ -564,30 +545,24 @@ error:
   options.quirks_mode = quirks_mode;
   options.fragment_context_has_form_ancestor = form;
 
+  xmlDocPtr xml_doc = (xmlDocPtr)extract_xml_node(doc);
   GumboOutput *output = perform_parse(&options, tags);
-  ParseArgs args = {
-    .output = output,
-    .input = tags,
-    .url_or_frag = doc_fragment,
-    .doc = (xmlDocPtr)extract_xml_node(doc),
-  };
-  VALUE parse_args = wrap_parse_args(&args);
-  rb_ensure(fragment_continue, parse_args, parse_cleanup, parse_args);
-  return Qnil;
-}
 
-static VALUE
-fragment_continue(VALUE parse_args)
-{
-  ParseArgs *args = unwrap_parse_args(parse_args);
-  GumboOutput *output = args->output;
-  VALUE doc_fragment = args->url_or_frag;
-  xmlDocPtr xml_doc = args->doc;
+  // Wrap the output from the parse in a Ruby object to take advantage of
+  // Ruby's garbage collection to free memory in the event of a raised
+  // exception while building the tree.
+  ParseData *data = ALLOC(ParseData);
+  data->output = output;
+  data->doc = NULL;
+  VALUE parse_data = TypedData_Wrap_Struct(rb_cData, &ParseDataType, data);
 
-  args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
-  add_errors(output, doc_fragment, args->input, rb_utf8_str_new_static("#fragment", 9));
+  add_errors(output, doc_fragment, tags, rb_utf8_str_new_static("#fragment", 9));
+
+  // Make sure the parse_data lives until this point.
+  RB_GC_GUARD(parse_data);
+
   return Qnil;
 }
 
