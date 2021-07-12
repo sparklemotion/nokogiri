@@ -300,35 +300,10 @@ typedef struct {
   xmlDocPtr doc;
 } ParseArgs;
 
-static void
-parse_args_mark(void *parse_args)
-{
-  ParseArgs *args = parse_args;
-  rb_gc_mark_maybe(args->input);
-  rb_gc_mark_maybe(args->url_or_frag);
-}
-
-// Wrap a ParseArgs pointer. The underlying ParseArgs must outlive the
-// wrapper.
-static VALUE
-wrap_parse_args(ParseArgs *args)
-{
-  return Data_Wrap_Struct(rb_cObject, parse_args_mark, RUBY_NEVER_FREE, args);
-}
-
-// Returnsd the underlying ParseArgs wrapped by wrap_parse_args.
-static ParseArgs *
-unwrap_parse_args(VALUE obj)
-{
-  ParseArgs *args;
-  Data_Get_Struct(obj, ParseArgs, args);
-  return args;
-}
-
 static VALUE
 parse_cleanup(VALUE parse_args)
 {
-  ParseArgs *args = unwrap_parse_args(parse_args);
+  ParseArgs *args = (ParseArgs*)parse_args;
   gumbo_destroy_output(args->output);
   // Make sure garbage collection doesn't mark the objects as being live based
   // on references from the ParseArgs. This may be unnecessary.
@@ -360,15 +335,14 @@ parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors
     .url_or_frag = url,
     .doc = NULL,
   };
-  VALUE parse_args = wrap_parse_args(&args);
 
-  return rb_ensure(parse_continue, parse_args, parse_cleanup, parse_args);
+  return rb_ensure(parse_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
 }
 
 static VALUE
 parse_continue(VALUE parse_args)
 {
-  ParseArgs *args = unwrap_parse_args(parse_args);
+  ParseArgs *args = (ParseArgs*)parse_args;
   GumboOutput *output = args->output;
   xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
@@ -571,15 +545,14 @@ error:
     .url_or_frag = doc_fragment,
     .doc = (xmlDocPtr)extract_xml_node(doc),
   };
-  VALUE parse_args = wrap_parse_args(&args);
-  rb_ensure(fragment_continue, parse_args, parse_cleanup, parse_args);
+  rb_ensure(fragment_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
   return Qnil;
 }
 
 static VALUE
 fragment_continue(VALUE parse_args)
 {
-  ParseArgs *args = unwrap_parse_args(parse_args);
+  ParseArgs *args = (ParseArgs*)parse_args;
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
   xmlDocPtr xml_doc = args->doc;
