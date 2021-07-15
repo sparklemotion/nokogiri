@@ -5,10 +5,7 @@ namespace "docker" do
   IMAGE_DIR = "oci-images/nokogiri-test"
   RUBIES = {
     :mri=>["2.5", "2.6", "2.7", "3.0"],
-    :jruby=>["9.2"],
-    :rbx=>["latest"],
-    :windows=>["2.3", "2.4", "2.5", "2.6"],
-    :truffle=>["stable", "nightly"],
+    :truffle=>["nightly"],
   }
 
   def docker_tag_for(engine, version = nil)

@@ -1,4 +1,0 @@
-# -*- dockerfile -*-
-
-# https://github.com/docker-library/openjdk/issues/32
-ENV JAVA_OPTS="-Dfile.encoding=UTF8"
