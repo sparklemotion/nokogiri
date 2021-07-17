@@ -27,7 +27,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ports/archives
-          key: tarballs-ubuntu-${{hashFiles('**/dependencies.yml')}}
+          key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- ${{matrix.flags}}
       - run: bundle exec rake test
