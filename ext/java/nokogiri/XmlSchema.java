@@ -276,7 +276,7 @@ public class XmlSchema extends RubyObject
                     String systemId,
                     String baseURI)
     {
-      if (noNet && (systemId.startsWith("http://") || systemId.startsWith("ftp://"))) {
+      if (noNet && systemId != null && (systemId.startsWith("http://") || systemId.startsWith("ftp://"))) {
         if (systemId.startsWith(XMLConstants.W3C_XML_SCHEMA_NS_URI)) {
           return null; // use default resolver
         }
