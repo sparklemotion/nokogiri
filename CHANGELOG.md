@@ -4,12 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## 1.12.0 / unreleased
-
-Prereleases:
-
-- 1.12.0.rc1 / 2021-07-09
-
+## 1.12.0 / 2021-08-02
 
 ### Notable Addition: HTML5 Support (CRuby only)
 
