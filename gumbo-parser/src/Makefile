@@ -2,7 +2,7 @@
 # to enable a mini_portile2 recipe to build the gumbo parser
 .PHONY: clean
 
-override CFLAGS += -std=c99 -Wall
+CFLAGS += -std=c99 -Wall
 
 # allow the ENV var to override this
 RANLIB ?= ranlib
