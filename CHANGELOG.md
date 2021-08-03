@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.12.1 / 2021-08-03
+
+### Fixed
+
+* Fix compilation of libgumbo on BSD systems by avoiding GNU-isms. [[#2298](https://github.com/sparklemotion/nokogiri/issues/2298)]
+
+
 ## 1.12.0 / 2021-08-02
 
 ### Notable Addition: HTML5 Support (CRuby only)
