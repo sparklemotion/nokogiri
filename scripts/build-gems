@@ -39,3 +39,7 @@ cp -v pkg/nokogiri-*darwin*.gem gems
 
 # test those gem files!
 $(dirname $0)/test-gem-set gems/*.gem
+
+pushd gems
+  ls *.gem | sort | xargs sha256sum
+popd
