@@ -24,6 +24,9 @@ boxen << Box.new("bionic32", "mkorenkov/ubuntu-bionic32", <<~EOF)
   apt-get install -y libxslt-dev libxml2-dev pkg-config
   apt-get install -y ruby ruby-dev bundler git
 EOF
+boxen << Box.new("freebsd", "freebsd/FreeBSD-13.0-CURRENT", <<~EOF)
+  pkg install rbenv ruby-build
+EOF
 
 Vagrant.configure("2") do |config|
   boxen.each do |box|
