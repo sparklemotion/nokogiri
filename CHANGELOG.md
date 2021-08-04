@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.12.2 / 2021-08-04
+
+### Fixed
+
+* Ensure that C extension files in non-native gem installations are loaded using `require` and rely on `$LOAD_PATH` instead of using `require_relative`. This issue only exists when deleting shared libraries that exist outside the extensions directory, something users occasionally do to conserve disk space. [[#2300](https://github.com/sparklemotion/nokogiri/issues/2300)]
+
+
 ## 1.12.1 / 2021-08-03
 
 ### Fixed
