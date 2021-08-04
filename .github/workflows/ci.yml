@@ -274,6 +274,7 @@ jobs:
       - run: bundle exec rake test
 
   bsd:
+    continue-on-error: true # we're seeing VMs hang and fail the whole workflow
     needs: ["basic"]
     strategy:
       fail-fast: false
