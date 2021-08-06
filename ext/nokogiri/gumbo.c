@@ -89,19 +89,15 @@ get_parent(xmlNodePtr node)
 static GumboOutput *
 perform_parse(const GumboOptions *options, VALUE input)
 {
-  GumboOutput *output;
-  const char *status_string;
-
   assert(RTEST(input));
   Check_Type(input, T_STRING);
+  GumboOutput *output = gumbo_parse_with_options(
+                          options,
+                          RSTRING_PTR(input),
+                          RSTRING_LEN(input)
+                        );
 
-  output = gumbo_parse_with_options(
-             options,
-             RSTRING_PTR(input),
-             RSTRING_LEN(input)
-           );
-
-  status_string = gumbo_status_to_string(output->status);
+  const char *status_string = gumbo_status_to_string(output->status);
   switch (output->status) {
     case GUMBO_STATUS_OK:
       break;
@@ -155,13 +151,9 @@ build_tree(
   size_t child_index = 0;
 
   while (true) {
-    const GumboVector *children;
-    const GumboNode *gumbo_child;
-    xmlNodePtr xml_child;
-
     assert(gumbo_node != NULL);
-    children = gumbo_node->type == GUMBO_NODE_DOCUMENT ?
-               &gumbo_node->v.document.children : &gumbo_node->v.element.children;
+    const GumboVector *children = gumbo_node->type == GUMBO_NODE_DOCUMENT ?
+                                  &gumbo_node->v.document.children : &gumbo_node->v.element.children;
     if (child_index >= children->length) {
       // Move up the tree and to the next child.
       if (xml_node == xml_output_node) {
@@ -180,8 +172,9 @@ build_tree(
       }
       continue;
     }
+    const GumboNode *gumbo_child = children->data[child_index++];
+    xmlNodePtr xml_child;
 
-    gumbo_child = children->data[child_index++];
     switch (gumbo_child->type) {
       case GUMBO_NODE_DOCUMENT:
         abort(); // Bug in Gumbo.
@@ -209,15 +202,12 @@ build_tree(
       case GUMBO_NODE_TEMPLATE:
       // XXX: Should create a template element and a new DocumentFragment
       case GUMBO_NODE_ELEMENT: {
-        xmlNsPtr ns = NULL;
-        const GumboVector *attrs;
-        size_t i;
-
         xml_child = xmlNewDocNode(doc, NULL, (const xmlChar *)gumbo_child->v.element.name, NULL);
         set_line(xml_child, gumbo_child->v.element.start_pos.line);
         if (xml_root == NULL) {
           xml_root = xml_child;
         }
+        xmlNsPtr ns = NULL;
         switch (gumbo_child->v.element.tag_namespace) {
           case GUMBO_NAMESPACE_HTML:
             break;
@@ -234,8 +224,8 @@ build_tree(
         xmlAddChild(xml_node, xml_child);
 
         // Add the attributes.
-        attrs = &gumbo_child->v.element.attributes;
-        for (i = 0; i < attrs->length; i++) {
+        const GumboVector *attrs = &gumbo_child->v.element.attributes;
+        for (size_t i = 0; i < attrs->length; i++) {
           const GumboAttribute *attr = attrs->data[i];
 
           switch (attr->attr_namespace) {
@@ -274,29 +264,19 @@ add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
 
   // Add parse errors to rdoc.
   if (output->errors.length) {
-    size_t i;
     const GumboVector *errors = &output->errors;
     VALUE rerrors = rb_ary_new2(errors->length);
 
-    for (i = 0; i < errors->length; i++) {
-      GumboError *err;
-      GumboSourcePosition position;
+    for (size_t i = 0; i < errors->length; i++) {
+      GumboError *err = errors->data[i];
+      GumboSourcePosition position = gumbo_error_position(err);
       char *msg;
-      size_t size;
-      VALUE err_str;
-      VALUE syntax_error;
-      const char *error_code;
-      VALUE str1;
-
-      err = errors->data[i];
-      position = gumbo_error_position(err);
-      size = gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
-      err_str = rb_utf8_str_new(msg, size);
+      size_t size = gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
+      VALUE err_str = rb_utf8_str_new(msg, size);
       free(msg);
-      syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
-      error_code = gumbo_error_code(err);
-      str1 = error_code ? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
-
+      VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
+      const char *error_code = gumbo_error_code(err);
+      VALUE str1 = error_code ? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
@@ -343,20 +323,18 @@ static VALUE parse_continue(VALUE parse_args);
 static VALUE
 parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth)
 {
-  GumboOutput *output;
   GumboOptions options = kGumboDefaultOptions;
-  ParseArgs args;
-
   options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
   options.max_tree_depth = NUM2INT(max_depth);
 
-  output = perform_parse(&options, input);
-
-  args.output = output;
-  args.input = input;
-  args.url_or_frag = url;
-  args.doc = NULL;
+  GumboOutput *output = perform_parse(&options, input);
+  ParseArgs args = {
+    .output = output,
+    .input = input,
+    .url_or_frag = url,
+    .doc = NULL,
+  };
 
   return rb_ensure(parse_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
 }
@@ -367,8 +345,6 @@ parse_continue(VALUE parse_args)
   ParseArgs *args = (ParseArgs *)parse_args;
   GumboOutput *output = args->output;
   xmlDocPtr doc;
-  VALUE rdoc;
-
   if (output->document->v.document.has_doctype) {
     const char *name   = output->document->v.document.name;
     const char *public = output->document->v.document.public_identifier;
@@ -381,7 +357,7 @@ parse_continue(VALUE parse_args)
   }
   args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
-  rdoc = Nokogiri_wrap_xml_document(cNokogiriHtml5Document, doc);
+  VALUE rdoc = Nokogiri_wrap_xml_document(cNokogiriHtml5Document, doc);
   args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
@@ -390,15 +366,10 @@ parse_continue(VALUE parse_args)
 static int
 lookup_namespace(VALUE node, bool require_known_ns)
 {
-  VALUE ns;
   ID namespace, href;
-  const char *href_ptr;
-  size_t href_len;
-
   CONST_ID(namespace, "namespace");
   CONST_ID(href, "href");
-
-  ns = rb_funcall(node, namespace, 0);
+  VALUE ns = rb_funcall(node, namespace, 0);
 
   if (NIL_P(ns)) {
     return GUMBO_NAMESPACE_HTML;
@@ -407,8 +378,8 @@ lookup_namespace(VALUE node, bool require_known_ns)
   assert(RTEST(ns));
   Check_Type(ns, T_STRING);
 
-  href_ptr = RSTRING_PTR(ns);
-  href_len = RSTRING_LEN(ns);
+  const char *href_ptr = RSTRING_PTR(ns);
+  size_t href_len = RSTRING_LEN(ns);
 #define NAMESPACE_P(uri) (href_len == sizeof uri - 1 && !memcmp(href_ptr, uri, href_len))
   if (NAMESPACE_P("http://www.w3.org/1999/xhtml")) {
     return GUMBO_NAMESPACE_HTML;
@@ -456,23 +427,15 @@ fragment(
   GumboQuirksModeEnum quirks_mode;
   bool form = false;
   const char *encoding = NULL;
-  VALUE doc, dtd;
-  int depth;
-  GumboOptions options = kGumboDefaultOptions;
-  GumboOutput *output;
-  ParseArgs args;
 
   if (NIL_P(ctx)) {
     ctx_tag = "body";
     ctx_ns = GUMBO_NAMESPACE_HTML;
   } else if (TYPE(ctx) == T_STRING) {
-    size_t len;
-    const char *colon;
-
     ctx_tag = StringValueCStr(ctx);
     ctx_ns = GUMBO_NAMESPACE_HTML;
-    len = RSTRING_LEN(ctx);
-    colon = memchr(ctx_tag, ':', len);
+    size_t len = RSTRING_LEN(ctx);
+    const char *colon = memchr(ctx_tag, ':', len);
     if (colon) {
       switch (colon - ctx_tag) {
         case 3:
@@ -507,7 +470,6 @@ error:
     // Check if it's a form.
     form = ctx_ns == GUMBO_NAMESPACE_HTML && st_strcasecmp(ctx_tag, "form") == 0;
   } else {
-    VALUE node, element_name;
     ID element_ = rb_intern_const("element?");
 
     // Context fragment name.
@@ -520,13 +482,13 @@ error:
     ctx_ns = lookup_namespace(ctx, true);
 
     // Check for a form ancestor, including self.
-    for (node = ctx;
+    for (VALUE node = ctx;
          !NIL_P(node);
          node = rb_respond_to(node, parent) ? rb_funcall(node, parent, 0) : Qnil) {
       if (!RTEST(rb_funcall(node, element_, 0))) {
         continue;
       }
-      element_name = rb_funcall(node, name, 0);
+      VALUE element_name = rb_funcall(node, name, 0);
       if (RSTRING_LEN(element_name) == 4
           && !st_strcasecmp(RSTRING_PTR(element_name), "form")
           && lookup_namespace(node, false) == GUMBO_NAMESPACE_HTML) {
@@ -548,8 +510,8 @@ error:
   }
 
   // Quirks mode.
-  doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
-  dtd = rb_funcall(doc, internal_subset, 0);
+  VALUE doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
+  VALUE dtd = rb_funcall(doc, internal_subset, 0);
   if (NIL_P(dtd)) {
     quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS;
   } else {
@@ -564,8 +526,8 @@ error:
   }
 
   // Perform a fragment parse.
-  depth = NUM2INT(max_depth);
-  options = kGumboDefaultOptions;
+  int depth = NUM2INT(max_depth);
+  GumboOptions options = kGumboDefaultOptions;
   options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
   // Add one to account for the HTML element.
@@ -576,13 +538,13 @@ error:
   options.quirks_mode = quirks_mode;
   options.fragment_context_has_form_ancestor = form;
 
-  output = perform_parse(&options, tags);
-
-  args.output = output;
-  args.input = tags;
-  args.url_or_frag = doc_fragment;
-  args.doc = (xmlDocPtr)extract_xml_node(doc);
-
+  GumboOutput *output = perform_parse(&options, tags);
+  ParseArgs args = {
+    .output = output,
+    .input = tags,
+    .url_or_frag = doc_fragment,
+    .doc = (xmlDocPtr)extract_xml_node(doc),
+  };
   rb_ensure(fragment_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
   return Qnil;
 }
@@ -594,10 +556,9 @@ fragment_continue(VALUE parse_args)
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
   xmlDocPtr xml_doc = args->doc;
-  xmlNodePtr xml_frag;
 
   args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
-  xml_frag = extract_xml_node(doc_fragment);
+  xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
   add_errors(output, doc_fragment, args->input, rb_utf8_str_new_static("#fragment", 9));
   return Qnil;
