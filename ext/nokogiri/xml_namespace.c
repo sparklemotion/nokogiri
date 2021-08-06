@@ -33,10 +33,10 @@ dealloc_namespace(xmlNsPtr ns)
    */
   NOKOGIRI_DEBUG_START(ns) ;
   if (ns->href) {
-    xmlFree((xmlChar *)(uintptr_t)ns->href);
+    xmlFree(DISCARD_CONST_QUAL_XMLCHAR(ns->href));
   }
   if (ns->prefix) {
-    xmlFree((xmlChar *)(uintptr_t)ns->prefix);
+    xmlFree(DISCARD_CONST_QUAL_XMLCHAR(ns->prefix));
   }
   xmlFree(ns);
   NOKOGIRI_DEBUG_END(ns) ;

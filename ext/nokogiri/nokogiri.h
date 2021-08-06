@@ -197,6 +197,9 @@ NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
 #define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) nokogiri_sax_tuple_new(_ctxt, _self)
 #define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) free(_tuple)
 
+#define DISCARD_CONST_QUAL(t, v) ((t)(uintptr_t)(v))
+#define DISCARD_CONST_QUAL_XMLCHAR(v) DISCARD_CONST_QUAL(xmlChar *, v)
+
 void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
 void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state, void *user_data,
     xmlStructuredErrorFunc handler);

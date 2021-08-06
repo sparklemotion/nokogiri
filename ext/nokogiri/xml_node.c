@@ -304,7 +304,7 @@ ok:
        *  issue #391, where new node's prefix may become the string "default"
        *  see libxml2 tree.c xmlNewReconciliedNs which implements this behavior.
        */
-      xmlFree((xmlChar *)reparentee->ns->prefix);
+      xmlFree(DISCARD_CONST_QUAL_XMLCHAR(reparentee->ns->prefix));
       reparentee->ns->prefix = NULL;
     }
   }
@@ -934,7 +934,7 @@ get(VALUE self, VALUE rattribute)
   Data_Get_Struct(self, xmlNode, node);
   attribute = xmlCharStrdup(StringValueCStr(rattribute));
 
-  colon = (xmlChar *)(uintptr_t)xmlStrchr(attribute, (const xmlChar)':');
+  colon = DISCARD_CONST_QUAL_XMLCHAR(xmlStrchr(attribute, (const xmlChar)':'));
   if (colon) {
     /* split the attribute string into separate prefix and name by
      * null-terminating the prefix at the colon */
