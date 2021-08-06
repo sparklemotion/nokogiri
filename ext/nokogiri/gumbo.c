@@ -303,7 +303,7 @@ typedef struct {
 static VALUE
 parse_cleanup(VALUE parse_args)
 {
-  ParseArgs *args = (ParseArgs*)parse_args;
+  ParseArgs *args = (ParseArgs *)parse_args;
   gumbo_destroy_output(args->output);
   // Make sure garbage collection doesn't mark the objects as being live based
   // on references from the ParseArgs. This may be unnecessary.
@@ -342,7 +342,7 @@ parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors
 static VALUE
 parse_continue(VALUE parse_args)
 {
-  ParseArgs *args = (ParseArgs*)parse_args;
+  ParseArgs *args = (ParseArgs *)parse_args;
   GumboOutput *output = args->output;
   xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
@@ -552,7 +552,7 @@ error:
 static VALUE
 fragment_continue(VALUE parse_args)
 {
-  ParseArgs *args = (ParseArgs*)parse_args;
+  ParseArgs *args = (ParseArgs *)parse_args;
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
   xmlDocPtr xml_doc = args->doc;

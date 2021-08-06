@@ -110,7 +110,8 @@ void
 noko_init_html_sax_parser_context()
 {
   assert(cNokogiriXmlSaxParserContext);
-  cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext", cNokogiriXmlSaxParserContext);
+  cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext",
+                                   cNokogiriXmlSaxParserContext);
 
   rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory", parse_memory, 2);
   rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file", parse_file, 2);
