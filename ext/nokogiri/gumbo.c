@@ -75,7 +75,7 @@ new_html_doc(const char *dtd_name, const char *system, const char *public)
   htmlDocPtr doc = htmlNewDocNoDtD(/* URI */ NULL, /* ExternalID */NULL);
   assert(doc);
   if (dtd_name) {
-    xmlCreateIntSubset(doc, BAD_CAST dtd_name, BAD_CAST public, BAD_CAST system);
+    xmlCreateIntSubset(doc, (const xmlChar *)dtd_name, (const xmlChar *)public, (const xmlChar *)system);
   }
   return doc;
 }
@@ -124,11 +124,11 @@ lookup_or_add_ns(
   const char *prefix
 )
 {
-  xmlNsPtr ns = xmlSearchNs(doc, root, BAD_CAST prefix);
+  xmlNsPtr ns = xmlSearchNs(doc, root, (const xmlChar *)prefix);
   if (ns) {
     return ns;
   }
-  return xmlNewNs(root, BAD_CAST href, BAD_CAST prefix);
+  return xmlNewNs(root, (const xmlChar *)href, (const xmlChar *)prefix);
 }
 
 static void
@@ -188,20 +188,20 @@ build_tree(
 
       case GUMBO_NODE_TEXT:
       case GUMBO_NODE_WHITESPACE:
-        xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
+        xml_child = xmlNewDocText(doc, (const xmlChar *)gumbo_child->v.text.text);
         set_line(xml_child, gumbo_child->v.text.start_pos.line);
         xmlAddChild(xml_node, xml_child);
         break;
 
       case GUMBO_NODE_CDATA:
-        xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
+        xml_child = xmlNewCDataBlock(doc, (const xmlChar *)gumbo_child->v.text.text,
                                      (int) strlen(gumbo_child->v.text.text));
         set_line(xml_child, gumbo_child->v.text.start_pos.line);
         xmlAddChild(xml_node, xml_child);
         break;
 
       case GUMBO_NODE_COMMENT:
-        xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
+        xml_child = xmlNewDocComment(doc, (const xmlChar *)gumbo_child->v.text.text);
         set_line(xml_child, gumbo_child->v.text.start_pos.line);
         xmlAddChild(xml_node, xml_child);
         break;
@@ -213,7 +213,7 @@ build_tree(
         const GumboVector *attrs;
         size_t i;
 
-        xml_child = xmlNewDocNode(doc, NULL, BAD_CAST gumbo_child->v.element.name, NULL);
+        xml_child = xmlNewDocNode(doc, NULL, (const xmlChar *)gumbo_child->v.element.name, NULL);
         set_line(xml_child, gumbo_child->v.element.start_pos.line);
         if (xml_root == NULL) {
           xml_root = xml_child;
@@ -254,7 +254,7 @@ build_tree(
             default:
               ns = NULL;
           }
-          xmlNewNsProp(xml_child, ns, BAD_CAST attr->name, BAD_CAST attr->value);
+          xmlNewNsProp(xml_child, ns, (const xmlChar *)attr->name, (const xmlChar *)attr->value);
         }
 
         // Add children for this element.
