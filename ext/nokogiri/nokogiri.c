@@ -220,7 +220,7 @@ Init_nokogiri()
   xmlInitParser();
   exsltRegisterAll();
 
-  if (xsltExtModuleFunctionLookup((xmlChar*)"date-time", EXSLT_DATE_NAMESPACE)) {
+  if (xsltExtModuleFunctionLookup((const xmlChar *)"date-time", EXSLT_DATE_NAMESPACE)) {
     rb_const_set(mNokogiri, rb_intern("LIBXSLT_DATETIME_ENABLED"), Qtrue);
   } else {
     rb_const_set(mNokogiri, rb_intern("LIBXSLT_DATETIME_ENABLED"), Qfalse);

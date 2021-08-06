@@ -213,7 +213,7 @@ set_encoding(VALUE self, VALUE encoding)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if (doc->encoding) {
-    free((char *)(uintptr_t) doc->encoding);  /* avoid gcc cast warning */
+    xmlFree(DISCARD_CONST_QUAL_XMLCHAR(doc->encoding));
   }
 
   doc->encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));

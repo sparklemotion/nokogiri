@@ -266,7 +266,7 @@ get_description(VALUE klass, VALUE tag_name)
                                     );
 
   if (NULL == description) { return Qnil; }
-  return Data_Wrap_Struct(klass, 0, 0, (void *)(uintptr_t)description);
+  return Data_Wrap_Struct(klass, 0, 0, DISCARD_CONST_QUAL(void *, description));
 }
 
 void
