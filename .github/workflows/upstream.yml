@@ -89,6 +89,7 @@ jobs:
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/00-win-ucrt
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
