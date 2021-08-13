@@ -16,9 +16,6 @@
 /ports/
 /tmp/
 
-# containers for testing
-/oci-images/nokogiri-test/*.generated
-
 # code coverage
 /coverage/
 
