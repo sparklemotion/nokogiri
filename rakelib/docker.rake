@@ -52,21 +52,32 @@ on:
     - cron: "0 5 * * 3" # At 05:00 on Wednesday # https://crontab.guru/#0_5_*_*_3
 # reference: https://github.com/marketplace/actions/build-and-push-docker-images
 jobs:
-EOF
-
-    job_template = <<EOF
-  %{job_name}:
+  build_images:
     runs-on: ubuntu-latest
     steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - uses: actions/checkout@v2
         with:
+          submodules: true
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+EOF
+
+    image_template = <<EOF
+      - name: %{job_name}
+        uses: docker/build-push-action@v2
+        with:
+          context: "."
           push: true
           tags: %{image_name}
           file: %{dockerfile_path}
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
 EOF
 
     puts "writing #{filename} ..."
@@ -76,11 +87,11 @@ EOF
       Dir.glob(File.join(IMAGE_DIR, "*.dockerfile")).each do |dockerfile|
         image_tag = Regexp.new("(.*)\.dockerfile").match(File.basename(dockerfile))[1]
         template_params = {
-          job_name: image_tag.gsub(/[^a-zA-Z0-9]/, "_"),
+          job_name: image_tag,
           image_name: "#{IMAGE_NAME}:#{image_tag}",
           dockerfile_path: dockerfile,
         }
-        io.write(job_template % template_params)
+        io.write(image_template % template_params)
       end
     end
   end

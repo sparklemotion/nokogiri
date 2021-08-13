@@ -7,99 +7,75 @@ on:
     - cron: "0 5 * * 3" # At 05:00 on Wednesday # https://crontab.guru/#0_5_*_*_3
 # reference: https://github.com/marketplace/actions/build-and-push-docker-images
 jobs:
-  alpine:
+  build_images:
     runs-on: ubuntu-latest
     steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - uses: actions/checkout@v2
         with:
+          submodules: true
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+      - uses: docker/setup-buildx-action@v1
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+      - name: alpine
+        uses: docker/build-push-action@v2
+        with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:alpine
           file: oci-images/nokogiri-test/alpine.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  bionic:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: bionic
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:bionic
           file: oci-images/nokogiri-test/bionic.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  bionic32:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: bionic32
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:bionic32
           file: oci-images/nokogiri-test/bionic32.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  mri_2_5:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: mri-2.5
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.5
           file: oci-images/nokogiri-test/mri-2.5.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  mri_2_6:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: mri-2.6
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.6
           file: oci-images/nokogiri-test/mri-2.6.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  mri_2_7:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: mri-2.7
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.7
           file: oci-images/nokogiri-test/mri-2.7.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  mri_3_0:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: mri-3.0
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:mri-3.0
           file: oci-images/nokogiri-test/mri-3.0.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
-  truffle_nightly:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/build-push-action@v2
-        id: docker_build
+      - name: truffle-nightly
+        uses: docker/build-push-action@v2
         with:
+          context: "."
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
           file: oci-images/nokogiri-test/truffle-nightly.dockerfile
-      - name: Log the image digest
-        run: echo ${{steps.docker_build.outputs.digest}}
