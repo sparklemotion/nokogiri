@@ -4,6 +4,8 @@ concurrency:
   cancel-in-progress: true
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 3" # At 08:00 on Wednesday # https://crontab.guru/#0_8_*_*_3
   push:
     branches:
       - main
@@ -19,7 +21,7 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:mri-3.0
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.0
     steps:
       - uses: actions/checkout@v2
         with:
@@ -61,7 +63,7 @@ jobs:
         sys: ["enable"]
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:${{matrix.image}}
+      image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
         with:
@@ -79,7 +81,7 @@ jobs:
         ruby: ["2.5", "2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -102,7 +104,7 @@ jobs:
         ruby: ["2.5", "2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -124,7 +126,7 @@ jobs:
         sys: ["enable"]
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:alpine
+      image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
         with:
@@ -142,7 +144,7 @@ jobs:
         sys: ["disable"]
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:alpine
+      image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
         with:
@@ -163,7 +165,7 @@ jobs:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -188,7 +190,7 @@ jobs:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v2
         with:

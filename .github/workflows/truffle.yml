@@ -19,7 +19,7 @@ jobs:
     continue-on-error: true
     runs-on: ubuntu-latest
     container:
-      image: flavorjones/nokogiri-test:truffle-nightly
+      image: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
     steps:
       - uses: actions/checkout@v2
         with:

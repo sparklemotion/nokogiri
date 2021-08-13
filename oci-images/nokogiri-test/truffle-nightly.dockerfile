@@ -1,4 +1,4 @@
-FROM flavorjones/truffleruby:nightly
+FROM ghcr.io/flavorjones/truffleruby:nightly
 
 # -*- dockerfile -*-
 
