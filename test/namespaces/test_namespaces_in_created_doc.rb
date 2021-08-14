@@ -85,6 +85,49 @@ module Nokogiri
         doc.root.add_child(node)
         assert_equal("http://foo.io", doc.root.children.first.attribute_nodes.first.namespace.href)
       end
+
+      def test_created_namespaced_attribute_on_unparented_node_is_renamespaced_in_xml_doc
+        doc1 = Nokogiri::XML("<root>")
+        doc2 = Nokogiri::XML("<root>")
+
+        child = doc1.create_element("child")
+        child["tempname"] = "en"
+        attr = child.attribute("tempname")
+        attr.name = "xml:lang"
+        assert_nil(child.attribute_nodes.first.namespace)
+
+        doc2.root.add_child(child)
+        assert(child.attribute_nodes.first.namespace)
+      end
+
+      # def test_created_namespaced_attribute_on_unparented_node_is_not_renamespaced_in_html4_doc
+      #   doc1 = Nokogiri::HTML4("<html><body></body></html>")
+      #   doc2 = Nokogiri::HTML4("<html><body></body></html>")
+
+      #   child = doc1.create_element("div")
+      #   child["tempname"] = "en"
+      #   attr = child.attribute("tempname")
+      #   attr.name = "xml:lang"
+      #   assert_nil(child.attribute_nodes.first.namespace)
+
+      #   doc2.at_css("body").add_child(child)
+      #   assert_nil(child.attribute_nodes.first.namespace)
+      # end
+
+      def test_created_namespaced_attribute_on_unparented_node_is_not_renamespaced_in_html5_doc
+        skip("HTML5 not supported on this platform yet") unless defined?(Nokogiri::HTML5)
+        doc1 = Nokogiri::HTML5("<html><body></body></html>")
+        doc2 = Nokogiri::HTML5("<html><body></body></html>")
+
+        child = doc1.create_element("div")
+        child["tempname"] = "en"
+        attr = child.attribute("tempname")
+        attr.name = "xml:lang"
+        assert_nil(child.attribute_nodes.first.namespace)
+
+        doc2.at_css("body").add_child(child)
+        assert_nil(child.attribute_nodes.first.namespace)
+      end
     end
   end
 end
