@@ -1375,12 +1375,12 @@ native_write_to(
  * Returns the line for this Node
  */
 static VALUE
-line(VALUE self)
+rb_xml_node_line(VALUE rb_node)
 {
-  xmlNodePtr node;
-  Data_Get_Struct(self, xmlNode, node);
+  xmlNodePtr c_node;
+  Data_Get_Struct(rb_node, xmlNode, c_node);
 
-  return INT2NUM(xmlGetLineNo(node));
+  return INT2NUM(xmlGetLineNo(c_node));
 }
 
 /*
@@ -1390,17 +1390,25 @@ line(VALUE self)
  * Sets the line for this Node. num must be less than 65535.
  */
 static VALUE
-set_line(VALUE self, VALUE num)
+rb_xml_node_line_set(VALUE rb_node, VALUE rb_line_number)
 {
-  xmlNodePtr node;
-  int value = NUM2INT(num);
+  xmlNodePtr c_node;
+  int line_number = NUM2INT(rb_line_number);
 
-  Data_Get_Struct(self, xmlNode, node);
-  if (value < 65535) {
-    node->line = value;
+  Data_Get_Struct(rb_node, xmlNode, c_node);
+
+  // libxml2 optionally uses xmlNode.psvi to store longer line numbers, but only for text nodes.
+  // search for "psvi" in SAX2.c and tree.c to learn more.
+  if (line_number < 65535) {
+    c_node->line = (short) line_number;
+  } else {
+    c_node->line = 65535;
+    if (c_node->type == XML_TEXT_NODE) {
+      c_node->psvi = (void *)(ptrdiff_t) line_number;
+    }
   }
 
-  return num;
+  return rb_line_number;
 }
 
 /*
@@ -1805,8 +1813,8 @@ noko_init_xml_node()
   rb_define_method(cNokogiriXmlNode, "create_internal_subset", create_internal_subset, 3);
   rb_define_method(cNokogiriXmlNode, "create_external_subset", create_external_subset, 3);
   rb_define_method(cNokogiriXmlNode, "pointer_id", pointer_id, 0);
-  rb_define_method(cNokogiriXmlNode, "line", line, 0);
-  rb_define_method(cNokogiriXmlNode, "line=", set_line, 1);
+  rb_define_method(cNokogiriXmlNode, "line", rb_xml_node_line, 0);
+  rb_define_method(cNokogiriXmlNode, "line=", rb_xml_node_line_set, 1);
   rb_define_method(cNokogiriXmlNode, "content", get_native_content, 0);
   rb_define_method(cNokogiriXmlNode, "native_content=", set_native_content, 1);
   rb_define_method(cNokogiriXmlNode, "lang", get_lang, 0);

@@ -68,15 +68,17 @@ module Nokogiri
       NOBASEFIX   = 1 << 18
       # relax any hardcoded limit from the parser
       HUGE        = 1 << 19
+      # line numbers stored as long int (instead of a short int)
+      BIG_LINES   = 1 << 22
 
       # the default options used for parsing XML documents
-      DEFAULT_XML  = RECOVER | NONET
+      DEFAULT_XML  = RECOVER | NONET | BIG_LINES
       # the default options used for parsing XSLT stylesheets
-      DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA
+      DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA | BIG_LINES
       # the default options used for parsing HTML documents
-      DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
+      DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET | BIG_LINES
       # the default options used for parsing XML schemas
-      DEFAULT_SCHEMA = NONET
+      DEFAULT_SCHEMA = NONET | BIG_LINES
 
       attr_accessor :options
       def initialize options = STRICT

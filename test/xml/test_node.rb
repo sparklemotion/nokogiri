@@ -1258,6 +1258,29 @@ module Nokogiri
             assert_equal(2, set[0].line)
             assert_equal(5, set[1].line)
           end
+
+          it "supports a line number greater than a short int" do
+            max_short_int = (1 << 16) - 1
+            xml = StringIO.new.tap do |io|
+              io << "<root>"
+              max_short_int.times do |j|
+                io << "<a>#{j}</a>\n"
+                io << "<b>#{j}</b>\n"
+              end
+              io << "<x/>\n"
+              io << "</root>"
+            end.string
+
+            if Nokogiri.uses_libxml?
+              doc = Nokogiri::XML(xml) { |c| c.nobig_lines }
+              node = doc.at_css("x")
+              assert_operator(node.line, :==, max_short_int)
+            end
+
+            doc = Nokogiri::XML(xml)
+            node = doc.at_css("x")
+            assert_operator(node.line, :>, max_short_int)
+          end
         end
 
         describe "#line=" do
@@ -1267,6 +1290,18 @@ module Nokogiri
             node = document.create_element('a')
             node.line = 54321
             assert_equal(54321, node.line)
+          end
+
+          it "supports a line number greater than a short int for text nodes" do
+            skip_unless_libxml2("Xerces does not have line numbers for nodes")
+
+            max_short_int = (1 << 16) - 1
+            line_number = max_short_int + 100
+
+            document = Nokogiri::XML::Document.parse("<root><a>text node</a></root>")
+            node = document.at_css("a").children.first
+            node.line = line_number
+            assert_equal(line_number, node.line)
           end
         end
       end
