@@ -100,19 +100,19 @@ module Nokogiri
         assert(child.attribute_nodes.first.namespace)
       end
 
-      # def test_created_namespaced_attribute_on_unparented_node_is_not_renamespaced_in_html4_doc
-      #   doc1 = Nokogiri::HTML4("<html><body></body></html>")
-      #   doc2 = Nokogiri::HTML4("<html><body></body></html>")
+      def test_created_namespaced_attribute_on_unparented_node_is_not_renamespaced_in_html4_doc
+        doc1 = Nokogiri::HTML4("<html><body></body></html>")
+        doc2 = Nokogiri::HTML4("<html><body></body></html>")
 
-      #   child = doc1.create_element("div")
-      #   child["tempname"] = "en"
-      #   attr = child.attribute("tempname")
-      #   attr.name = "xml:lang"
-      #   assert_nil(child.attribute_nodes.first.namespace)
+        child = doc1.create_element("div")
+        child["tempname"] = "en"
+        attr = child.attribute("tempname")
+        attr.name = "xml:lang"
+        assert_nil(child.attribute_nodes.first.namespace)
 
-      #   doc2.at_css("body").add_child(child)
-      #   assert_nil(child.attribute_nodes.first.namespace)
-      # end
+        doc2.at_css("body").add_child(child)
+        assert_nil(child.attribute_nodes.first.namespace)
+      end
 
       def test_created_namespaced_attribute_on_unparented_node_is_not_renamespaced_in_html5_doc
         skip("HTML5 not supported on this platform yet") unless defined?(Nokogiri::HTML5)

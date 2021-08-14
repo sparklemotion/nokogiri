@@ -50,6 +50,11 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
 
 
+### Fixed
+
+* [CRuby] When reparenting HTML nodes, do not attempt to relink namespaces. Previously, an HTML attribute with a colon might be interpreted as a prefixed/namespaced atttribute (for example, "xml:lang"). [[#1790](https://github.com/sparklemotion/nokogiri/issues/1790)]
+
+
 ### Improved
 
 * Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]

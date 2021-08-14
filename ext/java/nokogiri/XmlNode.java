@@ -440,24 +440,24 @@ public class XmlNode extends RubyObject
         set_namespace(context, ((XmlNode)parent(context)).namespace(context));
       }
       return;
-    }
+    } else {
+      String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
+      String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
+      boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
 
-    String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
-    String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
-    boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
-
-    // add xmlns attribute if this is a new root node or if the node's
-    // namespace isn't a default namespace in the new document
-    if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
-      // this is the root node, so we must set the namespaces attributes anyway
-      e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
-    } else if (prefix == null) {
-      // this is a default namespace but isn't the default where this node is being added
-      if (!isDefault) { e.setAttribute("xmlns", nsURI); }
-    } else if (!prefix.equals(currentPrefix) || nsURI.equals(currentURI)) {
-      // this is a prefixed namespace
-      // but doesn't have the same prefix or the prefix is set to a different URI
-      e.setAttribute("xmlns:" + prefix, nsURI);
+      // add xmlns attribute if this is a new root node or if the node's
+      // namespace isn't a default namespace in the new document
+      if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
+        // this is the root node, so we must set the namespaces attributes anyway
+        e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
+      } else if (prefix == null) {
+        // this is a default namespace but isn't the default where this node is being added
+        if (!isDefault) { e.setAttribute("xmlns", nsURI); }
+      } else if (!prefix.equals(currentPrefix) || nsURI.equals(currentURI)) {
+        // this is a prefixed namespace
+        // but doesn't have the same prefix or the prefix is set to a different URI
+        e.setAttribute("xmlns:" + prefix, nsURI);
+      }
     }
 
     if (e.hasAttributes()) {
@@ -492,8 +492,10 @@ public class XmlNode extends RubyObject
       }
     }
 
-    if (this.node.hasChildNodes()) {
-      relink_namespace(context, getChildren());
+    if (nsURI != null && !nsURI.isEmpty()) {
+      if (this.node.hasChildNodes()) {
+        relink_namespace(context, getChildren());
+      }
     }
   }
 
