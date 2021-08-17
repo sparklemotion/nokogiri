@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Dependencies
+
+* [CRuby] Vendored libiconv is updated from 1.15 to 1.16. (Note that libiconv is only redistributed in the native windows and native darwin gems, see [`LICENSE-DEPENDENCIES.md`](LICENSE-DEPENDENCIES.md) for more information.)
+
+
 ### Improved
 
 * [CRuby] Handle abruptly-closed HTML comments as WHATWG recommends for browsers. (Thanks to HackerOne user [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting this!)
