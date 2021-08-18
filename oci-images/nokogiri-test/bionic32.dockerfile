@@ -4,6 +4,7 @@ FROM i386/ubuntu:bionic
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
+RUN apt-get upgrade
 RUN apt-get install -y apt-utils
 
 
