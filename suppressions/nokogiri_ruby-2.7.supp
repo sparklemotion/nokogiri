@@ -2,7 +2,7 @@
    ruby 2.7 startup
    Memcheck:Addr4
    fun:iseq_peephole_optimize
-   fun:iseq_optimize
+   fun:iseq_optimize*
    fun:iseq_setup_insn
    fun:iseq_setup_insn
    fun:rb_iseq_compile_node
