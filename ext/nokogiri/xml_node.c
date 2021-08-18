@@ -161,6 +161,16 @@ xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
   return retval ;
 }
 
+static void
+raise_if_ancestor_of_self(xmlNodePtr self)
+{
+  for (xmlNodePtr ancestor = self->parent ; ancestor ; ancestor = ancestor->parent) {
+    if (self == ancestor) {
+      rb_raise(rb_eRuntimeError, "cycle detected: node '%s' is an ancestor of itself", self->name);
+    }
+  }
+}
+
 /* :nodoc: */
 static VALUE
 reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
@@ -350,12 +360,14 @@ ok:
    *  adjacent text nodes.
    */
   DATA_PTR(reparentee_obj) = reparented ;
-
-  relink_namespace(reparented);
-
   reparented_obj = noko_xml_node_wrap(Qnil, reparented);
 
   rb_funcall(reparented_obj, id_decorate_bang, 0);
+
+  /* if we've created a cycle, raise an exception */
+  raise_if_ancestor_of_self(reparented);
+
+  relink_namespace(reparented);
 
   return reparented_obj ;
 }

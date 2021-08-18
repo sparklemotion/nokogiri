@@ -768,6 +768,22 @@ module Nokogiri
             assert_match(/<Component>/, insert_point.children.to_xml)
           end
         end
+
+        describe "creating a cycle in the graph" do
+          it "raises an exception" do
+            doc = Nokogiri::XML("<root><a><b/></a></root>")
+            a = doc.at_css("a")
+            b = doc.at_css("b")
+            exception = assert_raise(RuntimeError) do
+              a.parent = b
+            end
+            if Nokogiri.jruby?
+              assert_match(/HIERARCHY_REQUEST_ERR/, exception.message)
+            else
+              assert_match(/cycle detected/, exception.message)
+            end
+          end
+        end
       end
     end
   end

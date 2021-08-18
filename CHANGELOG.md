@@ -15,6 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] Handle abruptly-closed HTML comments as WHATWG recommends for browsers. (Thanks to HackerOne user [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting this!)
 * [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES` and set in `ParseOptions::DEFAULT_XML`, `::DEFAULT_XSLT`, `::DEFAULT_HTML`, and `::DEFAULT_SCHEMA`. (Note that JRuby never had this problem.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]
+* [CRuby] If a cycle is introduced when reparenting a node (i.e., the node becomes its own ancestor), a `RuntimeError` is raised. libxml2 does no checking for this, which means cycles would otherwise result in infinite loops on subsequent operations. (Note: JRuby/Xerces already does this.) [[#1912](https://github.com/sparklemotion/nokogiri/issues/1912)]
 
 
 ## 1.12.3 / 2021-08-10
