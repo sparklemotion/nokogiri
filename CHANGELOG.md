@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [JRuby] Fix NPE in Schema parsing when an imported resource doesn't have a `systemId`. [[#2296](https://github.com/sparklemotion/nokogiri/issues/2296)] (Thanks, [@pepijnve](https://github.com/pepijnve)!)
+
+
 ## 1.12.3 / 2021-08-10
 
 ### Fixed
