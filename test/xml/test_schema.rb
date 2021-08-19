@@ -214,6 +214,21 @@ module Nokogiri
         end
       end
 
+      def test_xsd_import_with_no_systemid
+        # https://github.com/sparklemotion/nokogiri/pull/2296
+        xsd = <<~EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <xs:schema
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.w3.org/1998/Math/MathML"
+            targetNamespace="http://www.w3.org/1998/Math/MathML"
+          >
+          <xs:import/>
+          </xs:schema>
+        EOF
+        Nokogiri::XML::Schema(xsd) # assert_nothing_raised
+      end
+
       describe "CVE-2020-26247" do
         # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
         let(:schema) do
