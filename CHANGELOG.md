@@ -18,6 +18,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] If a cycle is introduced when reparenting a node (i.e., the node becomes its own ancestor), a `RuntimeError` is raised. libxml2 does no checking for this, which means cycles would otherwise result in infinite loops on subsequent operations. (Note: JRuby/Xerces already does this.) [[#1912](https://github.com/sparklemotion/nokogiri/issues/1912)]
 
 
+### Fixed
+
+* [JRuby] Fix NPE in Schema parsing when an imported resource doesn't have a `systemId`. [[#2296](https://github.com/sparklemotion/nokogiri/issues/2296)] (Thanks, [@pepijnve](https://github.com/pepijnve)!)
+
+
 ## 1.12.3 / 2021-08-10
 
 ### Fixed
