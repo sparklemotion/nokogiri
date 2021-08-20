@@ -4,7 +4,7 @@ VALUE cNokogiriXmlSaxParser ;
 
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
-static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
+static ID id_get_entity, id_comment, id_characters, id_xmldecl, id_error, id_warning;
 static ID id_cdata_block;
 static ID id_processing_instruction;
 
@@ -177,6 +177,16 @@ end_element_ns(
             );
 }
 
+static xmlEntityPtr
+get_entity_func(void *ctx, const xmlChar *name)
+{
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  VALUE doc = rb_iv_get(self, "@document");
+  VALUE str = NOKOGIRI_STR_NEW2(name);
+  rb_funcall(doc, id_get_entity, 1, str);
+  return NULL;
+}
+
 static void
 characters_func(void *ctx, const xmlChar *ch, int len)
 {
@@ -276,6 +286,7 @@ allocate(VALUE klass)
   handler->endElement = end_element;
   handler->startElementNs = start_element_ns;
   handler->endElementNs = end_element_ns;
+  handler->getEntity = get_entity_func;
   handler->characters = characters_func;
   handler->comment = comment_func;
   handler->warning = warning_func;
@@ -303,6 +314,7 @@ noko_init_xml_sax_parser()
   id_xmldecl = rb_intern("xmldecl");
   id_error = rb_intern("error");
   id_warning = rb_intern("warning");
+  id_get_entity = rb_intern("get_entity");
   id_cdata_block = rb_intern("cdata_block");
   id_start_element_namespace = rb_intern("start_element_namespace");
   id_end_element_namespace = rb_intern("end_element_namespace");

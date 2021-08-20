@@ -231,6 +231,7 @@ module Nokogiri
         attr_reader :errors, :warnings, :end_elements_namespace
         attr_reader :xmldecls
         attr_reader :processing_instructions
+        attr_reader :entities
 
         def initialize
           @errors = []
@@ -303,6 +304,11 @@ module Nokogiri
         def processing_instruction(name, content)
           @processing_instructions ||= []
           @processing_instructions << [name, content]
+        end
+
+        def get_entity name
+          @entities ||= []
+          @entities << name
         end
       end
 

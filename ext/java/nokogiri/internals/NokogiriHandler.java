@@ -219,6 +219,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
 
   @Override
   public void
+  startEntity(String name) throws SAXException
+  {
+    call("get_entity", stringOrNil(runtime, name));
+  }
+
+  @Override
+  public void
   characters(char[] ch, int start, int length)
   {
     charactersBuilder.append(ch, start, length);
