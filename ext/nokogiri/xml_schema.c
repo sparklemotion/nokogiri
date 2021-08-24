@@ -10,14 +10,8 @@ dealloc(xmlSchemaPtr schema)
   NOKOGIRI_DEBUG_END(schema);
 }
 
-/*
- * call-seq:
- *  validate_document(document)
- *
- * Validate a Nokogiri::XML::Document against this Schema.
- */
 static VALUE
-validate_document(VALUE self, VALUE document)
+rb_xml_schema_validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlSchemaPtr schema;
@@ -51,14 +45,8 @@ validate_document(VALUE self, VALUE document)
   return errors;
 }
 
-/*
- * call-seq:
- *  validate_file(filename)
- *
- * Validate a file against this Schema.
- */
 static VALUE
-validate_file(VALUE self, VALUE rb_filename)
+rb_xml_schema_validate_file(VALUE self, VALUE rb_filename)
 {
   xmlSchemaPtr schema;
   xmlSchemaValidCtxtPtr valid_ctxt;
@@ -93,13 +81,24 @@ validate_file(VALUE self, VALUE rb_filename)
 }
 
 /*
- * call-seq:
- *  read_memory(string)
+ * :call-seq:
+ *   read_memory(input) → Nokogiri::XML::Schema
+ *   read_memory(input, parse_options) → Nokogiri::XML::Schema
  *
- * Create a new Schema from the contents of +string+
+ * Parse an XSD schema definition and create a new Schema object.
+ *
+ * 💡 Note that the limitation of this method relative to Schema.new is that +input+ must be type
+ * String, whereas Schema.new also supports IO types.
+ *
+ * [parameters]
+ * - +input+ (String) XSD schema definition
+ * - +parse_options+ (Nokogiri::XML::ParseOptions)
+ *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
+ *
+ * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE klass)
+rb_xml_schema_s_read_memory(int argc, VALUE *argv, VALUE klass)
 {
   VALUE content;
   VALUE parse_options;
@@ -162,6 +161,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
   return rb_schema;
 }
 
+
 /* Schema creation will remove and deallocate "blank" nodes.
  * If those blank nodes have been exposed to Ruby, they could get freed
  * out from under the VALUE pointer.  This function checks to see if any of
@@ -188,14 +188,23 @@ has_blank_nodes_p(VALUE cache)
   return 0;
 }
 
+
 /*
- * call-seq:
- *  from_document(doc)
+ * :call-seq:
+ *   from_document(document) → Nokogiri::XML::Schema
+ *   from_document(document, parse_options) → Nokogiri::XML::Schema
  *
- * Create a new Schema from the Nokogiri::XML::Document +doc+
+ * Create a Schema from an already-parsed XSD schema definition document.
+ *
+ * [Parameters]
+ * - +document+ (XML::Document) A document object representing the parsed XSD
+ * - +parse_options+ (Nokogiri::XML::ParseOptions)
+ *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
+ *
+ * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-from_document(int argc, VALUE *argv, VALUE klass)
+rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE klass)
 {
   VALUE document;
   VALUE parse_options;
@@ -206,7 +215,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
   VALUE errors;
   VALUE rb_schema;
   int scanned_args = 0;
-  xmlExternalEntityLoader old_loader = 0;
+  xmlExternalEntityLoader saved_loader = 0;
 
   scanned_args = rb_scan_args(argc, argv, "11", &document, &parse_options);
 
@@ -236,14 +245,14 @@ from_document(int argc, VALUE *argv, VALUE klass)
 #endif
 
   if (parse_options_int & XML_PARSE_NONET) {
-    old_loader = xmlGetExternalEntityLoader();
+    saved_loader = xmlGetExternalEntityLoader();
     xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
   }
 
   schema = xmlSchemaParse(ctx);
 
-  if (old_loader) {
-    xmlSetExternalEntityLoader(old_loader);
+  if (saved_loader) {
+    xmlSetExternalEntityLoader(saved_loader);
   }
 
   xmlSetStructuredErrorFunc(NULL, NULL);
@@ -269,6 +278,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
   return Qnil;
 }
 
+
 void
 noko_init_xml_schema()
 {
@@ -276,9 +286,9 @@ noko_init_xml_schema()
 
   rb_undef_alloc_func(cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", read_memory, -1);
-  rb_define_singleton_method(cNokogiriXmlSchema, "from_document", from_document, -1);
+  rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", rb_xml_schema_s_read_memory, -1);
+  rb_define_singleton_method(cNokogiriXmlSchema, "from_document", rb_xml_schema_s_from_document, -1);
 
-  rb_define_private_method(cNokogiriXmlSchema, "validate_document", validate_document, 1);
-  rb_define_private_method(cNokogiriXmlSchema, "validate_file",     validate_file, 1);
+  rb_define_private_method(cNokogiriXmlSchema, "validate_document", rb_xml_schema_validate_document, 1);
+  rb_define_private_method(cNokogiriXmlSchema, "validate_file", rb_xml_schema_validate_file, 1);
 }

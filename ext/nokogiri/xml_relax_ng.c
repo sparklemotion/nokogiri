@@ -10,14 +10,9 @@ dealloc(xmlRelaxNGPtr schema)
   NOKOGIRI_DEBUG_END(schema);
 }
 
-/*
- * call-seq:
- *  validate_document(document)
- *
- * Validate a Nokogiri::XML::Document against this RelaxNG schema.
- */
+
 static VALUE
-validate_document(VALUE self, VALUE document)
+rb_xml_relax_ng_validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlRelaxNGPtr schema;
@@ -51,14 +46,25 @@ validate_document(VALUE self, VALUE document)
   return errors;
 }
 
+
 /*
- * call-seq:
- *  read_memory(string)
+ * :call-seq:
+ *   read_memory(input) → Nokogiri::XML::RelaxNG
+ *   read_memory(input, parse_options) → Nokogiri::XML::RelaxNG
  *
- * Create a new RelaxNG from the contents of +string+
+ * Parse a RELAX NG schema definition and create a new Schema object.
+ *
+ * 💡 Note that the limitation of this method relative to RelaxNG.new is that +input+ must be type
+ * String, whereas RelaxNG.new also supports IO types.
+ *
+ * [Parameters]
+ * - +input+ (String) RELAX NG schema definition
+ * - +parse_options+ (Nokogiri::XML::ParseOptions) Defaults to ParseOptions::DEFAULT_SCHEMA
+ *
+ * [Returns] Nokogiri::XML::RelaxNG
  */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE klass)
+rb_xml_relax_ng_s_read_memory(int argc, VALUE *argv, VALUE klass)
 {
   VALUE content;
   VALUE parse_options;
@@ -109,14 +115,25 @@ read_memory(int argc, VALUE *argv, VALUE klass)
   return rb_schema;
 }
 
+
 /*
- * call-seq:
- *  from_document(doc)
+ * :call-seq:
+ *   from_document(document) → Nokogiri::XML::RelaxNG
+ *   from_document(document, parse_options) → Nokogiri::XML::RelaxNG
  *
- * Create a new RelaxNG schema from the Nokogiri::XML::Document +doc+
+ * Create a Schema from an already-parsed RELAX NG schema definition document.
+ *
+ * [Parameters]
+ * - +document+ (XML::Document) A XML::Document object representing the parsed RELAX NG
+ * - +parse_options+ (Nokogiri::XML::ParseOptions) ⚠ Unused
+ *
+ * [Returns] Nokogiri::XML::RelaxNG
+ *
+ * ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+ * future functionality.
  */
 static VALUE
-from_document(int argc, VALUE *argv, VALUE klass)
+rb_xml_relax_ng_s_from_document(int argc, VALUE *argv, VALUE klass)
 {
   VALUE document;
   VALUE parse_options;
@@ -178,8 +195,8 @@ noko_init_xml_relax_ng()
   assert(cNokogiriXmlSchema);
   cNokogiriXmlRelaxNG = rb_define_class_under(mNokogiriXml, "RelaxNG", cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", read_memory, -1);
-  rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", from_document, -1);
+  rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", rb_xml_relax_ng_s_read_memory, -1);
+  rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", rb_xml_relax_ng_s_from_document, -1);
 
-  rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", validate_document, 1);
+  rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", rb_xml_relax_ng_validate_document, 1);
 }

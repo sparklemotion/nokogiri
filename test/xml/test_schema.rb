@@ -242,8 +242,8 @@ module Nokogiri
           EOF
         end
 
-        let(:good_xml) { %Q(<Contacts xmlns="http://www.example.org/contactExample"><Contact></Contact></Contacts>) }
-        let(:bad_xml) { %Q(<Contacts xmlns="http://www.example.org/wrongNs"><Contact></Contact></Contacts>) }
+        let(:good_xml) { %(<Contacts xmlns="http://www.example.org/contactExample"><Contact></Contact></Contacts>) }
+        let(:bad_xml) { %(<Contacts xmlns="http://www.example.org/wrongNs"><Contact></Contact></Contacts>) }
 
         it "does not clobber @errors" do
           schema = Nokogiri::XML::Schema.new(xsd)
