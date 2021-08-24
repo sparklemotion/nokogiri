@@ -231,6 +231,47 @@ module Nokogiri
         Nokogiri::XML::Schema(xsd) # assert_nothing_raised
       end
 
+      describe "Schema#validate" do
+        let(:xsd) do
+          <<~EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              targetNamespace="http://www.example.org/contactExample">
+              <xs:element name="Contacts"></xs:element>
+            </xs:schema>
+          EOF
+        end
+
+        let(:good_xml) { %Q(<Contacts xmlns="http://www.example.org/contactExample"><Contact></Contact></Contacts>) }
+        let(:bad_xml) { %Q(<Contacts xmlns="http://www.example.org/wrongNs"><Contact></Contact></Contacts>) }
+
+        it "does not clobber @errors" do
+          schema = Nokogiri::XML::Schema.new(xsd)
+          bad_doc = Nokogiri::XML(bad_xml)
+
+          # assert on setup
+          assert_empty(schema.errors)
+          refute_empty(schema.validate(bad_doc))
+
+          # this is the bit under test
+          assert_empty(schema.errors)
+        end
+
+        it "returns only the most recent document's errors" do
+          # https://github.com/sparklemotion/nokogiri/issues/1282
+          schema = Nokogiri::XML::Schema.new(xsd)
+          good_doc = Nokogiri::XML(good_xml)
+          bad_doc = Nokogiri::XML(bad_xml)
+
+          # assert on setup
+          assert_empty(schema.validate(good_doc))
+          refute_empty(schema.validate(bad_doc))
+
+          # this is the bit under test
+          assert_empty(schema.validate(good_doc))
+        end
+      end
+
       describe "CVE-2020-26247" do
         # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
         let(:schema) do

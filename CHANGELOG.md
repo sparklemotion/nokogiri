@@ -103,6 +103,8 @@ end
 ### Fixed
 
 * [JRuby] Fix NPE in Schema parsing when an imported resource doesn't have a `systemId`. [[#2296](https://github.com/sparklemotion/nokogiri/issues/2296)] (Thanks, [@pepijnve](https://github.com/pepijnve)!)
+* [JRuby] Fix `Schema#validate` to only return the most recent Document's errors. Previously, if multiple documents were validated, this method returned the accumulated errors of all previous documents. [#1282]
+* [JRuby] Fix `Schema#validate` to not clobber the `@errors` instance variable. [#1282]
 
 
 ## 1.12.3 / 2021-08-10
