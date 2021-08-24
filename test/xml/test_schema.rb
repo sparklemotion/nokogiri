@@ -104,7 +104,7 @@ module Nokogiri
 
       def test_parse_with_memory
         assert_instance_of(Nokogiri::XML::Schema, @xsd)
-        assert_equal(0, @xsd.errors.length)
+        assert_empty(@xsd.errors)
       end
 
       def test_new
@@ -150,7 +150,7 @@ module Nokogiri
         File.open(PO_SCHEMA_FILE, "rb") do |f|
           assert(xsd = Nokogiri::XML::Schema(f))
         end
-        assert_equal(0, xsd.errors.length)
+        assert_empty(xsd.errors)
       end
 
       def test_parse_with_errors
@@ -163,12 +163,12 @@ module Nokogiri
       def test_validate_document
         doc = Nokogiri::XML(File.read(PO_XML_FILE))
         assert(errors = @xsd.validate(doc))
-        assert_equal(0, errors.length)
+        assert_empty(errors)
       end
 
       def test_validate_file
         assert(errors = @xsd.validate(PO_XML_FILE))
-        assert_equal(0, errors.length)
+        assert_empty(errors)
       end
 
       def test_validate_invalid_document
@@ -270,17 +270,19 @@ module Nokogiri
             it "XML::Schema parsing attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
               errors = doc.errors.map(&:to_s)
-              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+              assert_empty(errors.grep(/ERROR: Attempt to load network entity/),
                 "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
-              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+              assert_equal(1,
+                errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
             end
 
             it "XML::Schema parsing of memory attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
               errors = doc.errors.map(&:to_s)
-              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+              assert_empty(errors.grep(/ERROR: Attempt to load network entity/),
                 "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
-              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+              assert_equal(1,
+                errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
             end
           end
         end
@@ -289,28 +291,28 @@ module Nokogiri
           describe "with default parse options" do
             it "XML::Schema parsing does not attempt to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema)
-              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_equal(1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length)
             end
 
             it "XML::Schema parsing of memory does not attempt to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema)
-              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_equal(1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length)
             end
           end
 
           describe "with NONET turned off" do
             it "XML::Schema parsing attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
-              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_empty(doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/))
             end
 
             it "XML::Schema parsing of memory attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
-              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_empty(doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/))
             end
           end
         end
-      end
+      end # "CVE-2020-26247"
     end
   end
 end
