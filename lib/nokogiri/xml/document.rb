@@ -113,9 +113,55 @@ module Nokogiri
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
+      # When true, reparented elements without a namespace will inherit their new parent's
+      # namespace (if one exists). Defaults to +false+.
+      #
+      # @example Default behavior of namespace inheritance
+      #   xml = <<~EOF
+      #           <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
+      #             <foo:parent>
+      #             </foo:parent>
+      #           </root>
+      #         EOF
+      #   doc = Nokogiri::XML(xml)
+      #   parent = doc.at_xpath("//foo:parent", "foo" => "http://nokogiri.org/default_ns/test/foo")
+      #   parent.add_child("<child></child>")
+      #   doc.to_xml
+      #   # => <?xml version="1.0"?>
+      #   #    <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
+      #   #      <foo:parent>
+      #   #        <child/>
+      #   #      </foo:parent>
+      #   #    </root>
+      #
+      # @example Setting namespace inheritance to +true+
+      #   xml = <<~EOF
+      #           <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
+      #             <foo:parent>
+      #             </foo:parent>
+      #           </root>
+      #         EOF
+      #   doc = Nokogiri::XML(xml)
+      #   doc.namespace_inheritance = true
+      #   parent = doc.at_xpath("//foo:parent", "foo" => "http://nokogiri.org/default_ns/test/foo")
+      #   parent.add_child("<child></child>")
+      #   doc.to_xml
+      #   # => <?xml version="1.0"?>
+      #   #    <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
+      #   #      <foo:parent>
+      #   #        <foo:child/>
+      #   #      </foo:parent>
+      #   #    </root>
+      #
+      # @return [Boolean]
+      #
+      # @since v1.12.4
+      attr_accessor :namespace_inheritance
+
       def initialize *args # :nodoc:
         @errors     = []
         @decorators = nil
+        @namespace_inheritance = false
       end
 
       ##
