@@ -69,6 +69,13 @@ relink_namespace(xmlNodePtr reparented)
   /* Avoid segv when relinking against unlinked nodes. */
   if (reparented->type != XML_ELEMENT_NODE || !reparented->parent) { return; }
 
+  /* Make sure that our reparented node has the correct namespaces */
+  if (!reparented->ns &&
+      (reparented->doc != (xmlDocPtr)reparented->parent) &&
+      (rb_iv_get(DOC_RUBY_OBJECT(reparented->doc), "@namespace_inheritance") == Qtrue)) {
+    xmlSetNs(reparented, reparented->parent->ns);
+  }
+
   /* Search our parents for an existing definition */
   if (reparented->nsDef) {
     xmlNsPtr curr = reparented->nsDef;

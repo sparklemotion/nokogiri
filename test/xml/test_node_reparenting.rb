@@ -557,6 +557,35 @@ module Nokogiri
               end
             end
           end
+
+          describe "given a parent node with a non-default namespace" do
+            let(:doc) do
+              Nokogiri::XML(<<~EOF)
+                <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
+                  <foo:parent>
+                  </foo:parent>
+                </root>
+              EOF
+            end
+            let(:parent) { doc.at_xpath("//foo:parent", "foo" => "http://nokogiri.org/default_ns/test/foo") }
+
+            describe "and namespace_inheritance is off" do
+              it "inserts a child node that does not inherit the parent's namespace" do
+                refute(doc.namespace_inheritance)
+                child = parent.add_child("<child></child>").first
+                assert_nil(child.namespace)
+              end
+            end
+
+            describe "and namespace_inheritance is on" do
+              it "inserts a child node that inherits the parent's namespace" do
+                doc.namespace_inheritance = true
+                child = parent.add_child("<child></child>").first
+                assert_not_nil(child.namespace)
+                assert_equal("http://nokogiri.org/default_ns/test/foo", child.namespace.href)
+              end
+            end
+          end
         end
 
         describe "#add_previous_sibling" do

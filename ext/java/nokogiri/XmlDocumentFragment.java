@@ -34,8 +34,6 @@ import org.w3c.dom.NamedNodeMap;
 public class XmlDocumentFragment extends XmlNode
 {
 
-  private XmlElement fragmentContext;
-
   public
   XmlDocumentFragment(Ruby ruby)
   {
@@ -75,10 +73,6 @@ public class XmlDocumentFragment extends XmlNode
     fragment.setDocument(context, doc);
     fragment.setNode(context.runtime, doc.getDocument().createDocumentFragment());
 
-    //TODO: Get namespace definitions from doc.
-    if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {
-      fragment.fragmentContext = (XmlElement)args[2];
-    }
     Helpers.invoke(context, fragment, "initialize", args);
     return fragment;
   }
@@ -156,12 +150,6 @@ public class XmlDocumentFragment extends XmlNode
       }
     }
     return null;
-  }
-
-  public XmlElement
-  getFragmentContext()
-  {
-    return fragmentContext;
   }
 
   @Override

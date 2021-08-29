@@ -107,9 +107,37 @@ module Nokogiri
         assert_equal "one", b.doc.at("hello", "xmlns" => "one").namespace.href
       end
 
-      def test_builder_namespace_children_do_not_inherit
-        # see https://github.com/sparklemotion/nokogiri/issues/1712
+      def test_builder_namespace_inheritance_true
+        # see https://github.com/sparklemotion/nokogiri/issues/2317
         result = Nokogiri::XML::Builder.new(encoding: 'utf-8') do |xml|
+          xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
+            xml.Header
+          end
+        end
+        assert(result.doc.namespace_inheritance)
+        assert(
+          result.doc.at_xpath("//soapenv:Header", "soapenv" => "http://schemas.xmlsoap.org/soap/envelope/"),
+          "header element should have a namespace"
+        )
+      end
+
+      def test_builder_namespace_inheritance_false
+        # see https://github.com/sparklemotion/nokogiri/issues/2317
+        result = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
+          xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
+            xml.Header
+          end
+        end
+        refute(result.doc.namespace_inheritance)
+        assert(
+          result.doc.at_xpath("//Header"),
+          "header element should not have a namespace"
+        )
+      end
+
+      def test_builder_namespace_inheritance_false_part_deux
+        # see https://github.com/sparklemotion/nokogiri/issues/1712
+        result = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
           xml['soapenv'].Envelope('xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/', 'xmlns:emer' => 'http://dashcs.com/api/v1/emergency') do
             xml['soapenv'].Header
             xml['soapenv'].Body do
@@ -197,12 +225,18 @@ module Nokogiri
         }
       end
 
+      def test_set_namespace_inheritance
+        assert(Nokogiri::XML::Builder.new.doc.namespace_inheritance)
+        refute(Nokogiri::XML::Builder.new(namespace_inheritance: false).doc.namespace_inheritance)
+      end
+
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(:encoding => "UTF-8") do |xml|
           xml.root do
             xml.bar "blah"
           end
         end
+        assert_equal "UTF-8", builder.doc.encoding
         assert_match "UTF-8", builder.to_xml
       end
 
