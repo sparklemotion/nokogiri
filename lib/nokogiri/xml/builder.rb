@@ -196,6 +196,41 @@ module Nokogiri
     #
     # Note the "foo:object" tag.
     #
+    # === Namespace inheritance
+    #
+    # In the Builder context, children will inherit their parent's namespace. This is the same
+    # behavior as if the underlying {XML::Document} set +namespace_inheritance+ to +true+:
+    #
+    #   result = Nokogiri::XML::Builder.new do |xml|
+    #     xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
+    #       xml.Header
+    #     end
+    #   end
+    #   result.doc.to_xml
+    #   # => <?xml version="1.0" encoding="utf-8"?>
+    #   #    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    #   #      <soapenv:Header/>
+    #   #    </soapenv:Envelope>
+    #
+    # Users may turn this behavior off by passing a keyword argument +namespace_inheritance:false+
+    # to the initializer:
+    #
+    #   result = Nokogiri::XML::Builder.new(namespace_inheritance: false) do |xml|
+    #     xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
+    #       xml.Header
+    #       xml["soapenv"].Body # users may explicitly opt into the namespace
+    #     end
+    #   end
+    #   result.doc.to_xml
+    #   # => <?xml version="1.0" encoding="utf-8"?>
+    #   #    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    #   #      <Header/>
+    #   #      <soapenv:Body/>
+    #   #    </soapenv:Envelope>
+    #
+    # For more information on namespace inheritance, please see {XML::Document#namespace_inheritance}
+    #
+    #
     # == Document Types
     #
     # To create a document type (DTD), access use the Builder#doc method to get
@@ -226,6 +261,8 @@ module Nokogiri
     #   </root>
     #
     class Builder
+      DEFAULT_DOCUMENT_OPTIONS = {namespace_inheritance: true}
+
       # The current Document object being built
       attr_accessor :doc
 
@@ -282,6 +319,7 @@ module Nokogiri
         @arity = nil
         @ns = nil
 
+        options = DEFAULT_DOCUMENT_OPTIONS.merge(options)
         options.each do |k, v|
           @doc.send(:"#{k}=", v)
         end

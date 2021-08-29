@@ -15,6 +15,13 @@ module Nokogiri
 
         let(:xml) { Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) }
 
+        def test_default_namespace_inheritance
+          doc = Nokogiri::XML::Document.new
+          refute(doc.namespace_inheritance)
+          doc.namespace_inheritance = true
+          assert(doc.namespace_inheritance)
+        end
+
         def test_dtd_with_empty_internal_subset
           doc = Nokogiri::XML(<<~eoxml)
             <?xml version="1.0"?>

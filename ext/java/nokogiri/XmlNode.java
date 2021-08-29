@@ -12,6 +12,7 @@ import java.util.*;
 import org.apache.xerces.dom.CoreDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyInteger;
@@ -421,7 +422,14 @@ public class XmlNode extends RubyObject
     String nsURI = e.lookupNamespaceURI(prefix);
     this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
 
-    if (nsURI == null || nsURI.isEmpty()) { return; }
+    if (nsURI == null || nsURI.isEmpty()) {
+      RubyBoolean ns_inherit =
+        (RubyBoolean)document(context.runtime).getInstanceVariable("@namespace_inheritance");
+      if (ns_inherit.isTrue()) {
+        set_namespace(context, ((XmlNode)parent(context)).namespace(context));
+      }
+      return;
+    }
 
     String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
     String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
@@ -1743,22 +1751,9 @@ public class XmlNode extends RubyObject
       e.appendChild(otherNode);
       otherNode = e;
     } else {
-      addNamespaceURIIfNeeded(otherNode);
       parent.appendChild(otherNode);
     }
     return new Node[] { otherNode };
-  }
-
-  private void
-  addNamespaceURIIfNeeded(Node child)
-  {
-    if (this instanceof XmlDocumentFragment && ((XmlDocumentFragment) this).getFragmentContext() != null) {
-      XmlElement fragmentContext = ((XmlDocumentFragment) this).getFragmentContext();
-      String namespace_uri = fragmentContext.node.getNamespaceURI();
-      if (namespace_uri != null && namespace_uri.length() > 0) {
-        NokogiriHelpers.renameNode(child, namespace_uri, child.getNodeName());
-      }
-    }
   }
 
   protected void
