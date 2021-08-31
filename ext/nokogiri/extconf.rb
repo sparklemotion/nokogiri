@@ -12,9 +12,7 @@ PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."
 REQUIRED_LIBXML_VERSION = "2.6.21"
 RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
-# The gem version constraint in the Rakefile is not respected at install time.
-# Keep this version in sync with the one in the Rakefile !
-REQUIRED_MINI_PORTILE_VERSION = "~> 2.6.1"
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.7.0" # keep this version in sync with the one in the gemspec
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 # Keep track of what versions of what libraries we build against
@@ -404,7 +402,7 @@ end
 
 def process_recipe(name, version, static_p, cross_p, cacheable_p=true)
   require "rubygems"
-  gem("mini_portile2", REQUIRED_MINI_PORTILE_VERSION)
+  gem("mini_portile2", REQUIRED_MINI_PORTILE_VERSION) # gemspec is not respected at install time
   require "mini_portile2"
   message("Using mini_portile version #{MiniPortile::VERSION}\n")
 
