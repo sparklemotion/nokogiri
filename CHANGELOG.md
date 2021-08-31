@@ -18,47 +18,35 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] If a cycle is introduced when reparenting a node (i.e., the node becomes its own ancestor), a `RuntimeError` is raised. libxml2 does no checking for this, which means cycles would otherwise result in infinite loops on subsequent operations. (Note: JRuby/Xerces already does this.) [[#1912](https://github.com/sparklemotion/nokogiri/issues/1912)]
 
 
-## 1.12.4 / unreleased
+## 1.12.4 / 2021-08-29
 
 ### Notable fix: Namespace inheritance
 
-Namespace behavior when reparenting nodes has historically been poorly specified and the behavior
-diverged between CRuby and JRuby. As a result, making this behavior consistent in v1.12.0 introduced
-a breaking change.
+Namespace behavior when reparenting nodes has historically been poorly specified and the behavior diverged between CRuby and JRuby. As a result, making this behavior consistent in v1.12.0 introduced a breaking change.
 
-This patch release reverts the Builder behavior present in v1.12.0..v1.12.3 but keeps the Document
-behavior. This release also introduces a Document attribute to allow affected users to easily change
-this behavior for their legacy code without invasive changes.
+This patch release reverts the Builder behavior present in v1.12.0..v1.12.3 but keeps the Document behavior. This release also introduces a Document attribute to allow affected users to easily change this behavior for their legacy code without invasive changes.
 
 
 #### Compensating Feature in XML::Document
 
-This release of Nokogiri introduces a new `Document` boolean attribute, `namespace_inheritance`,
-which controls whether children should inherit a namespace when they are reparented.
-`Nokogiri::XML:Document` defaults this attribute to `false` meaning "do not inherit," thereby making
-explicit the behavior change introduced in v1.12.0.
+This release of Nokogiri introduces a new `Document` boolean attribute, `namespace_inheritance`, which controls whether children should inherit a namespace when they are reparented. `Nokogiri::XML:Document` defaults this attribute to `false` meaning "do not inherit," thereby making explicit the behavior change introduced in v1.12.0.
 
-CRuby users who desire the pre-v1.12.0 behavior may set `document.namespace_inheritance = true` before
-reparenting nodes.
+CRuby users who desire the pre-v1.12.0 behavior may set `document.namespace_inheritance = true` before reparenting nodes.
 
-See https://nokogiri.org/rdoc/Nokogiri/XML/Document.html#namespace_inheritance-instance_method for
-example usage.
+See https://nokogiri.org/rdoc/Nokogiri/XML/Document.html#namespace_inheritance-instance_method for example usage.
 
 
 #### Fix for XML::Builder
 
-However, recognizing that we want `Builder`-created children to inherit namespaces, Builder now will
-set `namespace_inheritance=true` on the underlying document for both JRuby and CRuby. This means that, on CRuby, the pre-v1.12.0 behavior is restored.
+However, recognizing that we want `Builder`-created children to inherit namespaces, Builder now will set `namespace_inheritance=true` on the underlying document for both JRuby and CRuby. This means that, on CRuby, the pre-v1.12.0 behavior is restored.
 
-Users who want to turn this behavior off may pass a keyword argument to the Builder constructor like
-so:
+Users who want to turn this behavior off may pass a keyword argument to the Builder constructor like so:
 
 ``` ruby
 Nokogiri::XML::Builder.new(namespace_inheritance: false)
 ```
 
-See https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#label-Namespace+inheritance for example
-usage.
+See https://nokogiri.org/rdoc/Nokogiri/XML/Builder.html#label-Namespace+inheritance for example usage.
 
 
 #### Downstream gem maintainers
@@ -72,6 +60,7 @@ Gem::Specification.new do |gem|
   # ...
 end
 ```
+
 
 ### Fixed
 
