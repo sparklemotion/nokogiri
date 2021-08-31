@@ -9,6 +9,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Dependencies
 
 * [CRuby] Vendored libiconv is updated from 1.15 to 1.16. (Note that libiconv is only redistributed in the native windows and native darwin gems, see [`LICENSE-DEPENDENCIES.md`](LICENSE-DEPENDENCIES.md) for more information.) [[#2206](https://github.com/sparklemotion/nokogiri/issues/2206)]
+* [CRuby] Upgrade mini_portile2 dependency from `~> 2.6.1` to `~> 2.7.0`. ("ruby" platform gem only.)
 
 
 ### Improved
