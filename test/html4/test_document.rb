@@ -372,6 +372,15 @@ module Nokogiri
           assert_match("UTF-8", html.to_xhtml(encoding: "UTF-8"))
         end
 
+        def test_to_xhtml_self_closing_tags
+          # https://github.com/sparklemotion/nokogiri/issues/2324
+          html = "<html><body><br><table><colgroup><col>"
+          doc = Nokogiri::HTML::Document.parse(html)
+          xhtml = doc.to_xhtml
+          assert_match(%r(<br ?/>), xhtml)
+          assert_match(%r(<col ?/>), xhtml)
+        end
+
         def test_no_xml_header
           html = Nokogiri::HTML(<<~EOHTML)
             <html>
