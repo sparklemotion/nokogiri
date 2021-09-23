@@ -103,21 +103,21 @@ module Nokogiri
           assert_nil(doc.root)
         end
 
-        unless Nokogiri.uses_libxml?("~> 2.6.0")
-          def test_to_xhtml_with_indent
-            doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
-            doc = Nokogiri::HTML(doc.to_xhtml(indent: 2))
-            assert_indent(2, doc)
-          end
+        def test_to_xhtml_with_indent
+          skip if Nokogiri.uses_libxml?("~> 2.6.0")
+          doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
+          doc = Nokogiri::HTML(doc.to_xhtml(indent: 2))
+          assert_indent(2, doc)
+        end
 
-          def test_write_to_xhtml_with_indent
-            io = StringIO.new
-            doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
-            doc.write_xhtml_to(io, indent: 5)
-            io.rewind
-            doc = Nokogiri::HTML(io.read)
-            assert_indent(5, doc)
-          end
+        def test_write_to_xhtml_with_indent
+          skip if Nokogiri.uses_libxml?("~> 2.6.0")
+          io = StringIO.new
+          doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
+          doc.write_xhtml_to(io, indent: 5)
+          io.rewind
+          doc = Nokogiri::HTML(io.read)
+          assert_indent(5, doc)
         end
 
         def test_swap_should_not_exist
@@ -360,8 +360,10 @@ module Nokogiri
           File.open(HTML_FILE, "rb") { |f| temp_html_file.write(f.read) }
           temp_html_file.close
           temp_html_file.open
-          assert_equal(Nokogiri::HTML.parse(File.read(HTML_FILE)).xpath("//div/a").length,
-                       Nokogiri::HTML.parse(temp_html_file).xpath("//div/a").length)
+          assert_equal(
+            Nokogiri::HTML.parse(File.read(HTML_FILE)).xpath("//div/a").length,
+            Nokogiri::HTML.parse(temp_html_file).xpath("//div/a").length
+          )
         end
 
         def test_to_xhtml
@@ -454,8 +456,8 @@ module Nokogiri
           assert_equal("-//W3C//DTD XHTML 1.1//EN", html.internal_subset.external_id)
           assert_equal("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", html.internal_subset.system_id)
           assert_equal(
-            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">", html.to_s[0,
-97]
+            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">",
+            html.to_s[0, 97]
           )
         end
 
@@ -614,7 +616,7 @@ module Nokogiri
           EOHTML
           list = doc.css(".red")
           assert_equal(2, list.length)
-          assert_equal(%w{RED RED}, list.map(&:text))
+          assert_equal(["RED", "RED"], list.map(&:text))
         end
 
         def test_parse_can_take_io
@@ -836,8 +838,10 @@ module Nokogiri
 
             it "passes arguments to #initialize" do
               doc = klass.new("http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN")
-              assert_equal(["http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN"],
-                           doc.initialized_with)
+              assert_equal(
+                ["http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN"],
+                doc.initialized_with
+              )
             end
           end
 
