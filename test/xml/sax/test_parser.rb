@@ -156,8 +156,10 @@ module Nokogiri
             <foo:f><bar></foo:f>
             </root>
           eoxml
-          assert_equal(["root", "foo:f", "bar"],
-                       @parser.document.start_elements.map(&:first))
+          assert_equal(
+            ["root", "foo:f", "bar"],
+            @parser.document.start_elements.map(&:first)
+          )
         end
 
         def test_parser_sets_encoding
@@ -324,8 +326,10 @@ module Nokogiri
           @parser.parse_memory(<<~eoxml)
             <p xmlns:foo='http://foo.example.com/'>Paragraph 1</p>
           eoxml
-          assert_equal([["p", [["xmlns:foo", "http://foo.example.com/"]]]],
-                       @parser.document.start_elements)
+          assert_equal(
+            [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
+            @parser.document.start_elements
+          )
         end
 
         def test_processing_instruction
@@ -333,8 +337,10 @@ module Nokogiri
             <?xml-stylesheet href="a.xsl" type="text/xsl"?>
             <?xml version="1.0"?>
           eoxml
-          assert_equal([["xml-stylesheet", 'href="a.xsl" type="text/xsl"']],
-                       @parser.document.processing_instructions)
+          assert_equal(
+            [["xml-stylesheet", 'href="a.xsl" type="text/xsl"']],
+            @parser.document.processing_instructions
+          )
         end
 
         def test_parse_document
@@ -358,7 +364,9 @@ module Nokogiri
 
           assert(block_called)
 
-          assert_equal([["root", []], ["foo", [["a", "&b"], ["c", ">d"]]]], @parser.document.start_elements)
+          assert_equal(
+            [["root", []], ["foo", [["a", "&b"], ["c", ">d"]]]], @parser.document.start_elements
+          )
         end
 
         def test_recovery_from_incorrect_xml
@@ -374,8 +382,10 @@ module Nokogiri
 
           assert(block_called)
 
-          assert_equal([["Root", []], ["Data", []], ["Item", []], ["Data", []], ["Item", []]],
-                       @parser.document.start_elements)
+          assert_equal(
+            [["Root", []], ["Data", []], ["Item", []], ["Data", []], ["Item", []]],
+            @parser.document.start_elements
+          )
         end
 
         def test_square_bracket_in_text # issue 1261
@@ -412,7 +422,7 @@ module Nokogiri
 
           factor = 10
           huge_data = "a" * (1024 * 1024 * factor)
-          xml = StringIO.new(template % (huge_data))
+          xml = StringIO.new(template % huge_data)
 
           handler = Nokogiri::SAX::TestCase::Doc.new
           parser = Nokogiri::XML::SAX::Parser.new(handler)
