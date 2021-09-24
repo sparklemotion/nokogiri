@@ -52,6 +52,32 @@ module Nokogiri
           assert_nil(parser.document.xmldecls, xml)
         end
 
+        def test_simple_replace_entities
+          xml = <<~EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE doc [
+              <!ENTITY hosts SYSTEM "file:///etc/hosts">
+              <!ENTITY literal "literal">
+            ]>
+            <doc>
+              <thing>&hosts;</thing>
+              <thing>&literal;</thing>
+              <thing>&amp;</thing>
+            </doc>
+          EOF
+puts xml
+
+          doc = Doc.new
+          parser = XML::SAX::Parser.new(doc)
+          parser.parse(xml) { |ctx| ctx.replace_entities = false ; pp ctx.replace_entities }
+          pp doc
+
+          doc = Doc.new
+          parser = XML::SAX::Parser.new(doc)
+          parser.parse(xml) { |ctx| ctx.replace_entities = true ; pp ctx.replace_entities }
+          pp doc
+        end
+
         def test_do_not_replace_entities
           doc = Doc.new
           parser = XML::SAX::Parser.new(doc)
