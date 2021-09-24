@@ -34,7 +34,7 @@ module Nokogiri
           DEFAULT_HTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_HTML
         end
         # the default for XHTML document
-        DEFAULT_XHTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_XHTML
+        DEFAULT_XHTML = FORMAT | NO_DECLARATION | AS_XHTML
 
         # Integer representation of the SaveOptions
         attr_reader :options
