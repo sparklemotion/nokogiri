@@ -85,7 +85,7 @@ public class NokogiriEntityResolver implements EntityResolver2
   private void
   addError(String errorMessage)
   {
-    if (handler != null) { handler.errors.add(new Exception(errorMessage)); }
+    if (handler != null) { handler.addError(new Exception(errorMessage)); }
   }
 
   /**

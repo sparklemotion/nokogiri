@@ -1,10 +1,14 @@
 package nokogiri.internals;
 
+import nokogiri.XmlSyntaxError;
+import org.apache.xerces.xni.parser.XMLErrorHandler;
+import org.jruby.Ruby;
+import org.jruby.RubyException;
+import org.jruby.exceptions.RaiseException;
+import org.xml.sax.ErrorHandler;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.xerces.xni.parser.XMLErrorHandler;
-import org.xml.sax.ErrorHandler;
 
 /**
  * Super class of error handlers.
@@ -17,23 +21,40 @@ import org.xml.sax.ErrorHandler;
  */
 public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHandler
 {
-  protected final List<Exception> errors;
+  private final Ruby runtime;
+  protected final List<RubyException> errors;
   protected boolean noerror;
   protected boolean nowarning;
 
   public
-  NokogiriErrorHandler(boolean noerror, boolean nowarning)
+  NokogiriErrorHandler(Ruby runtime, boolean noerror, boolean nowarning)
   {
-    this.errors = new ArrayList<Exception>(4);
+    this.runtime = runtime;
+    this.errors = new ArrayList<RubyException>(4);
     this.noerror = noerror;
     this.nowarning = nowarning;
   }
 
-  List<Exception>
+  public List<RubyException>
   getErrors() { return errors; }
 
   public void
-  addError(Exception ex) { errors.add(ex); }
+  addError(Exception ex)
+  {
+    addError(XmlSyntaxError.createXMLSyntaxError(runtime, ex));
+  }
+
+  public void
+  addError(RubyException ex)
+  {
+    errors.add(ex);
+  }
+
+  public void
+  addError(RaiseException ex)
+  {
+    addError(ex.getException());
+  }
 
   protected boolean
   usesNekoHtml(String domain)

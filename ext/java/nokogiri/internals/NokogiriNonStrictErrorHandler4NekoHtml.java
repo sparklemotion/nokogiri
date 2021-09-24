@@ -1,6 +1,7 @@
 package nokogiri.internals;
 
 import org.apache.xerces.xni.parser.XMLParseException;
+import org.jruby.Ruby;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -20,15 +21,15 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
 {
 
   public
-  NokogiriNonStrictErrorHandler4NekoHtml(boolean nowarning)
+  NokogiriNonStrictErrorHandler4NekoHtml(Ruby runtime, boolean nowarning)
   {
-    super(false, nowarning);
+    super(runtime, false, nowarning);
   }
 
   public
-  NokogiriNonStrictErrorHandler4NekoHtml(boolean noerror, boolean nowarning)
+  NokogiriNonStrictErrorHandler4NekoHtml(Ruby runtime, boolean noerror, boolean nowarning)
   {
-    super(noerror, nowarning);
+    super(runtime, noerror, nowarning);
   }
 
   public void
@@ -40,13 +41,13 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
   public void
   error(SAXParseException ex) throws SAXException
   {
-    errors.add(ex);
+    addError(ex);
   }
 
   public void
   fatalError(SAXParseException ex) throws SAXException
   {
-    errors.add(ex);
+    addError(ex);
   }
 
   /**
@@ -64,7 +65,7 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
   public void
   error(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
   /**
@@ -82,7 +83,7 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
   public void
   fatalError(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
   /**
@@ -100,7 +101,7 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
   public void
   warning(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
 }
