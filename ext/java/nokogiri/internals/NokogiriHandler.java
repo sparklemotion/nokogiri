@@ -38,25 +38,19 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
   private final Ruby runtime;
   private final RubyClass attrClass;
   private final IRubyObject object;
-
-  /**
-   * Stores parse errors with the most-recent error last.
-   *
-   * TODO: should these be stored in the document 'errors' array?
-   * Currently only string messages are stored there.
-   */
-  private final LinkedList<RaiseException> errors = new LinkedList<RaiseException>();
+  private NokogiriErrorHandler errorHandler;
 
   private Locator locator;
   private boolean needEmptyAttrCheck;
 
   public
-  NokogiriHandler(Ruby runtime, IRubyObject object)
+  NokogiriHandler(Ruby runtime, IRubyObject object, NokogiriErrorHandler errorHandler)
   {
     assert object != null;
     this.runtime = runtime;
     this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
     this.object = object;
+    this.errorHandler = errorHandler;
     charactersBuilder = new StringBuilder();
     String objectName = object.getMetaClass().getName();
     if ("Nokogiri::HTML4::SAX::Parser".equals(objectName)) { needEmptyAttrCheck = true; }
@@ -253,9 +247,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
     try {
       final String msg = ex.getMessage();
       call("error", runtime.newString(msg == null ? "" : msg));
-      addError(XmlSyntaxError.createError(runtime, ex).toThrowable());
+      errorHandler.addError(ex);
     } catch (RaiseException e) {
-      addError(e);
+      errorHandler.addError(e);
       throw e;
     }
   }
@@ -282,22 +276,10 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
     call("warning", runtime.newString(msg == null ? "" : msg));
   }
 
-  protected synchronized void
-  addError(RaiseException e)
-  {
-    errors.add(e);
-  }
-
   public synchronized int
   getErrorCount()
   {
-    return errors.size();
-  }
-
-  public synchronized RaiseException
-  getLastError()
-  {
-    return errors.getLast();
+    return errorHandler.getErrors().size();
   }
 
   private void
