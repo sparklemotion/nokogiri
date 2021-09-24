@@ -426,5 +426,38 @@ class Nokogiri::SAX::TestCase
 
       assert_predicate(handler.errors, :empty?)
     end
+
+    it "does not resolve entities by default" do
+      xml = <<~EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE doc [
+          <!ENTITY local SYSTEM "file:///#{File.expand_path(__FILE__)}">
+          <!ENTITY custom "resolved>
+        ]>
+        <doc><foo>&local;</foo><foo>&custom;</foo></doc>
+      EOF
+
+      doc = Doc.new
+      parser = Nokogiri::XML::SAX::Parser.new(doc)
+      parser.parse(xml)
+
+      assert_nil(doc.data)
+    end
+
+    it "does not resolve network external entities by default" do
+      xml = <<~EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE doc [
+          <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
+        ]>
+        <doc><foo>&remote;</foo></doc>
+      EOF
+
+      doc = Doc.new
+      parser = Nokogiri::XML::SAX::Parser.new(doc)
+      parser.parse(xml)
+
+      assert_nil(doc.data)
+    end
   end
 end

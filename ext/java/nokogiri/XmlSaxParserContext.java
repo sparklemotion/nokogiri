@@ -225,6 +225,7 @@ public class XmlSaxParserContext extends ParserContext
     preParse(runtime, handlerRuby, handler);
     parser.setContentHandler(handler);
     parser.setErrorHandler(handler);
+    parser.setEntityResolver(new NokogiriEntityResolver(runtime, errorHandler, options));
 
     try {
       parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
