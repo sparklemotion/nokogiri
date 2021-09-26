@@ -1,6 +1,7 @@
 package nokogiri.internals;
 
 import org.apache.xerces.xni.parser.XMLParseException;
+import org.jruby.Ruby;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -13,21 +14,21 @@ import org.xml.sax.SAXParseException;
 public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler
 {
   public
-  NokogiriNonStrictErrorHandler(boolean noerror, boolean nowarning)
+  NokogiriNonStrictErrorHandler(Ruby runtime, boolean noerror, boolean nowarning)
   {
-    super(noerror, nowarning);
+    super(runtime, noerror, nowarning);
   }
 
   public void
   warning(SAXParseException ex) throws SAXException
   {
-    errors.add(ex);
+    addError(ex);
   }
 
   public void
   error(SAXParseException ex) throws SAXException
   {
-    errors.add(ex);
+    addError(ex);
   }
 
   public void
@@ -38,7 +39,7 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler
     // found in the prolog, instead it will keep calling this method and we'll
     // keep inserting the error in the document errors array until we run
     // out of memory
-    errors.add(ex);
+    addError(ex);
     String message = ex.getMessage();
 
     // The problem with Xerces is that some errors will cause the
@@ -53,19 +54,19 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler
   public void
   error(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
   public void
   fatalError(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
   public void
   warning(String domain, String key, XMLParseException e)
   {
-    errors.add(e);
+    addError(e);
   }
 
   /*

@@ -1,30 +1,24 @@
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.isBlank;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
+import nokogiri.XmlSyntaxError;
 import org.apache.xerces.parsers.DOMParser;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyClass;
-import org.jruby.RubyFixnum;
+import org.jruby.*;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Helpers;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import nokogiri.NokogiriService;
-import nokogiri.XmlDocument;
-import nokogiri.XmlDtd;
-import nokogiri.XmlSyntaxError;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static nokogiri.internals.NokogiriHelpers.isBlank;
 
 /**
  * Parser class for XML DOM processing. This class actually parses XML document
@@ -48,7 +42,6 @@ public class XmlDomParserContext extends ParserContext
   protected static final String FEATURE_NOT_EXPAND_ENTITY =
     "http://apache.org/xml/features/dom/create-entity-ref-nodes";
   protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
-  private static final String XINCLUDE_FEATURE_ID = "http://apache.org/xml/features/xinclude";
   private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
   protected ParserContext.Options options;
@@ -69,17 +62,17 @@ public class XmlDomParserContext extends ParserContext
     this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
     java_encoding = NokogiriHelpers.getValidEncodingOrNull(encoding);
     ruby_encoding = encoding;
-    initErrorHandler();
+    initErrorHandler(runtime);
     initParser(runtime);
   }
 
   protected void
-  initErrorHandler()
+  initErrorHandler(Ruby runtime)
   {
     if (options.recover) {
-      errorHandler = new NokogiriNonStrictErrorHandler(options.noError, options.noWarning);
+      errorHandler = new NokogiriNonStrictErrorHandler(runtime, options.noError, options.noWarning);
     } else {
-      errorHandler = new NokogiriStrictErrorHandler(options.noError, options.noWarning);
+      errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
     }
   }
 
@@ -161,12 +154,10 @@ public class XmlDomParserContext extends ParserContext
   mapErrors(ThreadContext context, NokogiriErrorHandler errorHandler)
   {
     final Ruby runtime = context.runtime;
-    final List<Exception> errors = errorHandler.getErrors();
+    final List<RubyException> errors = errorHandler.getErrors();
     final IRubyObject[] errorsAry = new IRubyObject[errors.size()];
     for (int i = 0; i < errors.size(); i++) {
-      XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(runtime);
-      xmlSyntaxError.setException(errors.get(i));
-      errorsAry[i] = xmlSyntaxError;
+      errorsAry[i] = errors.get(i);
     }
     return runtime.newArrayNoCopy(errorsAry);
   }
