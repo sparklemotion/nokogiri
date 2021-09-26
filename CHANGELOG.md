@@ -2,6 +2,22 @@
 
 Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [README.md](README.md) for details.
 
+## 1.12.next / unreleased
+
+### Security
+
+[JRuby] Address CVE-2021-41098 ([GHSA-2rr5-8q37-2w7h](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-2rr5-8q37-2w7h)).
+
+In Nokogiri v1.12.4 and earlier, on JRuby only, the SAX parsers resolve external entities (XXE) by default. This fix turns off entity-resolution-by-default in the JRuby SAX parsers to match the CRuby SAX parsers' behavior.
+
+CRuby users are not affected by this CVE.
+
+
+### Fixed
+
+* [CRuby] `Document#to_xhtml` properly serializes self-closing tags in libxml > 2.9.10. A behavior change introduced in libxml 2.9.11 resulted in emitting start and and tags (e.g., `<br></br>`) instead of a self-closing tag (e.g., `<br/>`) in previous Nokogiri versions. [[#2324](https://github.com/sparklemotion/nokogiri/issues/2324)]
+
+
 ## 1.12.4 / 2021-08-29
 
 ### Notable fix: Namespace inheritance
