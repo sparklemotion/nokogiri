@@ -1,20 +1,9 @@
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static org.jruby.runtime.Helpers.invoke;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ThreadFactory;
-
+import nokogiri.internals.*;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyException;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -22,11 +11,14 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import nokogiri.internals.ClosedStreamException;
-import nokogiri.internals.NokogiriBlockingQueueInputStream;
-import nokogiri.internals.NokogiriHandler;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.ParserContext;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.concurrent.*;
+
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static org.jruby.runtime.Helpers.invoke;
 
 /**
  * Class for Nokogiri::XML::SAX::PushParser
@@ -159,7 +151,8 @@ public class XmlSaxPushParser extends RubyObject
 
     if (!options.recover && parserTask.getErrorCount() > errorCount0) {
       terminateTask(context.runtime);
-      throw ex = parserTask.getLastError();
+      ex = parserTask.getLastError().toThrowable();
+      throw ex;
     }
 
     return this;
@@ -278,16 +271,15 @@ public class XmlSaxPushParser extends RubyObject
     getErrorCount()
     {
       // check for null because thread may not have started yet
-      if (parser.getNokogiriHandler() == null) { return 0; }
-      return parser.getNokogiriHandler().getErrorCount();
+      if (parser.getNokogiriErrorHandler() == null) { return 0; }
+      return parser.getNokogiriErrorHandler().getErrors().size();
     }
 
-    synchronized final RaiseException
+    synchronized final RubyException
     getLastError()
     {
-      return parser.getNokogiriHandler().getLastError();
+      List<RubyException> errors = parser.getNokogiriErrorHandler().getErrors();
+      return errors.get(errors.size() - 1);
     }
-
   }
-
 }

@@ -1,33 +1,23 @@
 package nokogiri;
 
-import static org.jruby.runtime.Helpers.invoke;
-
-import java.io.IOException;
-import java.io.InputStream;
-
+import nokogiri.internals.*;
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyModule;
-import org.jruby.RubyObjectAdapter;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.JavaEmbedUtils;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 
-import nokogiri.internals.NokogiriHandler;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.ParserContext;
-import nokogiri.internals.XmlSaxParser;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.jruby.runtime.Helpers.invoke;
 
 /**
  * Base class for the SAX parsers.
@@ -51,6 +41,7 @@ public class XmlSaxParserContext extends ParserContext
   protected AbstractSAXParser parser;
 
   protected NokogiriHandler handler;
+  protected NokogiriErrorHandler errorHandler;
   private boolean replaceEntities = true;
   private boolean recovery = false;
 
@@ -168,30 +159,11 @@ public class XmlSaxParserContext extends ParserContext
     return (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(runtime, klazz);
   }
 
-  /**
-   * Set a property of the underlying parser.
-   */
-  protected void
-  setProperty(String key, Object val)
-  throws SAXNotRecognizedException, SAXNotSupportedException
-  {
-    parser.setProperty(key, val);
-  }
-
-  protected void
-  setContentHandler(ContentHandler handler)
-  {
-    parser.setContentHandler(handler);
-  }
-
-  protected void
-  setErrorHandler(ErrorHandler handler)
-  {
-    parser.setErrorHandler(handler);
-  }
-
   public final NokogiriHandler
   getNokogiriHandler() { return handler; }
+
+  public final NokogiriErrorHandler
+  getNokogiriErrorHandler() { return errorHandler; }
 
   /**
    * Perform any initialization prior to parsing with the handler
@@ -223,6 +195,17 @@ public class XmlSaxParserContext extends ParserContext
     parser.parse(getInputSource());
   }
 
+  protected static Options
+  defaultParseOptions(ThreadContext context)
+  {
+    return new ParserContext.Options(
+             RubyFixnum.fix2long(Helpers.invoke(context,
+                                 ((RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"))
+                                 .getConstant("DEFAULT_XML"),
+                                 "to_i"))
+           );
+  }
+
   @JRubyMethod
   public IRubyObject
   parse_with(ThreadContext context, IRubyObject handlerRuby)
@@ -233,14 +216,19 @@ public class XmlSaxParserContext extends ParserContext
       throw runtime.newArgumentError("argument must respond_to document");
     }
 
-    NokogiriHandler handler = this.handler = new NokogiriHandler(runtime, handlerRuby);
-    preParse(runtime, handlerRuby, handler);
+    /* TODO: how should we pass in parse options? */
+    ParserContext.Options options = defaultParseOptions(context);
 
-    setContentHandler(handler);
-    setErrorHandler(handler);
+    errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
+    handler = new NokogiriHandler(runtime, handlerRuby, errorHandler);
+
+    preParse(runtime, handlerRuby, handler);
+    parser.setContentHandler(handler);
+    parser.setErrorHandler(handler);
+    parser.setEntityResolver(new NokogiriEntityResolver(runtime, errorHandler, options));
 
     try {
-      setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+      parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
     } catch (Exception ex) {
       throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
     }
@@ -269,8 +257,6 @@ public class XmlSaxParserContext extends ParserContext
     }
 
     postParse(runtime, handlerRuby, handler);
-
-    //maybeTrimLeadingAndTrailingWhitespace(context, handlerRuby);
 
     return runtime.getNil();
   }
@@ -319,53 +305,6 @@ public class XmlSaxParserContext extends ParserContext
     return context.runtime.newBoolean(recovery);
   }
 
-  /**
-   * If the handler's document is a FragmentHandler, attempt to trim
-   * leading and trailing whitespace.
-   *
-   * This is a bit hackish and depends heavily on the internals of
-   * FragmentHandler.
-   */
-  protected void
-  maybeTrimLeadingAndTrailingWhitespace(ThreadContext context, IRubyObject parser)
-  {
-    RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
-    RubyModule mod = context.getRuntime().getClassFromPath("Nokogiri::XML::FragmentHandler");
-
-    IRubyObject handler = adapter.getInstanceVariable(parser, "@document");
-    if (handler == null || handler.isNil() || !adapter.isKindOf(handler, mod)) {
-      return;
-    }
-    IRubyObject stack = adapter.getInstanceVariable(handler, "@stack");
-    if (stack == null || stack.isNil()) {
-      return;
-    }
-    // doc is finally a DocumentFragment whose nodes we can check
-    IRubyObject doc = adapter.callMethod(stack, "first");
-    if (doc == null || doc.isNil()) {
-      return;
-    }
-
-    IRubyObject children;
-
-    for (;;) {
-      children = adapter.callMethod(doc, "children");
-      IRubyObject first = adapter.callMethod(children, "first");
-      if (NokogiriHelpers.isBlank(first)) { adapter.callMethod(first, "unlink"); }
-      else { break; }
-    }
-
-    for (;;) {
-      children = adapter.callMethod(doc, "children");
-      IRubyObject last = adapter.callMethod(children, "last");
-      if (NokogiriHelpers.isBlank(last)) { adapter.callMethod(last, "unlink"); }
-      else { break; }
-    }
-
-    // While we have a document, normalize it.
-    ((XmlNode) doc).normalize();
-  }
-
   @JRubyMethod(name = "column")
   public IRubyObject
   column(ThreadContext context)
@@ -383,5 +322,4 @@ public class XmlSaxParserContext extends ParserContext
     if (number == null) { return context.getRuntime().getNil(); }
     return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
   }
-
 }
