@@ -2,7 +2,7 @@
 
 Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [README.md](README.md) for details.
 
-## 1.12.next / unreleased
+## 1.12.5 / 2021-09-27
 
 ### Security
 
