@@ -744,9 +744,18 @@ else
     EOM
   end
 
-  unless windows?
-    preserving_globals { local_have_library("z", "gzdopen", "zlib.h") } ||
-      abort("zlib is missing; necessary for building libxml2")
+  if zlib_recipe
+    append_cppflags("-I#{zlib_recipe.path}/include")
+    $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH
+    ensure_package_configuration(opt: "zlib", pc: "zlib", lib: "z",
+      headers: "zlib.h", func: "gzdopen")
+  end
+
+  if libiconv_recipe
+    append_cppflags("-I#{libiconv_recipe.path}/include")
+    $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH
+    ensure_package_configuration(opt: "iconv", pc: "iconv", lib: "iconv",
+      headers: "iconv.h", func: "iconv_open")
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
@@ -765,7 +774,6 @@ else
 
     if zlib_recipe
       recipe.configure_options << "--with-zlib=#{zlib_recipe.path}"
-      cflags = concat_flags(cflags, "-I#{zlib_recipe.path}/include")
     end
 
     if libiconv_recipe
@@ -833,9 +841,6 @@ else
 
   append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
   append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
-
-  $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
-  $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
   $libs = $libs.shellsplit.tap do |libs|
     [libxml2_recipe, libxslt_recipe].each do |recipe|
