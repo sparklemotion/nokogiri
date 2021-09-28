@@ -165,8 +165,13 @@ module Nokogiri
       end
 
       ##
-      # Create a new +Element+ with +name+ sharing GC lifecycle with the document, optionally
+      # Create a new +Element+ with +name+ belonging to this document, optionally
       # setting contents or attributes.
+      #
+      # This method is not the most user-friendly option if your intention is to add a node to the
+      # document tree. Prefer one of the +Nokogiri::XML::Node+ methods like +add_child+,
+      # +add_next_sibling+, +replace+, etc. which will both create an element (or subtree) and place
+      # it in the document tree.
       #
       # Arguments may be passed to initialize the element:
       # - a +Hash+ argument will be used to set attributes

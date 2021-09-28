@@ -89,12 +89,23 @@ module Nokogiri
       DOCB_DOCUMENT_NODE = 21
 
       ##
-      # Create a new node with +name+ sharing GC lifecycle with +document+.
+      # Create a new node with +name+ that belongs to +document+.
+      #
+      # This method is not the most user-friendly option if your intention is to add a node to the
+      # document tree. Prefer one of the +Nokogiri::XML::Node+ methods like +add_child+,
+      # +add_next_sibling+, +replace+, etc. which will both create an element (or subtree) and place
+      # it in the document tree.
+      #
+      # Another alternative, if you are concerned about performance, is
+      # +Nokogiri::XML::Document#create_element+ which accepts additional arguments for contents or
+      # attributes but (like this method) avoids parsing markup.
+      #
       # @param name [String]
       # @param document [Nokogiri::XML::Document]
       # @yieldparam node [Nokogiri::XML::Node]
       # @return [Nokogiri::XML::Node]
       # @see Nokogiri::XML::Node.new
+      # @see Nokogiri::XML::Document#create_element
       def initialize(name, document)
         # This is intentionally empty.
       end
