@@ -8,6 +8,10 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notes
 
+#### Faster, more reliable installation: Native Gem for ARM64 Linux
+
+This version of Nokogiri ships experimental native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM Linux platforms. We don't yet have CI running for this platform, and so we're interested in hearing back from y'all whether this is working, and what problems you're seeing. Please send us feedback here: [Feedback: Have you used the `aarch64-linux` native gem?](https://github.com/sparklemotion/nokogiri/discussions/2359)
+
 #### Publishing
 
 Note that this version of Nokogiri opts-in to the ["MFA required to publish" setting](https://guides.rubygems.org/mfa-requirement-opt-in/) on Rubygems.org. This and all future Nokogiri gem files must be published to Rubygems by an account with multi-factor authentication enabled. This should provide some additional protection against supply-chain attacks.
