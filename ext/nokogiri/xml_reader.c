@@ -148,9 +148,9 @@ namespaces(VALUE self)
 }
 
 /*
- * @overload attribute_nodes()
- *   Get the attributes of the current node as an Array of Attr
- *   @return [Array<Nokogiri::XML::Attr>]
+  :call-seq: attribute_nodes() → Array<Nokogiri::XML::Attr>
+
+  Get the attributes of the current node as an Array of Attr
  */
 static VALUE
 rb_xml_reader_attribute_nodes(VALUE rb_reader)

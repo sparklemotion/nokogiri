@@ -13,10 +13,11 @@ module Nokogiri
       # string is CSS or XPath
       LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
 
-      # @!group Searching via XPath or CSS Queries
+      # :section: Searching via XPath or CSS Queries
 
       ###
-      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      # call-seq:
+      #   search(*paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class])
       #
       # Search this object for +paths+. +paths+ must be one or more XPath or CSS queries:
       #
@@ -61,7 +62,8 @@ module Nokogiri
       alias :/ :search
 
       ###
-      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      # call-seq:
+      #   at(*paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class])
       #
       # Search this object for +paths+, and return only the first
       # result. +paths+ must be one or more XPath or CSS queries.
@@ -74,7 +76,8 @@ module Nokogiri
       alias :% :at
 
       ###
-      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      # call-seq:
+      #   css(*rules, [namespace-bindings, custom-pseudo-class])
       #
       # Search this object for CSS +rules+. +rules+ must be one or more CSS
       # selectors. For example:
@@ -113,7 +116,8 @@ module Nokogiri
       end
 
       ##
-      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      # call-seq:
+      #   at_css(*rules, [namespace-bindings, custom-pseudo-class])
       #
       # Search this object for CSS +rules+, and return only the first
       # match. +rules+ must be one or more CSS selectors.
@@ -124,7 +128,8 @@ module Nokogiri
       end
 
       ###
-      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
+      # call-seq:
+      #   xpath(*paths, [namespace-bindings, variable-bindings, custom-handler-class])
       #
       # Search this node for XPath +paths+. +paths+ must be one or more XPath
       # queries.
@@ -160,7 +165,8 @@ module Nokogiri
       end
 
       ##
-      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
+      # call-seq:
+      #   at_xpath(*paths, [namespace-bindings, variable-bindings, custom-handler-class])
       #
       # Search this node for XPath +paths+, and return only the first
       # match. +paths+ must be one or more XPath queries.
@@ -170,7 +176,7 @@ module Nokogiri
         xpath(*args).first
       end
 
-      # @!endgroup
+      # :section:
 
       private
 

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 # frozen_string_literal: true
-# Modify the PATH on windows so that the external DLLs will get loaded.
 
 require "rbconfig"
 
@@ -19,23 +18,25 @@ require_relative "nokogiri/extension"
 #
 # Here is an example:
 #
-#   require 'nokogiri'
-#   require 'open-uri'
+#     require 'nokogiri'
+#     require 'open-uri'
 #
-#   # Get a Nokogiri::HTML4::Document for the page we’re interested in...
+#     # Get a Nokogiri::HTML4::Document for the page we’re interested in...
 #
-#   doc = Nokogiri::HTML4(URI.open('http://www.google.com/search?q=tenderlove'))
+#     doc = Nokogiri::HTML4(URI.open('http://www.google.com/search?q=tenderlove'))
 #
-#   # Do funky things with it using Nokogiri::XML::Node methods...
+#     # Do funky things with it using Nokogiri::XML::Node methods...
 #
-#   ####
-#   # Search for nodes by css
-#   doc.css('h3.r a.l').each do |link|
-#     puts link.content
-#   end
+#     ####
+#     # Search for nodes by css
+#     doc.css('h3.r a.l').each do |link|
+#       puts link.content
+#     end
 #
-# See Nokogiri::XML::Searchable#css for more information about CSS searching.
-# See Nokogiri::XML::Searchable#xpath for more information about XPath searching.
+# See also:
+#
+# - Nokogiri::XML::Searchable#css for more information about CSS searching
+# - Nokogiri::XML::Searchable#xpath for more information about XPath searching
 module Nokogiri
   class << self
     ###
@@ -85,6 +86,7 @@ module Nokogiri
       Nokogiri(*args, &block).slop!
     end
 
+    # :nodoc:
     def install_default_aliases
       # Make sure to support some popular encoding aliases not known by
       # all iconv implementations.

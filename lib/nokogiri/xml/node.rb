@@ -1,12 +1,15 @@
-# encoding: UTF-8
+# encoding: utf-8
 # frozen_string_literal: true
+
 require "stringio"
 
 module Nokogiri
   module XML
-    ##
-    # {Nokogiri::XML::Node} is your window to the fun filled world of dealing with XML and HTML
-    # tags. A {Nokogiri::XML::Node} may be treated similarly to a hash with regard to attributes. For
+    # Nokogiri::XML::Node is the primary API you'll use to interact with your Document.
+    #
+    # == Attributes
+    #
+    # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
     # example:
     #
     #   node = Nokogiri::XML::DocumentFragment.parse("<a href='#foo' id='link'>link</a>").at_css("a")
@@ -17,41 +20,51 @@ module Nokogiri
     #   node['class'] = 'green' # => "green"
     #   node.to_html # => "<a href=\"#foo\" id=\"link\" class=\"green\">link</a>"
     #
-    # See the method group entitled "Working With Node Attributes" for the full set of methods.
+    # See the method group entitled Node@Working+With+Node+Attributes for the full set of methods.
     #
-    # {Nokogiri::XML::Node} also has methods that let you move around your
-    # tree.  For navigating your tree, see:
+    # == Navigation
     #
-    # * {#parent}
-    # * {#children}
-    # * {#next}
-    # * {#previous}
+    # Nokogiri::XML::Node also has methods that let you move around your tree:
     #
-    # When printing or otherwise emitting a document or a node (and
-    # its subtree), there are a few methods you might want to use:
+    # [#parent, #children, #next, #previous]
+    #   Navigate up, down, or through siblings.
     #
-    # * {#content}, {#text}, {#inner_text}, {#to_str}: These methods will all <b>emit plaintext</b>,
-    #   meaning that entities will be replaced (e.g., "&lt;" will be replaced with "<"), meaning
+    # See the method group entitled Node@Traversing+Document+Structure for the full set of methods.
+    #
+    # == Serialization
+    #
+    # When printing or otherwise emitting a document or a node (and its subtree), there are a few
+    # methods you might want to use:
+    #
+    # [#content, #text, #inner_text, #to_str]
+    #   These methods will all **emit plaintext**,
+    #   meaning that entities will be replaced (e.g., +&lt;+ will be replaced with +<+), meaning
     #   that any sanitizing will likely be un-done in the output.
     #
-    # * {#to_s}, {#to_xml}, {#to_html}, {#inner_html}: These methods will all <b>emit
-    #   properly-escaped markup</b>, meaning that it's suitable for consumption by browsers,
-    #   parsers, etc.
+    # [#to_s, #to_xml, #to_html, #inner_html]
+    #   These methods will all **emit properly-escaped markup**, meaning that it's suitable for
+    #   consumption by browsers, parsers, etc.
     #
-    # You may search this node's subtree using {#xpath} and {#css}
+    # See the method group entitled Node@Serialization+and+Generating+Output for the full set of methods.
+    #
+    # == Searching
+    #
+    # You may search this node's subtree using methods like #xpath and #css.
+    #
+    # See the method group entitled Node@Searching+via+XPath+or+CSS+Queries for the full set of methods.
     #
     class Node
       include Nokogiri::XML::PP::Node
       include Nokogiri::XML::Searchable
       include Enumerable
 
-      # Element node type, see {Nokogiri::XML::Node#element?}
+      # Element node type, see Nokogiri::XML::Node#element?
       ELEMENT_NODE = 1
       # Attribute node type
       ATTRIBUTE_NODE = 2
-      # Text node type, see {Nokogiri::XML::Node#text?}
+      # Text node type, see Nokogiri::XML::Node#text?
       TEXT_NODE = 3
-      # CDATA node type, see {Nokogiri::XML::Node#cdata?}
+      # CDATA node type, see Nokogiri::XML::Node#cdata?
       CDATA_SECTION_NODE = 4
       # Entity reference node type
       ENTITY_REF_NODE = 5
@@ -59,9 +72,9 @@ module Nokogiri
       ENTITY_NODE = 6
       # PI node type
       PI_NODE = 7
-      # Comment node type, see {Nokogiri::XML::Node#comment?}
+      # Comment node type, see Nokogiri::XML::Node#comment?
       COMMENT_NODE = 8
-      # Document node type, see {Nokogiri::XML::Node#xml?}
+      # Document node type, see Nokogiri::XML::Node#xml?
       DOCUMENT_NODE = 9
       # Document type node type
       DOCUMENT_TYPE_NODE = 10
@@ -69,7 +82,7 @@ module Nokogiri
       DOCUMENT_FRAG_NODE = 11
       # Notation node type
       NOTATION_NODE = 12
-      # HTML document node type, see {Nokogiri::XML::Node#html?}
+      # HTML document node type, see Nokogiri::XML::Node#html?
       HTML_DOCUMENT_NODE = 13
       # DTD node type
       DTD_NODE = 14
@@ -88,24 +101,27 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      ##
+      #
+      # :call-seq:
+      #   new(name, document) -> Nokogiri::XML::Node
+      #   new(name, document) { |node| ... } -> Nokogiri::XML::Node
+      #
       # Create a new node with +name+ that belongs to +document+.
       #
-      # This method is not the most user-friendly option if your intention is to add a node to the
-      # document tree. Prefer one of the +Nokogiri::XML::Node+ methods like +add_child+,
-      # +add_next_sibling+, +replace+, etc. which will both create an element (or subtree) and place
-      # it in the document tree.
+      # If you intend to add a node to a document tree, it's likely that you will prefer one of the
+      # Nokogiri::XML::Node methods like #add_child, #add_next_sibling, #replace, etc. which will
+      # both create an element (or subtree) and place it in the document tree.
       #
       # Another alternative, if you are concerned about performance, is
-      # +Nokogiri::XML::Document#create_element+ which accepts additional arguments for contents or
+      # Nokogiri::XML::Document#create_element which accepts additional arguments for contents or
       # attributes but (like this method) avoids parsing markup.
       #
-      # @param name [String]
-      # @param document [Nokogiri::XML::Document]
-      # @yieldparam node [Nokogiri::XML::Node]
-      # @return [Nokogiri::XML::Node]
-      # @see Nokogiri::XML::Node.new
-      # @see Nokogiri::XML::Document#create_element
+      # [Parameters]
+      # - +name+ (String)
+      # - +document+ (Nokogiri::XML::Document)
+      # [Yields] Nokogiri::XML::Node
+      # [Returns] Nokogiri::XML::Node
+      #
       def initialize(name, document)
         # This is intentionally empty.
       end
@@ -116,18 +132,16 @@ module Nokogiri
         document.decorate(self)
       end
 
-      # @!group Searching via XPath or CSS Queries
+      # :section: Searching via XPath or CSS Queries
 
       ###
       # Search this node's immediate children using CSS selector +selector+
-      def >(selector)
+      def >(other)
         ns = document.root.namespaces
-        xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
+        xpath(CSS.xpath_for(other, prefix: "./", ns: ns).first)
       end
 
-      # @!endgroup
-
-      # @!group Manipulating Document Structure
+      # :section: Manipulating Document Structure
 
       ###
       # Add +node_or_tags+ as a child of this Node.
@@ -139,9 +153,9 @@ module Nokogiri
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_child_node_and_reparent_attrs n }
+          node_or_tags.each { |n| add_child_node_and_reparent_attrs(n) }
         else
-          add_child_node_and_reparent_attrs node_or_tags
+          add_child_node_and_reparent_attrs(node_or_tags)
         end
         node_or_tags
       end
@@ -156,7 +170,7 @@ module Nokogiri
       def prepend_child(node_or_tags)
         if first = children.first
           # Mimic the error add_child would raise.
-          raise RuntimeError, "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+          raise "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
           first.__send__(:add_sibling, :previous, node_or_tags)
         else
           add_child(node_or_tags)
@@ -182,7 +196,7 @@ module Nokogiri
       #
       # Also see related method +add_child+.
       def <<(node_or_tags)
-        add_child node_or_tags
+        add_child(node_or_tags)
         self
       end
 
@@ -194,9 +208,10 @@ module Nokogiri
       #
       # Also see related method +before+.
       def add_previous_sibling(node_or_tags)
-        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+        raise ArgumentError,
+          "A document may not have multiple root nodes." if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
-        add_sibling :previous, node_or_tags
+        add_sibling(:previous, node_or_tags)
       end
 
       ###
@@ -207,9 +222,10 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling(node_or_tags)
-        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+        raise ArgumentError,
+          "A document may not have multiple root nodes." if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
-        add_sibling :next, node_or_tags
+        add_sibling(:next, node_or_tags)
       end
 
       ####
@@ -220,7 +236,7 @@ module Nokogiri
       #
       # Also see related method +add_previous_sibling+.
       def before(node_or_tags)
-        add_previous_sibling node_or_tags
+        add_previous_sibling(node_or_tags)
         self
       end
 
@@ -232,7 +248,7 @@ module Nokogiri
       #
       # Also see related method +add_next_sibling+.
       def after(node_or_tags)
-        add_next_sibling node_or_tags
+        add_next_sibling(node_or_tags)
         self
       end
 
@@ -259,9 +275,9 @@ module Nokogiri
         node_or_tags = coerce(node_or_tags)
         children.unlink
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_child_node_and_reparent_attrs n }
+          node_or_tags.each { |n| add_child_node_and_reparent_attrs(n) }
         else
-          add_child_node_and_reparent_attrs node_or_tags
+          add_child_node_and_reparent_attrs(node_or_tags)
         end
         node_or_tags
       end
@@ -281,19 +297,19 @@ module Nokogiri
         # libxml is trying to find a parent node that is an element or document
         # so I can't tell if this is bug in libxml or not. issue #775.
         if text?
-          replacee = Nokogiri::XML::Node.new "dummy", document
-          add_previous_sibling_node replacee
+          replacee = Nokogiri::XML::Node.new("dummy", document)
+          add_previous_sibling_node(replacee)
           unlink
-          return replacee.replace node_or_tags
+          return replacee.replace(node_or_tags)
         end
 
         node_or_tags = parent.coerce(node_or_tags)
 
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling n }
+          node_or_tags.each { |n| add_previous_sibling(n) }
           unlink
         else
-          replace_node node_or_tags
+          replace_node(node_or_tags)
         end
         node_or_tags
       end
@@ -306,7 +322,7 @@ module Nokogiri
       #
       # Also see related method +replace+.
       def swap(node_or_tags)
-        replace node_or_tags
+        replace(node_or_tags)
         self
       end
 
@@ -349,7 +365,7 @@ module Nokogiri
           raise ArgumentError, "namespace must be declared on the same document"
         end
 
-        set_namespace ns
+        set_namespace(ns)
       end
 
       ###
@@ -366,44 +382,153 @@ module Nokogiri
         process_xincludes(options.to_i)
       end
 
-      alias :next :next_sibling
-      alias :previous :previous_sibling
-      alias :next= :add_next_sibling
-      alias :previous= :add_previous_sibling
-      alias :remove :unlink
-      alias :name= :node_name=
-      alias :add_namespace :add_namespace_definition
+      alias_method :next, :next_sibling
+      alias_method :previous, :previous_sibling
+      alias_method :next=, :add_next_sibling
+      alias_method :previous=, :add_previous_sibling
+      alias_method :remove, :unlink
+      alias_method :name=, :node_name=
+      alias_method :add_namespace, :add_namespace_definition
 
-      # @!endgroup
+      # :section:
 
-      alias :text :content
-      alias :inner_text :content
-      alias :name :node_name
-      alias :type :node_type
-      alias :to_str :text
-      alias :clone :dup
-      alias :elements :element_children
+      alias_method :inner_text, :content
+      alias_method :text, :content
+      alias_method :to_str, :content
+      alias_method :name, :node_name
+      alias_method :type, :node_type
+      alias_method :clone, :dup
+      alias_method :elements, :element_children
 
-      # @!group Working With Node Attributes
+      # :section: Working With Node Attributes
 
-      ###
-      # Get the attribute value for the attribute +name+
+      # :call-seq: [](name) → (String, nil)
+      #
+      # Fetch an attribute from this node.
+      #
+      # ⚠ Note that attributes with namespaces cannot be accessed with this method. To access
+      # namespaced attributes, use #attribute_with_ns.
+      #
+      # [Returns] (String, nil) value of the attribute +name+, or +nil+ if no matching attribute exists
+      #
+      # *Example*
+      #
+      #   doc = Nokogiri::XML("<root><child size='large' class='big wide tall'/></root>")
+      #   child = doc.at_css("child")
+      #   child["size"] # => "large"
+      #   child["class"] # => "big wide tall"
+      #
+      # *Example:* Namespaced attributes will not be returned.
+      #
+      # ⚠ Note namespaced attributes may be accessed with #attribute or #attribute_with_ns
+      #
+      #   doc = Nokogiri::XML(<<~EOF)
+      #     <root xmlns:width='http://example.com/widths'>
+      #       <child width:size='broad'/>
+      #     </root>
+      #   EOF
+      #   doc.at_css("child")["size"] # => nil
+      #   doc.at_css("child").attribute("size").value # => "broad"
+      #   doc.at_css("child").attribute_with_ns("size", "http://example.com/widths").value
+      #   # => "broad"
+      #
       def [](name)
         get(name.to_s)
       end
 
-      ###
-      # Set the attribute value for the attribute +name+ to +value+
+      # :call-seq: []=(name, value) → value
+      #
+      # Update the attribute +name+ to +value+, or create the attribute if it does not exist.
+      #
+      # ⚠ Note that attributes with namespaces cannot be accessed with this method. To access
+      # namespaced attributes for update, use #attribute_with_ns. To add a namespaced attribute,
+      # see the example below.
+      #
+      # [Returns] +value+
+      #
+      # *Example*
+      #
+      #   doc = Nokogiri::XML("<root><child/></root>")
+      #   child = doc.at_css("child")
+      #   child["size"] = "broad"
+      #   child.to_html
+      #   # => "<child size=\"broad\"></child>"
+      #
+      # *Example:* Add a namespaced attribute.
+      #
+      #   doc = Nokogiri::XML(<<~EOF)
+      #     <root xmlns:width='http://example.com/widths'>
+      #       <child/>
+      #     </root>
+      #   EOF
+      #   child = doc.at_css("child")
+      #   child["size"] = "broad"
+      #   ns = doc.root.namespace_definitions.find { |ns| ns.prefix == "width" }
+      #   child.attribute("size").namespace = ns
+      #   doc.to_html
+      #   # => "<root xmlns:width=\"http://example.com/widths\">\n" +
+      #   #    "  <child width:size=\"broad\"></child>\n" +
+      #   #    "</root>\n"
+      #
       def []=(name, value)
-        set name.to_s, value.to_s
+        set(name.to_s, value.to_s)
       end
 
-      ####
-      # Returns a hash containing the node's attributes.  The key is
-      # the attribute name without any namespace, the value is a Nokogiri::XML::Attr
-      # representing the attribute.
-      # If you need to distinguish attributes with the same name, with different namespaces
-      # use #attribute_nodes instead.
+      #
+      # :call-seq: attributes() → Hash<String ⇒ Nokogiri::XML::Attr>
+      #
+      # Fetch this node's attributes.
+      #
+      # ⚠ Because the keys do not include any namespace information for the attribute, in case of a
+      # simple name collision, not all attributes will be returned. In this case, you will need to
+      # use #attribute_nodes.
+      #
+      # [Returns]
+      #   Hash containing attributes belonging to +self+. The hash keys are String attribute
+      #   names (without the namespace), and the hash values are Nokogiri::XML::Attr.
+      #
+      # *Example* with no namespaces:
+      #
+      #   doc = Nokogiri::XML("<root><child size='large' class='big wide tall'/></root>")
+      #   doc.at_css("child").attributes
+      #   # => {"size"=>#(Attr:0x550 { name = "size", value = "large" }),
+      #   #     "class"=>#(Attr:0x564 { name = "class", value = "big wide tall" })}
+      #
+      # *Example* with a namespace:
+      #
+      #   doc = Nokogiri::XML("<root xmlns:desc='http://example.com/sizes'><child desc:size='large'/></root>")
+      #   doc.at_css("child").attributes
+      #   # => {"size"=>
+      #   #      #(Attr:0x550 {
+      #   #        name = "size",
+      #   #        namespace = #(Namespace:0x564 {
+      #   #          prefix = "desc",
+      #   #          href = "http://example.com/sizes"
+      #   #          }),
+      #   #        value = "large"
+      #   #        })}
+      #
+      # *Example* with an attribute name collision:
+      #
+      # ⚠ Note that only one of the attributes is returned in the Hash.
+      #
+      #   doc = Nokogiri::XML(<<~EOF)
+      #     <root xmlns:width='http://example.com/widths'
+      #           xmlns:height='http://example.com/heights'>
+      #       <child width:size='broad' height:size='tall'/>
+      #     </root>
+      #   EOF
+      #   doc.at_css("child").attributes
+      #   # => {"size"=>
+      #   #      #(Attr:0x550 {
+      #   #        name = "size",
+      #   #        namespace = #(Namespace:0x564 {
+      #   #          prefix = "height",
+      #   #          href = "http://example.com/heights"
+      #   #          }),
+      #   #        value = "tall"
+      #   #        })}
+      #
       def attributes
         attribute_nodes.each_with_object({}) do |node, hash|
           hash[node.node_name] = node
@@ -419,7 +544,7 @@ module Nokogiri
       ###
       # Does this Node's attributes include <value>
       def value?(value)
-        values.include? value
+        values.include?(value)
       end
 
       ###
@@ -431,36 +556,36 @@ module Nokogiri
       ###
       # Iterate over each attribute name and value pair for this Node.
       def each
-        attribute_nodes.each { |node|
+        attribute_nodes.each do |node|
           yield [node.node_name, node.value]
-        }
+        end
       end
 
       ###
       # Remove the attribute named +name+
       def remove_attribute(name)
-        attr = attributes[name].remove if key? name
+        attr = attributes[name].remove if key?(name)
         clear_xpath_context if Nokogiri.jruby?
         attr
       end
 
-      # Get the CSS class names of a Node.
+      #
+      # :call-seq: classes() → Array<String>
+      #
+      # Fetch CSS class names of a Node.
       #
       # This is a convenience function and is equivalent to:
+      #
       #   node.kwattr_values("class")
       #
-      # @see #kwattr_values
-      # @see #add_class
-      # @see #append_class
-      # @see #remove_class
+      # See related: #kwattr_values, #add_class, #append_class, #remove_class
       #
-      # @return [Array<String>]
+      # [Returns]
+      #   The CSS classes (Array of String) present in the Node's "class" attribute. If the
+      #   attribute is empty or non-existent, the return value is an empty array.
       #
-      #   The CSS classes present in the Node's +class+ attribute. If
-      #   the attribute is empty or non-existent, the return value is
-      #   an empty array.
+      # *Example*
       #
-      # @example
       #   node         # => <div class="section title header"></div>
       #   node.classes # => ["section", "title", "header"]
       #
@@ -468,42 +593,45 @@ module Nokogiri
         kwattr_values("class")
       end
 
-      # Ensure HTML CSS classes are present on a +Node+. Any CSS
-      # classes in +names+ that already exist in the +Node+'s +class+
-      # attribute are _not_ added. Note that any existing duplicates
-      # in the +class+ attribute are not removed. Compare with
-      # {#append_class}.
+      #
+      # :call-seq: add_class(names) → self
+      #
+      # Ensure HTML CSS classes are present on +self+. Any CSS classes in +names+ that already exist
+      # in the "class" attribute are _not_ added. Note that any existing duplicates in the
+      # "class" attribute are not removed. Compare with #append_class.
       #
       # This is a convenience function and is equivalent to:
+      #
       #   node.kwattr_add("class", names)
       #
-      # @see #kwattr_add
-      # @see #classes
-      # @see #append_class
-      # @see #remove_class
+      # See related: #kwattr_add, #classes, #append_class, #remove_class
       #
-      # @param names [String, Array<String>]
+      # [Parameters]
+      # - +names+ (String, Array<String>)
       #
-      #   CSS class names to be added to the Node's +class+
-      #   attribute. May be a string containing whitespace-delimited
-      #   names, or an Array of String names. Any class names already
-      #   present will not be added. Any class names not present will
-      #   be added. If no +class+ attribute exists, one is created.
+      #   CSS class names to be added to the Node's "class" attribute. May be a string containing
+      #   whitespace-delimited names, or an Array of String names. Any class names already present
+      #   will not be added. Any class names not present will be added. If no "class" attribute
+      #   exists, one is created.
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      # [Returns] +self+ (Node) for ease of chaining method calls.
       #
-      # @example Ensure that a +Node+ has CSS class "section"
+      # *Example:* Ensure that the node has CSS class "section"
+      #
       #   node                      # => <div></div>
       #   node.add_class("section") # => <div class="section"></div>
       #   node.add_class("section") # => <div class="section"></div> # duplicate not added
       #
-      # @example Ensure that a +Node+ has CSS classes "section" and "header", via a String argument.
+      # *Example:* Ensure that the node has CSS classes "section" and "header", via a String argument
+      #
+      # Note that the CSS class "section" is not added because it is already present.
+      # Note also that the pre-existing duplicate CSS class "section" is not removed.
+      #
       #   node                             # => <div class="section section"></div>
       #   node.add_class("section header") # => <div class="section section header"></div>
-      #   # Note that the CSS class "section" is not added because it is already present.
-      #   # Note also that the pre-existing duplicate CSS class "section" is not removed.
       #
-      # @example Ensure that a +Node+ has CSS classes "section" and "header", via an Array argument.
+      # *Example:* Ensure that the node has CSS classes "section" and "header", via an Array argument
+      #
       #   node                                  # => <div></div>
       #   node.add_class(["section", "header"]) # => <div class="section header"></div>
       #
@@ -511,39 +639,42 @@ module Nokogiri
         kwattr_add("class", names)
       end
 
-      # Add HTML CSS classes to a +Node+, regardless of
-      # duplication. Compare with {#add_class}.
+      #
+      # :call-seq: append_class(names) → self
+      #
+      # Add HTML CSS classes to +self+, regardless of duplication. Compare with #add_class.
       #
       # This is a convenience function and is equivalent to:
+      #
       #   node.kwattr_append("class", names)
       #
-      # @see #kwattr_append
-      # @see #classes
-      # @see #add_class
-      # @see #remove_class
+      # See related: #kwattr_append, #classes, #add_class, #remove_class
       #
-      # @param names [String, Array<String>]
+      # [Parameters]
+      # - +names+ (String, Array<String>)
       #
-      #   CSS class names to be appended to the Node's +class+
-      #   attribute. May be a string containing whitespace-delimited
-      #   names, or an Array of String names. All class names passed
-      #   in will be appended to the +class+ attribute even if they
-      #   are already present in the attribute value. If no +class+
-      #   attribute exists, one is created.
+      #   CSS class names to be appended to the Node's "class" attribute. May be a string containing
+      #   whitespace-delimited names, or an Array of String names. All class names passed in will be
+      #   appended to the "class" attribute even if they are already present in the attribute
+      #   value. If no "class" attribute exists, one is created.
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      # [Returns] +self+ (Node) for ease of chaining method calls.
       #
-      # @example Append "section" to a +Node+'s CSS +class+ attriubute
+      # *Example:* Append "section" to the node's CSS "class" attribute
+      #
       #   node                         # => <div></div>
       #   node.append_class("section") # => <div class="section"></div>
       #   node.append_class("section") # => <div class="section section"></div> # duplicate added!
       #
-      # @example Append "section" and "header" to a +Node+'s CSS +class+ attribute, via a String argument.
+      # *Example:* Append "section" and "header" to the noded's CSS "class" attribute, via a String argument
+      #
+      # Note that the CSS class "section" is appended even though it is already present
+      #
       #   node                                # => <div class="section section"></div>
       #   node.append_class("section header") # => <div class="section section section header"></div>
-      #   # Note that the CSS class "section" is appended even though it is already present.
       #
-      # @example Append "section" and "header" to a +Node+'s CSS +class+ attribute, via an Array argument.
+      # *Example:* Append "section" and "header" to the node's CSS "class" attribute, via an Array argument
+      #
       #   node                                     # => <div></div>
       #   node.append_class(["section", "header"]) # => <div class="section header"></div>
       #   node.append_class(["section", "header"]) # => <div class="section header section header"></div>
@@ -552,118 +683,135 @@ module Nokogiri
         kwattr_append("class", names)
       end
 
-      # Remove HTML CSS classes from a +Node+. Any CSS classes in +names+ that
-      # exist in the +Node+'s +class+ attribute are removed, including any
-      # multiple entries.
+      # :call-seq:
+      #   remove_class(css_classes) → self
       #
-      # If no CSS classes remain after this operation, or if +names+ is
-      # +nil+, the +class+ attribute is deleted from the node.
+      # Remove HTML CSS classes from this node. Any CSS class names in +css_classes+ that exist in
+      # this node's "class" attribute are removed, including any multiple entries.
+      #
+      # If no CSS classes remain after this operation, or if +css_classes+ is +nil+, the "class"
+      # attribute is deleted from the node.
       #
       # This is a convenience function and is equivalent to:
-      #   node.kwattr_remove("class", names)
       #
-      # @see #kwattr_remove
-      # @see #classes
-      # @see #add_class
-      # @see #append_class
+      #   node.kwattr_remove("class", css_classes)
       #
-      # @param names [String, Array<String>]
+      # Also see #kwattr_remove, #classes, #add_class, #append_class
       #
-      #   CSS class names to be removed from the Node's +class+ attribute. May
-      #   be a string containing whitespace-delimited names, or an Array of
-      #   String names. Any class names already present will be removed. If no
-      #   CSS classes remain, the +class+ attribute is deleted.
+      # [Parameters]
+      # - +css_classes+ (String, Array<String>)
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #   CSS class names to be removed from the Node's
+      #   "class" attribute. May be a string containing whitespace-delimited names, or an Array of
+      #   String names. Any class names already present will be removed. If no CSS classes remain,
+      #   the "class" attribute is deleted.
       #
-      # @example
-      #   node                         # => <div class="section header"></div>
+      # [Returns] +self+ (Nokogiri::XML::Node) for ease of chaining method calls.
+      #
+      # *Example*: Deleting a CSS class
+      #
+      # Note that all instances of the class "section" are removed from the "class" attribute.
+      #
+      #   node                         # => <div class="section header section"></div>
       #   node.remove_class("section") # => <div class="header"></div>
-      #   node.remove_class("header")  # => <div></div> # attribute is deleted when empty
+      #
+      # *Example*: Deleting the only remaining CSS class
+      #
+      # Note that the attribute is removed once there are no remaining classes.
+      #
+      #   node                         # => <div class="section"></div>
+      #   node.remove_class("section") # => <div></div>
+      #
+      # *Example*: Deleting multiple CSS classes
+      #
+      # Note that the "class" attribute is deleted once it's empty.
+      #
+      #   node                                    # => <div class="section header float"></div>
+      #   node.remove_class(["section", "float"]) # => <div class="header"></div>
       #
       def remove_class(names = nil)
         kwattr_remove("class", names)
       end
 
-      # Retrieve values from a keyword attribute of a Node.
+      # :call-seq:
+      #   kwattr_values(attribute_name) → Array<String>
       #
-      # A "keyword attribute" is a node attribute that contains a set
-      # of space-delimited values. Perhaps the most familiar example
-      # of this is the HTML +class+ attribute used to contain CSS
-      # classes. But other keyword attributes exist, for instance
-      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      # Fetch values from a keyword attribute of a Node.
       #
-      # @see #classes
-      # @see #kwattr_add
-      # @see #kwattr_append
-      # @see #kwattr_remove
+      # A "keyword attribute" is a node attribute that contains a set of space-delimited
+      # values. Perhaps the most familiar example of this is the HTML "class" attribute used to
+      # contain CSS classes. But other keyword attributes exist, for instance
+      # {the "rel" attribute}[https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel].
       #
-      # @param attribute_name [String] The name of the keyword attribute to be inspected.
+      # See also #classes, #kwattr_add, #kwattr_append, #kwattr_remove
       #
-      # @return [Array<String>]
+      # [Parameters]
+      # - +attribute_name+ (String) The name of the keyword attribute to be inspected.
       #
-      #   The values present in the Node's +attribute_name+
-      #   attribute. If the attribute is empty or non-existent, the
-      #   return value is an empty array.
+      # [Returns]
+      #   (Array<String>) The values present in the Node's +attribute_name+ attribute. If the
+      #   attribute is empty or non-existent, the return value is an empty array.
       #
-      # @example
+      # *Example:*
+      #
       #   node                      # => <a rel="nofollow noopener external">link</a>
       #   node.kwattr_values("rel") # => ["nofollow", "noopener", "external"]
       #
-      # @since v1.11.0
-      #
+      # Since v1.11.0
       def kwattr_values(attribute_name)
         keywordify(get_attribute(attribute_name) || [])
       end
 
+      # :call-seq:
+      #   kwattr_add(attribute_name, keywords) → self
+      #
       # Ensure that values are present in a keyword attribute.
       #
-      # Any values in +keywords+ that already exist in the +Node+'s
-      # attribute values are _not_ added. Note that any existing
-      # duplicates in the attribute values are not removed. Compare
-      # with {#kwattr_append}.
+      # Any values in +keywords+ that already exist in the Node's attribute values are _not_
+      # added. Note that any existing duplicates in the attribute values are not removed. Compare
+      # with #kwattr_append.
       #
-      # A "keyword attribute" is a node attribute that contains a set
-      # of space-delimited values. Perhaps the most familiar example
-      # of this is the HTML +class+ attribute used to contain CSS
-      # classes. But other keyword attributes exist, for instance
-      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      # A "keyword attribute" is a node attribute that contains a set of space-delimited
+      # values. Perhaps the most familiar example of this is the HTML "class" attribute used to
+      # contain CSS classes. But other keyword attributes exist, for instance
+      # {the "rel" attribute}[https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel].
       #
-      # @see #add_class
-      # @see #kwattr_values
-      # @see #kwattr_append
-      # @see #kwattr_remove
+      # See also #add_class, #kwattr_values, #kwattr_append, #kwattr_remove
       #
-      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      # [Parameters]
+      # - +attribute_name+ (String) The name of the keyword attribute to be modified.
+      # - +keywords+ (String, Array<String>)
+      #   Keywords to be added to the attribute named +attribute_name+. May be a string containing
+      #   whitespace-delimited values, or an Array of String values. Any values already present will
+      #   not be added. Any values not present will be added. If the named attribute does not exist,
+      #   it is created.
       #
-      # @param keywords [String, Array<String>]
+      # [Returns] +self+ (Nokogiri::XML::Node) for ease of chaining method calls.
       #
-      #   Keywords to be added to the attribute named
-      #   +attribute_name+. May be a string containing
-      #   whitespace-delimited values, or an Array of String
-      #   values. Any values already present will not be added. Any
-      #   values not present will be added. If the named attribute
-      #   does not exist, it is created.
+      # *Example:* Ensure that a +Node+ has "nofollow" in its +rel+ attribute.
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      # Note that duplicates are not added.
       #
-      # @example Ensure that a +Node+ has "nofollow" in its +rel+ attribute.
       #   node                               # => <a></a>
       #   node.kwattr_add("rel", "nofollow") # => <a rel="nofollow"></a>
-      #   node.kwattr_add("rel", "nofollow") # => <a rel="nofollow"></a> # duplicate not added
+      #   node.kwattr_add("rel", "nofollow") # => <a rel="nofollow"></a>
       #
-      # @example Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via a String argument.
+      # *Example:* Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via a
+      # String argument.
+      #
+      #  Note that "nofollow" is not added because it is already present. Note also that the
+      #  pre-existing duplicate "nofollow" is not removed.
+      #
       #   node                                          # => <a rel="nofollow nofollow"></a>
       #   node.kwattr_add("rel", "nofollow noreferrer") # => <a rel="nofollow nofollow noreferrer"></a>
-      #   # Note that "nofollow" is not added because it is already present.
-      #   # Note also that the pre-existing duplicate "nofollow" is not removed.
       #
-      # @example Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via an Array argument.
+      # *Example:* Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via
+      # an Array argument.
+      #
       #   node                                               # => <a></a>
       #   node.kwattr_add("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
       #
-      # @since v1.11.0
-      #
+      # Since v1.11.0
       def kwattr_add(attribute_name, keywords)
         keywords = keywordify(keywords)
         current_kws = kwattr_values(attribute_name)
@@ -672,50 +820,51 @@ module Nokogiri
         self
       end
 
-      # Add keywords to a Node's keyword attribute, regardless of
-      # duplication. Compare with {#kwattr_add}.
+      # :call-seq:
+      #   kwattr_append(attribute_name, keywords) → self
       #
-      # A "keyword attribute" is a node attribute that contains a set
-      # of space-delimited values. Perhaps the most familiar example
-      # of this is the HTML +class+ attribute used to contain CSS
-      # classes. But other keyword attributes exist, for instance
-      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      # Add keywords to a Node's keyword attribute, regardless of duplication. Compare with
+      # #kwattr_add.
       #
-      # @see #append_class
-      # @see #kwattr_values
-      # @see #kwattr_add
-      # @see #kwattr_remove
+      # A "keyword attribute" is a node attribute that contains a set of space-delimited
+      # values. Perhaps the most familiar example of this is the HTML "class" attribute used to
+      # contain CSS classes. But other keyword attributes exist, for instance
+      # {the "rel" attribute}[https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel].
       #
-      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      # See also #append_class, #kwattr_values, #kwattr_add, #kwattr_remove
       #
-      # @param keywords [String, Array<String>]
+      # [Parameters]
+      # - +attribute_name+ (String) The name of the keyword attribute to be modified.
+      # - +keywords+ (String, Array<String>)
+      #   Keywords to be added to the attribute named +attribute_name+. May be a string containing
+      #   whitespace-delimited values, or an Array of String values. All values passed in will be
+      #   appended to the named attribute even if they are already present in the attribute. If the
+      #   named attribute does not exist, it is created.
       #
-      #   Keywords to be added to the attribute named
-      #   +attribute_name+. May be a string containing
-      #   whitespace-delimited values, or an Array of String
-      #   values. All values passed in will be appended to the named
-      #   attribute even if they are already present in the
-      #   attribute. If the named attribute does not exist, it is
-      #   created.
+      # [Returns] +self+ (Node) for ease of chaining method calls.
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      # *Example:* Append "nofollow" to the +rel+ attribute.
       #
-      # @example Append "nofollow" to the +rel+ attribute.
+      # Note that duplicates are added.
+      #
       #   node                                  # => <a></a>
       #   node.kwattr_append("rel", "nofollow") # => <a rel="nofollow"></a>
-      #   node.kwattr_append("rel", "nofollow") # => <a rel="nofollow nofollow"></a> # duplicate added!
+      #   node.kwattr_append("rel", "nofollow") # => <a rel="nofollow nofollow"></a>
       #
-      # @example Append "nofollow" and "noreferrer" to the +rel+ attribute, via a String argument.
+      # *Example:* Append "nofollow" and "noreferrer" to the +rel+ attribute, via a String argument.
+      #
+      # Note that "nofollow" is appended even though it is already present.
+      #
       #   node                                             # => <a rel="nofollow"></a>
       #   node.kwattr_append("rel", "nofollow noreferrer") # => <a rel="nofollow nofollow noreferrer"></a>
-      #   # Note that "nofollow" is appended even though it is already present.
       #
-      # @example Append "nofollow" and "noreferrer" to the +rel+ attribute, via an Array argument.
+      #
+      # *Example:* Append "nofollow" and "noreferrer" to the +rel+ attribute, via an Array argument.
+      #
       #   node                                                  # => <a></a>
       #   node.kwattr_append("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
       #
-      # @since v1.11.0
-      #
+      # Since v1.11.0
       def kwattr_append(attribute_name, keywords)
         keywords = keywordify(keywords)
         current_kws = kwattr_values(attribute_name)
@@ -724,44 +873,41 @@ module Nokogiri
         self
       end
 
-      # Remove keywords from a keyword attribute. Any matching
-      # keywords that exist in the named attribute are removed,
-      # including any multiple entries.
+      # :call-seq:
+      #   kwattr_remove(attribute_name, keywords) → self
       #
-      # If no keywords remain after this operation, or if +keywords+
-      # is +nil+, the attribute is deleted from the node.
+      # Remove keywords from a keyword attribute. Any matching keywords that exist in the named
+      # attribute are removed, including any multiple entries.
       #
-      # A "keyword attribute" is a node attribute that contains a set
-      # of space-delimited values. Perhaps the most familiar example
-      # of this is the HTML +class+ attribute used to contain CSS
-      # classes. But other keyword attributes exist, for instance
-      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      # If no keywords remain after this operation, or if +keywords+ is +nil+, the attribute is
+      # deleted from the node.
       #
-      # @see #remove_class
-      # @see #kwattr_values
-      # @see #kwattr_add
-      # @see #kwattr_append
+      # A "keyword attribute" is a node attribute that contains a set of space-delimited
+      # values. Perhaps the most familiar example of this is the HTML "class" attribute used to
+      # contain CSS classes. But other keyword attributes exist, for instance
+      # {the "rel" attribute}[https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel].
       #
-      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      # See also #remove_class, #kwattr_values, #kwattr_add, #kwattr_append
       #
-      # @param keywords [String, Array<String>]
+      # [Parameters]
+      # - +attribute_name+ (String) The name of the keyword attribute to be modified.
+      # - +keywords+ (String, Array<String>)
+      #   Keywords to be removed from the attribute named +attribute_name+. May be a string
+      #   containing whitespace-delimited values, or an Array of String values. Any keywords present
+      #   in the named attribute will be removed. If no keywords remain, or if +keywords+ is nil,
+      #   the attribute is deleted.
       #
-      #   Keywords to be removed from the attribute named
-      #   +attribute_name+. May be a string containing
-      #   whitespace-delimited values, or an Array of String
-      #   values. Any keywords present in the named attribute will be
-      #   removed. If no keywords remain, or if +keywords+ is nil, the
-      #   attribute is deleted.
+      # [Returns] +self+ (Node) for ease of chaining method calls.
       #
-      # @return [Node] Returns +self+ for ease of chaining method calls.
+      # *Example:*
       #
-      # @example
+      # Note that the +rel+ attribute is deleted when empty.
+      #
       #   node                                    # => <a rel="nofollow noreferrer">link</a>
       #   node.kwattr_remove("rel", "nofollow")   # => <a rel="noreferrer">link</a>
-      #   node.kwattr_remove("rel", "noreferrer") # => <a>link</a> # attribute is deleted when empty
+      #   node.kwattr_remove("rel", "noreferrer") # => <a>link</a>
       #
-      # @since v1.11.0
-      #
+      # Since v1.11.0
       def kwattr_remove(attribute_name, keywords)
         if keywords.nil?
           remove_attribute(attribute_name)
@@ -779,13 +925,13 @@ module Nokogiri
         self
       end
 
-      alias :delete :remove_attribute
-      alias :get_attribute :[]
-      alias :attr :[]
-      alias :set_attribute :[]=
-      alias :has_attribute? :key?
+      alias_method :delete, :remove_attribute
+      alias_method :get_attribute, :[]
+      alias_method :attr, :[]
+      alias_method :set_attribute, :[]=
+      alias_method :has_attribute?, :key?
 
-      # @!endgroup
+      # :section:
 
       ###
       # Returns true if this Node matches +selector+
@@ -822,13 +968,15 @@ module Nokogiri
         # Give the options to the user
         yield options if block_given?
 
-        contents = string_or_io.respond_to?(:read) ?
-          string_or_io.read :
+        contents = if string_or_io.respond_to?(:read)
+          string_or_io.read
+        else
           string_or_io
+        end
 
         return Nokogiri::XML::NodeSet.new(document) if contents.empty?
 
-        # libxml2 does not obey the `recover` option after encountering errors during `in_context`
+        # libxml2 does not obey the +recover+ option after encountering errors during +in_context+
         # parsing, and so this horrible hack is here to try to emulate recovery behavior.
         #
         # Unfortunately, this means we're no longer parsing "in context" and so namespaces that
@@ -838,16 +986,16 @@ module Nokogiri
         #
         # I think preferable behavior would be to either:
         #
-        # a. add an error noting that we "fell back" and pointing the user to turning off the `recover` option
+        # a. add an error noting that we "fell back" and pointing the user to turning off the +recover+ option
         # b. don't recover, but raise a sensible exception
         #
         # For context and background: https://github.com/sparklemotion/nokogiri/issues/313
         # FIXME bug report: https://github.com/sparklemotion/nokogiri/issues/2092
         error_count = document.errors.length
         node_set = in_context(contents, options.to_i)
-        if (node_set.empty? && (document.errors.length > error_count))
+        if node_set.empty? && (document.errors.length > error_count)
           if options.recover?
-            fragment = Nokogiri::HTML4::DocumentFragment.parse contents
+            fragment = Nokogiri::HTML4::DocumentFragment.parse(contents)
             node_set = fragment.children
           else
             raise document.errors[error_count]
@@ -856,20 +1004,42 @@ module Nokogiri
         node_set
       end
 
-      ###
-      # Returns a Hash of +{prefix => value}+ for all namespaces on this
-      # node and its ancestors.
+      # :call-seq:
+      #   namespaces() → Hash<String(Namespace#prefix) ⇒ String(Namespace#href)>
       #
-      # This method returns the same namespaces as #namespace_scopes.
+      # Fetch all the namespaces on this node and its ancestors.
       #
-      # Returns namespaces in scope for self -- those defined on self
-      # element directly or any ancestor node -- as a Hash of
-      # attribute-name/value pairs. Note that the keys in this hash
-      # XML attributes that would be used to define this namespace,
-      # such as "xmlns:prefix", not just the prefix. Default namespace
-      # set on self will be included with key "xmlns". However,
-      # default namespaces set on ancestor will NOT be, even if self
-      # has no explicit default namespace.
+      # Note that the keys in this hash XML attributes that would be used to define this namespace,
+      # such as "xmlns:prefix", not just the prefix.
+      #
+      # The default namespace for this node will be included with key "xmlns".
+      #
+      # See also #namespace_scopes
+      #
+      # [Returns]
+      #   Hash containing all the namespaces on this node and its ancestors. The hash keys are the
+      #   namespace prefix, and the hash value for each key is the namespace URI.
+      #
+      # *Example:*
+      #
+      #   doc = Nokogiri::XML(<<~EOF)
+      #     <root xmlns="http://example.com/root" xmlns:in_scope="http://example.com/in_scope">
+      #       <first/>
+      #       <second xmlns="http://example.com/child"/>
+      #       <third xmlns:foo="http://example.com/foo"/>
+      #     </root>
+      #   EOF
+      #   doc.at_xpath("//root:first", "root" => "http://example.com/root").namespaces
+      #   # => {"xmlns"=>"http://example.com/root",
+      #   #     "xmlns:in_scope"=>"http://example.com/in_scope"}
+      #   doc.at_xpath("//child:second", "child" => "http://example.com/child").namespaces
+      #   # => {"xmlns"=>"http://example.com/child",
+      #   #     "xmlns:in_scope"=>"http://example.com/in_scope"}
+      #   doc.at_xpath("//root:third", "root" => "http://example.com/root").namespaces
+      #   # => {"xmlns:foo"=>"http://example.com/foo",
+      #   #     "xmlns"=>"http://example.com/root",
+      #   #     "xmlns:in_scope"=>"http://example.com/in_scope"}
+      #
       def namespaces
         namespace_scopes.each_with_object({}) do |ns, hash|
           prefix = ns.prefix
@@ -900,7 +1070,7 @@ module Nokogiri
 
       # Returns true if this is a Document
       def document?
-        is_a? XML::Document
+        is_a?(XML::Document)
       end
 
       # Returns true if this is a ProcessingInstruction node
@@ -938,7 +1108,7 @@ module Nokogiri
         type == ELEMENT_NODE
       end
 
-      alias :elem? :element?
+      alias_method :elem?, :element?
 
       ###
       # Turn this node in to a string.  If the document is HTML, this method
@@ -954,9 +1124,9 @@ module Nokogiri
 
       # Get the path to this node as a CSS expression
       def css_path
-        path.split(/\//).map { |part|
+        path.split(%r{/}).map do |part|
           part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
-        }.compact.join(" > ")
+        end.compact.join(" > ")
       end
 
       ###
@@ -978,9 +1148,9 @@ module Nokogiri
         root = parents.last
         search_results = root.search(selector)
 
-        NodeSet.new(document, parents.find_all { |parent|
+        NodeSet.new(document, parents.find_all do |parent|
           search_results.include?(parent)
-        })
+        end)
       end
 
       ####
@@ -1010,10 +1180,10 @@ module Nokogiri
       def <=>(other)
         return nil unless other.is_a?(Nokogiri::XML::Node)
         return nil unless document == other.document
-        compare other
+        compare(other)
       end
 
-      # @!group Serialization and Generating Output
+      # :section: Serialization and Generating Output
 
       ###
       # Serialize Node using +options+.  Save options can also be set using a
@@ -1030,10 +1200,14 @@ module Nokogiri
       #   end
       #
       def serialize(*args, &block)
-        options = args.first.is_a?(Hash) ? args.shift : {
-          :encoding => args[0],
-          :save_with => args[1],
-        }
+        options = if args.first.is_a?(Hash)
+          args.shift
+        else
+          {
+            encoding: args[0],
+            save_with: args[1],
+          }
+        end
 
         encoding = options[:encoding] || document.encoding
         options[:encoding] = encoding
@@ -1041,7 +1215,7 @@ module Nokogiri
         outstring = String.new
         outstring.force_encoding(Encoding.find(encoding || "utf-8"))
         io = StringIO.new(outstring)
-        write_to io, options, &block
+        write_to(io, options, &block)
         io.string
       end
 
@@ -1053,7 +1227,7 @@ module Nokogiri
       # See Node#write_to for a list of +options+.  For formatted output,
       # use Node#to_xhtml instead.
       def to_html(options = {})
-        to_format SaveOptions::DEFAULT_HTML, options
+        to_format(SaveOptions::DEFAULT_HTML, options)
       end
 
       ###
@@ -1074,7 +1248,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xhtml(options = {})
-        to_format SaveOptions::DEFAULT_XHTML, options
+        to_format(SaveOptions::DEFAULT_XHTML, options)
       end
 
       ###
@@ -1122,7 +1296,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def write_html_to(io, options = {})
-        write_format_to SaveOptions::DEFAULT_HTML, io, options
+        write_format_to(SaveOptions::DEFAULT_HTML, io, options)
       end
 
       ###
@@ -1130,7 +1304,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def write_xhtml_to(io, options = {})
-        write_format_to SaveOptions::DEFAULT_XHTML, io, options
+        write_format_to(SaveOptions::DEFAULT_XHTML, io, options)
       end
 
       ###
@@ -1141,7 +1315,7 @@ module Nokogiri
       # See Node#write_to for a list of options
       def write_xml_to(io, options = {})
         options[:save_with] ||= SaveOptions::DEFAULT_XML
-        write_to io, options
+        write_to(io, options)
       end
 
       def canonicalize(mode = XML::XML_C14N_1_0, inclusive_namespaces = nil, with_comments = false)
@@ -1152,7 +1326,7 @@ module Nokogiri
         end
       end
 
-      # @!endgroup
+      # :section:
 
       protected
 
@@ -1170,9 +1344,9 @@ module Nokogiri
           return data
         end
 
-        raise ArgumentError, <<-EOERR
-Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
-(You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
+        raise ArgumentError, <<~EOERR
+          Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
+          (You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
         EOERR
       end
 
@@ -1181,32 +1355,33 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
       def keywordify(keywords)
         case keywords
         when Enumerable
-          return keywords
+          keywords
         when String
-          return keywords.scan(/\S+/)
+          keywords.scan(/\S+/)
         else
-          raise ArgumentError.new("Keyword attributes must be passed as either a String or an Enumerable, but received #{keywords.class}")
+          raise ArgumentError,
+            "Keyword attributes must be passed as either a String or an Enumerable, but received #{keywords.class}"
         end
       end
 
       def add_sibling(next_or_previous, node_or_tags)
         raise("Cannot add sibling to a node with no parent") unless parent
 
-        impl = (next_or_previous == :next) ? :add_next_sibling_node : :add_previous_sibling_node
-        iter = (next_or_previous == :next) ? :reverse_each : :each
+        impl = next_or_previous == :next ? :add_next_sibling_node : :add_previous_sibling_node
+        iter = next_or_previous == :next ? :reverse_each : :each
 
         node_or_tags = parent.coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           if text?
-            pivot = Nokogiri::XML::Node.new "dummy", document
-            send impl, pivot
+            pivot = Nokogiri::XML::Node.new("dummy", document)
+            send(impl, pivot)
           else
             pivot = self
           end
-          node_or_tags.send(iter) { |n| pivot.send impl, n }
+          node_or_tags.send(iter) { |n| pivot.send(impl, n) }
           pivot.unlink if text?
         else
-          send impl, node_or_tags
+          send(impl, node_or_tags)
         end
         node_or_tags
       end
@@ -1225,18 +1400,17 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         return (io << dump_html) if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] ||= save_option
-        write_to io, options
+        write_to(io, options)
       end
 
       def inspect_attributes
         [:name, :namespace, :attribute_nodes, :children]
       end
 
-      # @private
-      IMPLIED_XPATH_CONTEXTS = [".//".freeze].freeze
+      IMPLIED_XPATH_CONTEXTS = [".//"].freeze
 
       def add_child_node_and_reparent_attrs(node)
-        add_child_node node
+        add_child_node(node)
         node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
           attr_node.remove
           node[attr_node.name] = attr_node.value

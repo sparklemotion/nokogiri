@@ -8,18 +8,18 @@ module Nokogiri
     #
     # Here is an example of usage:
     #
-    #   reader = Nokogiri::XML::Reader(<<-eoxml)
-    #     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
-    #       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
-    #     </x>
-    #   eoxml
-    #
-    #   reader.each do |node|
-    #
-    #     # node is an instance of Nokogiri::XML::Reader
-    #     puts node.name
-    #
-    #   end
+    #     reader = Nokogiri::XML::Reader(<<-eoxml)
+    #       <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+    #         <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    #       </x>
+    #     eoxml
+    #   
+    #     reader.each do |node|
+    #   
+    #       # node is an instance of Nokogiri::XML::Reader
+    #       puts node.name
+    #   
+    #     end
     #
     # Note that Nokogiri::XML::Reader#each can only be called once!!  Once
     # the cursor moves through the entire document, you must parse the
@@ -85,9 +85,9 @@ module Nokogiri
       end
       private :initialize
 
-      ###
       # Get the attributes of the current node as a Hash
-      # @return [Hash<String, String>] Attribute names and values
+      #
+      # [Returns] (Hash<String, String>) Attribute names and values
       def attributes
         attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
                        hash[node.name] = node.to_s
