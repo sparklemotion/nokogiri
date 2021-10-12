@@ -4423,11 +4423,6 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
     /* Parse error */
     parser_add_parse_error(parser, token);
 
-    /*
-     * Fragment case: If the parser was originally created for the HTML
-     * fragment parsing algorithm, then act as described in the "any other
-     * start tag" entry below.
-     */
     while (
       !(
         is_mathml_integration_point(get_current_node(parser))
@@ -4437,12 +4432,6 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
     ) {
       pop_current_node(parser);
     }
-    // XXX: The spec currently says to handle this using the in body insertion
-    // mode rules. That seems wrong. See
-    // <https://github.com/whatwg/html/issues/6808>. Instead, use the current
-    // insertion mode which seems like it works.
-    //
-    // handle_in_body(parser, token);
     handle_html_content(parser, token);
     return;
   }
