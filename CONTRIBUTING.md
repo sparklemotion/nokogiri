@@ -58,7 +58,7 @@ Nokogiri is widely used in the Ruby ecosystem, and so extra care should be taken
 
 Please take a look at our [Issues marked "Help Wanted"](https://github.com/sparklemotion/nokogiri/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
 
-Also, pull requests for documentation improvements are always welcome!
+Also, [pull requests for documentation improvements are always welcome](#documentation)!
 
 
 ## Submitting Pull Requests
@@ -174,6 +174,35 @@ bundle exec rake compile test
 
 
 ## Style Guide
+
+### Documentation
+
+We use `rdoc` to build Nokogiri's documentation. Run `rake rdoc` to build into the `./html` directory, and see the rdoc tasks in [rakelib/rdoc.rake](rakelib/rdoc.rake).
+
+Previously we made some effort to move towards `yard` but that work was stopped (and the decision record can be found at [RFC: convert to use `yard` for documentation · Issue #1996 · sparklemotion/nokogiri](https://github.com/sparklemotion/nokogiri/issues/1996)).
+
+I would prefer docstrings to be in `RDoc::Markup` format, though simple docstrings may be in Markdown (using `:markup: markdown`).
+
+If you submit pull requests that improve documentation, **I will happily merge them** and credit you in the CHANGELOG.
+
+Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [ext/nokogiri/xml/node.c](ext/nokogiri/xml/node.c) for examples):
+
+- use `:call-seq:` to:
+  - note the return type of the method whenever possible, e.g. `:call-seq: upcase(name) → String`
+  - to name all the aliases of a method
+  - to indicate block/yield usage of a method
+- briefly explain the purpose of the method, what it returns, and what side effects it has
+- use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
+- use a `[Returns]` definition to note the return type
+- use a `[Yields]` definition to note the block parameters
+- use a `⚠` character to warn the user about tricky usage
+- use a `💡` character to call attention to important notes
+- `See also:` should be used to call out related methods
+- `Since` should be used to indicate the version that code was introduced
+- prefer to show nuanced behavior in code examples, rather than by explaining it
+
+
+### Code
 
 I don't feel very strongly about code style, but when possible I follow [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code I use the `astyle` settings laid out in `/rakelib/format.rake`.
 
