@@ -18,3 +18,194 @@
    fun:_dl_map_object
    ...
 }
+{
+  TODO TestHtml5TreeConstructionNoscript01#test_0
+  Memcheck:Leak
+  fun:malloc
+  fun:gumbo_alloc
+  fun:gumbo_strdup
+  fun:handle_markup_declaration_open_state
+  fun:gumbo_lex
+  fun:gumbo_parse_with_options
+  fun:perform_parse
+  fun:parse
+}
+{
+  TODO TestHtml5TreeConstructionNoscript01#test_0
+  Memcheck:Leak
+  fun:malloc
+  fun:gumbo_alloc
+  fun:gumbo_string_buffer_to_string
+  fun:finish_temporary_buffer
+  fun:handle_doctype_name_state
+  fun:gumbo_lex
+  fun:gumbo_parse_with_options
+  fun:perform_parse
+  fun:parse
+}
+{
+  TODO xpath syntax errors raise and don't allow xmlXpathEval to clean up, see #2096 for related work
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:xmlXPathNewParserContext
+  fun:xmlXPathEval
+  fun:evaluate
+}
+{
+  TODO
+  # 4 bytes in 1 blocks are definitely lost in loss record 1,070 of 37,883
+  # *xmlStrndup (xmlstring.c:45)
+  # *xmlXPathParseNCName (xpath.c:9792)
+  # *xmlXPathCompStep (xpath.c:11325)
+  # *xmlXPathCompRelativeLocationPath (xpath.c:11437)
+  # *xmlXPathCompLocationPath (xpath.c:11489)
+  # *xmlXPathCompPathExpr (xpath.c:10672)
+  # *xmlXPathCompUnionExpr (xpath.c:10703)
+  # *xmlXPathCompUnaryExpr (xpath.c:10743)
+  # *xmlXPathCompMultiplicativeExpr (xpath.c:10768)
+  # *xmlXPathCompAdditiveExpr (xpath.c:10809)
+  # *xmlXPathCompRelationalExpr (xpath.c:10847)
+  # *xmlXPathCompEqualityExpr (xpath.c:10886)
+  # *xmlXPathCompAndExpr (xpath.c:10917)
+  # *xmlXPathCompileExpr (xpath.c:10955)
+  # *xmlXPathEvalExpr (xpath.c:14423)
+  # *xmlXPathEvalExpr (xpath.c:14405)
+  # *xmlXPathEval (xpath.c:14463)
+  # *evaluate (xml_xpath_context.c:322)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:xmlStrndup
+  fun:xmlXPathParseNCName
+  ...
+  fun:xmlXPathEval
+  fun:evaluate
+}
+{
+  TODO
+  # 44 bytes in 1 blocks are definitely lost in loss record 14,160 of 37,883
+  # *xmlXPathCompOpEval (xpath.c:13197)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathCompOpEvalToBoolean (xpath.c:13589)
+  # *xmlXPathNodeSetFilter (xpath.c:11664)
+  # *xmlXPathNodeCollectAndTest (xpath.c:12492)
+  # *xmlXPathCompOpEval (xpath.c:13105)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathCompOpEval (xpath.c:13353)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathRunEval (xpath.c:13946)
+  # *xmlXPathEval (xpath.c:14463)
+  # *evaluate (xml_xpath_context.c:322)
+  Memcheck:Leak
+  fun:malloc
+  fun:__vasprintf_internal
+  fun:xpath_generic_exception_handler
+  fun:xmlXPathCompOpEval
+  ...
+  fun:xmlXPathEval
+  fun:evaluate
+}
+{
+  TODO
+  # 96 (16 direct, 80 indirect) bytes in 1 blocks are definitely lost in loss record 24,755 of 37,883
+  # *xmlXPathNodeSetCreate (xpath.c:3564)
+  # *xmlXPathNodeCollectAndTest (xpath.c:12201)
+  # *xmlXPathCompOpEval (xpath.c:13105)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathCompOpEval (xpath.c:13353)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathRunEval (xpath.c:13946)
+  # *xmlXPathEval (xpath.c:14463)
+  # *evaluate (xml_xpath_context.c:322)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:xmlXPathNodeSetCreate
+  fun:xmlXPathNodeCollectAndTest
+  fun:xmlXPathCompOpEval
+  ...
+  fun:xmlXPathEval
+  fun:evaluate
+}
+{
+  TODO
+  # 128 bytes in 1 blocks are definitely lost in loss record 26,649 of 37,883
+  # *registr (xslt_stylesheet.c:246)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:ar_alloc_table
+  fun:rb_hash_aset
+  fun:registr
+}
+{
+  TODO
+  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 28,980 of 37,883
+  # *xmlNewNodeEatName (tree.c:2299)
+  # *xmlNewDocNodeEatName (tree.c:2374)
+  # *xmlSAX2StartElementNs (SAX2.c:2255)
+  # *xmlParseStartTag2 (parser.c:9658)
+  # *xmlParseElementStart (parser.c:10043)
+  # *xmlParseContentInternal (parser.c:9908)
+  # *xmlParseElement (parser.c:9983)
+  # *xmlParseDocument (parser.c:10821)
+  # *xmlDoRead (parser.c:15167)
+  # *read_memory (xml_document.c:331)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:xmlNewNodeEatName
+  fun:xmlNewDocNodeEatName
+  fun:xmlSAX2StartElementNs
+  fun:xmlParseStartTag2
+  fun:xmlParseElementStart
+  fun:xmlParseContentInternal
+  fun:xmlParseElement
+  fun:xmlParseDocument
+  fun:xmlDoRead
+  fun:read_memory
+}
+{
+  TODO
+  # 1,464 (72 direct, 1,392 indirect) bytes in 1 blocks are definitely lost in loss record 35,525 of 37,883
+  # *xmlXPathWrapNodeSet (xpath.c:4386)
+  # *xmlXPathNodeCollectAndTest (xpath.c:12549)
+  # *xmlXPathCompOpEval (xpath.c:13105)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathCompOpEval (xpath.c:13102)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathCompOpEval (xpath.c:13353)
+  # *xmlXPathCompOpEval (xpath.c:12947)
+  # *xmlXPathRunEval (xpath.c:13946)
+  # *xmlXPathEval (xpath.c:14463)
+  # *evaluate (xml_xpath_context.c:322)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  fun:ruby_xmalloc0
+  fun:ruby_xmalloc_body
+  fun:ruby_xmalloc
+  fun:xmlXPathWrapNodeSet
+  fun:xmlXPathNodeCollectAndTest
+  ...
+  fun:xmlXPathCompOpEval
+  fun:xmlXPathRunEval
+  fun:xmlXPathEval
+  fun:evaluate
+}
