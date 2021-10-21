@@ -128,11 +128,44 @@ register_variable(VALUE self, VALUE name, VALUE value)
   return self;
 }
 
+
+/*
+ *  convert an XPath object into a Ruby object of the appropriate type.
+ *  returns Qundef if no conversion was possible.
+ */
+static VALUE
+xpath2ruby(xmlXPathObjectPtr xobj, xmlXPathContextPtr xctx)
+{
+  VALUE retval;
+
+  assert(xctx->doc);
+  assert(DOC_RUBY_OBJECT_TEST(xctx->doc));
+
+  switch (xobj->type) {
+    case XPATH_STRING:
+      retval = NOKOGIRI_STR_NEW2(xobj->stringval);
+      xmlFree(xobj->stringval);
+      return retval;
+
+    case XPATH_NODESET:
+      return noko_xml_node_set_wrap(xobj->nodesetval,
+                                    DOC_RUBY_OBJECT(xctx->doc));
+
+    case XPATH_NUMBER:
+      return rb_float_new(xobj->floatval);
+
+    case XPATH_BOOLEAN:
+      return (xobj->boolval == 1) ? Qtrue : Qfalse;
+
+    default:
+      return Qundef;
+  }
+}
+
 void
 Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name)
 {
-  int i;
   VALUE result, doc;
   VALUE *argv;
   VALUE node_set = Qnil;
@@ -143,40 +176,25 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
   assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
 
   argv = (VALUE *)calloc((size_t)nargs, sizeof(VALUE));
-  for (i = 0 ; i < nargs ; ++i) {
-    rb_gc_register_address(&argv[i]);
+  for (int j = 0 ; j < nargs ; ++j) {
+    rb_gc_register_address(&argv[j]);
   }
 
   doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
-  if (nargs > 0) {
-    i = nargs - 1;
-    do {
-      obj = valuePop(ctx);
-      switch (obj->type) {
-        case XPATH_STRING:
-          argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
-          break;
-        case XPATH_BOOLEAN:
-          argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
-          break;
-        case XPATH_NUMBER:
-          argv[i] = rb_float_new(obj->floatval);
-          break;
-        case XPATH_NODESET:
-          argv[i] = noko_xml_node_set_wrap(obj->nodesetval, doc);
-          break;
-        default:
-          argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
-      }
-      xmlXPathFreeNodeSetList(obj);
-    } while (i-- > 0);
+  for (int j = nargs - 1 ; j >= 0 ; --j) {
+    obj = valuePop(ctx);
+    argv[j] = xpath2ruby(obj, ctx->context);
+    if (argv[j] == Qundef) {
+      argv[j] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
+    }
+    xmlXPathFreeNodeSetList(obj);
   }
 
   result = rb_funcall2(handler, rb_intern((const char *)function_name), nargs, argv);
 
-  for (i = 0 ; i < nargs ; ++i) {
-    rb_gc_unregister_address(&argv[i]);
+  for (int j = 0 ; j < nargs ; ++j) {
+    rb_gc_unregister_address(&argv[j]);
   }
   free(argv);
 
@@ -275,7 +293,7 @@ static VALUE
 evaluate(int argc, VALUE *argv, VALUE self)
 {
   VALUE search_path, xpath_handler;
-  VALUE thing = Qnil;
+  VALUE retval = Qnil;
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xpath;
   xmlChar *query;
@@ -310,31 +328,14 @@ evaluate(int argc, VALUE *argv, VALUE self)
     rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
   }
 
-  assert(ctx->doc);
-  assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
-
-  switch (xpath->type) {
-    case XPATH_STRING:
-      thing = NOKOGIRI_STR_NEW2(xpath->stringval);
-      xmlFree(xpath->stringval);
-      break;
-    case XPATH_NODESET:
-      thing = noko_xml_node_set_wrap(xpath->nodesetval,
-                                     DOC_RUBY_OBJECT(ctx->doc));
-      break;
-    case XPATH_NUMBER:
-      thing = rb_float_new(xpath->floatval);
-      break;
-    case XPATH_BOOLEAN:
-      thing = xpath->boolval == 1 ? Qtrue : Qfalse;
-      break;
-    default:
-      thing = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(ctx->doc));
+  retval = xpath2ruby(xpath, ctx);
+  if (retval == Qundef) {
+    retval = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(ctx->doc));
   }
 
   xmlXPathFreeNodeSetList(xpath);
 
-  return thing;
+  return retval;
 }
 
 /*
