@@ -1,0 +1,28 @@
+.ruby-comment {
+  color: #aaa;
+}
+
+main header h3 {
+  padding-top: 2px !important;
+}
+
+.constants-list .mixin-from {
+  padding-top: 0.4em;
+  margin-bottom: 0;
+}
+
+.constants-list > dl {
+  display: flex;
+  flex-flow: row wrap;
+}
+.constants-list > dl dt {
+  flex-basis: 35%;
+  overflow: hidden;
+  margin-bottom: 0.2em;
+  font-size: 100%;
+}
+.constants-list > dl dd {
+  flex-basis: 65%;
+  flex-grow: 1;
+  margin-bottom: 0.2em;
+}
