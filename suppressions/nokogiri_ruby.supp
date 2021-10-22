@@ -8,3 +8,13 @@
    fun:_dl_map_object
    ...
 }
+{
+   this should be caught by default suppressions see #2314
+   Memcheck:Addr16
+   fun:strncmp
+   fun:is_dst
+   fun:_dl_dst_*
+   ...
+   fun:_dl_map_object
+   ...
+}
