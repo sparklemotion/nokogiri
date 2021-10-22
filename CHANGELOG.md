@@ -12,6 +12,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.6.1` to `~> 2.7.0`. ("ruby" platform gem only.)
 
 
+### Fixed
+
+* [CRuby] Fix memory leak in `Document#canonicalize` when inclusive namespaces are passed in. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
+* [CRuby] Fix memory leak in `Document#canonicalize` when an argument type error is raised. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
+* [CRuby] Fix memory leak in `EncodingHandler` where iconv handlers were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
+* [CRuby] Fix memory leak in XPath custom handlers where string arguments were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
+
+
 ### Improved
 
 * [CRuby] Handle abruptly-closed HTML comments as WHATWG recommends for browsers. (Thanks to HackerOne user [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting this!)
