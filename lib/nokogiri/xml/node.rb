@@ -1063,7 +1063,7 @@ module Nokogiri
         type == DOCUMENT_NODE
       end
 
-      # Returns true if this is an HTML4::Document node
+      # Returns true if this is an HTML4::Document or HTML5::Document node
       def html?
         type == HTML_DOCUMENT_NODE
       end
