@@ -4,7 +4,7 @@ VALUE cNokogiriEncodingHandler;
 
 
 static void
-dealloc(xmlCharEncodingHandlerPtr c_handler)
+_xml_encoding_handler_dealloc(xmlCharEncodingHandlerPtr c_handler)
 {
   /* make sure iconv handlers are cleaned up and freed */
   xmlCharEncCloseFunc(c_handler);
@@ -17,17 +17,18 @@ dealloc(xmlCharEncodingHandlerPtr c_handler)
  * Get the encoding handler for +name+
  */
 static VALUE
-get(VALUE klass, VALUE key)
+rb_xml_encoding_handler_s_get(VALUE klass, VALUE key)
 {
   xmlCharEncodingHandlerPtr handler;
 
   handler = xmlFindCharEncodingHandler(StringValueCStr(key));
   if (handler) {
-    return Data_Wrap_Struct(klass, NULL, dealloc, handler);
+    return Data_Wrap_Struct(klass, NULL, _xml_encoding_handler_dealloc, handler);
   }
 
   return Qnil;
 }
+
 
 /*
  * call-seq: Nokogiri::EncodingHandler.delete(name)
@@ -35,12 +36,13 @@ get(VALUE klass, VALUE key)
  * Delete the encoding alias named +name+
  */
 static VALUE
-delete (VALUE klass, VALUE name)
+rb_xml_encoding_handler_s_delete(VALUE klass, VALUE name)
 {
   if (xmlDelEncodingAlias(StringValueCStr(name))) { return Qnil; }
 
   return Qtrue;
 }
+
 
 /*
  * call-seq: Nokogiri::EncodingHandler.alias(from, to)
@@ -48,12 +50,13 @@ delete (VALUE klass, VALUE name)
  * Alias encoding handler with name +from+ to name +to+
  */
 static VALUE
-alias(VALUE klass, VALUE from, VALUE to)
+rb_xml_encoding_handler_s_alias(VALUE klass, VALUE from, VALUE to)
 {
   xmlAddEncodingAlias(StringValueCStr(from), StringValueCStr(to));
 
   return to;
 }
+
 
 /*
  * call-seq: Nokogiri::EncodingHandler.clear_aliases!
@@ -61,12 +64,13 @@ alias(VALUE klass, VALUE from, VALUE to)
  * Remove all encoding aliases.
  */
 static VALUE
-clear_aliases(VALUE klass)
+rb_xml_encoding_handler_s_clear_aliases(VALUE klass)
 {
   xmlCleanupEncodingAliases();
 
   return klass;
 }
+
 
 /*
  * call-seq: name
@@ -74,7 +78,7 @@ clear_aliases(VALUE klass)
  * Get the name of this EncodingHandler
  */
 static VALUE
-name(VALUE self)
+rb_xml_encoding_handler_name(VALUE self)
 {
   xmlCharEncodingHandlerPtr handler;
 
@@ -83,6 +87,7 @@ name(VALUE self)
   return NOKOGIRI_STR_NEW2(handler->name);
 }
 
+
 void
 noko_init_xml_encoding_handler()
 {
@@ -90,9 +95,10 @@ noko_init_xml_encoding_handler()
 
   rb_undef_alloc_func(cNokogiriEncodingHandler);
 
-  rb_define_singleton_method(cNokogiriEncodingHandler, "[]", get, 1);
-  rb_define_singleton_method(cNokogiriEncodingHandler, "delete", delete, 1);
-  rb_define_singleton_method(cNokogiriEncodingHandler, "alias", alias, 2);
-  rb_define_singleton_method(cNokogiriEncodingHandler, "clear_aliases!", clear_aliases, 0);
-  rb_define_method(cNokogiriEncodingHandler, "name", name, 0);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "[]", rb_xml_encoding_handler_s_get, 1);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "delete", rb_xml_encoding_handler_s_delete, 1);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "alias", rb_xml_encoding_handler_s_alias, 2);
+  rb_define_singleton_method(cNokogiriEncodingHandler, "clear_aliases!", rb_xml_encoding_handler_s_clear_aliases, 0);
+
+  rb_define_method(cNokogiriEncodingHandler, "name", rb_xml_encoding_handler_name, 0);
 }
