@@ -31,6 +31,9 @@ build
 TAGS
 tags
 
+# auto-formatting
+/ext/**/*.orig
+
 # mac
 .DS_Store/
 
