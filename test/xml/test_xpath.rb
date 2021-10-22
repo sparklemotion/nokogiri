@@ -76,12 +76,20 @@ module Nokogiri
         assert_nil @xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0]
       end
 
-      def test_boolean
+      def test_boolean_false
         assert_equal false, @xml.xpath('1 = 2')
       end
 
-      def test_number
+      def test_boolean_true
+        assert_equal true, @xml.xpath('1 = 1')
+      end
+
+      def test_number_integer
         assert_equal 2, @xml.xpath('1 + 1')
+      end
+
+      def test_number_float
+        assert_equal 1.5, @xml.xpath('1.5')
       end
 
       def test_string

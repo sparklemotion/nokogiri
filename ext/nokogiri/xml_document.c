@@ -533,59 +533,59 @@ block_caller(void *ctx, xmlNodePtr c_node, xmlNodePtr c_parent_node)
 static VALUE
 rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
 {
-  VALUE mode;
-  VALUE incl_ns;
-  VALUE with_comments;
-  xmlChar **ns;
-  long ns_len, i;
+  VALUE rb_mode;
+  VALUE rb_namespaces;
+  VALUE rb_comments_p;
+  xmlChar **c_namespaces;
 
-  xmlDocPtr doc;
-  xmlOutputBufferPtr buf;
-  xmlC14NIsVisibleCallback cb = NULL;
-  void *ctx = NULL;
+  xmlDocPtr c_doc;
+  xmlOutputBufferPtr c_obuf;
+  xmlC14NIsVisibleCallback c_callback_wrapper = NULL;
+  void *rb_callback = NULL;
 
   VALUE rb_cStringIO;
-  VALUE io;
+  VALUE rb_io;
 
-  rb_scan_args(argc, argv, "03", &mode, &incl_ns, &with_comments);
+  rb_scan_args(argc, argv, "03", &rb_mode, &rb_namespaces, &rb_comments_p);
+  if (!NIL_P(rb_mode)) { Check_Type(rb_mode, T_FIXNUM); }
+  if (!NIL_P(rb_namespaces)) { Check_Type(rb_namespaces, T_ARRAY); }
 
-  Data_Get_Struct(self, xmlDoc, doc);
+  Data_Get_Struct(self, xmlDoc, c_doc);
 
   rb_cStringIO = rb_const_get_at(rb_cObject, rb_intern("StringIO"));
-  io           = rb_class_new_instance(0, 0, rb_cStringIO);
-  buf          = xmlAllocOutputBuffer(NULL);
+  rb_io = rb_class_new_instance(0, 0, rb_cStringIO);
+  c_obuf = xmlAllocOutputBuffer(NULL);
 
-  buf->writecallback = (xmlOutputWriteCallback)noko_io_write;
-  buf->closecallback = (xmlOutputCloseCallback)noko_io_close;
-  buf->context       = (void *)io;
+  c_obuf->writecallback = (xmlOutputWriteCallback)noko_io_write;
+  c_obuf->closecallback = (xmlOutputCloseCallback)noko_io_close;
+  c_obuf->context = (void *)rb_io;
 
   if (rb_block_given_p()) {
-    cb = block_caller;
-    ctx = (void *)rb_block_proc();
+    c_callback_wrapper = block_caller;
+    rb_callback = (void *)rb_block_proc();
   }
 
-  if (NIL_P(incl_ns)) {
-    ns = NULL;
+  if (NIL_P(rb_namespaces)) {
+    c_namespaces = NULL;
   } else {
-    Check_Type(incl_ns, T_ARRAY);
-    ns_len = RARRAY_LEN(incl_ns);
-    ns = calloc((size_t)ns_len + 1, sizeof(xmlChar *));
-    for (i = 0 ; i < ns_len ; i++) {
-      VALUE entry = rb_ary_entry(incl_ns, i);
-      ns[i] = (xmlChar *)StringValueCStr(entry);
+    long ns_len = RARRAY_LEN(rb_namespaces);
+    c_namespaces = calloc((size_t)ns_len + 1, sizeof(xmlChar *));
+    for (int j = 0 ; j < ns_len ; j++) {
+      VALUE entry = rb_ary_entry(rb_namespaces, j);
+      c_namespaces[j] = (xmlChar *)StringValueCStr(entry);
     }
   }
 
+  xmlC14NExecute(c_doc, c_callback_wrapper, rb_callback,
+                 (int)(NIL_P(rb_mode) ? 0 : NUM2INT(rb_mode)),
+                 c_namespaces,
+                 (int)RTEST(rb_comments_p),
+                 c_obuf);
 
-  xmlC14NExecute(doc, cb, ctx,
-                 (int)(NIL_P(mode)        ? 0 : NUM2INT(mode)),
-                 ns,
-                 (int)      RTEST(with_comments),
-                 buf);
+  free(c_namespaces);
+  xmlOutputBufferClose(c_obuf);
 
-  xmlOutputBufferClose(buf);
-
-  return rb_funcall(io, rb_intern("string"), 0);
+  return rb_funcall(rb_io, rb_intern("string"), 0);
 }
 
 VALUE
