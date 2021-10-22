@@ -3,6 +3,14 @@
 VALUE cNokogiriEncodingHandler;
 
 
+static void
+dealloc(xmlCharEncodingHandlerPtr c_handler)
+{
+  /* make sure iconv handlers are cleaned up and freed */
+  xmlCharEncCloseFunc(c_handler);
+}
+
+
 /*
  * call-seq: Nokogiri::EncodingHandler.[](name)
  *
@@ -15,7 +23,7 @@ get(VALUE klass, VALUE key)
 
   handler = xmlFindCharEncodingHandler(StringValueCStr(key));
   if (handler) {
-    return Data_Wrap_Struct(klass, NULL, NULL, handler);
+    return Data_Wrap_Struct(klass, NULL, dealloc, handler);
   }
 
   return Qnil;
