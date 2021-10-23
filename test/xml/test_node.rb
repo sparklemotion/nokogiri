@@ -1105,9 +1105,12 @@ module Nokogiri
           assert(node_set.respond_to?(:awesome!))
         end
 
-        def test_blank
-          doc = Nokogiri::XML('')
-          assert_equal(false, doc.blank?)
+        def test_blank_eh
+          refute(Nokogiri("").blank?)
+          refute(Nokogiri("<root><child/></root>").root.child.blank?)
+          assert(Nokogiri("<root>\t \n</root>").root.child.blank?)
+          assert(Nokogiri("<root><![CDATA[\t \n]]></root>").root.child.blank?)
+          assert(Nokogiri("<root>not-blank</root>").root.child.tap { |n| n.content = "" }.blank?)
         end
 
         def test_to_xml_allows_to_serialize_with_as_xml_save_option

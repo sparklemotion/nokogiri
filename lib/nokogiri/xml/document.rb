@@ -5,14 +5,12 @@ require 'pathname'
 
 module Nokogiri
   module XML
-    ##
-    # Nokogiri::XML::Document is the main entry point for dealing with
-    # XML documents.  The Document is created by parsing an XML document.
-    # See Nokogiri::XML::Document.parse() for more information on parsing.
+    # Nokogiri::XML::Document is the main entry point for dealing with XML documents.  The Document
+    # is created by parsing an XML document.  See Nokogiri::XML::Document.parse for more information
+    # on parsing.
     #
     # For searching a Document, see Nokogiri::XML::Searchable#css and
     # Nokogiri::XML::Searchable#xpath
-    #
     class Document < Nokogiri::XML::Node
       # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details. Note that we're not
       # attempting to handle unicode characters partly because libxml2 doesn't handle unicode
@@ -82,41 +80,54 @@ module Nokogiri
       end
 
       ##
-      # @!method wrap(java_document)
-      # @!scope class
+      # :singleton-method: wrap
+      # :call-seq: wrap(java_document) → Nokogiri::XML::Document
       #
-      # Create a {Document} using an existing Java DOM document object.
+      # ⚠ This method is only available when running JRuby.
       #
-      # The returned {Document} shares the same underlying data structure as the Java object, so
+      # Create a Document using an existing Java DOM document object.
+      #
+      # The returned Document shares the same underlying data structure as the Java object, so
       # changes in one are reflected in the other.
       #
-      # @param java_document [Java::OrgW3cDom::Document]
-      # @return [Nokogiri::XML::Document]
-      # @note This method is only available when running JRuby.
-      # @note The class +Java::OrgW3cDom::Document+ is also accessible as +org.w3c.dom.Document+.
-      # @see #to_java
+      # [Parameters]
+      # - `java_document` (Java::OrgW3cDom::Document)
+      #   (The class `Java::OrgW3cDom::Document` is also accessible as `org.w3c.dom.Document`.)
+      #
+      # [Returns] Nokogiri::XML::Document
+      #
+      # See also \#to_java
 
-      ##
-      # @!method to_java()
+
+      # :method: to_java
+      # :call-seq: to_java() → Java::OrgW3cDom::Document
       #
-      # Returns the underlying Java DOM document object for the {Document}.
+      # ⚠ This method is only available when running JRuby.
       #
-      # The returned Java object shares the same underlying data structure as the {Document}, so
+      # Returns the underlying Java DOM document object for this document.
+      #
+      # The returned Java object shares the same underlying data structure as this document, so
       # changes in one are reflected in the other.
       #
-      # @return [Java::OrgW3cDom::Document]
-      # @note This method is only available when running JRuby.
-      # @note The class +Java::OrgW3cDom::Document+ is also accessible as +org.w3c.dom.Document+.
-      # @see .wrap
+      # [Returns]
+      #   Java::OrgW3cDom::Document
+      #   (The class `Java::OrgW3cDom::Document` is also accessible as `org.w3c.dom.Document`.)
+      #
+      # See also Document.wrap
 
 
-      # A list of Nokogiri::XML::SyntaxError found when parsing a document
+      # The errors found while parsing a document.
+      #
+      # [Returns] Array<Nokogiri::XML::SyntaxError>
       attr_accessor :errors
 
-      # When true, reparented elements without a namespace will inherit their new parent's
-      # namespace (if one exists). Defaults to +false+.
+      # When `true`, reparented elements without a namespace will inherit their new parent's
+      # namespace (if one exists). Defaults to `false`.
       #
-      # @example Default behavior of namespace inheritance
+      # [Returns] Boolean
+      #
+      # *Example:* Default behavior of namespace inheritance
+      #
       #   xml = <<~EOF
       #           <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
       #             <foo:parent>
@@ -134,7 +145,8 @@ module Nokogiri
       #   #      </foo:parent>
       #   #    </root>
       #
-      # @example Setting namespace inheritance to +true+
+      # *Example:* Setting namespace inheritance to `true`
+      #
       #   xml = <<~EOF
       #           <root xmlns:foo="http://nokogiri.org/default_ns/test/foo">
       #             <foo:parent>
@@ -153,9 +165,7 @@ module Nokogiri
       #   #      </foo:parent>
       #   #    </root>
       #
-      # @return [Boolean]
-      #
-      # @since v1.12.4
+      # Since v1.12.4
       attr_accessor :namespace_inheritance
 
       def initialize *args # :nodoc:
@@ -164,43 +174,52 @@ module Nokogiri
         @namespace_inheritance = false
       end
 
-      ##
-      # Create a new +Element+ with +name+ belonging to this document, optionally
-      # setting contents or attributes.
+      # :call-seq:
+      #   create_element(name, *contents_or_attrs, &block) → Nokogiri::XML::Element
       #
-      # This method is not the most user-friendly option if your intention is to add a node to the
-      # document tree. Prefer one of the +Nokogiri::XML::Node+ methods like +add_child+,
-      # +add_next_sibling+, +replace+, etc. which will both create an element (or subtree) and place
-      # it in the document tree.
+      # Create a new Element with `name` belonging to this document, optionally setting contents or
+      # attributes.
+      #
+      # This method is _not_ the most user-friendly option if your intention is to add a node to the
+      # document tree. Prefer one of the Nokogiri::XML::Node methods like Node#add_child,
+      # Node#add_next_sibling, Node#replace, etc. which will both create an element (or subtree) and
+      # place it in the document tree.
       #
       # Arguments may be passed to initialize the element:
-      # - a +Hash+ argument will be used to set attributes
-      # - a non-Hash object that responds to +#to_s+ will be used to set the new node's contents
+      #
+      # - a Hash argument will be used to set attributes
+      # - a non-Hash object that responds to \#to_s will be used to set the new node's contents
       #
       # A block may be passed to mutate the node.
       #
-      # @param name [String]
-      # @param contents_or_attrs [#to_s,Hash]
-      # @yieldparam node [Nokogiri::XML::Element]
-      # @return [Nokogiri::XML::Element]
+      # [Parameters]
+      # - `name` (String)
+      # - `contents_or_attrs` (\#to_s, Hash)
+      # [Yields] `node` (Nokogiri::XML::Element)
+      # [Returns] Nokogiri::XML::Element
       #
-      # @example An empty element without attributes
+      # *Example:* An empty element without attributes
+      #
       #   doc.create_element("div")
       #   # => <div></div>
       #
-      # @example An element with contents
+      # *Example:* An element with contents
+      #
       #   doc.create_element("div", "contents")
       #   # => <div>contents</div>
       #
-      # @example An element with attributes
+      # *Example:* An element with attributes
+      #
       #   doc.create_element("div", {"class" => "container"})
       #   # => <div class='container'></div>
       #
-      # @example An element with contents and attributes
+      # *Example:* An element with contents and attributes
+      #
       #   doc.create_element("div", "contents", {"class" => "container"})
       #   # => <div class='container'>contents</div>
       #
-      # @example Passing a block to mutate the element
+      # *Example:* Passing a block to mutate the element
+      #
       #   doc.create_element("div") { |node| node["class"] = "blue" if before_noon? }
       #
       def create_element(name, *contents_or_attrs, &block)
@@ -252,35 +271,41 @@ module Nokogiri
         self
       end
 
-      ##
-      # Recursively get all namespaces from this node and its subtree and
-      # return them as a hash.
+      # :call-seq:
+      #   collect_namespaces() → Hash<String(Namespace#prefix) ⇒ String(Namespace#href)>
       #
-      # For example, given this document:
+      # Recursively get all namespaces from this node and its subtree and return them as a
+      # hash.
       #
-      #   <root xmlns:foo="bar">
+      # ⚠ This method will not handle duplicate namespace prefixes, since the return value is a hash.
+      #
+      # Note that this method does an xpath lookup for nodes with namespaces, and as a result the
+      # order (and which duplicate prefix "wins") may be dependent on the implementation of the
+      # underlying XML library.
+      #
+      # *Example:* Basic usage
+      #
+      # Given this document:
+      #
+      #   <root xmlns="default" xmlns:foo="bar">
       #     <bar xmlns:hello="world" />
       #   </root>
       #
       # This method will return:
       #
-      #   { 'xmlns:foo' => 'bar', 'xmlns:hello' => 'world' }
+      #   {"xmlns:foo"=>"bar", "xmlns"=>"default", "xmlns:hello"=>"world"}
       #
-      # WARNING: this method will clobber duplicate names in the keys.
-      # For example, given this document:
+      # *Example:* Duplicate prefixes
+      #
+      # Given this document:
       #
       #   <root xmlns:foo="bar">
       #     <bar xmlns:foo="baz" />
       #   </root>
       #
-      # The hash returned will look like this: { 'xmlns:foo' => 'bar' }
+      # The hash returned will be something like:
       #
-      # Non-prefixed default namespaces (as in "xmlns=") are not included
-      # in the hash.
-      #
-      # Note that this method does an xpath lookup for nodes with
-      # namespaces, and as a result the order may be dependent on the
-      # implementation of the underlying XML library.
+      #   {"xmlns:foo" => "baz"}
       #
       def collect_namespaces
         xpath("//namespace::*").inject({}) do |hash, ns|

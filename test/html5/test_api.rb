@@ -175,4 +175,10 @@ class TestHtml5API < Nokogiri::TestCase
     assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
     assert(frag.children.empty?)
   end
+
+  def test_html_eh
+    doc = Nokogiri.HTML5("<html><body><div></div></body></html>")
+    assert(doc.html?)
+    refute(doc.xml?)
+  end
 end if Nokogiri.uses_gumbo?

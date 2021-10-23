@@ -326,10 +326,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency("rake", "~> 13.0")
   spec.add_development_dependency("rake-compiler", "~> 1.1")
   spec.add_development_dependency("rake-compiler-dock", "~> 1.1")
+  spec.add_development_dependency("rdoc", ">= 6.3.2")
   spec.add_development_dependency("rexical", "~> 1.0.5")
   spec.add_development_dependency("rubocop", "~> 1.7")
   spec.add_development_dependency("simplecov", "~> 0.20")
-  spec.add_development_dependency("yard", "~> 0.9")
 
   spec.extensions << "ext/nokogiri/extconf.rb"
 end

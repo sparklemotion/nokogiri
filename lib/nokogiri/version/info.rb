@@ -196,7 +196,7 @@ module Nokogiri
     Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 
-  def self.uses_gumbo?
+  def self.uses_gumbo? # :nodoc:
     uses_libxml? # TODO: replace with Gumbo functionality
   end
 

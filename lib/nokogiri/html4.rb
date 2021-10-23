@@ -1,15 +1,20 @@
+# coding: utf-8
 # frozen_string_literal: true
 module Nokogiri
   class << self
-    ###
+    # :call-seq:
+    #   HTML4(input, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block) → Nokogiri::HTML4::Document
+    #
     # Parse HTML. Convenience method for Nokogiri::HTML4::Document.parse
     def HTML4(input, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
       Nokogiri::HTML4::Document.parse(input, url, encoding, options, &block)
     end
   end
 
-  # @since v1.12.0
-  # @note Before v1.12.0, {Nokogiri::HTML4} did not exist, and {Nokogiri::HTML} was the module/namespace for parsing HTML.
+  # Since v1.12.0
+  #
+  # 💡 Before v1.12.0, Nokogiri::HTML4 did not exist, and Nokogiri::HTML was the module/namespace
+  # for parsing HTML.
   module HTML4
     class << self
       ###
