@@ -414,16 +414,23 @@ name(VALUE self)
  * Get the xml:base of the node
  */
 static VALUE
-base_uri(VALUE self)
+rb_xml_reader_base_uri(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
-  const char *base_uri;
+  VALUE rb_base_uri;
+  xmlTextReaderPtr c_reader;
+  xmlChar *c_base_uri;
 
-  Data_Get_Struct(self, xmlTextReader, reader);
-  base_uri = (const char *)xmlTextReaderBaseUri(reader);
-  if (base_uri == NULL) { return Qnil; }
+  Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
 
-  return NOKOGIRI_STR_NEW2(base_uri);
+  c_base_uri = xmlTextReaderBaseUri(c_reader);
+  if (c_base_uri == NULL) {
+    return Qnil;
+  }
+
+  rb_base_uri = NOKOGIRI_STR_NEW2(c_base_uri);
+  xmlFree(c_base_uri);
+
+  return rb_base_uri;
 }
 
 /*
@@ -672,7 +679,7 @@ noko_init_xml_reader()
   rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
   rb_define_method(cNokogiriXmlReader, "attribute_nodes", rb_xml_reader_attribute_nodes, 0);
   rb_define_method(cNokogiriXmlReader, "attributes?", attributes_eh, 0);
-  rb_define_method(cNokogiriXmlReader, "base_uri", base_uri, 0);
+  rb_define_method(cNokogiriXmlReader, "base_uri", rb_xml_reader_base_uri, 0);
   rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
   rb_define_method(cNokogiriXmlReader, "depth", depth, 0);
   rb_define_method(cNokogiriXmlReader, "empty_element?", empty_element_p, 0);
