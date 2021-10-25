@@ -8,3 +8,9 @@ inherit_from: .rubocop_todo.yml
 
 AllCops:
   NewCops: enable
+Naming/MethodName:
+  Enabled: false
+Naming/FileName:
+  Exclude:
+    - rakelib/**
+    - test/html5/test_tree-construction.rb

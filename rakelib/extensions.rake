@@ -38,40 +38,40 @@ CrossRuby = Struct.new(:version, :host) do
 
   def platform
     @platform ||= case host
-      when /\Ax86_64.*mingw32/
-        "x64-mingw32"
-      when /\Ai[3-6]86.*mingw32/
-        "x86-mingw32"
-      when /\Ax86_64.*linux/
-        "x86_64-linux"
-      when /\Ai[3-6]86.*linux/
-        "x86-linux"
-      when /\Ax86_64-darwin/
-        "x86_64-darwin"
-      when /\Aarm64-darwin/
-        "arm64-darwin"
-      else
-        raise "CrossRuby.platform: unsupported host: #{host}"
-      end
+    when /\Ax86_64.*mingw32/
+      "x64-mingw32"
+    when /\Ai[3-6]86.*mingw32/
+      "x86-mingw32"
+    when /\Ax86_64.*linux/
+      "x86_64-linux"
+    when /\Ai[3-6]86.*linux/
+      "x86-linux"
+    when /\Ax86_64-darwin/
+      "x86_64-darwin"
+    when /\Aarm64-darwin/
+      "arm64-darwin"
+    else
+      raise "CrossRuby.platform: unsupported host: #{host}"
+    end
   end
 
   def tool(name)
     (@binutils_prefix ||= case platform
-      when "x64-mingw32"
-        "x86_64-w64-mingw32-"
-      when "x86-mingw32"
-        "i686-w64-mingw32-"
-      when "x86_64-linux"
-        "x86_64-redhat-linux-"
-      when "x86-linux"
-        "i686-redhat-linux-"
-      when /x86_64.*darwin/
-        "x86_64-apple-darwin-"
-      when /a.*64.*darwin/
-        "aarch64-apple-darwin-"
-      else
-        raise "CrossRuby.tool: unmatched platform: #{platform}"
-      end) + name
+     when "x64-mingw32"
+       "x86_64-w64-mingw32-"
+     when "x86-mingw32"
+       "i686-w64-mingw32-"
+     when "x86_64-linux"
+       "x86_64-redhat-linux-"
+     when "x86-linux"
+       "i686-redhat-linux-"
+     when /x86_64.*darwin/
+       "x86_64-apple-darwin-"
+     when /a.*64.*darwin/
+       "aarch64-apple-darwin-"
+     else
+       raise "CrossRuby.tool: unmatched platform: #{platform}"
+     end) + name
   end
 
   def target_file_format
@@ -155,7 +155,7 @@ end
 CROSS_RUBIES = File.read(".cross_rubies").split("\n").map do |line|
   case line
   when /\A([^#]+):([^#]+)/
-    CrossRuby.new($1, $2)
+    CrossRuby.new(Regexp.last_match(1), Regexp.last_match(2))
   end
 end.compact
 
@@ -164,7 +164,7 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 require "rake_compiler_dock"
 
 def java?
-  /java/ === RUBY_PLATFORM
+  /java/.match?(RUBY_PLATFORM)
 end
 
 def add_file_to_gem(relative_source_path)
@@ -186,27 +186,27 @@ def verify_dll(dll, cross_ruby)
   allowed_imports = cross_ruby.allowed_dlls
 
   if cross_ruby.windows?
-    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+    dump = %x(#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin})
 
-    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
-    raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
+    raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi.match?(dump)
 
     # Verify that the DLL dependencies are all allowed.
     actual_imports = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
-    if !(actual_imports - allowed_imports).empty?
+    unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
 
   elsif cross_ruby.linux?
-    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
-    nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-D", dll].shelljoin}`
+    dump = %x(#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin})
+    nm = %x(#{["env", "LANG=C", cross_ruby.tool("nm"), "-D", dll].shelljoin})
 
-    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
-    raise "export function Init_nokogiri not in dll #{dll}" unless / T Init_nokogiri/ === nm
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
+    raise "export function Init_nokogiri not in dll #{dll}" unless / T Init_nokogiri/.match?(nm)
 
     # Verify that the DLL dependencies are all allowed.
     actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
-    if !(actual_imports - allowed_imports).empty?
+    unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
 
@@ -223,29 +223,28 @@ def verify_dll(dll, cross_ruby)
     end
 
   elsif cross_ruby.darwin?
-    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
-    nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-g", dll].shelljoin}`
+    dump = %x(#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin})
+    nm = %x(#{["env", "LANG=C", cross_ruby.tool("nm"), "-g", dll].shelljoin})
 
-    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
-    raise "export function Init_nokogiri not in dll #{dll}" unless / T _?Init_nokogiri/ === nm
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
+    raise "export function Init_nokogiri not in dll #{dll}" unless / T _?Init_nokogiri/.match?(nm)
 
     # if liblzma is being referenced, let's make sure it's referring
     # to the system-installed file and not the homebrew-installed file.
-    ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
-    if liblzma_refs = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.grep(/liblzma/)
+    ldd = %x(#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin})
+    if (liblzma_refs = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.grep(/liblzma/))
       liblzma_refs.each do |ref|
         new_ref = File.join("/usr/lib", File.basename(ref))
         sh ["env", "LANG=C", cross_ruby.tool("install_name_tool"), "-change", ref, new_ref, dll].shelljoin
       end
 
       # reload!
-      ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
+      ldd = %x(#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin})
     end
 
     # Verify that the DLL dependencies are all allowed.
-    ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
     actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq
-    if !(actual_imports - allowed_imports).empty?
+    unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
   end
@@ -262,7 +261,7 @@ namespace "gem" do
   def gem_builder(plat)
     # use Task#invoke because the pkg/*gem task is defined at runtime
     Rake::Task["native:#{plat}"].invoke
-    Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
+    Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}-#{Gem::Platform.new(plat)}.gem"].invoke
   end
 
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
@@ -334,7 +333,7 @@ else
       add_file_to_gem archive
 
       patchesdir = File.join("patches", lib)
-      patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
+      patches = %x(#{['git', 'ls-files', patchesdir].shelljoin}).split("\n").grep(/\.patch\z/)
       patches.each { |patch| add_file_to_gem patch }
 
       untracked = Dir[File.join(patchesdir, '*.patch')] - patches
@@ -356,7 +355,7 @@ else
     ext.cross_compiling do |spec|
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
       spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
-      spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
+      spec.dependencies.reject! { |dep| dep.name == 'mini_portile2' }
 
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
       # which were copied there in the $INSTALLFILES section of extconf.rb.

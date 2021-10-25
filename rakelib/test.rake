@@ -11,22 +11,21 @@ class ValgrindTestTask < Rake::TestTask
                       "--partial-loads-ok=yes",
                       "--undef-value-errors=no",
                       "--error-exitcode=#{ERROR_EXITCODE}",
-                      "--gen-suppressions=all",
-                     ]
+                      "--gen-suppressions=all",]
 
   def ruby(*args, **options, &block)
     valgrind_options = check_for_suppression_file(VALGRIND_OPTIONS)
-    command = "ulimit -s unlimited && valgrind #{valgrind_options.join(' ')} #{RUBY} #{args.join(' ')}"
+    command = "ulimit -s unlimited && valgrind #{valgrind_options.join(" ")} #{RUBY} #{args.join(" ")}"
     sh(command, **options, &block)
   end
 
   def formatted_ruby_version
     engine = if defined?(RUBY_DESCRIPTION) && RUBY_DESCRIPTION =~ /Ruby Enterprise Edition/
-               "ree"
-             else
-               defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"
-             end
-    %Q{#{engine}-#{RUBY_VERSION}.#{RUBY_PATCHLEVEL}}
+      "ree"
+    else
+      defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"
+    end
+    %{#{engine}-#{RUBY_VERSION}.#{RUBY_PATCHLEVEL}}
   end
 
   def check_for_suppression_file(options)
@@ -60,14 +59,14 @@ end
 
 class GdbTestTask < ValgrindTestTask
   def ruby(*args, **options, &block)
-    command = "gdb --args #{RUBY} #{args.join(' ')}"
+    command = "gdb --args #{RUBY} #{args.join(" ")}"
     sh(command, **options, &block)
   end
 end
 
 class LldbTestTask < ValgrindTestTask
   def ruby(*args, **options, &block)
-    command = "lldb #{RUBY} -- #{args.join(' ')}"
+    command = "lldb #{RUBY} -- #{args.join(" ")}"
     sh(command, **options, &block)
   end
 end
