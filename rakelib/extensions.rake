@@ -126,13 +126,11 @@ CrossRuby = Struct.new(:version, :host) do
     when LINUX_PLATFORM_REGEX
       [
         "libm.so.6",
-        *(case
-        when ver < "2.6.0"
-          "libpthread.so.0"
-        end),
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
-      ]
+      ].tap do |dlls|
+        dlls << "libpthread.so.0" if ver < "2.6.0"
+      end
     when DARWIN_PLATFORM_REGEX
       [
         "/usr/lib/libSystem.B.dylib",
