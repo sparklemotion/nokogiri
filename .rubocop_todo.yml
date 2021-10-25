@@ -51,7 +51,6 @@ Layout/CaseIndentation:
 # Cop supports --auto-correct.
 Layout/ClosingHeredocIndentation:
   Exclude:
-    - 'ext/nokogiri/extconf.rb'
     - 'test/html4/test_document.rb'
     - 'test/html5/test_serialize.rb'
     - 'test/namespaces/test_namespaces_preservation.rb'
@@ -358,7 +357,6 @@ Layout/SpaceAfterNot:
 # SupportedStyles: space, no_space
 Layout/SpaceAroundEqualsInParameterDefault:
   Exclude:
-    - 'ext/nokogiri/extconf.rb'
     - 'lib/nokogiri/css/xpath_visitor.rb'
     - 'lib/nokogiri/html5.rb'
     - 'test/helper.rb'
@@ -769,12 +767,6 @@ Performance/BlockGivenWithExplicitBlock:
     - 'lib/nokogiri/html5/document.rb'
     - 'lib/nokogiri/xml/builder.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/Caller:
-  Exclude:
-    - 'ext/nokogiri/extconf.rb'
-
 # Offense count: 5
 # Configuration parameters: MinSize.
 Performance/CollectionLiteralInLoop:
@@ -803,7 +795,6 @@ Performance/RedundantBlockCall:
 # Cop supports --auto-correct.
 Performance/RegexpMatch:
   Exclude:
-    - 'ext/nokogiri/extconf.rb'
     - 'lib/nokogiri/css/xpath_visitor.rb'
     - 'lib/nokogiri/extension.rb'
     - 'lib/nokogiri/html4/document.rb'
@@ -1017,12 +1008,6 @@ Style/EmptyLiteral:
     - 'lib/nokogiri/xml/document.rb'
     - 'test/xml/test_dtd.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/ExplicitBlockArgument:
-  Exclude:
-    - 'ext/nokogiri/extconf.rb'
-
 # Offense count: 19
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -1036,12 +1021,6 @@ Style/FormatString:
 # SupportedStyles: always, always_true, never
 Style/FrozenStringLiteralComment:
   Enabled: false
-
-# Offense count: 50
-# Configuration parameters: AllowedVariables.
-Style/GlobalVars:
-  Exclude:
-    - 'ext/nokogiri/extconf.rb'
 
 # Offense count: 49
 # Cop supports --auto-correct.
@@ -1303,7 +1282,6 @@ Style/SingleLineMethods:
 # SupportedStyles: use_perl_names, use_english_names
 Style/SpecialGlobalVars:
   Exclude:
-    - 'ext/nokogiri/extconf.rb'
     - 'test/html5/test_tree-construction.rb'
 
 # Offense count: 2521
