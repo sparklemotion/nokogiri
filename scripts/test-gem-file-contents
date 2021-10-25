@@ -27,9 +27,9 @@ def usage_and_exit(message = nil)
 end
 
 usage_and_exit if ARGV.include?("-h")
-usage_and_exit unless gemfile = ARGV[0]
+usage_and_exit unless (gemfile = ARGV[0])
 usage_and_exit("#{gemfile} does not exist") unless File.file?(gemfile)
-usage_and_exit("#{gemfile} is not a gem") unless /\.gem$/.match(gemfile)
+usage_and_exit("#{gemfile} is not a gem") unless /\.gem$/.match?(gemfile)
 gemfile = File.expand_path(gemfile)
 
 gemfile_contents = Dir.mktmpdir do |dir|
@@ -199,7 +199,7 @@ describe File.basename(gemfile) do
     end
 
     it "contains ext/nokogiri C files" do
-      # Note: we keep the C files because they have docstrings and Java files don't
+      # NOTE: we keep the C files because they have docstrings and Java files don't
       assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
     end
 
