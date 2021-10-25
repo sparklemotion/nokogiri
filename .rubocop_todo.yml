@@ -438,7 +438,6 @@ Layout/SpaceInsideArrayLiteralBrackets:
 # SupportedStylesForEmptyBraces: space, no_space
 Layout/SpaceInsideBlockBraces:
   Exclude:
-    - 'bin/nokogiri'
     - 'lib/nokogiri/css/tokenizer.rb'
     - 'lib/nokogiri/html5.rb'
     - 'lib/nokogiri/xml/node_set.rb'
@@ -454,7 +453,6 @@ Layout/SpaceInsideBlockBraces:
 # SupportedStylesForEmptyBraces: space, no_space
 Layout/SpaceInsideHashLiteralBraces:
   Exclude:
-    - 'bin/nokogiri'
     - 'lib/nokogiri/html5.rb'
     - 'lib/nokogiri/xml/builder.rb'
     - 'lib/nokogiri/xml/searchable.rb'
@@ -501,7 +499,6 @@ Layout/SpaceInsideRangeLiteral:
 # SupportedStyles: final_newline, final_blank_line
 Layout/TrailingEmptyLines:
   Exclude:
-    - 'bin/nokogiri'
     - 'test/html4/sax/test_parser_context.rb'
     - 'test/namespaces/test_namespaces_in_cloned_doc.rb'
     - 'test/xml/test_attribute_decl.rb'
@@ -853,11 +850,6 @@ Rake/MethodDefinitionInTask:
     - 'rakelib/format.rake'
     - 'rakelib/rubocop.rake'
 
-# Offense count: 1
-Security/Eval:
-  Exclude:
-    - 'bin/nokogiri'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Security/IoMethods:
@@ -865,11 +857,6 @@ Security/IoMethods:
     - 'test/html4/test_document_encoding.rb'
     - 'test/test_iso.rb'
     - 'test/xml/test_schema.rb'
-
-# Offense count: 2
-Security/Open:
-  Exclude:
-    - 'bin/nokogiri'
 
 # Offense count: 29
 # Cop supports --auto-correct.
@@ -938,7 +925,6 @@ Style/CaseEquality:
 # SupportedStyles: nested, compact
 Style/ClassAndModuleChildren:
   Exclude:
-    - 'bin/nokogiri'
     - 'test/html4/test_html_module.rb'
     - 'test/test_nokogiri.rb'
     - 'test/test_xslt_transforms.rb'
@@ -973,7 +959,6 @@ Style/CommentAnnotation:
 # SupportedStyles: assign_to_condition, assign_inside_condition
 Style/ConditionalAssignment:
   Exclude:
-    - 'bin/nokogiri'
     - 'lib/nokogiri/css/parser.rb'
     - 'lib/nokogiri/html5.rb'
     - 'test/xml/test_text.rb'
@@ -1040,7 +1025,6 @@ Style/IdenticalConditionalBranches:
 # Configuration parameters: AllowIfModifier.
 Style/IfInsideElse:
   Exclude:
-    - 'bin/nokogiri'
     - 'test/xml/test_xpath.rb'
 
 # Offense count: 1206
@@ -1237,7 +1221,6 @@ Style/RegexpLiteral:
 # Cop supports --auto-correct.
 Style/RescueModifier:
   Exclude:
-    - 'bin/nokogiri'
     - 'lib/nokogiri/html4/document.rb'
     - 'test/test_memory_leak.rb'
 
@@ -1297,7 +1280,6 @@ Style/StringLiterals:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiteralsInInterpolation:
   Exclude:
-    - 'bin/nokogiri'
     - 'lib/nokogiri/css/xpath_visitor.rb'
     - 'lib/nokogiri/decorators/slop.rb'
     - 'lib/nokogiri/version/info.rb'

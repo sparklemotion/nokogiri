@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 require 'optparse'
 require 'open-uri'
 require 'uri'
@@ -11,29 +12,43 @@ encoding = nil
 
 # This module provides some tunables with the nokogiri CLI for use in
 # your ~/.nokogirirc.
-module Nokogiri::CLI
-  class << self
-    # Specify the console engine, defaulted to IRB.
-    #
-    # call-seq:
-    #   require 'pry'
-    #   Nokogiri::CLI.console = Pry
-    attr_writer :console
+module Nokogiri
+  module CLI
+    class << self
+      # Specify the console engine, defaulted to IRB.
+      #
+      # call-seq:
+      #   require 'pry'
+      #   Nokogiri::CLI.console = Pry
+      attr_writer :console
 
-    def console
-      case @console
-      when Symbol
-        Kernel.const_get(@console)
-      else
-        @console
+      def console
+        case @console
+        when Symbol
+          Kernel.const_get(@console)
+        else
+          @console
+        end
       end
+
+      attr_accessor :rcfile
     end
 
-    attr_accessor :rcfile
+    self.rcfile  = File.expand_path('~/.nokogirirc')
+    self.console = :IRB
   end
+end
 
-  self.rcfile  = File.expand_path('~/.nokogirirc')
-  self.console = :IRB
+def safe_read(uri_or_path)
+  uri = URI.parse(uri_or_path)
+  case uri
+  when URI::HTTP
+    uri.read
+  when URI::File
+    File.read(uri.path)
+  else
+    File.read(uri_or_path)
+  end
 end
 
 opts = OptionParser.new do |opts|
@@ -48,14 +63,14 @@ opts = OptionParser.new do |opts|
   opts.separator "Options:"
 
   opts.on("--type type", "Parse as type: xml or html (default: auto)", [:xml, :html]) do |v|
-    parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
+    parse_class = { :xml => Nokogiri::XML, :html => Nokogiri::HTML }[v]
   end
 
   opts.on("-C file", "Specifies initialization file to load (default #{Nokogiri::CLI.rcfile})") do |v|
     Nokogiri::CLI.rcfile = v
   end
 
-  opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || 'none'})") do |v|
+  opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || "none"})") do |v|
     encoding = v
   end
 
@@ -64,7 +79,7 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on("--rng <uri|path>", "Validate using this rng file.") do |v|
-    @rng = open(v) {|f| Nokogiri::XML::RelaxNG(f)}
+    @rng = Nokogiri::XML::RelaxNG(safe_read(v))
   end
 
   opts.on_tail("-?", "--help", "Show this message") do
@@ -90,15 +105,10 @@ if File.file?(Nokogiri::CLI.rcfile)
   load Nokogiri::CLI.rcfile
 end
 
-if url || $stdin.tty?
-  case uri = (URI(url) rescue url)
-  when URI::HTTP
-    @doc = parse_class.parse(uri.read, url, encoding)
-  else
-    @doc = parse_class.parse(open(url).read, nil, encoding)
-  end
+@doc = if url || $stdin.tty?
+  parse_class.parse(safe_read(url), url, encoding)
 else
-  @doc = parse_class.parse($stdin, nil, encoding)
+  parse_class.parse($stdin, nil, encoding)
 end
 
 $_ = @doc
@@ -107,12 +117,9 @@ if @rng
   @rng.validate(@doc).each do |error|
     puts error.message
   end
+elsif @script
+  eval @script, binding, '<main>' # rubocop:disable Security/Eval
 else
-  if @script
-    eval @script, binding, '<main>'
-  else
-    puts "Your document is stored in @doc..."
-    Nokogiri::CLI.console.start
-  end
+  puts "Your document is stored in @doc..."
+  Nokogiri::CLI.console.start
 end
-
