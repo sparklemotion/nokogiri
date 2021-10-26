@@ -53,7 +53,7 @@ module Nokogiri
         paths, handler, ns, binds = extract_params(args)
 
         xpaths = paths.map(&:to_s).map do |path|
-          (path =~ LOOKS_LIKE_XPATH) ? path : xpath_query_from_css_rule(path, ns)
+          LOOKS_LIKE_XPATH.match?(path) ? path : xpath_query_from_css_rule(path, ns)
         end.flatten.uniq
 
         xpath(*(xpaths + [ns, handler, binds].compact))
@@ -219,7 +219,7 @@ module Nokogiri
         visitor = Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
           CSS.xpath_for(rule.to_s, {:prefix => implied_xpath_context, :ns => ns,
-                                    :visitor => visitor})
+                                    :visitor => visitor,})
         end.join(" | ")
       end
 

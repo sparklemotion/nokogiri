@@ -112,11 +112,11 @@ module Nokogiri
           head = html.prepend_child(XML::Node.new('head', self))
           head.prepend_child(element)
         when first = children.find { |node|
-            case node
-            when XML::Element, XML::Text
-              true
-            end
-          }
+               case node
+               when XML::Element, XML::Text
+                 true
+               end
+             }
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.

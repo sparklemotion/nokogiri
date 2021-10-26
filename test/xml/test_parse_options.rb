@@ -40,8 +40,8 @@ module Nokogiri
         assert options.nonet?
         assert options.recover?
         options.nononet.norecover
-        assert ! options.nonet?
-        assert ! options.recover?
+        assert !options.nonet?
+        assert !options.recover?
         options.nonet.recover
         assert options.nonet?
         assert options.recover?

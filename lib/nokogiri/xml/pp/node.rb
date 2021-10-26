@@ -20,7 +20,6 @@ module Nokogiri
         def pretty_print pp # :nodoc:
           nice_name = self.class.name.split('::').last
           pp.group(2, "#(#{nice_name}:#{sprintf("0x%x", object_id)} {", '})') do
-
             pp.breakable
             attrs = inspect_attributes.map { |t|
               [t, send(t)] if respond_to?(t)
@@ -48,7 +47,6 @@ module Nokogiri
               end
             end
             pp.breakable
-
           end
         end
       end

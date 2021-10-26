@@ -186,16 +186,14 @@ module Nokogiri
         params={}
         node.xpath('./param').each do |p|
           subparams = parse_params p
-          if(subparams.length > 0)
-            if(not params.has_key? p.attributes['name'].value)
+          if subparams.length > 0
+            if not params.has_key? p.attributes['name'].value
               params[p.attributes['name'].value] = subparams
-            else
-              if(params[p.attributes['name'].value].is_a? Array)
-                params[p.attributes['name'].value] << subparams
+            elsif params[p.attributes['name'].value].is_a? Array
+              params[p.attributes['name'].value] << subparams
               else
                 value = params[p.attributes['name'].value]
                 params[p.attributes['name'].value] = [value,subparams]
-              end
             end
           else
             params[p.attributes['name'].value]=p.text
@@ -306,7 +304,7 @@ module Nokogiri
 
       def test_custom_xpath_handler_is_passed_a_decorated_node_set
         x = Module.new do
-          def awesome! ; end
+          def awesome!; end
         end
         util_decorate(@xml, x)
 
@@ -377,11 +375,12 @@ module Nokogiri
       def test_custom_xpath_with_bullshit_arguments
         xml = %q{<foo> </foo>}
         doc = Nokogiri::XML.parse(xml)
-        foo = doc.xpath('//foo[bool_function(bar/baz)]', Class.new {
-            def bool_function(value)
-              true
-            end
-          }.new)
+        foo = doc.xpath('//foo[bool_function(bar/baz)]',
+                        Class.new do
+                          def bool_function(value)
+                            true
+                          end
+                        end.new)
         assert_equal foo, doc.xpath("//foo")
       end
 

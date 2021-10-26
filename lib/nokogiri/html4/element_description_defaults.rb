@@ -178,7 +178,7 @@ module Nokogiri
       INLINE_P = [INLINE, 'p']
 
       FLOW_PARAM = [FLOW, 'param']
-      APPLET_ATTRS = [COREATTRS , 'codebase',
+      APPLET_ATTRS = [COREATTRS, 'codebase',
                       'archive', 'alt', 'name', 'height', 'width', 'align',
                       'hspace', 'vspace']
       AREA_ATTRS = ['shape', 'coords', 'href', 'nohref',
@@ -296,7 +296,7 @@ module Nokogiri
        ],
        ['address', false, false, false, false, false, :any, false,
         'information on author',
-        INLINE_P , nil, HTML_ATTRS, [], []
+        INLINE_P, nil, HTML_ATTRS, [], []
        ],
        ['applet', false, false, false, false, true, :loose, true,
         'java applet ',

@@ -189,7 +189,7 @@ module Nokogiri
       end
 
       def test_GH_1042
-        file = File.join(ASSETS_DIR, 'GH_1042.html');
+        file = File.join(ASSETS_DIR, 'GH_1042.html')
         html = Nokogiri::HTML(File.read(file))
         table = html.xpath("//table")[1]
         trs = table.xpath("tr").drop(1)

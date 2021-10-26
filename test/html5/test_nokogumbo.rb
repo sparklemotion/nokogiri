@@ -151,7 +151,11 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_default_max_attributes
     a = String.new("a")
-    attrs = 50_000.times.map { x = a.dup; a.succ!; x }
+    attrs = 50_000.times.map {
+      x = a.dup
+      a.succ!
+      x
+    }
 
     # <div> contains 50,000 attributes, but default limit is 400. Parsing this would take ages if
     # we were not enforcing any limit on attributes. All attributes are duplicated to make sure
@@ -180,7 +184,11 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_fragment_default_max_attributes
     a = String.new("a")
-    attrs = 50_000.times.map { x = a.dup; a.succ!; x }
+    attrs = 50_000.times.map {
+      x = a.dup
+      a.succ!
+      x
+    }
 
     # <div> contains 50,000 attributes, but default limit is 400. Parsing this would take ages if
     # we were not enforcing any limit on attributes. All attributes are duplicated to make sure

@@ -26,7 +26,7 @@ module Nokogiri
     class Document < Nokogiri::HTML4::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
         yield options if block_given?
-	string_or_io = '' unless string_or_io
+        string_or_io = '' unless string_or_io
 
         if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != 'ASCII-8BIT'
           encoding ||= string_or_io.encoding.name

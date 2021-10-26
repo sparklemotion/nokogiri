@@ -308,10 +308,10 @@ module Nokogiri
         else
           klassname = "::" + (self.class.name.split("::")[0..-2] + ["Document"]).join("::")
           klass = begin
-                    Object.const_get(klassname)
-                  rescue NameError
-                    Nokogiri::XML::Document
-                  end
+            Object.const_get(klassname)
+          rescue NameError
+            Nokogiri::XML::Document
+          end
           @parent = @doc = klass.new
         end
 

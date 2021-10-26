@@ -135,13 +135,12 @@ module Nokogiri
       end
 
       def test_io_that_reads_too_much
-        if Nokogiri.jruby?
-          io = ReallyBadIO4Java.new
-          Nokogiri::XML::Reader(io)
+        io = if Nokogiri.jruby?
+          ReallyBadIO4Java.new
         else
-          io = ReallyBadIO.new
-          Nokogiri::XML::Reader(io)
+          ReallyBadIO.new
         end
+        Nokogiri::XML::Reader(io)
       end
 
       def test_in_memory
@@ -237,10 +236,10 @@ module Nokogiri
         eoxml
         assert_equal({}, reader.attributes)
         assert_equal [{'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
-                       'xmlns'=>'http://mothership.connection.com/'},
+                       'xmlns'=>'http://mothership.connection.com/',},
                       {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {},
                       {'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
-                       'xmlns'=>'http://mothership.connection.com/'}],
+                       'xmlns'=>'http://mothership.connection.com/',}],
           reader.map(&:attributes)
       end
 
@@ -519,10 +518,9 @@ module Nokogiri
         eoxml
 
         reader.each do |node|
-          if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
-            if node.name == 'link'
-              assert_nil node.base_uri
-            end
+          next unless node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
+          if node.name == 'link'
+            assert_nil node.base_uri
           end
         end
       end

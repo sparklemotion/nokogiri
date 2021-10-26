@@ -48,7 +48,6 @@ module Nokogiri
         #
         {tag: "div", attr: "name", unescaped: true},
       ].each do |config|
-
         define_method "test_uri_escaping_of_#{config[:attr]}_attr_in_#{config[:tag]}_tag" do
           skip if Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?
 

@@ -43,4 +43,3 @@ module Nokogiri
     end
   end
 end
-

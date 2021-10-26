@@ -21,24 +21,6 @@ Layout/ArrayAlignment:
   Exclude:
     - 'lib/nokogiri/css/parser.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, Severity.
-# SupportedStylesAlignWith: start_of_line, begin
-Layout/BeginEndAlignment:
-  Exclude:
-    - 'lib/nokogiri/xml/builder.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith.
-# SupportedStylesAlignWith: either, start_of_block, start_of_line
-Layout/BlockAlignment:
-  Exclude:
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/xml/reader.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 27
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentOneStep, IndentationWidth.
@@ -147,15 +129,6 @@ Layout/EmptyLinesAroundAttributeAccessor:
     - 'test/xml/test_node_reparenting.rb'
     - 'test/xslt/test_custom_functions.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'lib/nokogiri/xml/pp/node.rb'
-    - 'test/html4/test_attributes.rb'
-
 # Offense count: 14
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -174,14 +147,6 @@ Layout/EmptyLinesAroundClassBody:
     - 'test/xml/test_c14n.rb'
     - 'test/xml/test_xinclude.rb'
     - 'test/xml/test_xpath.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'test/xml/sax/test_document_error.rb'
 
 # Offense count: 9
 # Cop supports --auto-correct.
@@ -264,14 +229,6 @@ Layout/IndentationConsistency:
     - 'test/html4/sax/test_parser.rb'
     - 'test/xml/test_node_attributes.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IndentationWidth, EnforcedStyle.
-# SupportedStyles: spaces, tabs
-Layout/IndentationStyle:
-  Exclude:
-    - 'lib/nokogiri/html5/document.rb'
-
 # Offense count: 189
 # Cop supports --auto-correct.
 # Configuration parameters: Width, IgnoredPatterns.
@@ -287,13 +244,6 @@ Layout/IndentationWidth:
     - 'test/html4/sax/test_parser.rb'
     - 'test/html4/sax/test_parser_context.rb'
     - 'test/xml/test_xpath.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowDoxygenCommentStyle, AllowGemfileRubyComment.
-Layout/LeadingCommentSpace:
-  Exclude:
-    - 'test/test_encoding_handler.rb'
 
 # Offense count: 119
 # Cop supports --auto-correct.
@@ -334,22 +284,10 @@ Layout/MultilineOperationIndentation:
     - 'lib/nokogiri/version/info.rb'
     - 'test/html4/test_document.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/RescueEnsureAlignment:
-  Exclude:
-    - 'lib/nokogiri/xml/builder.rb'
-
 # Offense count: 38
 # Cop supports --auto-correct.
 Layout/SpaceAfterComma:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceAfterNot:
-  Exclude:
-    - 'test/xml/test_parse_options.rb'
 
 # Offense count: 8
 # Cop supports --auto-correct.
@@ -361,12 +299,6 @@ Layout/SpaceAroundEqualsInParameterDefault:
     - 'lib/nokogiri/html5.rb'
     - 'test/helper.rb'
     - 'test/xml/test_reader.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/SpaceAroundKeyword:
-  Exclude:
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 28
 # Cop supports --auto-correct.
@@ -397,26 +329,11 @@ Layout/SpaceBeforeBlockBraces:
     - 'test/xml/test_c14n.rb'
     - 'test/xml/test_unparented_node.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Layout/SpaceBeforeComma:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
-    - 'test/namespaces/test_namespaces_preservation.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Layout/SpaceBeforeFirstArg:
-  Exclude:
-    - 'test/namespaces/test_namespaces_aliased_default.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/SpaceBeforeSemicolon:
   Exclude:
     - 'lib/nokogiri/css/tokenizer.rb'
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 38
 # Cop supports --auto-correct.
@@ -492,16 +409,6 @@ Layout/SpaceInsidePercentLiteralDelimiters:
 Layout/SpaceInsideRangeLiteral:
   Exclude:
     - 'lib/nokogiri/css/tokenizer.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingEmptyLines:
-  Exclude:
-    - 'test/html4/sax/test_parser_context.rb'
-    - 'test/namespaces/test_namespaces_in_cloned_doc.rb'
-    - 'test/xml/test_attribute_decl.rb'
 
 # Offense count: 31
 # Cop supports --auto-correct.
@@ -996,19 +903,6 @@ Style/FrozenStringLiteralComment:
 Style/HashSyntax:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/IdenticalConditionalBranches:
-  Exclude:
-    - 'test/xml/test_reader.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowIfModifier.
-Style/IfInsideElse:
-  Exclude:
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 1206
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoreMacros, IgnoredMethods, IgnoredPatterns, IncludedMacros, AllowParenthesesInMultilineCall, AllowParenthesesInChaining, AllowParenthesesInCamelCaseMethod, AllowParenthesesInStringInterpolation, EnforcedStyle.
@@ -1056,15 +950,6 @@ Style/NegatedIf:
     - 'lib/nokogiri/xml/builder.rb'
     - 'lib/nokogiri/xml/document_fragment.rb'
     - 'lib/nokogiri/xml/node_set.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'test/test_memory_leak.rb'
-    - 'test/xml/test_reader.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -1127,14 +1012,6 @@ Style/RaiseArgs:
     - 'lib/nokogiri/xml/document.rb'
     - 'lib/nokogiri/xml/sax/parser.rb'
     - 'lib/xsd/xmlparser/nokogiri.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'test/helper.rb'
-    - 'test/test_memory_leak.rb'
-    - 'test/xml/sax/test_document_error.rb'
 
 # Offense count: 9
 # Cop supports --auto-correct.
@@ -1218,14 +1095,6 @@ Style/SafeNavigation:
     - 'lib/nokogiri/xml/searchable.rb'
     - 'test/xml/test_reader_encoding.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'test/html4/test_node.rb'
-    - 'test/html5/test_nokogumbo.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -1233,13 +1102,6 @@ Style/Semicolon:
 Style/SignalException:
   Exclude:
     - 'test/xml/sax/test_document_error.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowIfMethodIsEmpty.
-Style/SingleLineMethods:
-  Exclude:
-    - 'lib/nokogiri/xml/node/save_options.rb'
 
 # Offense count: 19
 # Cop supports --auto-correct.
@@ -1291,14 +1153,6 @@ Style/SymbolProc:
     - 'test/xml/test_xinclude.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowSafeAssignment.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_parentheses_when_complex
-Style/TernaryParentheses:
-  Exclude:
-    - 'lib/nokogiri/xml/searchable.rb'
-
 # Offense count: 170
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleForMultiline.
@@ -1315,17 +1169,6 @@ Style/TrailingCommaInArrayLiteral:
     - 'test/html5/test_serialize.rb'
     - 'test/xml/sax/test_parser_text.rb'
     - 'test/xml/test_namespace.rb'
-    - 'test/xml/test_reader.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInHashLiteral:
-  Exclude:
-    - 'lib/nokogiri/css/parser.rb'
-    - 'lib/nokogiri/xml/searchable.rb'
-    - 'test/xml/test_node.rb'
     - 'test/xml/test_reader.rb'
 
 # Offense count: 56

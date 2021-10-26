@@ -40,7 +40,9 @@ module Nokogiri
         attr_reader :options
 
         # Create a new SaveOptions object with +options+
-        def initialize options = 0; @options = options; end
+        def initialize options = 0
+          @options = options
+        end
 
         constants.each do |constant|
           class_eval %{

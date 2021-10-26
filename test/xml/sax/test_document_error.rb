@@ -3,7 +3,6 @@ require "helper"
 module Nokogiri
   module XML
     module SAX
-
       # raises an exception when underlying parser
       # encounters an XML parsing error
       class ThrowingErrorDocument < Document
@@ -32,22 +31,18 @@ module Nokogiri
         end
 
         def test_error_throwing_document_raises_exception
-          begin
-            @error_parser.parse("<xml>") # no closing element
-            fail "#parse should not complete successfully when document #error throws exception"
-          rescue StandardError => e
-            assert_match(/parsing did not complete/, e.message)
-          end
+          @error_parser.parse("<xml>") # no closing element
+          fail "#parse should not complete successfully when document #error throws exception"
+        rescue StandardError => e
+          assert_match(/parsing did not complete/, e.message)
         end
 
         def test_warning_document_encounters_error_but_terminates_normally
-          begin
-            @warning_parser.parse("<xml>")
-            assert !@warning_parser.document.errors.empty?, "error collector did not collect an error"
-          rescue StandardError => e
-            warn(e)
-            fail '#parse should complete successfully unless document #error throws exception (#{e}'
-          end
+          @warning_parser.parse("<xml>")
+          assert !@warning_parser.document.errors.empty?, "error collector did not collect an error"
+        rescue StandardError => e
+          warn(e)
+          fail '#parse should complete successfully unless document #error throws exception (#{e}'
         end
       end
     end

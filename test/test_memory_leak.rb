@@ -61,14 +61,13 @@ EOF
     end
 
     def test_for_memory_leak
-      begin
-        #  we don't use Dike in any tests, but requiring it has side effects
-        #  that can create memory leaks, and that's what we're testing for.
-        require 'rubygems'
-        require 'dike' # do not remove!
+      #  we don't use Dike in any tests, but requiring it has side effects
+      #  that can create memory leaks, and that's what we're testing for.
+      require 'rubygems'
+      require 'dike' # do not remove!
 
-        count_start = count_object_space_documents
-        xml_data = <<-EOS
+      count_start = count_object_space_documents
+      xml_data = <<-EOS
         <test>
           <items>
             <item>abc</item>
@@ -76,17 +75,16 @@ EOF
             <item>Zzz</item>
           <items>
         </test>
-        EOS
-        20.times do
-          doc = Nokogiri::XML(xml_data)
-          doc.xpath("//item")
-        end
-        2.times { GC.start }
-        count_end = count_object_space_documents
-        assert((count_end - count_start) <= 2, "memory leak detected")
-      rescue LoadError
-        puts "\ndike is not installed, skipping memory leak test"
+      EOS
+      20.times do
+        doc = Nokogiri::XML(xml_data)
+        doc.xpath("//item")
       end
+      2.times { GC.start }
+      count_end = count_object_space_documents
+      assert((count_end - count_start) <= 2, "memory leak detected")
+    rescue LoadError
+      puts "\ndike is not installed, skipping memory leak test"
     end
 
     def test_node_set_namespace_mem_leak
@@ -205,13 +203,12 @@ EOF
         prev_rss = MemInfo.rss
         100_001.times do |j|
           Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
-          if (j % 10_000 == 0)
-            curr_rss = MemInfo.rss
-            diff_rss = curr_rss - prev_rss
-            printf("\n(iter %d) %d", j, curr_rss)
-            printf(" (%s%d)", diff_rss >= 0 ? "+" : "-", diff_rss) if j > 0
-            prev_rss = curr_rss
-          end
+          next unless (j % 10_000 == 0)
+          curr_rss = MemInfo.rss
+          diff_rss = curr_rss - prev_rss
+          printf("\n(iter %d) %d", j, curr_rss)
+          printf(" (%s%d)", diff_rss >= 0 ? "+" : "-", diff_rss) if j > 0
+          prev_rss = curr_rss
         end
         puts
       end
