@@ -25,13 +25,13 @@ module Nokogiri
         eoxml
 
         c14n = doc.canonicalize
-        assert_no_match(/version=/, c14n)
+        refute_match(/version=/, c14n)
         assert_match(/Hello, world/, c14n)
-        assert_no_match(/Comment/, c14n)
+        refute_match(/Comment/, c14n)
         c14n = doc.canonicalize(nil, nil, true)
         assert_match(/Comment/, c14n)
         c14n = doc.canonicalize(nil, nil, false)
-        assert_no_match(/Comment/, c14n)
+        refute_match(/Comment/, c14n)
       end
 
       def test_exclude_block_params

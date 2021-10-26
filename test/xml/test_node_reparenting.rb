@@ -583,7 +583,7 @@ module Nokogiri
               it "inserts a child node that inherits the parent's namespace" do
                 doc.namespace_inheritance = true
                 child = parent.add_child("<child></child>").first
-                assert_not_nil(child.namespace)
+                refute_nil(child.namespace)
                 assert_equal("http://nokogiri.org/default_ns/test/foo", child.namespace.href)
               end
             end
@@ -795,7 +795,7 @@ module Nokogiri
             insert_point = dest_doc.at_css("DirectoryRef[Id='InstallDir']")
             insert_point.children = stuff.children
 
-            assert_no_match(/default:/, insert_point.children.to_xml)
+            refute_match(/default:/, insert_point.children.to_xml)
             assert_match(/<Component>/, insert_point.children.to_xml)
           end
         end

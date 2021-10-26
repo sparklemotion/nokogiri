@@ -319,14 +319,14 @@ module Nokogiri
         end.doc
 
         el = doc.at("Element")
-        assert_not_nil(el)
+        refute_nil(el)
 
         assert_equal("y", el.namespace.href)
         assert_nil(el.namespace.prefix)
 
         attr = el.attributes["bar"]
-        assert_not_nil(attr)
-        assert_not_nil(attr.namespace)
+        refute_nil(attr)
+        refute_nil(attr.namespace)
         assert_equal("foo", attr.namespace.prefix)
       end
 

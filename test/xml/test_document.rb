@@ -101,7 +101,7 @@ module Nokogiri
             ]>
             <lolz>&lol9;</lolz>
           EOF
-          assert_not_nil(doc)
+          refute_nil(doc)
         end
 
         def test_million_laugh_attach_2
@@ -120,7 +120,7 @@ module Nokogiri
              &a;
              </member>
           EOF
-          assert_not_nil(doc)
+          refute_nil(doc)
         end
 
         def test_ignore_unknown_namespace
@@ -256,7 +256,7 @@ module Nokogiri
         end
 
         def test_create_internal_subset_on_existing_subset
-          assert_not_nil(xml.internal_subset)
+          refute_nil(xml.internal_subset)
           assert_raises(RuntimeError) do
             xml.create_internal_subset("staff", nil, "staff.dtd")
           end

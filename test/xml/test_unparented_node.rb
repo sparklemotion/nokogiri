@@ -349,7 +349,7 @@ module Nokogiri
         # assert !node.document
         refute(node.previous_sibling)
         refute(node.next_sibling)
-        assert_no_match(/Hello world/, xml.to_s)
+        refute_match(/Hello world/, xml.to_s)
       end
 
       def test_next_sibling

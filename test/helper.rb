@@ -184,13 +184,6 @@ module Nokogiri
       document.decorate!
     end
 
-    #
-    #  Test::Unit backwards compatibility section
-    #
-    alias_method :assert_no_match, :refute_match
-    alias_method :assert_not_nil, :refute_nil
-    alias_method :assert_not_equal, :refute_equal
-
     def assert_not_send(send_ary, m = nil)
       recv, msg, *args = send_ary
       m = message(m) do

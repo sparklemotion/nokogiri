@@ -256,7 +256,7 @@ module Nokogiri
           # https://github.com/sparklemotion/nokogiri/issues/1063
           original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
           duplicate = original.dup
-          assert_not_equal(original.document, duplicate.document)
+          refute_equal(original.document, duplicate.document)
         end
 
         def test_dup_should_create_an_xml_document_fragment
@@ -277,7 +277,7 @@ module Nokogiri
           duplicate = original.dup
           duplicate.at_css("div").add_child("<b>hello there</b>")
           assert_nil(original.at_css("b"))
-          assert_not_nil(duplicate.at_css("b"))
+          refute_nil(duplicate.at_css("b"))
         end
 
         def test_for_libxml_in_context_fragment_parsing_bug_workaround

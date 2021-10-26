@@ -190,7 +190,7 @@ module Nokogiri
           div = doc1.at_css("div")
           duplicate_div = div.dup(1, doc2)
 
-          assert_not_nil(doc1.at_css("div"))
+          refute_nil(doc1.at_css("div"))
           assert_equal(doc2, duplicate_div.document)
           assert_equal(1, duplicate_div.children.length)
           assert_equal("<p>hello</p>", duplicate_div.children.first.to_html)
@@ -706,7 +706,7 @@ module Nokogiri
 
         def test_find_by_css_class_with_nonstandard_whitespace
           doc = Nokogiri::HTML("<div class='a\nb'></div>")
-          assert_not_nil(doc.at_css(".b"))
+          refute_nil(doc.at_css(".b"))
         end
 
         def test_find_by_css_with_tilde_eql
@@ -750,7 +750,7 @@ module Nokogiri
           # assert !node.document
           refute(node.previous_sibling)
           refute(node.next_sibling)
-          assert_no_match(/Hello world/, xml.to_s)
+          refute_match(/Hello world/, xml.to_s)
         end
 
         def test_next_sibling
@@ -896,7 +896,7 @@ module Nokogiri
 
           address2 = doc2.xpath("//address").first
 
-          assert_not_equal(address1_1, address2) # two references to very, very similar nodes
+          refute_equal(address1_1, address2) # two references to very, very similar nodes
           assert_equal(address1_1, address1_2) # two references to the exact same node
         end
 
@@ -1066,7 +1066,7 @@ module Nokogiri
             <div><o:p>foo</o:p></div>
           EOF
           node = html.at("div").children.first
-          assert_not_nil(node)
+          refute_nil(node)
 
           if Nokogiri.uses_libxml?(">= 2.9.12")
             assert_empty(node.namespaces.keys)
@@ -1115,15 +1115,15 @@ module Nokogiri
           set = xml.search("//ul")
           node = set.first
 
-          assert_no_match("<ul>\n  <li>", xml.to_xml(save_with: XML::Node::SaveOptions::AS_XML))
-          assert_no_match("<ul>\n  <li>", node.to_xml(save_with: XML::Node::SaveOptions::AS_XML))
+          refute_match("<ul>\n  <li>", xml.to_xml(save_with: XML::Node::SaveOptions::AS_XML))
+          refute_match("<ul>\n  <li>", node.to_xml(save_with: XML::Node::SaveOptions::AS_XML))
         end
 
         # issue 647
         def test_default_namespace_should_be_created
           subject = Nokogiri::XML.parse('<foo xml:bar="http://bar.com"/>').root
           ns = subject.attributes["bar"].namespace
-          assert_not_nil(ns)
+          refute_nil(ns)
           assert_equal(ns.class, Nokogiri::XML::Namespace)
           assert_equal("xml", ns.prefix)
           assert_equal("http://www.w3.org/XML/1998/namespace", ns.href)

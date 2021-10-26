@@ -288,7 +288,7 @@ module Nokogiri
             one = xml.xpath("//employee")
             two = xml.xpath("//employee")
             two.push(two.shift)
-            assert_not_equal(one, two)
+            refute_equal(one, two)
           end
 
           it "returns false if one is a subset of the other" do
@@ -504,7 +504,7 @@ module Nokogiri
             refute(node.previous_sibling)
             refute(node.next_sibling)
           end
-          assert_no_match(/Hello world/, xml.to_s)
+          refute_match(/Hello world/, xml.to_s)
         end
 
         it "new_nodeset" do

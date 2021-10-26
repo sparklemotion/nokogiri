@@ -12,7 +12,7 @@ class TestEncodingHandler < Nokogiri::TestCase
   end
 
   def test_get
-    assert_not_nil(Nokogiri::EncodingHandler["UTF-8"])
+    refute_nil(Nokogiri::EncodingHandler["UTF-8"])
     assert_nil(Nokogiri::EncodingHandler["alsdkjfhaldskjfh"])
   end
 
@@ -29,7 +29,7 @@ class TestEncodingHandler < Nokogiri::TestCase
   def test_cleanup_aliases
     assert_nil(Nokogiri::EncodingHandler["UTF-9"])
     Nokogiri::EncodingHandler.alias("UTF-8", "UTF-9")
-    assert_not_nil(Nokogiri::EncodingHandler["UTF-9"])
+    refute_nil(Nokogiri::EncodingHandler["UTF-9"])
 
     Nokogiri::EncodingHandler.clear_aliases!
     assert_nil(Nokogiri::EncodingHandler["UTF-9"])
@@ -38,7 +38,7 @@ class TestEncodingHandler < Nokogiri::TestCase
   def test_delete
     assert_nil(Nokogiri::EncodingHandler["UTF-9"])
     Nokogiri::EncodingHandler.alias("UTF-8", "UTF-9")
-    assert_not_nil(Nokogiri::EncodingHandler["UTF-9"])
+    refute_nil(Nokogiri::EncodingHandler["UTF-9"])
 
     Nokogiri::EncodingHandler.delete("UTF-9")
     assert_nil(Nokogiri::EncodingHandler["UTF-9"])

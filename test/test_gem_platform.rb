@@ -51,19 +51,19 @@ class TestGemPlatform < Nokogiri::TestCase
       # match, so here are all the tests I can reasonably imagine.
       #
       # Feel free to delete assertions for clarity once we know more.
-      assert_no_match darwin_gem_platform,
+      refute_match darwin_gem_platform,
         Gem::Platform.new(["arm64", "darwin", "19"]),
         "gem should not match an arm64 ruby"
-      assert_no_match darwin_gem_platform,
+      refute_match darwin_gem_platform,
         Gem::Platform.new(["arm", "darwin", "19"]),
         "gem should not match an arm ruby"
-      assert_no_match darwin_gem_platform,
+      refute_match darwin_gem_platform,
         Gem::Platform.new(["aarch64", "darwin", "19"]),
         "gem should not match an aarch64 ruby"
-      assert_no_match darwin_gem_platform,
+      refute_match darwin_gem_platform,
         Gem::Platform.new(["universal2", "darwin", "19"]),
         "gem should not match an aarch64 ruby"
-      assert_no_match darwin_gem_platform,
+      refute_match darwin_gem_platform,
         Gem::Platform.new(["universal_2", "darwin", "19"]),
         "gem should not match an aarch64 ruby"
     end

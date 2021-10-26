@@ -16,7 +16,7 @@ module Nokogiri
 
         def test_does_not_fail_with_illformatted_html
           doc = Nokogiri::HTML('"</html>";'.dup.force_encoding(Encoding::BINARY))
-          assert_not_nil(doc)
+          refute_nil(doc)
         end
 
         def test_exceptions_remove_newlines
@@ -218,7 +218,7 @@ module Nokogiri
           doc.title = "new"
           assert_equal("new", doc.title)
           title = doc.at("/html/head/title")
-          assert_not_nil(title)
+          refute_nil(title)
           assert_equal("new", title.text)
           assert_equal(-1, doc.at("meta[@http-equiv]") <=> title)
 
@@ -233,7 +233,7 @@ module Nokogiri
           assert_equal("new", doc.title)
           # <head> may or may not be added
           title = doc.at("/html//title")
-          assert_not_nil(title)
+          refute_nil(title)
           assert_equal("new", title.text)
           assert_equal(-1, title <=> doc.at("body"))
 
@@ -388,7 +388,7 @@ module Nokogiri
             </html>
           EOHTML
           refute_empty(html.to_html, "html length is too short")
-          assert_no_match(/^<\?xml/, html.to_html)
+          refute_match(/^<\?xml/, html.to_html)
         end
 
         def test_document_has_error
@@ -527,7 +527,7 @@ module Nokogiri
 
         def test_dup_document
           assert(dup = html.dup)
-          assert_not_equal(dup, html)
+          refute_equal(dup, html)
           assert(html.html?)
           assert_instance_of(Nokogiri::HTML::Document, dup)
           assert(dup.html?, "duplicate should be html")
@@ -536,7 +536,7 @@ module Nokogiri
 
         def test_dup_document_shallow
           assert(dup = html.dup(0))
-          assert_not_equal(dup, html)
+          refute_equal(dup, html)
         end
 
         def test_dup

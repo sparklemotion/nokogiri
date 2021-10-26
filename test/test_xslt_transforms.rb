@@ -26,8 +26,8 @@ class Nokogiri::TestCase
       assert_match(%r{<td>Margaret Martin</td>}, result)
       assert_match(%r{<td>Computer Specialist</td>}, result)
       assert_match(%r{<td>100,000</td>}, result)
-      assert_no_match(/Dallas|Texas/, result)
-      assert_no_match(/Female/, result)
+      refute_match(/Dallas|Texas/, result)
+      refute_match(/Female/, result)
 
       assert(result = style.apply_to(doc, ["title", '"Grandma"']))
       assert_match(%r{<h1>Grandma</h1>}, result)
@@ -130,7 +130,7 @@ class Nokogiri::TestCase
         eoxslt
       end
       result = xslt.apply_to(doc, ["title", "foo"])
-      assert_no_match(/<td>/, result)
+      refute_match(/<td>/, result)
 
       # the entity-form is for systems with this bug with Encodings.properties
       # https://issues.apache.org/jira/browse/XALANJ-2618

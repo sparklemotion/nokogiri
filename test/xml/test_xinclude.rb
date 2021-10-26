@@ -22,8 +22,8 @@ module Nokogiri
           end
         end
 
-        assert_not_nil(xml_doc)
-        assert_not_nil(included = xml_doc.at_xpath("//included"))
+        refute_nil(xml_doc)
+        refute_nil(included = xml_doc.at_xpath("//included"))
         assert_equal(@included, included.content)
 
         # no xinclude should happen when not requested
@@ -35,7 +35,7 @@ module Nokogiri
           end
         end
 
-        assert_not_nil(xml_doc)
+        refute_nil(xml_doc)
         assert_nil(xml_doc.at_xpath("//included"))
       end
 
@@ -43,7 +43,7 @@ module Nokogiri
         skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
         assert_nil(@xml.at_xpath("//included"))
         @xml.do_xinclude
-        assert_not_nil(included = @xml.at_xpath("//included"))
+        refute_nil(included = @xml.at_xpath("//included"))
         assert_equal(@included, included.content)
       end
 
@@ -51,7 +51,7 @@ module Nokogiri
         skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
         assert_nil(@xml.at_xpath("//included"))
         @xml.root.do_xinclude
-        assert_not_nil(included = @xml.at_xpath("//included"))
+        refute_nil(included = @xml.at_xpath("//included"))
         assert_equal(@included, included.content)
       end
 
