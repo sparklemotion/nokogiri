@@ -213,7 +213,7 @@ if Nokogiri.uses_gumbo?
         act_child = act.children[child_index]
         compare_nodes(exp_child, act_child)
         children[-1] = child_index + 1
-        next unless exp_child.has_key?(:children)
+        next unless exp_child.key?(:children)
         exp_nodes << exp_child
         act_nodes << act_child
         children << 0

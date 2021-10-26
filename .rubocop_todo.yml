@@ -207,17 +207,6 @@ Style/MultilineTernaryOperator:
   Exclude:
     - 'lib/nokogiri/xml/sax/parser_context.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: short, verbose
-Style/PreferredHashMethods:
-  Exclude:
-    - 'test/html5/test_tree-construction.rb'
-    - 'test/test_version.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowedCompactTypes.

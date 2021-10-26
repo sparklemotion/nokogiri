@@ -1074,7 +1074,7 @@ module Nokogiri
             assert_equal("<p>foo</p>", node.to_html)
           elsif Nokogiri.uses_libxml?
             assert_equal(1, node.namespaces.keys.size)
-            assert(node.namespaces.has_key?("xmlns:o"))
+            assert(node.namespaces.key?("xmlns:o"))
             assert_nil(node.namespaces["xmlns:o"])
             assert_equal("<p>foo</p>", node.to_html)
           else # jruby
