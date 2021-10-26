@@ -210,9 +210,9 @@ module Nokogiri
       def test_xsd_with_dtd
         Dir.chdir(File.join(ASSETS_DIR, "saml")) do
           # works
-          Nokogiri::XML::Schema(IO.read("xmldsig_schema.xsd"))
+          Nokogiri::XML::Schema(File.read("xmldsig_schema.xsd"))
           # was not working
-          Nokogiri::XML::Schema(IO.read("saml20protocol_schema.xsd"))
+          Nokogiri::XML::Schema(File.read("saml20protocol_schema.xsd"))
         end
       end
 

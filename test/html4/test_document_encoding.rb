@@ -90,7 +90,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
 
       describe "Detection" do
         def binread(file)
-          IO.binread(file)
+          File.binread(file)
         end
 
         def binopen(file)
