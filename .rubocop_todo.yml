@@ -135,14 +135,6 @@ Performance/StringInclude:
   Exclude:
     - 'lib/nokogiri/css/xpath_visitor.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'test/html4/test_builder.rb'
-    - 'test/html4/test_node.rb'
-    - 'test/xml/test_builder.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect.

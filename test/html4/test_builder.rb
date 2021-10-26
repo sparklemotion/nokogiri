@@ -39,7 +39,7 @@ module Nokogiri
           end
         end
         assert_equal('<div id="awesome"><h1>america</h1></div>',
-          builder.doc.root.to_html.gsub(/\n/, "").gsub(/>\s*</, "><"))
+          builder.doc.root.to_html.delete("\n").gsub(/>\s*</, "><"))
       end
 
       def test_href_with_attributes
@@ -76,7 +76,7 @@ module Nokogiri
         end
         assert_equal(
           '<div class="rad" id="thing">&lt;awe&amp;some&gt;<b>hello &amp; world</b></div>',
-          builder.doc.root.to_html.gsub(/\n/, "")
+          builder.doc.root.to_html.delete("\n")
         )
       end
 
@@ -89,7 +89,7 @@ module Nokogiri
         end
         assert_equal(
           '<div class="rad" id="thing">&lt;awesome&gt;<b>hello</b></div>',
-          builder.doc.root.to_html.gsub(/\n/, "")
+          builder.doc.root.to_html.delete("\n")
         )
       end
 

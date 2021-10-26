@@ -337,7 +337,7 @@ module Nokogiri
           end
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-          builder.to_xml.gsub(/\n/, ""))
+          builder.to_xml.delete("\n"))
       end
 
       def test_comment
@@ -356,7 +356,7 @@ module Nokogiri
           cdata(string)
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-          builder.to_xml.gsub(/\n/, ""))
+          builder.to_xml.delete("\n"))
       end
 
       def test_builder_can_inherit_parent_namespace
