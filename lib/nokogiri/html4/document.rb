@@ -100,7 +100,7 @@ module Nokogiri
         text
       end
 
-      def set_metadata_element(element)
+      def set_metadata_element(element) # rubocop:disable Naming/AccessorMethodName
         if head = at("//head")
           head << element
         elsif html = at("//html")

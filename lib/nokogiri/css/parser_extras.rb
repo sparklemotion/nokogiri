@@ -17,7 +17,7 @@ module Nokogiri
         end
 
         # Set a thread-local boolean to turn cacheing on and off. Truthy values turn the cache on, falsey values turn the cache off.
-        def set_cache(value)
+        def set_cache(value) # rubocop:disable Naming/AccessorMethodName
           Thread.current[CACHE_SWITCH_NAME] = !value
         end
 

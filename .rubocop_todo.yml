@@ -89,28 +89,6 @@ Minitest/UnreachableAssertion:
   Exclude:
     - 'test/xml/test_entity_reference.rb'
 
-# Offense count: 2
-Naming/AccessorMethodName:
-  Exclude:
-    - 'lib/nokogiri/css/parser_extras.rb'
-    - 'lib/nokogiri/html4/document.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Naming/BinaryOperatorParameterName:
-  Exclude:
-    - 'lib/nokogiri/xml/node_set.rb'
-
-# Offense count: 1
-# Configuration parameters: NamePrefix, ForbiddenPrefixes, AllowedMethods, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# ForbiddenPrefixes: is_, has_, have_
-# AllowedMethods: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-
 # Offense count: 4
 # Configuration parameters: EnforcedStyle, AllowedIdentifiers.
 # SupportedStyles: snake_case, camelCase
@@ -305,7 +283,7 @@ Style/SafeNavigation:
     - 'lib/nokogiri/xml/searchable.rb'
     - 'test/xml/test_reader_encoding.rb'
 
-# Offense count: 95
+# Offense count: 85
 # Cop supports --auto-correct.
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

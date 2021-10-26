@@ -221,7 +221,7 @@ module Nokogiri
         [a, b]
       end
 
-      def is_of_type_pseudo_class?(node)
+      def is_of_type_pseudo_class?(node) # rubocop:disable Naming/PredicateName
         if node.type == :PSEUDO_CLASS
           if node.value[0].is_a?(Nokogiri::CSS::Node) && (node.value[0].type == :FUNCTION)
             node.value[0].value[0]

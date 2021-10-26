@@ -104,7 +104,7 @@ module Nokogiri
 
       ###
       # Search this NodeSet's nodes' immediate children using CSS selector +selector+
-      def >(selector)
+      def >(selector) # rubocop:disable Naming/BinaryOperatorParameterName
         ns = document.root.namespaces
         xpath(CSS.xpath_for(selector, prefix: "./", ns: ns).first)
       end
