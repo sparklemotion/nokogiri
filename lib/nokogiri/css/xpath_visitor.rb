@@ -72,7 +72,7 @@ module Nokogiri
 
       def visit_id(node)
         node.value.first =~ /^#(.*)$/
-        "@id='#{$1}'"
+        "@id='#{Regexp.last_match(1)}'"
       end
 
       def visit_attribute_condition(node)

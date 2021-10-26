@@ -237,13 +237,6 @@ Style/MultilineTernaryOperator:
   Exclude:
     - 'lib/nokogiri/xml/sax/parser_context.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/PerlBackrefs:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/xml/builder.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -327,14 +320,6 @@ Style/SafeNavigation:
 Style/SignalException:
   Exclude:
     - 'test/xml/sax/test_document_error.rb'
-
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: RequireEnglish, EnforcedStyle.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'test/html5/test_tree-construction.rb'
 
 # Offense count: 91
 # Cop supports --auto-correct.

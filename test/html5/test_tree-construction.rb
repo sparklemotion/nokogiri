@@ -1,6 +1,7 @@
 # encoding: utf-8
 # frozen_string_literal: true
 
+require "English"
 require "helper"
 
 if Nokogiri.uses_gumbo?
@@ -8,7 +9,7 @@ if Nokogiri.uses_gumbo?
     test = { script: :both }
     index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
     abort("Expected #errors in\n#{test_data}") if index.nil?
-    skip_amount = $~[0].length
+    skip_amount = $LAST_MATCH_INFO[0].length
     # Omit the final new line
     test[:data] = test_data[0...index]
 
@@ -39,7 +40,7 @@ if Nokogiri.uses_gumbo?
     abort("failed to find fragment: #{index}: #{lines[index]}") if test_data.include?("#document-fragment") && test[:context].nil?
 
     if lines[index] =~ /#script-(on|off)/
-      test[:script] = $~[1].to_sym
+      test[:script] = $LAST_MATCH_INFO[1].to_sym
       index += 1
     end
 
@@ -53,7 +54,7 @@ if Nokogiri.uses_gumbo?
     open_nodes = [document]
     while index < lines.length
       abort("Expected '| ' but got #{lines[index]}") unless /^\| ( *)([^ ].*$)/ =~ lines[index]
-      depth = $~[1].length
+      depth = $LAST_MATCH_INFO[1].length
       if depth.odd?
         abort("Invalid nesting depth")
       else
@@ -62,7 +63,7 @@ if Nokogiri.uses_gumbo?
       abort("Too deep") if depth >= open_nodes.length
 
       node = {}
-      node_text = $~[2]
+      node_text = $LAST_MATCH_INFO[2]
       if node_text[0] == '"'
         if node_text == '"' || node_text[-1] != '"'
           loop do
@@ -75,9 +76,9 @@ if Nokogiri.uses_gumbo?
         node[:contents] = node_text[1..-2]
       elsif /^<!DOCTYPE ([^ >]*)(?: "([^"]*)" "(.*)")?>$/ =~ node_text
         node[:type] = :doctype
-        node[:name] = $~[1]
-        node[:public_id] = $~[2].nil? || $~[2].empty? ? nil : $~[2]
-        node[:system_id] = $~[3].nil? || $~[3].empty? ? nil : $~[3]
+        node[:name] = $LAST_MATCH_INFO[1]
+        node[:public_id] = $LAST_MATCH_INFO[2].nil? || $LAST_MATCH_INFO[2].empty? ? nil : $LAST_MATCH_INFO[2]
+        node[:system_id] = $LAST_MATCH_INFO[3].nil? || $LAST_MATCH_INFO[3].empty? ? nil : $LAST_MATCH_INFO[3]
       elsif node_text.start_with?("<!-- ")
         loop do
           break if lines[index].end_with?(" -->")
@@ -88,15 +89,15 @@ if Nokogiri.uses_gumbo?
         node[:contents] = node_text[5..-5]
       elsif /^<(svg |math )?(.+)>$/ =~ node_text
         node[:type] = :element
-        node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
-        node[:tag] = $~[2]
+        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:tag] = $LAST_MATCH_INFO[2]
         node[:attributes] = []
         node[:children] = []
       elsif /^([^ ]+ )?([^=]+)="(.*)"$/ =~ node_text
         node[:type] = :attribute
-        node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
-        node[:name] = $~[2]
-        node[:value] = $~[3]
+        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:name] = $LAST_MATCH_INFO[2]
+        node[:value] = $LAST_MATCH_INFO[3]
       elsif node_text == "content"
         node[:type] = :template
       else
