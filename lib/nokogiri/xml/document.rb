@@ -238,7 +238,7 @@ module Nokogiri
             elm.content = arg
           end
         end
-        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == "") }
+        if (ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == "") })
           elm.namespace = ns
         end
         elm

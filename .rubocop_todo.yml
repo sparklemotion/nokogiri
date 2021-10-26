@@ -6,17 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 27
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'lib/nokogiri/xml/node.rb'
-    - 'lib/nokogiri/xml/reader.rb'
-    - 'test/css/test_tokenizer.rb'
-    - 'test/xml/test_reader_encoding.rb'
-
 # Offense count: 8
 Lint/IneffectiveAccessModifier:
   Exclude:

@@ -191,7 +191,7 @@ module Nokogiri
 
       def assert_tokens(tokens, scanner)
         toks = []
-        while tok = @scanner.next_token
+        while (tok = @scanner.next_token)
           toks << tok
         end
         assert_equal(tokens, toks)

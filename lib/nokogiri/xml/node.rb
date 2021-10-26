@@ -168,7 +168,7 @@ module Nokogiri
       #
       # Also see related method +add_child+.
       def prepend_child(node_or_tags)
-        if first = children.first
+        if (first = children.first)
           # Mimic the error add_child would raise.
           raise "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
           first.__send__(:add_sibling, :previous, node_or_tags)
@@ -1139,7 +1139,7 @@ module Nokogiri
         parents = [parent]
 
         while parents.last.respond_to?(:parent)
-          break unless ctx_parent = parents.last.parent
+          break unless (ctx_parent = parents.last.parent)
           parents << ctx_parent
         end
 

@@ -9,9 +9,9 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        if meta = at("//meta[@charset]")
+        if (meta = at_xpath("//meta[@charset]"))
           meta[:charset]
-        elsif meta = meta_content_type
+        elsif (meta = meta_content_type)
           meta["content"][/charset\s*=\s*([\w-]+)/i, 1]
         end
       end
@@ -33,10 +33,10 @@ module Nokogiri
       # Beware in CRuby, that libxml2 automatically inserts a meta tag
       # into a head element.
       def meta_encoding=(encoding)
-        if meta = meta_content_type
+        if (meta = meta_content_type)
           meta["content"] = format("text/html; charset=%s", encoding)
           encoding
-        elsif meta = at("//meta[@charset]")
+        elsif (meta = at_xpath("//meta[@charset]"))
           meta["charset"] = encoding
         else
           meta = XML::Node.new("meta", self)
@@ -47,7 +47,7 @@ module Nokogiri
             meta["content"] = format("text/html; charset=%s", encoding)
           end
 
-          if head = at("//head")
+          if (head = at_xpath("//head"))
             head.prepend_child(meta)
           else
             set_metadata_element(meta)
@@ -67,7 +67,7 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        (title = at("//title")) && title.inner_text
+        (title = at_xpath("//title")) && title.inner_text
       end
 
       ###
@@ -83,15 +83,15 @@ module Nokogiri
       # content element (typically <body>) if any.
       def title=(text)
         tnode = XML::Text.new(text, self)
-        if title = at("//title")
+        if (title = at_xpath("//title"))
           title.children = tnode
           return text
         end
 
         title = XML::Node.new("title", self) << tnode
-        if head = at("//head")
+        if (head = at_xpath("//head"))
           head << title
-        elsif meta = at("//meta[@charset]") || meta_content_type
+        elsif (meta = (at_xpath("//meta[@charset]") || meta_content_type))
           # better put after charset declaration
           meta.add_next_sibling(title)
         else
@@ -101,17 +101,17 @@ module Nokogiri
       end
 
       def set_metadata_element(element) # rubocop:disable Naming/AccessorMethodName
-        if head = at("//head")
+        if (head = at_xpath("//head"))
           head << element
-        elsif html = at("//html")
+        elsif (html = at_xpath("//html"))
           head = html.prepend_child(XML::Node.new("head", self))
           head.prepend_child(element)
-        elsif first = children.find do |node|
-                case node
-                when XML::Element, XML::Text
-                  true
-                end
-              end
+        elsif (first = children.find do |node|
+                 case node
+                 when XML::Element, XML::Text
+                   true
+                 end
+               end)
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.
@@ -294,7 +294,7 @@ module Nokogiri
             # This implementation expects that the first call from
             # htmlReadIO() is made with a length long enough (~1KB) to
             # achieve advanced encoding detection.
-            if encoding = EncodingReader.detect_encoding(@firstchunk)
+            if (encoding = EncodingReader.detect_encoding(@firstchunk))
               # The first chunk is stored for the next read in retry.
               raise @encoding_found = EncodingFound.new(encoding)
             end

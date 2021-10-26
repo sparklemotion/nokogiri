@@ -101,7 +101,7 @@ module Nokogiri
       ###
       # Move the cursor through the document yielding the cursor to the block
       def each
-        while cursor = read
+        while (cursor = read)
           yield cursor
         end
       end

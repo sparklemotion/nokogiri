@@ -17,7 +17,7 @@ module Nokogiri
 
       def test_attribute_at
         @reader.each do |node|
-          next unless attribute = node.attribute_at(0)
+          next unless (attribute = node.attribute_at(0))
           assert_equal(@reader.encoding, attribute.encoding.name)
         end
       end
@@ -39,14 +39,14 @@ module Nokogiri
         eoxml
         reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless attribute = node.attribute("awesome")
+          next unless (attribute = node.attribute("awesome"))
           assert_equal(reader.encoding, attribute.encoding.name)
         end
       end
 
       def test_xml_version
         @reader.each do |node|
-          next unless version = node.xml_version
+          next unless (version = node.xml_version)
           assert_equal(@reader.encoding, version.encoding.name)
         end
       end
@@ -61,7 +61,7 @@ module Nokogiri
 
         reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless lang = node.lang
+          next unless (lang = node.lang)
           assert_equal(reader.encoding, lang.encoding.name)
         end
       end
@@ -69,7 +69,7 @@ module Nokogiri
       def test_value
         called = false
         @reader.each do |node|
-          next unless value = node.value
+          next unless (value = node.value)
           assert_equal(@reader.encoding, value.encoding.name)
           called = true
         end
@@ -84,7 +84,7 @@ module Nokogiri
         eoxml
         reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless prefix = node.prefix
+          next unless (prefix = node.prefix)
           assert_equal(reader.encoding, prefix.encoding.name)
         end
       end
@@ -97,7 +97,7 @@ module Nokogiri
         eoxml
         reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless uri = node.namespace_uri
+          next unless (uri = node.namespace_uri)
           assert_equal(reader.encoding, uri.encoding.name)
         end
       end
@@ -110,14 +110,14 @@ module Nokogiri
         eoxml
         reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless lname = node.local_name
+          next unless (lname = node.local_name)
           assert_equal(reader.encoding, lname.encoding.name)
         end
       end
 
       def test_name
         @reader.each do |node|
-          next unless name = node.name
+          next unless (name = node.name)
           assert_equal(@reader.encoding, name.encoding.name)
         end
       end
@@ -126,7 +126,7 @@ module Nokogiri
         skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
         skip_unless_libxml2
         stress_memory_while do
-          while node = @reader.read
+          while (node = @reader.read)
             nodes = node.attribute_nodes
             nodes.first.name if nodes.first
           end
