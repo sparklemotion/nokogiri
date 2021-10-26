@@ -313,10 +313,10 @@ module Nokogiri
     def self.read_and_encode(string, encoding)
       # Read the string with the given encoding.
       if string.respond_to?(:read)
-        if encoding.nil?
-          string = string.read
+        string = if encoding.nil?
+          string.read
         else
-          string = string.read(encoding: encoding)
+          string.read(encoding: encoding)
         end
       else
         # Otherwise the string has the given encoding.
@@ -394,10 +394,10 @@ module Nokogiri
         ns = current_node.namespace
         ns_uri = ns.nil? ? nil : ns.href
         # XXX(sfc): attach namespaces to all nodes, even html?
-        if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
-          tagname = current_node.name
+        tagname = if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
+          current_node.name
         else
-          tagname = "#{ns.prefix}:#{current_node.name}"
+          "#{ns.prefix}:#{current_node.name}"
         end
         io << "<" << tagname
         current_node.attribute_nodes.each do |attr|
@@ -406,16 +406,16 @@ module Nokogiri
             attr_name = attr.name
           else
             ns_uri = attr_ns.href
-            if ns_uri == XML_NAMESPACE
-              attr_name = "xml:" + attr.name.sub(/^[^:]*:/, "")
+            attr_name = if ns_uri == XML_NAMESPACE
+              "xml:" + attr.name.sub(/^[^:]*:/, "")
             elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, "") == "xmlns"
-              attr_name = "xmlns"
+              "xmlns"
             elsif ns_uri == XMLNS_NAMESPACE
-              attr_name = "xmlns:" + attr.name.sub(/^[^:]*:/, "")
+              "xmlns:" + attr.name.sub(/^[^:]*:/, "")
             elsif ns_uri == XLINK_NAMESPACE
-              attr_name = "xlink:" + attr.name.sub(/^[^:]*:/, "")
+              "xlink:" + attr.name.sub(/^[^:]*:/, "")
             else
-              attr_name = "#{attr_ns.prefix}:#{attr.name}"
+              "#{attr_ns.prefix}:#{attr.name}"
             end
           end
           io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
@@ -431,10 +431,10 @@ module Nokogiri
         end
       when XML::Node::TEXT_NODE
         parent = current_node.parent
-        if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
-          io << current_node.content
+        io << if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
+          current_node.content
         else
-          io << escape_text(current_node.content, encoding, false)
+          escape_text(current_node.content, encoding, false)
         end
       when XML::Node::CDATA_SECTION_NODE
         io << "<![CDATA[" << current_node.content << "]]>"
@@ -454,11 +454,11 @@ module Nokogiri
     end
 
     def self.escape_text(text, encoding, attribute_mode)
-      if attribute_mode
-        text = text.gsub(/[&\u00a0"]/,
+      text = if attribute_mode
+        text.gsub(/[&\u00a0"]/,
           "&" => "&amp;", "\u00a0" => "&nbsp;", '"' => "&quot;")
       else
-        text = text.gsub(/[&\u00a0<>]/,
+        text.gsub(/[&\u00a0<>]/,
           "&" => "&amp;", "\u00a0" => "&nbsp;", "<" => "&lt;", ">" => "&gt;")
       end
       # Not part of the standard

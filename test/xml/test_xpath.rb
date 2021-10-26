@@ -239,10 +239,10 @@ module Nokogiri
       end
 
       def test_custom_xpath_function_returns_string
-        if Nokogiri.uses_libxml?
-          result = @xml.xpath('thing("asdf")', @handler)
+        result = if Nokogiri.uses_libxml?
+          @xml.xpath('thing("asdf")', @handler)
         else
-          result = @xml.xpath('nokogiri:thing("asdf")', @handler)
+          @xml.xpath('nokogiri:thing("asdf")', @handler)
         end
         assert_equal("asdf", result)
       end
@@ -355,19 +355,19 @@ module Nokogiri
       end
 
       def test_custom_xpath_without_arguments
-        if Nokogiri.uses_libxml?
-          value = @xml.xpath("value()", @handler)
+        value = if Nokogiri.uses_libxml?
+          @xml.xpath("value()", @handler)
         else
-          value = @xml.xpath("nokogiri:value()", @handler)
+          @xml.xpath("nokogiri:value()", @handler)
         end
         assert_in_delta(123.456, value)
       end
 
       def test_custom_xpath_without_arguments_returning_int
-        if Nokogiri.uses_libxml?
-          value = @xml.xpath("anint()", @handler)
+        value = if Nokogiri.uses_libxml?
+          @xml.xpath("anint()", @handler)
         else
-          value = @xml.xpath("nokogiri:anint()", @handler)
+          @xml.xpath("nokogiri:anint()", @handler)
         end
         assert_equal(1230456, value)
       end

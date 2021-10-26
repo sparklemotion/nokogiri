@@ -45,10 +45,10 @@ module Nokogiri
 
       def test_add_child
         node = Text.new("foo", Document.new)
-        if Nokogiri.jruby?
-          exc = RuntimeError
+        exc = if Nokogiri.jruby?
+          RuntimeError
         else
-          exc = ArgumentError
+          ArgumentError
         end
         assert_raises(exc) do
           node.add_child(Text.new("bar", Document.new))

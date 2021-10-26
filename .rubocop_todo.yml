@@ -172,16 +172,6 @@ Style/ClassVars:
   Exclude:
     - 'test/helper.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/nokogiri/html5.rb'
-    - 'test/xml/test_text.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/EachWithObject:
