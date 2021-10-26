@@ -5,7 +5,7 @@ module Nokogiri
     class XPathVisitor # :nodoc:
       def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
-        return self.send(msg, node) if self.respond_to?(msg)
+        return send(msg, node) if respond_to?(msg)
 
         case node.value.first
         when /^text\(/
@@ -125,7 +125,7 @@ module Nokogiri
           node.value.first.accept(self)
         else
           msg = :"visit_pseudo_class_#{node.value.first.gsub(/[(]/, "")}"
-          return self.send(msg, node) if self.respond_to?(msg)
+          return send(msg, node) if respond_to?(msg)
 
           case node.value.first
           when "first" then "position()=1"

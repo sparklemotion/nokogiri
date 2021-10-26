@@ -306,9 +306,8 @@ module Nokogiri
       #   {"xmlns:foo" => "baz"}
       #
       def collect_namespaces
-        xpath("//namespace::*").inject({}) do |hash, ns|
+        xpath("//namespace::*").each_with_object({}) do |ns, hash|
           hash[["xmlns", ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
-          hash
         end
       end
 
@@ -373,7 +372,7 @@ module Nokogiri
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
       def fragment(tags = nil)
-        DocumentFragment.new(self, tags, self.root)
+        DocumentFragment.new(self, tags, root)
       end
 
       undef_method :swap, :parent, :namespace, :default_namespace=

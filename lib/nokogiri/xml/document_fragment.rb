@@ -129,7 +129,7 @@ module Nokogiri
         ####
         # Create a Nokogiri::XML::DocumentFragment from +tags+
         def parse(tags)
-          self.new(XML::Document.new, tags)
+          new(XML::Document.new, tags)
         end
       end
 

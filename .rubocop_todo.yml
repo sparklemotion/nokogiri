@@ -172,12 +172,6 @@ Style/ClassVars:
   Exclude:
     - 'test/helper.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/EachWithObject:
-  Exclude:
-    - 'lib/nokogiri/xml/document.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
@@ -194,17 +188,6 @@ Style/RaiseArgs:
     - 'lib/nokogiri/xml/document.rb'
     - 'lib/nokogiri/xml/sax/parser.rb'
     - 'lib/xsd/xmlparser/nokogiri.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/html5/document.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'lib/nokogiri/xml/reader.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.

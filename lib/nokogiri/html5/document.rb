@@ -53,7 +53,7 @@ module Nokogiri
       end
 
       def fragment(tags = nil)
-        DocumentFragment.new(self, tags, self.root)
+        DocumentFragment.new(self, tags, root)
       end
 
       def to_xml(options = {}, &block)
