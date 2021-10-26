@@ -13,36 +13,36 @@ module Nokogiri
         end
 
         def test_texts_order
-          xml = <<-eoxml
-<?xml version="1.0" ?>
-<root>
-  text 0
-  <p>
-    text 1
-    <span>text 2</span>
-    text 3
-  </p>
+          xml = <<~eoxml
+            <?xml version="1.0" ?>
+            <root>
+              text 0
+              <p>
+                text 1
+                <span>text 2</span>
+                text 3
+              </p>
 
-  text 4
-  <!--
-  text 5
-  -->
+              text 4
+              <!--
+              text 5
+              -->
 
-  <p>
-    <!-- text 6 -->
-    <span><!-- text 7 --></span>
-    <!-- text 8 -->
-  </p>
+              <p>
+                <!-- text 6 -->
+                <span><!-- text 7 --></span>
+                <!-- text 8 -->
+              </p>
 
-  <!-- text 9 -->
-  <![CDATA[ text 10 ]]>
+              <!-- text 9 -->
+              <![CDATA[ text 10 ]]>
 
-  <p>
-    <![CDATA[ text 11 ]]>
-    <span><![CDATA[ text 12 ]]></span>
-    <![CDATA[ text 13 ]]>
-  </p>
-</root>
+              <p>
+                <![CDATA[ text 11 ]]>
+                <span><![CDATA[ text 12 ]]></span>
+                <![CDATA[ text 13 ]]>
+              </p>
+            </root>
           eoxml
 
           @parser.parse xml
@@ -111,31 +111,31 @@ module Nokogiri
         end
 
         def text_whitespace
-          xml = <<-eoxml
-<?xml version="1.0" ?>
-<root>
-  <p>
-    <span></span>
-    <span> </span>
-    <span>
+          xml = <<~eoxml
+            <?xml version="1.0" ?>
+            <root>
+              <p>
+                <span></span>
+                <span> </span>
+                <span>
 
-    </span>
-  </p>
-  <p>
-    <!---->
-    <!-- -->
-    <!--
+                </span>
+              </p>
+              <p>
+                <!---->
+                <!-- -->
+                <!--
 
-    -->
-  </p>
-  <p>
-    <![CDATA[]]>
-    <![CDATA[ ]]>
-    <![CDATA[
+                -->
+              </p>
+              <p>
+                <![CDATA[]]>
+                <![CDATA[ ]]>
+                <![CDATA[
 
-    ]]>
-  </p>
-</root>
+                ]]>
+              </p>
+            </root>
           eoxml
 
           @parser.parse xml

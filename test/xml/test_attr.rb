@@ -95,10 +95,10 @@ module Nokogiri
       end
 
       def test_parsing_attribute_namespace
-        doc = Nokogiri::XML <<-EOXML
-<root xmlns='http://google.com/' xmlns:f='http://flavorjon.es/'>
-  <div f:myattr='foo'></div>
-</root>
+        doc = Nokogiri::XML <<~EOXML
+          <root xmlns='http://google.com/' xmlns:f='http://flavorjon.es/'>
+            <div f:myattr='foo'></div>
+          </root>
         EOXML
 
         node = doc.at_css "div"
@@ -107,10 +107,10 @@ module Nokogiri
       end
 
       def test_setting_attribute_namespace
-        doc = Nokogiri::XML <<-EOXML
-<root xmlns='http://google.com/' xmlns:f='http://flavorjon.es/'>
-  <div f:myattr='foo'></div>
-</root>
+        doc = Nokogiri::XML <<~EOXML
+          <root xmlns='http://google.com/' xmlns:f='http://flavorjon.es/'>
+            <div f:myattr='foo'></div>
+          </root>
         EOXML
 
         node = doc.at_css "div"

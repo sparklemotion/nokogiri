@@ -102,7 +102,7 @@ class Nokogiri::XML::Node
           <p class=" foo  bar foo ">test</p>
           <p class="">test</p>
         </div>
-        eoxml
+      eoxml
       div = xml.at_xpath("//div")
       p1, p2 = xml.xpath("//p")
 
@@ -117,7 +117,7 @@ class Nokogiri::XML::Node
           <p class=" foo  bar foo ">test</p>
           <p class="">test</p>
         </div>
-        eoxml
+      eoxml
       div = xml.at_xpath("//div")
       p1, p2 = xml.xpath("//p")
 
@@ -137,7 +137,7 @@ class Nokogiri::XML::Node
           <p class=" foo  bar foo ">test</p>
           <p class="">test</p>
         </div>
-        eoxml
+      eoxml
       div = xml.at_xpath("//div")
       p1, p2 = xml.xpath("//p")
 
@@ -159,7 +159,7 @@ class Nokogiri::XML::Node
           <p class="foo foo">test</p>
           <p class="">test</p>
         </div>
-        eoxml
+      eoxml
       div = xml.at_xpath("//div")
       p1, p2, p3, p4 = xml.xpath("//p")
 

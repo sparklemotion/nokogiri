@@ -19,10 +19,10 @@ module Nokogiri
 
       def test_newline_node
         # issue 719
-        xml = <<EOF
-<?xml version="1.0" ?>
-<item></item>
-EOF
+        xml = <<~EOF
+          <?xml version="1.0" ?>
+          <item></item>
+        EOF
         doc = Nokogiri::XML xml
         lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
         doc.xpath('/item').first.add_child(lf_node)

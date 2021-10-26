@@ -5,13 +5,13 @@ module Nokogiri
     class TestEntityDecl < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML(<<-eoxml)
-<?xml version="1.0"?><?TEST-STYLE PIDATA?>
-<!DOCTYPE staff SYSTEM "staff.dtd" [
-   <!ENTITY ent1 "es">
-   <!ENTITY nocontent "">
-]>
-<root />
+        @xml = Nokogiri::XML(<<~eoxml)
+          <?xml version="1.0"?><?TEST-STYLE PIDATA?>
+          <!DOCTYPE staff SYSTEM "staff.dtd" [
+             <!ENTITY ent1 "es">
+             <!ENTITY nocontent "">
+          ]>
+          <root />
         eoxml
 
         @entities = @xml.internal_subset.children

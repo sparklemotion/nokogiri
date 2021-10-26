@@ -19,9 +19,7 @@ module Nokogiri
         def test_parse_empty_file
           # Make sure empty files don't break stuff
           empty_file_name = File.join(ASSETS_DIR, 'bogus.xml')
-          # assert_nothing_raised do
-            @parser.parse_file empty_file_name
-          # end
+          @parser.parse_file empty_file_name # assert_nothing_raised
         end
 
         def test_parse_file
@@ -91,16 +89,16 @@ module Nokogiri
         end
 
         def test_parser_attributes
-          html = <<-eohtml
-<html>
-  <head>
-    <title>hello</title>
-  </head>
-<body>
-  <img src="face.jpg" title="daddy &amp; me">
-  <hr noshade size="2">
-</body>
-</html>
+          html = <<~eohtml
+            <html>
+              <head>
+                <title>hello</title>
+              </head>
+            <body>
+              <img src="face.jpg" title="daddy &amp; me">
+              <hr noshade size="2">
+            </body>
+            </html>
           eohtml
 
           block_called = false
@@ -123,13 +121,13 @@ module Nokogiri
             ['title', []],
             ['body', []],
             ['img', [
-                ['src', 'face.jpg'],
-                ['title', 'daddy & me'],
-              ],],
+              ['src', 'face.jpg'],
+              ['title', 'daddy & me'],
+            ],],
             ['hr', [
-                noshade_value,
-                ['size', '2'],
-              ],],
+              noshade_value,
+              ['size', '2'],
+            ],],
           ], @parser.document.start_elements
         end
 

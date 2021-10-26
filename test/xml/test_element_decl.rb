@@ -5,16 +5,16 @@ module Nokogiri
     class TestElementDecl < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML(<<-eoxml)
-<?xml version="1.0"?><?TEST-STYLE PIDATA?>
-<!DOCTYPE staff SYSTEM "staff.dtd" [
-   <!ELEMENT br EMPTY>
-   <!ELEMENT div1 (head, (p | list | note)*, div2*)>
-   <!ELEMENT my:way EMPTY>
-   <!ATTLIST br width CDATA "0">
-   <!ATTLIST br height CDATA "0">
-]>
-<root/>
+        @xml = Nokogiri::XML(<<~eoxml)
+          <?xml version="1.0"?><?TEST-STYLE PIDATA?>
+          <!DOCTYPE staff SYSTEM "staff.dtd" [
+             <!ELEMENT br EMPTY>
+             <!ELEMENT div1 (head, (p | list | note)*, div2*)>
+             <!ELEMENT my:way EMPTY>
+             <!ATTLIST br width CDATA "0">
+             <!ATTLIST br height CDATA "0">
+          ]>
+          <root/>
         eoxml
         @elements = @xml.internal_subset.children.find_all do |x|
           x.type == 15

@@ -172,7 +172,7 @@ module Nokogiri
 
       def visit_conditional_selector node
         node.value.first.accept(self) + '[' +
-        node.value.last.accept(self) + ']'
+          node.value.last.accept(self) + ']'
       end
 
       def visit_element_name node

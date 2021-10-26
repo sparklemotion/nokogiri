@@ -196,10 +196,10 @@ module Nokogiri
             describe "##{method} parsing input" do
               let(:xml) do
                 <<~EOF
-                <root>
-                  <parent><context></context></parent>
-                </root>
-              EOF
+                  <root>
+                    <parent><context></context></parent>
+                  </root>
+                EOF
               end
 
               let(:doc) { Nokogiri::XML::Document.parse(xml) }

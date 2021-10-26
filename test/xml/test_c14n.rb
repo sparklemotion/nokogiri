@@ -5,21 +5,21 @@ module Nokogiri
     class TestC14N < Nokogiri::TestCase
       # http://www.w3.org/TR/xml-c14n#Example-OutsideDoc
       def test_3_1
-        doc = Nokogiri.XML <<-eoxml
-<?xml version="1.0"?>
+        doc = Nokogiri.XML <<~eoxml
+          <?xml version="1.0"?>
 
-<?xml-stylesheet   href="doc.xsl"
-   type="text/xsl"   ?>
+          <?xml-stylesheet   href="doc.xsl"
+             type="text/xsl"   ?>
 
-<!DOCTYPE doc SYSTEM "doc.dtd">
+          <!DOCTYPE doc SYSTEM "doc.dtd">
 
-<doc>Hello, world!<!-- Comment 1 --></doc>
+          <doc>Hello, world!<!-- Comment 1 --></doc>
 
-<?pi-without-data     ?>
+          <?pi-without-data     ?>
 
-<!-- Comment 2 -->
+          <!-- Comment 2 -->
 
-<!-- Comment 3 -->
+          <!-- Comment 3 -->
         eoxml
 
         c14n = doc.canonicalize
@@ -104,25 +104,25 @@ module Nokogiri
       def test_c14n_modes
         # http://www.w3.org/TR/xml-exc-c14n/#sec-Enveloping
 
-        doc1 = Nokogiri.XML <<-EOXML
-<n0:local xmlns:n0="http://foobar.org" xmlns:n3="ftp://example.org">
-  <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
-    <n3:stuff xmlns:n3="ftp://example.org"/>
-  </n1:elem2>
-</n0:local>
+        doc1 = Nokogiri.XML <<~EOXML
+          <n0:local xmlns:n0="http://foobar.org" xmlns:n3="ftp://example.org">
+            <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"/>
+            </n1:elem2>
+          </n0:local>
         EOXML
 
-        doc2 = Nokogiri.XML <<-EOXML
-<n2:pdu xmlns:n1="http://example.com"
-           xmlns:n2="http://foo.example"
-           xmlns:n4="http://foo.example"
-           xml:lang="fr"
-           xml:space="retain">
-  <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
-    <n3:stuff xmlns:n3="ftp://example.org"/>
-    <n4:stuff />
-  </n1:elem2>
-</n2:pdu>
+        doc2 = Nokogiri.XML <<~EOXML
+          <n2:pdu xmlns:n1="http://example.com"
+                     xmlns:n2="http://foo.example"
+                     xmlns:n4="http://foo.example"
+                     xml:lang="fr"
+                     xml:space="retain">
+            <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"/>
+              <n4:stuff />
+            </n1:elem2>
+          </n2:pdu>
         EOXML
 
         c14n = doc1.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize

@@ -28,7 +28,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
         x</listing>
         </div>
         </div>
-        EOF
+      EOF
       Nokogiri::HTML5(html)
     end
     @initial_linefeed_pre
@@ -230,7 +230,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
         <span><a><b><c></c></b><d>e</d><f><g>h</g></f></a></span>
         <span b=c></span>
         </div>
-        EOF
+      EOF
       Nokogiri::HTML5(html).xpath("/html/body/div/*")
     end
     @serializing_test_data

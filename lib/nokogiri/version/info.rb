@@ -183,7 +183,7 @@ module Nokogiri
       end
       require "yaml"
       "# Nokogiri (#{Nokogiri::VERSION})\n" +
-      YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
+        YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
     end
 
     instance.warnings.each do |warning|

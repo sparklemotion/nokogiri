@@ -98,7 +98,7 @@ class Nokogiri::TestCase
           </xsl:template>
 
           </xsl:stylesheet>
-               eoxslt
+        eoxslt
       else
         Nokogiri::XSLT(<<~eoxslt)
           <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -127,7 +127,7 @@ class Nokogiri::TestCase
           </xsl:template>
 
           </xsl:stylesheet>
-               eoxslt
+        eoxslt
       end
       result = xslt.apply_to(doc, ["title", "foo"])
       assert_no_match(/<td>/, result)

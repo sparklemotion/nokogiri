@@ -5,14 +5,14 @@ module Nokogiri
     class TestAttributeDecl < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML(<<-eoxml)
-<?xml version="1.0"?><?TEST-STYLE PIDATA?>
-<!DOCTYPE staff SYSTEM "staff.dtd" [
-   <!ATTLIST br width CDATA "0">
-   <!ATTLIST a width CDATA "0">
-   <!ATTLIST payment type (check|cash) "cash">
-]>
-<root />
+        @xml = Nokogiri::XML(<<~eoxml)
+          <?xml version="1.0"?><?TEST-STYLE PIDATA?>
+          <!DOCTYPE staff SYSTEM "staff.dtd" [
+             <!ATTLIST br width CDATA "0">
+             <!ATTLIST a width CDATA "0">
+             <!ATTLIST payment type (check|cash) "cash">
+          ]>
+          <root />
         eoxml
         @attrs = @xml.internal_subset.children
         @attr_decl = @attrs.first

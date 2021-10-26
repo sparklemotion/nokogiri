@@ -72,10 +72,10 @@ module Nokogiri
         assert_equal [], node.namespace_definitions.map(&:prefix)
 
         # assert_nothing_raised do
-          child_node = Nokogiri::XML::Node.new 'foo', doc
-          child_node['xml:lang'] = 'en-GB'
+        child_node = Nokogiri::XML::Node.new 'foo', doc
+        child_node['xml:lang'] = 'en-GB'
 
-          node << child_node
+        node << child_node
         # end
 
         assert_equal [], child_node.namespace_definitions.map(&:prefix)

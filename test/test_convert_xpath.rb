@@ -115,20 +115,20 @@ class TestConvertXPath < Nokogiri::TestCase
     end
   end
 
-# TODO:
-#       doc/'title ~ link' -> links that are siblings of title
-#       doc/'p[@class~="final"]' -> class includes string (whitespacy)
-#       doc/'p[text()*="final"]' -> class includes string (index) (broken: always returns true?)
-#       doc/'p[text()$="final"]' -> /final$/
-#       doc/'p[text()|="final"]' -> /^final$/
-#       doc/'p[text()^="final"]' -> string starts with 'final
-#       nth_first
-#       nth_last
-#       even
-#       odd
-#       first-child, nth-child, last-child, nth-last-child, nth-last-of-type
-#       only-of-type, only-child
-#       parent
-#       empty
-#       root
+  # TODO:
+  #       doc/'title ~ link' -> links that are siblings of title
+  #       doc/'p[@class~="final"]' -> class includes string (whitespacy)
+  #       doc/'p[text()*="final"]' -> class includes string (index) (broken: always returns true?)
+  #       doc/'p[text()$="final"]' -> /final$/
+  #       doc/'p[text()|="final"]' -> /^final$/
+  #       doc/'p[text()^="final"]' -> string starts with 'final
+  #       nth_first
+  #       nth_last
+  #       even
+  #       odd
+  #       first-child, nth-child, last-child, nth-last-child, nth-last-of-type
+  #       only-of-type, only-child
+  #       parent
+  #       empty
+  #       root
 end

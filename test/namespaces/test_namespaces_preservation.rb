@@ -10,7 +10,7 @@ module Nokogiri
                 <xs:element xmlns:quer="http://api.geotrust.com/webtrust/query"/>
                 <xs:element xmlns:quer="http://api.geotrust.com/webtrust/query"/>
               </xs:schema>
-            eoxml
+        eoxml
       end
 
       def test_xpath

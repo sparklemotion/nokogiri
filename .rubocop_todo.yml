@@ -8,25 +8,6 @@
 
 # Offense count: 14
 # Cop supports --auto-correct.
-Layout/ClosingHeredocIndentation:
-  Exclude:
-    - 'test/html4/test_document.rb'
-    - 'test/html5/test_serialize.rb'
-    - 'test/namespaces/test_namespaces_preservation.rb'
-    - 'test/test_xslt_transforms.rb'
-    - 'test/xml/node/test_attribute_methods.rb'
-    - 'test/xml/test_node_reparenting.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/CommentIndentation:
-  Exclude:
-    - 'test/html4/sax/test_parser.rb'
-    - 'test/test_convert_xpath.rb'
-    - 'test/xml/test_node_attributes.rb'
-
-# Offense count: 14
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: leading, trailing
 Layout/DotPosition:
@@ -41,7 +22,6 @@ Layout/DotPosition:
 Layout/FirstArrayElementIndentation:
   Exclude:
     - 'lib/nokogiri/html4/element_description_defaults.rb'
-    - 'test/html4/sax/test_parser.rb'
 
 # Offense count: 34
 # Cop supports --auto-correct.
@@ -55,22 +35,6 @@ Layout/HashAlignment:
     - 'lib/nokogiri/xml/sax/parser.rb'
     - 'test/xml/node/test_subclass.rb'
 
-# Offense count: 15
-# Cop supports --auto-correct.
-Layout/HeredocIndentation:
-  Exclude:
-    - 'test/html4/sax/test_parser.rb'
-    - 'test/test_memory_leak.rb'
-    - 'test/xml/sax/test_parser_text.rb'
-    - 'test/xml/test_attr.rb'
-    - 'test/xml/test_attribute_decl.rb'
-    - 'test/xml/test_c14n.rb'
-    - 'test/xml/test_element_content.rb'
-    - 'test/xml/test_element_decl.rb'
-    - 'test/xml/test_entity_decl.rb'
-    - 'test/xml/test_entity_reference.rb'
-    - 'test/xml/test_node_reparenting.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -78,8 +42,6 @@ Layout/HeredocIndentation:
 Layout/IndentationConsistency:
   Exclude:
     - 'lib/nokogiri/html4/element_description_defaults.rb'
-    - 'test/html4/sax/test_parser.rb'
-    - 'test/xml/test_node_attributes.rb'
 
 # Offense count: 108
 # Cop supports --auto-correct.
@@ -97,16 +59,6 @@ Layout/MultilineArrayBraceLayout:
 Layout/MultilineMethodCallBraceLayout:
   Exclude:
     - 'test/css/test_tokenizer.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented
-Layout/MultilineOperationIndentation:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/version/info.rb'
-    - 'test/html4/test_document.rb'
 
 # Offense count: 18
 # Configuration parameters: AllowSafeAssignment.

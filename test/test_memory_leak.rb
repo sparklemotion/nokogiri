@@ -3,14 +3,14 @@ require "helper"
 class TestMemoryLeak < Nokogiri::TestCase
   def setup
     super
-    @str = <<EOF
-<!DOCTYPE HTML>
-<html>
-  <body>
-    <br />
-  </body>
-</html>
-EOF
+    @str = <<~EOF
+      <!DOCTYPE HTML>
+      <html>
+        <body>
+          <br />
+        </body>
+      </html>
+    EOF
   end
 
   #

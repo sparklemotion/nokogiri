@@ -200,7 +200,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal(1, doc.css("title").size)
           assert_equal("new", doc.title)
@@ -214,7 +214,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           title = doc.at("/html/head/title")
@@ -228,7 +228,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           # <head> may or may not be added
@@ -244,7 +244,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           assert_equal(-1, doc.at("meta[@charset]") <=> doc.at("title"))
@@ -521,7 +521,7 @@ module Nokogiri
         def test_search_can_handle_xpath_and_css
           found = html.search("//div/a", "div > p")
           length = html.xpath("//div/a").length +
-                   html.css("div > p").length
+            html.css("div > p").length
           assert_equal(length, found.length)
         end
 
