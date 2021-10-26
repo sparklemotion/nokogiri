@@ -197,7 +197,7 @@ module Nokogiri
       m = message(m) do
         "Expected #{mu_pp(recv)}.#{msg}(*#{mu_pp(args)}) to return false"
       end
-      assert(!recv.__send__(msg, *args), m)
+      refute(recv.__send__(msg, *args), m)
     end unless method_defined?(:assert_not_send)
 
     def i_am_ruby_matching(gem_version_requirement_string)

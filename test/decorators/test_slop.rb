@@ -37,10 +37,10 @@ module Nokogiri
 
     def test_slop_decorator
       doc = Nokogiri(SLOP_HTML)
-      assert(!doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop))
+      refute_includes(doc.decorators(Nokogiri::XML::Node), Nokogiri::Decorators::Slop)
 
       doc.slop!
-      assert(doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop))
+      assert_includes(doc.decorators(Nokogiri::XML::Node), Nokogiri::Decorators::Slop)
 
       doc.slop!
       assert_equal(1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size)
@@ -73,13 +73,13 @@ module Nokogiri
         </item>
       eoxml
 
-      assert(doc.item.respond_to?(:title))
+      assert_respond_to(doc.item, :title)
       assert_equal("foo", doc.item.title.text)
 
-      assert(doc.item.respond_to?(:_description), "should have description")
+      assert_respond_to(doc.item, :_description, "should have description")
       assert_equal("this is the foo thing", doc.item._description.text)
 
-      assert(!doc.item.respond_to?(:foo))
+      refute_respond_to(doc.item, :foo)
       assert_raise(NoMethodError) { doc.item.foo }
     end
   end

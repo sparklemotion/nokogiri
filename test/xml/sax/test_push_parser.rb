@@ -68,7 +68,7 @@ class Nokogiri::SAX::TestCase
           Paragraph 1
         </p>
       EOF
-      assert !parser.document.end_document_called
+      refute parser.document.end_document_called
       parser.finish
       assert parser.document.end_document_called
     end
@@ -195,22 +195,22 @@ class Nokogiri::SAX::TestCase
     it :test_replace_entities_attribute_behavior do
       if Nokogiri.uses_libxml?
         # initially false
-        assert_equal false, parser.replace_entities
+        refute parser.replace_entities
 
         # can be set to true
         parser.replace_entities = true
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
 
         # can be set to false
         parser.replace_entities = false
-        assert_equal false, parser.replace_entities
+        refute parser.replace_entities
       else
         # initially true
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
 
         # ignore attempts to set to false
         parser.replace_entities = false # TODO: should we raise an exception here?
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
       end
     end
 

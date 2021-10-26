@@ -79,7 +79,7 @@ module Nokogiri
       end
 
       def test_enumeration
-        assert_equal([], @attr_decl.enumeration)
+        assert_empty(@attr_decl.enumeration)
         assert_equal(["check", "cash"], @attrs[2].enumeration)
       end
     end

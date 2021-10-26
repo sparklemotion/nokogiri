@@ -15,7 +15,7 @@ module Nokogiri
       end
 
       def test_node_name
-        assert(@node.name == "foo")
+        assert_equal("foo", @node.name)
       end
 
       def test_node_writing_an_attribute_accessing_via_attributes
@@ -27,7 +27,7 @@ module Nokogiri
       end
 
       def test_node_writing_an_attribute_accessing_via_brackets
-        assert(@node["foo"] == "bar")
+        assert_equal("bar", @node["foo"])
       end
     end
   end

@@ -17,7 +17,7 @@ module Nokogiri
       if Nokogiri.uses_libxml?
         def test_namespace_is_in_node_cache
           node = @xml.root.namespace
-          assert(@xml.instance_variable_get(:@node_cache).include?(node))
+          assert_includes(@xml.instance_variable_get(:@node_cache), node)
         end
       end
 

@@ -410,7 +410,7 @@ module Nokogiri
                 it "inserts a node that inherits the parent's default namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @doc.root.namespace, reparented.namespace
                   assert_equal(
                     {
@@ -431,7 +431,7 @@ module Nokogiri
                 it "inserts a node that uses its own namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -458,7 +458,7 @@ module Nokogiri
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
@@ -479,7 +479,7 @@ module Nokogiri
                 it "inserts a node that uses the parent's namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
@@ -500,7 +500,7 @@ module Nokogiri
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -521,7 +521,7 @@ module Nokogiri
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -545,8 +545,8 @@ module Nokogiri
               it "inserts a node that keeps its namespace" do
                 @node.add_child(@child)
                 assert reparented = @doc.at("//bar:second", "bar" => "http://example.org/")
-                assert reparented.namespace_definitions.include?(@ns)
-                assert reparented.namespace_definitions.include?(@ns2)
+                assert_includes reparented.namespace_definitions, @ns
+                assert_includes reparented.namespace_definitions, @ns2
                 assert_equal @ns, reparented.namespace
                 assert_equal(
                   {
@@ -614,10 +614,10 @@ module Nokogiri
               pivot.add_previous_sibling("x")
 
               assert_equal "after", after.content
-              assert !after.parent.nil?, "unrelated node should not be affected"
+              refute_nil after.parent, "unrelated node should not be affected"
 
               assert_equal "before", before.content
-              assert !before.parent.nil?, "no need to reparent"
+              refute_nil before.parent, "no need to reparent"
             end
           end
         end
@@ -653,10 +653,10 @@ module Nokogiri
               pivot.add_next_sibling("x")
 
               assert_equal "before", before.content
-              assert !before.parent.nil?, "unrelated node should not be affected"
+              refute_nil before.parent, "unrelated node should not be affected"
 
               assert_equal "after", after.content
-              assert !after.parent.nil?
+              refute_nil after.parent
             end
           end
         end

@@ -106,7 +106,7 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.set_cache(true)
 
     Nokogiri::CSS::Parser.without_cache do
-      assert(!Nokogiri::CSS::Parser.cache_on?)
+      refute(Nokogiri::CSS::Parser.cache_on?)
     end
     assert(Nokogiri::CSS::Parser.cache_on?)
   end

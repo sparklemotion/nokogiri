@@ -77,11 +77,11 @@ module Nokogiri
       end
 
       def test_boolean_false
-        assert_equal(false, @xml.xpath("1 = 2"))
+        refute(@xml.xpath("1 = 2"))
       end
 
       def test_boolean_true
-        assert_equal(true, @xml.xpath("1 = 1"))
+        assert(@xml.xpath("1 = 1"))
       end
 
       def test_number_integer
@@ -89,7 +89,7 @@ module Nokogiri
       end
 
       def test_number_float
-        assert_equal(1.5, @xml.xpath("1.5"))
+        assert_in_delta(1.5, @xml.xpath("1.5"))
       end
 
       def test_string
@@ -312,7 +312,7 @@ module Nokogiri
 
         @xml.xpath("//employee[saves_node_set(name)]", @handler)
         assert_equal(@xml, @handler.things.document)
-        assert(@handler.things.respond_to?(:awesome!))
+        assert_respond_to(@handler.things, :awesome!)
       end
 
       def test_code_that_invokes_OP_RESET_inside_libxml2
@@ -360,7 +360,7 @@ module Nokogiri
         else
           value = @xml.xpath("nokogiri:value()", @handler)
         end
-        assert_equal(123.456, value)
+        assert_in_delta(123.456, value)
       end
 
       def test_custom_xpath_without_arguments_returning_int
@@ -473,7 +473,7 @@ module Nokogiri
         begin
           doc.xpath("//ns1:Root")
         rescue => e
-          assert_equal(false, e.message.include?("0:0"))
+          refute_includes(e.message, "0:0")
         end
       end
 

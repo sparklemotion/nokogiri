@@ -321,7 +321,7 @@ class Nokogiri::TestCase
       EOXSL
 
       result = xsl.transform(xml)
-      assert(!result.html?)
+      refute(result.html?)
     end
 
     it "should not crash when given XPath 2.0 features" do

@@ -90,7 +90,7 @@ module Nokogiri
           cfg.dtdload
           cfg.noent
         end
-        assert_equal [], doc.errors
+        assert_empty doc.errors
         assert_equal "foobar", doc.xpath("//blah").text
       end
 
@@ -102,7 +102,7 @@ module Nokogiri
           cfg.dtdvalid
           cfg.noent
         end
-        assert_equal [], doc.errors
+        assert_empty doc.errors
         assert_equal "foobar", doc.xpath("//blah").text
       end
 
@@ -119,7 +119,7 @@ module Nokogiri
           cfg.dtdvalid
           cfg.noent
         end
-        assert_equal [], doc.errors
+        assert_empty doc.errors
         assert_equal "foobar", doc.xpath("//blah").text
       end
 
@@ -131,7 +131,7 @@ module Nokogiri
           cfg.dtdload
           cfg.noent
         end
-        assert_equal [], doc.errors
+        assert_empty doc.errors
         assert_equal "foobar", doc.xpath("//blah").text
       end
 
@@ -142,7 +142,7 @@ module Nokogiri
           cfg.default_xml
           cfg.dtdload
         end
-        assert_equal [], doc.errors
+        assert_empty doc.errors
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
       end
 
@@ -241,7 +241,7 @@ module Nokogiri
         end
         nodes = []
         reader.each { |n| nodes << n.value }
-        assert_equal [], nodes.compact.map(&:strip).reject(&:empty?)
+        assert_empty nodes.compact.map(&:strip).reject(&:empty?)
       end
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_dtdload do

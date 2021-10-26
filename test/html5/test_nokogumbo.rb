@@ -16,7 +16,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_element_cdata_script
     doc = Nokogiri::HTML5.fragment(buffer)
-    assert_equal(true, doc.document.html?)
+    assert(doc.document.html?)
     assert_equal("<script> if (a < b) alert(1) </script>", doc.at("script").to_s)
   end
 

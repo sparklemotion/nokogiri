@@ -661,7 +661,7 @@ module Nokogiri
         end
 
         def test_html?
-          assert(!html.xml?)
+          refute(html.xml?)
           assert(html.html?)
         end
 

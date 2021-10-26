@@ -94,7 +94,7 @@ module Nokogiri
         invalid_doc = Nokogiri::XML("<addressBook></addressBook>")
 
         assert(@schema.valid?(valid_doc))
-        assert(!@schema.valid?(invalid_doc))
+        refute(@schema.valid?(invalid_doc))
       end
     end
   end

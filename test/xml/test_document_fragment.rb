@@ -217,11 +217,11 @@ module Nokogiri
           fragment = Nokogiri::XML::DocumentFragment.new(xml, "<div>a</div><div>b</div>")
 
           assert(node_set = fragment.css("div"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           node_set.each do |node|
-            assert(node.respond_to?(:awesome!), node.class)
+            assert_respond_to(node, :awesome!, node.class)
           end
-          assert(fragment.children.respond_to?(:awesome!), fragment.children.class)
+          assert_respond_to(fragment.children, :awesome!, fragment.children.class)
         end
 
         def test_decorator_is_applied_to_empty_set
@@ -231,7 +231,7 @@ module Nokogiri
           end
           util_decorate(xml, x)
           fragment = Nokogiri::XML::DocumentFragment.new(xml, "")
-          assert(fragment.children.respond_to?(:awesome!), fragment.children.class)
+          assert_respond_to(fragment.children, :awesome!, fragment.children.class)
         end
 
         def test_add_node_to_doc_fragment_segfault

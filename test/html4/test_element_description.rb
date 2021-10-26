@@ -19,32 +19,32 @@ module Nokogiri
       end
 
       def test_implied_start_tag?
-        assert(!ElementDescription["a"].implied_start_tag?)
+        refute(ElementDescription["a"].implied_start_tag?)
       end
 
       def test_implied_end_tag?
-        assert(!ElementDescription["a"].implied_end_tag?)
+        refute(ElementDescription["a"].implied_end_tag?)
         assert(ElementDescription["p"].implied_end_tag?)
       end
 
       def test_save_end_tag?
-        assert(!ElementDescription["a"].save_end_tag?)
+        refute(ElementDescription["a"].save_end_tag?)
         assert(ElementDescription["br"].save_end_tag?)
       end
 
       def test_empty?
-        assert(ElementDescription["br"].empty?)
-        assert(!ElementDescription["a"].empty?)
+        assert_empty(ElementDescription["br"])
+        refute_empty(ElementDescription["a"])
       end
 
       def test_deprecated?
         assert(ElementDescription["applet"].deprecated?)
-        assert(!ElementDescription["br"].deprecated?)
+        refute(ElementDescription["br"].deprecated?)
       end
 
       def test_inline?
         assert(ElementDescription["a"].inline?)
-        assert(!ElementDescription["div"].inline?)
+        refute(ElementDescription["div"].inline?)
       end
 
       def test_block?

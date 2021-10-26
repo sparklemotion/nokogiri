@@ -138,7 +138,7 @@ module Nokogiri
         end
 
         builder = Nokogiri::HTML::Builder.new { text(foo) }
-        assert(builder.to_html.include?("foo!"))
+        assert_includes(builder.to_html, "foo!")
       end
 
       def test_builder_with_param

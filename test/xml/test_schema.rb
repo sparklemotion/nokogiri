@@ -204,7 +204,7 @@ module Nokogiri
         )
 
         assert(@xsd.valid?(valid_doc))
-        assert(!@xsd.valid?(invalid_doc))
+        refute(@xsd.valid?(invalid_doc))
       end
 
       def test_xsd_with_dtd

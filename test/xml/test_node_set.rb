@@ -11,7 +11,7 @@ module Nokogiri
           let(:ns_list) { ns_xml.xpath("//namespace::*") }
 
           specify "#include?" do
-            assert(ns_list.include?(ns_list.first), "list should have item")
+            assert_includes(ns_list, ns_list.first, "list should have item")
           end
 
           specify "#push" do
@@ -275,7 +275,7 @@ module Nokogiri
             refute_equal(node_set_one.object_id, node_set_two.object_id)
             refute_same(node_set_one, node_set_two)
 
-            assert(node_set_one == node_set_two)
+            assert_equal(node_set_one, node_set_two)
           end
 
           it "handles comparison to a string" do
@@ -442,7 +442,7 @@ module Nokogiri
           assert(node_set = xml.search("//employee"))
           node_set.push(node)
 
-          assert(node_set.include?(node))
+          assert_includes(node_set, node)
         end
 
         describe "#delete" do
@@ -456,19 +456,19 @@ module Nokogiri
           it "deletes the element when present and returns the deleted element" do
             employees = xml.search("//employee")
             wally = employees.first
-            assert(employees.include?(wally)) # testing setup
+            assert_includes(employees, wally) # testing setup
             length = employees.length
 
             result = employees.delete(wally)
             assert_equal(result, wally)
-            refute(employees.include?(wally))
+            refute_includes(employees, wally)
             assert_equal(length - 1, employees.length)
           end
 
           it "does nothing and returns nil when not present" do
             employees = xml.search("//employee")
             phb = xml.search("//position").first
-            assert(!employees.include?(phb)) # testing setup
+            refute_includes(employees, phb) # testing setup
             length = employees.length
 
             result = employees.delete(phb)
@@ -498,10 +498,10 @@ module Nokogiri
           set = xml.xpath("//a")
           set.unlink
           set.each do |node|
-            assert(!node.parent)
+            refute(node.parent)
             # assert !node.document
-            assert(!node.previous_sibling)
-            assert(!node.next_sibling)
+            refute(node.previous_sibling)
+            refute(node.next_sibling)
           end
           assert_no_match(/Hello world/, xml.to_s)
         end
@@ -675,7 +675,7 @@ module Nokogiri
             employees = xml.search("//employee")
             assert_nil(employees[99, 1]) # large start
             assert_nil(employees[1, -1]) # negative len
-            assert_equal([], employees[1, 0].to_a) # zero len
+            assert_empty(employees[1, 0].to_a) # zero len
           end
 
           it "array_slice_with_range" do
@@ -715,14 +715,14 @@ module Nokogiri
             yes = employees.first
             no = xml.search("//position").first
 
-            assert(employees.include?(yes))
-            refute(employees.include?(no))
+            assert_includes(employees, yes)
+            refute_includes(employees, no)
           end
 
           it "returns false on empty set" do
             empty_set = Nokogiri::XML::NodeSet.new(xml, [])
             employee  = xml.at_xpath("//employee")
-            refute(empty_set.include?(employee))
+            refute_includes(empty_set, employee)
           end
         end
 
@@ -832,7 +832,7 @@ module Nokogiri
           node_set = xml.css("address")
           new_set  = node_set.dup
           assert_equal(node_set.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_union_result_has_document_and_is_decorated" do
@@ -844,7 +844,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 | node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_intersection_result_has_document_and_is_decorated" do
@@ -856,7 +856,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 & node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_difference_result_has_document_and_is_decorated" do
@@ -868,7 +868,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 - node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_slice_result_has_document_and_is_decorated" do
@@ -879,7 +879,7 @@ module Nokogiri
           node_set = xml.css("address")
           new_set  = node_set[0..-1]
           assert_equal(node_set.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         describe "adding nodes from different documents to the same NodeSet" do

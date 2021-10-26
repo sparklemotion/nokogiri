@@ -108,9 +108,9 @@ class Nokogiri::XML::Node
       div = xml.at_xpath("//div")
       p1, p2 = xml.xpath("//p")
 
-      assert_equal([], div.classes)
+      assert_empty(div.classes)
       assert_equal(["foo", "bar", "foo"], p1.classes)
-      assert_equal([], p2.classes)
+      assert_empty(p2.classes)
     end
 
     def test_add_class

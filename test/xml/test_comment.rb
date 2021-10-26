@@ -18,7 +18,7 @@ module Nokogiri
       def test_comment?
         comment = Nokogiri::XML::Comment.new(@xml, "hello world")
         assert(comment.comment?)
-        assert(!@xml.root.comment?)
+        refute(@xml.root.comment?)
       end
 
       def test_passing_a_node_uses_the_node_document

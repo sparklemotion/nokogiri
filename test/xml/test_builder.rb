@@ -207,7 +207,7 @@ module Nokogiri
           end
         end.doc
         a = doc.at("a")
-        assert_equal({}, a.namespaces)
+        assert_empty(a.namespaces)
 
         b = doc.at_xpath("//foo:b", { foo: "bar" })
         assert(b)

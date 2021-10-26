@@ -900,7 +900,7 @@ module Nokogiri
 
           util_decorate(xml, decorator)
 
-          assert(xml.search("//@street").first.respond_to?(:test_method))
+          assert_respond_to(xml.search("//@street").first, :test_method)
         end
 
         def test_subset_is_decorated
@@ -910,13 +910,13 @@ module Nokogiri
           end
           util_decorate(xml, x)
 
-          assert(xml.respond_to?(:awesome!))
+          assert_respond_to(xml, :awesome!)
           assert(node_set = xml.search("//staff"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           assert(subset = node_set.search(".//employee"))
-          assert(subset.respond_to?(:awesome!))
+          assert_respond_to(subset, :awesome!)
           assert(sub_subset = node_set.search(".//name"))
-          assert(sub_subset.respond_to?(:awesome!))
+          assert_respond_to(sub_subset, :awesome!)
         end
 
         def test_decorator_is_applied
@@ -926,14 +926,14 @@ module Nokogiri
           end
           util_decorate(xml, x)
 
-          assert(xml.respond_to?(:awesome!))
+          assert_respond_to(xml, :awesome!)
           assert(node_set = xml.search("//employee"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           node_set.each do |node|
-            assert(node.respond_to?(:awesome!), node.class)
+            assert_respond_to(node, :awesome!, node.class)
           end
-          assert(xml.root.respond_to?(:awesome!))
-          assert(xml.children.respond_to?(:awesome!))
+          assert_respond_to(xml.root, :awesome!)
+          assert_respond_to(xml.children, :awesome!)
         end
 
         def test_can_be_closed

@@ -174,7 +174,7 @@ class TestHtml5API < Nokogiri::TestCase
     doc = Nokogiri.HTML5("<!DOCTYPE html><body>")
     frag = doc.fragment
     assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
-    assert(frag.children.empty?)
+    assert_empty(frag.children)
   end
 
   def test_html_eh

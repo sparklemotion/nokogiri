@@ -41,7 +41,7 @@ module Nokogiri
 
         def test_warning_document_encounters_error_but_terminates_normally
           @warning_parser.parse("<xml>")
-          assert(!@warning_parser.document.errors.empty?, "error collector did not collect an error")
+          refute_empty(@warning_parser.document.errors, "error collector did not collect an error")
         rescue StandardError => e
           warn(e)
           fail('#parse should complete successfully unless document #error throws exception (#{e}')

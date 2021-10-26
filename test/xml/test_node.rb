@@ -751,10 +751,10 @@ module Nokogiri
           assert(node.previous_sibling)
           assert(node.next_sibling)
           node.unlink
-          assert(!node.parent)
+          refute(node.parent)
           # assert !node.document
-          assert(!node.previous_sibling)
-          assert(!node.next_sibling)
+          refute(node.previous_sibling)
+          refute(node.next_sibling)
           assert_no_match(/Hello world/, xml.to_s)
         end
 
@@ -785,7 +785,7 @@ module Nokogiri
 
         def test_key?
           assert(node = xml.search("//address").first)
-          assert(!node.key?("asdfasdf"))
+          refute(node.key?("asdfasdf"))
         end
 
         def test_set_property
@@ -1094,7 +1094,7 @@ module Nokogiri
           util_decorate(xml, x)
           node_set = xml.xpath("//employee")
           assert_equal(xml, node_set.document)
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
         end
 
         def test_css_results_have_document_and_are_decorated
@@ -1104,7 +1104,7 @@ module Nokogiri
           util_decorate(xml, x)
           node_set = xml.css("employee")
           assert_equal(xml, node_set.document)
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
         end
 
         def test_blank_eh
@@ -1184,8 +1184,8 @@ module Nokogiri
 
           assert(html_doc.document?)
           assert(xml_doc.document?)
-          assert(!html_node.document?)
-          assert(!xml_node.document?)
+          refute(html_node.document?)
+          refute(xml_node.document?)
         end
 
         def test_processing_instruction_eh
@@ -1193,7 +1193,7 @@ module Nokogiri
           pi_node = xml_doc.children.first
           div_node = xml_doc.at_css("div")
           assert(pi_node.processing_instruction?)
-          assert(!div_node.processing_instruction?)
+          refute(div_node.processing_instruction?)
         end
 
         def test_node_lang

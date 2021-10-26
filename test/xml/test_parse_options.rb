@@ -29,7 +29,7 @@ module Nokogiri
 
       def test_strict_noent
         options = ParseOptions.new.recover.noent
-        assert(!options.strict?)
+        refute(options.strict?)
       end
 
       def test_new_with_argument
@@ -42,8 +42,8 @@ module Nokogiri
         assert(options.nonet?)
         assert(options.recover?)
         options.nononet.norecover
-        assert(!options.nonet?)
-        assert(!options.recover?)
+        refute(options.nonet?)
+        refute(options.recover?)
         options.nonet.recover
         assert(options.nonet?)
         assert(options.recover?)
@@ -65,7 +65,7 @@ module Nokogiri
       def test_equality
         options = Nokogiri::XML::ParseOptions.new.recover.noent
         other = Nokogiri::XML::ParseOptions.new.recover.noent
-        assert(options == other)
+        assert_equal(options, other)
       end
     end
   end

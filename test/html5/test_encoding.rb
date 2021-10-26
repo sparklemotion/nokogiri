@@ -34,19 +34,19 @@ class TestHtml5Encoding < Nokogiri::TestCase
     def test_utf8_bom
       utf8 = "\uFEFF<!DOCTYPE html><html></html>".encode("UTF-8")
       doc = Nokogiri::HTML5(utf8, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
     end
 
     def test_utf16le_bom
       utf16le = "\uFEFF<!DOCTYPE html><html></html>".encode("UTF-16LE")
       doc = Nokogiri::HTML5(utf16le, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
     end
 
     def test_utf16be_bom
       utf16be = "\uFEFF<!DOCTYPE html><html></html>".encode("UTF-16BE")
       doc = Nokogiri::HTML5(utf16be, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
     end
 
     def test_utf8_bom_ascii
@@ -54,14 +54,14 @@ class TestHtml5Encoding < Nokogiri::TestCase
       utf8.force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(utf8, max_errors: 10)
       doc.errors.each { |err| puts(err) }
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
     end
 
     def test_utf16le_bom_ascii
       utf16le = "\uFEFF<!DOCTYPE html><html></html>".encode("UTF-16LE")
       utf16le.force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(utf16le, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
       doc.errors.each { |err| puts(err) }
     end
 
@@ -69,14 +69,14 @@ class TestHtml5Encoding < Nokogiri::TestCase
       utf16be = "\uFEFF<!DOCTYPE html><html></html>".encode("UTF-16BE")
       utf16be.force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(utf16be, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
       doc.errors.each { |err| puts(err) }
     end
 
     def test_tag_after_utf8_bom
       utf8 = "\uFEFF<b></b>".encode("UTF-8")
       doc = Nokogiri::HTML5.fragment(utf8, max_errors: 10)
-      assert_equal([], doc.errors)
+      assert_empty(doc.errors)
     end
   end
 

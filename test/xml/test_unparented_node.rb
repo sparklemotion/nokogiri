@@ -345,10 +345,10 @@ module Nokogiri
         assert(node.previous_sibling)
         assert(node.next_sibling)
         node.unlink
-        assert(!node.parent)
+        refute(node.parent)
         # assert !node.document
-        assert(!node.previous_sibling)
-        assert(!node.next_sibling)
+        refute(node.previous_sibling)
+        refute(node.next_sibling)
         assert_no_match(/Hello world/, xml.to_s)
       end
 
@@ -375,7 +375,7 @@ module Nokogiri
 
       def test_key?
         assert(node = @node.search(".//address").first)
-        assert(!node.key?("asdfasdf"))
+        refute(node.key?("asdfasdf"))
       end
 
       def test_set_property

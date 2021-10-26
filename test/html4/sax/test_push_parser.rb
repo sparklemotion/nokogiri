@@ -19,7 +19,7 @@ module Nokogiri
               Paragraph 1
             </p>
           eoxml
-          assert(!@parser.document.end_document_called)
+          refute(@parser.document.end_document_called)
           @parser.finish
           assert(@parser.document.end_document_called)
         end

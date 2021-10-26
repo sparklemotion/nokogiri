@@ -99,7 +99,7 @@ module Nokogiri
       def test_from_io
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader.from_io(io)
-        assert_equal(false, reader.default?)
+        refute(reader.default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -107,7 +107,7 @@ module Nokogiri
       def test_io
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader(io)
-        assert_equal(false, reader.default?)
+        refute(reader.default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -119,7 +119,7 @@ module Nokogiri
         </x>
         eoxml
         reader = Nokogiri::XML::Reader(io)
-        assert_equal(false, reader.default?)
+        refute(reader.default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -169,7 +169,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        assert_equal(false, reader.default?)
+        refute(reader.default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -180,7 +180,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        assert_equal(false, reader.value?)
+        refute(reader.value?)
         assert_equal([false, true, false, true, false, true, false],
           reader.map(&:value?))
       end
@@ -223,7 +223,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        assert_equal(false, reader.attributes?)
+        refute(reader.attributes?)
         assert_equal([true, false, true, false, true, false, true],
           reader.map(&:attributes?))
       end
@@ -236,7 +236,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        assert_equal({}, reader.attributes)
+        assert_empty(reader.attributes)
         assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
                         "xmlns" => "http://mothership.connection.com/", },
                       {}, { "awesome" => "true" }, {}, { "awesome" => "true" }, {},
@@ -595,7 +595,7 @@ module Nokogiri
 
         assert_equal(nodelengths[0], nodelengths[1])
         assert(has_child2[1])
-        assert(!has_child2[0])
+        refute(has_child2[0])
       end
 
       def test_correct_inner_xml_inclusion
@@ -627,7 +627,7 @@ module Nokogiri
 
         assert_equal(nodelengths[0], nodelengths[1])
         assert(has_child2[1])
-        assert(!has_child2[0])
+        refute(has_child2[0])
       end
 
       def test_nonexistent_attribute

@@ -84,72 +84,6 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   MaxOptionalParameters: 4
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Minitest/AssertEmpty:
-  Exclude:
-    - 'test/html4/test_element_description.rb'
-    - 'test/html5/test_api.rb'
-    - 'test/xml/test_node_reparenting.rb'
-
-# Offense count: 23
-# Cop supports --auto-correct.
-Minitest/AssertEmptyLiteral:
-  Exclude:
-    - 'test/html5/test_encoding.rb'
-    - 'test/xml/node/test_attribute_methods.rb'
-    - 'test/xml/test_attribute_decl.rb'
-    - 'test/xml/test_builder.rb'
-    - 'test/xml/test_entity_reference.rb'
-    - 'test/xml/test_node_attributes.rb'
-    - 'test/xml/test_node_set.rb'
-    - 'test/xml/test_reader.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Minitest/AssertEqual:
-  Exclude:
-    - 'test/xml/test_node_inheritance.rb'
-    - 'test/xml/test_node_set.rb'
-    - 'test/xml/test_parse_options.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Minitest/AssertInDelta:
-  Exclude:
-    - 'test/xml/test_xpath.rb'
-
-# Offense count: 16
-# Cop supports --auto-correct.
-Minitest/AssertIncludes:
-  Exclude:
-    - 'test/decorators/test_slop.rb'
-    - 'test/html4/test_builder.rb'
-    - 'test/xml/sax/test_parser.rb'
-    - 'test/xml/test_namespace.rb'
-    - 'test/xml/test_node_reparenting.rb'
-    - 'test/xml/test_node_set.rb'
-
-# Offense count: 24
-# Cop supports --auto-correct.
-Minitest/AssertRespondTo:
-  Exclude:
-    - 'test/decorators/test_slop.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_document_fragment.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_node_set.rb'
-    - 'test/xml/test_xpath.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-Minitest/AssertTruthy:
-  Exclude:
-    - 'test/html5/test_nokogumbo.rb'
-    - 'test/xml/sax/test_parser_context.rb'
-    - 'test/xml/sax/test_push_parser.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 17
 Minitest/AssertWithExpectedArgument:
   Exclude:
@@ -176,17 +110,6 @@ Minitest/LiteralAsActualArgument:
     - 'test/xml/test_node.rb'
     - 'test/xml/test_node_attributes.rb'
     - 'test/xml/test_reader.rb'
-
-# Offense count: 61
-# Cop supports --auto-correct.
-Minitest/RefuteFalse:
-  Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Minitest/RefuteIncludes:
-  Exclude:
-    - 'test/xml/test_node_set.rb'
 
 # Offense count: 1
 Minitest/UnreachableAssertion:

@@ -126,8 +126,8 @@ class Nokogiri::SAX::TestCase
       assert(parser.document.start_elements.length > 0)
       elm = parser.document.start_elements.first
       assert_equal("root", elm.first)
-      assert(elm[1].include?(["xmlns:foo", "http://foo.example.com/"]))
-      assert(elm[1].include?(["xmlns", "http://example.com/"]))
+      assert_includes(elm[1], ["xmlns:foo", "http://foo.example.com/"])
+      assert_includes(elm[1], ["xmlns", "http://example.com/"])
     end
 
     it :test_sax_v1_namespace_nodes do
@@ -141,8 +141,8 @@ class Nokogiri::SAX::TestCase
         </root>
       EOF
       assert_equal(5, parser.document.start_elements.length)
-      assert(parser.document.start_elements.map(&:first).include?("foo:bar"))
-      assert(parser.document.end_elements.map(&:first).include?("foo:bar"))
+      assert_includes(parser.document.start_elements.map(&:first), "foo:bar")
+      assert_includes(parser.document.end_elements.map(&:first), "foo:bar")
     end
 
     it :test_start_is_called_without_namespace do
