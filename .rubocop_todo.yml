@@ -232,29 +232,6 @@ Style/RaiseArgs:
 
 # Offense count: 9
 # Cop supports --auto-correct.
-Style/RedundantFreeze:
-  Exclude:
-    - 'lib/nokogiri/html5.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'lib/nokogiri/xml/node_set.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/RedundantInterpolation:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Exclude:
-    - 'lib/nokogiri/xml/builder.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'test/test_memory_leak.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
 Style/RedundantSelf:
   Exclude:
     - 'lib/nokogiri/css/xpath_visitor.rb'

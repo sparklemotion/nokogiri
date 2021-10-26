@@ -76,7 +76,7 @@ module Nokogiri
         # do xinclude processing
         doc.do_xinclude(options) if options.xinclude?
 
-        return doc
+        doc
       end
 
       ##
@@ -400,7 +400,7 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      IMPLIED_XPATH_CONTEXTS = ["//".freeze].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:
 
       def inspect_attributes
         [:name, :children]

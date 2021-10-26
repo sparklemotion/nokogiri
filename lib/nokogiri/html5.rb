@@ -228,12 +228,12 @@ module Nokogiri
   # Since v1.12.0
   module HTML5
     # HTML uses the XHTML namespace.
-    HTML_NAMESPACE = "http://www.w3.org/1999/xhtml".freeze
-    MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML".freeze
-    SVG_NAMESPACE = "http://www.w3.org/2000/svg".freeze
-    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink".freeze
-    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace".freeze
-    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/".freeze
+    HTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
+    MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML"
+    SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
+    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
+    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
 
     # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
     def self.parse(string, url = nil, encoding = nil, **options, &block)

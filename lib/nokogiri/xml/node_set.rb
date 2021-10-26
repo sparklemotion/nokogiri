@@ -365,7 +365,7 @@ module Nokogiri
 
       alias_method :+, :|
 
-      IMPLIED_XPATH_CONTEXTS = [".//".freeze, "self::".freeze].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = [".//", "self::"].freeze # :nodoc:
     end
   end
 end

@@ -228,7 +228,7 @@ class TestMemoryLeak < Nokogiri::TestCase
       if STATM_FOUND
         return (File.read(STATM_PATH).split(" ")[1].to_i * PAGE_SIZE) / 1024
       end
-      return 0
+      0
     end
   end
 

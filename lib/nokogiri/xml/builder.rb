@@ -372,7 +372,7 @@ module Nokogiri
         end
 
         @ns = { pending: ns.to_s }
-        return self
+        self
       end
 
       ###

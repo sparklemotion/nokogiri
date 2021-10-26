@@ -101,9 +101,9 @@ module Nokogiri
 
         case node.value[1]
         when :equal
-          attribute + "=" + "#{value}"
+          attribute + "=" + value.to_s
         when :not_equal
-          attribute + "!=" + "#{value}"
+          attribute + "!=" + value.to_s
         when :substring_match
           "contains(#{attribute},#{value})"
         when :prefix_match
@@ -116,7 +116,7 @@ module Nokogiri
         when :suffix_match
           "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
-          attribute + " #{node.value[1]} " + "#{value}"
+          attribute + " #{node.value[1]} " + value.to_s
         end
       end
 
