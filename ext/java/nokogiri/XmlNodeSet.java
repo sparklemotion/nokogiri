@@ -190,10 +190,6 @@ public class XmlNodeSet extends RubyObject implements NodeList
       result[last++] = n;
     }
 
-    if (nodeOrNamespace instanceof XmlNamespace) {
-      ((XmlNamespace) nodeOrNamespace).deleteHref();
-    }
-
     nodes = Arrays.copyOf(result, last);
 
     if (nodes.length < orig.length) {

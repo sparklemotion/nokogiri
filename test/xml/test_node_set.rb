@@ -29,9 +29,9 @@ module Nokogiri
           end
 
           it "doesn't free namespace nodes when deleted" do
-            first = ns_list.first
-            ns_list.delete(first)
-            assert_equal("http://www.w3.org/XML/1998/namespace", first.href)
+            ns = ns_list.find { |node| node.prefix == "n0" }
+            ns_list.delete(ns)
+            assert_equal("http://example.com", ns.href)
           end
         end
 
