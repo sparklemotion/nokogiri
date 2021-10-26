@@ -37,10 +37,10 @@ module Nokogiri
         def test_strict_parsing_empty_doc_should_raise_exception
           ["", " "].each do |empty_string|
             assert_raises(SyntaxError, "empty string '#{empty_string}' should raise a SyntaxError") do
-              Nokogiri::XML(empty_string) { |c| c.strict }
+              Nokogiri::XML(empty_string, &:strict)
             end
             assert_raises(SyntaxError, "StringIO of '#{empty_string}' should raise a SyntaxError") do
-              Nokogiri::XML(StringIO.new(empty_string)) { |c| c.strict }
+              Nokogiri::XML(StringIO.new(empty_string), &:strict)
             end
           end
         end
@@ -276,9 +276,7 @@ module Nokogiri
         def test_external_subset
           assert_nil(xml.external_subset)
           xml = Dir.chdir(ASSETS_DIR) do
-            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
-              cfg.dtdload
-            end
+            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdload)
           end
           assert(xml.external_subset)
         end
@@ -286,9 +284,7 @@ module Nokogiri
         def test_create_external_subset_fails_with_existing_subset
           assert_nil(xml.external_subset)
           xml = Dir.chdir(ASSETS_DIR) do
-            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
-              cfg.dtdload
-            end
+            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdload)
           end
           assert(xml.external_subset)
 
@@ -427,7 +423,7 @@ module Nokogiri
           if Nokogiri.uses_libxml?
             assert_equal(45, xml.validate.length)
           else
-            xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg| cfg.dtdvalid }
+            xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdvalid)
             assert_equal(40, xml.validate.length)
           end
         end
@@ -628,15 +624,11 @@ module Nokogiri
           end
 
           assert_raises(Nokogiri::XML::SyntaxError) do
-            Nokogiri::XML("<foo><bar></foo>") do |cfg|
-              cfg.strict
-            end
+            Nokogiri::XML("<foo><bar></foo>", &:strict)
           end
 
           assert_raises(Nokogiri::XML::SyntaxError) do
-            Nokogiri::XML(StringIO.new("<foo><bar></foo>")) do |cfg|
-              cfg.strict
-            end
+            Nokogiri::XML(StringIO.new("<foo><bar></foo>"), &:strict)
           end
         end
 

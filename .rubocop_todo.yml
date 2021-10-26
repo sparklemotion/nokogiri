@@ -336,25 +336,6 @@ Style/SpecialGlobalVars:
   Exclude:
     - 'test/html5/test_tree-construction.rb'
 
-# Offense count: 26
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMethodsWithArguments, IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'test/html5/test_tree-construction.rb'
-    - 'test/namespaces/test_namespaces_in_parsed_doc.rb'
-    - 'test/test_convert_xpath.rb'
-    - 'test/xml/test_builder.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_dtd.rb'
-    - 'test/xml/test_entity_reference.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_reader.rb'
-    - 'test/xml/test_unparented_node.rb'
-    - 'test/xml/test_xinclude.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 91
 # Cop supports --auto-correct.
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

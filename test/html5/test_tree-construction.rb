@@ -160,7 +160,7 @@ if Nokogiri.uses_gumbo?
           assert_equal(attr[:value], value)
         end
         assert_equal(node[:children].length, ng_node.children.length,
-          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
+          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
       when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
         # We preserve the CDATA in the tree, but the tests represent it as text.
         assert_equal(:text, node[:type])
@@ -174,7 +174,7 @@ if Nokogiri.uses_gumbo?
       when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
         assert_equal(:fragment, node[:type])
         assert_equal(node[:children].length, ng_node.children.length,
-          "Fragment node has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
+          "Fragment node has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
       when Nokogiri::XML::Node::DTD_NODE
         assert_equal(:doctype, node[:type])
         assert_equal(node[:name], ng_node.name)
@@ -253,7 +253,7 @@ if Nokogiri.uses_gumbo?
   Dir[File.join(tc_path, "*.dat")].each do |path|
     test_name = "TestHtml5TreeConstruction" + File.basename(path, ".dat")
       .split(/[_-]/)
-      .map { |s| s.capitalize }
+      .map(&:capitalize)
       .join("")
     tests = []
     File.open(path, "r", encoding: "UTF-8") do |f|

@@ -561,9 +561,7 @@ module Nokogiri
         xml << "</elements>"
         xml = xml.join("\n")
 
-        Nokogiri::XML::Reader.from_memory(xml).each do |e|
-          e.attributes
-        end
+        Nokogiri::XML::Reader.from_memory(xml).each(&:attributes)
       end
 
       def test_correct_outer_xml_inclusion

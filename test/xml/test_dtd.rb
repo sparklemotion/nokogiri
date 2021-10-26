@@ -154,7 +154,7 @@ module Nokogiri
           list = @xml.internal_subset.validate(@xml)
           assert_equal(45, list.length)
         else
-          xml = Nokogiri::XML(File.open(XML_FILE)) { |cfg| cfg.dtdvalid }
+          xml = Nokogiri::XML(File.open(XML_FILE), &:dtdvalid)
           list = xml.internal_subset.validate(xml)
           assert_equal(40, list.length)
         end

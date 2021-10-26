@@ -104,9 +104,7 @@ module Nokogiri
         def test_node_context_parsing_of_malformed_html_fragment_with_recover_is_corrected
           doc = HTML.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
-          nodeset = context_node.parse("<div </div>") do |options|
-            options.recover
-          end
+          nodeset = context_node.parse("<div </div>", &:recover)
 
           assert_equal(1, doc.errors.length)
           assert_equal(1, nodeset.length)
@@ -117,9 +115,7 @@ module Nokogiri
           doc = HTML.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           assert_raises(Nokogiri::XML::SyntaxError) do
-            context_node.parse("<div </div>") do |options|
-              options.strict
-            end
+            context_node.parse("<div </div>", &:strict)
           end
         end
 
@@ -292,7 +288,7 @@ module Nokogiri
         end
 
         def test_inspect_ns
-          xml = Nokogiri::XML(<<~eoxml) { |c| c.noblanks }
+          xml = Nokogiri::XML(<<~eoxml, &:noblanks)
             <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
               <awesome/>
             </root>
@@ -1277,7 +1273,7 @@ module Nokogiri
             end.string
 
             if Nokogiri.uses_libxml?
-              doc = Nokogiri::XML(xml) { |c| c.nobig_lines }
+              doc = Nokogiri::XML(xml, &:nobig_lines)
               node = doc.at_css("x")
               assert_operator(node.line, :==, max_short_int)
             end

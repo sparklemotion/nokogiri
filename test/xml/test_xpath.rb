@@ -330,7 +330,7 @@ module Nokogiri
           tool_inspector = Class.new do
             def name_equals(nodeset, name, *args)
               nodeset.all? do |node|
-                args.each { |thing| thing.inspect }
+                args.each(&:inspect)
                 node["name"] == name
               end
             end

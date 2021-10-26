@@ -322,7 +322,7 @@ module Nokogiri
         eoxml
         set = xml.css('a[@class~="bar"]')
         assert_equal(4, set.length)
-        assert_equal(["Bar"], set.map { |node| node.content }.uniq)
+        assert_equal(["Bar"], set.map(&:content).uniq)
       end
 
       def test_unlink

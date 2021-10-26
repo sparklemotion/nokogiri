@@ -149,9 +149,7 @@ module Nokogiri
       test_relative_and_absolute_path :test_dom_entity_reference_without_dtdload do
         # Make sure that we don't include entity references unless NOENT is set to true
         html = File.read(xml_document)
-        doc = @parser.parse(html, path) do |cfg|
-          cfg.default_xml
-        end
+        doc = @parser.parse(html, path, &:default_xml)
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
         if Nokogiri.uses_libxml?
           assert_equal ["5:14: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
@@ -246,9 +244,7 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_dtdload do
         html = File.read(xml_document)
-        reader = Nokogiri::XML::Reader(html, path) do |cfg|
-          cfg.default_xml
-        end
+        reader = Nokogiri::XML::Reader(html, path, &:default_xml)
         if Nokogiri.uses_libxml?(">= 2.9.0")
           # Unknown entity is not fatal in libxml2 >= 2.9
           assert_equal 8, reader.count

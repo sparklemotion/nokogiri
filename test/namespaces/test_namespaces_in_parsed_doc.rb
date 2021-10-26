@@ -82,9 +82,7 @@ module Nokogiri
           doc = Nokogiri::XML(File.open(filename))
 
           # bizarrely, can't repro without the call to #to_a
-          doc.xpath("//namespace::*").to_a.each do |ns|
-            ns.inspect
-          end
+          doc.xpath("//namespace::*").to_a.each(&:inspect)
         end
       end
     end
