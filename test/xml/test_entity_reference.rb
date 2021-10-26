@@ -250,7 +250,7 @@ module Nokogiri
           assert_equal 8, reader.count
         else
           assert_raises(Nokogiri::XML::SyntaxError) do
-            assert_equal 5, reader.count
+            reader.count
           end
         end
         assert_operator reader.errors.size, :>, 0

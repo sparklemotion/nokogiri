@@ -43,7 +43,7 @@ module Nokogiri
       assert_includes(doc.decorators(Nokogiri::XML::Node), Nokogiri::Decorators::Slop)
 
       doc.slop!
-      assert_equal(1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size)
+      assert_equal(1, doc.decorators(Nokogiri::XML::Node).count { |d| d == Nokogiri::Decorators::Slop })
     end
 
     def test_slop_css

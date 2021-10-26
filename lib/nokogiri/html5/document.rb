@@ -26,7 +26,7 @@ module Nokogiri
     # 💡 HTML5 functionality is not available when running JRuby.
     class Document < Nokogiri::HTML4::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
-        yield options if block_given?
+        yield options if block
         string_or_io = "" unless string_or_io
 
         if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
@@ -37,18 +37,18 @@ module Nokogiri
           url ||= string_or_io.path
         end
         unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
-          raise ArgumentError.new("not a string or IO object")
+          raise ArgumentError, "not a string or IO object"
         end
         do_parse(string_or_io, url, encoding, options)
       end
 
       def self.read_io(io, url = nil, encoding = nil, **options)
-        raise ArgumentError.new("io object doesn't respond to :read") unless io.respond_to?(:read)
+        raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
         do_parse(io, url, encoding, options)
       end
 
       def self.read_memory(string, url = nil, encoding = nil, **options)
-        raise ArgumentError.new("string object doesn't respond to :to_str") unless string.respond_to?(:to_str)
+        raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
         do_parse(string, url, encoding, options)
       end
 

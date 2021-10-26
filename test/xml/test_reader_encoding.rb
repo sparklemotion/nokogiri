@@ -128,7 +128,7 @@ module Nokogiri
         stress_memory_while do
           while (node = @reader.read)
             nodes = node.attribute_nodes
-            nodes.first.name if nodes.first
+            nodes.first&.name
           end
         end
       end

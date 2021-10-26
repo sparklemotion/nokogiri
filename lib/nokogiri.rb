@@ -107,7 +107,7 @@ end
 #
 # To specify the type of document, use {Nokogiri.XML}, {Nokogiri.HTML4}, or {Nokogiri.HTML5}.
 def Nokogiri(*args, &block)
-  if block_given?
+  if block
     Nokogiri::HTML4::Builder.new(&block).doc.root
   else
     Nokogiri.parse(*args)

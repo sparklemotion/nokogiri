@@ -70,7 +70,6 @@ class Nokogiri::TestCase
     end
 
     def test_transform_with_output_style
-      xslt = ""
       xslt = if Nokogiri.jruby?
         Nokogiri::XSLT(<<~eoxslt)
           <?xml version="1.0" encoding="ISO-8859-1"?>

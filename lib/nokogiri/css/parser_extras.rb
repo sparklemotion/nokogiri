@@ -48,7 +48,7 @@ module Nokogiri
         def without_cache(&block)
           original_cache_setting = cache_on?
           set_cache(false)
-          block.call
+          yield
         ensure
           set_cache(original_cache_setting)
         end
@@ -88,7 +88,7 @@ module Nokogiri
       # On CSS parser error, raise an exception
       def on_error(error_token_id, error_value, value_stack)
         after = value_stack.compact.last
-        raise SyntaxError.new("unexpected '#{error_value}' after '#{after}'")
+        raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
       end
     end
   end

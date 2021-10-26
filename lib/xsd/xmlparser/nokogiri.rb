@@ -54,7 +54,7 @@ module XSD # :nodoc:
       ###
       # Handle errors with message +msg+
       def error(msg)
-        raise ParseError.new(msg)
+        raise ParseError, msg
       end
       alias_method :warning, :error
 

@@ -57,8 +57,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       Nokogiri::XML.parse(io)
 
       loop do
-        Nokogiri::XML.parse(BadIO.new) rescue nil
-        doc.write(BadIO.new) rescue nil
+        Nokogiri::XML.parse(BadIO.new) rescue nil # rubocop:disable Style/RescueModifier
+        doc.write(BadIO.new) rescue nil # rubocop:disable Style/RescueModifier
       end
     end
 
@@ -220,7 +220,11 @@ class TestMemoryLeak < Nokogiri::TestCase
   module MemInfo
     # from https://stackoverflow.com/questions/7220896/get-current-ruby-process-memory-usage
     # this is only going to work on linux
-    PAGE_SIZE = %x(getconf PAGESIZE).chomp.to_i rescue 4096
+    PAGE_SIZE = begin
+      %x(getconf PAGESIZE).chomp.to_i
+    rescue
+      4096
+    end
     STATM_PATH = "/proc/#{Process.pid}/statm"
     STATM_FOUND = File.exist?(STATM_PATH)
 

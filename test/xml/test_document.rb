@@ -829,7 +829,6 @@ module Nokogiri
         end
 
         def test_new
-          doc = nil
           doc = Nokogiri::XML::Document.new
           assert(doc)
           assert(doc.xml?)

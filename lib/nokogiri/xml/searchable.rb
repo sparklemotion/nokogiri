@@ -205,9 +205,9 @@ module Nokogiri
         ctx.register_namespaces(ns)
         path = path.gsub(/xmlns:/, " :") unless Nokogiri.uses_libxml?
 
-        binds.each do |key, value|
+        binds&.each do |key, value|
           ctx.register_variable(key.to_s, value)
-        end if binds
+        end
 
         ctx.evaluate(path, handler)
       end

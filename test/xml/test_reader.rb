@@ -68,7 +68,7 @@ module Nokogiri
           wr.puts "<foo>"
           wr.puts "<bar/>" * 10000
           wr.flush
-        rescue Errno::EPIPE
+        rescue Errno::EPIPE # rubocop:disable Lint/SuppressedException
         end
         res = t.join(1) # give the thread a moment to finish
         wr.close

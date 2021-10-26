@@ -151,9 +151,9 @@ module Nokogiri
 
       def visit_combinator(node)
         if is_of_type_pseudo_class?(node.value.last)
-          "#{node.value.first.accept(self) if node.value.first}][#{node.value.last.accept(self)}"
+          "#{node.value.first&.accept(self)}][#{node.value.last.accept(self)}"
         else
-          "#{node.value.first.accept(self) if node.value.first} and #{node.value.last.accept(self)}"
+          "#{node.value.first&.accept(self)} and #{node.value.last.accept(self)}"
         end
       end
 

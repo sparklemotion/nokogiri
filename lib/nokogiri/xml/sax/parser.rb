@@ -116,7 +116,7 @@ module Nokogiri
 
         def check_encoding(encoding)
           encoding.upcase.tap do |enc|
-            raise ArgumentError.new("'#{enc}' is not a valid encoding") unless ENCODINGS[enc]
+            raise ArgumentError, "'#{enc}' is not a valid encoding" unless ENCODINGS[enc]
           end
         end
       end

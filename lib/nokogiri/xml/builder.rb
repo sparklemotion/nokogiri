@@ -325,7 +325,7 @@ module Nokogiri
           @doc.send(:"#{k}=", v)
         end
 
-        return unless block_given?
+        return unless block
 
         @arity = block.arity
         if @arity <= 0
@@ -395,7 +395,7 @@ module Nokogiri
       end
 
       def method_missing(method, *args, &block) # :nodoc:
-        if @context && @context.respond_to?(method)
+        if @context&.respond_to?(method)
           @context.send(method, *args, &block)
         else
           node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) do |n|
@@ -424,14 +424,14 @@ module Nokogiri
       # Insert +node+ as a child of the current Node
       def insert(node, &block)
         node = @parent.add_child(node)
-        if block_given?
+        if block
           old_parent = @parent
           @parent = node
           @arity ||= block.arity
           if @arity <= 0
             instance_eval(&block)
           else
-            block.call(self)
+            yield(self)
           end
           @parent = old_parent
         end
@@ -471,7 +471,7 @@ module Nokogiri
             @node[k.to_s] = ((@node[k.to_s] || "").split(/\s/) + [v]).join(" ")
           end
 
-          if block_given?
+          if block
             old_parent = @doc_builder.parent
             @doc_builder.parent = @node
             value = @doc_builder.instance_eval(&block)

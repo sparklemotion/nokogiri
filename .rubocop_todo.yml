@@ -27,13 +27,6 @@ Lint/MissingSuper:
     - 'test/xml/test_document.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 2
-# Configuration parameters: AllowComments, AllowNil.
-Lint/SuppressedException:
-  Exclude:
-    - 'lib/nokogiri/version/info.rb'
-    - 'test/xml/test_reader.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: ContextCreatingMethods, MethodCreatingMethods.
@@ -42,14 +35,6 @@ Lint/UselessAccessModifier:
     - 'lib/nokogiri/css/xpath_visitor.rb'
     - 'lib/nokogiri/html5.rb'
     - 'lib/nokogiri/html5/document.rb'
-
-# Offense count: 4
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'test/html4/test_document.rb'
-    - 'test/test_xslt_transforms.rb'
-    - 'test/xml/test_document.rb'
 
 # Offense count: 4
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
@@ -68,26 +53,6 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   MaxOptionalParameters: 4
 
-# Offense count: 1
-Minitest/UnreachableAssertion:
-  Exclude:
-    - 'test/xml/test_entity_reference.rb'
-
-# Offense count: 4
-# Configuration parameters: EnforcedStyle, AllowedIdentifiers.
-# SupportedStyles: snake_case, camelCase
-Naming/VariableName:
-  Exclude:
-    - 'test/xml/test_node.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Performance/BlockGivenWithExplicitBlock:
-  Exclude:
-    - 'lib/nokogiri.rb'
-    - 'lib/nokogiri/html5/document.rb'
-    - 'lib/nokogiri/xml/builder.rb'
-
 # Offense count: 4
 # Configuration parameters: MinSize.
 Performance/CollectionLiteralInLoop:
@@ -96,21 +61,6 @@ Performance/CollectionLiteralInLoop:
     - 'test/html5/test_tree-construction.rb'
     - 'test/xml/test_dtd_encoding.rb'
     - 'test/xml/test_node_reparenting.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/Count:
-  Exclude:
-    - 'test/decorators/test_slop.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/nokogiri/css/parser_extras.rb'
-    - 'lib/nokogiri/xml/builder.rb'
-    - 'lib/nokogiri/xml/node.rb'
-    - 'lib/nokogiri/xml/node_set.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -160,37 +110,6 @@ Style/ClassVars:
 Style/MissingRespondToMissing:
   Exclude:
     - 'lib/nokogiri/xml/builder.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowedCompactTypes.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'lib/nokogiri/css/parser_extras.rb'
-    - 'lib/nokogiri/html5/document.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'lib/nokogiri/xml/sax/parser.rb'
-    - 'lib/xsd/xmlparser/nokogiri.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'lib/nokogiri/html4/document.rb'
-    - 'test/test_memory_leak.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods.
-# AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/xml/builder.rb'
-    - 'lib/nokogiri/xml/node.rb'
-    - 'lib/nokogiri/xml/searchable.rb'
-    - 'test/xml/test_reader_encoding.rb'
 
 # Offense count: 85
 # Cop supports --auto-correct.

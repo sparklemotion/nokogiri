@@ -54,7 +54,7 @@ module Nokogiri
 
         if empty_doc?(string_or_io)
           if options.strict?
-            raise Nokogiri::XML::SyntaxError.new("Empty document")
+            raise Nokogiri::XML::SyntaxError, "Empty document"
           else
             return encoding ? new.tap { |i| i.encoding = encoding } : new
           end

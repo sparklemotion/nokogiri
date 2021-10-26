@@ -214,7 +214,7 @@ module Nokogiri
 
         hash.each do |k, v|
           each do |node|
-            node[k] = v || block.call(node)
+            node[k] = v || yield(node)
           end
         end
 

@@ -269,7 +269,11 @@ module Nokogiri
           else
             handler = SAXHandler.new
             parser = Nokogiri::HTML4::SAX::PushParser.new(handler)
-            parser << chunk rescue Nokogiri::SyntaxError
+            begin
+              parser << chunk
+            rescue
+              Nokogiri::SyntaxError
+            end
             handler.encoding
           end
         end
