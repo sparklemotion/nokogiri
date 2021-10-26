@@ -103,8 +103,8 @@ module Nokogiri
             ldflags = []
 
             if libxml2_using_packaged?
-              cppflags << "-I#{File.join(header_directory, 'include').shellescape}"
-              cppflags << "-I#{File.join(header_directory, 'include/libxml2').shellescape}"
+              cppflags << "-I#{File.join(header_directory, "include").shellescape}"
+              cppflags << "-I#{File.join(header_directory, "include/libxml2").shellescape}"
 
               if windows?
                 # on windows, nokogumbo needs to link against nokogiri.so to resolve symbols. see #2167

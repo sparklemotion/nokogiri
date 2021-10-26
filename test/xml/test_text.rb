@@ -11,48 +11,48 @@ module Nokogiri
       end
 
       def test_inspect
-        node = Text.new('hello world', Document.new)
-        assert_equal "#<#{node.class.name}:#{sprintf("0x%x", node.object_id)} #{node.text.inspect}>", node.inspect
+        node = Text.new("hello world", Document.new)
+        assert_equal "#<#{node.class.name}:#{format("0x%x", node.object_id)} #{node.text.inspect}>", node.inspect
       end
 
       def test_new
-        node = Text.new('hello world', Document.new)
+        node = Text.new("hello world", Document.new)
         assert node
-        assert_equal('hello world', node.content)
+        assert_equal("hello world", node.content)
         assert_instance_of Nokogiri::XML::Text, node
       end
 
       def test_lots_of_text
-        100.times { Text.new('hello world', Document.new) }
+        100.times { Text.new("hello world", Document.new) }
       end
 
       def test_new_without_document
         doc = Document.new
-        node = Nokogiri::XML::Element.new('foo', doc)
+        node = Nokogiri::XML::Element.new("foo", doc)
 
-        assert Text.new('hello world', node)
+        assert Text.new("hello world", node)
       end
 
       def test_content=
-        node = Text.new('foo', Document.new)
-        assert_equal('foo', node.content)
-        node.content = '& <foo> &amp;'
-        assert_equal('& <foo> &amp;', node.content)
-        assert_equal('&amp; &lt;foo&gt; &amp;amp;', node.to_xml)
+        node = Text.new("foo", Document.new)
+        assert_equal("foo", node.content)
+        node.content = "& <foo> &amp;"
+        assert_equal("& <foo> &amp;", node.content)
+        assert_equal("&amp; &lt;foo&gt; &amp;amp;", node.to_xml)
       end
 
       def test_add_child
-        node = Text.new('foo', Document.new)
+        node = Text.new("foo", Document.new)
         if Nokogiri.jruby?
           exc = RuntimeError
         else
           exc = ArgumentError
         end
         assert_raises(exc) do
-          node.add_child Text.new('bar', Document.new)
+          node.add_child Text.new("bar", Document.new)
         end
         assert_raises(exc) do
-          node << Text.new('bar', Document.new)
+          node << Text.new("bar", Document.new)
         end
       end
 
@@ -61,8 +61,8 @@ module Nokogiri
         doc = Nokogiri::XML(xml)
         text = doc.at_css("div").children.first
         text.wrap("<wrapper/>")
-        assert_equal 'wrapper', text.parent.name
-        assert_equal 'wrapper', doc.at_css("div").children.first.name
+        assert_equal "wrapper", text.parent.name
+        assert_equal "wrapper", doc.at_css("div").children.first.name
       end
     end
   end

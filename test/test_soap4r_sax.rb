@@ -27,7 +27,7 @@ module XSD
   end
 end
 
-require 'xsd/xmlparser/nokogiri'
+require "xsd/xmlparser/nokogiri"
 
 class TestSoap4rSax < Nokogiri::TestCase
   def test_factory_added
@@ -46,8 +46,8 @@ class TestSoap4rSax < Nokogiri::TestCase
       def start_element *args
         @element_started = true
       end
-    end.new 'foo'
+    end.new "foo"
     o.do_parse '<?xml version="1.0" ?><root xmlns="http://example.com/"/>'
-    assert o.element_started, 'element started'
+    assert o.element_started, "element started"
   end
 end

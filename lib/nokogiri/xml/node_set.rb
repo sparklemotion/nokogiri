@@ -256,14 +256,14 @@ module Nokogiri
       #
       # See Nokogiri::XML::Node#content for more information.
       def inner_text
-        collect(&:inner_text).join('')
+        collect(&:inner_text).join("")
       end
       alias :text :inner_text
 
       ###
       # Get the inner html of all contained Node objects
       def inner_html *args
-        collect { |j| j.inner_html(*args) }.join('')
+        collect { |j| j.inner_html(*args) }.join("")
       end
 
       ###
@@ -360,12 +360,12 @@ module Nokogiri
       ###
       # Return a nicely formated string representation
       def inspect
-        "[#{map(&:inspect).join ', '}]"
+        "[#{map(&:inspect).join ", "}]"
       end
 
       alias :+ :|
 
-      IMPLIED_XPATH_CONTEXTS = ['.//'.freeze, 'self::'.freeze].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = [".//".freeze, "self::".freeze].freeze # :nodoc:
     end
   end
 end

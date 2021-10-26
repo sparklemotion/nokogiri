@@ -297,23 +297,23 @@ end
 if java?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
-    jruby_home = RbConfig::CONFIG['prefix']
-    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
+    jruby_home = RbConfig::CONFIG["prefix"]
+    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList["lib/*.jar"]
 
     # Keep the extension C files because they have docstrings (and Java files don't)
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
     ext.gem_spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
 
-    ext.ext_dir = 'ext/java'
-    ext.lib_dir = 'lib/nokogiri'
-    ext.source_version = '1.7'
-    ext.target_version = '1.7'
-    ext.classpath = jars.map { |x| File.expand_path x }.join ':'
-    ext.debug = true if ENV['JAVA_DEBUG']
+    ext.ext_dir = "ext/java"
+    ext.lib_dir = "lib/nokogiri"
+    ext.source_version = "1.7"
+    ext.target_version = "1.7"
+    ext.classpath = jars.map { |x| File.expand_path x }.join ":"
+    ext.debug = true if ENV["JAVA_DEBUG"]
   end
 
   task gem_build_path => [:compile] do
-    add_file_to_gem 'lib/nokogiri/nokogiri.jar'
+    add_file_to_gem "lib/nokogiri/nokogiri.jar"
   end
 else
   require "rake/extensiontask"
@@ -329,10 +329,10 @@ else
       add_file_to_gem archive
 
       patchesdir = File.join("patches", lib)
-      patches = %x(#{['git', 'ls-files', patchesdir].shelljoin}).split("\n").grep(/\.patch\z/)
+      patches = %x(#{["git", "ls-files", patchesdir].shelljoin}).split("\n").grep(/\.patch\z/)
       patches.each { |patch| add_file_to_gem patch }
 
-      untracked = Dir[File.join(patchesdir, '*.patch')] - patches
+      untracked = Dir[File.join(patchesdir, "*.patch")] - patches
       at_exit do
         untracked.each { |patch| puts "** WARNING: untracked patch file not added to gem: #{patch}" }
       end
@@ -343,15 +343,15 @@ else
     ext.source_pattern = "*.{c,cc,cpp,h}"
     ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
-    ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
-    ext.config_options << ENV['EXTOPTS']
+    ext.lib_dir = File.join(*["lib", "nokogiri", ENV["FAT_DIR"]].compact)
+    ext.config_options << ENV["EXTOPTS"]
     ext.cross_compile  = true
     ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
     ext.cross_config_options << "--enable-cross-build"
     ext.cross_compiling do |spec|
-      spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      spec.files.reject! { |path| File.fnmatch?("ports/*", path) }
       spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
-      spec.dependencies.reject! { |dep| dep.name == 'mini_portile2' }
+      spec.dependencies.reject! { |dep| dep.name == "mini_portile2" }
 
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
       # which were copied there in the $INSTALLFILES section of extconf.rb.

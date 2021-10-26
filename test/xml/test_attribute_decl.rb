@@ -20,7 +20,7 @@ module Nokogiri
 
       def test_inspect
         assert_equal(
-          "#<#{@attr_decl.class.name}:#{sprintf("0x%x", @attr_decl.object_id)} #{@attr_decl.to_s.inspect}>",
+          "#<#{@attr_decl.class.name}:#{format("0x%x", @attr_decl.object_id)} #{@attr_decl.to_s.inspect}>",
           @attr_decl.inspect
         )
       end
@@ -67,18 +67,18 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           assert_equal 1, @attr_decl.attribute_type
         else
-          assert_equal 'CDATA', @attr_decl.attribute_type
+          assert_equal "CDATA", @attr_decl.attribute_type
         end
       end
 
       def test_default
-        assert_equal '0', @attr_decl.default
-        assert_equal '0', @attrs[1].default
+        assert_equal "0", @attr_decl.default
+        assert_equal "0", @attrs[1].default
       end
 
       def test_enumeration
         assert_equal [], @attr_decl.enumeration
-        assert_equal ['check', 'cash'], @attrs[2].enumeration
+        assert_equal ["check", "cash"], @attrs[2].enumeration
       end
     end
   end

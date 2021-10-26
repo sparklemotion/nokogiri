@@ -23,8 +23,8 @@ module Nokogiri
 
       ###
       # Convert this CSS node to xpath with +prefix+ using +visitor+
-      def to_xpath prefix = '//', visitor = XPathVisitor.new
-        prefix = '.' if ALLOW_COMBINATOR_ON_SELF.include?(type) && value.first.nil?
+      def to_xpath prefix = "//", visitor = XPathVisitor.new
+        prefix = "." if ALLOW_COMBINATOR_ON_SELF.include?(type) && value.first.nil?
         prefix + visitor.accept(self)
       end
 

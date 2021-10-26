@@ -92,7 +92,7 @@ class TestHtml5API < Nokogiri::TestCase
     assert_match("ฉันไม่พูดภาษาไทย", html2)
   end
 
-  ['pre', 'listing', 'textarea'].each do |tag|
+  ["pre", "listing", "textarea"].each do |tag|
     define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
       doc = Nokogiri::HTML5("<!DOCTYPE html><#{tag}>\n\nContent</#{tag}>")
       html = doc.at("/html/body/#{tag}").serialize(preserve_newline: true)

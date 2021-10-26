@@ -38,7 +38,7 @@ module Nokogiri
             Paragraph 1
             </p></body></html>
           eoxml
-          assert_equal([' This is a comment '], @parser.document.comments)
+          assert_equal([" This is a comment "], @parser.document.comments)
           @parser.finish
         end
 
@@ -52,7 +52,7 @@ module Nokogiri
               Paragraph 1
             </p>
           eoxml
-          assert_equal([' This is a comment '], @parser.document.comments)
+          assert_equal([" This is a comment "], @parser.document.comments)
           @parser.finish
         end
 
@@ -64,7 +64,7 @@ module Nokogiri
             </p>
           eoxml
           @parser.finish
-          assert_equal([' This is a comment '], @parser.document.comments)
+          assert_equal([" This is a comment "], @parser.document.comments)
         end
 
         def test_default_options

@@ -12,7 +12,7 @@ module Nokogiri
     module Searchable
       # Regular expression used by Searchable#search to determine if a query
       # string is CSS or XPath
-      LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
+      LOOKS_LIKE_XPATH = %r{^(\./|/|\.\.|\.$)}
 
       # :section: Searching via XPath or CSS Queries
 

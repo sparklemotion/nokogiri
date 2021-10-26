@@ -41,7 +41,7 @@ module Nokogiri
       ###
       # return the name for DocumentFragment
       def name
-        '#document-fragment'
+        "#document-fragment"
       end
 
       ###
@@ -152,8 +152,8 @@ module Nokogiri
       def namespace_declarations ctx
         ctx.namespace_scopes.map do |namespace|
           prefix = namespace.prefix.nil? ? "" : ":#{namespace.prefix}"
-          %Q{xmlns#{prefix}="#{namespace.href}"}
-        end.join ' '
+          %{xmlns#{prefix}="#{namespace.href}"}
+        end.join " "
       end
     end
   end

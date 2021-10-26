@@ -198,7 +198,7 @@ module Nokogiri
         valid_doc = Nokogiri::XML(File.read(PO_XML_FILE))
 
         invalid_doc = Nokogiri::XML(
-          File.read(PO_XML_FILE).gsub(/<city>[^<]*<\/city>/, "")
+          File.read(PO_XML_FILE).gsub(%r{<city>[^<]*</city>}, "")
         )
 
         assert(@xsd.valid?(valid_doc))

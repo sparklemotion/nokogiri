@@ -13,12 +13,12 @@ module Nokogiri
 
         def test_parse_empty_document
           # This caused a segfault in libxml 2.6.x
-          assert_nil @parser.parse ''
+          assert_nil @parser.parse ""
         end
 
         def test_parse_empty_file
           # Make sure empty files don't break stuff
-          empty_file_name = File.join(ASSETS_DIR, 'bogus.xml')
+          empty_file_name = File.join(ASSETS_DIR, "bogus.xml")
           @parser.parse_file empty_file_name # assert_nothing_raised
         end
 
@@ -42,7 +42,7 @@ module Nokogiri
 
         def test_parse_file_non_existant
           assert_raise Errno::ENOENT do
-            @parser.parse_file('there_is_no_reasonable_way_this_file_exists')
+            @parser.parse_file("there_is_no_reasonable_way_this_file_exists")
           end
         end
 
@@ -59,7 +59,7 @@ module Nokogiri
         end
 
         def test_parse_force_encoding
-          @parser.parse_memory(<<-HTML, 'UTF-8')
+          @parser.parse_memory(<<-HTML, "UTF-8")
           <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
           Информация
           HTML
@@ -116,17 +116,17 @@ module Nokogiri
           end
 
           assert_equal [
-            ['html', []],
-            ['head', []],
-            ['title', []],
-            ['body', []],
-            ['img', [
-              ['src', 'face.jpg'],
-              ['title', 'daddy & me'],
+            ["html", []],
+            ["head", []],
+            ["title", []],
+            ["body", []],
+            ["img", [
+              ["src", "face.jpg"],
+              ["title", "daddy & me"],
             ],],
-            ['hr', [
+            ["hr", [
               noshade_value,
-              ['size', '2'],
+              ["size", "2"],
             ],],
           ], @parser.document.start_elements
         end

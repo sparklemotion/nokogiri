@@ -12,28 +12,28 @@
 #   - "stress" - run tests with GC.stress set to true
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
-require 'simplecov'
+require "simplecov"
 SimpleCov.start do
   add_filter "/test/"
 end
 
 $VERBOSE = true
 
-require 'minitest/autorun'
-require 'minitest/reporters'
+require "minitest/autorun"
+require "minitest/reporters"
 NOKOGIRI_MINITEST_REPORTERS_OPTIONS = { color: true, slow_count: 10, detailed_skip: false }
 NOKOGIRI_MINITEST_REPORTERS_OPTIONS[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
 puts "Minitest::Reporters options: #{NOKOGIRI_MINITEST_REPORTERS_OPTIONS}"
 Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(NOKOGIRI_MINITEST_REPORTERS_OPTIONS))
 
-require 'fileutils'
-require 'tempfile'
-require 'pp'
-require 'yaml'
+require "fileutils"
+require "tempfile"
+require "pp"
+require "yaml"
 
-require 'nokogiri'
+require "nokogiri"
 
-if ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY']
+if ENV["TEST_NOKOGIRI_WITH_LIBXML_RUBY"]
   #
   #  if you'd like to test with the libxml-ruby gem loaded, it's
   #  recommended that you set
@@ -43,7 +43,7 @@ if ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY']
   #  which will a) bundle that gem, and b) set the appropriate env var to
   #  trigger this block
   #
-  require 'libxml'
+  require "libxml"
   warn "#{__FILE__}:#{__LINE__}: loaded libxml-ruby '#{LibXML::XML::VERSION}'"
 end
 
@@ -52,35 +52,35 @@ warn Nokogiri::VERSION_INFO.to_yaml
 
 module Nokogiri
   class TestCase < MiniTest::Spec
-    ASSETS_DIR           = File.expand_path(File.join(File.dirname(__FILE__), 'files'))
-    ADDRESS_SCHEMA_FILE  = File.join(ASSETS_DIR, 'address_book.rlx')
-    ADDRESS_XML_FILE     = File.join(ASSETS_DIR, 'address_book.xml')
-    ENCODING_HTML_FILE   = File.join(ASSETS_DIR, 'encoding.html')
-    ENCODING_XHTML_FILE  = File.join(ASSETS_DIR, 'encoding.xhtml')
-    EXML_FILE            = File.join(ASSETS_DIR, 'exslt.xml')
-    EXSLT_FILE           = File.join(ASSETS_DIR, 'exslt.xslt')
-    HTML_FILE            = File.join(ASSETS_DIR, 'tlm.html')
-    METACHARSET_FILE     = File.join(ASSETS_DIR, 'metacharset.html')
-    NICH_FILE            = File.join(ASSETS_DIR, '2ch.html')
-    NOENCODING_FILE      = File.join(ASSETS_DIR, 'noencoding.html')
-    PO_SCHEMA_FILE       = File.join(ASSETS_DIR, 'po.xsd')
-    PO_XML_FILE          = File.join(ASSETS_DIR, 'po.xml')
-    SHIFT_JIS_HTML       = File.join(ASSETS_DIR, 'shift_jis.html')
-    SHIFT_JIS_NO_CHARSET = File.join(ASSETS_DIR, 'shift_jis_no_charset.html')
-    SHIFT_JIS_XML        = File.join(ASSETS_DIR, 'shift_jis.xml')
-    SNUGGLES_FILE        = File.join(ASSETS_DIR, 'snuggles.xml')
-    XML_FILE             = File.join(ASSETS_DIR, 'staff.xml')
-    XML_XINCLUDE_FILE    = File.join(ASSETS_DIR, 'xinclude.xml')
-    XML_ATOM_FILE        = File.join(ASSETS_DIR, 'atom.xml')
-    XSLT_FILE            = File.join(ASSETS_DIR, 'staff.xslt')
-    XPATH_FILE           = File.join(ASSETS_DIR, 'slow-xpath.xml')
+    ASSETS_DIR           = File.expand_path(File.join(File.dirname(__FILE__), "files"))
+    ADDRESS_SCHEMA_FILE  = File.join(ASSETS_DIR, "address_book.rlx")
+    ADDRESS_XML_FILE     = File.join(ASSETS_DIR, "address_book.xml")
+    ENCODING_HTML_FILE   = File.join(ASSETS_DIR, "encoding.html")
+    ENCODING_XHTML_FILE  = File.join(ASSETS_DIR, "encoding.xhtml")
+    EXML_FILE            = File.join(ASSETS_DIR, "exslt.xml")
+    EXSLT_FILE           = File.join(ASSETS_DIR, "exslt.xslt")
+    HTML_FILE            = File.join(ASSETS_DIR, "tlm.html")
+    METACHARSET_FILE     = File.join(ASSETS_DIR, "metacharset.html")
+    NICH_FILE            = File.join(ASSETS_DIR, "2ch.html")
+    NOENCODING_FILE      = File.join(ASSETS_DIR, "noencoding.html")
+    PO_SCHEMA_FILE       = File.join(ASSETS_DIR, "po.xsd")
+    PO_XML_FILE          = File.join(ASSETS_DIR, "po.xml")
+    SHIFT_JIS_HTML       = File.join(ASSETS_DIR, "shift_jis.html")
+    SHIFT_JIS_NO_CHARSET = File.join(ASSETS_DIR, "shift_jis_no_charset.html")
+    SHIFT_JIS_XML        = File.join(ASSETS_DIR, "shift_jis.xml")
+    SNUGGLES_FILE        = File.join(ASSETS_DIR, "snuggles.xml")
+    XML_FILE             = File.join(ASSETS_DIR, "staff.xml")
+    XML_XINCLUDE_FILE    = File.join(ASSETS_DIR, "xinclude.xml")
+    XML_ATOM_FILE        = File.join(ASSETS_DIR, "atom.xml")
+    XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
+    XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
 
     unless Nokogiri.jruby?
-      GC_LEVEL = if ["stress", "major", "minor", "normal"].include?(ENV['NOKOGIRI_TEST_GC_LEVEL'])
-        ENV['NOKOGIRI_TEST_GC_LEVEL']
-      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "compact") && defined?(GC.compact)
+      GC_LEVEL = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
+        ENV["NOKOGIRI_TEST_GC_LEVEL"]
+      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
         "compact"
-      elsif (ENV['NOKOGIRI_TEST_GC_LEVEL'] == "verify") && defined?(GC.verify_compaction_references)
+      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
         "verify"
       else
         defined?(GC.compact) ? "compact" : "major"
@@ -173,7 +173,7 @@ module Nokogiri
       end
       assert(nodes.length > 0)
       nodes.each do |node|
-        len = node.content.gsub(/[\r\n]/, '').length
+        len = node.content.gsub(/[\r\n]/, "").length
         assert_equal(0, len % amount, message)
       end
     end

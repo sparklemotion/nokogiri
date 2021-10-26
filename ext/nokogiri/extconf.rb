@@ -461,7 +461,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
     end
 
     if RbConfig::CONFIG["target_cpu"] == "universal"
-      ['CFLAGS', 'LDFLAGS'].each do |key|
+      ["CFLAGS", "LDFLAGS"].each do |key|
         unless env[key].include?("-arch")
           env[key] = concat_flags(env[key], RbConfig::CONFIG["ARCH_FLAG"])
         end
@@ -486,7 +486,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
         message("The following patches are being applied:\n")
 
         recipe.patch_files.each do |patch|
-          message("  - %s\n" % File.basename(patch))
+          message(format("  - %s\n", File.basename(patch)))
         end
       end
 

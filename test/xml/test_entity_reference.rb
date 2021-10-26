@@ -9,12 +9,12 @@ module Nokogiri
       end
 
       def test_new
-        assert ref = EntityReference.new(@xml, 'ent4')
+        assert ref = EntityReference.new(@xml, "ent4")
         assert_instance_of EntityReference, ref
       end
 
       def test_many_references
-        100.times { EntityReference.new(@xml, 'foo') }
+        100.times { EntityReference.new(@xml, "foo") }
       end
 
       def test_newline_node
@@ -25,7 +25,7 @@ module Nokogiri
         EOF
         doc = Nokogiri::XML xml
         lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
-        doc.xpath('/item').first.add_child(lf_node)
+        doc.xpath("/item").first.add_child(lf_node)
         assert_match(/&#xa;/, doc.to_xml)
       end
 
@@ -42,12 +42,12 @@ module Nokogiri
     end
 
     module Common
-      PATH = 'test/files/test_document_url/'
+      PATH = "test/files/test_document_url/"
 
       attr_accessor :path, :parser
 
       def xml_document
-        File.join path, 'document.xml'
+        File.join path, "document.xml"
       end
 
       def self.included base
@@ -89,7 +89,7 @@ module Nokogiri
           cfg.noent
         end
         assert_equal [], doc.errors
-        assert_equal "foobar", doc.xpath('//blah').text
+        assert_equal "foobar", doc.xpath("//blah").text
       end
 
       test_relative_and_absolute_path :test_dom_entity_reference_with_dtdvalid do
@@ -101,12 +101,12 @@ module Nokogiri
           cfg.noent
         end
         assert_equal [], doc.errors
-        assert_equal "foobar", doc.xpath('//blah').text
+        assert_equal "foobar", doc.xpath("//blah").text
       end
 
       test_absolute_path :test_dom_dtd_loading_with_absolute_path do
         # Make sure that we can parse entity references and include them in the document
-        html = %Q[<?xml version="1.0" encoding="UTF-8" ?>
+        html = %[<?xml version="1.0" encoding="UTF-8" ?>
                   <!DOCTYPE document SYSTEM "#{path}/document.dtd">
                     <document>
                       <body>&bar;</body>
@@ -118,7 +118,7 @@ module Nokogiri
           cfg.noent
         end
         assert_equal [], doc.errors
-        assert_equal "foobar", doc.xpath('//blah').text
+        assert_equal "foobar", doc.xpath("//blah").text
       end
 
       test_relative_and_absolute_path :test_dom_entity_reference_with_io do
@@ -130,7 +130,7 @@ module Nokogiri
           cfg.noent
         end
         assert_equal [], doc.errors
-        assert_equal "foobar", doc.xpath('//blah').text
+        assert_equal "foobar", doc.xpath("//blah").text
       end
 
       test_relative_and_absolute_path :test_dom_entity_reference_without_noent do
@@ -141,7 +141,7 @@ module Nokogiri
           cfg.dtdload
         end
         assert_equal [], doc.errors
-        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath('//body').first.children.first
+        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
       end
 
       test_relative_and_absolute_path :test_dom_entity_reference_without_dtdload do
@@ -150,7 +150,7 @@ module Nokogiri
         doc = @parser.parse html, path do |cfg|
           cfg.default_xml
         end
-        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath('//body').first.children.first
+        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
         if Nokogiri.uses_libxml?
           assert_equal ["5:14: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
         end
@@ -158,7 +158,7 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_document_dtd_loading_with_nonet do
         # Make sure that we don't include remote entities unless NOENT is set to true
-        html = %Q[<?xml version="1.0" encoding="UTF-8" ?>
+        html = %[<?xml version="1.0" encoding="UTF-8" ?>
                   <!DOCTYPE document SYSTEM "http://foo.bar.com/">
                     <document>
                       <body>&bar;</body>
@@ -168,7 +168,7 @@ module Nokogiri
           cfg.default_xml
           cfg.dtdload
         end
-        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath('//body').first.children.first
+        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
         if Nokogiri.uses_libxml?
           assert_equal ["ERROR: Attempt to load network entity http://foo.bar.com/", "4:34: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
         else
@@ -198,7 +198,7 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_more_sax_entity_reference do
         # Make sure that we don't include entity references unless NOENT is set to true
-        html = %Q[<?xml version="1.0" encoding="UTF-8" ?>
+        html = %[<?xml version="1.0" encoding="UTF-8" ?>
                   <!DOCTYPE document SYSTEM "http://foo.bar.com/">
                     <document>
                       <body>&bar;</body>
@@ -227,7 +227,7 @@ module Nokogiri
         end
         nodes = []
         reader.each { |n| nodes << n.value }
-        assert_equal ['foobar'], nodes.compact.map(&:strip).reject(&:empty?)
+        assert_equal ["foobar"], nodes.compact.map(&:strip).reject(&:empty?)
       end
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_noent do

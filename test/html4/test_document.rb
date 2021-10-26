@@ -496,8 +496,8 @@ module Nokogiri
 
         def test_find_by_css_with_escaped_characters
           found_without_escape = html.css("div[@id='abc.123']")
-          found_by_id = html.css('#abc\.123')
-          found_by_class = html.css('.special\.character')
+          found_by_id = html.css("#abc\\.123")
+          found_by_class = html.css(".special\\.character")
           assert_equal(1, found_without_escape.length)
           assert_equal(found_by_id, found_without_escape)
           assert_equal(found_by_class, found_without_escape)

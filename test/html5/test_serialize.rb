@@ -48,7 +48,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
     assert_equal(expected, inner.inner_html)
   end
 
-  ['pre', 'textarea', 'listing'].each do |tag|
+  ["pre", "textarea", "listing"].each do |tag|
     define_method("test_initial_linefeed_#{tag}1".to_sym) do
       elem = initial_linefeed_pre.at("//*[@id=\"#{tag}1\"]")
       refute_nil elem
@@ -347,7 +347,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
     # TODO: Processing instructions
   ]
 
-  TEXT_ELEMENTS = ['pre', 'textarea', 'listing']
+  TEXT_ELEMENTS = ["pre", "textarea", "listing"]
   TEXT_TESTS = [
     ["<%text> context starting with U+000A",
      lambda do |tag|

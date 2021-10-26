@@ -10,26 +10,26 @@ module Nokogiri
         let(:html) { Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) }
 
         def test_ascii_8bit_encoding
-          s = String.new('hello')
+          s = String.new("hello")
           s.force_encoding(::Encoding::ASCII_8BIT)
           assert_equal("hello", Nokogiri::HTML::DocumentFragment.parse(s).to_html)
         end
 
         def test_inspect_encoding
-          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
           f = Nokogiri::HTML::DocumentFragment.parse(fragment)
           assert_equal("こんにちは！", f.content)
         end
 
         def test_html_parse_encoding
-          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
           f = Nokogiri::HTML.fragment(fragment)
-          assert_equal('EUC-JP', f.document.encoding)
+          assert_equal("EUC-JP", f.document.encoding)
           assert_equal("こんにちは！", f.content)
         end
 
         def test_unlink_empty_document
-          frag = Nokogiri::HTML::DocumentFragment.parse('').unlink # must_not_raise
+          frag = Nokogiri::HTML::DocumentFragment.parse("").unlink # must_not_raise
           assert_nil(frag.parent)
         end
 
@@ -40,27 +40,27 @@ module Nokogiri
 
         def test_parse_encoding
           fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML::DocumentFragment.parse(fragment, 'ISO-8859-1')
-          assert_equal('ISO-8859-1', f.document.encoding)
+          f = Nokogiri::HTML::DocumentFragment.parse(fragment, "ISO-8859-1")
+          assert_equal("ISO-8859-1", f.document.encoding)
           assert_equal("hello world", f.content)
         end
 
         def test_html_parse_with_encoding
           fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML.fragment(fragment, 'ISO-8859-1')
-          assert_equal('ISO-8859-1', f.document.encoding)
+          f = Nokogiri::HTML.fragment(fragment, "ISO-8859-1")
+          assert_equal("ISO-8859-1", f.document.encoding)
           assert_equal("hello world", f.content)
         end
 
         def test_parse_in_context
-          assert_equal('<br>', html.root.parse('<br />').to_s)
+          assert_equal("<br>", html.root.parse("<br />").to_s)
         end
 
         def test_inner_html=
-          fragment = Nokogiri::HTML.fragment('<hr />')
+          fragment = Nokogiri::HTML.fragment("<hr />")
 
           fragment.inner_html = "hello"
-          assert_equal('hello', fragment.inner_html)
+          assert_equal("hello", fragment.inner_html)
         end
 
         def test_ancestors_search
@@ -72,15 +72,15 @@ module Nokogiri
             </div>
           EOF
           fragment = Nokogiri::HTML.fragment(html)
-          li = fragment.at('li')
-          assert(li.matches?('li'))
+          li = fragment.at("li")
+          assert(li.matches?("li"))
         end
 
         def test_fun_encoding
           string = %(<body>こんにちは</body>)
           html = Nokogiri::HTML::DocumentFragment.parse(
             string
-          ).to_html(encoding: 'UTF-8')
+          ).to_html(encoding: "UTF-8")
           assert_equal(string, html)
         end
 
@@ -115,7 +115,7 @@ module Nokogiri
 
         def test_name
           fragment = Nokogiri::HTML::DocumentFragment.new(html)
-          assert_equal('#document-fragment', fragment.name)
+          assert_equal("#document-fragment", fragment.name)
         end
 
         def test_static_method

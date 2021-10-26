@@ -18,25 +18,25 @@
 # current stable version. Version 7 changes some stuff but what, precisely,
 # isn't documented yet.
 
-require 'psych'
-require 'open-uri'
+require "psych"
+require "open-uri"
 
-ENTITIES_URL = 'https://html.spec.whatwg.org/entities.json'
+ENTITIES_URL = "https://html.spec.whatwg.org/entities.json"
 ACCEPTABLE_CODEPOINTS_LENGTHS = [1, 2]
 
 # Modify the json to remove the characters item because it contains surrogate
 # pairs that Psych errors on.
 entities = URI.parse(ENTITIES_URL).read
-entities.gsub!(/, "characters"[^}]*/, '')
+entities.gsub!(/, "characters"[^}]*/, "")
 entities = Psych.safe_load(entities)
 
 without_semicolon = {}
 with_semicolon = {}
 entities.each do |key, val|
-  if key.end_with?(';')
-    with_semicolon[key[1..-1]] = val['codepoints']
+  if key.end_with?(";")
+    with_semicolon[key[1..-1]] = val["codepoints"]
   else
-    without_semicolon[key[1..-1]] = val['codepoints']
+    without_semicolon[key[1..-1]] = val["codepoints"]
   end
 end
 
@@ -68,7 +68,7 @@ with_semicolon.each do |entity, codepoints|
   else
     "'#{entity}'"
   end
-  code = codepoints.map.with_index { |cp, idx| sprintf("output[%d]=%#04x", idx, cp) }
+  code = codepoints.map.with_index { |cp, idx| format("output[%d]=%#04x", idx, cp) }
   puts("  #{pattern} => {#{code.join("; ")}; fbreak;};")
 end
 puts(<<~EOF)

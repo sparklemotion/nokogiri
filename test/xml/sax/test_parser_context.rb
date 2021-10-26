@@ -59,7 +59,7 @@ world
         end
 
         def test_replace_entities
-          pc = ParserContext.new StringIO.new('<root />'), 'UTF-8'
+          pc = ParserContext.new StringIO.new("<root />"), "UTF-8"
           pc.replace_entities = false
           assert_equal false, pc.replace_entities
 
@@ -68,7 +68,7 @@ world
         end
 
         def test_recovery
-          pc = ParserContext.new StringIO.new('<root />'), 'UTF-8'
+          pc = ParserContext.new StringIO.new("<root />"), "UTF-8"
           pc.recovery = false
           assert_equal false, pc.recovery
 
@@ -77,16 +77,16 @@ world
         end
 
         def test_from_io
-          ctx = ParserContext.new StringIO.new('fo'), 'UTF-8'
+          ctx = ParserContext.new StringIO.new("fo"), "UTF-8"
           assert ctx
         end
 
         def test_from_string
-          assert ParserContext.new 'blah blah'
+          assert ParserContext.new "blah blah"
         end
 
         def test_parse_with
-          ctx = ParserContext.new 'blah'
+          ctx = ParserContext.new "blah"
           assert_raises ArgumentError do
             ctx.parse_with nil
           end

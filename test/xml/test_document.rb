@@ -198,22 +198,22 @@ module Nokogiri
         end
 
         def test_create_element_with_namespace
-          elm = xml.create_element("foo", 'xmlns:foo': "http://tenderlovemaking.com")
+          elm = xml.create_element("foo", "xmlns:foo": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:foo"])
         end
 
         def test_create_element_with_hyphenated_namespace
-          elm = xml.create_element("foo", 'xmlns:SOAP-ENC': "http://tenderlovemaking.com")
+          elm = xml.create_element("foo", "xmlns:SOAP-ENC": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:SOAP-ENC"])
         end
 
         def test_create_element_with_invalid_namespace
           if Nokogiri.jruby?
             assert_raises(Java::OrgW3cDom::DOMException) do
-              xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+              xml.create_element("foo", "xmlns:SOAP!ENC": "http://tenderlovemaking.com")
             end
           else
-            elm = xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+            elm = xml.create_element("foo", "xmlns:SOAP!ENC": "http://tenderlovemaking.com")
             refute_includes(elm.namespaces.keys, "xmlns:SOAP!ENC")
           end
         end
@@ -382,13 +382,13 @@ module Nokogiri
           doc = Nokogiri::XML("<root>")
 
           node_set = doc.root.prepend_child("<branch/>")
-          assert_equal(['branch'], node_set.map(&:name))
+          assert_equal(["branch"], node_set.map(&:name))
 
           branch = doc.at("//branch")
 
-          leaves = ['leaf1', 'leaf2', 'leaf3']
+          leaves = ["leaf1", "leaf2", "leaf3"]
           leaves.each do |name|
-            branch.prepend_child("<%s/>" % name)
+            branch.prepend_child(format("<%s/>", name))
           end
           assert_equal(leaves.length, branch.children.length)
           assert_equal(leaves.reverse, branch.children.map(&:name))

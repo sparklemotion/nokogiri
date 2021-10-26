@@ -24,14 +24,14 @@ module Nokogiri
       def test_inspect
         e = @elements.first
         assert_equal(
-          "#<#{e.class.name}:#{sprintf("0x%x", e.object_id)} #{e.to_s.inspect}>",
+          "#<#{e.class.name}:#{format("0x%x", e.object_id)} #{e.to_s.inspect}>",
           e.inspect
         )
       end
 
       def test_prefix
         assert_nil @elements[1].prefix
-        assert_equal 'my', @elements[2].prefix
+        assert_equal "my", @elements[2].prefix
       end
 
       def test_line
@@ -66,7 +66,7 @@ module Nokogiri
 
       def test_attributes
         assert_equal 2, @elements.first.attribute_nodes.length
-        assert_equal 'width', @elements.first.attribute_nodes.first.name
+        assert_equal "width", @elements.first.attribute_nodes.first.name
       end
     end
   end

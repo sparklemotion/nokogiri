@@ -29,24 +29,24 @@ class TestMemoryLeak < Nokogiri::TestCase
   #  which is an open issue to resurrect these tests and run them as
   #  part of the CI pipeline.
   #
-  if ENV['NOKOGIRI_GC'] # turning these off by default for now
+  if ENV["NOKOGIRI_GC"] # turning these off by default for now
     def test_dont_hurt_em_why
       content = File.open("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml").read
       ndoc = Nokogiri::XML(content)
       2.times do
-        ndoc.search('status text').first.inner_text
-        ndoc.search('user name').first.inner_text
+        ndoc.search("status text").first.inner_text
+        ndoc.search("user name").first.inner_text
         GC.start
       end
     end
 
     class BadIO
       def read(*args)
-        raise 'hell'
+        raise "hell"
       end
 
       def write(*args)
-        raise 'chickens'
+        raise "chickens"
       end
     end
 
@@ -63,8 +63,8 @@ class TestMemoryLeak < Nokogiri::TestCase
     def test_for_memory_leak
       #  we don't use Dike in any tests, but requiring it has side effects
       #  that can create memory leaks, and that's what we're testing for.
-      require 'rubygems'
-      require 'dike' # do not remove!
+      require "rubygems"
+      require "dike" # do not remove!
 
       count_start = count_object_space_documents
       xml_data = <<-EOS
@@ -142,31 +142,31 @@ class TestMemoryLeak < Nokogiri::TestCase
     def test_in_context_parser_leak
       loop do
         doc = Nokogiri::XML::Document.new
-        fragment1 = Nokogiri::XML::DocumentFragment.new(doc, '<foo/>')
+        fragment1 = Nokogiri::XML::DocumentFragment.new(doc, "<foo/>")
         node = fragment1.children[0]
-        node.parse('<bar></bar>')
+        node.parse("<bar></bar>")
       end
     end
 
     def test_in_context_parser_leak_ii
-      loop { Nokogiri::XML('<a/>').root.parse('<b/>') }
+      loop { Nokogiri::XML("<a/>").root.parse("<b/>") }
     end
 
     def test_leak_on_xpath_string_function
       doc = Nokogiri::XML(@str)
       loop do
-        doc.xpath('name(//node())')
+        doc.xpath("name(//node())")
       end
     end
 
     def test_leaking_namespace_node_strings
       # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
-      ns = { 'xmlns' => 'http://schemas.xmlsoap.org/soap/envelope/' }
+      ns = { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" }
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send 'Envelope', ns do
-              xml.send 'Foobar', ns
+            xml.send "Envelope", ns do
+              xml.send "Foobar", ns
             end
           end
         end
@@ -176,12 +176,12 @@ class TestMemoryLeak < Nokogiri::TestCase
 
     def test_leaking_namespace_node_strings_with_prefix
       # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
-      ns = { 'xmlns:foo' => 'http://schemas.xmlsoap.org/soap/envelope/' }
+      ns = { "xmlns:foo" => "http://schemas.xmlsoap.org/soap/envelope/" }
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send 'Envelope', ns do
-              xml.send 'Foobar', ns
+            xml.send "Envelope", ns do
+              xml.send "Foobar", ns
             end
           end
         end
@@ -218,13 +218,13 @@ class TestMemoryLeak < Nokogiri::TestCase
   module MemInfo
     # from https://stackoverflow.com/questions/7220896/get-current-ruby-process-memory-usage
     # this is only going to work on linux
-    PAGE_SIZE = `getconf PAGESIZE`.chomp.to_i rescue 4096
+    PAGE_SIZE = %x(getconf PAGESIZE).chomp.to_i rescue 4096
     STATM_PATH = "/proc/#{Process.pid}/statm"
     STATM_FOUND = File.exist?(STATM_PATH)
 
     def self.rss
       if STATM_FOUND
-        return (File.read(STATM_PATH).split(' ')[1].to_i * PAGE_SIZE) / 1024
+        return (File.read(STATM_PATH).split(" ")[1].to_i * PAGE_SIZE) / 1024
       end
       return 0
     end

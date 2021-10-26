@@ -4,12 +4,12 @@ module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
       def visit_function node
-        msg = :"visit_function_#{node.value.first.gsub(/[(]/, '')}"
+        msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
         return self.send(msg, node) if self.respond_to?(msg)
 
         case node.value.first
         when /^text\(/
-          'child::text()'
+          "child::text()"
         when /^self\(/
           "self::#{node.value[1]}"
         when /^eq\(/
@@ -56,8 +56,8 @@ module Nokogiri
           ".#{"//" if !is_direct}#{node.value[1].accept(self)}"
         else
           # non-standard. this looks like a function call.
-          args = ['.'] + node.value[1..-1]
-          "#{node.value.first}#{args.join(',')})"
+          args = ["."] + node.value[1..-1]
+          "#{node.value.first}#{args.join(",")})"
         end
       end
 
@@ -77,14 +77,14 @@ module Nokogiri
 
       def visit_attribute_condition node
         attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
-          ''
+          ""
         else
-          '@'
+          "@"
         end
         attribute += node.value.first.accept(self)
 
         # non-standard. attributes starting with '@'
-        attribute.gsub!(/^@@/, '@')
+        attribute.gsub!(/^@@/, "@")
 
         return attribute unless node.value.length == 3
 
@@ -124,7 +124,7 @@ module Nokogiri
         if node.value.first.is_a?(Nokogiri::CSS::Node) and node.value.first.type == :FUNCTION
           node.value.first.accept(self)
         else
-          msg = :"visit_pseudo_class_#{node.value.first.gsub(/[(]/, '')}"
+          msg = :"visit_pseudo_class_#{node.value.first.gsub(/[(]/, "")}"
           return self.send(msg, node) if self.respond_to?(msg)
 
           case node.value.first
@@ -158,10 +158,10 @@ module Nokogiri
       end
 
       {
-        'direct_adjacent_selector' => "/following-sibling::*[1]/self::",
-        'following_selector' => "/following-sibling::",
-        'descendant_selector' => '//',
-        'child_selector' => '/',
+        "direct_adjacent_selector" => "/following-sibling::*[1]/self::",
+        "following_selector" => "/following-sibling::",
+        "descendant_selector" => "//",
+        "child_selector" => "/",
       }.each do |k, v|
         class_eval %{
           def visit_#{k} node
@@ -171,8 +171,8 @@ module Nokogiri
       end
 
       def visit_conditional_selector node
-        node.value.first.accept(self) + '[' +
-          node.value.last.accept(self) + ']'
+        node.value.first.accept(self) + "[" +
+          node.value.last.accept(self) + "]"
       end
 
       def visit_element_name node

@@ -8,7 +8,7 @@ module Nokogiri
         # operating
         attr_accessor :document
 
-        def initialize(doc = HTML4::SAX::Document.new, file_name = nil, encoding = 'UTF-8')
+        def initialize(doc = HTML4::SAX::Document.new, file_name = nil, encoding = "UTF-8")
           @document = doc
           @encoding = encoding
           @sax_parser = HTML4::SAX::Parser.new(doc, @encoding)
@@ -29,7 +29,7 @@ module Nokogiri
         # Finish the parsing.  This method is only necessary for
         # Nokogiri::HTML4::SAX::Document#end_document to be called.
         def finish
-          write '', true
+          write "", true
         end
       end
     end

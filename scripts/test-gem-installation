@@ -26,8 +26,8 @@ gemfile do
   gem "nokogiri"
 end
 
-require 'nokogiri'
-require 'yaml'
+require "nokogiri"
+require "yaml"
 
 if ARGV.include?("-v")
   puts "---------- Nokogiri version info ----------"

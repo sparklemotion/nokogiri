@@ -11,12 +11,12 @@ module Nokogiri
         encoding ||= if tags.respond_to?(:encoding)
           encoding = tags.encoding
           if encoding == ::Encoding::ASCII_8BIT
-            'UTF-8'
+            "UTF-8"
           else
             encoding.name
           end
         else
-          'UTF-8'
+          "UTF-8"
         end
 
         doc.encoding = encoding

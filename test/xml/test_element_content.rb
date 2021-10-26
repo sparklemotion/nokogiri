@@ -39,8 +39,8 @@ module Nokogiri
 
       def test_name
         assert_nil @tree.name
-        assert_equal 'head', @tree.children.first.name
-        assert_equal 'p', @tree.children[1].children.first.children.first.name
+        assert_equal "head", @tree.children.first.name
+        assert_equal "p", @tree.children[1].children.first.children.first.name
       end
 
       def test_occur
@@ -49,7 +49,7 @@ module Nokogiri
 
       def test_prefix
         assert_nil @tree.prefix
-        assert_equal 'tender', @elements[2].content.prefix
+        assert_equal "tender", @elements[2].content.prefix
       end
     end
   end

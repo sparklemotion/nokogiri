@@ -26,7 +26,7 @@ if Nokogiri.uses_gumbo?
     test[:new_errors] = []
     if lines[index] == "#new-errors"
       index += 1
-      until ['#document-fragment', '#document', '#script-off', '#script-on'].include?(lines[index])
+      until ["#document-fragment", "#document", "#script-off", "#script-on"].include?(lines[index])
         test[:new_errors] << lines[index]
         index += 1
       end
@@ -78,9 +78,9 @@ if Nokogiri.uses_gumbo?
         node[:name] = $~[1]
         node[:public_id] = $~[2].nil? || $~[2].empty? ? nil : $~[2]
         node[:system_id] = $~[3].nil? || $~[3].empty? ? nil : $~[3]
-      elsif node_text.start_with?('<!-- ')
+      elsif node_text.start_with?("<!-- ")
         loop do
-          break if lines[index].end_with?(' -->')
+          break if lines[index].end_with?(" -->")
           index += 1
           node_text << "\n" + lines[index]
         end

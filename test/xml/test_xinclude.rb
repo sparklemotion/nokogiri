@@ -21,7 +21,7 @@ module Nokogiri
         end
 
         assert_not_nil xml_doc
-        assert_not_nil included = xml_doc.at_xpath('//included')
+        assert_not_nil included = xml_doc.at_xpath("//included")
         assert_equal @included, included.content
 
         # no xinclude should happen when not requested
@@ -34,22 +34,22 @@ module Nokogiri
         end
 
         assert_not_nil xml_doc
-        assert_nil xml_doc.at_xpath('//included')
+        assert_nil xml_doc.at_xpath("//included")
       end
 
       def test_xinclude_on_document_node
         skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
-        assert_nil @xml.at_xpath('//included')
+        assert_nil @xml.at_xpath("//included")
         @xml.do_xinclude
-        assert_not_nil included = @xml.at_xpath('//included')
+        assert_not_nil included = @xml.at_xpath("//included")
         assert_equal @included, included.content
       end
 
       def test_xinclude_on_element_subtree
         skip_unless_libxml2("Pure Java version turns XInlcude on against a parser.")
-        assert_nil @xml.at_xpath('//included')
+        assert_nil @xml.at_xpath("//included")
         @xml.root.do_xinclude
-        assert_not_nil included = @xml.at_xpath('//included')
+        assert_not_nil included = @xml.at_xpath("//included")
         assert_equal @included, included.content
       end
 
@@ -65,7 +65,7 @@ module Nokogiri
       def test_include_nonexistent_throws_exception
         skip_unless_libxml2("Pure Java version behaves differently")
         # break inclusion deliberately
-        @xml.at_xpath('//xi:include')['href'] = "nonexistent.xml"
+        @xml.at_xpath("//xi:include")["href"] = "nonexistent.xml"
 
         exception_raised = false
         begin

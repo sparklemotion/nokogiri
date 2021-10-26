@@ -33,7 +33,7 @@ module Nokogiri
       end
 
       def test_exclude_block_params
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         list = []
@@ -43,19 +43,19 @@ module Nokogiri
         end
         if Nokogiri.jruby?
           assert_equal(
-            ['a', 'document', 'document', nil, 'b', 'a'],
+            ["a", "document", "document", nil, "b", "a"],
             list.flatten.map { |x| x ? x.name : x }
           )
         else
           assert_equal(
-            ['a', 'document', 'document', nil, 'b', 'a', 'a', 'document'],
+            ["a", "document", "document", nil, "b", "a", "a", "document"],
             list.flatten.map { |x| x ? x.name : x }
           )
         end
       end
 
       def test_exclude_block_true
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         c14n = doc.canonicalize do |_node, _parent|
@@ -65,27 +65,27 @@ module Nokogiri
       end
 
       def test_exclude_block_false
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         c14n = doc.canonicalize do |_node, _parent|
           false
         end
-        assert_equal '', c14n
+        assert_equal "", c14n
       end
 
       def test_exclude_block_nil
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         c14n = doc.canonicalize do |_node, _parent|
           nil
         end
-        assert_equal '', c14n
+        assert_equal "", c14n
       end
 
       def test_exclude_block_object
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         c14n = doc.canonicalize do |_node, _parent|
@@ -95,10 +95,10 @@ module Nokogiri
       end
 
       def test_c14n_node
-        xml = '<a><b><c></c></b></a>'
+        xml = "<a><b><c></c></b></a>"
         doc = Nokogiri.XML xml
-        c14n = doc.at_xpath('//b').canonicalize
-        assert_equal '<b><c></c></b>', c14n
+        c14n = doc.at_xpath("//b").canonicalize
+        assert_equal "<b><c></c></b>", c14n
       end
 
       def test_c14n_modes
@@ -125,7 +125,7 @@ module Nokogiri
           </n2:pdu>
         EOXML
 
-        c14n = doc1.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize
+        c14n = doc1.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize
         assert_equal '<n1:elem2 xmlns:n0="http://foobar.org" xmlns:n1="http://example.net" xmlns:n3="ftp://example.org" xml:lang="en">
     <n3:stuff></n3:stuff>
   </n1:elem2>', c14n
@@ -134,39 +134,39 @@ module Nokogiri
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
     <n4:stuff></n4:stuff>
   </n1:elem2>'
-        c14n = doc2.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize
+        c14n = doc2.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize
         assert_equal expected, c14n
 
         expected = '<n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
   </n1:elem2>'
-        c14n = doc1.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0)
+        c14n = doc1.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0)
         assert_equal expected, c14n
 
         expected = '<n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
     <n4:stuff xmlns:n4="http://foo.example"></n4:stuff>
   </n1:elem2>'
-        c14n = doc2.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0)
+        c14n = doc2.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0)
         assert_equal expected, c14n
 
         expected = '<n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xml:lang="en">
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
     <n4:stuff xmlns:n4="http://foo.example"></n4:stuff>
   </n1:elem2>'
-        c14n = doc2.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, ['n2'])
+        c14n = doc2.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, ["n2"])
         assert_equal expected, c14n
 
         expected = '<n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en">
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
     <n4:stuff></n4:stuff>
   </n1:elem2>'
-        c14n = doc2.at_xpath('//n1:elem2', { 'n1' => 'http://example.net' }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, ['n2', 'n4'])
+        c14n = doc2.at_xpath("//n1:elem2", { "n1" => "http://example.net" }).canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, ["n2", "n4"])
         assert_equal expected, c14n
       end
 
       def test_wrong_params
-        xml = '<a><b></b></a>'
+        xml = "<a><b></b></a>"
         doc = Nokogiri.XML xml
 
         assert_raise(TypeError) { doc.canonicalize :wrong_type }

@@ -22,7 +22,7 @@ module Nokogiri
 
       def test_parse_with_io
         xsd = nil
-        File.open(ADDRESS_SCHEMA_FILE, 'rb') do |f|
+        File.open(ADDRESS_SCHEMA_FILE, "rb") do |f|
           assert xsd = Nokogiri::XML::RelaxNG(f)
         end
         assert_equal 0, xsd.errors.length
@@ -66,7 +66,7 @@ module Nokogiri
       end
 
       def test_parse_with_errors
-        xml = File.read(ADDRESS_SCHEMA_FILE).sub(/name="/, 'name=')
+        xml = File.read(ADDRESS_SCHEMA_FILE).sub(/name="/, "name=")
         assert_raises(Nokogiri::XML::SyntaxError) do
           Nokogiri::XML::RelaxNG(xml)
         end
@@ -80,7 +80,7 @@ module Nokogiri
 
       def test_validate_invalid_document
         # Empty address book is not allowed
-        read_doc = '<addressBook></addressBook>'
+        read_doc = "<addressBook></addressBook>"
 
         assert errors = @schema.validate(Nokogiri::XML(read_doc))
         assert_equal 1, errors.length
@@ -89,7 +89,7 @@ module Nokogiri
       def test_valid?
         valid_doc = Nokogiri::XML(File.read(ADDRESS_XML_FILE))
 
-        invalid_doc = Nokogiri::XML('<addressBook></addressBook>')
+        invalid_doc = Nokogiri::XML("<addressBook></addressBook>")
 
         assert(@schema.valid?(valid_doc))
         assert(!@schema.valid?(invalid_doc))

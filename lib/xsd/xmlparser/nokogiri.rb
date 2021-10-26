@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'nokogiri'
+require "nokogiri"
 
 module XSD # :nodoc:
   module XMLParser # :nodoc:
@@ -30,7 +30,7 @@ module XSD # :nodoc:
       # Create a new XSD parser with +host+ and +opt+
       def initialize host, opt = {}
         super
-        @parser = ::Nokogiri::XML::SAX::Parser.new(self, @charset || 'UTF-8')
+        @parser = ::Nokogiri::XML::SAX::Parser.new(self, @charset || "UTF-8")
       end
 
       ###
@@ -74,11 +74,11 @@ module XSD # :nodoc:
       def start_element_namespace name, attrs = [], prefix = nil, uri = nil, ns = []
         ###
         # Deal with SAX v1 interface
-        name = [prefix, name].compact.join(':')
+        name = [prefix, name].compact.join(":")
         attributes = ns.map do |ns_prefix, ns_uri|
-          [['xmlns', ns_prefix].compact.join(':'), ns_uri]
+          [["xmlns", ns_prefix].compact.join(":"), ns_uri]
         end + attrs.map do |attr|
-          [[attr.prefix, attr.localname].compact.join(':'), attr.value]
+          [[attr.prefix, attr.localname].compact.join(":"), attr.value]
         end.flatten
         start_element name, attributes
       end
@@ -91,10 +91,10 @@ module XSD # :nodoc:
       def end_element_namespace name, prefix = nil, uri = nil
         ###
         # Deal with SAX v1 interface
-        end_element [prefix, name].compact.join(':')
+        end_element [prefix, name].compact.join(":")
       end
 
-      ['xmldecl', 'start_document', 'end_document', 'comment'].each do |name|
+      ["xmldecl", "start_document", "end_document", "comment"].each do |name|
         class_eval %{ def #{name}(*args); end }
       end
 

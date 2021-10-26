@@ -337,18 +337,6 @@ Style/AndOr:
     - 'lib/nokogiri/html4/document.rb'
     - 'test/xml/test_reader.rb'
 
-# Offense count: 13
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: percent_q, bare_percent
-Style/BarePercentLiterals:
-  Exclude:
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'test/html4/test_node.rb'
-    - 'test/xml/test_attr.rb'
-    - 'test/xml/test_entity_reference.rb'
-    - 'test/xml/test_node_attributes.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -366,14 +354,6 @@ Style/ClassAndModuleChildren:
 Style/ClassVars:
   Exclude:
     - 'test/helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerBackticks.
-# SupportedStyles: backticks, percent_x, mixed
-Style/CommandLiteral:
-  Exclude:
-    - 'test/test_memory_leak.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -398,28 +378,6 @@ Style/ConditionalAssignment:
 Style/EachWithObject:
   Exclude:
     - 'lib/nokogiri/xml/document.rb'
-
-# Offense count: 18
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: format, sprintf, percent
-Style/FormatString:
-  Exclude:
-    - 'ext/nokogiri/extconf.rb'
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/xml/attribute_decl.rb'
-    - 'lib/nokogiri/xml/element_decl.rb'
-    - 'lib/nokogiri/xml/entity_decl.rb'
-    - 'lib/nokogiri/xml/pp/character_data.rb'
-    - 'lib/nokogiri/xml/pp/node.rb'
-    - 'scripts/generate-html5-entities'
-    - 'test/xml/test_attribute_decl.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_element_decl.rb'
-    - 'test/xml/test_entity_decl.rb'
-    - 'test/xml/test_namespace.rb'
-    - 'test/xml/test_text.rb'
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 78
 # Cop supports --auto-correct.
@@ -482,16 +440,6 @@ Style/Not:
     - 'lib/nokogiri/html5.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: lower_case_q, upper_case_q
-Style/PercentQLiterals:
-  Exclude:
-    - 'test/html4/test_node.rb'
-    - 'test/xml/test_attr.rb'
-    - 'test/xml/test_node_attributes.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
@@ -509,13 +457,6 @@ Style/PreferredHashMethods:
     - 'test/test_version.rb'
     - 'test/xml/test_node.rb'
     - 'test/xml/test_xpath.rb'
-
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: .
-# SupportedStyles: same_as_string_literals, single_quotes, double_quotes
-Style/QuotedSymbols:
-  EnforcedStyle: single_quotes
 
 # Offense count: 7
 # Cop supports --auto-correct.
@@ -549,17 +490,6 @@ Style/RedundantParentheses:
   Exclude:
     - 'lib/nokogiri/xml/document_fragment.rb'
 
-# Offense count: 19
-# Cop supports --auto-correct.
-Style/RedundantPercentQ:
-  Exclude:
-    - 'test/html4/test_node.rb'
-    - 'test/xml/test_attr.rb'
-    - 'test/xml/test_entity_reference.rb'
-    - 'test/xml/test_node_attributes.rb'
-    - 'test/xml/test_unparented_node.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: AllowMultipleReturnValues.
@@ -579,17 +509,6 @@ Style/RedundantSelf:
     - 'lib/nokogiri/xml/document.rb'
     - 'lib/nokogiri/xml/document_fragment.rb'
     - 'lib/nokogiri/xml/reader.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'lib/nokogiri/xml/searchable.rb'
-    - 'test/html5/test_monkey_patch.rb'
-    - 'test/xml/test_builder.rb'
-    - 'test/xml/test_schema.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -625,29 +544,6 @@ Style/SignalException:
 Style/SpecialGlobalVars:
   Exclude:
     - 'test/html5/test_tree-construction.rb'
-
-# Offense count: 2489
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Enabled: false
-
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/decorators/slop.rb'
-    - 'lib/nokogiri/version/info.rb'
-    - 'lib/nokogiri/xml/node_set.rb'
-    - 'lib/nokogiri/xml/pp/node.rb'
-    - 'test/xml/node/test_subclass.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_node_set.rb'
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 26
 # Cop supports --auto-correct.

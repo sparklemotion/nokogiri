@@ -9,10 +9,10 @@ module Nokogiri
       end
 
       def test_cdata_node
-        name = @xml.xpath('//employee[2]/name').first
+        name = @xml.xpath("//employee[2]/name").first
         assert cdata = name.children[1]
         assert cdata.cdata?
-        assert_equal '#cdata-section', cdata.name
+        assert_equal "#cdata-section", cdata.name
       end
 
       def test_new
@@ -39,15 +39,15 @@ module Nokogiri
       end
 
       def test_content=
-        node = CDATA.new(@xml, 'foo')
-        assert_equal('foo', node.content)
+        node = CDATA.new(@xml, "foo")
+        assert_equal("foo", node.content)
 
-        node.content = '& <foo> &amp;'
-        assert_equal('& <foo> &amp;', node.content)
-        assert_equal('<![CDATA[& <foo> &amp;]]>', node.to_xml)
+        node.content = "& <foo> &amp;"
+        assert_equal("& <foo> &amp;", node.content)
+        assert_equal("<![CDATA[& <foo> &amp;]]>", node.to_xml)
 
-        node.content = 'foo ]]> bar'
-        assert_equal('foo ]]> bar', node.content)
+        node.content = "foo ]]> bar"
+        assert_equal("foo ]]> bar", node.content)
       end
     end
   end

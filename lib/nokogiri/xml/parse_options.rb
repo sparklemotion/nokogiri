@@ -126,7 +126,7 @@ module Nokogiri
         self.class.constants.each do |k|
           options << k.downcase if send(:"#{k.downcase}?")
         end
-        super.sub(/>$/, " " + options.join(', ') + ">")
+        super.sub(/>$/, " " + options.join(", ") + ">")
       end
     end
   end

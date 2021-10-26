@@ -6,7 +6,7 @@ module Nokogiri
   module XSLT
     class TestExceptionHandling < Nokogiri::TestCase
       def test_java_exception_handling
-        skip_unless_jruby('This test is for Java only')
+        skip_unless_jruby("This test is for Java only")
 
         xml = Nokogiri.XML(<<~EOXML)
           <foo>
@@ -31,7 +31,7 @@ module Nokogiri
         end
 
         assert_match(/Can't have more than one root/, e.to_s,
-          'The exception message does not contain the expected information')
+          "The exception message does not contain the expected information")
       end
     end
   end

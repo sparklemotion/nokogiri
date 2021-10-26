@@ -109,7 +109,7 @@ module Nokogiri
 
       def test_builder_namespace_inheritance_true
         # see https://github.com/sparklemotion/nokogiri/issues/2317
-        result = Nokogiri::XML::Builder.new(encoding: 'utf-8') do |xml|
+        result = Nokogiri::XML::Builder.new(encoding: "utf-8") do |xml|
           xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
             xml.Header
           end
@@ -123,7 +123,7 @@ module Nokogiri
 
       def test_builder_namespace_inheritance_false
         # see https://github.com/sparklemotion/nokogiri/issues/2317
-        result = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
+        result = Nokogiri::XML::Builder.new(encoding: "utf-8", namespace_inheritance: false) do |xml|
           xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
             xml.Header
           end
@@ -137,14 +137,14 @@ module Nokogiri
 
       def test_builder_namespace_inheritance_false_part_deux
         # see https://github.com/sparklemotion/nokogiri/issues/1712
-        result = Nokogiri::XML::Builder.new(encoding: 'utf-8', namespace_inheritance: false) do |xml|
-          xml['soapenv'].Envelope('xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/', 'xmlns:emer' => 'http://dashcs.com/api/v1/emergency') do
-            xml['soapenv'].Header
-            xml['soapenv'].Body do
-              xml['emer'].validateLocation do
+        result = Nokogiri::XML::Builder.new(encoding: "utf-8", namespace_inheritance: false) do |xml|
+          xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/", "xmlns:emer" => "http://dashcs.com/api/v1/emergency") do
+            xml["soapenv"].Header
+            xml["soapenv"].Body do
+              xml["emer"].validateLocation do
                 # these should not have a namespace
                 xml.location do
-                  xml.address 'Some place over the rainbow'
+                  xml.address "Some place over the rainbow"
                 end
               end
             end
@@ -178,7 +178,7 @@ module Nokogiri
             xml.foo
           end
         end
-        assert_match(/<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4.01 Transitional\/\/EN" "http:\/\/www.w3.org\/TR\/html4\/loose.dtd">/,
+        assert_match(%r{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">},
           builder.to_xml)
       end
 

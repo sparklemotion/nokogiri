@@ -10,78 +10,78 @@ module Nokogiri
       end
 
       def test_system_id
-        assert_equal 'staff.dtd', @dtd.system_id
+        assert_equal "staff.dtd", @dtd.system_id
       end
 
       def test_external_id
         xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
-        assert dtd = xml.internal_subset, 'no internal subset'
-        assert_equal 'bar', dtd.external_id
+        assert dtd = xml.internal_subset, "no internal subset"
+        assert_equal "bar", dtd.external_id
       end
 
       def test_html_dtd
         {
-          'MathML 2.0' => [
+          "MathML 2.0" => [
             '<!DOCTYPE math PUBLIC "-//W3C//DTD MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/mathml2.dtd">',
             false,
             false,
           ],
-          'HTML 2.0' => [
+          "HTML 2.0" => [
             '<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">',
             true,
             false,
           ],
-          'HTML 3.2' => [
+          "HTML 3.2" => [
             '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">',
             true,
             false,
           ],
-          'XHTML Basic 1.0' => [
+          "XHTML Basic 1.0" => [
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">',
             true,
             false,
           ],
-          'XHTML 1.0 Strict' => [
+          "XHTML 1.0 Strict" => [
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
             true,
             false,
           ],
-          'XHTML + MathML + SVG Profile (XHTML as the host language)' => [
+          "XHTML + MathML + SVG Profile (XHTML as the host language)" => [
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">',
             true,
             false,
           ],
-          'XHTML + MathML + SVG Profile (Using SVG as the host)' => [
+          "XHTML + MathML + SVG Profile (Using SVG as the host)" => [
             '<!DOCTYPE svg:svg PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">',
             false,
             false,
           ],
-          'CHTML 1.0' => [
+          "CHTML 1.0" => [
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD Compact HTML 1.0 Draft//EN">',
             true,
             false,
           ],
-          'HTML 4.01 Strict' => [
+          "HTML 4.01 Strict" => [
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
             true,
             false,
           ],
-          'HTML 4.01 Transitional' => [
+          "HTML 4.01 Transitional" => [
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
             true,
             false,
           ],
-          'HTML 4.01 Frameset' => [
+          "HTML 4.01 Frameset" => [
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
             true,
             false,
           ],
-          'HTML 5' => [
-            '<!DOCTYPE html>',
+          "HTML 5" => [
+            "<!DOCTYPE html>",
             true,
             true,
           ],
-          'HTML 5 legacy compatible' => [
+          "HTML 5 legacy compatible" => [
             '<!DOCTYPE HTML SYSTEM "about:legacy-compat">',
             true,
             true,
@@ -115,12 +115,12 @@ module Nokogiri
       end
 
       def test_attributes
-        assert_equal ['width'], @dtd.attributes.keys
-        assert_equal '0', @dtd.attributes['width'].default
+        assert_equal ["width"], @dtd.attributes.keys
+        assert_equal "0", @dtd.attributes["width"].default
       end
 
       def test_keys
-        assert_equal ['width'], @dtd.keys
+        assert_equal ["width"], @dtd.keys
       end
 
       def test_each
@@ -160,26 +160,26 @@ module Nokogiri
 
       def test_external_subsets
         assert subset = @xml.internal_subset
-        assert_equal 'staff', subset.name
+        assert_equal "staff", subset.name
       end
 
       def test_entities
         assert entities = @dtd.entities
-        assert_equal ['ent1', 'ent2', 'ent3', 'ent4', 'ent5'].sort, entities.keys.sort
+        assert_equal ["ent1", "ent2", "ent3", "ent4", "ent5"].sort, entities.keys.sort
       end
 
       def test_elements
         assert elements = @dtd.elements
-        assert_equal ['br'], elements.keys
-        assert_equal 'br', elements['br'].name
+        assert_equal ["br"], elements.keys
+        assert_equal "br", elements["br"].name
       end
 
       def test_notations
         assert notations = @dtd.notations
-        assert_equal ['notation1', 'notation2'].sort, notations.keys.sort
-        assert notation1 = notations['notation1']
-        assert_equal 'notation1', notation1.name
-        assert_equal 'notation1File', notation1.public_id
+        assert_equal ["notation1", "notation2"].sort, notations.keys.sort
+        assert notation1 = notations["notation1"]
+        assert_equal "notation1", notation1.name
+        assert_equal "notation1File", notation1.public_id
         assert_nil notation1.system_id
       end
     end

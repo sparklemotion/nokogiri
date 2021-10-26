@@ -17,23 +17,23 @@ module Nokogiri
       def test_default_encoding
         doc = Nokogiri::XML(VEHICLE_XML)
         assert_nil doc.encoding
-        assert_equal 'UTF-8', doc.serialize.encoding.name
+        assert_equal "UTF-8", doc.serialize.encoding.name
       end
 
       def test_encoding_GH_1113
-        utf8 = '<frag>shahid ὡ 𐄣 𢂁</frag>'
-        hex = '<frag>shahid &#x1f61; &#x10123; &#x22081;</frag>'
-        decimal = '<frag>shahid &#8033; &#65827; &#139393;</frag>'
+        utf8 = "<frag>shahid ὡ 𐄣 𢂁</frag>"
+        hex = "<frag>shahid &#x1f61; &#x10123; &#x22081;</frag>"
+        decimal = "<frag>shahid &#8033; &#65827; &#139393;</frag>"
         expected = Nokogiri.jruby? ? hex : decimal
 
-        frag = Nokogiri::XML(utf8, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
-        assert_equal utf8, frag.to_xml.sub(/^<.xml[^>]*>\n/m, '').strip
+        frag = Nokogiri::XML(utf8, nil, "UTF-8", Nokogiri::XML::ParseOptions::STRICT)
+        assert_equal utf8, frag.to_xml.sub(/^<.xml[^>]*>\n/m, "").strip
 
-        frag = Nokogiri::XML(expected, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
-        assert_equal utf8, frag.to_xml.sub(/^<.xml[^>]*>\n/m, '').strip
+        frag = Nokogiri::XML(expected, nil, "UTF-8", Nokogiri::XML::ParseOptions::STRICT)
+        assert_equal utf8, frag.to_xml.sub(/^<.xml[^>]*>\n/m, "").strip
 
-        frag = Nokogiri::XML(expected, nil, 'US-ASCII', Nokogiri::XML::ParseOptions::STRICT)
-        assert_equal expected, frag.to_xml.sub(/^<.xml[^>]*>\n/m, '').strip
+        frag = Nokogiri::XML(expected, nil, "US-ASCII", Nokogiri::XML::ParseOptions::STRICT)
+        assert_equal expected, frag.to_xml.sub(/^<.xml[^>]*>\n/m, "").strip
       end
 
       VEHICLE_XML = <<-eoxml
@@ -48,27 +48,27 @@ module Nokogiri
       eoxml
 
       def test_namespace
-        doc = Nokogiri::XML(VEHICLE_XML.encode('Shift_JIS'), nil, 'Shift_JIS')
-        assert_equal 'Shift_JIS', doc.encoding
-        n = doc.xpath('//part:tire', { 'part' => 'http://schwinn.com/' }).first
+        doc = Nokogiri::XML(VEHICLE_XML.encode("Shift_JIS"), nil, "Shift_JIS")
+        assert_equal "Shift_JIS", doc.encoding
+        n = doc.xpath("//part:tire", { "part" => "http://schwinn.com/" }).first
         assert n
-        assert_equal 'UTF-8', n.namespace.href.encoding.name
-        assert_equal 'UTF-8', n.namespace.prefix.encoding.name
+        assert_equal "UTF-8", n.namespace.href.encoding.name
+        assert_equal "UTF-8", n.namespace.prefix.encoding.name
       end
 
       def test_namespace_as_hash
-        doc = Nokogiri::XML(VEHICLE_XML.encode('Shift_JIS'), nil, 'Shift_JIS')
-        assert_equal 'Shift_JIS', doc.encoding
-        assert n = doc.xpath('//car').first
+        doc = Nokogiri::XML(VEHICLE_XML.encode("Shift_JIS"), nil, "Shift_JIS")
+        assert_equal "Shift_JIS", doc.encoding
+        assert n = doc.xpath("//car").first
 
         n.namespace_definitions.each do |nd|
-          assert_equal 'UTF-8', nd.href.encoding.name
-          assert_equal 'UTF-8', nd.prefix.encoding.name
+          assert_equal "UTF-8", nd.href.encoding.name
+          assert_equal "UTF-8", nd.prefix.encoding.name
         end
 
         n.namespaces.each do |k, v|
-          assert_equal 'UTF-8', k.encoding.name
-          assert_equal 'UTF-8', v.encoding.name
+          assert_equal "UTF-8", k.encoding.name
+          assert_equal "UTF-8", v.encoding.name
         end
       end
     end

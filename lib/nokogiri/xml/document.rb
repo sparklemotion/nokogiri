@@ -1,7 +1,7 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-require 'pathname'
+require "pathname"
 
 module Nokogiri
   module XML
@@ -238,7 +238,7 @@ module Nokogiri
             elm.content = arg
           end
         end
-        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == '') }
+        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == "") }
           elm.namespace = ns
         end
         elm
@@ -261,7 +261,7 @@ module Nokogiri
 
       # The name of this document.  Always returns "document"
       def name
-        'document'
+        "document"
       end
 
       # A reference to +self+
@@ -381,7 +381,7 @@ module Nokogiri
       undef_method :namespace_definitions, :line, :add_namespace
 
       def add_child node_or_tags
-        raise "A document may not have multiple root nodes." if (root && root.name != 'nokogiri_text_wrapper') && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+        raise "A document may not have multiple root nodes." if (root && root.name != "nokogiri_text_wrapper") && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           raise "A document may not have multiple root nodes." if node_or_tags.size > 1
@@ -400,7 +400,7 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      IMPLIED_XPATH_CONTEXTS = ['//'.freeze].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = ["//".freeze].freeze # :nodoc:
 
       def inspect_attributes
         [:name, :children]

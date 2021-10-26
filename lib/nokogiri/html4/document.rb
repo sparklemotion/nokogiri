@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pathname'
+require "pathname"
 
 module Nokogiri
   module HTML4
@@ -9,10 +9,10 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        if meta = at('//meta[@charset]')
+        if meta = at("//meta[@charset]")
           meta[:charset]
         elsif meta = meta_content_type
-          meta['content'][/charset\s*=\s*([\w-]+)/i, 1]
+          meta["content"][/charset\s*=\s*([\w-]+)/i, 1]
         end
       end
 
@@ -34,20 +34,20 @@ module Nokogiri
       # into a head element.
       def meta_encoding= encoding
         if meta = meta_content_type
-          meta['content'] = 'text/html; charset=%s' % encoding
+          meta["content"] = format("text/html; charset=%s", encoding)
           encoding
-        elsif meta = at('//meta[@charset]')
-          meta['charset'] = encoding
+        elsif meta = at("//meta[@charset]")
+          meta["charset"] = encoding
         else
-          meta = XML::Node.new('meta', self)
+          meta = XML::Node.new("meta", self)
           if dtd = internal_subset and dtd.html5_dtd?
-            meta['charset'] = encoding
+            meta["charset"] = encoding
           else
-            meta['http-equiv'] = 'Content-Type'
-            meta['content'] = 'text/html; charset=%s' % encoding
+            meta["http-equiv"] = "Content-Type"
+            meta["content"] = format("text/html; charset=%s", encoding)
           end
 
-          if head = at('//head')
+          if head = at("//head")
             head.prepend_child(meta)
           else
             set_metadata_element(meta)
@@ -57,8 +57,8 @@ module Nokogiri
       end
 
       def meta_content_type
-        xpath('//meta[@http-equiv and boolean(@content)]').find do |node|
-          node['http-equiv'] =~ /\AContent-Type\z/i
+        xpath("//meta[@http-equiv and boolean(@content)]").find do |node|
+          node["http-equiv"] =~ /\AContent-Type\z/i
         end
       end
       private :meta_content_type
@@ -67,7 +67,7 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at('//title') and title.inner_text
+        title = at("//title") and title.inner_text
       end
 
       ###
@@ -83,15 +83,15 @@ module Nokogiri
       # content element (typically <body>) if any.
       def title=(text)
         tnode = XML::Text.new(text, self)
-        if title = at('//title')
+        if title = at("//title")
           title.children = tnode
           return text
         end
 
-        title = XML::Node.new('title', self) << tnode
-        if head = at('//head')
+        title = XML::Node.new("title", self) << tnode
+        if head = at("//head")
           head << title
-        elsif meta = at('//meta[@charset]') || meta_content_type
+        elsif meta = at("//meta[@charset]") || meta_content_type
           # better put after charset declaration
           meta.add_next_sibling(title)
         else
@@ -101,10 +101,10 @@ module Nokogiri
       end
 
       def set_metadata_element(element)
-        if head = at('//head')
+        if head = at("//head")
           head << element
-        elsif html = at('//html')
-          head = html.prepend_child(XML::Node.new('head', self))
+        elsif html = at("//html")
+          head = html.prepend_child(XML::Node.new("head", self))
           head.prepend_child(element)
         elsif first = children.find do |node|
                 case node
@@ -117,8 +117,8 @@ module Nokogiri
           # automatically supply them.
           first.add_previous_sibling(element)
         else
-          html = add_child(XML::Node.new('html', self))
-          head = html.add_child(XML::Node.new('head', self))
+          html = add_child(XML::Node.new("html", self))
+          head = html.add_child(XML::Node.new("head", self))
           head.prepend_child(element)
         end
       end
@@ -216,7 +216,7 @@ module Nokogiri
 
         def initialize(encoding)
           @found_encoding = encoding
-          super("encoding found: %s" % encoding)
+          super(format("encoding found: %s", encoding))
         end
       end
 
@@ -230,13 +230,13 @@ module Nokogiri
           end
 
           def start_element(name, attrs = [])
-            return unless name == 'meta'
+            return unless name == "meta"
             attr = Hash[attrs]
-            charset = attr['charset'] and
+            charset = attr["charset"] and
               @encoding = charset
-            http_equiv = attr['http-equiv'] and
+            http_equiv = attr["http-equiv"] and
               http_equiv.match(/\AContent-Type\z/i) and
-              content = attr['content'] and
+              content = attr["content"] and
               m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
               @encoding = m[1]
           end

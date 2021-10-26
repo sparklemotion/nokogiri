@@ -11,14 +11,14 @@ module Nokogiri
           rescue NoMethodError
             true
           end.map do |attribute|
-            "#{attribute.to_s.sub(/_\w+/, 's')}=#{send(attribute).inspect}"
-          end.join ' '
-          "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{attributes}>"
+            "#{attribute.to_s.sub(/_\w+/, "s")}=#{send(attribute).inspect}"
+          end.join " "
+          "#<#{self.class.name}:#{format("0x%x", object_id)} #{attributes}>"
         end
 
         def pretty_print pp # :nodoc:
-          nice_name = self.class.name.split('::').last
-          pp.group(2, "#(#{nice_name}:#{sprintf("0x%x", object_id)} {", '})') do
+          nice_name = self.class.name.split("::").last
+          pp.group(2, "#(#{nice_name}:#{format("0x%x", object_id)} {", "})") do
             pp.breakable
             attrs = inspect_attributes.map do |t|
               [t, send(t)] if respond_to?(t)
@@ -34,7 +34,7 @@ module Nokogiri
 
             pp.seplist(attrs) do |v|
               if [:attribute_nodes, :children].include? v.first
-                pp.group(2, "#{v.first.to_s.sub(/_\w+$/, 's')} = [", "]") do
+                pp.group(2, "#{v.first.to_s.sub(/_\w+$/, "s")} = [", "]") do
                   pp.breakable
                   pp.seplist(v.last) do |item|
                     pp.pp item

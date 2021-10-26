@@ -55,7 +55,7 @@ module Nokogiri
         rd, wr = IO.pipe()
         node_out = nil
         t = Thread.start do
-          reader = Nokogiri::XML::Reader(rd, 'UTF-8')
+          reader = Nokogiri::XML::Reader(rd, "UTF-8")
           reader.each do |node|
             node_out = node
             break
@@ -125,13 +125,13 @@ module Nokogiri
 
       class ReallyBadIO
         def read(size)
-          'a' * size**10
+          "a" * size**10
         end
       end
 
       class ReallyBadIO4Java
         def read(size = 1)
-          'a' * size**10
+          "a" * size**10
         end
       end
 
@@ -198,7 +198,7 @@ module Nokogiri
       end
 
       def test_errors_is_an_array
-        reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
+        reader = Nokogiri::XML::Reader(StringIO.new("&bogus;"))
         assert_raises(SyntaxError) do
           reader.read
         end
@@ -207,7 +207,7 @@ module Nokogiri
 
       def test_pushing_to_non_array_raises_TypeError
         skip_unless_libxml2("TODO: JRuby ext does not internally call `errors`")
-        reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
+        reader = Nokogiri::XML::Reader(StringIO.new("&bogus;"))
         def reader.errors
           1
         end
@@ -236,11 +236,11 @@ module Nokogiri
         </x>
         eoxml
         assert_equal({}, reader.attributes)
-        assert_equal [{ 'xmlns:tenderlove' => 'http://tenderlovemaking.com/',
-                        'xmlns' => 'http://mothership.connection.com/', },
+        assert_equal [{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },
                       {}, { "awesome" => "true" }, {}, { "awesome" => "true" }, {},
-                      { 'xmlns:tenderlove' => 'http://tenderlovemaking.com/',
-                        'xmlns' => 'http://mothership.connection.com/', },],
+                      { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },],
           reader.map(&:attributes)
       end
 
@@ -267,7 +267,7 @@ module Nokogiri
         eoxml
         assert_nil reader.attribute_at(nil)
         assert_nil reader.attribute_at(0)
-        assert_equal ['http://tenderlovemaking.com/', nil, 'true', nil, 'true', nil, 'http://tenderlovemaking.com/'],
+        assert_equal ["http://tenderlovemaking.com/", nil, "true", nil, "true", nil, "http://tenderlovemaking.com/"],
           reader.map { |x| x.attribute_at(0) }
       end
 
@@ -278,9 +278,9 @@ module Nokogiri
         </x>
         eoxml
         assert_nil reader.attribute(nil)
-        assert_nil reader.attribute('awesome')
-        assert_equal [nil, nil, 'true', nil, 'true', nil, nil],
-          reader.map { |x| x.attribute('awesome') }
+        assert_nil reader.attribute("awesome")
+        assert_equal [nil, nil, "true", nil, "true", nil, nil],
+          reader.map { |x| x.attribute("awesome") }
       end
 
       def test_attribute_length
@@ -310,8 +310,8 @@ module Nokogiri
           <p xml:lang="ja">日本語が上手です</p>
         </awesome>
         eoxml
-        reader = Nokogiri::XML::Reader.from_memory(string, nil, 'UTF-8')
-        assert_equal ['UTF-8'], reader.map(&:encoding).uniq
+        reader = Nokogiri::XML::Reader.from_memory(string, nil, "UTF-8")
+        assert_equal ["UTF-8"], reader.map(&:encoding).uniq
       end
 
       def test_xml_version
@@ -321,7 +321,7 @@ module Nokogiri
         </x>
         eoxml
         assert_nil reader.xml_version
-        assert_equal ['1.0'], reader.map(&:xml_version).uniq
+        assert_equal ["1.0"], reader.map(&:xml_version).uniq
       end
 
       def test_lang
@@ -398,7 +398,7 @@ module Nokogiri
       end
 
       def test_state
-        reader = Nokogiri::XML::Reader.from_memory('<foo>bar</bar>')
+        reader = Nokogiri::XML::Reader.from_memory("<foo>bar</bar>")
         assert reader.state
       end
 
@@ -454,8 +454,8 @@ module Nokogiri
             reader.attribute_nodes.each { |attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
           end
         end
-        assert_equal(['commons',
-                      'edi',
+        assert_equal(["commons",
+                      "edi",
                       nil,],
           attr_ns)
       end
@@ -520,7 +520,7 @@ module Nokogiri
 
         reader.each do |node|
           next unless node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
-          if node.name == 'link'
+          if node.name == "link"
             assert_nil node.base_uri
           end
         end
@@ -544,7 +544,7 @@ module Nokogiri
 
       def test_read_from_memory
         called = false
-        reader = Nokogiri::XML::Reader.from_memory('<foo>bar</foo>')
+        reader = Nokogiri::XML::Reader.from_memory("<foo>bar</foo>")
         reader.each do |node|
           called = true
           assert node
@@ -630,11 +630,11 @@ module Nokogiri
       end
 
       def test_nonexistent_attribute
-        require 'nokogiri'
+        require "nokogiri"
         reader = Nokogiri::XML::Reader("<root xmlns='bob'><el attr='fred' /></root>")
         reader.read # root
         reader.read # el
-        assert_nil reader.attribute('other')
+        assert_nil reader.attribute("other")
       end
     end
   end

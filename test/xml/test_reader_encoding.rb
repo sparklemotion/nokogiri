@@ -10,7 +10,7 @@ module Nokogiri
         @reader = Nokogiri::XML::Reader(
           File.read(XML_FILE),
           XML_FILE,
-          'UTF-8'
+          "UTF-8"
         )
       end
 
@@ -36,9 +36,9 @@ module Nokogiri
             <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
-          next unless attribute = node.attribute('awesome')
+          next unless attribute = node.attribute("awesome")
           assert_equal reader.encoding, attribute.encoding.name
         end
       end
@@ -58,7 +58,7 @@ module Nokogiri
           </awesome>
         eoxml
 
-        reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
           next unless lang = node.lang
           assert_equal reader.encoding, lang.encoding.name
@@ -81,7 +81,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
           next unless prefix = node.prefix
           assert_equal reader.encoding, prefix.encoding.name
@@ -94,7 +94,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
           next unless uri = node.namespace_uri
           assert_equal reader.encoding, uri.encoding.name
@@ -107,7 +107,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
         reader.each do |node|
           next unless lname = node.local_name
           assert_equal reader.encoding, lname.encoding.name
@@ -122,7 +122,7 @@ module Nokogiri
       end
 
       def test_value_lookup_segfault
-        skip("only run if NOKOGIRI_GC is set") unless ENV['NOKOGIRI_GC']
+        skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
         skip_unless_libxml2
         stress_memory_while do
           while node = @reader.read

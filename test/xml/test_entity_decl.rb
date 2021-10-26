@@ -29,24 +29,24 @@ module Nokogiri
 
       def test_create_typed_entity
         entity = @xml.create_entity(
-          'foo', EntityDecl::INTERNAL_GENERAL, nil, nil, nil
+          "foo", EntityDecl::INTERNAL_GENERAL, nil, nil, nil
         )
         assert_equal EntityDecl::INTERNAL_GENERAL, entity.entity_type
-        assert_equal 'foo', entity.name
+        assert_equal "foo", entity.name
       end
 
       def test_new
         entity = Nokogiri::XML::EntityDecl.new(
-          'foo', @xml, EntityDecl::INTERNAL_GENERAL, nil, nil, nil
+          "foo", @xml, EntityDecl::INTERNAL_GENERAL, nil, nil, nil
         )
         assert_equal EntityDecl::INTERNAL_GENERAL, entity.entity_type
-        assert_equal 'foo', entity.name
+        assert_equal "foo", entity.name
       end
 
       def test_create_default_args
-        entity = @xml.create_entity('foo')
+        entity = @xml.create_entity("foo")
         assert_equal EntityDecl::INTERNAL_GENERAL, entity.entity_type
-        assert_equal 'foo', entity.name
+        assert_equal "foo", entity.name
       end
 
       def test_external_id
@@ -113,7 +113,7 @@ module Nokogiri
 
       def test_inspect
         assert_equal(
-          "#<#{@entity_decl.class.name}:#{sprintf("0x%x", @entity_decl.object_id)} #{@entity_decl.to_s.inspect}>",
+          "#<#{@entity_decl.class.name}:#{format("0x%x", @entity_decl.object_id)} #{@entity_decl.to_s.inspect}>",
           @entity_decl.inspect
         )
       end

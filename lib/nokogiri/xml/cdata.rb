@@ -6,7 +6,7 @@ module Nokogiri
       ###
       # Get the name of this CDATA node
       def name
-        '#cdata-section'
+        "#cdata-section"
       end
     end
   end

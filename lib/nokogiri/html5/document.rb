@@ -27,9 +27,9 @@ module Nokogiri
     class Document < Nokogiri::HTML4::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
         yield options if block_given?
-        string_or_io = '' unless string_or_io
+        string_or_io = "" unless string_or_io
 
-        if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != 'ASCII-8BIT'
+        if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
           encoding ||= string_or_io.encoding.name
         end
 
@@ -70,7 +70,7 @@ module Nokogiri
         max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
         max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
         doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth)
-        doc.encoding = 'UTF-8'
+        doc.encoding = "UTF-8"
         doc
       end
     end
