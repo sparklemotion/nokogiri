@@ -24,6 +24,7 @@ world
           attr_accessor :context, :lines, :columns
 
           def initialize
+            super
             @context = nil
             @lines   = []
             @columns = []

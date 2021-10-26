@@ -65,6 +65,7 @@ module Nokogiri
             attr_accessor :initialized_with
 
             def initialize(*args)
+              super
               @initialized_with = args
             end
           end
@@ -344,6 +345,7 @@ module Nokogiri
         def test_parse_works_with_an_object_that_responds_to_read
           klass = Class.new do
             def initialize
+              super
               @contents = StringIO.new("<div>foo</div>")
             end
 

@@ -21,11 +21,6 @@ Lint/MissingSuper:
     - 'lib/nokogiri/xml/document.rb'
     - 'lib/nokogiri/xml/document_fragment.rb'
     - 'lib/nokogiri/xml/processing_instruction.rb'
-    - 'test/helper.rb'
-    - 'test/html4/test_document.rb'
-    - 'test/xml/sax/test_parser_context.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.

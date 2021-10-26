@@ -27,6 +27,7 @@ module Nokogiri
           attr_reader :things
 
           def initialize
+            super
             @things = []
           end
 

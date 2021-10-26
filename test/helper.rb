@@ -304,6 +304,7 @@ module Nokogiri
         attr_reader :items
 
         def initialize
+          super
           # [
           #   [ :method_1, argument_1, ... ],
           #   [ :method_2, argument_2, ... ],
