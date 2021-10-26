@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineMethodCallBraceLayout:
-  Exclude:
-    - 'test/css/test_tokenizer.rb'
-
 # Offense count: 18
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
@@ -406,20 +398,6 @@ Style/ConditionalAssignment:
 Style/EachWithObject:
   Exclude:
     - 'lib/nokogiri/xml/document.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/EmptyCaseCondition:
-  Exclude:
-    - 'lib/nokogiri/html4/document.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'lib/nokogiri/xml/syntax_error.rb'
 
 # Offense count: 18
 # Cop supports --auto-correct.

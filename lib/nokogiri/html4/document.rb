@@ -9,10 +9,9 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        case
-        when meta = at('//meta[@charset]')
+        if meta = at('//meta[@charset]')
           meta[:charset]
-        when meta = meta_content_type
+        elsif meta = meta_content_type
           meta['content'][/charset\s*=\s*([\w-]+)/i, 1]
         end
       end
@@ -34,11 +33,10 @@ module Nokogiri
       # Beware in CRuby, that libxml2 automatically inserts a meta tag
       # into a head element.
       def meta_encoding= encoding
-        case
-        when meta = meta_content_type
+        if meta = meta_content_type
           meta['content'] = 'text/html; charset=%s' % encoding
           encoding
-        when meta = at('//meta[@charset]')
+        elsif meta = at('//meta[@charset]')
           meta['charset'] = encoding
         else
           meta = XML::Node.new('meta', self)
@@ -49,8 +47,7 @@ module Nokogiri
             meta['content'] = 'text/html; charset=%s' % encoding
           end
 
-          case
-          when head = at('//head')
+          if head = at('//head')
             head.prepend_child(meta)
           else
             set_metadata_element(meta)
@@ -92,10 +89,9 @@ module Nokogiri
         end
 
         title = XML::Node.new('title', self) << tnode
-        case
-        when head = at('//head')
+        if head = at('//head')
           head << title
-        when meta = at('//meta[@charset]') || meta_content_type
+        elsif meta = at('//meta[@charset]') || meta_content_type
           # better put after charset declaration
           meta.add_next_sibling(title)
         else
@@ -105,18 +101,17 @@ module Nokogiri
       end
 
       def set_metadata_element(element)
-        case
-        when head = at('//head')
+        if head = at('//head')
           head << element
-        when html = at('//html')
+        elsif html = at('//html')
           head = html.prepend_child(XML::Node.new('head', self))
           head.prepend_child(element)
-        when first = children.find do |node|
-               case node
-               when XML::Element, XML::Text
-                 true
-               end
-             end
+        elsif first = children.find do |node|
+                case node
+                when XML::Element, XML::Text
+                  true
+                end
+              end
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.

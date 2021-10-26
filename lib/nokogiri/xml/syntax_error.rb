@@ -55,7 +55,6 @@ module Nokogiri
         when 3 then "FATAL"
         when 2 then "ERROR"
         when 1 then "WARNING"
-        else nil
         end
       end
 
