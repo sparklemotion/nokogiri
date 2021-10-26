@@ -165,17 +165,6 @@ Performance/RedundantBlockCall:
     - 'lib/nokogiri/xml/node.rb'
     - 'lib/nokogiri/xml/node_set.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/extension.rb'
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'lib/nokogiri/xslt.rb'
-    - 'test/html4/test_node.rb'
-
 # Offense count: 29
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect.

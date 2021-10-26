@@ -408,7 +408,7 @@ module Nokogiri
         assert_equal(5, set.length)
 
         assert(node = @node.at(:employee))
-        assert(node.text =~ /EMP0001/)
+        assert_match(/EMP0001/, node.text)
       end
 
       def test_new_node

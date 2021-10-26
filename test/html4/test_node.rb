@@ -179,7 +179,7 @@ module Nokogiri
         EOH
         nokogiri = Nokogiri::HTML.parse(html)
 
-        if RUBY_PLATFORM =~ /java/
+        if RUBY_PLATFORM.match?(/java/)
           # NKF linebreak modes are not supported as of jruby 1.2
           # see http://jira.codehaus.org/browse/JRUBY-3602 for status
           assert_equal("<p>testparagraph\nfoobar</p>",

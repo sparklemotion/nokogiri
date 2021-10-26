@@ -89,7 +89,7 @@ module Nokogiri
         return attribute unless node.value.length == 3
 
         value = node.value.last
-        value = "'#{value}'" if value !~ /^['"]/
+        value = "'#{value}'" if !/^['"]/.match?(value)
 
         # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
         if (value[0] == value[-1]) && %q{"'}.include?(value[0])

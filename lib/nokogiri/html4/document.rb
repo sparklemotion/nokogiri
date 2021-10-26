@@ -251,7 +251,7 @@ module Nokogiri
           def start_element(name, attrs = [])
             super
             throw(@jumptag, @encoding) if @encoding
-            throw(@jumptag, nil) if name =~ /\A(?:div|h1|img|p|br)\z/
+            throw(@jumptag, nil) if /\A(?:div|h1|img|p|br)\z/.match?(name)
           end
         end
 
