@@ -43,8 +43,8 @@ class Nokogiri::SAX::TestCase
 
       xml = "<root />"
       parser.parse(xml)
-      assert(parser.document.start_document_called, xml)
-      assert_nil(parser.document.xmldecls, xml)
+      assert(parser.document.start_document_called)
+      assert_nil(parser.document.xmldecls)
     end
 
     it :test_xml_decl do
@@ -60,8 +60,8 @@ class Nokogiri::SAX::TestCase
 
         xml = "#{decl}\n<root />"
         parser.parse(xml)
-        assert(parser.document.start_document_called, xml)
-        assert_equal(value, parser.document.xmldecls, xml)
+        assert(parser.document.start_document_called)
+        assert_equal(value, parser.document.xmldecls)
       end
     end
 

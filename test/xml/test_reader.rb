@@ -195,7 +195,7 @@ module Nokogiri
         assert_raises(Nokogiri::XML::SyntaxError) do
           reader.each { |node| }
         end
-        assert(1, reader.errors.length)
+        assert_equal(1, reader.errors.length)
       end
 
       def test_errors_is_an_array

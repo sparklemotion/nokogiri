@@ -9,6 +9,7 @@ module Nokogiri
         describe "namespaces" do
           let(:ns_xml) { Nokogiri.XML('<foo xmlns:n0="http://example.com" />') }
           let(:ns_list) { ns_xml.xpath("//namespace::*") }
+          let(:new_ns) { ns_xml.root.add_namespace_definition("n1", "http://example.com/n1") }
 
           specify "#include?" do
             assert_includes(ns_list, ns_list.first, "list should have item")
@@ -16,15 +17,15 @@ module Nokogiri
 
           specify "#push" do
             expected_length = ns_list.length + 1
-            ns_list.push(ns_list.first)
-            assert(expected_length, ns_list.length)
+            ns_list.push(new_ns)
+            assert_equal(expected_length, ns_list.length)
           end
 
           specify "#delete" do
             expected_length = ns_list.length
-            ns_list.push(ns_list.first)
-            ns_list.delete(ns_list.first)
-            assert(expected_length, ns_list.length)
+            ns_list.push(new_ns)
+            ns_list.delete(new_ns)
+            assert_equal(expected_length, ns_list.length)
           end
 
           it "doesn't free namespace nodes when deleted" do

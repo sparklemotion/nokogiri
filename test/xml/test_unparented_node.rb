@@ -405,7 +405,7 @@ module Nokogiri
 
       def test_search_by_symbol
         assert(set = @node.search(:employee))
-        assert(5, set.length)
+        assert_equal(5, set.length)
 
         assert(node = @node.at(:employee))
         assert(node.text =~ /EMP0001/)
@@ -439,8 +439,8 @@ module Nokogiri
 
       def test_replace
         set = @node.search(".//employee")
-        assert(5, set.length)
-        assert(0, @node.search(".//form").length)
+        assert_equal(5, set.length)
+        assert_equal(0, @node.search(".//form").length)
 
         first = set[0]
         second = set[1]
@@ -450,7 +450,7 @@ module Nokogiri
 
         assert(set = @node.search(".//employee"))
         assert_equal(4, set.length)
-        assert(1, @node.search(".//form").length)
+        assert_equal(1, @node.search(".//form").length)
 
         assert_equal(set[0].to_xml, second.to_xml)
       end

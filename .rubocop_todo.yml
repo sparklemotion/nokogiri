@@ -84,19 +84,6 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   MaxOptionalParameters: 4
 
-# Offense count: 17
-Minitest/AssertWithExpectedArgument:
-  Exclude:
-    - 'test/helper.rb'
-    - 'test/xml/sax/test_parser.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_document_fragment.rb'
-    - 'test/xml/test_dtd.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_node_set.rb'
-    - 'test/xml/test_reader.rb'
-    - 'test/xml/test_unparented_node.rb'
-
 # Offense count: 32
 # Cop supports --auto-correct.
 Minitest/LiteralAsActualArgument:

@@ -824,7 +824,7 @@ module Nokogiri
 
         def test_search_by_symbol
           assert(set = xml.search(:employee))
-          assert(5, set.length)
+          assert_equal(5, set.length)
 
           assert(node = xml.at(:employee))
           assert(node.text =~ /EMP0001/)
