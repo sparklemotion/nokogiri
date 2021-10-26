@@ -42,8 +42,7 @@ module Nokogiri
                        [:IDENT, 'a'],
                        [:NOT_EQUAL, '!='],
                        [:STRING, "'Tender Lovemaking'"],
-                       [:RSQUARE, ']'],
-], @scanner)
+                       [:RSQUARE, ']'],], @scanner)
       end
 
       def test_negation
@@ -52,8 +51,7 @@ module Nokogiri
                        [:NOT, ':not('],
                        ['.', '.'],
                        [:IDENT, 'a'],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
       end
 
       def test_function
@@ -61,16 +59,14 @@ module Nokogiri
         assert_tokens([[:IDENT, 'script'],
                        [:S, ' '],
                        [:FUNCTION, 'comment('],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
       end
 
       def test_preceding_selector
         @scanner.scan("E ~ F")
         assert_tokens([[:IDENT, 'E'],
                        [:TILDE, ' ~ '],
-                       [:IDENT, 'F'],
-], @scanner)
+                       [:IDENT, 'F'],], @scanner)
       end
 
       def test_scan_attribute_string
@@ -80,16 +76,14 @@ module Nokogiri
                        [:IDENT, 'a'],
                        [:EQUAL, '='],
                        [:STRING, "'Tender Lovemaking'"],
-                       [:RSQUARE, ']'],
-], @scanner)
+                       [:RSQUARE, ']'],], @scanner)
         @scanner.scan('h1[a="Tender Lovemaking"]')
         assert_tokens([[:IDENT, 'h1'],
                        [:LSQUARE, '['],
                        [:IDENT, 'a'],
                        [:EQUAL, '='],
                        [:STRING, '"Tender Lovemaking"'],
-                       [:RSQUARE, ']'],
-], @scanner)
+                       [:RSQUARE, ']'],], @scanner)
       end
 
       def test_scan_id
@@ -101,8 +95,7 @@ module Nokogiri
         @scanner.scan('a:visited')
         assert_tokens([[:IDENT, 'a'],
                        [':', ':'],
-                       [:IDENT, 'visited'],
-], @scanner)
+                       [:IDENT, 'visited'],], @scanner)
       end
 
       def test_scan_star
@@ -114,32 +107,28 @@ module Nokogiri
         @scanner.scan('x.awesome')
         assert_tokens([[:IDENT, 'x'],
                        ['.', '.'],
-                       [:IDENT, 'awesome'],
-], @scanner)
+                       [:IDENT, 'awesome'],], @scanner)
       end
 
       def test_scan_greater
         @scanner.scan('x > y')
         assert_tokens([[:IDENT, 'x'],
                        [:GREATER, ' > '],
-                       [:IDENT, 'y'],
-], @scanner)
+                       [:IDENT, 'y'],], @scanner)
       end
 
       def test_scan_slash
         @scanner.scan('x/y')
         assert_tokens([[:IDENT, 'x'],
                        [:SLASH, '/'],
-                       [:IDENT, 'y'],
-], @scanner)
+                       [:IDENT, 'y'],], @scanner)
       end
 
       def test_scan_doubleslash
         @scanner.scan('x//y')
         assert_tokens([[:IDENT, 'x'],
                        [:DOUBLESLASH, '//'],
-                       [:IDENT, 'y'],
-], @scanner)
+                       [:IDENT, 'y'],], @scanner)
       end
 
       def test_scan_function_selector
@@ -148,8 +137,7 @@ module Nokogiri
                        [':', ':'],
                        [:FUNCTION, 'eq('],
                        [:NUMBER, "0"],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
       end
 
       def test_scan_nth
@@ -161,8 +149,7 @@ module Nokogiri
                        [:IDENT, 'n'],
                        [:PLUS, '+'],
                        [:NUMBER, '3'],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
 
         @scanner.scan('x:nth-child(-1n+3)')
         assert_tokens([[:IDENT, 'x'],
@@ -172,8 +159,7 @@ module Nokogiri
                        [:IDENT, 'n'],
                        [:PLUS, '+'],
                        [:NUMBER, '3'],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
 
         @scanner.scan('x:nth-child(-n+3)')
         assert_tokens([[:IDENT, 'x'],
@@ -182,8 +168,7 @@ module Nokogiri
                        [:IDENT, '-n'],
                        [:PLUS, '+'],
                        [:NUMBER, '3'],
-                       [:RPAREN, ')'],
-], @scanner)
+                       [:RPAREN, ')'],], @scanner)
       end
 
       def test_significant_space
@@ -199,8 +184,7 @@ module Nokogiri
                        [:S, ' '],
                        [:LSQUARE, '['],
                        [:IDENT, 'b'],
-                       [:RSQUARE, ']'],
-], @scanner)
+                       [:RSQUARE, ']'],], @scanner)
       end
 
       def assert_tokens(tokens, scanner)

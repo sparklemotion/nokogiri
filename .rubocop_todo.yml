@@ -6,31 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Layout/FirstArrayElementIndentation:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: normal, indented_internal_methods
-Layout/IndentationConsistency:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
-
-# Offense count: 108
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineArrayBraceLayout:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
-    - 'test/css/test_tokenizer.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -446,14 +421,6 @@ Style/EmptyElse:
   Exclude:
     - 'lib/nokogiri/xml/syntax_error.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/EmptyLiteral:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'test/xml/test_dtd.rb'
-
 # Offense count: 18
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -495,7 +462,6 @@ Style/MethodCallWithArgsParentheses:
 # Configuration parameters: IgnoredMethods.
 Style/MethodCallWithoutArgsParentheses:
   Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
     - 'test/namespaces/test_namespaces_in_cloned_doc.rb'
     - 'test/xml/node/test_attribute_methods.rb'
     - 'test/xml/test_reader.rb'
@@ -723,14 +689,6 @@ Style/SymbolProc:
     - 'test/xml/test_unparented_node.rb'
     - 'test/xml/test_xinclude.rb'
     - 'test/xml/test_xpath.rb'
-
-# Offense count: 118
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInArrayLiteral:
-  Exclude:
-    - 'lib/nokogiri/html4/element_description_defaults.rb'
 
 # Offense count: 56
 # Cop supports --auto-correct.
