@@ -66,8 +66,11 @@ namespace "format" do
     AstyleHelper.run(AstyleHelper.java_files)
   end
 
+  desc "Format Nokogiri's Ruby code"
+  task "ruby" => "rubocop:check:auto_correct"
+
   CLEAN.add(AstyleHelper.c_files.map { |f| "#{f}.orig" })
   CLEAN.add(AstyleHelper.java_files.map { |f| "#{f}.orig" })
 end
 
-task "format" => ["format:c", "format:java"]
+task "format" => ["format:c", "format:java", "format:ruby"]

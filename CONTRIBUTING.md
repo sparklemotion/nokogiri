@@ -206,9 +206,11 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
 
 I don't feel very strongly about code style, but when possible I follow [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code I use the `astyle` settings laid out in `/rakelib/format.rake`.
 
-You can format the C and Java code with `rake format`. Maybe someday I'll auto-format Ruby, but not today.
+You can format the C, Java, and Ruby code with `rake format`.
 
-No, I don't want to talk to you about this.
+There are likely some pending Rubocop rules in `.rubocop_todo.yml` which I'd be happy to merge if you enabled them and submit a PR.
+
+No, I don't want to talk to you about any of the style choices.
 
 
 ## How Continuous Integration ("CI") is configured
