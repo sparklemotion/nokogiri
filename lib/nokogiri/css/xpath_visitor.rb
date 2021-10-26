@@ -15,26 +15,26 @@ module Nokogiri
         when /^eq\(/
           "position()=#{node.value[1]}"
         when /^(nth|nth-of-type)\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+          if node.value[1].is_a?(Nokogiri::CSS::Node) && (node.value[1].type == :NTH)
             nth(node.value[1])
           else
             "position()=#{node.value[1]}"
           end
         when /^nth-child\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+          if node.value[1].is_a?(Nokogiri::CSS::Node) && (node.value[1].type == :NTH)
             nth(node.value[1], child: true)
           else
             "count(preceding-sibling::*)=#{node.value[1].to_i - 1}"
           end
         when /^nth-last-of-type\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+          if node.value[1].is_a?(Nokogiri::CSS::Node) && (node.value[1].type == :NTH)
             nth(node.value[1], last: true)
           else
             index = node.value[1].to_i - 1
             index == 0 ? "position()=last()" : "position()=last()-#{index}"
           end
         when /^nth-last-child\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+          if node.value[1].is_a?(Nokogiri::CSS::Node) && (node.value[1].type == :NTH)
             nth(node.value[1], last: true, child: true)
           else
             "count(following-sibling::*)=#{node.value[1].to_i - 1}"
@@ -53,7 +53,7 @@ module Nokogiri
           "comment()"
         when /^has\(/
           is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
-          ".#{"//" if !is_direct}#{node.value[1].accept(self)}"
+          ".#{"//" unless is_direct}#{node.value[1].accept(self)}"
         else
           # non-standard. this looks like a function call.
           args = ["."] + node.value[1..-1]
@@ -76,7 +76,7 @@ module Nokogiri
       end
 
       def visit_attribute_condition(node)
-        attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
+        attribute = if (node.value.first.type == :FUNCTION) || (node.value.first.value.first =~ /::/)
           ""
         else
           "@"
@@ -89,7 +89,7 @@ module Nokogiri
         return attribute unless node.value.length == 3
 
         value = node.value.last
-        value = "'#{value}'" if !/^['"]/.match?(value)
+        value = "'#{value}'" unless /^['"]/.match?(value)
 
         # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
         if (value[0] == value[-1]) && %q{"'}.include?(value[0])
@@ -121,7 +121,7 @@ module Nokogiri
       end
 
       def visit_pseudo_class(node)
-        if node.value.first.is_a?(Nokogiri::CSS::Node) and node.value.first.type == :FUNCTION
+        if node.value.first.is_a?(Nokogiri::CSS::Node) && (node.value.first.type == :FUNCTION)
           node.value.first.accept(self)
         else
           msg = :"visit_pseudo_class_#{node.value.first.gsub(/[(]/, "")}"
@@ -223,7 +223,7 @@ module Nokogiri
 
       def is_of_type_pseudo_class?(node)
         if node.type == :PSEUDO_CLASS
-          if node.value[0].is_a?(Nokogiri::CSS::Node) and node.value[0].type == :FUNCTION
+          if node.value[0].is_a?(Nokogiri::CSS::Node) && (node.value[0].type == :FUNCTION)
             node.value[0].value[0]
           else
             node.value[0]

@@ -366,7 +366,7 @@ module Nokogiri
         end
 
         # look for a charset in a meta tag in the first 1024 bytes
-        if not encoding
+        unless encoding
           data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
           data.scan(/<meta.*?>/m).each do |meta|
             encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
@@ -421,7 +421,7 @@ module Nokogiri
           io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
         end
         io << ">"
-        if !["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
+        unless ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
           io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
           current_node.children.each do |child|
             # XXX(sfc): Templates handled specially?

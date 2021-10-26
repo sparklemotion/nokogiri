@@ -187,7 +187,7 @@ module Nokogiri
         node.xpath("./param").each do |p|
           subparams = parse_params(p)
           if subparams.length > 0
-            if not params.has_key?(p.attributes["name"].value)
+            if !params.has_key?(p.attributes["name"].value)
               params[p.attributes["name"].value] = subparams
             elsif params[p.attributes["name"].value].is_a?(Array)
               params[p.attributes["name"].value] << subparams

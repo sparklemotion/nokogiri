@@ -184,16 +184,6 @@ Performance/UnfreezeString:
     - 'test/html5/test_nokogumbo.rb'
     - 'test/xml/test_document.rb'
 
-# Offense count: 21
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, conditionals
-Style/AndOr:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/html4/document.rb'
-    - 'test/xml/test_reader.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -246,26 +236,6 @@ Style/MissingRespondToMissing:
 Style/MultilineTernaryOperator:
   Exclude:
     - 'lib/nokogiri/xml/sax/parser_context.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Exclude:
-    - 'lib/nokogiri/css/xpath_visitor.rb'
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/html5.rb'
-    - 'lib/nokogiri/xml/builder.rb'
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'lib/nokogiri/xml/node_set.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/Not:
-  Exclude:
-    - 'lib/nokogiri/html5.rb'
-    - 'test/xml/test_xpath.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.

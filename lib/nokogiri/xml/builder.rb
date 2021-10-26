@@ -380,7 +380,7 @@ module Nokogiri
       def to_xml(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::AS_BUILDER
           end
           args.insert(0, options)

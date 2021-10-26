@@ -40,7 +40,7 @@ module Nokogiri
           meta["charset"] = encoding
         else
           meta = XML::Node.new("meta", self)
-          if dtd = internal_subset and dtd.html5_dtd?
+          if (dtd = internal_subset) && dtd.html5_dtd?
             meta["charset"] = encoding
           else
             meta["http-equiv"] = "Content-Type"
@@ -67,7 +67,7 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at("//title") and title.inner_text
+        (title = at("//title")) && title.inner_text
       end
 
       ###
@@ -201,7 +201,7 @@ module Nokogiri
           end
 
           # read_memory pukes on empty docs
-          if string_or_io.nil? or string_or_io.empty?
+          if string_or_io.nil? || string_or_io.empty?
             return encoding ? new.tap { |i| i.encoding = encoding } : new
           end
 
@@ -232,13 +232,13 @@ module Nokogiri
           def start_element(name, attrs = [])
             return unless name == "meta"
             attr = Hash[attrs]
-            charset = attr["charset"] and
-              @encoding = charset
-            http_equiv = attr["http-equiv"] and
-              http_equiv.match(/\AContent-Type\z/i) and
-              content = attr["content"] and
-              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
-              @encoding = m[1]
+            (charset = attr["charset"]) &&
+              (@encoding = charset)
+            (http_equiv = attr["http-equiv"]) &&
+              http_equiv.match(/\AContent-Type\z/i) &&
+              (content = attr["content"]) &&
+              (m = content.match(/;\s*charset\s*=\s*([\w-]+)/)) &&
+              (@encoding = m[1])
           end
         end
 
@@ -256,12 +256,12 @@ module Nokogiri
         end
 
         def self.detect_encoding(chunk)
-          m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
-            return Nokogiri.XML(m[1]).encoding
+          (m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/)) &&
+            (return Nokogiri.XML(m[1]).encoding)
 
           if Nokogiri.jruby?
-            m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
-              return m[4]
+            (m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i)) &&
+              (return m[4])
             catch(:encoding_found) do
               Nokogiri::HTML4::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
               nil
@@ -288,8 +288,8 @@ module Nokogiri
         def read(len)
           # no support for a call without len
 
-          if !@firstchunk
-            @firstchunk = @io.read(len) or return nil
+          unless @firstchunk
+            (@firstchunk = @io.read(len)) || (return nil)
 
             # This implementation expects that the first call from
             # htmlReadIO() is made with a length long enough (~1KB) to
@@ -303,7 +303,7 @@ module Nokogiri
 
           ret = @firstchunk.slice!(0, len)
           if (len -= ret.length) > 0
-            rest = @io.read(len) and ret << rest
+            (rest = @io.read(len)) && ret << (rest)
           end
           if ret.empty?
             nil

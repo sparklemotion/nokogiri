@@ -56,7 +56,7 @@ module Nokogiri
       def to_html(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::NO_DECLARATION | Node::SaveOptions::NO_EMPTY_TAGS | Node::SaveOptions::AS_HTML
           end
           args.insert(0, options)
@@ -70,7 +70,7 @@ module Nokogiri
       def to_xhtml(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::NO_DECLARATION | Node::SaveOptions::NO_EMPTY_TAGS | Node::SaveOptions::AS_XHTML
           end
           args.insert(0, options)
