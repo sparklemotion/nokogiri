@@ -8,6 +8,9 @@ inherit_from: .rubocop_todo.yml
 
 AllCops:
   NewCops: enable
+  Exclude:
+    - 'lib/nokogiri/css/parser.rb'
+    - 'lib/nokogiri/css/tokenizer.rb'
 Naming/MethodName:
   Enabled: false
 Naming/FileName:
