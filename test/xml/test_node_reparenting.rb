@@ -59,22 +59,22 @@ module Nokogiri
         end
 
         {
-          :add_child => { target: "/root/a1", returns_self: false, children_tags: %w[text b1 b2] },
-          :<< => { target: "/root/a1", returns_self: true, children_tags: %w[text b1 b2] },
+          :add_child => { target: "/root/a1", returns_self: false, children_tags: ['text', 'b1', 'b2'] },
+          :<< => { target: "/root/a1", returns_self: true, children_tags: ['text', 'b1', 'b2'] },
 
-          :replace => { target: "/root/a1/node()", returns_self: false, children_tags: %w[b1 b2] },
-          :swap => { target: "/root/a1/node()", returns_self: true, children_tags: %w[b1 b2] },
+          :replace => { target: "/root/a1/node()", returns_self: false, children_tags: ['b1', 'b2'] },
+          :swap => { target: "/root/a1/node()", returns_self: true, children_tags: ['b1', 'b2'] },
 
-          :children= => { target: "/root/a1", returns_self: false, children_tags: %w[b1 b2] },
-          :inner_html= => { target: "/root/a1", returns_self: true, children_tags: %w[b1 b2] },
+          :children= => { target: "/root/a1", returns_self: false, children_tags: ['b1', 'b2'] },
+          :inner_html= => { target: "/root/a1", returns_self: true, children_tags: ['b1', 'b2'] },
 
-          :add_previous_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: %w[b1 b2 text] },
-          :previous= => { target: "/root/a1/text()", returns_self: false, children_tags: %w[b1 b2 text] },
-          :before => { target: "/root/a1/text()", returns_self: true, children_tags: %w[b1 b2 text] },
+          :add_previous_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ['b1', 'b2', 'text'] },
+          :previous= => { target: "/root/a1/text()", returns_self: false, children_tags: ['b1', 'b2', 'text'] },
+          :before => { target: "/root/a1/text()", returns_self: true, children_tags: ['b1', 'b2', 'text'] },
 
-          :add_next_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: %w[text b1 b2] },
-          :next= => { target: "/root/a1/text()", returns_self: false, children_tags: %w[text b1 b2] },
-          :after => { target: "/root/a1/text()", returns_self: true, children_tags: %w[text b1 b2] },
+          :add_next_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ['text', 'b1', 'b2'] },
+          :next= => { target: "/root/a1/text()", returns_self: false, children_tags: ['text', 'b1', 'b2'] },
+          :after => { target: "/root/a1/text()", returns_self: true, children_tags: ['text', 'b1', 'b2'] },
         }.each do |method, params|
           describe "##{method}" do
             describe "passed a Node" do

@@ -382,11 +382,11 @@ module Nokogiri
           doc = Nokogiri::XML("<root>")
 
           node_set = doc.root.prepend_child("<branch/>")
-          assert_equal(%w[branch], node_set.map(&:name))
+          assert_equal(['branch'], node_set.map(&:name))
 
           branch = doc.at("//branch")
 
-          leaves = %w[leaf1 leaf2 leaf3]
+          leaves = ['leaf1', 'leaf2', 'leaf3']
           leaves.each do |name|
             branch.prepend_child("<%s/>" % name)
           end

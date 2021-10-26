@@ -421,8 +421,7 @@ module Nokogiri
           io << ' ' << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
         end
         io << '>'
-        if !%w[area base basefont bgsound br col embed frame hr img input keygen
-               link meta param source track wbr].include?(current_node.name)
+        if !['area', 'base', 'basefont', 'bgsound', 'br', 'col', 'embed', 'frame', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'].include?(current_node.name)
           io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
           current_node.children.each do |child|
             # XXX(sfc): Templates handled specially?
@@ -432,7 +431,7 @@ module Nokogiri
         end
       when XML::Node::TEXT_NODE
         parent = current_node.parent
-        if parent.element? && %w[style script xmp iframe noembed noframes plaintext noscript].include?(parent.name)
+        if parent.element? && ['style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'plaintext', 'noscript'].include?(parent.name)
           io << current_node.content
         else
           io << escape_text(current_node.content, encoding, false)
@@ -467,7 +466,7 @@ module Nokogiri
     end
 
     def self.prepend_newline?(node)
-      return false unless %w[pre textarea listing].include?(node.name) && !node.children.empty?
+      return false unless ['pre', 'textarea', 'listing'].include?(node.name) && !node.children.empty?
       first_child = node.children[0]
       first_child.text? && first_child.content.start_with?("\n")
     end

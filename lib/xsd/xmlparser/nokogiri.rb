@@ -94,7 +94,7 @@ module XSD # :nodoc:
         end_element [prefix, name].compact.join(':')
       end
 
-      %w{xmldecl start_document end_document comment}.each do |name|
+      ['xmldecl', 'start_document', 'end_document', 'comment'].each do |name|
         class_eval %{ def #{name}(*args); end }
       end
 

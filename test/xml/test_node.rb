@@ -620,7 +620,7 @@ module Nokogiri
           assert_equal(xml.serialize(nil, conf), string)
         end
 
-        %w{xml html xhtml}.each do |type|
+        ['xml', 'html', 'xhtml'].each do |type|
           define_method(:"test_write_#{type}_to") do
             io = StringIO.new
             assert xml.send(:"write_#{type}_to", io)

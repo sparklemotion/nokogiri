@@ -461,7 +461,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
     end
 
     if RbConfig::CONFIG["target_cpu"] == "universal"
-      %w[CFLAGS LDFLAGS].each do |key|
+      ['CFLAGS', 'LDFLAGS'].each do |key|
         unless env[key].include?("-arch")
           env[key] = concat_flags(env[key], RbConfig::CONFIG["ARCH_FLAG"])
         end

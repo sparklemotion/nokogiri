@@ -26,7 +26,7 @@ if Nokogiri.uses_gumbo?
     test[:new_errors] = []
     if lines[index] == "#new-errors"
       index += 1
-      until %w[#document-fragment #document #script-off #script-on].include?(lines[index])
+      until ['#document-fragment', '#document', '#script-off', '#script-on'].include?(lines[index])
         test[:new_errors] << lines[index]
         index += 1
       end

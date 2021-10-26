@@ -72,7 +72,7 @@ class Nokogiri::XML::Node
     end
 
     def test_values
-      assert_equal %w{Yes Yes}, @xml.xpath("//address")[1].values
+      assert_equal ['Yes', 'Yes'], @xml.xpath("//address")[1].values
     end
 
     def test_value?
@@ -81,7 +81,7 @@ class Nokogiri::XML::Node
     end
 
     def test_keys
-      assert_equal %w{domestic street}, @xml.xpath("//address")[1].keys
+      assert_equal ['domestic', 'street'], @xml.xpath("//address")[1].keys
     end
 
     def test_attribute_with_symbol
@@ -107,7 +107,7 @@ class Nokogiri::XML::Node
       p1, p2 = xml.xpath("//p")
 
       assert_equal [], div.classes
-      assert_equal %w[foo bar foo], p1.classes
+      assert_equal ['foo', 'bar', 'foo'], p1.classes
       assert_equal [], p2.classes
     end
 
@@ -195,7 +195,7 @@ class Nokogiri::XML::Node
 
       describe "#kwattr_values" do
         it "returns an array of space-delimited values" do
-          _(node.kwattr_values("blargh")).must_equal(%w[foo bar baz bar foo quux foo manx])
+          _(node.kwattr_values("blargh")).must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx'])
         end
 
         describe "when no attribute exists" do
@@ -226,25 +226,25 @@ class Nokogiri::XML::Node
 
         it "adds a new bare keyword string" do
           _(node.kwattr_add("blargh", "jimmy").kwattr_values("blargh"))
-            .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+            .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'jimmy'])
         end
 
         it "does not add a repeated bare keyword string" do
           _(node.kwattr_add("blargh", "foo").kwattr_values("blargh"))
-            .must_equal(%w[foo bar baz bar foo quux foo manx])
+            .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx'])
         end
 
         describe "given a string of keywords" do
           it "adds new keywords and ignores existing keywords" do
             _(node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-              .must_equal(%w[foo bar baz bar foo quux foo manx jimmy johnny])
+              .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'jimmy', 'johnny'])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and ignores existing keywords" do
-            _(node.kwattr_add("blargh", %w[foo jimmy]).kwattr_values("blargh"))
-              .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+            _(node.kwattr_add("blargh", ['foo', 'jimmy']).kwattr_values("blargh"))
+              .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'jimmy'])
           end
         end
       end
@@ -260,25 +260,25 @@ class Nokogiri::XML::Node
 
         it "adds a new bare keyword string" do
           _(node.kwattr_append("blargh", "jimmy").kwattr_values("blargh"))
-            .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+            .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'jimmy'])
         end
 
         it "adds a repeated bare keyword string" do
           _(node.kwattr_append("blargh", "foo").kwattr_values("blargh"))
-            .must_equal(%w[foo bar baz bar foo quux foo manx foo])
+            .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'foo'])
         end
 
         describe "given a string of keywords" do
           it "adds new keywords and existing keywords" do
             _(node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-              .must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy johnny])
+              .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'foo', 'jimmy', 'johnny'])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and existing keywords" do
-            _(node.kwattr_append("blargh", %w[foo jimmy]).kwattr_values("blargh"))
-              .must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy])
+            _(node.kwattr_append("blargh", ['foo', 'jimmy']).kwattr_values("blargh"))
+              .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx', 'foo', 'jimmy'])
           end
         end
       end
@@ -294,30 +294,30 @@ class Nokogiri::XML::Node
 
         it "removes an existing bare keyword string" do
           _(node.kwattr_remove("blargh", "foo").kwattr_values("blargh"))
-            .must_equal(%w[bar baz bar quux manx])
+            .must_equal(['bar', 'baz', 'bar', 'quux', 'manx'])
         end
 
         it "gracefully ignores a non-existent bare keyword string" do
           _(node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh"))
-            .must_equal(%w[foo bar baz bar foo quux foo manx])
+            .must_equal(['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx'])
         end
 
         describe "given a string of keywords" do
           it "removes existing keywords and ignores other keywords" do
             _(node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-              .must_equal(%w[bar baz bar quux manx])
+              .must_equal(['bar', 'baz', 'bar', 'quux', 'manx'])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and existing keywords" do
-            _(node.kwattr_remove("blargh", %w[foo jimmy]).kwattr_values("blargh"))
-              .must_equal(%w[bar baz bar quux manx])
+            _(node.kwattr_remove("blargh", ['foo', 'jimmy']).kwattr_values("blargh"))
+              .must_equal(['bar', 'baz', 'bar', 'quux', 'manx'])
           end
         end
 
         it "removes the attribute when no values are left" do
-          _(node.kwattr_remove("blargh", %w[foo bar baz bar foo quux foo manx]).get_attribute("blargh")).must_be_nil
+          _(node.kwattr_remove("blargh", ['foo', 'bar', 'baz', 'bar', 'foo', 'quux', 'foo', 'manx']).get_attribute("blargh")).must_be_nil
         end
       end
     end

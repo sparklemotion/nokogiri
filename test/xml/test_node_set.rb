@@ -40,7 +40,7 @@ module Nokogiri
         describe "#filter" do
           it "finds all nodes that match the expression" do
             list = xml.css('address').filter('*[domestic="Yes"]')
-            assert_equal(%w{Yes} * 4, list.map { |n| n['domestic'] })
+            assert_equal(['Yes'] * 4, list.map { |n| n['domestic'] })
           end
         end
 

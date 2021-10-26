@@ -20,7 +20,7 @@ module Nokogiri
       def test_notations
         @dtd.notations.each do |k, notation|
           assert_equal 'UTF-8', k.encoding.name
-          %w{name public_id system_id}.each do |attribute|
+          ['name', 'public_id', 'system_id'].each do |attribute|
             v = notation.send(:"#{attribute}") || next
             assert_equal 'UTF-8', v.encoding.name
           end
