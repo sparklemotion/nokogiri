@@ -98,17 +98,19 @@ module Nokogiri
       end
 
       def test_node_search_with_multiple_queries
-        xml = '<document>
-                 <thing>
-                   <div class="title">important thing</div>
-                 </thing>
-                 <thing>
-                   <div class="content">stuff</div>
-                 </thing>
-                 <thing>
-                   <p class="blah">more stuff</div>
-                 </thing>
-               </document>'
+        xml = <<~EOF
+          <document>
+            <thing>
+              <div class="title">important thing</div>
+            </thing>
+            <thing>
+              <div class="content">stuff</div>
+            </thing>
+            <thing>
+              <p class="blah">more stuff</div>
+            </thing>
+          </document>
+        EOF
         node = Nokogiri::XML(xml).root
         assert_kind_of(Nokogiri::XML::Node, node)
 
@@ -400,31 +402,33 @@ module Nokogiri
 
       def test_very_specific_xml_xpath_making_problems_in_jruby
         # manually merges pull request #681
-        xml_string = '<?xml version="1.0" encoding="UTF-8"?>
-        <ONIXMessage xmlns:elibri="http://elibri.com.pl/ns/extensions" release="3.0" xmlns="http://www.editeur.org/onix/3.0/reference">
-          <Product>
-            <RecordReference>a</RecordReference>
-          </Product>
-        </ONIXMessage>'
-
+        xml_string = <<~EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <ONIXMessage xmlns:elibri="http://elibri.com.pl/ns/extensions" release="3.0" xmlns="http://www.editeur.org/onix/3.0/reference">
+            <Product>
+              <RecordReference>a</RecordReference>
+            </Product>
+          </ONIXMessage>
+        EOF
         xml_doc = Nokogiri::XML(xml_string)
         onix = xml_doc.children.first
         assert_equal("a", onix.at_xpath("xmlns:Product").at_xpath("xmlns:RecordReference").text)
       end
 
       def test_xpath_after_attribute_change
-        xml_string = '<?xml version="1.0" encoding="UTF-8"?>
-        <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <titleInfo>
+        xml_string = <<~EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <titleInfo>
               <nonSort>THE</nonSort>
               <title xml:lang="eng">ARTICLE TITLE HYDRANGEA ARTICLE 1</title>
               <subTitle>SUBTITLE</subTitle>
-          </titleInfo>
-          <titleInfo lang="finnish">
+            </titleInfo>
+            <titleInfo lang="finnish">
               <title>Artikkelin otsikko Hydrangea artiklan 1</title>
-          </titleInfo>
-        </mods>'
-
+            </titleInfo>
+          </mods>
+        EOF
         xml_doc = Nokogiri::XML(xml_string)
         ns_hash = { "mods" => "http://www.loc.gov/mods/v3" }
         node = xml_doc.at_xpath("//mods:titleInfo[1]", ns_hash)
@@ -434,18 +438,19 @@ module Nokogiri
       end
 
       def test_xpath_after_element_removal
-        xml_string = '<?xml version="1.0" encoding="UTF-8"?>
-        <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <titleInfo>
+        xml_string = <<~EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <titleInfo>
               <nonSort>THE</nonSort>
               <title xml:lang="eng">ARTICLE TITLE HYDRANGEA ARTICLE 1</title>
               <subTitle>SUBTITLE</subTitle>
-          </titleInfo>
-          <titleInfo lang="finnish">
+            </titleInfo>
+            <titleInfo lang="finnish">
               <title>Artikkelin otsikko Hydrangea artiklan 1</title>
-          </titleInfo>
-        </mods>'
-
+            </titleInfo>
+          </mods>
+        EOF
         xml_doc = Nokogiri::XML(xml_string)
         ns_hash = { "mods" => "http://www.loc.gov/mods/v3" }
         node = xml_doc.at_xpath("//mods:titleInfo[1]", ns_hash)

@@ -9,15 +9,17 @@ module Nokogiri
       class TestParserContext < Nokogiri::SAX::TestCase
         def setup
           super
-          @xml = '<hello>
+          @xml = <<~EOF
+            <hello>
 
-world
-<inter>
-    <net>
-    </net>
-</inter>
+            world
+            <inter>
+                <net>
+                </net>
+            </inter>
 
-</hello>'
+            </hello>
+          EOF
         end
 
         class Counter < Nokogiri::XML::SAX::Document

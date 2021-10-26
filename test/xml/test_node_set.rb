@@ -148,17 +148,19 @@ module Nokogiri
           end
 
           it "with multiple queries" do
-            xml = '<document>
-                 <thing>
-                   <div class="title">important thing</div>
-                 </thing>
-                 <thing>
-                   <div class="content">stuff</div>
-                 </thing>
-                 <thing>
-                   <p class="blah">more stuff</div>
-                 </thing>
-               </document>'
+            xml = <<~EOF
+              <document>
+                <thing>
+                  <div class="title">important thing</div>
+                </thing>
+                <thing>
+                  <div class="content">stuff</div>
+                </thing>
+                <thing>
+                  <p class="blah">more stuff</div>
+                </thing>
+              </document>
+            EOF
             set = Nokogiri::XML(xml).xpath(".//thing")
             assert_kind_of(Nokogiri::XML::NodeSet, set)
 

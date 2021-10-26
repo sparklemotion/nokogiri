@@ -158,15 +158,17 @@ module Nokogiri
         end
 
         def test_fragment_search_with_multiple_queries
-          xml = '<thing>
-                 <div class="title">important thing</div>
-               </thing>
-               <thing>
-                 <div class="content">stuff</div>
-               </thing>
-               <thing>
-                 <p class="blah">more stuff</div>
-               </thing>'
+          xml = <<~EOF
+            <thing>
+              <div class="title">important thing</div>
+            </thing>
+            <thing>
+              <div class="content">stuff</div>
+            </thing>
+            <thing>
+              <p class="blah">more stuff</div>
+            </thing>
+          EOF
           fragment = Nokogiri::XML.fragment(xml)
           assert_kind_of(Nokogiri::XML::DocumentFragment, fragment)
 
