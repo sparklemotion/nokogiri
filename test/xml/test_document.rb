@@ -306,31 +306,31 @@ module Nokogiri
         end
 
         def test_add_namespace
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.add_namespace("foo", "bar")
           end
         end
 
         def test_attributes
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.attributes
           end
         end
 
         def test_namespace
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.namespace
           end
         end
 
         def test_namespace_definitions
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.namespace_definitions
           end
         end
 
         def test_line
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.line
           end
         end

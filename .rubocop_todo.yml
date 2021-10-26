@@ -27,11 +27,6 @@ Lint/MissingSuper:
     - 'test/xml/test_document.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 1
-Lint/RescueException:
-  Exclude:
-    - 'test/xml/test_xinclude.rb'
-
 # Offense count: 2
 # Configuration parameters: AllowComments, AllowNil.
 Lint/SuppressedException:

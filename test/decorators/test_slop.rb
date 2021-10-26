@@ -32,7 +32,7 @@ module Nokogiri
       assert_equal("one", doc.html.body.ul.li(xpath: ["contains(text(),'o')"]).first.text)
       assert_equal("two", doc.html.body.ul.li(xpath: ["contains(text(),'o')", "contains(text(),'t')"]).text)
 
-      assert_raise(NoMethodError) { doc.nonexistent }
+      assert_raises(NoMethodError) { doc.nonexistent }
     end
 
     def test_slop_decorator
@@ -80,7 +80,7 @@ module Nokogiri
       assert_equal("this is the foo thing", doc.item._description.text)
 
       refute_respond_to(doc.item, :foo)
-      assert_raise(NoMethodError) { doc.item.foo }
+      assert_raises(NoMethodError) { doc.item.foo }
     end
   end
 end

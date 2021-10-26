@@ -136,12 +136,12 @@ module Nokogiri
             end
             describe "passed a document" do
               it "raises an exception" do
-                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, @doc2) }
+                assert_raises(ArgumentError) { @doc.at_xpath("/root/a1").send(method, @doc2) }
               end
             end
             describe "passed a non-Node" do
               it "raises an exception" do
-                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, 42) }
+                assert_raises(ArgumentError) { @doc.at_xpath("/root/a1").send(method, 42) }
               end
             end
             describe "passed a NodeSet" do
@@ -239,7 +239,7 @@ module Nokogiri
                   before { context_node.unlink }
 
                   it "raises an exception" do
-                    ex = assert_raise(RuntimeError) do
+                    ex = assert_raises(RuntimeError) do
                       context_node.__send__(method, "<child>content</child>")
                     end
                     assert_match(/no parent/, ex.message)
@@ -805,7 +805,7 @@ module Nokogiri
             doc = Nokogiri::XML("<root><a><b/></a></root>")
             a = doc.at_css("a")
             b = doc.at_css("b")
-            exception = assert_raise(RuntimeError) do
+            exception = assert_raises(RuntimeError) do
               a.parent = b
             end
             if Nokogiri.jruby?

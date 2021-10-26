@@ -468,13 +468,12 @@ module Nokogiri
         assert_equal("[TEXT_INSIDE_SECTION]", sections.first.text)
       end
 
-      def test_xpath_syntax_error
+      def test_xpath_syntax_error_should_not_display_line_and_column_if_both_are_zero
         doc = Nokogiri::XML("<ns1:Root></ns1:Root>")
-        begin
+        e = assert_raises(Nokogiri::XML::SyntaxError) do
           doc.xpath("//ns1:Root")
-        rescue => e
-          refute_includes(e.message, "0:0")
         end
+        refute_includes(e.message, "0:0")
       end
 
       def test_huge_xpath_query
@@ -505,13 +504,13 @@ module Nokogiri
         end
 
         it "accepts exactly two arguments" do
-          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+          assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             @doc.xpath("nokogiri-builtin:css-class()")
           end
-          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+          assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             @doc.xpath("nokogiri-builtin:css-class('one')")
           end
-          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+          assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             @doc.xpath("nokogiri-builtin:css-class('one', 'two', 'three')")
           end
 

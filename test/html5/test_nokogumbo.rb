@@ -265,12 +265,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
       Nokogiri::HTML5(html, max_tree_depth: depth - 1)
     end
 
-    begin
-      Nokogiri::HTML5(html, max_tree_depth: depth)
-      pass
-    rescue ArgumentError
-      flunk("Expected document parse to succeed")
-    end
+    assert(Nokogiri::HTML5(html, max_tree_depth: depth))
   end
 
   def test_max_depth_fragment
@@ -280,12 +275,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
       Nokogiri::HTML5.fragment(html, max_tree_depth: depth - 1)
     end
 
-    begin
-      Nokogiri::HTML5.fragment(html, max_tree_depth: depth)
-      pass
-    rescue ArgumentError
-      flunk("Expected fragment parse to succeed")
-    end
+    assert(Nokogiri::HTML5.fragment(html, max_tree_depth: depth))
   end
 
   def test_document_encoding

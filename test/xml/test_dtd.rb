@@ -106,7 +106,7 @@ module Nokogiri
       end
 
       def test_content
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @dtd.content
         end
       end
@@ -132,19 +132,19 @@ module Nokogiri
       end
 
       def test_namespace
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @dtd.namespace
         end
       end
 
       def test_namespace_definitions
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @dtd.namespace_definitions
         end
       end
 
       def test_line
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @dtd.line
         end
       end

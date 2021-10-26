@@ -365,7 +365,7 @@ class Nokogiri::TestCase
 
       doc = Nokogiri::XML(xml)
       xslt = Nokogiri::XSLT(xsl)
-      exception = assert_raise(RuntimeError) do
+      exception = assert_raises(RuntimeError) do
         xslt.transform(doc)
       end
       assert_match(/decimal/, exception.message)

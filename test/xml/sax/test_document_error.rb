@@ -26,25 +26,18 @@ module Nokogiri
       end
 
       class TestErrorHandling < Nokogiri::SAX::TestCase
-        def setup
-          super
-          @error_parser = Parser.new(ThrowingErrorDocument.new)
-          @warning_parser = Parser.new(WarningErrorDocument.new)
-        end
-
         def test_error_throwing_document_raises_exception
-          @error_parser.parse("<xml>") # no closing element
-          flunk("#parse should not complete successfully when document #error throws exception")
-        rescue StandardError => e
+          error_parser = Parser.new(ThrowingErrorDocument.new)
+          e = assert_raises(StandardError) do
+            error_parser.parse("<xml>") # no closing element
+          end
           assert_match(/parsing did not complete/, e.message)
         end
 
         def test_warning_document_encounters_error_but_terminates_normally
-          @warning_parser.parse("<xml>")
-          refute_empty(@warning_parser.document.errors, "error collector did not collect an error")
-        rescue StandardError => e
-          warn(e)
-          flunk('#parse should complete successfully unless document #error throws exception (#{e}')
+          warning_parser = Parser.new(WarningErrorDocument.new)
+          warning_parser.parse("<xml>")
+          refute_empty(warning_parser.document.errors, "error collector did not collect an error")
         end
       end
     end

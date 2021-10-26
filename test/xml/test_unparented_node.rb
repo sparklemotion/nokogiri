@@ -235,7 +235,7 @@ module Nokogiri
 
         node = Nokogiri::XML::Node.new("child", xml)
 
-        assert_raise(ArgumentError) do
+        assert_raises(ArgumentError) do
           xml.root.add_next_sibling(node)
         end
       end
@@ -247,7 +247,7 @@ module Nokogiri
 
         node = Nokogiri::XML::Node.new("child", xml)
 
-        assert_raise(ArgumentError) do
+        assert_raises(ArgumentError) do
           xml.root.add_previous_sibling(node)
         end
       end

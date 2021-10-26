@@ -42,19 +42,19 @@ module Nokogiri
         end
 
         def test_parse_file_non_existant
-          assert_raise(Errno::ENOENT) do
+          assert_raises(Errno::ENOENT) do
             @parser.parse_file("there_is_no_reasonable_way_this_file_exists")
           end
         end
 
         def test_parse_file_with_dir
-          assert_raise(Errno::EISDIR) do
+          assert_raises(Errno::EISDIR) do
             @parser.parse_file(File.dirname(__FILE__))
           end
         end
 
         def test_parse_memory_nil
-          assert_raise(ArgumentError) do
+          assert_raises(ArgumentError) do
             @parser.parse_memory(nil)
           end
         end

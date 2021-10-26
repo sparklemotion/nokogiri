@@ -30,11 +30,10 @@ module Nokogiri
         def test_bad_xpath
           bad_xpath = "//foo["
 
-          begin
+          e = assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             xml.xpath(bad_xpath)
-          rescue Nokogiri::XML::XPath::SyntaxError => e
-            assert_match(bad_xpath, e.to_s)
           end
+          assert_match(bad_xpath, e.to_s)
         end
 
         def test_namespace_type_error

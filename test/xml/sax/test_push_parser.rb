@@ -39,8 +39,8 @@ class Nokogiri::SAX::TestCase
     end
 
     it :test_finish_should_rethrow_last_error do
-      expected = assert_raise(Nokogiri::XML::SyntaxError) { parser << "</foo>" }
-      actual = assert_raise(Nokogiri::XML::SyntaxError) { parser.finish }
+      expected = assert_raises(Nokogiri::XML::SyntaxError) { parser << "</foo>" }
+      actual = assert_raises(Nokogiri::XML::SyntaxError) { parser.finish }
       assert_equal actual.message, expected.message
     end
 
@@ -53,7 +53,7 @@ class Nokogiri::SAX::TestCase
       end
       parser = Nokogiri::XML::SAX::PushParser.new(doc)
 
-      exception = assert_raise(RuntimeError) { parser << "</foo>" }
+      exception = assert_raises(RuntimeError) { parser << "</foo>" }
       assert_equal("parse error", exception.message)
     end
 

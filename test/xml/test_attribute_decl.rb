@@ -36,31 +36,31 @@ module Nokogiri
       end
 
       def test_content
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @attr_decl.content
         end
       end
 
       def test_attributes
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @attr_decl.attributes
         end
       end
 
       def test_namespace
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @attr_decl.namespace
         end
       end
 
       def test_namespace_definitions
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @attr_decl.namespace_definitions
         end
       end
 
       def test_line
-        assert_raise(NoMethodError) do
+        assert_raises(NoMethodError) do
           @attr_decl.line
         end
       end

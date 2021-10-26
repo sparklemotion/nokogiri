@@ -34,7 +34,7 @@ module Nokogiri
         xsd_doc = Nokogiri::XML(doc)
         xsd_doc.root.children.find(&:blank?) # Finds a node
 
-        ex = assert_raise(ArgumentError) do
+        ex = assert_raises(ArgumentError) do
           Nokogiri::XML::Schema.from_document(xsd_doc)
         end
         assert_match(/blank nodes/, ex.message)
@@ -193,7 +193,7 @@ module Nokogiri
 
       def test_validate_non_document
         string = File.read(PO_XML_FILE)
-        assert_raise(ArgumentError) { @xsd.validate(string) }
+        assert_raises(ArgumentError) { @xsd.validate(string) }
       end
 
       def test_valid?

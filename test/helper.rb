@@ -189,7 +189,6 @@ module Nokogiri
     #
     alias_method :assert_no_match, :refute_match
     alias_method :assert_not_nil, :refute_nil
-    alias_method :assert_raise, :assert_raises
     alias_method :assert_not_equal, :refute_equal
 
     def assert_not_send(send_ary, m = nil)

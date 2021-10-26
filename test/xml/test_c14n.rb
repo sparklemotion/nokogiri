@@ -171,8 +171,8 @@ module Nokogiri
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
-        assert_raise(TypeError) { doc.canonicalize(:wrong_type) }
-        assert_raise(TypeError) { doc.canonicalize(nil, :wrong_type) }
+        assert_raises(TypeError) { doc.canonicalize(:wrong_type) }
+        assert_raises(TypeError) { doc.canonicalize(nil, :wrong_type) }
         doc.canonicalize(nil, nil, :wrong_type)
       end
     end

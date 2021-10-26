@@ -66,18 +66,11 @@ module Nokogiri
 
       def test_include_nonexistent_throws_exception
         skip_unless_libxml2("Pure Java version behaves differently")
-        # break inclusion deliberately
+
         @xml.at_xpath("//xi:include")["href"] = "nonexistent.xml"
-
-        exception_raised = false
-        begin
+        assert_raises(Nokogiri::XML::SyntaxError) do
           @xml.do_xinclude(&:nowarning)
-        rescue Exception => e
-          assert_equal(Nokogiri::XML::SyntaxError, e.class)
-          exception_raised = true
         end
-
-        assert(exception_raised)
       end
     end
   end
