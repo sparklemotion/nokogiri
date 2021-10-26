@@ -5,7 +5,7 @@ module Nokogiri
     class TestAdditionalNamespacesInBuilderDoc < Nokogiri::TestCase
       def test_builder_namespaced_root_node_ns
         b = Nokogiri::XML::Builder.new do |x|
-          x[:foo].RDF(:'xmlns:foo' => 'http://foo.io')
+          x[:foo].RDF('xmlns:foo': 'http://foo.io')
         end
         assert_equal 'http://foo.io', b.doc.root.namespace.href
       end

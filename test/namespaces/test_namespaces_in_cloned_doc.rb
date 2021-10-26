@@ -7,7 +7,7 @@ module Nokogiri
         super
         b = Nokogiri::XML::Builder.new do |xml|
           xml.mods("xmlns" => "http://www.loc.gov/mods/v3") do
-            xml.name(:type => "personal") do
+            xml.name(type: "personal") do
               xml.namePart()
             end
           end

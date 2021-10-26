@@ -263,7 +263,7 @@ module Nokogiri
 
     def self.get_impl(uri, options = {})
       headers = options.clone
-      headers = { :follow_limit => headers } if Numeric === headers # deprecated
+      headers = { follow_limit: headers } if Numeric === headers # deprecated
       limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
 
       require 'net/http'
@@ -304,7 +304,7 @@ module Nokogiri
       when Net::HTTPRedirection
         response.value if limit <= 1
         location = URI.join(uri, response['location'])
-        get_impl(location, options.merge(:follow_limit => limit - 1))
+        get_impl(location, options.merge(follow_limit: limit - 1))
       else
         response.value
       end

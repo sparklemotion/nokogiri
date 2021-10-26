@@ -11,4 +11,4 @@ task :java_debug do # rubocop:disable Rake/Desc
     ENV["JAVA_OPTS"] = "-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"
   end
 end
-task :test => :java_debug # rubocop:disable Rake/Desc
+task test: :java_debug # rubocop:disable Rake/Desc

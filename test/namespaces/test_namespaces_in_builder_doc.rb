@@ -6,14 +6,14 @@ module Nokogiri
       def setup
         super
         b = Nokogiri::XML::Builder.new do |x|
-          x.fruit(:xmlns => 'ns:fruit', :'xmlns:veg' => 'ns:veg', :'xmlns:xlink' => 'http://www.w3.org/1999/xlink') do
+          x.fruit(xmlns: 'ns:fruit', 'xmlns:veg': 'ns:veg', 'xmlns:xlink': 'http://www.w3.org/1999/xlink') do
             x.pear { x.bosc }
             x.orange
             x[:veg].carrot do
-              x.cheese(:xmlns => 'ns:dairy', :'xlink:href' => 'http://example.com/cheese/')
+              x.cheese(xmlns: 'ns:dairy', 'xlink:href': 'http://example.com/cheese/')
             end
-            x[:meat].bacon(:'xmlns:meat' => 'ns:meat') do
-              x.apple :count => 2
+            x[:meat].bacon('xmlns:meat': 'ns:meat') do
+              x.apple count: 2
               x[:veg].tomato
             end
           end

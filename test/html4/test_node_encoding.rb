@@ -66,7 +66,7 @@ module Nokogiri
         assert_equal doc.encoding, contents.encoding.name
         assert_match hello.encode('Shift_JIS'), contents
 
-        contents = doc.at('h2').inner_html(:encoding => 'UTF-8')
+        contents = doc.at('h2').inner_html(encoding: 'UTF-8')
         assert_match hello, contents
 
         doc.encoding = 'UTF-8'

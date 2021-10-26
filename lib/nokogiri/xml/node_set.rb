@@ -106,7 +106,7 @@ module Nokogiri
       # Search this NodeSet's nodes' immediate children using CSS selector +selector+
       def > selector
         ns = document.root.namespaces
-        xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
+        xpath CSS.xpath_for(selector, prefix: "./", ns: ns).first
       end
 
       ###

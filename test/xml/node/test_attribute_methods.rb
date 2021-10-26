@@ -225,26 +225,26 @@ class Nokogiri::XML::Node
         end
 
         it "adds a new bare keyword string" do
-          _(node.kwattr_add("blargh", "jimmy").kwattr_values("blargh")).
-            must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+          _(node.kwattr_add("blargh", "jimmy").kwattr_values("blargh"))
+            .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
         end
 
         it "does not add a repeated bare keyword string" do
-          _(node.kwattr_add("blargh", "foo").kwattr_values("blargh")).
-            must_equal(%w[foo bar baz bar foo quux foo manx])
+          _(node.kwattr_add("blargh", "foo").kwattr_values("blargh"))
+            .must_equal(%w[foo bar baz bar foo quux foo manx])
         end
 
         describe "given a string of keywords" do
           it "adds new keywords and ignores existing keywords" do
-            _(node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
-              must_equal(%w[foo bar baz bar foo quux foo manx jimmy johnny])
+            _(node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
+              .must_equal(%w[foo bar baz bar foo quux foo manx jimmy johnny])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and ignores existing keywords" do
-            _(node.kwattr_add("blargh", %w[foo jimmy]).kwattr_values("blargh")).
-              must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+            _(node.kwattr_add("blargh", %w[foo jimmy]).kwattr_values("blargh"))
+              .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
           end
         end
       end
@@ -259,26 +259,26 @@ class Nokogiri::XML::Node
         end
 
         it "adds a new bare keyword string" do
-          _(node.kwattr_append("blargh", "jimmy").kwattr_values("blargh")).
-            must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+          _(node.kwattr_append("blargh", "jimmy").kwattr_values("blargh"))
+            .must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
         end
 
         it "adds a repeated bare keyword string" do
-          _(node.kwattr_append("blargh", "foo").kwattr_values("blargh")).
-            must_equal(%w[foo bar baz bar foo quux foo manx foo])
+          _(node.kwattr_append("blargh", "foo").kwattr_values("blargh"))
+            .must_equal(%w[foo bar baz bar foo quux foo manx foo])
         end
 
         describe "given a string of keywords" do
           it "adds new keywords and existing keywords" do
-            _(node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
-              must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy johnny])
+            _(node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
+              .must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy johnny])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and existing keywords" do
-            _(node.kwattr_append("blargh", %w[foo jimmy]).kwattr_values("blargh")).
-              must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy])
+            _(node.kwattr_append("blargh", %w[foo jimmy]).kwattr_values("blargh"))
+              .must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy])
           end
         end
       end
@@ -293,26 +293,26 @@ class Nokogiri::XML::Node
         end
 
         it "removes an existing bare keyword string" do
-          _(node.kwattr_remove("blargh", "foo").kwattr_values("blargh")).
-            must_equal(%w[bar baz bar quux manx])
+          _(node.kwattr_remove("blargh", "foo").kwattr_values("blargh"))
+            .must_equal(%w[bar baz bar quux manx])
         end
 
         it "gracefully ignores a non-existent bare keyword string" do
-          _(node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh")).
-            must_equal(%w[foo bar baz bar foo quux foo manx])
+          _(node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh"))
+            .must_equal(%w[foo bar baz bar foo quux foo manx])
         end
 
         describe "given a string of keywords" do
           it "removes existing keywords and ignores other keywords" do
-            _(node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
-              must_equal(%w[bar baz bar quux manx])
+            _(node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
+              .must_equal(%w[bar baz bar quux manx])
           end
         end
 
         describe "given an array of keywords" do
           it "adds new keywords and existing keywords" do
-            _(node.kwattr_remove("blargh", %w[foo jimmy]).kwattr_values("blargh")).
-              must_equal(%w[bar baz bar quux manx])
+            _(node.kwattr_remove("blargh", %w[foo jimmy]).kwattr_values("blargh"))
+              .must_equal(%w[bar baz bar quux manx])
           end
         end
 

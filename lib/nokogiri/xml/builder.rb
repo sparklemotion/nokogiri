@@ -371,7 +371,7 @@ module Nokogiri
           return self if @ns
         end
 
-        @ns = { :pending => ns.to_s }
+        @ns = { pending: ns.to_s }
         return self
       end
 

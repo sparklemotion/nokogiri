@@ -13,9 +13,9 @@ module Nokogiri
         @doc.root.add_child('<orange/>')
         carrot = @doc.create_element('veg:carrot')
         @doc.root << carrot
-        cheese = @doc.create_element('cheese', :xmlns => 'ns:dairy', :'xlink:href' => 'http://example.com/cheese/')
+        cheese = @doc.create_element('cheese', xmlns: 'ns:dairy', 'xlink:href': 'http://example.com/cheese/')
         carrot << cheese
-        bacon = @doc.create_element('meat:bacon', :'xmlns:meat' => 'ns:meat')
+        bacon = @doc.create_element('meat:bacon', 'xmlns:meat': 'ns:meat')
         apple = @doc.create_element('apple')
         apple['count'] = 2
         bacon << apple

@@ -23,13 +23,13 @@ module Nokogiri
 
       def test_builder_with_utf8_text
         text = "test ﺵ "
-        doc = Nokogiri::XML::Builder.new(:encoding => "UTF-8") { |xml| xml.test text }.doc
+        doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test text }.doc
         assert_equal text, doc.content
       end
 
       def test_builder_escape
         xml = Nokogiri::XML::Builder.new do |x|
-          x.condition "value < 1", :attr => "value < 1"
+          x.condition "value < 1", attr: "value < 1"
         end.to_xml
         doc = Nokogiri.XML xml
         assert_equal "value < 1", doc.root["attr"]
@@ -81,7 +81,7 @@ module Nokogiri
       end
 
       def test_root_namespace_default_decl
-        b = Nokogiri::XML::Builder.new { |xml| xml.root(:xmlns => "one:two") }
+        b = Nokogiri::XML::Builder.new { |xml| xml.root(xmlns: "one:two") }
         doc = b.doc
         assert_equal "one:two", doc.root.namespace.href
         assert_equal({ "xmlns" => "one:two" }, doc.root.namespaces)
@@ -102,7 +102,7 @@ module Nokogiri
 
       def test_non_root_namespace
         b = Nokogiri::XML::Builder.new do |xml|
-          xml.root { xml.hello(:xmlns => "one") }
+          xml.root { xml.hello(xmlns: "one") }
         end
         assert_equal "one", b.doc.at("hello", "xmlns" => "one").namespace.href
       end
@@ -208,7 +208,7 @@ module Nokogiri
         a = doc.at("a")
         assert_equal({}, a.namespaces)
 
-        b = doc.at_xpath("//foo:b", { :foo => "bar" })
+        b = doc.at_xpath("//foo:b", { foo: "bar" })
         assert b
         assert_equal({ "xmlns:foo" => "bar" }, b.namespaces)
         assert_equal("b", b.name)
@@ -231,7 +231,7 @@ module Nokogiri
       end
 
       def test_set_encoding
-        builder = Nokogiri::XML::Builder.new(:encoding => "UTF-8") do |xml|
+        builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.root do
             xml.bar "blah"
           end

@@ -11,7 +11,7 @@ module Nokogiri
 
       def test_builder_with_explicit_tags
         html_doc = Nokogiri::HTML::Builder.new do
-          div.slide(:class => 'another_class') do
+          div.slide(class: 'another_class') do
             node = Nokogiri::XML::Node.new("id", doc)
             node.content = "hello"
             insert(node)
@@ -23,7 +23,7 @@ module Nokogiri
 
       def test_hash_as_attributes_for_attribute_method
         html = Nokogiri::HTML::Builder.new do ||
-          div.slide(:class => 'another_class') do
+          div.slide(class: 'another_class') do
             span 'Slide 1'
           end
         end.to_html
@@ -32,7 +32,7 @@ module Nokogiri
 
       def test_hash_as_attributes
         builder = Nokogiri::HTML::Builder.new do
-          div(:id => 'awesome') do
+          div(id: 'awesome') do
             h1 "america"
           end
         end
@@ -44,7 +44,7 @@ module Nokogiri
         uri = 'http://tenderlovemaking.com/'
         built = Nokogiri::XML::Builder.new do
           div do
-            a('King Khan & The Shrines', :href => uri)
+            a('King Khan & The Shrines', href: uri)
           end
         end
         assert_equal 'http://tenderlovemaking.com/',

@@ -62,11 +62,11 @@ module Nokogiri
       end
 
       def test_variable_binding
-        assert_equal 4, @xml.xpath('//address[@domestic=$value]', nil, :value => 'Yes').length
+        assert_equal 4, @xml.xpath('//address[@domestic=$value]', nil, value: 'Yes').length
       end
 
       def test_variable_binding_with_search
-        assert_equal 4, @xml.search('//address[@domestic=$value]', nil, :value => 'Yes').length
+        assert_equal 4, @xml.search('//address[@domestic=$value]', nil, value: 'Yes').length
       end
 
       def test_unknown_attribute

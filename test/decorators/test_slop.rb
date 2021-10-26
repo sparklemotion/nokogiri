@@ -24,11 +24,11 @@ module Nokogiri
       assert_equal "two", doc.html.body.ul.li(".blue").text
       assert_equal "div two", doc.html.body.div.div.text
 
-      assert_equal "two", doc.html.body.ul.li(:css => ".blue").text
+      assert_equal "two", doc.html.body.ul.li(css: ".blue").text
 
-      assert_equal "two", doc.html.body.ul.li(:xpath => "position()=2").text
-      assert_equal "one", doc.html.body.ul.li(:xpath => ["contains(text(),'o')"]).first.text
-      assert_equal "two", doc.html.body.ul.li(:xpath => ["contains(text(),'o')", "contains(text(),'t')"]).text
+      assert_equal "two", doc.html.body.ul.li(xpath: "position()=2").text
+      assert_equal "one", doc.html.body.ul.li(xpath: ["contains(text(),'o')"]).first.text
+      assert_equal "two", doc.html.body.ul.li(xpath: ["contains(text(),'o')", "contains(text(),'t')"]).text
 
       assert_raise(NoMethodError) { doc.nonexistent }
     end

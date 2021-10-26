@@ -43,9 +43,9 @@ module Nokogiri
 
       def to_s
         message = super.chomp
-        [location_to_s, level_to_s, message].
-          compact.join(": ").
-          force_encoding(message.encoding)
+        [location_to_s, level_to_s, message]
+          .compact.join(": ")
+          .force_encoding(message.encoding)
       end
 
       private

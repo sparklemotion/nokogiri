@@ -5,14 +5,14 @@ module Nokogiri
     class Node
       class TestSubclass < Nokogiri::TestCase
         {
-          Nokogiri::XML::CDATA                  => 'doc, "foo"',
-          Nokogiri::XML::Attr                   => 'doc, "foo"',
-          Nokogiri::XML::Comment                => 'doc, "foo"',
-          Nokogiri::XML::EntityReference        => 'doc, "foo"',
-          Nokogiri::XML::ProcessingInstruction  => 'doc, "foo", "bar"',
-          Nokogiri::XML::DocumentFragment       => 'doc',
-          Nokogiri::XML::Node                   => '"foo", doc',
-          Nokogiri::XML::Text                   => '"foo", doc',
+          Nokogiri::XML::CDATA => 'doc, "foo"',
+          Nokogiri::XML::Attr => 'doc, "foo"',
+          Nokogiri::XML::Comment => 'doc, "foo"',
+          Nokogiri::XML::EntityReference => 'doc, "foo"',
+          Nokogiri::XML::ProcessingInstruction => 'doc, "foo", "bar"',
+          Nokogiri::XML::DocumentFragment => 'doc',
+          Nokogiri::XML::Node => '"foo", doc',
+          Nokogiri::XML::Text => '"foo", doc',
         }.each do |klass, constructor|
           class_eval %{
             def test_subclass_#{klass.name.gsub('::', '_')}

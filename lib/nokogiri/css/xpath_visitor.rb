@@ -22,20 +22,20 @@ module Nokogiri
           end
         when /^nth-child\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
-            nth(node.value[1], :child => true)
+            nth(node.value[1], child: true)
           else
             "count(preceding-sibling::*)=#{node.value[1].to_i - 1}"
           end
         when /^nth-last-of-type\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
-            nth(node.value[1], :last => true)
+            nth(node.value[1], last: true)
           else
             index = node.value[1].to_i - 1
             index == 0 ? "position()=last()" : "position()=last()-#{index}"
           end
         when /^nth-last-child\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
-            nth(node.value[1], :last => true, :child => true)
+            nth(node.value[1], last: true, child: true)
           else
             "count(following-sibling::*)=#{node.value[1].to_i - 1}"
           end
@@ -158,10 +158,10 @@ module Nokogiri
       end
 
       {
-        'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
-        'following_selector'        => "/following-sibling::",
-        'descendant_selector'       => '//',
-        'child_selector'            => '/',
+        'direct_adjacent_selector' => "/following-sibling::*[1]/self::",
+        'following_selector' => "/following-sibling::",
+        'descendant_selector' => '//',
+        'child_selector' => '/',
       }.each do |k, v|
         class_eval %{
           def visit_#{k} node
