@@ -9,8 +9,11 @@ module Nokogiri
       # Nokogiri::XML::SAX::Parser
       class ParserContext
         def self.new(thing, encoding = "UTF-8")
-          [:read, :close].all? { |x| thing.respond_to?(x) } ?
-            io(thing, Parser::ENCODINGS[encoding]) : memory(thing)
+          if [:read, :close].all? { |x| thing.respond_to?(x) }
+            io(thing, Parser::ENCODINGS[encoding])
+          else
+            memory(thing)
+          end
         end
       end
     end

@@ -183,12 +183,6 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'lib/nokogiri/xml/builder.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/MultilineTernaryOperator:
-  Exclude:
-    - 'lib/nokogiri/xml/sax/parser_context.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowedCompactTypes.
