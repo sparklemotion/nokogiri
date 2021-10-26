@@ -832,24 +832,6 @@ Performance/UnfreezeString:
     - 'test/html5/test_nokogumbo.rb'
     - 'test/xml/test_document.rb'
 
-# Offense count: 11
-# Cop supports --auto-correct.
-Rake/Desc:
-  Exclude:
-    - 'rakelib/css-generate.rake'
-    - 'rakelib/debug.rake'
-    - 'rakelib/extensions.rake'
-    - 'rakelib/gumbo.rake'
-    - 'rakelib/rdoc.rake'
-
-# Offense count: 11
-Rake/MethodDefinitionInTask:
-  Exclude:
-    - 'rakelib/docker.rake'
-    - 'rakelib/extensions.rake'
-    - 'rakelib/format.rake'
-    - 'rakelib/rubocop.rake'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Security/IoMethods:

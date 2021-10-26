@@ -252,18 +252,12 @@ def verify_dll(dll, cross_ruby)
 end
 
 CROSS_RUBIES.each do |cross_ruby|
-  task cross_ruby.dll_staging_path do |t|
+  task cross_ruby.dll_staging_path do |t| # rubocop:disable Rake/Desc
     verify_dll t.name, cross_ruby
   end
 end
 
 namespace "gem" do
-  def gem_builder(plat)
-    # use Task#invoke because the pkg/*gem task is defined at runtime
-    Rake::Task["native:#{plat}"].invoke
-    Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}-#{Gem::Platform.new(plat)}.gem"].invoke
-  end
-
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
@@ -277,7 +271,9 @@ namespace "gem" do
     namespace plat do
       desc "build native gem for #{plat} platform (guest container)"
       task "builder" do
-        gem_builder(plat)
+        # use Task#invoke because the pkg/*gem task is defined at runtime
+        Rake::Task["native:#{plat}"].invoke
+        Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}-#{Gem::Platform.new(plat)}.gem"].invoke
       end
     end
   end
@@ -324,7 +320,7 @@ else
 
   dependencies = YAML.load_file("dependencies.yml")
 
-  task gem_build_path do
+  task gem_build_path do # rubocop:disable Rake/Desc
     NOKOGIRI_SPEC.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ["libxml2", "libxslt"].each do |lib|

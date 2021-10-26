@@ -20,5 +20,5 @@ namespace "css" do
   end
 end
 
-task "compile" => "css:generate"
-task "check_manifest" => "css:generate"
+task "compile" => "css:generate" # rubocop:disable Rake/Desc
+task "check_manifest" => "css:generate" # rubocop:disable Rake/Desc

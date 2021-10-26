@@ -13,10 +13,12 @@ namespace "gumbo" do
     EOF
   end
 
+  desc "Run the gumbo parser test suite"
   task "test" => gtest_lib do
     sh("make -j2 -C gumbo-parser")
   end
 
+  desc "Clean up after the gumbo parser test suite"
   task "clean" do
     sh("make -j2 -C gumbo-parser clean")
   end
@@ -24,5 +26,7 @@ namespace "gumbo" do
   CLOBBER.add(gtest_pkg)
 end
 
+desc "Run the gumbo parser test suite"
 task "gumbo" => "gumbo:test"
-task "clean" => "gumbo:clean"
+
+task "clean" => "gumbo:clean" # rubocop:disable Rake/Desc
