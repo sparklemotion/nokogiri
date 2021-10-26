@@ -57,7 +57,7 @@ module Nokogiri
 
       def test_created_nondefault_attr_ns
         assert_equal("http://www.w3.org/1999/xlink",
-          check_namespace(@doc.root.elements[2].elements[0].attribute_nodes.find { |a| a.name =~ /href/ }))
+          check_namespace(@doc.root.elements[2].elements[0].attribute_nodes.find { |a| a.name.include?("href") }))
       end
 
       def test_created_single_decl_ns_2

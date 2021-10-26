@@ -22,7 +22,7 @@ class ValgrindTestTask < Rake::TestTask
   end
 
   def formatted_ruby_version
-    engine = if defined?(RUBY_DESCRIPTION) && RUBY_DESCRIPTION =~ /Ruby Enterprise Edition/
+    engine = if defined?(RUBY_DESCRIPTION) && RUBY_DESCRIPTION.include?("Ruby Enterprise Edition")
       "ree"
     else
       defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"

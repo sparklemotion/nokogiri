@@ -1411,7 +1411,7 @@ module Nokogiri
 
       def add_child_node_and_reparent_attrs(node)
         add_child_node(node)
-        node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
+        node.attribute_nodes.find_all { |a| a.name.include?(":") }.each do |attr_node|
           attr_node.remove
           node[attr_node.name] = attr_node.value
         end

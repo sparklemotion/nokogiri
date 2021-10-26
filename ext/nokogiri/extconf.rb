@@ -2,7 +2,7 @@
 
 # rubocop:disable Style/GlobalVars
 
-ENV["RC_ARCHS"] = "" if RUBY_PLATFORM.match?(/darwin/)
+ENV["RC_ARCHS"] = "" if RUBY_PLATFORM.include?("darwin")
 
 require "mkmf"
 require "rbconfig"
@@ -176,23 +176,23 @@ def config_system_libraries?
 end
 
 def windows?
-  RbConfig::CONFIG["target_os"] =~ /mingw32|mswin/
+  RbConfig::CONFIG["target_os"].match?(/mingw32|mswin/)
 end
 
 def solaris?
-  RbConfig::CONFIG["target_os"] =~ /solaris/
+  RbConfig::CONFIG["target_os"].include?("solaris")
 end
 
 def darwin?
-  RbConfig::CONFIG["target_os"] =~ /darwin/
+  RbConfig::CONFIG["target_os"].include?("darwin")
 end
 
 def openbsd?
-  RbConfig::CONFIG["target_os"] =~ /openbsd/
+  RbConfig::CONFIG["target_os"].include?("openbsd")
 end
 
 def aix?
-  RbConfig::CONFIG["target_os"] =~ /aix/
+  RbConfig::CONFIG["target_os"].include?("aix")
 end
 
 def nix?

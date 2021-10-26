@@ -247,7 +247,7 @@ module Nokogiri
 
         def test_error_propagation_on_fragment_parse
           frag = Nokogiri::HTML::DocumentFragment.parse("<hello>oh, hello there.</hello>")
-          assert(frag.errors.any? { |err| err.to_s =~ /Tag hello invalid/ }, "errors should be copied to the fragment")
+          assert(frag.errors.any? { |err| err.to_s.include?("Tag hello invalid") }, "errors should be copied to the fragment")
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context
@@ -255,21 +255,21 @@ module Nokogiri
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
           assert(frag.errors.any? do |err|
-                   err.to_s =~ /Tag hello invalid/
+                   err.to_s.include?("Tag hello invalid")
                  end, "errors should be on the context node's document")
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
           doc = Nokogiri::HTML::Document.parse("<html><body><div></div><jimmy></jimmy></body></html>")
-          assert(doc.errors.any? { |err| err.to_s =~ /jimmy/ }, "assert on setup")
+          assert(doc.errors.any? { |err| err.to_s.include?("jimmy") }, "assert on setup")
 
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
           assert(frag.errors.any? do |err|
-                   err.to_s =~ /Tag hello invalid/
+                   err.to_s.include?("Tag hello invalid")
                  end, "errors should be on the context node's document")
           assert(frag.errors.none? do |err|
-                   err.to_s =~ /jimmy/
+                   err.to_s.include?("jimmy")
                  end, "errors should not include pre-existing document errors")
         end
 
@@ -290,8 +290,8 @@ module Nokogiri
           node2 = frag2.at_css("#unique")
           original_errors1 = frag1.errors.dup
           original_errors2 = frag2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s =~ /Tag diva invalid/ }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s =~ /Tag dive invalid/ }, "it should complain about the tag name")
+          assert(original_errors1.any? { |e| e.to_s.include?("Tag diva invalid") }, "it should complain about the tag name")
+          assert(original_errors2.any? { |e| e.to_s.include?("Tag dive invalid") }, "it should complain about the tag name")
 
           node1.add_child(node2)
 

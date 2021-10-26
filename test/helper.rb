@@ -216,7 +216,7 @@ module Nokogiri
     def i_am_running_with_asan
       # https://stackoverflow.com/questions/35012059/check-whether-sanitizer-like-addresssanitizer-is-active
 
-      %x"ldd #{Gem.ruby}" =~ /libasan\.so/
+      %x"ldd #{Gem.ruby}".include?("libasan.so")
     rescue
       false
     end

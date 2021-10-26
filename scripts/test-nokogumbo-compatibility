@@ -10,7 +10,7 @@
 #  installed gem (and not against the source code or behavior of the gem itself).
 #
 
-if RUBY_PLATFORM.match?(/java/)
+if RUBY_PLATFORM.include?("java")
   puts "Skip: Nokogumbo does not support JRuby"
   exit 0
 end

@@ -587,7 +587,7 @@ module Nokogiri
         xml.each do |node|
           if (node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT) && (node.name == "child")
             nodelengths << node.outer_xml.length
-            has_child2 << !!(node.outer_xml =~ /child-2/)
+            has_child2 << !!node.outer_xml.include?("child-2")
           end
         end
 
@@ -619,7 +619,7 @@ module Nokogiri
         xml.each do |node|
           if (node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT) && (node.name == "child")
             nodelengths << node.inner_xml.length
-            has_child2 << !!(node.inner_xml =~ /child-2/)
+            has_child2 << !!node.inner_xml.include?("child-2")
           end
         end
 
