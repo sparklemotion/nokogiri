@@ -355,21 +355,6 @@ Style/SymbolProc:
     - 'test/xml/test_xinclude.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 24
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'lib/nokogiri/html4/sax/parser.rb'
-    - 'lib/nokogiri/xml/node.rb'
-    - 'lib/nokogiri/xml/schema.rb'
-    - 'test/helper.rb'
-    - 'test/html4/test_document.rb'
-    - 'test/html4/test_element_description.rb'
-    - 'test/xml/sax/test_parser.rb'
-    - 'test/xml/test_document.rb'
-    - 'test/xml/test_schema.rb'
-    - 'test/xml/test_xpath.rb'
-
 # Offense count: 91
 # Cop supports --auto-correct.
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

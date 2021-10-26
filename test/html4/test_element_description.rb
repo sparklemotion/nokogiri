@@ -63,7 +63,7 @@ module Nokogiri
         elsif Nokogiri.uses_libxml?
           assert_equal(61, sub_elements.length)
         else
-          assert(sub_elements.length > 0)
+          refute_empty(sub_elements)
         end
       end
 

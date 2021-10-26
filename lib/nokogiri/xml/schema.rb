@@ -66,7 +66,7 @@ module Nokogiri
       # Returns true if +thing+ is a valid Nokogiri::XML::Document or
       # file.
       def valid?(thing)
-        validate(thing).length == 0
+        validate(thing).empty?
       end
     end
   end

@@ -79,7 +79,7 @@ module Nokogiri
         assert_instance_of(Nokogiri::XML::Schema, xsd)
 
         if Nokogiri.jruby?
-          assert(xsd.errors.length > 0)
+          refute_empty(xsd.errors)
           assert_equal(1, xsd.errors.map(&:to_s).grep(/cos-element-consistent/).length)
           assert_equal(1, xsd.errors.map(&:to_s).grep(/cos-nonambig/).length)
         end

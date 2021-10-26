@@ -21,7 +21,7 @@ module Nokogiri
 
         def test_exceptions_remove_newlines
           errors = html.errors
-          assert(errors.length > 0, "has errors")
+          refute_empty(errors, "has errors")
           errors.each do |error|
             assert_equal(error.to_s.chomp, error.to_s)
           end
@@ -387,7 +387,7 @@ module Nokogiri
             <html>
             </html>
           EOHTML
-          assert(html.to_html.length > 0, "html length is too short")
+          refute_empty(html.to_html, "html length is too short")
           assert_no_match(/^<\?xml/, html.to_html)
         end
 
@@ -402,7 +402,7 @@ module Nokogiri
               </body>
             </html>
           EOHTML
-          assert(html.errors.length > 0)
+          refute_empty(html.errors)
         end
 
         def test_relative_css

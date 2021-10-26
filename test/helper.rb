@@ -171,7 +171,7 @@ module Nokogiri
       doc.traverse do |node|
         nodes << node if node.text? && node.blank?
       end
-      assert(nodes.length > 0)
+      refute_empty(nodes)
       nodes.each do |node|
         len = node.content.gsub(/[\r\n]/, "").length
         assert_equal(0, len % amount, message)

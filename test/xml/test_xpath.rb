@@ -126,7 +126,7 @@ module Nokogiri
 
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
-        assert(set.length > 0)
+        refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
         end
@@ -141,7 +141,7 @@ module Nokogiri
 
       def test_search_with_css_query_uses_custom_selectors_with_arguments
         set = @xml.search('employee > address:my_filter("domestic", "Yes")', @handler)
-        assert(set.length > 0)
+        refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
         end
@@ -153,7 +153,7 @@ module Nokogiri
         else
           @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         end
-        assert(set.length > 0)
+        refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
         end
@@ -165,7 +165,7 @@ module Nokogiri
         else
           @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         end
-        assert(set.length > 0)
+        refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
         end
@@ -186,7 +186,7 @@ module Nokogiri
         params = {}
         node.xpath("./param").each do |p|
           subparams = parse_params(p)
-          if subparams.length > 0
+          if !subparams.empty?
             if !params.has_key?(p.attributes["name"].value)
               params[p.attributes["name"].value] = subparams
             elsif params[p.attributes["name"].value].is_a?(Array)

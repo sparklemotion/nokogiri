@@ -615,7 +615,7 @@ module Nokogiri
           doc = Nokogiri::XML(<<~eoxml)
             <foo><bar></foo>
           eoxml
-          assert(doc.errors.length > 0)
+          refute_empty(doc.errors)
           doc.errors.each do |error|
             assert_match(error.message, error.inspect)
             assert_match(error.message, error.to_s)
@@ -670,7 +670,7 @@ module Nokogiri
           assert(xml.xml?)
           assert_equal(XML_FILE, xml.url)
           set = xml.search("//employee")
-          assert(set.length > 0)
+          refute_empty(set)
         end
 
         def test_parsing_empty_io
@@ -791,7 +791,7 @@ module Nokogiri
 
         def test_singleton_methods
           assert(node_set = xml.search("//name"))
-          assert(node_set.length > 0)
+          refute_empty(node_set)
           node = node_set.first
           def node.test
             "test"

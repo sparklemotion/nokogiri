@@ -87,7 +87,7 @@ class Nokogiri::SAX::TestCase
     it :test_bad_document_calls_error_handler do
       parser.parse("<foo><bar></foo>")
       assert(parser.document.errors)
-      assert(parser.document.errors.length > 0)
+      refute_empty(parser.document.errors)
     end
 
     it :test_namespace_are_super_fun_to_parse do
@@ -101,7 +101,7 @@ class Nokogiri::SAX::TestCase
         </root>
       EOF
 
-      assert(parser.document.start_elements_namespace.length > 0)
+      refute_empty(parser.document.start_elements_namespace)
       el = parser.document.start_elements_namespace[1]
       assert_equal("a", el.first)
       assert_equal(1, el[1].length)
@@ -123,7 +123,7 @@ class Nokogiri::SAX::TestCase
           <foo:bar>hello world</foo:bar>
         </root>
       EOF
-      assert(parser.document.start_elements.length > 0)
+      refute_empty(parser.document.start_elements)
       elm = parser.document.start_elements.first
       assert_equal("root", elm.first)
       assert_includes(elm[1], ["xmlns:foo", "http://foo.example.com/"])
@@ -168,7 +168,7 @@ class Nokogiri::SAX::TestCase
 
       parser.parse("<foo><bar></foo>")
       assert(parser.document.errors)
-      assert(parser.document.errors.length > 0)
+      refute_empty(parser.document.errors)
 
       doc.errors.each do |error|
         assert_equal("UTF-8", error.message.encoding.name)
@@ -184,14 +184,14 @@ class Nokogiri::SAX::TestCase
 
     it :test_parse_with_memory_argument do
       parser.parse(File.read(XML_FILE))
-      assert(parser.document.cdata_blocks.length > 0)
+      refute_empty(parser.document.cdata_blocks)
     end
 
     it :test_parse_with_io_argument do
       File.open(XML_FILE, "rb") do |f|
         parser.parse(f)
       end
-      assert(parser.document.cdata_blocks.length > 0)
+      refute_empty(parser.document.cdata_blocks)
     end
 
     it :test_parse_io do
@@ -207,7 +207,7 @@ class Nokogiri::SAX::TestCase
       File.open(XML_FILE, "rb") do |f|
         parser.parse_io(f, encoding)
       end
-      assert(parser.document.cdata_blocks.length > 0)
+      refute_empty(parser.document.cdata_blocks)
 
       called = false
       parser.document.start_elements.flatten.each do |thing|
