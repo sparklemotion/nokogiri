@@ -113,7 +113,7 @@ module Nokogiri
       def css(*args)
         rules, handler, ns, _ = extract_params(args)
 
-        css_internal self, rules, handler, ns
+        css_internal(self, rules, handler, ns)
       end
 
       ##
@@ -162,7 +162,7 @@ module Nokogiri
       def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
 
-        xpath_internal self, paths, handler, ns, binds
+        xpath_internal(self, paths, handler, ns, binds)
       end
 
       ##
@@ -182,7 +182,7 @@ module Nokogiri
       private
 
       def css_internal(node, rules, handler, ns)
-        xpath_internal node, css_rules_to_xpath(rules, ns), handler, ns, nil
+        xpath_internal(node, css_rules_to_xpath(rules, ns), handler, ns, nil)
       end
 
       def xpath_internal(node, paths, handler, ns, binds)
@@ -206,7 +206,7 @@ module Nokogiri
         path = path.gsub(/xmlns:/, " :") unless Nokogiri.uses_libxml?
 
         binds.each do |key, value|
-          ctx.register_variable key.to_s, value
+          ctx.register_variable(key.to_s, value)
         end if binds
 
         ctx.evaluate(path, handler)

@@ -8,7 +8,7 @@ class TestConvertXPath < Nokogiri::TestCase
 
   def assert_syntactical_equivalence(hpath, xpath, match, &blk)
     blk ||= lambda { |j| j.first }
-    assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
+    assert_equal(match, blk.call(@N.search(xpath)), "xpath result did not match")
   end
 
   def test_child_tag

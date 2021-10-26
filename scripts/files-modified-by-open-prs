@@ -19,7 +19,7 @@ if gh.empty?
   exit 1
 end
 
-def get command
+def get(command)
   puts "> #{command}"
   output = %x(#{command})
   output

@@ -51,12 +51,12 @@ class TestMemoryLeak < Nokogiri::TestCase
     end
 
     def test_for_mem_leak_on_io_callbacks
-      io = File.open SNUGGLES_FILE
+      io = File.open(SNUGGLES_FILE)
       Nokogiri::XML.parse(io)
 
       loop do
         Nokogiri::XML.parse(BadIO.new) rescue nil
-        doc.write BadIO.new rescue nil
+        doc.write(BadIO.new) rescue nil
       end
     end
 
@@ -88,7 +88,7 @@ class TestMemoryLeak < Nokogiri::TestCase
     end
 
     def test_node_set_namespace_mem_leak
-      xml = Nokogiri::XML "<foo></foo>"
+      xml = Nokogiri::XML("<foo></foo>")
       ctx = Nokogiri::XML::XPathContext.new(xml)
       loop do
         ctx.evaluate("//namespace::*")
@@ -125,7 +125,7 @@ class TestMemoryLeak < Nokogiri::TestCase
       end
 
       def start_element(name, attrs = [])
-        throw @jumptag
+        throw(@jumptag)
       end
     end
 
@@ -165,8 +165,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send "Envelope", ns do
-              xml.send "Foobar", ns
+            xml.send("Envelope", ns) do
+              xml.send("Foobar", ns)
             end
           end
         end
@@ -180,8 +180,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send "Envelope", ns do
-              xml.send "Foobar", ns
+            xml.send("Envelope", ns) do
+              xml.send("Foobar", ns)
             end
           end
         end

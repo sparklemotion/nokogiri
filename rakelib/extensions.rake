@@ -171,15 +171,15 @@ def add_file_to_gem(relative_source_path)
   dest_path = File.join(gem_build_path, relative_source_path)
   dest_dir = File.dirname(dest_path)
 
-  mkdir_p dest_dir unless Dir.exist?(dest_dir)
-  rm_f dest_path if File.exist?(dest_path)
-  safe_ln relative_source_path, dest_path
+  mkdir_p(dest_dir) unless Dir.exist?(dest_dir)
+  rm_f(dest_path) if File.exist?(dest_path)
+  safe_ln(relative_source_path, dest_path)
 
   NOKOGIRI_SPEC.files << relative_source_path
 end
 
 def gem_build_path
-  File.join "pkg", NOKOGIRI_SPEC.full_name
+  File.join("pkg", NOKOGIRI_SPEC.full_name)
 end
 
 def verify_dll(dll, cross_ruby)
@@ -235,7 +235,7 @@ def verify_dll(dll, cross_ruby)
     if (liblzma_refs = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.grep(/liblzma/))
       liblzma_refs.each do |ref|
         new_ref = File.join("/usr/lib", File.basename(ref))
-        sh ["env", "LANG=C", cross_ruby.tool("install_name_tool"), "-change", ref, new_ref, dll].shelljoin
+        sh(["env", "LANG=C", cross_ruby.tool("install_name_tool"), "-change", ref, new_ref, dll].shelljoin)
       end
 
       # reload!
@@ -261,7 +261,7 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
-      RakeCompilerDock.sh <<~EOT, platform: plat
+      RakeCompilerDock.sh(<<~EOT, platform: plat)
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
@@ -308,7 +308,7 @@ if java?
     ext.lib_dir = "lib/nokogiri"
     ext.source_version = "1.7"
     ext.target_version = "1.7"
-    ext.classpath = jars.map { |x| File.expand_path x }.join ":"
+    ext.classpath = jars.map { |x| File.expand_path(x) }.join(":")
     ext.debug = true if ENV["JAVA_DEBUG"]
   end
 

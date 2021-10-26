@@ -52,7 +52,7 @@ module TestVersionInfoTests
     assert_equal(Nokogiri::LIBXML_COMPILED_VERSION, version_info["libxml"]["compiled"])
     assert_match(VERSION_MATCH, version_info["libxml"]["compiled"])
 
-    assert_match VERSION_MATCH, version_info["libxml"]["loaded"]
+    assert_match(VERSION_MATCH, version_info["libxml"]["loaded"])
     Nokogiri::LIBXML_LOADED_VERSION =~ /(\d)(\d{2})(\d{2})/
     major = Regexp.last_match(1).to_i
     minor = Regexp.last_match(2).to_i

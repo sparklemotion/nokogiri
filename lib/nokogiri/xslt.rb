@@ -9,7 +9,7 @@ module Nokogiri
     #
     #   xslt = Nokogiri::XSLT(File.read(ARGV[0]))
     #
-    def XSLT stylesheet, modules = {}
+    def XSLT(stylesheet, modules = {})
       XSLT.parse(stylesheet, modules)
     end
   end

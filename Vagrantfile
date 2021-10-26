@@ -30,7 +30,7 @@ EOF
 
 Vagrant.configure("2") do |config|
   boxen.each do |box|
-    config.vm.define box.shortname do |config|
+    config.vm.define(box.shortname) do |config|
       config.vm.box = box.name
 
       # Share an additional folder to the guest VM. The first argument is
@@ -39,15 +39,15 @@ Vagrant.configure("2") do |config|
       # argument is a set of non-required options.
       # config.vm.synced_folder "../data", "/vagrant_data"
 
-      config.vm.provider "virtualbox" do |vb|
-        vb.customize ["modifyvm", :id, "--cpus", 2]
-        vb.customize ["modifyvm", :id, "--memory", 1024]
+      config.vm.provider("virtualbox") do |vb|
+        vb.customize(["modifyvm", :id, "--cpus", 2])
+        vb.customize(["modifyvm", :id, "--memory", 1024])
       end
 
-      config.vm.synced_folder ".", "/nokogiri"
+      config.vm.synced_folder(".", "/nokogiri")
 
       if box.provision
-        config.vm.provision "shell", inline: box.provision
+        config.vm.provision("shell", inline: box.provision)
       end
     end
   end

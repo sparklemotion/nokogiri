@@ -7,33 +7,33 @@ module Nokogiri
     class TestBuilder < Nokogiri::TestCase
       def test_attribute_sensitivity
         xml = Nokogiri::XML::Builder.new do |x|
-          x.tag "hello", "abcDef" => "world"
+          x.tag("hello", "abcDef" => "world")
         end.to_xml
-        doc = Nokogiri.XML xml
-        assert_equal "world", doc.root["abcDef"]
+        doc = Nokogiri.XML(xml)
+        assert_equal("world", doc.root["abcDef"])
       end
 
       def test_builder_multiple_nodes
         Nokogiri::XML::Builder.new do |xml|
           0.upto(10) do
-            xml.text "test"
+            xml.text("test")
           end
         end
       end
 
       def test_builder_with_utf8_text
         text = "test ﺵ "
-        doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test text }.doc
-        assert_equal text, doc.content
+        doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test(text) }.doc
+        assert_equal(text, doc.content)
       end
 
       def test_builder_escape
         xml = Nokogiri::XML::Builder.new do |x|
-          x.condition "value < 1", attr: "value < 1"
+          x.condition("value < 1", attr: "value < 1")
         end.to_xml
-        doc = Nokogiri.XML xml
-        assert_equal "value < 1", doc.root["attr"]
-        assert_equal "value < 1", doc.root.content
+        doc = Nokogiri.XML(xml)
+        assert_equal("value < 1", doc.root["attr"])
+        assert_equal("value < 1", doc.root.content)
       end
 
       def test_builder_namespace
@@ -44,7 +44,7 @@ module Nokogiri
         end.doc
 
         b = doc.at("b")
-        assert b
+        assert(b)
         assert_equal({ "xmlns:a" => "x", "xmlns:b" => "y" }, b.namespaces)
         assert_equal({ "xmlns:b" => "y" }, namespaces_defined_on(b))
       end
@@ -57,7 +57,7 @@ module Nokogiri
         end.doc
 
         b = doc.at("b")
-        assert b
+        assert(b)
         assert_equal({ "xmlns:a" => "x", "xmlns:b" => "y", "xmlns:c" => "z" }, b.namespaces)
         assert_equal({ "xmlns:a" => "x", "xmlns:c" => "z" }, namespaces_defined_on(b))
       end
@@ -69,7 +69,7 @@ module Nokogiri
             xml.bar2
           end
         end
-        assert b
+        assert(b)
       end
 
       def test_with_root
@@ -77,13 +77,13 @@ module Nokogiri
         Nokogiri::XML::Builder.with(doc.at_css("employee")) do |xml|
           xml.foo
         end
-        assert_equal 1, doc.xpath("//employee/foo").length
+        assert_equal(1, doc.xpath("//employee/foo").length)
       end
 
       def test_root_namespace_default_decl
         b = Nokogiri::XML::Builder.new { |xml| xml.root(xmlns: "one:two") }
         doc = b.doc
-        assert_equal "one:two", doc.root.namespace.href
+        assert_equal("one:two", doc.root.namespace.href)
         assert_equal({ "xmlns" => "one:two" }, doc.root.namespaces)
       end
 
@@ -94,17 +94,17 @@ module Nokogiri
           end
         end
         doc = b.doc
-        assert_equal "one:two", doc.root.namespace.href
+        assert_equal("one:two", doc.root.namespace.href)
         assert_equal({ "xmlns" => "one:two", "xmlns:foo" => "bar" }, doc.root.namespaces)
 
-        assert_equal "one:two", doc.at("hello").namespace.href
+        assert_equal("one:two", doc.at("hello").namespace.href)
       end
 
       def test_non_root_namespace
         b = Nokogiri::XML::Builder.new do |xml|
           xml.root { xml.hello(xmlns: "one") }
         end
-        assert_equal "one", b.doc.at("hello", "xmlns" => "one").namespace.href
+        assert_equal("one", b.doc.at("hello", "xmlns" => "one").namespace.href)
       end
 
       def test_builder_namespace_inheritance_true
@@ -144,7 +144,7 @@ module Nokogiri
               xml["emer"].validateLocation do
                 # these should not have a namespace
                 xml.location do
-                  xml.address "Some place over the rainbow"
+                  xml.address("Some place over the rainbow")
                 end
               end
             end
@@ -163,8 +163,8 @@ module Nokogiri
           end
         end
         doc = b.doc
-        assert_equal "bar", doc.at("foo|bar", "foo" => "bar").namespace.href
-        assert_equal "bar", doc.at("foo|baz", "foo" => "bar").namespace.href
+        assert_equal("bar", doc.at("foo|bar", "foo" => "bar").namespace.href)
+        assert_equal("bar", doc.at("foo|baz", "foo" => "bar").namespace.href)
       end
 
       def test_dtd_in_builder_output
@@ -195,8 +195,8 @@ module Nokogiri
           end
         end
         doc = b.doc
-        assert_equal "bar", doc.at("foo|bar", "foo" => "bar").namespace.href
-        assert_equal "bar", doc.at("foo|baz", "foo" => "bar").namespace.href
+        assert_equal("bar", doc.at("foo|bar", "foo" => "bar").namespace.href)
+        assert_equal("bar", doc.at("foo|baz", "foo" => "bar").namespace.href)
       end
 
       def test_specified_namespace_postdeclared
@@ -209,7 +209,7 @@ module Nokogiri
         assert_equal({}, a.namespaces)
 
         b = doc.at_xpath("//foo:b", { foo: "bar" })
-        assert b
+        assert(b)
         assert_equal({ "xmlns:foo" => "bar" }, b.namespaces)
         assert_equal("b", b.name)
         assert_equal("bar", b.namespace.href)
@@ -233,11 +233,11 @@ module Nokogiri
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.root do
-            xml.bar "blah"
+            xml.bar("blah")
           end
         end
-        assert_equal "UTF-8", builder.doc.encoding
-        assert_match "UTF-8", builder.to_xml
+        assert_equal("UTF-8", builder.doc.encoding)
+        assert_match("UTF-8", builder.to_xml)
       end
 
       def test_bang_and_underscore_is_escaped
@@ -247,7 +247,7 @@ module Nokogiri
             xml.p!("adsfadsf")
           end
         end
-        assert_equal 2, builder.doc.xpath("//p").length
+        assert_equal(2, builder.doc.xpath("//p").length)
       end
 
       def test_square_brackets_set_attributes
@@ -255,10 +255,10 @@ module Nokogiri
           xml.root do
             foo = xml.foo
             foo["id"] = "hello"
-            assert_equal "hello", foo["id"]
+            assert_equal("hello", foo["id"])
           end
         end
-        assert_equal 1, builder.doc.xpath('//foo[@id = "hello"]').length
+        assert_equal(1, builder.doc.xpath('//foo[@id = "hello"]').length)
       end
 
       def test_nested_local_variable
@@ -266,17 +266,17 @@ module Nokogiri
         local_var = "hello world"
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.root do
-            xml.foo local_var
-            xml.bar @ivar
+            xml.foo(local_var)
+            xml.bar(@ivar)
             xml.baz do
-              xml.text @ivar
+              xml.text(@ivar)
             end
           end
         end
 
-        assert_equal "hello world", builder.doc.at("//root/foo").content
-        assert_equal "hello", builder.doc.at("//root/bar").content
-        assert_equal "hello", builder.doc.at("baz").content
+        assert_equal("hello world", builder.doc.at("//root/foo").content)
+        assert_equal("hello", builder.doc.at("//root/bar").content)
+        assert_equal("hello", builder.doc.at("baz").content)
       end
 
       def test_raw_append
@@ -286,7 +286,7 @@ module Nokogiri
           end
         end
 
-        assert_equal "hello", builder.doc.at("/root").content
+        assert_equal("hello", builder.doc.at("/root").content)
       end
 
       def test_raw_append_with_instance_eval
@@ -296,7 +296,7 @@ module Nokogiri
           end
         end
 
-        assert_equal "hello", builder.doc.at("/root").content
+        assert_equal("hello", builder.doc.at("/root").content)
       end
 
       def test_raw_xml_append
@@ -306,8 +306,8 @@ module Nokogiri
           end
         end
 
-        assert_equal ["aaa"], builder.doc.at_css("root").children.collect(&:name)
-        assert_equal ["bbb", "ccc"], builder.doc.at_css("aaa").children.collect(&:name)
+        assert_equal(["aaa"], builder.doc.at_css("root").children.collect(&:name))
+        assert_equal(["bbb", "ccc"], builder.doc.at_css("aaa").children.collect(&:name))
       end
 
       def test_raw_xml_append_with_namespaces
@@ -317,22 +317,22 @@ module Nokogiri
           end
         end.doc
 
-        el = doc.at "Element"
-        assert_not_nil el
+        el = doc.at("Element")
+        assert_not_nil(el)
 
-        assert_equal "y", el.namespace.href
-        assert_nil el.namespace.prefix
+        assert_equal("y", el.namespace.href)
+        assert_nil(el.namespace.prefix)
 
         attr = el.attributes["bar"]
-        assert_not_nil attr
-        assert_not_nil attr.namespace
-        assert_equal "foo", attr.namespace.prefix
+        assert_not_nil(attr)
+        assert_not_nil(attr.namespace)
+        assert_equal("foo", attr.namespace.prefix)
       end
 
       def test_cdata
         builder = Nokogiri::XML::Builder.new do
           root do
-            cdata "hello world"
+            cdata("hello world")
           end
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
@@ -342,17 +342,17 @@ module Nokogiri
       def test_comment
         builder = Nokogiri::XML::Builder.new do
           root do
-            comment "this is a comment"
+            comment("this is a comment")
           end
         end
-        assert builder.doc.root.children.first.comment?
+        assert(builder.doc.root.children.first.comment?)
       end
 
       def test_builder_no_block
         string = "hello world"
         builder = Nokogiri::XML::Builder.new
         builder.root do
-          cdata string
+          cdata(string)
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
           builder.to_xml.gsub(/\n/, ""))
@@ -368,7 +368,7 @@ module Nokogiri
         end
         doc = builder.doc
         ["product", "products"].each do |n|
-          assert_equal doc.at_xpath("//*[local-name() = '#{n}']").namespace.href, "foo"
+          assert_equal(doc.at_xpath("//*[local-name() = '#{n}']").namespace.href, "foo")
         end
       end
 
@@ -379,32 +379,32 @@ module Nokogiri
         end
 
         doc = builder.doc
-        assert_equal doc.at_xpath("//*[local-name() = 'product']").namespaces["xmlns:foo"], "baz"
-        assert_equal doc.at_xpath("//*[local-name() = 'products']").namespaces["xmlns:foo"], "bar"
-        assert_nil doc.at_xpath("//*[local-name() = 'products']").namespace
+        assert_equal(doc.at_xpath("//*[local-name() = 'product']").namespaces["xmlns:foo"], "baz")
+        assert_equal(doc.at_xpath("//*[local-name() = 'products']").namespaces["xmlns:foo"], "bar")
+        assert_nil(doc.at_xpath("//*[local-name() = 'products']").namespace)
       end
 
       def test_builder_reuses_namespaces
         # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
         builder = Nokogiri::XML::Builder.new
-        builder.send "envelope", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" } do
-          builder.send "package", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" }
+        builder.send("envelope", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" }) do
+          builder.send("package", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" })
         end
         envelope = builder.doc.at_css("envelope")
         package = builder.doc.at_css("package")
-        assert_equal envelope.namespace, package.namespace
-        assert_equal envelope.namespace.object_id, package.namespace.object_id
+        assert_equal(envelope.namespace, package.namespace)
+        assert_equal(envelope.namespace.object_id, package.namespace.object_id)
       end
 
       def test_builder_uses_proper_document_class
         xml_builder = Nokogiri::XML::Builder.new
-        assert_instance_of Nokogiri::XML::Document, xml_builder.doc
+        assert_instance_of(Nokogiri::XML::Document, xml_builder.doc)
 
         html_builder = Nokogiri::HTML::Builder.new
-        assert_instance_of Nokogiri::HTML::Document, html_builder.doc
+        assert_instance_of(Nokogiri::HTML::Document, html_builder.doc)
 
         foo_builder = ThisIsATestBuilder.new
-        assert_instance_of Nokogiri::XML::Document, foo_builder.doc
+        assert_instance_of(Nokogiri::XML::Document, foo_builder.doc)
       end
 
       private

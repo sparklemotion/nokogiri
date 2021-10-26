@@ -28,26 +28,26 @@ module Nokogiri
             @things = []
           end
 
-          def thing thing
+          def thing(thing)
             @things << thing
             thing
           end
 
-          def another_thing thing
+          def another_thing(thing)
             @things << thing
             thing
           end
 
-          def returns_array node_set
+          def returns_array(node_set)
             @things << node_set.to_a
             node_set.to_a
           end
 
-          def my_filter set, attribute, value
+          def my_filter(set, attribute, value)
             set.find_all { |x| x[attribute] == value }
           end
 
-          def saves_node_set node_set
+          def saves_node_set(node_set)
             @things = node_set
           end
 
@@ -62,36 +62,36 @@ module Nokogiri
       end
 
       def test_variable_binding
-        assert_equal 4, @xml.xpath("//address[@domestic=$value]", nil, value: "Yes").length
+        assert_equal(4, @xml.xpath("//address[@domestic=$value]", nil, value: "Yes").length)
       end
 
       def test_variable_binding_with_search
-        assert_equal 4, @xml.search("//address[@domestic=$value]", nil, value: "Yes").length
+        assert_equal(4, @xml.search("//address[@domestic=$value]", nil, value: "Yes").length)
       end
 
       def test_unknown_attribute
-        assert_equal 0, @xml.xpath('//employee[@id="asdfasdf"]/@fooo').length
-        assert_nil @xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0]
+        assert_equal(0, @xml.xpath('//employee[@id="asdfasdf"]/@fooo').length)
+        assert_nil(@xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0])
       end
 
       def test_boolean_false
-        assert_equal false, @xml.xpath("1 = 2")
+        assert_equal(false, @xml.xpath("1 = 2"))
       end
 
       def test_boolean_true
-        assert_equal true, @xml.xpath("1 = 1")
+        assert_equal(true, @xml.xpath("1 = 1"))
       end
 
       def test_number_integer
-        assert_equal 2, @xml.xpath("1 + 1")
+        assert_equal(2, @xml.xpath("1 + 1"))
       end
 
       def test_number_float
-        assert_equal 1.5, @xml.xpath("1.5")
+        assert_equal(1.5, @xml.xpath("1.5"))
       end
 
       def test_string
-        assert_equal "foo", @xml.xpath('concat("fo", "o")')
+        assert_equal("foo", @xml.xpath('concat("fo", "o")'))
       end
 
       def test_node_search_with_multiple_queries
@@ -107,26 +107,26 @@ module Nokogiri
                  </thing>
                </document>'
         node = Nokogiri::XML(xml).root
-        assert_kind_of Nokogiri::XML::Node, node
+        assert_kind_of(Nokogiri::XML::Node, node)
 
-        assert_equal 3, node.xpath(".//div", ".//p").length
-        assert_equal 3, node.css(".title", ".content", "p").length
-        assert_equal 3, node.search(".//div", "p.blah").length
+        assert_equal(3, node.xpath(".//div", ".//p").length)
+        assert_equal(3, node.css(".title", ".content", "p").length)
+        assert_equal(3, node.search(".//div", "p.blah").length)
       end
 
       def test_css_search_with_ambiguous_integer_or_string_attributes
         # https://github.com/sparklemotion/nokogiri/issues/711
         html = "<body><div><img width=200>"
         doc = Nokogiri::HTML(html)
-        assert_not_nil doc.at_css("img[width='200']")
-        assert_not_nil doc.at_css("img[width=200]")
+        assert_not_nil(doc.at_css("img[width='200']"))
+        assert_not_nil(doc.at_css("img[width=200]"))
       end
 
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
-        assert set.length > 0
+        assert(set.length > 0)
         set.each do |node|
-          assert_equal "Yes", node["domestic"]
+          assert_equal("Yes", node["domestic"])
         end
       end
 
@@ -139,9 +139,9 @@ module Nokogiri
 
       def test_search_with_css_query_uses_custom_selectors_with_arguments
         set = @xml.search('employee > address:my_filter("domestic", "Yes")', @handler)
-        assert set.length > 0
+        assert(set.length > 0)
         set.each do |node|
-          assert_equal "Yes", node["domestic"]
+          assert_equal("Yes", node["domestic"])
         end
       end
 
@@ -151,9 +151,9 @@ module Nokogiri
         else
           @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         end
-        assert set.length > 0
+        assert(set.length > 0)
         set.each do |node|
-          assert_equal "Yes", node["domestic"]
+          assert_equal("Yes", node["domestic"])
         end
       end
 
@@ -163,9 +163,9 @@ module Nokogiri
         else
           @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         end
-        assert set.length > 0
+        assert(set.length > 0)
         set.each do |node|
-          assert_equal "Yes", node["domestic"]
+          assert_equal("Yes", node["domestic"])
         end
       end
 
@@ -180,14 +180,14 @@ module Nokogiri
         assert_equal(["asdf"] * set.length, @handler.things)
       end
 
-      def parse_params node
+      def parse_params(node)
         params = {}
         node.xpath("./param").each do |p|
-          subparams = parse_params p
+          subparams = parse_params(p)
           if subparams.length > 0
-            if not params.has_key? p.attributes["name"].value
+            if not params.has_key?(p.attributes["name"].value)
               params[p.attributes["name"].value] = subparams
-            elsif params[p.attributes["name"].value].is_a? Array
+            elsif params[p.attributes["name"].value].is_a?(Array)
               params[p.attributes["name"].value] << subparams
             else
               value = params[p.attributes["name"].value]
@@ -210,14 +210,14 @@ module Nokogiri
         doc.xpath(".//category").each do |c|
           c.xpath("programformats/programformat").each do |p|
             p.xpath("./modules/module").each do |m|
-              parse_params m
+              parse_params(m)
             end
           end
         end
         stop = Time.now
         elapsed_time = stop - start
         time_limit = 20
-        assert_send [elapsed_time, :<, time_limit], "XPath is taking too long"
+        assert_send([elapsed_time, :<, time_limit], "XPath is taking too long")
       end
 
       # issue #1109 (jruby impl's xpath() cache not being cleared on attr removal)
@@ -225,7 +225,7 @@ module Nokogiri
         doc = Nokogiri::HTML('<html><div name="foo"></div></html>')
         element = doc.at_xpath('//div[@name="foo"]')
         element.remove_attribute("name")
-        assert_nil doc.at_xpath('//div[@name="foo"]')
+        assert_nil(doc.at_xpath('//div[@name="foo"]'))
       end
 
       # issue #1109 (jruby impl's xpath() cache not being cleared on attr update )
@@ -233,7 +233,7 @@ module Nokogiri
         doc = Nokogiri::HTML('<html><div name="foo"></div></html>')
         element = doc.at_xpath('//div[@name="foo"]')
         element["name"] = "bar"
-        assert_nil doc.at_xpath('//div[@name="foo"]')
+        assert_nil(doc.at_xpath('//div[@name="foo"]'))
       end
 
       def test_custom_xpath_function_returns_string
@@ -242,7 +242,7 @@ module Nokogiri
         else
           result = @xml.xpath('nokogiri:thing("asdf")', @handler)
         end
-        assert_equal "asdf", result
+        assert_equal("asdf", result)
       end
 
       def test_custom_xpath_gets_true_booleans
@@ -306,18 +306,18 @@ module Nokogiri
         end
         util_decorate(@xml, x)
 
-        assert @xml.xpath("//employee/name")
+        assert(@xml.xpath("//employee/name"))
 
         @xml.xpath("//employee[saves_node_set(name)]", @handler)
-        assert_equal @xml, @handler.things.document
-        assert @handler.things.respond_to?(:awesome!)
+        assert_equal(@xml, @handler.things.document)
+        assert(@handler.things.respond_to?(:awesome!))
       end
 
       def test_code_that_invokes_OP_RESET_inside_libxml2
         doc = "<html><body id='foo'><foo>hi</foo></body></html>"
         xpath = 'id("foo")//foo'
         nokogiri = Nokogiri::HTML.parse(doc)
-        assert nokogiri.xpath(xpath)
+        assert(nokogiri.xpath(xpath))
       end
 
       def test_custom_xpath_handler_with_args_under_gc_pressure
@@ -339,7 +339,7 @@ module Nokogiri
               #{"<tool name='hammer'/><tool name='wrench'/>" * 10}
             </toolbox>
           EOXML
-          doc = Nokogiri::XML xml
+          doc = Nokogiri::XML(xml)
 
           # long list of long arguments, to apply GC pressure during
           # ruby_funcall argument marshalling
@@ -348,7 +348,7 @@ module Nokogiri
           xpath << "'unused argument')]"
           xpath = xpath.join(",")
 
-          assert_equal doc.xpath("//tool[@name='hammer']"), doc.xpath(xpath, tool_inspector)
+          assert_equal(doc.xpath("//tool[@name='hammer']"), doc.xpath(xpath, tool_inspector))
         end
       end
 
@@ -358,7 +358,7 @@ module Nokogiri
         else
           value = @xml.xpath("nokogiri:value()", @handler)
         end
-        assert_equal 123.456, value
+        assert_equal(123.456, value)
       end
 
       def test_custom_xpath_without_arguments_returning_int
@@ -367,7 +367,7 @@ module Nokogiri
         else
           value = @xml.xpath("nokogiri:anint()", @handler)
         end
-        assert_equal 1230456, value
+        assert_equal(1230456, value)
       end
 
       def test_custom_xpath_with_bullshit_arguments
@@ -379,7 +379,7 @@ module Nokogiri
               true
             end
           end.new)
-        assert_equal foo, doc.xpath("//foo")
+        assert_equal(foo, doc.xpath("//foo"))
       end
 
       def test_node_set_should_be_decorated
@@ -392,7 +392,7 @@ module Nokogiri
         END
         doc = Nokogiri::XML.parse(process_output)
         node = doc.xpath(%{//track[@type='Video']})
-        assert_equal "[]", node.xpath("Format").inspect
+        assert_equal("[]", node.xpath("Format").inspect)
       end
 
       def test_very_specific_xml_xpath_making_problems_in_jruby
@@ -406,7 +406,7 @@ module Nokogiri
 
         xml_doc = Nokogiri::XML(xml_string)
         onix = xml_doc.children.first
-        assert_equal "a", onix.at_xpath("xmlns:Product").at_xpath("xmlns:RecordReference").text
+        assert_equal("a", onix.at_xpath("xmlns:Product").at_xpath("xmlns:RecordReference").text)
       end
 
       def test_xpath_after_attribute_change
@@ -426,8 +426,8 @@ module Nokogiri
         ns_hash = { "mods" => "http://www.loc.gov/mods/v3" }
         node = xml_doc.at_xpath("//mods:titleInfo[1]", ns_hash)
         node["lang"] = "english"
-        assert_equal 1, xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).length
-        assert_equal "english", xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).first.value
+        assert_equal(1, xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).length)
+        assert_equal("english", xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).first.value)
       end
 
       def test_xpath_after_element_removal
@@ -447,8 +447,8 @@ module Nokogiri
         ns_hash = { "mods" => "http://www.loc.gov/mods/v3" }
         node = xml_doc.at_xpath("//mods:titleInfo[1]", ns_hash)
         node.remove
-        assert_equal 1, xml_doc.xpath("//mods:titleInfo", ns_hash).length
-        assert_equal "finnish", xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).first.value
+        assert_equal(1, xml_doc.xpath("//mods:titleInfo", ns_hash).length)
+        assert_equal("finnish", xml_doc.xpath("//mods:titleInfo[1]/@lang", ns_hash).first.value)
       end
 
       def test_xpath_after_reset_doc_via_innerhtml
@@ -462,8 +462,8 @@ module Nokogiri
         doc = Nokogiri::XML(xml)
         doc.inner_html = doc.inner_html
         sections = doc.xpath(".//text:section[@name='Section1']")
-        assert_equal 1, sections.size
-        assert_equal "[TEXT_INSIDE_SECTION]", sections.first.text
+        assert_equal(1, sections.size)
+        assert_equal("[TEXT_INSIDE_SECTION]", sections.first.text)
       end
 
       def test_xpath_syntax_error
@@ -471,7 +471,7 @@ module Nokogiri
         begin
           doc.xpath("//ns1:Root")
         rescue => e
-          assert_equal false, e.message.include?("0:0")
+          assert_equal(false, e.message.include?("0:0"))
         end
       end
 

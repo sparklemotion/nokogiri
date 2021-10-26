@@ -21,11 +21,11 @@ module Nokogiri
 
       def test_passing_a_node_uses_the_node_document
         comment = Nokogiri::XML::Comment.new(@xml.at_css("employee"), "hello world")
-        assert_equal @xml, comment.document
+        assert_equal(@xml, comment.document)
       end
 
       def test_passing_anything_else
-        assert_raises ArgumentError do
+        assert_raises(ArgumentError) do
           Nokogiri::XML::Comment.new("NOT A NOKOGIRI CLASS", "hello world")
         end
       end

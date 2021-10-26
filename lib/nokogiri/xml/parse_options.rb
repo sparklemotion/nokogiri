@@ -83,7 +83,7 @@ module Nokogiri
 
       attr_accessor :options
 
-      def initialize options = STRICT
+      def initialize(options = STRICT)
         @options = options
       end
 

@@ -6,7 +6,7 @@ module Nokogiri
       def test_top_level_function_builds
         foo = nil
         Nokogiri() { |xml| foo = xml }
-        assert_instance_of Nokogiri::HTML::Builder, foo
+        assert_instance_of(Nokogiri::HTML::Builder, foo)
       end
 
       def test_builder_with_explicit_tags
@@ -17,23 +17,23 @@ module Nokogiri
             insert(node)
           end
         end.doc
-        assert_equal 1, html_doc.css("div.slide > id").length
-        assert_equal "hello", html_doc.at("div.slide > id").content
+        assert_equal(1, html_doc.css("div.slide > id").length)
+        assert_equal("hello", html_doc.at("div.slide > id").content)
       end
 
       def test_hash_as_attributes_for_attribute_method
         html = Nokogiri::HTML::Builder.new do ||
           div.slide(class: "another_class") do
-            span "Slide 1"
+            span("Slide 1")
           end
         end.to_html
-        assert_match 'class="slide another_class"', html
+        assert_match('class="slide another_class"', html)
       end
 
       def test_hash_as_attributes
         builder = Nokogiri::HTML::Builder.new do
           div(id: "awesome") do
-            h1 "america"
+            h1("america")
           end
         end
         assert_equal('<div id="awesome"><h1>america</h1></div>',
@@ -47,29 +47,29 @@ module Nokogiri
             a("King Khan & The Shrines", href: uri)
           end
         end
-        assert_equal "http://tenderlovemaking.com/",
-          built.doc.at("a")[:href]
+        assert_equal("http://tenderlovemaking.com/",
+          built.doc.at("a")[:href])
       end
 
       def test_tag_nesting
         builder = Nokogiri::HTML::Builder.new do
           body do
-            span.left ""
+            span.left("")
             span.middle do
-              div.icon ""
+              div.icon("")
             end
-            span.right ""
+            span.right("")
           end
         end
-        assert node = builder.doc.css("span.right").first
-        assert_equal "middle", node.previous_sibling["class"]
+        assert(node = builder.doc.css("span.right").first)
+        assert_equal("middle", node.previous_sibling["class"])
       end
 
       def test_has_ampersand
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! do
-            text "<awe&some>"
-            b "hello & world"
+            text("<awe&some>")
+            b("hello & world")
           end
         end
         assert_equal(
@@ -81,8 +81,8 @@ module Nokogiri
       def test_multi_tags
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! do
-            text "<awesome>"
-            b "hello"
+            text("<awesome>")
+            b("hello")
           end
         end
         assert_equal(
@@ -94,7 +94,7 @@ module Nokogiri
       def test_attributes_plus_block
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! do
-            text "<awesome>"
+            text("<awesome>")
           end
         end
         assert_equal('<div class="rad" id="thing">&lt;awesome&gt;</div>',
@@ -103,7 +103,7 @@ module Nokogiri
 
       def test_builder_adds_attributes
         builder = Nokogiri::HTML::Builder.new do
-          div.rad.thing! "tender div"
+          div.rad.thing!("tender div")
         end
         assert_equal('<div class="rad" id="thing">tender div</div>',
           builder.doc.root.to_html.chomp)
@@ -111,7 +111,7 @@ module Nokogiri
 
       def test_bold_tag
         builder = Nokogiri::HTML::Builder.new do
-          b "bold tag"
+          b("bold tag")
         end
         assert_equal("<b>bold tag</b>", builder.doc.root.to_html.chomp)
       end
@@ -120,7 +120,7 @@ module Nokogiri
         builder = Nokogiri::HTML::Builder.new do
           html do
             body do
-              b "bold tag"
+              b("bold tag")
             end
           end
         end
@@ -135,31 +135,31 @@ module Nokogiri
           end
         end
 
-        builder = Nokogiri::HTML::Builder.new { text foo }
-        assert builder.to_html.include?("foo!")
+        builder = Nokogiri::HTML::Builder.new { text(foo) }
+        assert(builder.to_html.include?("foo!"))
       end
 
       def test_builder_with_param
         doc = Nokogiri::HTML::Builder.new do |html|
           html.body do
-            html.p "hello world"
+            html.p("hello world")
           end
         end.doc
 
-        assert node = doc.xpath("//body/p").first
-        assert_equal "hello world", node.content
+        assert(node = doc.xpath("//body/p").first)
+        assert_equal("hello world", node.content)
       end
 
       def test_builder_with_id
         text = "hello world"
         doc = Nokogiri::HTML::Builder.new do |html|
           html.body do
-            html.id_ text
+            html.id_(text)
           end
         end.doc
 
-        assert node = doc.xpath("//body/id").first
-        assert_equal text, node.content
+        assert(node = doc.xpath("//body/id").first)
+        assert_equal(text, node.content)
       end
     end
   end

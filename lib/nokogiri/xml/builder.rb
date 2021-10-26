@@ -341,19 +341,19 @@ module Nokogiri
       ###
       # Create a Text Node with content of +string+
       def text(string)
-        insert @doc.create_text_node(string)
+        insert(@doc.create_text_node(string))
       end
 
       ###
       # Create a CDATA Node with content of +string+
       def cdata(string)
-        insert doc.create_cdata(string)
+        insert(doc.create_cdata(string))
       end
 
       ###
       # Create a Comment Node with content of +string+
       def comment(string)
-        insert doc.create_comment(string)
+        insert(doc.create_comment(string))
       end
 
       ###
@@ -400,13 +400,13 @@ module Nokogiri
         else
           node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) do |n|
             # Set up the namespace
-            if @ns.is_a? Nokogiri::XML::Namespace
+            if @ns.is_a?(Nokogiri::XML::Namespace)
               n.namespace = @ns
               @ns = nil
             end
           end
 
-          if @ns.is_a? Hash
+          if @ns.is_a?(Hash)
             node.namespace = node.namespace_definitions.find { |x| x.prefix == @ns[:pending] }
             if node.namespace.nil?
               raise ArgumentError, "Namespace #{@ns[:pending]} has not been defined"

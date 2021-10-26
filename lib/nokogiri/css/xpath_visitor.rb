@@ -3,7 +3,7 @@
 module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
-      def visit_function node
+      def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
         return self.send(msg, node) if self.respond_to?(msg)
 
@@ -61,7 +61,7 @@ module Nokogiri
         end
       end
 
-      def visit_not node
+      def visit_not(node)
         child = node.value.first
         if :ELEMENT_NAME == child.type
           "not(self::#{child.accept(self)})"
@@ -70,12 +70,12 @@ module Nokogiri
         end
       end
 
-      def visit_id node
+      def visit_id(node)
         node.value.first =~ /^#(.*)$/
         "@id='#{$1}'"
       end
 
-      def visit_attribute_condition node
+      def visit_attribute_condition(node)
         attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
           ""
         else
@@ -120,7 +120,7 @@ module Nokogiri
         end
       end
 
-      def visit_pseudo_class node
+      def visit_pseudo_class(node)
         if node.value.first.is_a?(Nokogiri::CSS::Node) and node.value.first.type == :FUNCTION
           node.value.first.accept(self)
         else
@@ -145,11 +145,11 @@ module Nokogiri
         end
       end
 
-      def visit_class_condition node
+      def visit_class_condition(node)
         css_class("@class", node.value.first)
       end
 
-      def visit_combinator node
+      def visit_combinator(node)
         if is_of_type_pseudo_class?(node.value.last)
           "#{node.value.first.accept(self) if node.value.first}][#{node.value.last.accept(self)}"
         else
@@ -170,25 +170,25 @@ module Nokogiri
         }
       end
 
-      def visit_conditional_selector node
+      def visit_conditional_selector(node)
         node.value.first.accept(self) + "[" +
           node.value.last.accept(self) + "]"
       end
 
-      def visit_element_name node
+      def visit_element_name(node)
         node.value.first
       end
 
-      def accept node
+      def accept(node)
         node.accept(self)
       end
 
       private
 
-      def nth node, options = {}
+      def nth(node, options = {})
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 
-        a, b = read_a_and_positive_b node.value
+        a, b = read_a_and_positive_b(node.value)
         position = if options[:child]
           options[:last] ? "(count(following-sibling::*)+1)" : "(count(preceding-sibling::*)+1)"
         else
@@ -207,7 +207,7 @@ module Nokogiri
         end
       end
 
-      def read_a_and_positive_b values
+      def read_a_and_positive_b(values)
         op = values[2]
         if op == "+"
           a = values[0].to_i
@@ -221,7 +221,7 @@ module Nokogiri
         [a, b]
       end
 
-      def is_of_type_pseudo_class? node
+      def is_of_type_pseudo_class?(node)
         if node.type == :PSEUDO_CLASS
           if node.value[0].is_a?(Nokogiri::CSS::Node) and node.value[0].type == :FUNCTION
             node.value[0].value[0]

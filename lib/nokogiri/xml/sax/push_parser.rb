@@ -44,7 +44,7 @@ module Nokogiri
         ###
         # Write a +chunk+ of XML to the PushParser.  Any callback methods
         # that can be called will be called immediately.
-        def write chunk, last_chunk = false
+        def write(chunk, last_chunk = false)
           native_write(chunk, last_chunk)
         end
         alias :<< :write
@@ -53,7 +53,7 @@ module Nokogiri
         # Finish the parsing.  This method is only necessary for
         # Nokogiri::XML::SAX::Document#end_document to be called.
         def finish
-          write "", true
+          write("", true)
         end
       end
     end

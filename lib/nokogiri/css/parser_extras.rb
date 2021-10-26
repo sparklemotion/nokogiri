@@ -47,10 +47,10 @@ module Nokogiri
         # Execute +block+ without cache
         def without_cache(&block)
           original_cache_setting = cache_on?
-          set_cache false
+          set_cache(false)
           block.call
         ensure
-          set_cache original_cache_setting
+          set_cache(original_cache_setting)
         end
       end
 
@@ -62,7 +62,7 @@ module Nokogiri
       end
 
       def parse(string)
-        @tokenizer.scan_setup string
+        @tokenizer.scan_setup(string)
         do_parse
       end
 

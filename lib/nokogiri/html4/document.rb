@@ -32,7 +32,7 @@ module Nokogiri
       #
       # Beware in CRuby, that libxml2 automatically inserts a meta tag
       # into a head element.
-      def meta_encoding= encoding
+      def meta_encoding=(encoding)
         if meta = meta_content_type
           meta["content"] = format("text/html; charset=%s", encoding)
           encoding
@@ -138,14 +138,14 @@ module Nokogiri
       #     config.format.as_xml
       #   end
       #
-      def serialize options = {}
+      def serialize(options = {})
         options[:save_with] ||= XML::Node::SaveOptions::DEFAULT_HTML
         super
       end
 
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags = nil
+      def fragment(tags = nil)
         DocumentFragment.new(self, tags, self.root)
       end
 
@@ -158,7 +158,7 @@ module Nokogiri
         # is a number that sets options in the parser, such as
         # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
         # Nokogiri::XML::ParseOptions.
-        def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML
+        def parse(string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML)
           options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
           yield options if block_given?
@@ -250,8 +250,8 @@ module Nokogiri
 
           def start_element(name, attrs = [])
             super
-            throw @jumptag, @encoding if @encoding
-            throw @jumptag, nil if name =~ /\A(?:div|h1|img|p|br)\z/
+            throw(@jumptag, @encoding) if @encoding
+            throw(@jumptag, nil) if name =~ /\A(?:div|h1|img|p|br)\z/
           end
         end
 

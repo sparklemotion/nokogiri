@@ -23,63 +23,63 @@ module Nokogiri
       end
       private :default_desc
 
-      unless method_defined? :implied_start_tag?
+      unless method_defined?(:implied_start_tag?)
         def implied_start_tag?
           d = default_desc
           d ? d.startTag : nil
         end
       end
 
-      unless method_defined? :implied_end_tag?
+      unless method_defined?(:implied_end_tag?)
         def implied_end_tag?
           d = default_desc
           d ? d.endTag : nil
         end
       end
 
-      unless method_defined? :save_end_tag?
+      unless method_defined?(:save_end_tag?)
         def save_end_tag?
           d = default_desc
           d ? d.saveEndTag : nil
         end
       end
 
-      unless method_defined? :deprecated?
+      unless method_defined?(:deprecated?)
         def deprecated?
           d = default_desc
           d ? d.depr : nil
         end
       end
 
-      unless method_defined? :description
+      unless method_defined?(:description)
         def description
           d = default_desc
           d ? d.desc : nil
         end
       end
 
-      unless method_defined? :default_sub_element
+      unless method_defined?(:default_sub_element)
         def default_sub_element
           d = default_desc
           d ? d.defaultsubelt : nil
         end
       end
 
-      unless method_defined? :optional_attributes
+      unless method_defined?(:optional_attributes)
         def optional_attributes
           d = default_desc
           d ? d.attrs_opt : []
         end
       end
 
-      unless method_defined? :deprecated_attributes
+      unless method_defined?(:deprecated_attributes)
         def deprecated_attributes
           d = default_desc
           d ? d.attrs_depr : []
         end
       end
 
-      unless method_defined? :required_attributes
+      unless method_defined?(:required_attributes)
         def required_attributes
           d = default_desc
           d ? d.attrs_req : []
@@ -567,7 +567,7 @@ module Nokogiri
           d[:attrs_depr] = d[:attrs_depr].flatten
           d[:attrs_req] = d[:attrs_req].flatten
         rescue => e
-          p name
+          p(name)
           raise e
         end
 

@@ -8,7 +8,7 @@ namespace "css" do
 
   desc "Clean up generated CSS parser and tokenizer"
   task "clean" do
-    DEPS.keys.each { |f| FileUtils.rm_f f, verbose: true }
+    DEPS.keys.each { |f| FileUtils.rm_f(f, verbose: true) }
   end
 
   file PARSER_DEPS do |t|

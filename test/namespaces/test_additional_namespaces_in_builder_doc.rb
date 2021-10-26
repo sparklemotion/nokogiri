@@ -7,7 +7,7 @@ module Nokogiri
         b = Nokogiri::XML::Builder.new do |x|
           x[:foo].RDF("xmlns:foo": "http://foo.io")
         end
-        assert_equal "http://foo.io", b.doc.root.namespace.href
+        assert_equal("http://foo.io", b.doc.root.namespace.href)
       end
     end
   end

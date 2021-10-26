@@ -13,13 +13,13 @@ module Nokogiri
 
         def test_parse_empty_document
           # This caused a segfault in libxml 2.6.x
-          assert_nil @parser.parse ""
+          assert_nil(@parser.parse(""))
         end
 
         def test_parse_empty_file
           # Make sure empty files don't break stuff
           empty_file_name = File.join(ASSETS_DIR, "bogus.xml")
-          @parser.parse_file empty_file_name # assert_nothing_raised
+          @parser.parse_file(empty_file_name) # assert_nothing_raised
         end
 
         def test_parse_file
@@ -28,9 +28,9 @@ module Nokogiri
           # Take a look at the comment in test_parse_document to know
           # a possible reason to this difference.
           if Nokogiri.uses_libxml?
-            assert_equal 1111, @parser.document.end_elements.length
+            assert_equal(1111, @parser.document.end_elements.length)
           else
-            assert_equal 1120, @parser.document.end_elements.length
+            assert_equal(1120, @parser.document.end_elements.length)
           end
         end
 
@@ -41,19 +41,19 @@ module Nokogiri
         end
 
         def test_parse_file_non_existant
-          assert_raise Errno::ENOENT do
+          assert_raise(Errno::ENOENT) do
             @parser.parse_file("there_is_no_reasonable_way_this_file_exists")
           end
         end
 
         def test_parse_file_with_dir
-          assert_raise Errno::EISDIR do
+          assert_raise(Errno::EISDIR) do
             @parser.parse_file(File.dirname(__FILE__))
           end
         end
 
         def test_parse_memory_nil
-          assert_raise ArgumentError do
+          assert_raise(ArgumentError) do
             @parser.parse_memory(nil)
           end
         end
@@ -107,7 +107,7 @@ module Nokogiri
             ctx.replace_entities = true
           end
 
-          assert block_called
+          assert(block_called)
 
           noshade_value = if Nokogiri.uses_libxml?("< 2.7.7")
             ["noshade", "noshade"]
@@ -115,7 +115,7 @@ module Nokogiri
             ["noshade", nil]
           end
 
-          assert_equal [
+          assert_equal([
             ["html", []],
             ["head", []],
             ["title", []],
@@ -128,7 +128,7 @@ module Nokogiri
               noshade_value,
               ["size", "2"],
             ],],
-          ], @parser.document.start_elements
+          ], @parser.document.start_elements)
         end
 
         HTML_WITH_BR_TAG = <<-EOF
@@ -149,12 +149,12 @@ module Nokogiri
 
         def test_parsing_dom_error_from_string
           @parser.parse(HTML_WITH_BR_TAG)
-          assert_equal 6, @parser.document.start_elements.length
+          assert_equal(6, @parser.document.start_elements.length)
         end
 
         def test_parsing_dom_error_from_io
           @parser.parse(StringIO.new(HTML_WITH_BR_TAG))
-          assert_equal 6, @parser.document.start_elements.length
+          assert_equal(6, @parser.document.start_elements.length)
         end
 
         def test_empty_processing_instruction

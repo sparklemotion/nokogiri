@@ -9,7 +9,7 @@ module Nokogiri
       undef_method :namespace_definitions
       undef_method :line if method_defined?(:line)
 
-      def self.new name, doc, *args
+      def self.new(name, doc, *args)
         doc.create_entity(name, *args)
       end
 

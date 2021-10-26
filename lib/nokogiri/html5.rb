@@ -280,7 +280,7 @@ module Nokogiri
       #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
       #   :verify_callback, :verify_depth, :verify_mode
       options.each do |key, _value|
-        http.send "#{key}=", headers.delete(key) if http.respond_to? "#{key}="
+        http.send("#{key}=", headers.delete(key)) if http.respond_to?("#{key}=")
       end
 
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -288,7 +288,7 @@ module Nokogiri
       # basic authentication
       auth = headers.delete(:basic_auth)
       auth ||= [uri.user, uri.password] if uri.user && uri.password
-      request.basic_auth auth.first, auth.last if auth
+      request.basic_auth(auth.first, auth.last) if auth
 
       # remaining options are treated as headers
       headers.each { |key, value| request[key.to_s] = value.to_s }

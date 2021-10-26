@@ -9,7 +9,7 @@ module Nokogiri
         def setup
           super
           @doc    = DocWithOrderedItems.new
-          @parser = HTML::SAX::Parser.new @doc
+          @parser = HTML::SAX::Parser.new(@doc)
         end
 
         def test_texts_order
@@ -41,15 +41,15 @@ module Nokogiri
             </html>
           eohtml
 
-          @parser.parse html
-          items = @doc.items.get_root_content "body"
-          items = items.select_methods [
+          @parser.parse(html)
+          items = @doc.items.get_root_content("body")
+          items = items.select_methods([
             :start_element, :end_element,
             :characters, :comment,
-          ]
-          items.strip_text! [:characters, :comment]
+          ])
+          items.strip_text!([:characters, :comment])
 
-          assert_equal [
+          assert_equal([
             [:characters, "text 0"],
 
             [:start_element, "p", []],
@@ -83,7 +83,7 @@ module Nokogiri
 
             [:comment, "text 9"],
             [:characters, ""],
-          ], items
+          ], items)
 
           nil
         end
@@ -112,15 +112,15 @@ module Nokogiri
             </html>
           eohtml
 
-          @parser.parse html
-          items = @doc.items.get_root_content "body"
-          items = items.select_methods [
+          @parser.parse(html)
+          items = @doc.items.get_root_content("body")
+          items = items.select_methods([
             :start_element, :end_element,
             :characters, :comment,
-          ]
-          items.strip_text! [:characters, :comment]
+          ])
+          items.strip_text!([:characters, :comment])
 
-          assert_equal [
+          assert_equal([
             [:characters, ""],
             [:start_element, "p", []],
 
@@ -154,7 +154,7 @@ module Nokogiri
 
             [:end_element, "p"],
             [:characters, ""],
-          ], items
+          ], items)
 
           nil
         end

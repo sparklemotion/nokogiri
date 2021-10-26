@@ -6,17 +6,17 @@ module Nokogiri
       def setup
         super
         @xml = Nokogiri::XML(File.open(XML_FILE))
-        assert @dtd = @xml.internal_subset
+        assert(@dtd = @xml.internal_subset)
       end
 
       def test_system_id
-        assert_equal "staff.dtd", @dtd.system_id
+        assert_equal("staff.dtd", @dtd.system_id)
       end
 
       def test_external_id
         xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
-        assert dtd = xml.internal_subset, "no internal subset"
-        assert_equal "bar", dtd.external_id
+        assert(dtd = xml.internal_subset, "no internal subset")
+        assert_equal("bar", dtd.external_id)
       end
 
       def test_html_dtd
@@ -89,22 +89,22 @@ module Nokogiri
         }.each do |name, (dtd_str, html_p, html5_p)|
           doc = Nokogiri(dtd_str)
           dtd = doc.internal_subset
-          assert_instance_of Nokogiri::XML::DTD, dtd, name
+          assert_instance_of(Nokogiri::XML::DTD, dtd, name)
           if html_p
-            assert dtd.html_dtd?, name
+            assert(dtd.html_dtd?, name)
           else
-            refute dtd.html_dtd?, name
+            refute(dtd.html_dtd?, name)
           end
           if html5_p
-            assert dtd.html5_dtd?, name
+            assert(dtd.html5_dtd?, name)
           else
-            refute dtd.html5_dtd?, name
+            refute(dtd.html5_dtd?, name)
           end
         end
       end
 
       def test_content
-        assert_raise NoMethodError do
+        assert_raise(NoMethodError) do
           @dtd.content
         end
       end
@@ -115,72 +115,72 @@ module Nokogiri
       end
 
       def test_attributes
-        assert_equal ["width"], @dtd.attributes.keys
-        assert_equal "0", @dtd.attributes["width"].default
+        assert_equal(["width"], @dtd.attributes.keys)
+        assert_equal("0", @dtd.attributes["width"].default)
       end
 
       def test_keys
-        assert_equal ["width"], @dtd.keys
+        assert_equal(["width"], @dtd.keys)
       end
 
       def test_each
         hash = {}
         @dtd.each { |key, value| hash[key] = value }
-        assert_equal @dtd.attributes, hash
+        assert_equal(@dtd.attributes, hash)
       end
 
       def test_namespace
-        assert_raise NoMethodError do
+        assert_raise(NoMethodError) do
           @dtd.namespace
         end
       end
 
       def test_namespace_definitions
-        assert_raise NoMethodError do
+        assert_raise(NoMethodError) do
           @dtd.namespace_definitions
         end
       end
 
       def test_line
-        assert_raise NoMethodError do
+        assert_raise(NoMethodError) do
           @dtd.line
         end
       end
 
       def test_validate
         if Nokogiri.uses_libxml?
-          list = @xml.internal_subset.validate @xml
-          assert_equal 45, list.length
+          list = @xml.internal_subset.validate(@xml)
+          assert_equal(45, list.length)
         else
           xml = Nokogiri::XML(File.open(XML_FILE)) { |cfg| cfg.dtdvalid }
-          list = xml.internal_subset.validate xml
-          assert_equal 40, list.length
+          list = xml.internal_subset.validate(xml)
+          assert_equal(40, list.length)
         end
       end
 
       def test_external_subsets
-        assert subset = @xml.internal_subset
-        assert_equal "staff", subset.name
+        assert(subset = @xml.internal_subset)
+        assert_equal("staff", subset.name)
       end
 
       def test_entities
-        assert entities = @dtd.entities
-        assert_equal ["ent1", "ent2", "ent3", "ent4", "ent5"].sort, entities.keys.sort
+        assert(entities = @dtd.entities)
+        assert_equal(["ent1", "ent2", "ent3", "ent4", "ent5"].sort, entities.keys.sort)
       end
 
       def test_elements
-        assert elements = @dtd.elements
-        assert_equal ["br"], elements.keys
-        assert_equal "br", elements["br"].name
+        assert(elements = @dtd.elements)
+        assert_equal(["br"], elements.keys)
+        assert_equal("br", elements["br"].name)
       end
 
       def test_notations
-        assert notations = @dtd.notations
-        assert_equal ["notation1", "notation2"].sort, notations.keys.sort
-        assert notation1 = notations["notation1"]
-        assert_equal "notation1", notation1.name
-        assert_equal "notation1File", notation1.public_id
-        assert_nil notation1.system_id
+        assert(notations = @dtd.notations)
+        assert_equal(["notation1", "notation2"].sort, notations.keys.sort)
+        assert(notation1 = notations["notation1"])
+        assert_equal("notation1", notation1.name)
+        assert_equal("notation1File", notation1.public_id)
+        assert_nil(notation1.system_id)
       end
     end
   end

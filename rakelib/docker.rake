@@ -103,7 +103,7 @@ EOF
         puts "writing #{dockerfile_path} ..."
         File.open(dockerfile_path, "w") do |dockerfile|
           Dir.chdir(File.dirname(dockerfile_path)) do
-            dockerfile.write ERB.new(template, nil, "%-").result(binding)
+            dockerfile.write(ERB.new(template, nil, "%-").result(binding))
           end
         end
       end

@@ -9,8 +9,8 @@ module Nokogiri
       end
 
       def test_new
-        assert ref = EntityReference.new(@xml, "ent4")
-        assert_instance_of EntityReference, ref
+        assert(ref = EntityReference.new(@xml, "ent4"))
+        assert_instance_of(EntityReference, ref)
       end
 
       def test_many_references
@@ -23,7 +23,7 @@ module Nokogiri
           <?xml version="1.0" ?>
           <item></item>
         EOF
-        doc = Nokogiri::XML xml
+        doc = Nokogiri::XML(xml)
         lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
         doc.xpath("/item").first.add_child(lf_node)
         assert_match(/&#xa;/, doc.to_xml)
@@ -36,7 +36,7 @@ module Nokogiri
         # entities. because any use of that child is likely to cause a
         # segfault, we shall pretend that it doesn't exist.
         entity = Nokogiri::XML::EntityReference.new(@xml, "amp")
-        assert_equal 0, entity.children.length
+        assert_equal(0, entity.children.length)
         entity.inspect # should not segfault
       end
     end
@@ -47,24 +47,24 @@ module Nokogiri
       attr_accessor :path, :parser
 
       def xml_document
-        File.join path, "document.xml"
+        File.join(path, "document.xml")
       end
 
-      def self.included base
-        def base.test_relative_and_absolute_path method_name, &block
-          test_relative_path method_name, &block
-          test_absolute_path method_name, &block
+      def self.included(base)
+        def base.test_relative_and_absolute_path(method_name, &block)
+          test_relative_path(method_name, &block)
+          test_absolute_path(method_name, &block)
         end
 
-        def base.test_absolute_path method_name, &block
-          define_method "#{method_name}_with_absolute_path" do
-            self.path = "#{File.expand_path PATH}/"
+        def base.test_absolute_path(method_name, &block)
+          define_method("#{method_name}_with_absolute_path") do
+            self.path = "#{File.expand_path(PATH)}/"
             instance_eval(&block)
           end
         end
 
-        def base.test_relative_path method_name, &block
-          define_method method_name do
+        def base.test_relative_path(method_name, &block)
+          define_method(method_name) do
             self.path = PATH
             instance_eval(&block)
           end
@@ -82,8 +82,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_dom_entity_reference_with_dtdloda do
         # Make sure that we can parse entity references and include them in the document
-        html = File.read xml_document
-        doc = @parser.parse html, path do |cfg|
+        html = File.read(xml_document)
+        doc = @parser.parse(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdload
           cfg.noent
@@ -94,8 +94,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_dom_entity_reference_with_dtdvalid do
         # Make sure that we can parse entity references and include them in the document
-        html = File.read xml_document
-        doc = @parser.parse html, path do |cfg|
+        html = File.read(xml_document)
+        doc = @parser.parse(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdvalid
           cfg.noent
@@ -112,7 +112,7 @@ module Nokogiri
                       <body>&bar;</body>
                     </document>
         ]
-        doc = @parser.parse html, xml_document do |cfg|
+        doc = @parser.parse(html, xml_document) do |cfg|
           cfg.default_xml
           cfg.dtdvalid
           cfg.noent
@@ -123,8 +123,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_dom_entity_reference_with_io do
         # Make sure that we can parse entity references and include them in the document
-        html = File.open xml_document
-        doc = @parser.parse html, nil do |cfg|
+        html = File.open(xml_document)
+        doc = @parser.parse(html, nil) do |cfg|
           cfg.default_xml
           cfg.dtdload
           cfg.noent
@@ -135,8 +135,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_dom_entity_reference_without_noent do
         # Make sure that we don't include entity references unless NOENT is set to true
-        html = File.read xml_document
-        doc = @parser.parse html, path do |cfg|
+        html = File.read(xml_document)
+        doc = @parser.parse(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdload
         end
@@ -146,8 +146,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_dom_entity_reference_without_dtdload do
         # Make sure that we don't include entity references unless NOENT is set to true
-        html = File.read xml_document
-        doc = @parser.parse html, path do |cfg|
+        html = File.read(xml_document)
+        doc = @parser.parse(html, path) do |cfg|
           cfg.default_xml
         end
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
@@ -164,7 +164,7 @@ module Nokogiri
                       <body>&bar;</body>
                     </document>
         ]
-        doc = @parser.parse html, path do |cfg|
+        doc = @parser.parse(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdload
         end
@@ -190,8 +190,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_sax_entity_reference do
         # Make sure that we can parse entity references and include them in the document
-        html = File.read xml_document
-        @parser.parse html
+        html = File.read(xml_document)
+        @parser.parse(html)
         refute_nil @parser.document.errors
         assert_equal ["Entity 'bar' not defined"], @parser.document.errors.map(&:to_s).map(&:strip)
       end
@@ -204,7 +204,7 @@ module Nokogiri
                       <body>&bar;</body>
                     </document>
         ]
-        @parser.parse html
+        @parser.parse(html)
         refute_nil @parser.document.errors
         assert_equal ["Entity 'bar' not defined"], @parser.document.errors.map(&:to_s).map(&:strip)
       end
@@ -219,8 +219,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_reader_entity_reference do
         # Make sure that we can parse entity references and include them in the document
-        html = File.read xml_document
-        reader = Nokogiri::XML::Reader html, path do |cfg|
+        html = File.read(xml_document)
+        reader = Nokogiri::XML::Reader(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdload
           cfg.noent
@@ -232,8 +232,8 @@ module Nokogiri
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_noent do
         # Make sure that we can parse entity references and include them in the document
-        html = File.read xml_document
-        reader = Nokogiri::XML::Reader html, path do |cfg|
+        html = File.read(xml_document)
+        reader = Nokogiri::XML::Reader(html, path) do |cfg|
           cfg.default_xml
           cfg.dtdload
         end
@@ -243,8 +243,8 @@ module Nokogiri
       end
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_dtdload do
-        html = File.read xml_document
-        reader = Nokogiri::XML::Reader html, path do |cfg|
+        html = File.read(xml_document)
+        reader = Nokogiri::XML::Reader(html, path) do |cfg|
           cfg.default_xml
         end
         if Nokogiri.uses_libxml?(">= 2.9.0")

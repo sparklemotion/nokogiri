@@ -45,7 +45,7 @@ module Nokogiri
       #
       # Nokogiri.XML() is a convenience method which will call this method.
       #
-      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML
+      def self.parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
         yield options if block_given?
@@ -166,7 +166,7 @@ module Nokogiri
       # Since v1.12.4
       attr_accessor :namespace_inheritance
 
-      def initialize *args # :nodoc:
+      def initialize(*args) # :nodoc:
         @errors     = []
         @decorators = nil
         @namespace_inheritance = false
@@ -245,18 +245,18 @@ module Nokogiri
       end
 
       # Create a Text Node with +string+
-      def create_text_node string, &block
-        Nokogiri::XML::Text.new string.to_s, self, &block
+      def create_text_node(string, &block)
+        Nokogiri::XML::Text.new(string.to_s, self, &block)
       end
 
       # Create a CDATA Node containing +string+
-      def create_cdata string, &block
-        Nokogiri::XML::CDATA.new self, string.to_s, &block
+      def create_cdata(string, &block)
+        Nokogiri::XML::CDATA.new(self, string.to_s, &block)
       end
 
       # Create a Comment Node containing +string+
-      def create_comment string, &block
-        Nokogiri::XML::Comment.new self, string.to_s, &block
+      def create_comment(string, &block)
+        Nokogiri::XML::Comment.new(self, string.to_s, &block)
       end
 
       # The name of this document.  Always returns "document"
@@ -313,7 +313,7 @@ module Nokogiri
       end
 
       # Get the list of decorators given +key+
-      def decorators key
+      def decorators(key)
         @decorators ||= {}
         @decorators[key] ||= []
       end
@@ -323,7 +323,7 @@ module Nokogiri
       # the document or +nil+ when there is no DTD.
       def validate
         return nil unless internal_subset
-        internal_subset.validate self
+        internal_subset.validate(self)
       end
 
       ##
@@ -343,7 +343,7 @@ module Nokogiri
       #   ... which does absolutely nothing.
       #
       def slop!
-        unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
+        unless decorators(XML::Node).include?(Nokogiri::Decorators::Slop)
           decorators(XML::Node) << Nokogiri::Decorators::Slop
           decorate!
         end
@@ -353,7 +353,7 @@ module Nokogiri
 
       ##
       # Apply any decorators to +node+
-      def decorate node
+      def decorate(node)
         return unless @decorators
         @decorators.each do |klass, list|
           next unless node.is_a?(klass)
@@ -372,7 +372,7 @@ module Nokogiri
       ##
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
-      def fragment tags = nil
+      def fragment(tags = nil)
         DocumentFragment.new(self, tags, self.root)
       end
 
@@ -380,7 +380,7 @@ module Nokogiri
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
 
-      def add_child node_or_tags
+      def add_child(node_or_tags)
         raise "A document may not have multiple root nodes." if (root && root.name != "nokogiri_text_wrapper") && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -394,7 +394,7 @@ module Nokogiri
 
       private
 
-      def self.empty_doc? string_or_io
+      def self.empty_doc?(string_or_io)
         string_or_io.nil? ||
           (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)

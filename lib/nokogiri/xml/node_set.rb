@@ -16,7 +16,7 @@ module Nokogiri
       alias :clone :dup
 
       # Create a NodeSet with +document+ defaulting to +list+
-      def initialize document, list = []
+      def initialize(document, list = [])
         @document = document
         document.decorate(self)
         list.each { |x| self << x }
@@ -25,7 +25,7 @@ module Nokogiri
 
       ###
       # Get the first element of the NodeSet.
-      def first n = nil
+      def first(n = nil)
         return self[0] unless n
         list = []
         [n, length].min.times { |i| list << self[i] }
@@ -48,7 +48,7 @@ module Nokogiri
       # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
       def index(node = nil)
         if node
-          warn "given block not used" if block_given?
+          warn("given block not used") if block_given?
           each_with_index { |member, j| return j if member == node }
         elsif block_given?
           each_with_index { |member, j| return j if yield(member) }
@@ -58,14 +58,14 @@ module Nokogiri
 
       ###
       # Insert +datum+ before the first Node in this NodeSet
-      def before datum
-        first.before datum
+      def before(datum)
+        first.before(datum)
       end
 
       ###
       # Insert +datum+ after the last Node in this NodeSet
-      def after datum
-        last.after datum
+      def after(datum)
+        last.after(datum)
       end
 
       alias :<< :push
@@ -78,7 +78,7 @@ module Nokogiri
       # selectors. For example:
       #
       # For more information see Nokogiri::XML::Searchable#css
-      def css *args
+      def css(*args)
         rules, handler, ns, _ = extract_params(args)
         paths = css_rules_to_xpath(rules, ns)
 
@@ -94,7 +94,7 @@ module Nokogiri
       # queries.
       #
       # For more information see Nokogiri::XML::Searchable#xpath
-      def xpath *args
+      def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
 
         inject(NodeSet.new(document)) do |set, node|
@@ -104,9 +104,9 @@ module Nokogiri
 
       ###
       # Search this NodeSet's nodes' immediate children using CSS selector +selector+
-      def > selector
+      def >(selector)
         ns = document.root.namespaces
-        xpath CSS.xpath_for(selector, prefix: "./", ns: ns).first
+        xpath(CSS.xpath_for(selector, prefix: "./", ns: ns).first)
       end
 
       ###
@@ -121,7 +121,7 @@ module Nokogiri
       #
       #   node_set.at(3) # same as node_set[3]
       #
-      def at *args
+      def at(*args)
         if args.length == 1 && args.first.is_a?(Numeric)
           return self[args.first]
         end
@@ -132,7 +132,7 @@ module Nokogiri
 
       ###
       # Filter this list for nodes that match +expr+
-      def filter expr
+      def filter(expr)
         find_all { |node| node.matches?(expr) }
       end
 
@@ -141,7 +141,7 @@ module Nokogiri
       # NodeSet.
       #
       # See Nokogiri::XML::Node#add_class for more information.
-      def add_class name
+      def add_class(name)
         each do |el|
           el.add_class(name)
         end
@@ -153,7 +153,7 @@ module Nokogiri
       # NodeSet.
       #
       # See Nokogiri::XML::Node#append_class for more information.
-      def append_class name
+      def append_class(name)
         each do |el|
           el.append_class(name)
         end
@@ -165,7 +165,7 @@ module Nokogiri
       # NodeSet.
       #
       # See Nokogiri::XML::Node#remove_class for more information.
-      def remove_class name = nil
+      def remove_class(name = nil)
         each do |el|
           el.remove_class(name)
         end
@@ -205,7 +205,7 @@ module Nokogiri
       #
       #   node_set.attr("class") { |node| node.name }
       #
-      def attr key, value = nil, &block
+      def attr(key, value = nil, &block)
         unless key.is_a?(Hash) || (key && (value || block))
           return first ? first.attribute(key) : nil
         end
@@ -225,8 +225,8 @@ module Nokogiri
 
       ###
       # Remove the attributed named +name+ from all Node objects in the NodeSet
-      def remove_attr name
-        each { |el| el.delete name }
+      def remove_attr(name)
+        each { |el| el.delete(name) }
         self
       end
       alias remove_attribute remove_attr
@@ -262,14 +262,14 @@ module Nokogiri
 
       ###
       # Get the inner html of all contained Node objects
-      def inner_html *args
+      def inner_html(*args)
         collect { |j| j.inner_html(*args) }.join("")
       end
 
       ###
       # Wrap this NodeSet with +html+
-      def wrap html
-        map { |node| node.wrap html }
+      def wrap(html)
+        map { |node| node.wrap(html) }
       end
 
       ###
@@ -280,7 +280,7 @@ module Nokogiri
 
       ###
       # Convert this NodeSet to HTML
-      def to_html *args
+      def to_html(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
           if !options[:save_with]
@@ -293,13 +293,13 @@ module Nokogiri
 
       ###
       # Convert this NodeSet to XHTML
-      def to_xhtml *args
+      def to_xhtml(*args)
         map { |x| x.to_xhtml(*args) }.join
       end
 
       ###
       # Convert this NodeSet to XML
-      def to_xml *args
+      def to_xml(*args)
         map { |x| x.to_xml(*args) }.join
       end
 
@@ -311,7 +311,7 @@ module Nokogiri
       # the set is empty
       def pop
         return nil if length == 0
-        delete last
+        delete(last)
       end
 
       ###
@@ -319,14 +319,14 @@ module Nokogiri
       # +nil+ if the set is empty.
       def shift
         return nil if length == 0
-        delete first
+        delete(first)
       end
 
       ###
       # Equality -- Two NodeSets are equal if the contain the same number
       # of elements and if each element is equal to the corresponding
       # element in the other NodeSet
-      def == other
+      def ==(other)
         return false unless other.is_a?(Nokogiri::XML::NodeSet)
         return false unless length == other.length
         each_with_index do |node, i|
@@ -352,7 +352,7 @@ module Nokogiri
       def reverse
         node_set = NodeSet.new(document)
         (length - 1).downto(0) do |x|
-          node_set.push self[x]
+          node_set.push(self[x])
         end
         node_set
       end
@@ -360,7 +360,7 @@ module Nokogiri
       ###
       # Return a nicely formated string representation
       def inspect
-        "[#{map(&:inspect).join ", "}]"
+        "[#{map(&:inspect).join(", ")}]"
       end
 
       alias :+ :|

@@ -41,7 +41,7 @@ module Nokogiri
         attr_reader :options
 
         # Create a new SaveOptions object with +options+
-        def initialize options = 0
+        def initialize(options = 0)
           @options = options
         end
 

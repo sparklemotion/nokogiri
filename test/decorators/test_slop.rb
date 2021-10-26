@@ -20,28 +20,28 @@ module Nokogiri
     def test_slop
       doc = Nokogiri::Slop(SLOP_HTML)
 
-      assert_equal "one", doc.html.body.ul.li.first.text
-      assert_equal "two", doc.html.body.ul.li(".blue").text
-      assert_equal "div two", doc.html.body.div.div.text
+      assert_equal("one", doc.html.body.ul.li.first.text)
+      assert_equal("two", doc.html.body.ul.li(".blue").text)
+      assert_equal("div two", doc.html.body.div.div.text)
 
-      assert_equal "two", doc.html.body.ul.li(css: ".blue").text
+      assert_equal("two", doc.html.body.ul.li(css: ".blue").text)
 
-      assert_equal "two", doc.html.body.ul.li(xpath: "position()=2").text
-      assert_equal "one", doc.html.body.ul.li(xpath: ["contains(text(),'o')"]).first.text
-      assert_equal "two", doc.html.body.ul.li(xpath: ["contains(text(),'o')", "contains(text(),'t')"]).text
+      assert_equal("two", doc.html.body.ul.li(xpath: "position()=2").text)
+      assert_equal("one", doc.html.body.ul.li(xpath: ["contains(text(),'o')"]).first.text)
+      assert_equal("two", doc.html.body.ul.li(xpath: ["contains(text(),'o')", "contains(text(),'t')"]).text)
 
       assert_raise(NoMethodError) { doc.nonexistent }
     end
 
     def test_slop_decorator
       doc = Nokogiri(SLOP_HTML)
-      assert !doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop)
+      assert(!doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop))
 
       doc.slop!
-      assert doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop)
+      assert(doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop))
 
       doc.slop!
-      assert_equal 1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size
+      assert_equal(1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size)
     end
 
     def test_slop_css
@@ -60,7 +60,7 @@ module Nokogiri
           </body>
         </html>
       eohtml
-      assert_equal "div", doc.html.body.div.div(".foo").name
+      assert_equal("div", doc.html.body.div.div(".foo").name)
     end
 
     def test_description_tag
@@ -71,13 +71,13 @@ module Nokogiri
         </item>
       eoxml
 
-      assert doc.item.respond_to?(:title)
-      assert_equal "foo", doc.item.title.text
+      assert(doc.item.respond_to?(:title))
+      assert_equal("foo", doc.item.title.text)
 
-      assert doc.item.respond_to?(:_description), "should have description"
-      assert_equal "this is the foo thing", doc.item._description.text
+      assert(doc.item.respond_to?(:_description), "should have description")
+      assert_equal("this is the foo thing", doc.item._description.text)
 
-      assert !doc.item.respond_to?(:foo)
+      assert(!doc.item.respond_to?(:foo))
       assert_raise(NoMethodError) { doc.item.foo }
     end
   end

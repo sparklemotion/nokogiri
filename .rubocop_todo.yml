@@ -386,29 +386,6 @@ Style/EachWithObject:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 1204
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreMacros, IgnoredMethods, IgnoredPatterns, IncludedMacros, AllowParenthesesInMultilineCall, AllowParenthesesInChaining, AllowParenthesesInCamelCaseMethod, AllowParenthesesInStringInterpolation, EnforcedStyle.
-# SupportedStyles: require_parentheses, omit_parentheses
-Style/MethodCallWithArgsParentheses:
-  Enabled: false
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'test/namespaces/test_namespaces_in_cloned_doc.rb'
-    - 'test/xml/node/test_attribute_methods.rb'
-    - 'test/xml/test_reader.rb'
-
-# Offense count: 124
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_no_parentheses_except_multiline
-Style/MethodDefParentheses:
-  Enabled: false
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
@@ -483,12 +460,6 @@ Style/RedundantFreeze:
 Style/RedundantInterpolation:
   Exclude:
     - 'lib/nokogiri/css/xpath_visitor.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'lib/nokogiri/xml/document_fragment.rb'
 
 # Offense count: 3
 # Cop supports --auto-correct.

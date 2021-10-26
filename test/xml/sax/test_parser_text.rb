@@ -9,7 +9,7 @@ module Nokogiri
         def setup
           super
           @doc    = DocWithOrderedItems.new
-          @parser = XML::SAX::Parser.new @doc
+          @parser = XML::SAX::Parser.new(@doc)
         end
 
         def test_texts_order
@@ -45,15 +45,15 @@ module Nokogiri
             </root>
           eoxml
 
-          @parser.parse xml
-          items = @doc.items.get_root_content "root"
-          items = items.select_methods [
+          @parser.parse(xml)
+          items = @doc.items.get_root_content("root")
+          items = items.select_methods([
             :start_element, :end_element,
             :characters, :comment, :cdata_block,
-          ]
-          items.strip_text! [:characters, :comment, :cdata_block]
+          ])
+          items.strip_text!([:characters, :comment, :cdata_block])
 
-          assert_equal [
+          assert_equal([
             [:characters, "text 0"],
 
             [:start_element, "p", []],
@@ -105,7 +105,7 @@ module Nokogiri
 
             [:end_element, "p"],
             [:characters, ""],
-          ], items
+          ], items)
 
           nil
         end
@@ -138,15 +138,15 @@ module Nokogiri
             </root>
           eoxml
 
-          @parser.parse xml
-          items = @doc.items.get_root_content "root"
-          items = items.select_methods [
+          @parser.parse(xml)
+          items = @doc.items.get_root_content("root")
+          items = items.select_methods([
             :start_element, :end_element,
             :characters, :comment, :cdata_block,
-          ]
-          items.strip_text! [:characters, :comment, :cdata_block]
+          ])
+          items.strip_text!([:characters, :comment, :cdata_block])
 
-          assert_equal [
+          assert_equal([
             [:characters, ""],
             [:start_element, "p", []],
 
@@ -193,7 +193,7 @@ module Nokogiri
 
             [:end_element, "p"],
             [:characters, ""],
-          ], items
+          ], items)
 
           nil
         end
