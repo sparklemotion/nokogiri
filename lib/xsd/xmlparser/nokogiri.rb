@@ -56,7 +56,7 @@ module XSD # :nodoc:
       def error(msg)
         raise ParseError.new(msg)
       end
-      alias :warning :error
+      alias_method :warning, :error
 
       ###
       # Handle cdata_blocks containing +string+

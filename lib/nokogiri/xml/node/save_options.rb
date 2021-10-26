@@ -58,7 +58,7 @@ module Nokogiri
           }
         end
 
-        alias :to_i :options
+        alias_method :to_i, :options
       end
     end
   end

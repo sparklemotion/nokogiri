@@ -361,8 +361,8 @@ module Nokogiri
         end
       end
 
-      alias :to_xml :serialize
-      alias :clone :dup
+      alias_method :to_xml, :serialize
+      alias_method :clone, :dup
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces
@@ -390,7 +390,7 @@ module Nokogiri
           super
         end
       end
-      alias :<< :add_child
+      alias_method :<<, :add_child
 
       private
 

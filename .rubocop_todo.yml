@@ -184,26 +184,6 @@ Performance/UnfreezeString:
     - 'test/html5/test_nokogumbo.rb'
     - 'test/xml/test_document.rb'
 
-# Offense count: 28
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'lib/nokogiri/html4/sax/push_parser.rb'
-    - 'lib/nokogiri/xml/attr.rb'
-    - 'lib/nokogiri/xml/document.rb'
-    - 'lib/nokogiri/xml/document_fragment.rb'
-    - 'lib/nokogiri/xml/node/save_options.rb'
-    - 'lib/nokogiri/xml/node_set.rb'
-    - 'lib/nokogiri/xml/parse_options.rb'
-    - 'lib/nokogiri/xml/reader.rb'
-    - 'lib/nokogiri/xml/sax/push_parser.rb'
-    - 'lib/nokogiri/xml/searchable.rb'
-    - 'lib/xsd/xmlparser/nokogiri.rb'
-    - 'test/css/test_tokenizer.rb'
-    - 'test/test_css_cache.rb'
-
 # Offense count: 21
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

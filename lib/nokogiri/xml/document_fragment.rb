@@ -123,7 +123,7 @@ module Nokogiri
         end
       end
 
-      alias :serialize :to_s
+      alias_method :serialize, :to_s
 
       class << self
         ####

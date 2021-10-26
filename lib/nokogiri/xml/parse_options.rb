@@ -119,7 +119,7 @@ module Nokogiri
         other.to_i == to_i
       end
 
-      alias :to_i :options
+      alias_method :to_i, :options
 
       def inspect
         options = []

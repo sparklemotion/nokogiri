@@ -6,7 +6,7 @@ require "helper"
 module Nokogiri
   module CSS
     class Tokenizer
-      alias :scan :scan_setup
+      alias_method :scan, :scan_setup
     end
   end
 end

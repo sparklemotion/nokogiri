@@ -23,7 +23,7 @@ module Nokogiri
         def write(chunk, last_chunk = false)
           native_write(chunk, last_chunk)
         end
-        alias :<< :write
+        alias_method :<<, :write
 
         ###
         # Finish the parsing.  This method is only necessary for

@@ -60,7 +60,7 @@ module Nokogiri
         xpath(*(xpaths + [ns, handler, binds].compact))
       end
 
-      alias :/ :search
+      alias_method :/, :search
 
       ###
       # call-seq:
@@ -74,7 +74,7 @@ module Nokogiri
         search(*args).first
       end
 
-      alias :% :at
+      alias_method :%, :at
 
       ###
       # call-seq:

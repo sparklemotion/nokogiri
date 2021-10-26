@@ -13,7 +13,7 @@ module Nokogiri
       # The Document this NodeSet is associated with
       attr_accessor :document
 
-      alias :clone :dup
+      alias_method :clone, :dup
 
       # Create a NodeSet with +document+ defaulting to +list+
       def initialize(document, list = [])
@@ -68,8 +68,8 @@ module Nokogiri
         last.after(datum)
       end
 
-      alias :<< :push
-      alias :remove :unlink
+      alias_method :<<, :push
+      alias_method :remove, :unlink
 
       ###
       # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
@@ -128,7 +128,7 @@ module Nokogiri
 
         super(*args)
       end
-      alias :% :at
+      alias_method :%, :at
 
       ###
       # Filter this list for nodes that match +expr+
@@ -220,8 +220,8 @@ module Nokogiri
 
         self
       end
-      alias :set :attr
-      alias :attribute :attr
+      alias_method :set, :attr
+      alias_method :attribute, :attr
 
       ###
       # Remove the attributed named +name+ from all Node objects in the NodeSet
@@ -229,7 +229,7 @@ module Nokogiri
         each { |el| el.delete(name) }
         self
       end
-      alias remove_attribute remove_attr
+      alias_method :remove_attribute, :remove_attr
 
       ###
       # Iterate over each node, yielding  to +block+
@@ -258,7 +258,7 @@ module Nokogiri
       def inner_text
         collect(&:inner_text).join("")
       end
-      alias :text :inner_text
+      alias_method :text, :inner_text
 
       ###
       # Get the inner html of all contained Node objects
@@ -303,8 +303,8 @@ module Nokogiri
         map { |x| x.to_xml(*args) }.join
       end
 
-      alias :size :length
-      alias :to_ary :to_a
+      alias_method :size, :length
+      alias_method :to_ary, :to_a
 
       ###
       # Removes the last element from set and returns it, or +nil+ if
@@ -363,7 +363,7 @@ module Nokogiri
         "[#{map(&:inspect).join(", ")}]"
       end
 
-      alias :+ :|
+      alias_method :+, :|
 
       IMPLIED_XPATH_CONTEXTS = [".//".freeze, "self::".freeze].freeze # :nodoc:
     end

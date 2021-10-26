@@ -12,7 +12,7 @@ class TestCssCacheAccess < Nokogiri::TestCase
     Nokogiri::CSS::Parser.clear_cache
     Nokogiri::CSS::Parser.class_eval do
       class << @cache
-        alias :old_bracket :[]
+        alias_method :old_bracket, :[]
 
         def access_count
           @access_count ||= 0
