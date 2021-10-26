@@ -66,7 +66,7 @@ module Nokogiri
           Информация
           HTML
           assert_equal("Информация",
-                       @parser.document.data.join.strip)
+            @parser.document.data.join.strip)
         end
 
         def test_parse_document
@@ -83,10 +83,10 @@ module Nokogiri
           # "http://cyberneko.org/html/properties/names/attrs" => "lower"
           if Nokogiri.uses_libxml?
             assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
-                         @parser.document.start_elements)
+              @parser.document.start_elements)
           else
             assert_equal([["html", []], ["head", []], ["body", []], ["p", []], ["p", []]],
-                         @parser.document.start_elements)
+              @parser.document.start_elements)
           end
         end
 
@@ -112,10 +112,10 @@ module Nokogiri
           assert block_called
 
           noshade_value = if Nokogiri.uses_libxml?("< 2.7.7")
-              ["noshade", "noshade"]
-            else
-              ["noshade", nil]
-            end
+            ["noshade", "noshade"]
+          else
+            ["noshade", nil]
+          end
 
           assert_equal [
             ['html', []],

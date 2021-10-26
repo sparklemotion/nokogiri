@@ -31,7 +31,7 @@ module Nokogiri
         end
 
         assert_match(/Can't have more than one root/, e.to_s,
-                     'The exception message does not contain the expected information')
+          'The exception message does not contain the expected information')
       end
     end
   end

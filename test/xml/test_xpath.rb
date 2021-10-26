@@ -147,10 +147,10 @@ module Nokogiri
 
       def test_search_with_xpath_query_uses_custom_selectors_with_arguments
         set = if Nokogiri.uses_libxml?
-                @xml.search('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
-              else
-                @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
-              end
+          @xml.search('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+        else
+          @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
+        end
         assert set.length > 0
         set.each do |node|
           assert_equal 'Yes', node['domestic']
@@ -159,10 +159,10 @@ module Nokogiri
 
       def test_pass_self_to_function
         set = if Nokogiri.uses_libxml?
-                @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
-              else
-                @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
-              end
+          @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+        else
+          @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
+        end
         assert set.length > 0
         set.each do |node|
           assert_equal 'Yes', node['domestic']
@@ -189,9 +189,9 @@ module Nokogiri
               params[p.attributes['name'].value] = subparams
             elsif params[p.attributes['name'].value].is_a? Array
               params[p.attributes['name'].value] << subparams
-              else
-                value = params[p.attributes['name'].value]
-                params[p.attributes['name'].value] = [value, subparams]
+            else
+              value = params[p.attributes['name'].value]
+              params[p.attributes['name'].value] = [value, subparams]
             end
           else
             params[p.attributes['name'].value] = p.text
@@ -374,11 +374,11 @@ module Nokogiri
         xml = %q{<foo> </foo>}
         doc = Nokogiri::XML.parse(xml)
         foo = doc.xpath('//foo[bool_function(bar/baz)]',
-                        Class.new do
-                          def bool_function(value)
-                            true
-                          end
-                        end.new)
+          Class.new do
+            def bool_function(value)
+              true
+            end
+          end.new)
         assert_equal foo, doc.xpath("//foo")
       end
 

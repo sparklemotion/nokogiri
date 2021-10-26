@@ -255,7 +255,7 @@ module Nokogiri
     #  * :basic_auth => [username, password]
     def self.get(uri, options = {})
       warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
-           uplevel: 1, category: :deprecated)
+        uplevel: 1, category: :deprecated)
       get_impl(uri, options)
     end
 
@@ -444,7 +444,7 @@ module Nokogiri
       when XML::Node::PI_NODE
         io << '<?' << current_node.content << '>'
       when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
-          io << '<!DOCTYPE ' << current_node.name << '>'
+        io << '<!DOCTYPE ' << current_node.name << '>'
       when XML::Node::HTML_DOCUMENT_NODE, XML::Node::DOCUMENT_FRAG_NODE
         current_node.children.each do |child|
           serialize_node_internal(child, io, encoding, options)
@@ -457,10 +457,10 @@ module Nokogiri
     def self.escape_text(text, encoding, attribute_mode)
       if attribute_mode
         text = text.gsub(/[&\u00a0"]/,
-                           '&' => '&amp;', "\u00a0" => '&nbsp;', '"' => '&quot;')
+          '&' => '&amp;', "\u00a0" => '&nbsp;', '"' => '&quot;')
       else
         text = text.gsub(/[&\u00a0<>]/,
-                           '&' => '&amp;', "\u00a0" => '&nbsp;', '<' => '&lt;', '>' => '&gt;')
+          '&' => '&amp;', "\u00a0" => '&nbsp;', '<' => '&lt;', '>' => '&gt;')
       end
       # Not part of the standard
       text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })

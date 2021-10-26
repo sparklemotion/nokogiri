@@ -9,11 +9,11 @@ module Nokogiri
       # defined there.
 
       Desc = Struct.new("HTMLElementDescription", :name,
-                        :startTag, :endTag, :saveEndTag,
-                        :empty, :depr, :dtd, :isinline,
-                        :desc,
-                        :subelts, :defaultsubelt,
-                        :attrs_opt, :attrs_depr, :attrs_req)
+        :startTag, :endTag, :saveEndTag,
+        :empty, :depr, :dtd, :isinline,
+        :desc,
+        :subelts, :defaultsubelt,
+        :attrs_opt, :attrs_depr, :attrs_req)
 
       # This is filled in down below.
       DefaultDescriptions = Hash.new()
@@ -650,17 +650,17 @@ module Nokogiri
         name = descriptor[0]
 
         begin
-        d = Desc.new(*descriptor)
+          d = Desc.new(*descriptor)
 
-        # flatten all the attribute lists (Ruby1.9, *[a,b,c] can be
-        # used to flatten a literal list, but not in Ruby1.8).
-        d[:subelts] = d[:subelts].flatten
-        d[:attrs_opt] = d[:attrs_opt].flatten
-        d[:attrs_depr] = d[:attrs_depr].flatten
-          d[:attrs_req] = d[:attrs_req].flatten
+          # flatten all the attribute lists (Ruby1.9, *[a,b,c] can be
+          # used to flatten a literal list, but not in Ruby1.8).
+          d[:subelts] = d[:subelts].flatten
+          d[:attrs_opt] = d[:attrs_opt].flatten
+          d[:attrs_depr] = d[:attrs_depr].flatten
+            d[:attrs_req] = d[:attrs_req].flatten
         rescue => e
-            p name
-          raise e
+          p name
+            raise e
         end
 
         DefaultDescriptions[name] = d

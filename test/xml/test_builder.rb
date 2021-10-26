@@ -151,7 +151,7 @@ module Nokogiri
           end
         end
         assert(result.doc.at_xpath("//emer:validateLocation", { "emer" => "http://dashcs.com/api/v1/emergency" }),
-                                   "expected validateLocation node to have a namespace")
+          "expected validateLocation node to have a namespace")
         assert(result.doc.at_xpath("//location"), "expected location node to not have a namespace")
       end
 
@@ -179,7 +179,7 @@ module Nokogiri
           end
         end
         assert_match(/<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4.01 Transitional\/\/EN" "http:\/\/www.w3.org\/TR\/html4\/loose.dtd">/,
-                     builder.to_xml)
+          builder.to_xml)
       end
 
       def test_specify_namespace_nested
@@ -336,7 +336,7 @@ module Nokogiri
           end
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-                     builder.to_xml.gsub(/\n/, ""))
+          builder.to_xml.gsub(/\n/, ""))
       end
 
       def test_comment
@@ -355,7 +355,7 @@ module Nokogiri
           cdata string
         end
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-                     builder.to_xml.gsub(/\n/, ""))
+          builder.to_xml.gsub(/\n/, ""))
       end
 
       def test_builder_can_inherit_parent_namespace

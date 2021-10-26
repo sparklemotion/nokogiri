@@ -416,7 +416,7 @@ module Nokogiri
                       "http://ecommerce.example.org/schema",
                       nil,
                       nil,],
-                      reader.map(&:namespace_uri))
+          reader.map(&:namespace_uri))
       end
 
       def test_reader_node_attributes_keep_a_reference_to_the_reader
@@ -457,7 +457,7 @@ module Nokogiri
         assert_equal(['commons',
                       'edi',
                       nil,],
-                     attr_ns)
+          attr_ns)
       end
 
       def test_local_name
@@ -468,7 +468,7 @@ module Nokogiri
         eoxml
         assert_nil reader.local_name
         assert_equal(["x", "#text", "foo", "#text", "foo", "#text", "x"],
-                     reader.map(&:local_name))
+          reader.map(&:local_name))
       end
 
       def test_name
@@ -479,7 +479,7 @@ module Nokogiri
         eoxml
         assert_nil reader.name
         assert_equal(["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"],
-                     reader.map(&:name))
+          reader.map(&:name))
       end
 
       def test_base_uri
@@ -507,7 +507,7 @@ module Nokogiri
                       "http://base.example.org/base/relative",
                       "http://base.example.org/base/",
                       "http://base.example.org/base/",],
-                      reader.map(&:base_uri))
+          reader.map(&:base_uri))
       end
 
       def test_xlink_href_without_base_uri

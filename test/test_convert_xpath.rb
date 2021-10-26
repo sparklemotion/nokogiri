@@ -25,7 +25,7 @@ class TestConvertXPath < Nokogiri::TestCase
 
   def test_filter_contains
     assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(., 'Tender')]",
-                                   "Tender Lovemaking  ") do |j|
+      "Tender Lovemaking  ") do |j|
       j.inner_text
     end
   end
@@ -53,8 +53,8 @@ class TestConvertXPath < Nokogiri::TestCase
 
   def test_filter_by_attr
     assert_syntactical_equivalence("a[@href='http://blog.geminigeek.com/wordpress-theme']",
-                                   ".//a[@href = 'http://blog.geminigeek.com/wordpress-theme']",
-                                   "http://blog.geminigeek.com/wordpress-theme") do |j|
+      ".//a[@href = 'http://blog.geminigeek.com/wordpress-theme']",
+      "http://blog.geminigeek.com/wordpress-theme") do |j|
       j.first["href"]
     end
   end
@@ -70,11 +70,11 @@ class TestConvertXPath < Nokogiri::TestCase
 
   def test_css_class
     assert_syntactical_equivalence(".cat-item-15", ".//*[contains(concat(' ',@class,' '),' cat-item-15 ')]",
-                                   "cat-item cat-item-15") do |j|
+      "cat-item cat-item-15") do |j|
       j.first["class"]
     end
     assert_syntactical_equivalence("li.cat-item-15", ".//li[contains(concat(' ',@class,' '),' cat-item-15 ')]",
-                                   "cat-item cat-item-15") do |j|
+      "cat-item cat-item-15") do |j|
       j.first["class"]
     end
   end

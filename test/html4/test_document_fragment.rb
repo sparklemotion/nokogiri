@@ -216,14 +216,14 @@ module Nokogiri
           doc = HTML::Document.new
           fragment = doc.fragment("<script>var foo = 'bar';</script>")
           assert_equal("<script>var foo = 'bar';</script>",
-                       fragment.to_s)
+            fragment.to_s)
         end
 
         def test_fragment_with_comment
           doc = HTML::Document.new
           fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
           assert_equal("<p>hello<!-- your ad here --></p>",
-                       fragment.to_s)
+            fragment.to_s)
         end
 
         def test_element_children_counts

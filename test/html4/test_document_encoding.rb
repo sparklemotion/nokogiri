@@ -80,7 +80,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         eohtml
         doc = Nokogiri::HTML(bad_charset, nil, 'askldjfhalsdfjhlkasdfjh')
         assert_equal(['http://tenderlovemaking.com/'],
-                     doc.css('a').map { |a| a['href'] })
+          doc.css('a').map { |a| a['href'] })
       end
 
       def test_empty_doc_encoding

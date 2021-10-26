@@ -13,17 +13,17 @@ module Nokogiri
         return self unless tags
 
         children = if ctx
-                     # Fix for issue#490
-                     if Nokogiri.jruby?
-                       # fix for issue #770
-                       ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
-                     else
-                       ctx.parse(tags)
-                     end
-                   else
-                     XML::Document.parse("<root>#{tags}</root>") \
-                       .xpath("/root/node()")
-                   end
+          # Fix for issue#490
+          if Nokogiri.jruby?
+            # fix for issue #770
+            ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
+          else
+            ctx.parse(tags)
+          end
+        else
+          XML::Document.parse("<root>#{tags}</root>") \
+            .xpath("/root/node()")
+        end
         children.each { |child| child.parent = self }
       end
 
@@ -116,10 +116,10 @@ module Nokogiri
 
         rules.inject(NodeSet.new(document)) do |set, rule|
           set += if rule =~ Searchable::LOOKS_LIKE_XPATH
-                   xpath(*([rule, ns, handler, binds].compact))
-                 else
-                   children.css(*([rule, ns, handler].compact)) # 'children' is a smell here
-                 end
+            xpath(*([rule, ns, handler, binds].compact))
+          else
+            children.css(*([rule, ns, handler].compact)) # 'children' is a smell here
+          end
         end
       end
 

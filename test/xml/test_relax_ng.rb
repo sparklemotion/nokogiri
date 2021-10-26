@@ -15,7 +15,8 @@ module Nokogiri
 
       def test_new
         assert schema = Nokogiri::XML::RelaxNG.new(
-          File.read(ADDRESS_SCHEMA_FILE))
+          File.read(ADDRESS_SCHEMA_FILE)
+        )
         assert_instance_of Nokogiri::XML::RelaxNG, schema
       end
 
@@ -48,7 +49,7 @@ module Nokogiri
         assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
 
         schema = Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)),
-                                                      Nokogiri::XML::ParseOptions.new.recover)
+          Nokogiri::XML::ParseOptions.new.recover)
         assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
       end
 
@@ -60,7 +61,7 @@ module Nokogiri
         assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
 
         schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE),
-                                                    Nokogiri::XML::ParseOptions.new.recover)
+          Nokogiri::XML::ParseOptions.new.recover)
         assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
       end
 

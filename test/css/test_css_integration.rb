@@ -349,9 +349,9 @@ module Nokogiri
 
       def assert_result_rows(intarray, result, word = "row")
         assert_equal intarray.size, result.size,
-                     "unexpected number of rows returned: '#{result.inner_text}'"
+          "unexpected number of rows returned: '#{result.inner_text}'"
         assert_equal intarray.map { |j| "#{word}#{j}" }.join(" "), result.inner_text.strip,
-                     result.inner_text
+          result.inner_text
       end
     end
   end

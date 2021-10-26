@@ -281,7 +281,7 @@ namespace "gem" do
   desc "build a jruby gem"
   task "jruby" do
     RakeCompilerDock.sh("gem install bundler --no-document && bundle && bundle exec rake java gem",
-                        rubyvm: "jruby", platform: "jruby")
+      rubyvm: "jruby", platform: "jruby")
   end
 
   desc "build native gems for windows"

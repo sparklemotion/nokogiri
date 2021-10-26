@@ -145,7 +145,7 @@ module Nokogiri
             </xml>
           eoxml
           assert_equal({ "xmlns" => "hello", "xmlns:foo" => "world" },
-                       doc.collect_namespaces)
+            doc.collect_namespaces)
         end
 
         def test_subclass_initialize_modify # testing a segv

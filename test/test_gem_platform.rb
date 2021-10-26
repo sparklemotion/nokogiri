@@ -32,14 +32,14 @@ class TestGemPlatform < Nokogiri::TestCase
   describe "darwin" do
     it "builds a gem that works on all darwin x86+64 platforms" do
       assert_match darwin_gem_platform,
-                   Gem::Platform.new(["universal", "darwin", "19"]),
-                   "gem should match system-installed ruby on catalina"
+        Gem::Platform.new(["universal", "darwin", "19"]),
+        "gem should match system-installed ruby on catalina"
       assert_match darwin_gem_platform,
-                   Gem::Platform.new(["x86_64", "darwin", "19"]),
-                   "gem should match user-installed ruby on catalina"
+        Gem::Platform.new(["x86_64", "darwin", "19"]),
+        "gem should match user-installed ruby on catalina"
       assert_match darwin_gem_platform,
-                   Gem::Platform.new(["x86_64", "darwin", "18"]),
-                   "gem should match user-installed ruby on mojave"
+        Gem::Platform.new(["x86_64", "darwin", "18"]),
+        "gem should match user-installed ruby on mojave"
 
       # The intention here is to test that the x86_64 platform gems
       # won't match a future ruby that is compiled on arm64/aarch64.
@@ -50,20 +50,20 @@ class TestGemPlatform < Nokogiri::TestCase
       #
       # Feel free to delete assertions for clarity once we know more.
       assert_no_match darwin_gem_platform,
-                      Gem::Platform.new(["arm64", "darwin", "19"]),
-                      "gem should not match an arm64 ruby"
+        Gem::Platform.new(["arm64", "darwin", "19"]),
+        "gem should not match an arm64 ruby"
       assert_no_match darwin_gem_platform,
-                      Gem::Platform.new(["arm", "darwin", "19"]),
-                      "gem should not match an arm ruby"
+        Gem::Platform.new(["arm", "darwin", "19"]),
+        "gem should not match an arm ruby"
       assert_no_match darwin_gem_platform,
-                      Gem::Platform.new(["aarch64", "darwin", "19"]),
-                      "gem should not match an aarch64 ruby"
+        Gem::Platform.new(["aarch64", "darwin", "19"]),
+        "gem should not match an aarch64 ruby"
       assert_no_match darwin_gem_platform,
-                      Gem::Platform.new(["universal2", "darwin", "19"]),
-                      "gem should not match an aarch64 ruby"
+        Gem::Platform.new(["universal2", "darwin", "19"]),
+        "gem should not match an aarch64 ruby"
       assert_no_match darwin_gem_platform,
-                      Gem::Platform.new(["universal_2", "darwin", "19"]),
-                      "gem should not match an aarch64 ruby"
+        Gem::Platform.new(["universal_2", "darwin", "19"]),
+        "gem should not match an aarch64 ruby"
     end
   end
 end

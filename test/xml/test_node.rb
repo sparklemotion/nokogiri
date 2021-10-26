@@ -686,7 +686,7 @@ module Nokogiri
           address = xml.xpath('//address').first
           assert_equal(3, address.ancestors.length)
           assert_equal(['employee', 'staff', 'document'],
-                       address.ancestors.map(&:name))
+            address.ancestors.map(&:name))
         end
 
         def test_read_only?

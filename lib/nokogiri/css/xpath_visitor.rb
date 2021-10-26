@@ -77,10 +77,10 @@ module Nokogiri
 
       def visit_attribute_condition node
         attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
-                      ''
-                    else
-                      '@'
-                    end
+          ''
+        else
+          '@'
+        end
         attribute += node.value.first.accept(self)
 
         # non-standard. attributes starting with '@'
