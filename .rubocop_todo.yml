@@ -313,15 +313,7 @@ Style/SafeNavigation:
     - 'lib/nokogiri/xml/searchable.rb'
     - 'test/xml/test_reader_encoding.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'test/xml/sax/test_document_error.rb'
-
-# Offense count: 91
+# Offense count: 90
 # Cop supports --auto-correct.
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

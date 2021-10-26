@@ -34,7 +34,7 @@ module Nokogiri
 
         def test_error_throwing_document_raises_exception
           @error_parser.parse("<xml>") # no closing element
-          fail("#parse should not complete successfully when document #error throws exception")
+          flunk("#parse should not complete successfully when document #error throws exception")
         rescue StandardError => e
           assert_match(/parsing did not complete/, e.message)
         end
@@ -44,7 +44,7 @@ module Nokogiri
           refute_empty(@warning_parser.document.errors, "error collector did not collect an error")
         rescue StandardError => e
           warn(e)
-          fail('#parse should complete successfully unless document #error throws exception (#{e}')
+          flunk('#parse should complete successfully unless document #error throws exception (#{e}')
         end
       end
     end
