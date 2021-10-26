@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace "gumbo" do
   gtest_pkg = "gumbo-parser/googletest"
   gtest_lib = File.join(gtest_pkg, "make/gtest_main.a")

@@ -379,13 +379,6 @@ Style/EachWithObject:
   Exclude:
     - 'lib/nokogiri/xml/document.rb'
 
-# Offense count: 78
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, always_true, never
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

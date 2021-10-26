@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace "css" do
   PARSER_DEPS = { "lib/nokogiri/css/parser.rb" => "lib/nokogiri/css/parser.y" }
   TOKENIZER_DEPS = { "lib/nokogiri/css/tokenizer.rb" => "lib/nokogiri/css/tokenizer.rex" }

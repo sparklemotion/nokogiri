@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc "Set environment variables to build and/or test with debug options"
 task :debug do
   ENV["NOKOGIRI_DEBUG"] = "true"

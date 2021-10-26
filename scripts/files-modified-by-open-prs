@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 #
 #  script to see what PRs, if any, are operating on a file that I care about.
 #  yes, this is a smell. we shouldn't have long-lived PRs, but alas here we are.

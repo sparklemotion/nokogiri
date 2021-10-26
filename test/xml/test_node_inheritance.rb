@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # issue#560
 
 require "helper"
