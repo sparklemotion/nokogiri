@@ -21,7 +21,7 @@ module Nokogiri
 
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
 
-        @handler = Class.new {
+        @handler = Class.new do
           attr_reader :things
 
           def initialize
@@ -58,7 +58,7 @@ module Nokogiri
           def anint
             1230456
           end
-        }.new
+        end.new
       end
 
       def test_variable_binding

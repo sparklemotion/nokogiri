@@ -4,11 +4,11 @@ module Nokogiri
   module XML
     class TestAttr < Nokogiri::TestCase
       def test_new
-        100.times {
+        100.times do
           doc = Nokogiri::XML::Document.new
           assert doc
           assert Nokogiri::XML::Attr.new(doc, 'foo')
-        }
+        end
       end
 
       def test_new_raises_argerror_on_nondocument

@@ -145,17 +145,17 @@ module Nokogiri
 
       def test_parse_with_io
         xsd = nil
-        File.open(PO_SCHEMA_FILE, "rb") { |f|
+        File.open(PO_SCHEMA_FILE, "rb") do |f|
           assert xsd = Nokogiri::XML::Schema(f)
-        }
+        end
         assert_equal 0, xsd.errors.length
       end
 
       def test_parse_with_errors
         xml = File.read(PO_SCHEMA_FILE).sub(/name="/, "name=")
-        assert_raises(Nokogiri::XML::SyntaxError) {
+        assert_raises(Nokogiri::XML::SyntaxError) do
           Nokogiri::XML::Schema(xml)
-        }
+        end
       end
 
       def test_validate_document

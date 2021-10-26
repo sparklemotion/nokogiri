@@ -75,11 +75,11 @@ module XSD # :nodoc:
         ###
         # Deal with SAX v1 interface
         name = [prefix, name].compact.join(':')
-        attributes = ns.map { |ns_prefix, ns_uri|
+        attributes = ns.map do |ns_prefix, ns_uri|
           [['xmlns', ns_prefix].compact.join(':'), ns_uri]
-        } + attrs.map { |attr|
+        end + attrs.map do |attr|
           [[attr.prefix, attr.localname].compact.join(':'), attr.value]
-        }.flatten
+        end.flatten
         start_element name, attributes
       end
 

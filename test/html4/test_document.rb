@@ -762,7 +762,7 @@ module Nokogiri
           # just checking that this doesn't raise a valgrind error. we
           # don't otherwise have any test coverage for removing DTDs.
           #
-          100.times do |i|
+          100.times do |_i|
             Nokogiri::HTML::Document.new.internal_subset.remove
           end
         end

@@ -348,11 +348,6 @@ Lint/SuppressedException:
 Lint/UnusedBlockArgument:
   Exclude:
     - 'lib/nokogiri/css/parser.rb'
-    - 'lib/nokogiri/html5.rb'
-    - 'test/html4/test_document.rb'
-    - 'test/xml/test_c14n.rb'
-    - 'test/xml/test_dtd_encoding.rb'
-    - 'test/xml/test_node_set.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -659,16 +654,6 @@ Style/BarePercentLiterals:
     - 'test/xml/test_attr.rb'
     - 'test/xml/test_entity_reference.rb'
     - 'test/xml/test_node_attributes.rb'
-
-# Offense count: 75
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
-  Enabled: false
 
 # Offense count: 1
 # Cop supports --auto-correct.

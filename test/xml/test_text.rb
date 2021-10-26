@@ -48,12 +48,12 @@ module Nokogiri
         else
           exc = ArgumentError
         end
-        assert_raises(exc) {
+        assert_raises(exc) do
           node.add_child Text.new('bar', Document.new)
-        }
-        assert_raises(exc) {
+        end
+        assert_raises(exc) do
           node << Text.new('bar', Document.new)
-        }
+        end
       end
 
       def test_wrap

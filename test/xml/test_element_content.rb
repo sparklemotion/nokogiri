@@ -14,9 +14,9 @@ module Nokogiri
 ]>
 <root/>
         eoxml
-        @elements = @xml.internal_subset.children.find_all { |x|
+        @elements = @xml.internal_subset.children.find_all do |x|
           x.type == 15
-        }
+        end
         @tree = @elements[1].content
       end
 

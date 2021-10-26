@@ -31,9 +31,9 @@ module Nokogiri
       end
 
       def test_many_comments
-        100.times {
+        100.times do
           Nokogiri::XML::Comment.new(@xml, 'hello world')
-        }
+        end
       end
     end
   end

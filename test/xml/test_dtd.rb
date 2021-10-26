@@ -86,7 +86,7 @@ module Nokogiri
             true,
             true,
           ],
-        }.each { |name, (dtd_str, html_p, html5_p)|
+        }.each do |name, (dtd_str, html_p, html5_p)|
           doc = Nokogiri(dtd_str)
           dtd = doc.internal_subset
           assert_instance_of Nokogiri::XML::DTD, dtd, name
@@ -100,7 +100,7 @@ module Nokogiri
           else
             refute dtd.html5_dtd?, name
           end
-        }
+        end
       end
 
       def test_content

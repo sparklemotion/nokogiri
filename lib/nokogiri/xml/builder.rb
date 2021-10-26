@@ -398,13 +398,13 @@ module Nokogiri
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) do |n|
             # Set up the namespace
             if @ns.is_a? Nokogiri::XML::Namespace
               n.namespace = @ns
               @ns = nil
             end
-          }
+          end
 
           if @ns.is_a? Hash
             node.namespace = node.namespace_definitions.find { |x| x.prefix == @ns[:pending] }

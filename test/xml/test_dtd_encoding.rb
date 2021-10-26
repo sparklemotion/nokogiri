@@ -12,7 +12,7 @@ module Nokogiri
       end
 
       def test_entities
-        @dtd.entities.each do |k, v|
+        @dtd.entities.each do |k, _v|
           assert_equal @xml.encoding, k.encoding.name
         end
       end

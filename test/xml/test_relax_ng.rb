@@ -21,9 +21,9 @@ module Nokogiri
 
       def test_parse_with_io
         xsd = nil
-        File.open(ADDRESS_SCHEMA_FILE, 'rb') { |f|
+        File.open(ADDRESS_SCHEMA_FILE, 'rb') do |f|
           assert xsd = Nokogiri::XML::RelaxNG(f)
-        }
+        end
         assert_equal 0, xsd.errors.length
       end
 
@@ -66,9 +66,9 @@ module Nokogiri
 
       def test_parse_with_errors
         xml = File.read(ADDRESS_SCHEMA_FILE).sub(/name="/, 'name=')
-        assert_raises(Nokogiri::XML::SyntaxError) {
+        assert_raises(Nokogiri::XML::SyntaxError) do
           Nokogiri::XML::RelaxNG(xml)
-        }
+        end
       end
 
       def test_validate_document

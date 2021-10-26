@@ -60,9 +60,9 @@ module Nokogiri
       end
 
       def meta_content_type
-        xpath('//meta[@http-equiv and boolean(@content)]').find { |node|
+        xpath('//meta[@http-equiv and boolean(@content)]').find do |node|
           node['http-equiv'] =~ /\AContent-Type\z/i
-        }
+        end
       end
       private :meta_content_type
 
@@ -111,12 +111,12 @@ module Nokogiri
         when html = at('//html')
           head = html.prepend_child(XML::Node.new('head', self))
           head.prepend_child(element)
-        when first = children.find { |node|
+        when first = children.find do |node|
                case node
                when XML::Element, XML::Text
                  true
                end
-             }
+             end
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.
@@ -267,10 +267,10 @@ module Nokogiri
           if Nokogiri.jruby?
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
-            catch(:encoding_found) {
+            catch(:encoding_found) do
               Nokogiri::HTML4::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
               nil
-            }
+            end
           else
             handler = SAXHandler.new
             parser = Nokogiri::HTML4::SAX::PushParser.new(handler)

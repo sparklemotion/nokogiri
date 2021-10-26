@@ -279,7 +279,7 @@ module Nokogiri
       #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
       #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
       #   :verify_callback, :verify_depth, :verify_mode
-      options.each do |key, value|
+      options.each do |key, _value|
         http.send "#{key}=", headers.delete(key) if http.respond_to? "#{key}="
       end
 

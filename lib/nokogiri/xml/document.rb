@@ -355,10 +355,10 @@ module Nokogiri
       # Apply any decorators to +node+
       def decorate node
         return unless @decorators
-        @decorators.each { |klass, list|
+        @decorators.each do |klass, list|
           next unless node.is_a?(klass)
           list.each { |moodule| node.extend(moodule) }
-        }
+        end
       end
 
       alias :to_xml :serialize

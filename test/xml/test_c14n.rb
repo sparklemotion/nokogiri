@@ -58,7 +58,7 @@ module Nokogiri
         xml = '<a><b></b></a>'
         doc = Nokogiri.XML xml
 
-        c14n = doc.canonicalize do |node, parent|
+        c14n = doc.canonicalize do |_node, _parent|
           true
         end
         assert_equal xml, c14n
@@ -68,7 +68,7 @@ module Nokogiri
         xml = '<a><b></b></a>'
         doc = Nokogiri.XML xml
 
-        c14n = doc.canonicalize do |node, parent|
+        c14n = doc.canonicalize do |_node, _parent|
           false
         end
         assert_equal '', c14n
@@ -78,7 +78,7 @@ module Nokogiri
         xml = '<a><b></b></a>'
         doc = Nokogiri.XML xml
 
-        c14n = doc.canonicalize do |node, parent|
+        c14n = doc.canonicalize do |_node, _parent|
           nil
         end
         assert_equal '', c14n
@@ -88,7 +88,7 @@ module Nokogiri
         xml = '<a><b></b></a>'
         doc = Nokogiri.XML xml
 
-        c14n = doc.canonicalize do |node, parent|
+        c14n = doc.canonicalize do |_node, _parent|
           Object.new
         end
         assert_equal xml, c14n

@@ -87,12 +87,12 @@ module Nokogiri
       end
 
       def test_nil_raises
-        assert_raises(ArgumentError) {
+        assert_raises(ArgumentError) do
           Nokogiri::XML::Reader.from_memory(nil)
-        }
-        assert_raises(ArgumentError) {
+        end
+        assert_raises(ArgumentError) do
           Nokogiri::XML::Reader.from_io(nil)
-        }
+        end
       end
 
       def test_from_io
@@ -199,9 +199,9 @@ module Nokogiri
 
       def test_errors_is_an_array
         reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
-        assert_raises(SyntaxError) {
+        assert_raises(SyntaxError) do
           reader.read
-        }
+        end
         assert_equal [SyntaxError], reader.errors.map(&:class)
       end
 
@@ -211,9 +211,9 @@ module Nokogiri
         def reader.errors
           1
         end
-        assert_raises(TypeError) {
+        assert_raises(TypeError) do
           reader.read
-        }
+        end
       end
 
       def test_attributes?

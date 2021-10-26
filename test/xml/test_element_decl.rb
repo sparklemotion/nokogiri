@@ -16,9 +16,9 @@ module Nokogiri
 ]>
 <root/>
         eoxml
-        @elements = @xml.internal_subset.children.find_all { |x|
+        @elements = @xml.internal_subset.children.find_all do |x|
           x.type == 15
-        }
+        end
       end
 
       def test_inspect

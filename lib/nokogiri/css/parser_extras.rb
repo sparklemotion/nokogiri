@@ -80,9 +80,9 @@ module Nokogiri
           options[:prefix] || "//",
           options[:visitor] || XPathVisitor.new,
         ]
-        self.class[key] = parse(string).map { |ast|
+        self.class[key] = parse(string).map do |ast|
           ast.to_xpath(*args)
-        }
+        end
       end
 
       # On CSS parser error, raise an exception

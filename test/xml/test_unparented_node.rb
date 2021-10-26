@@ -107,9 +107,10 @@ module Nokogiri
       end
 
       def test_read_only?
-        assert entity_decl = @node.internal_subset.children.find { |x|
+        entity_decl = @node.internal_subset.children.find do |x|
           x.type == Node::ENTITY_DECL
-        }
+        end
+        assert entity_decl
         assert entity_decl.read_only?
       end
 

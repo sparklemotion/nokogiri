@@ -73,9 +73,9 @@ module Nokogiri
 
       def test_builder_namespaced_attribute_on_unparented_node
         doc = Nokogiri::XML::Builder.new do |x|
-          x.root('xmlns:foo' => 'http://foo.io') {
+          x.root('xmlns:foo' => 'http://foo.io') do
             x.obj('foo:attr' => 'baz')
-          }
+          end
         end.doc
         assert_equal 'http://foo.io', doc.root.children.first.attribute_nodes.first.namespace.href
       end

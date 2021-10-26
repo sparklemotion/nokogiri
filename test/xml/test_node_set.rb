@@ -728,7 +728,7 @@ module Nokogiri
 
         describe "#each" do
           it "supports break" do
-            assert_equal(7, xml.root.elements.each { |x| break 7 })
+            assert_equal(7, xml.root.elements.each { |_x| break 7 })
           end
 
           it "returns an enumerator given no block" do

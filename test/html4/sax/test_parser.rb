@@ -37,9 +37,9 @@ module Nokogiri
         end
 
         def test_parse_file_nil_argument
-          assert_raises(ArgumentError) {
+          assert_raises(ArgumentError) do
             @parser.parse_file(nil)
-          }
+          end
         end
 
         def test_parse_file_non_existant
@@ -104,10 +104,10 @@ module Nokogiri
           eohtml
 
           block_called = false
-          @parser.parse(html) { |ctx|
+          @parser.parse(html) do |ctx|
             block_called = true
             ctx.replace_entities = true
-          }
+          end
 
           assert block_called
 
