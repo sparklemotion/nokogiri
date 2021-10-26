@@ -15,7 +15,7 @@ module Nokogiri
         end
 
         def test_does_not_fail_with_illformatted_html
-          doc = Nokogiri::HTML('"</html>";'.dup.force_encoding(Encoding::BINARY))
+          doc = Nokogiri::HTML((+'"</html>";').force_encoding(Encoding::BINARY))
           refute_nil(doc)
         end
 
@@ -642,7 +642,7 @@ module Nokogiri
         end
 
         def test_parse_works_with_an_object_that_responds_to_path
-          html = String.new("<html><body>hello</body></html>")
+          html = +"<html><body>hello</body></html>"
           def html.path
             "/i/should/be/the/document/url"
           end

@@ -250,7 +250,7 @@ module Nokogiri
         end
 
         def test_pp
-          out = StringIO.new(String.new)
+          out = StringIO.new((+""))
           ::PP.pp(xml, out)
           assert_operator(out.string.length, :>, 0)
         end
@@ -686,7 +686,7 @@ module Nokogiri
         end
 
         def test_parse_works_with_an_object_that_responds_to_path
-          xml = String.new("<root><sub>hello</sub></root>")
+          xml = +"<root><sub>hello</sub></root>"
           def xml.path
             "/i/should/be/the/document/url"
           end

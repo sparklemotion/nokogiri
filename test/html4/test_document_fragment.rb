@@ -10,7 +10,7 @@ module Nokogiri
         let(:html) { Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) }
 
         def test_ascii_8bit_encoding
-          s = String.new("hello")
+          s = +"hello"
           s.force_encoding(::Encoding::ASCII_8BIT)
           assert_equal("hello", Nokogiri::HTML::DocumentFragment.parse(s).to_html)
         end

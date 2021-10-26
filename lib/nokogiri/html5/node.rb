@@ -27,7 +27,7 @@ module Nokogiri
     module Node
       def inner_html(options = {})
         return super(options) unless document.is_a?(HTML5::Document)
-        result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? String.new("\n") : String.new
+        result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? +"\n" : +""
         result << children.map { |child| child.to_html(options) }.join
         result
       end
