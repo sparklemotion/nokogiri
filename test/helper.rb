@@ -89,10 +89,10 @@ module Nokogiri
     end
 
     COMPACT_EVERY = 20
-    @@test_count = 0
+    @@test_count = 0 # rubocop:disable Style/ClassVars
 
     def setup
-      @@test_count += 1
+      @@test_count += 1 # rubocop:disable Style/ClassVars
       if Nokogiri.uses_libxml?
         @fake_error_handler_called = false
         Nokogiri::Test.__foreign_error_handler do

@@ -83,11 +83,6 @@ Style/ClassAndModuleChildren:
     - 'test/xml/sax/test_push_parser.rb'
 
 # Offense count: 2
-Style/ClassVars:
-  Exclude:
-    - 'test/helper.rb'
-
-# Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
     - 'lib/nokogiri/xml/builder.rb'
