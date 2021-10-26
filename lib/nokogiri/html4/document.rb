@@ -97,7 +97,6 @@ module Nokogiri
         else
           set_metadata_element(title)
         end
-        text
       end
 
       def set_metadata_element(element) # rubocop:disable Naming/AccessorMethodName

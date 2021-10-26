@@ -65,15 +65,15 @@ module Nokogiri
           :replace => { target: "/root/a1/node()", returns_self: false, children_tags: ["b1", "b2"] },
           :swap => { target: "/root/a1/node()", returns_self: true, children_tags: ["b1", "b2"] },
 
-          :children= => { target: "/root/a1", returns_self: false, children_tags: ["b1", "b2"] },
-          :inner_html= => { target: "/root/a1", returns_self: true, children_tags: ["b1", "b2"] },
+          :children= => { target: "/root/a1", children_tags: ["b1", "b2"] },
+          :inner_html= => { target: "/root/a1", children_tags: ["b1", "b2"] },
 
           :add_previous_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ["b1", "b2", "text"] },
-          :previous= => { target: "/root/a1/text()", returns_self: false, children_tags: ["b1", "b2", "text"] },
+          :previous= => { target: "/root/a1/text()", children_tags: ["b1", "b2", "text"] },
           :before => { target: "/root/a1/text()", returns_self: true, children_tags: ["b1", "b2", "text"] },
 
           :add_next_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ["text", "b1", "b2"] },
-          :next= => { target: "/root/a1/text()", returns_self: false, children_tags: ["text", "b1", "b2"] },
+          :next= => { target: "/root/a1/text()", children_tags: ["text", "b1", "b2"] },
           :after => { target: "/root/a1/text()", returns_self: true, children_tags: ["text", "b1", "b2"] },
         }.each do |method, params|
           describe "##{method}" do
@@ -100,7 +100,9 @@ module Nokogiri
                   it "returns the expected value" do
                     sendee = @doc.at_xpath(params[:target])
                     result = sendee.send(method, @other_node)
-                    if params[:returns_self]
+                    if !params.key?(:returns_self)
+                      assert(method.to_s.end_with?("="))
+                    elsif params[:returns_self]
                       _(result).must_equal(sendee)
                     else
                       _(result).must_equal(@other_node)
@@ -119,7 +121,9 @@ module Nokogiri
               it "returns the expected value" do
                 sendee = @doc.at_xpath(params[:target])
                 result = sendee.send(method, @fragment_string)
-                if params[:returns_self]
+                if !params.key?(:returns_self)
+                  assert(method.to_s.end_with?("="))
+                elsif params[:returns_self]
                   _(result).must_equal(sendee)
                 else
                   _(result).must_be_kind_of(Nokogiri::XML::NodeSet)

@@ -256,19 +256,14 @@ module Nokogiri
       # Set the inner html for this Node to +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
       #
-      # Returns self.
-      #
       # Also see related method +children=+
       def inner_html=(node_or_tags)
         self.children = node_or_tags
-        self
       end
 
       ####
       # Set the inner html for this Node +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
-      #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +inner_html=+
       def children=(node_or_tags)
@@ -279,7 +274,6 @@ module Nokogiri
         else
           add_child_node_and_reparent_attrs(node_or_tags)
         end
-        node_or_tags
       end
 
       ####
@@ -336,7 +330,6 @@ module Nokogiri
       # Set the parent Node for this Node
       def parent=(parent_node)
         parent_node.add_child(self)
-        parent_node
       end
 
       ###

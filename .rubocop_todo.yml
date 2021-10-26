@@ -36,13 +36,6 @@ Lint/UselessAccessModifier:
     - 'lib/nokogiri/html5.rb'
     - 'lib/nokogiri/html5/document.rb'
 
-# Offense count: 4
-# Configuration parameters: CheckForMethodsWithNoSideEffects.
-Lint/Void:
-  Exclude:
-    - 'lib/nokogiri/html4/document.rb'
-    - 'lib/nokogiri/xml/node.rb'
-
 # Offense count: 18
 # Configuration parameters: CountBlocks.
 Metrics/BlockNesting:
