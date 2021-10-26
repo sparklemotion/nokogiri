@@ -84,20 +84,6 @@ Metrics/BlockNesting:
 Metrics/ParameterLists:
   MaxOptionalParameters: 4
 
-# Offense count: 32
-# Cop supports --auto-correct.
-Minitest/LiteralAsActualArgument:
-  Exclude:
-    - 'test/html4/test_document_fragment.rb'
-    - 'test/html5/test_nokogumbo.rb'
-    - 'test/html5/test_tree-construction.rb'
-    - 'test/test_nokogumbo_contract.rb'
-    - 'test/xml/sax/test_push_parser.rb'
-    - 'test/xml/test_builder.rb'
-    - 'test/xml/test_node.rb'
-    - 'test/xml/test_node_attributes.rb'
-    - 'test/xml/test_reader.rb'
-
 # Offense count: 1
 Minitest/UnreachableAssertion:
   Exclude:

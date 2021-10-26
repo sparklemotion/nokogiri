@@ -205,7 +205,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_parse_errors
     doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- <!-- --></a>", max_errors: 10)
-    assert_equal(doc.errors.length, 2)
+    assert_equal(2, doc.errors.length)
     doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 10)
     assert_empty(doc.errors)
   end

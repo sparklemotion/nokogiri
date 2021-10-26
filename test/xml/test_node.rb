@@ -140,28 +140,28 @@ module Nokogiri
           doc = XML::Document.new
           elem = XML::Text.new("foo", doc)
           x = elem.parse("<bar/>") # should not raise an exception
-          assert_equal(x.first.name, "bar")
+          assert_equal("bar", x.first.name)
         end
 
         def test_parse_with_unparented_html_text_context_node
           doc = HTML::Document.new
           elem = XML::Text.new("div", doc)
           x = elem.parse("<div/>") # should not raise an exception
-          assert_equal(x.first.name, "div")
+          assert_equal("div", x.first.name)
         end
 
         def test_parse_with_unparented_fragment_text_context_node
           doc = XML::DocumentFragment.parse("<div><span>foo</span></div>")
           elem = doc.at_css("span")
           x = elem.parse("<span/>") # should not raise an exception
-          assert_equal(x.first.name, "span")
+          assert_equal("span", x.first.name)
         end
 
         def test_parse_with_unparented_html_fragment_text_context_node
           doc = HTML::DocumentFragment.parse("<div><span>foo</span></div>")
           elem = doc.at_css("span")
           x = elem.parse("<span/>") # should not raise an exception
-          assert_equal(x.first.name, "span")
+          assert_equal("span", x.first.name)
         end
 
         def test_dup_is_deep_copy_by_default
@@ -965,12 +965,12 @@ module Nokogiri
           xml_doc = Nokogiri::XML(xmlContent)
 
           no_ns = xml_doc.xpath("//*[@att]")
-          assert_equal(no_ns.length, 1)
-          assert_equal(no_ns.first.content, "no namespace")
+          assert_equal(1, no_ns.length)
+          assert_equal("no namespace", no_ns.first.content)
 
           with_ns = xml_doc.xpath("//*[@ns1:att]")
-          assert_equal(with_ns.length, 1)
-          assert_equal(with_ns.first.content, "with namespace")
+          assert_equal(1, with_ns.length)
+          assert_equal("with namespace", with_ns.first.content)
         end
 
         def test_namespaced_attribute_search_with_css
@@ -985,12 +985,12 @@ module Nokogiri
           xml_doc = Nokogiri::XML(xmlContent)
 
           no_ns = xml_doc.css("*[att]")
-          assert_equal(no_ns.length, 1)
-          assert_equal(no_ns.first.content, "no namespace")
+          assert_equal(1, no_ns.length)
+          assert_equal("no namespace", no_ns.first.content)
 
           with_ns = xml_doc.css("*[ns1|att]")
-          assert_equal(with_ns.length, 1)
-          assert_equal(with_ns.first.content, "with namespace")
+          assert_equal(1, with_ns.length)
+          assert_equal("with namespace", with_ns.first.content)
         end
 
         def test_namespaces_should_include_all_namespace_definitions
@@ -1142,7 +1142,7 @@ module Nokogiri
           ns = subject.namespace
           assert_equal(ns.class, Nokogiri::XML::Namespace)
           assert_nil(ns.prefix)
-          assert_equal(ns.href, "http://bar.com")
+          assert_equal("http://bar.com", ns.href)
         end
 
         # issue 695

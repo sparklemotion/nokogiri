@@ -143,7 +143,7 @@ if Nokogiri.uses_gumbo?
     def compare_nodes(node, ng_node)
       case ng_node.type
       when Nokogiri::XML::Node::ELEMENT_NODE
-        assert_equal(node[:type], :element)
+        assert_equal(:element, node[:type])
         if node[:ns]
           refute_nil(ng_node.namespace)
           assert_equal(node[:ns], ng_node.namespace.prefix)
@@ -163,20 +163,20 @@ if Nokogiri.uses_gumbo?
           "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
       when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
         # We preserve the CDATA in the tree, but the tests represent it as text.
-        assert_equal(node[:type], :text)
+        assert_equal(:text, node[:type])
         assert_equal(node[:contents], ng_node.content)
       when Nokogiri::XML::Node::COMMENT_NODE
-        assert_equal(node[:type], :comment)
+        assert_equal(:comment, node[:type])
         assert_equal(node[:contents], ng_node.content)
       when Nokogiri::XML::Node::HTML_DOCUMENT_NODE
-        assert_equal(node[:type], :document)
+        assert_equal(:document, node[:type])
         assert_equal(node[:children].length, ng_node.children.length)
       when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
-        assert_equal(node[:type], :fragment)
+        assert_equal(:fragment, node[:type])
         assert_equal(node[:children].length, ng_node.children.length,
           "Fragment node has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
       when Nokogiri::XML::Node::DTD_NODE
-        assert_equal(node[:type], :doctype)
+        assert_equal(:doctype, node[:type])
         assert_equal(node[:name], ng_node.name)
         assert_equal_or_nil(node[:public_id], ng_node.external_id)
         assert_equal_or_nil(node[:system_id], ng_node.system_id)

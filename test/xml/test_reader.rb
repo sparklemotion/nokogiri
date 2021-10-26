@@ -538,7 +538,7 @@ module Nokogiri
 
         reader.each do |node|
           if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
-            assert_equal(node.base_uri, "http://base.example.org/base/")
+            assert_equal("http://base.example.org/base/", node.base_uri)
           end
         end
       end

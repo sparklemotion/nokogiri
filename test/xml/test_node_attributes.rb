@@ -31,7 +31,7 @@ module Nokogiri
       def test_unknown_namespace_prefix_should_not_be_removed
         doc = Nokogiri::XML("")
         elem = doc.create_element("foo", "bar:attr" => "something")
-        assert_equal(elem.attribute_nodes.first.name, "bar:attr")
+        assert_equal("bar:attr", elem.attribute_nodes.first.name)
       end
 
       def test_set_prefixed_attributes

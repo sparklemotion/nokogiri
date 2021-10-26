@@ -168,7 +168,7 @@ module Nokogiri
 
         def test_html_fragment_with_leading_text_and_newline
           fragment = HTML::Document.new.fragment("First line\nSecond line<br>Broken line")
-          assert_equal(fragment.to_s, "First line\nSecond line<br>Broken line")
+          assert_equal("First line\nSecond line<br>Broken line", fragment.to_s)
         end
 
         def test_html_fragment_with_leading_whitespace_and_text_and_newline

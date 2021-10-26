@@ -54,7 +54,7 @@ class Nokogiri::SAX::TestCase
       parser = Nokogiri::XML::SAX::PushParser.new(doc)
 
       exception = assert_raise(RuntimeError) { parser << "</foo>" }
-      assert_equal exception.message, "parse error"
+      assert_equal("parse error", exception.message)
     end
 
     it :test_writing_nil do

@@ -369,7 +369,7 @@ module Nokogiri
         end
         doc = builder.doc
         ["product", "products"].each do |n|
-          assert_equal(doc.at_xpath("//*[local-name() = '#{n}']").namespace.href, "foo")
+          assert_equal("foo", doc.at_xpath("//*[local-name() = '#{n}']").namespace.href)
         end
       end
 
@@ -380,8 +380,8 @@ module Nokogiri
         end
 
         doc = builder.doc
-        assert_equal(doc.at_xpath("//*[local-name() = 'product']").namespaces["xmlns:foo"], "baz")
-        assert_equal(doc.at_xpath("//*[local-name() = 'products']").namespaces["xmlns:foo"], "bar")
+        assert_equal("baz", doc.at_xpath("//*[local-name() = 'product']").namespaces["xmlns:foo"])
+        assert_equal("bar", doc.at_xpath("//*[local-name() = 'products']").namespaces["xmlns:foo"])
         assert_nil(doc.at_xpath("//*[local-name() = 'products']").namespace)
       end
 
