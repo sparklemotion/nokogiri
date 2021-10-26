@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
@@ -252,7 +253,7 @@ module Nokogiri
     # special option is considered a header.  Special options include:
     #  * :follow_limit => number of redirects which are followed
     #  * :basic_auth => [username, password]
-    def self.get(uri, options={})
+    def self.get(uri, options = {})
       warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
            uplevel: 1, category: :deprecated)
       get_impl(uri, options)
@@ -260,10 +261,10 @@ module Nokogiri
 
     private
 
-    def self.get_impl(uri, options={})
+    def self.get_impl(uri, options = {})
       headers = options.clone
-      headers = {:follow_limit => headers} if Numeric === headers # deprecated
-      limit=headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
+      headers = { :follow_limit => headers } if Numeric === headers # deprecated
+      limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
 
       require 'net/http'
       uri = URI(uri) unless URI === uri
@@ -290,7 +291,7 @@ module Nokogiri
       request.basic_auth auth.first, auth.last if auth
 
       # remaining options are treated as headers
-      headers.each {|key, value| request[key.to_s] = value.to_s}
+      headers.each { |key, value| request[key.to_s] = value.to_s }
 
       response = http.request(request)
 
@@ -303,7 +304,7 @@ module Nokogiri
       when Net::HTTPRedirection
         response.value if limit <= 1
         location = URI.join(uri, response['location'])
-        get_impl(location, options.merge(:follow_limit => limit-1))
+        get_impl(location, options.merge(:follow_limit => limit - 1))
       else
         response.value
       end
@@ -345,7 +346,7 @@ module Nokogiri
     # http://bugs.ruby-lang.org/issues/2567
     # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding
     #
-    def self.reencode(body, content_type=nil)
+    def self.reencode(body, content_type = nil)
       if body.encoding == Encoding::ASCII_8BIT
         encoding = nil
 
@@ -459,7 +460,7 @@ module Nokogiri
                            '&' => '&amp;', "\u00a0" => '&nbsp;', '"' => '&quot;')
       else
         text = text.gsub(/[&\u00a0<>]/,
-                           '&' => '&amp;', "\u00a0" => '&nbsp;',  '<' => '&lt;', '>' => '&gt;')
+                           '&' => '&amp;', "\u00a0" => '&nbsp;', '<' => '&lt;', '>' => '&gt;')
       end
       # Not part of the standard
       text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })

@@ -1,5 +1,6 @@
 # encoding: utf-8
 # frozen_string_literal: true
+
 require "helper"
 
 class TestHtml5Serialize < Nokogiri::TestCase
@@ -278,7 +279,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      '<svg xml:foo="test"></svg>',
-     '<span><svg xml:foo="test"></svg></span>'],
+     '<span><svg xml:foo="test"></svg></span>',],
 
     ["Attribute in the XML namespace with the prefix not set to xml:",
      lambda do
@@ -292,7 +293,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      '<svg xml:foo="test"></svg>',
-     '<span><svg xml:foo="test"></svg></span>'],
+     '<span><svg xml:foo="test"></svg></span>',],
 
     ["Non-'xmlns' attribute in the xmlns namespace",
      lambda do
@@ -305,7 +306,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      '<svg xmlns:foo="test"></svg>',
-     '<span><svg xmlns:foo="test"></svg></span>'],
+     '<span><svg xmlns:foo="test"></svg></span>',],
 
     ["'xmlns' attribute in the xmlns namespace",
      lambda do
@@ -318,7 +319,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      '<svg xmlns="test"></svg>',
-     '<span><svg xmlns="test"></svg></span>'],
+     '<span><svg xmlns="test"></svg></span>',],
 
     ["Attribute in non-standard namespace",
      lambda do
@@ -331,7 +332,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      '<svg abc:def="test"></svg>',
-     '<span><svg abc:def="test"></svg></span>'],
+     '<span><svg abc:def="test"></svg></span>',],
 
     ["<span> starting with U+000A",
      lambda do
@@ -342,7 +343,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "\x0A",
-     "<span>\x0A</span>"],
+     "<span>\x0A</span>",],
     # TODO: Processing instructions
   ]
 
@@ -357,7 +358,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        elem
      end,
      "\x0A",
-     "<%text>\x0A</%text>"],
+     "<%text>\x0A</%text>",],
 
     ["<%text> context not starting with U+000A",
      lambda do |tag|
@@ -368,7 +369,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        elem
      end,
      "a\x0A",
-     "<%text>a\x0A</%text>"],
+     "<%text>a\x0A</%text>",],
 
     ["<%text> non-context starting with U+000A",
      lambda do |tag|
@@ -381,7 +382,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "<%text>\x0A</%text>",
-     "<span><%text>\x0A</%text></span>"],
+     "<span><%text>\x0A</%text></span>",],
 
     ["<%text> non-context not starting with U+000A",
      lambda do |tag|
@@ -394,13 +395,13 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "<%text>a\x0A</%text>",
-     "<span><%text>a\x0A</%text></span>"],
+     "<span><%text>a\x0A</%text></span>",],
   ]
 
   VOID_ELEMENTS = [
     "area", "base", "basefont", "bgsound", "br", "col", "embed",
     "frame", "hr", "img", "input", "keygen", "link",
-    "meta", "param", "source", "track", "wbr"
+    "meta", "param", "source", "track", "wbr",
   ]
   VOID_TESTS = [
     ["Void context node",
@@ -409,7 +410,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        Nokogiri::XML::Element.new(tag, doc)
      end,
      "",
-     "<%void>"],
+     "<%void>",],
 
     ["void as first child with following siblings",
      lambda do |tag|
@@ -422,7 +423,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "<%void><a>test</a><b></b>",
-     "<span><%void><a>test</a><b></b></span>"],
+     "<span><%void><a>test</a><b></b></span>",],
 
     ["void as second child with following siblings",
      lambda do |tag|
@@ -435,7 +436,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "<a>test</a><%void><b></b>",
-     "<span><a>test</a><%void><b></b></span>"],
+     "<span><a>test</a><%void><b></b></span>",],
     ["void as last child with preceding siblings",
      lambda do |tag|
        doc = Nokogiri::HTML5::Document.new
@@ -447,7 +448,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
        span
      end,
      "<a>test</a><b></b><%void>",
-     "<span><a>test</a><b></b><%void></span>"],
+     "<span><a>test</a><b></b><%void></span>",],
   ]
 
   # Generate tests

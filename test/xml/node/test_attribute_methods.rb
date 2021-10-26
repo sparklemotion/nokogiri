@@ -72,7 +72,7 @@ class Nokogiri::XML::Node
     end
 
     def test_values
-      assert_equal %w{ Yes Yes }, @xml.xpath("//address")[1].values
+      assert_equal %w{Yes Yes}, @xml.xpath("//address")[1].values
     end
 
     def test_value?
@@ -81,7 +81,7 @@ class Nokogiri::XML::Node
     end
 
     def test_keys
-      assert_equal %w{ domestic street }, @xml.xpath("//address")[1].keys
+      assert_equal %w{domestic street}, @xml.xpath("//address")[1].keys
     end
 
     def test_attribute_with_symbol

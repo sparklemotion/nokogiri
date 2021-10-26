@@ -47,7 +47,7 @@ module Nokogiri
         namespaces = @xml.root.namespace_definitions
         assert_equal [
           'http://tenderlovemaking.com/',
-          'bar'
+          'bar',
         ], namespaces.map(&:href)
       end
 

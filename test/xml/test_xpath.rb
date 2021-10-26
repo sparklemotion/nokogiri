@@ -3,7 +3,6 @@ require "helper"
 module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
-
       # ** WHY ALL THOSE _if Nokogiri.uses_libxml?_ **
       # Hi, my dear readers,
       #
@@ -16,7 +15,6 @@ module Nokogiri
       # Yours truly,
       #
       # The guy whose headaches belong to Nokogiri JRuby impl.
-
 
       def setup
         super
@@ -183,7 +181,7 @@ module Nokogiri
       end
 
       def parse_params node
-        params={}
+        params = {}
         node.xpath('./param').each do |p|
           subparams = parse_params p
           if subparams.length > 0
@@ -193,10 +191,10 @@ module Nokogiri
               params[p.attributes['name'].value] << subparams
               else
                 value = params[p.attributes['name'].value]
-                params[p.attributes['name'].value] = [value,subparams]
+                params[p.attributes['name'].value] = [value, subparams]
             end
           else
-            params[p.attributes['name'].value]=p.text
+            params[p.attributes['name'].value] = p.text
           end
         end
         params
@@ -386,7 +384,7 @@ module Nokogiri
 
       def test_node_set_should_be_decorated
         # "called decorate on nil" exception in JRuby issue#514
-        process_output= <<~END
+        process_output = <<~END
           <test>
             <track type="Image">
             <Format>LZ77</Format>
@@ -425,11 +423,11 @@ module Nokogiri
         </mods>}
 
         xml_doc = Nokogiri::XML(xml_string)
-        ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
-        node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)
+        ns_hash = { 'mods' => 'http://www.loc.gov/mods/v3' }
+        node = xml_doc.at_xpath('//mods:titleInfo[1]', ns_hash)
         node['lang'] = 'english'
-        assert_equal 1, xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).length
-        assert_equal 'english', xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).first.value
+        assert_equal 1, xml_doc.xpath('//mods:titleInfo[1]/@lang', ns_hash).length
+        assert_equal 'english', xml_doc.xpath('//mods:titleInfo[1]/@lang', ns_hash).first.value
       end
 
       def test_xpath_after_element_removal
@@ -446,11 +444,11 @@ module Nokogiri
         </mods>}
 
         xml_doc = Nokogiri::XML(xml_string)
-        ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
-        node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)
+        ns_hash = { 'mods' => 'http://www.loc.gov/mods/v3' }
+        node = xml_doc.at_xpath('//mods:titleInfo[1]', ns_hash)
         node.remove
-        assert_equal 1, xml_doc.xpath('//mods:titleInfo',ns_hash).length
-        assert_equal 'finnish', xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).first.value
+        assert_equal 1, xml_doc.xpath('//mods:titleInfo', ns_hash).length
+        assert_equal 'finnish', xml_doc.xpath('//mods:titleInfo[1]/@lang', ns_hash).first.value
       end
 
       def test_xpath_after_reset_doc_via_innerhtml
@@ -491,11 +489,12 @@ module Nokogiri
           def seconds(context)
             42
           end
+
           def add(context, rhs)
             42
           end
         end
-        doc.xpath(query, {"ct" => "https://test.nokogiri.org/ct", "date" => "https://test.nokogiri.org/date"}, handler.new)
+        doc.xpath(query, { "ct" => "https://test.nokogiri.org/ct", "date" => "https://test.nokogiri.org/date" }, handler.new)
       end
 
       describe "nokogiri-builtin:css-class xpath function" do

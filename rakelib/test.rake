@@ -48,10 +48,10 @@ class ValgrindTestTask < Rake::TestTask
   end
 
   def version_matches
-    matches = [formatted_ruby_version]                          # e.g. "ruby-2.5.1.57"
-    matches << formatted_ruby_version.split(".")[0,3].join(".") # e.g. "ruby-2.5.1"
-    matches << formatted_ruby_version.split(".")[0,2].join(".") # e.g. "ruby-2.5"
-    matches << formatted_ruby_version.split(".")[0,1].join(".") # e.g. "ruby-2"
+    matches = [formatted_ruby_version] # e.g. "ruby-2.5.1.57"
+    matches << formatted_ruby_version.split(".")[0, 3].join(".") # e.g. "ruby-2.5.1"
+    matches << formatted_ruby_version.split(".")[0, 2].join(".") # e.g. "ruby-2.5"
+    matches << formatted_ruby_version.split(".")[0, 1].join(".") # e.g. "ruby-2"
     matches << formatted_ruby_version.split("-").first          # e.g. "ruby"
     matches
   end

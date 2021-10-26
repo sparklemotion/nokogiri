@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'nokogiri'
 
 module XSD # :nodoc:
@@ -74,7 +75,7 @@ module XSD # :nodoc:
         ###
         # Deal with SAX v1 interface
         name = [prefix, name].compact.join(':')
-        attributes = ns.map { |ns_prefix,ns_uri|
+        attributes = ns.map { |ns_prefix, ns_uri|
           [['xmlns', ns_prefix].compact.join(':'), ns_uri]
         } + attrs.map { |attr|
           [[attr.prefix, attr.localname].compact.join(':'), attr.value]
@@ -93,7 +94,7 @@ module XSD # :nodoc:
         end_element [prefix, name].compact.join(':')
       end
 
-      %w{ xmldecl start_document end_document comment }.each do |name|
+      %w{xmldecl start_document end_document comment}.each do |name|
         class_eval %{ def #{name}(*args); end }
       end
 

@@ -98,7 +98,6 @@ module Nokogiri
       #
       # See also \#to_java
 
-
       # :method: to_java
       # :call-seq: to_java() → Java::OrgW3cDom::Document
       #
@@ -114,7 +113,6 @@ module Nokogiri
       #   (The class `Java::OrgW3cDom::Document` is also accessible as `org.w3c.dom.Document`.)
       #
       # See also Document.wrap
-
 
       # The errors found while parsing a document.
       #
@@ -309,7 +307,7 @@ module Nokogiri
       #
       def collect_namespaces
         xpath("//namespace::*").inject({}) do |hash, ns|
-          hash[["xmlns",ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
+          hash[["xmlns", ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
           hash
         end
       end
@@ -357,7 +355,7 @@ module Nokogiri
       # Apply any decorators to +node+
       def decorate node
         return unless @decorators
-        @decorators.each { |klass,list|
+        @decorators.each { |klass, list|
           next unless node.is_a?(klass)
           list.each { |moodule| node.extend(moodule) }
         }
@@ -402,7 +400,7 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      IMPLIED_XPATH_CONTEXTS = [ '//'.freeze ].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = ['//'.freeze].freeze # :nodoc:
 
       def inspect_attributes
         [:name, :children]

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -261,7 +262,7 @@ module Nokogiri
     #   </root>
     #
     class Builder
-      DEFAULT_DOCUMENT_OPTIONS = {namespace_inheritance: true}
+      DEFAULT_DOCUMENT_OPTIONS = { namespace_inheritance: true }
 
       # The current Document object being built
       attr_accessor :doc

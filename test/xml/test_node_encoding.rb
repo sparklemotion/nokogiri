@@ -1,4 +1,5 @@
 # encoding: UTF-8
+
 require "helper"
 
 module Nokogiri
@@ -65,7 +66,7 @@ module Nokogiri
           assert_equal 'UTF-8', nd.prefix.encoding.name
         end
 
-        n.namespaces.each do |k,v|
+        n.namespaces.each do |k, v|
           assert_equal 'UTF-8', k.encoding.name
           assert_equal 'UTF-8', v.encoding.name
         end

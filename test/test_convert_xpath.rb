@@ -1,14 +1,13 @@
 require "helper"
 
 class TestConvertXPath < Nokogiri::TestCase
-
   def setup
     super
     @N = Nokogiri(File.read(HTML_FILE))
   end
 
   def assert_syntactical_equivalence(hpath, xpath, match, &blk)
-    blk ||= lambda {|j| j.first}
+    blk ||= lambda { |j| j.first }
     assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
   end
 

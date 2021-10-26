@@ -152,7 +152,7 @@ module Nokogiri
           list = @xml.internal_subset.validate @xml
           assert_equal 45, list.length
         else
-          xml = Nokogiri::XML(File.open(XML_FILE)) {|cfg| cfg.dtdvalid}
+          xml = Nokogiri::XML(File.open(XML_FILE)) { |cfg| cfg.dtdvalid }
           list = xml.internal_subset.validate xml
           assert_equal 40, list.length
         end
@@ -165,18 +165,18 @@ module Nokogiri
 
       def test_entities
         assert entities = @dtd.entities
-        assert_equal %w[ ent1 ent2 ent3 ent4 ent5 ].sort, entities.keys.sort
+        assert_equal %w[ent1 ent2 ent3 ent4 ent5].sort, entities.keys.sort
       end
 
       def test_elements
         assert elements = @dtd.elements
-        assert_equal %w[ br ], elements.keys
+        assert_equal %w[br], elements.keys
         assert_equal 'br', elements['br'].name
       end
 
       def test_notations
         assert notations = @dtd.notations
-        assert_equal %w[ notation1 notation2 ].sort, notations.keys.sort
+        assert_equal %w[notation1 notation2].sort, notations.keys.sort
         assert notation1 = notations['notation1']
         assert_equal 'notation1', notation1.name
         assert_equal 'notation1File', notation1.public_id

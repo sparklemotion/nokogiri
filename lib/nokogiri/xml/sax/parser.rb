@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     module SAX
@@ -112,6 +113,7 @@ module Nokogiri
         end
 
         private
+
         def check_encoding(encoding)
           encoding.upcase.tap do |enc|
             raise ArgumentError.new("'#{enc}' is not a valid encoding") unless ENCODINGS[enc]

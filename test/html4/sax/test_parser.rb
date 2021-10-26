@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -17,7 +18,7 @@ module Nokogiri
 
         def test_parse_empty_file
           # Make sure empty files don't break stuff
-          empty_file_name =  File.join(ASSETS_DIR, 'bogus.xml')
+          empty_file_name = File.join(ASSETS_DIR, 'bogus.xml')
           # assert_nothing_raised do
             @parser.parse_file empty_file_name
           # end
@@ -123,12 +124,12 @@ module Nokogiri
             ['body', []],
             ['img', [
                 ['src', 'face.jpg'],
-                ['title', 'daddy & me']
-              ]],
+                ['title', 'daddy & me'],
+              ],],
             ['hr', [
                 noshade_value,
-                ['size', '2']
-              ]]
+                ['size', '2'],
+              ],],
           ], @parser.document.start_elements
         end
 
@@ -157,7 +158,6 @@ module Nokogiri
           @parser.parse(StringIO.new(HTML_WITH_BR_TAG))
           assert_equal 6, @parser.document.start_elements.length
         end
-
 
         def test_empty_processing_instruction
           @parser.parse_memory("<strong>this will segfault<?strong>")

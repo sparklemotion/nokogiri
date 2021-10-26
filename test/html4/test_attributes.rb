@@ -34,19 +34,19 @@ module Nokogiri
         #
         #    https://git.gnome.org/browse/libxml2/tree/HTMLtree.c?h=v2.9.2#n714
         #
-        {tag: "a",   attr: "href"},
-        {tag: "div", attr: "href"},
-        {tag: "a",   attr: "action"},
-        {tag: "div", attr: "action"},
-        {tag: "a",   attr: "src"},
-        {tag: "div", attr: "src"},
-        {tag: "a",   attr: "name"},
+        { tag: "a",   attr: "href" },
+        { tag: "div", attr: "href" },
+        { tag: "a",   attr: "action" },
+        { tag: "div", attr: "action" },
+        { tag: "a",   attr: "src" },
+        { tag: "div", attr: "src" },
+        { tag: "a",   attr: "name" },
         #
         #  note that div+name is _not_ affected by the libxml2 issue.
         #  but we test it anyway to ensure our logic isn't modifying
         #  attributes that don't need modifying.
         #
-        {tag: "div", attr: "name", unescaped: true},
+        { tag: "div", attr: "name", unescaped: true },
       ].each do |config|
         define_method "test_uri_escaping_of_#{config[:attr]}_attr_in_#{config[:tag]}_tag" do
           skip if Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?

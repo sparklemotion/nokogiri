@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -81,6 +82,7 @@ module Nokogiri
       DEFAULT_SCHEMA = NONET | BIG_LINES
 
       attr_accessor :options
+
       def initialize options = STRICT
         @options = options
       end

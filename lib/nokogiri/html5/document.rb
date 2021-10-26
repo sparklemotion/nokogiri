@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
@@ -62,6 +63,7 @@ module Nokogiri
       end
 
       private
+
       def self.do_parse(string_or_io, url, encoding, options)
         string = HTML5.read_and_encode(string_or_io, encoding)
         max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES

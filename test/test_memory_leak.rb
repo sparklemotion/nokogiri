@@ -161,7 +161,7 @@ EOF
 
     def test_leaking_namespace_node_strings
       # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
-      ns = {'xmlns' => 'http://schemas.xmlsoap.org/soap/envelope/'}
+      ns = { 'xmlns' => 'http://schemas.xmlsoap.org/soap/envelope/' }
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
@@ -176,7 +176,7 @@ EOF
 
     def test_leaking_namespace_node_strings_with_prefix
       # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
-      ns = {'xmlns:foo' => 'http://schemas.xmlsoap.org/soap/envelope/'}
+      ns = { 'xmlns:foo' => 'http://schemas.xmlsoap.org/soap/envelope/' }
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
@@ -194,7 +194,7 @@ EOF
       100_000.times do |i|
         doc = Nokogiri::HTML::Document.new
         doc.internal_subset.remove
-        puts MemInfo.rss if (i % 1000 == 0)
+        puts MemInfo.rss if i % 1000 == 0
       end
     end
 
@@ -203,7 +203,7 @@ EOF
         prev_rss = MemInfo.rss
         100_001.times do |j|
           Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
-          next unless (j % 10_000 == 0)
+          next unless j % 10_000 == 0
           curr_rss = MemInfo.rss
           diff_rss = curr_rss - prev_rss
           printf("\n(iter %d) %d", j, curr_rss)
@@ -234,7 +234,7 @@ EOF
 
   def count_object_space_documents
     count = 0
-    ObjectSpace.each_object {|j| count += 1 if j.is_a?(Nokogiri::XML::Document) }
+    ObjectSpace.each_object { |j| count += 1 if j.is_a?(Nokogiri::XML::Document) }
     count
   end
 end

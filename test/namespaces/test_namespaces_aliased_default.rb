@@ -17,7 +17,7 @@ module Nokogiri
         doc = Nokogiri::XML('<apple xmlns="ns:fruit" />')
         doc.root.add_namespace_definition("fruit", "ns:fruit")
         ns = doc.root.namespaces
-        assert_equal "ns:fruit", ns["xmlns:fruit"],"Should have added aliased default namespace"
+        assert_equal "ns:fruit", ns["xmlns:fruit"], "Should have added aliased default namespace"
       end
     end
   end

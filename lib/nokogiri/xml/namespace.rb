@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     class Namespace
@@ -6,6 +7,7 @@ module Nokogiri
       attr_reader :document
 
       private
+
       def inspect_attributes
         [:prefix, :href]
       end

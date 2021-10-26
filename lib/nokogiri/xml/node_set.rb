@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ####
@@ -211,7 +212,7 @@ module Nokogiri
 
         hash = key.is_a?(Hash) ? key : { key => value }
 
-        hash.each do |k,v|
+        hash.each do |k, v|
           each do |node|
             node[k] = v || block.call(node)
           end
@@ -262,7 +263,7 @@ module Nokogiri
       ###
       # Get the inner html of all contained Node objects
       def inner_html *args
-        collect{|j| j.inner_html(*args) }.join('')
+        collect { |j| j.inner_html(*args) }.join('')
       end
 
       ###
@@ -364,8 +365,7 @@ module Nokogiri
 
       alias :+ :|
 
-      IMPLIED_XPATH_CONTEXTS = [ './/'.freeze, 'self::'.freeze ].freeze # :nodoc:
-
+      IMPLIED_XPATH_CONTEXTS = ['.//'.freeze, 'self::'.freeze].freeze # :nodoc:
     end
   end
 end

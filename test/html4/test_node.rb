@@ -18,7 +18,7 @@ module Nokogiri
       end
 
       def test_to_a
-        assert_equal [['class', 'bar'], ['href', 'foo']],@html.at('a').to_a.sort
+        assert_equal [['class', 'bar'], ['href', 'foo']], @html.at('a').to_a.sort
       end
 
       def test_attr
@@ -39,12 +39,12 @@ module Nokogiri
       def test_ns_attribute
         html = '<i foo:bar="baz"></i>'
         doc = Nokogiri::HTML(html)
-        assert_equal 'baz', (doc%'i')['foo:bar']
+        assert_equal 'baz', (doc % 'i')['foo:bar']
       end
 
       def test_css_path_round_trip
         doc = Nokogiri::HTML(File.read(HTML_FILE))
-        %w{ #header small div[2] div.post body }.each do |css_sel|
+        %w{#header small div[2] div.post body}.each do |css_sel|
           ele = doc.at css_sel
           assert_equal ele, doc.at(ele.css_path), ele.css_path
         end
@@ -52,7 +52,7 @@ module Nokogiri
 
       def test_path_round_trip
         doc = Nokogiri::HTML(File.read(HTML_FILE))
-        %w{ #header small div[2] div.post body }.each do |css_sel|
+        %w{#header small div[2] div.post body}.each do |css_sel|
           ele = doc.at css_sel
           assert_equal ele, doc.at(ele.path), ele.path
         end

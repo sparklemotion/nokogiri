@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module Gumbo
     # The default maximum number of attributes per element.

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     module SAX
@@ -24,7 +25,6 @@ module Nokogiri
       #   parser << "/div>"
       #   parser.finish
       class PushParser
-
         # The Nokogiri::XML::SAX::Document on which the PushParser will be
         # operating
         attr_accessor :document

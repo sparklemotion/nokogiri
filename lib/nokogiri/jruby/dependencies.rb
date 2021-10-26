@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # The line below caused a problem on non-GAE rack environment.
 # unless defined?(JRuby::Rack::VERSION) || defined?(AppEngine::ApiProxy)
 #

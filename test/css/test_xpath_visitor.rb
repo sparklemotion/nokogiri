@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
@@ -357,6 +358,7 @@ class TestNokogiri < Nokogiri::TestCase
       it "supports custom functions" do
         visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
           attr_accessor :awesome
+
           def visit_function_aaron(node)
             @awesome = true
             'aaron() = 1'
@@ -370,6 +372,7 @@ class TestNokogiri < Nokogiri::TestCase
       it "supports custom pseudo-classes" do
         visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
           attr_accessor :awesome
+
           def visit_pseudo_class_aaron(node)
             @awesome = true
             'aaron() = 1'

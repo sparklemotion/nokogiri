@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -44,7 +45,7 @@ module Nokogiri
           items = @doc.items.get_root_content "body"
           items = items.select_methods [
             :start_element, :end_element,
-            :characters, :comment
+            :characters, :comment,
           ]
           items.strip_text! [:characters, :comment]
 
@@ -81,7 +82,7 @@ module Nokogiri
             [:characters, ''],
 
             [:comment, 'text 9'],
-            [:characters, '']
+            [:characters, ''],
           ], items
 
           nil
@@ -115,7 +116,7 @@ module Nokogiri
           items = @doc.items.get_root_content "body"
           items = items.select_methods [
             :start_element, :end_element,
-            :characters, :comment
+            :characters, :comment,
           ]
           items.strip_text! [:characters, :comment]
 
@@ -152,7 +153,7 @@ module Nokogiri
             [:characters, ''],
 
             [:end_element, 'p'],
-            [:characters, '']
+            [:characters, ''],
           ], items
 
           nil

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -13,12 +14,12 @@ module Nokogiri
     #         <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     #       </x>
     #     eoxml
-    #   
+    #
     #     reader.each do |node|
-    #   
+    #
     #       # node is an instance of Nokogiri::XML::Reader
     #       puts node.name
-    #   
+    #
     #     end
     #
     # Note that Nokogiri::XML::Reader#each can only be called once!!  Once

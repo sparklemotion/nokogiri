@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 #
 # Some environment variables that are used to configure the test suite:
 # - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
@@ -148,11 +149,11 @@ module Nokogiri
       end
     end
 
-    def skip_unless_libxml2(msg="this test should only run with libxml2")
+    def skip_unless_libxml2(msg = "this test should only run with libxml2")
       skip(msg) unless Nokogiri.uses_libxml?
     end
 
-    def skip_unless_jruby(msg="this test should only run with jruby")
+    def skip_unless_jruby(msg = "this test should only run with jruby")
       skip(msg) unless Nokogiri.jruby?
     end
 
@@ -326,7 +327,7 @@ module Nokogiri
           :start_element_namespace, :end_element_namespace,
           :characters, :comment, :cdata_block,
           :processing_instruction,
-          :error, :warning
+          :error, :warning,
         ].each do |name|
           define_method name do |*arguments|
             @items << [name, *arguments]

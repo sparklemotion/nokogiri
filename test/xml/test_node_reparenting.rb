@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -218,6 +219,7 @@ module Nokogiri
                 before do
                   class << expected_callee
                     attr_reader :coerce_was_called
+
                     def coerce(data)
                       @coerce_was_called = true
                       super
@@ -369,14 +371,14 @@ module Nokogiri
                     <pre1:child pre2:attr="attrval">
                   </pre1:root>
                 EOXML
-                assert(source_node = source_doc.at_xpath("//pre1:child", {"pre1" => "ns1"}))
+                assert(source_node = source_doc.at_xpath("//pre1:child", { "pre1" => "ns1" }))
                 assert_equal("attrval", source_node.attribute_with_ns("attr", "ns2")&.value)
 
                 dest_doc = Nokogiri::XML::Document.parse(<<~EOXML)
                   <pre1:root xmlns:pre1="ns1" xmlns:pre2="ns2">
                   </pre1:root>
                 EOXML
-                assert(dest_node = dest_doc.at_xpath("//pre1:root", {"pre1" => "ns1"}))
+                assert(dest_node = dest_doc.at_xpath("//pre1:root", { "pre1" => "ns1" }))
 
                 inserted = dest_node.add_child(source_node)
 

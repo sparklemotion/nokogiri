@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # rubocop:disable Style/GlobalVars
 
 ENV["RC_ARCHS"] = "" if RUBY_PLATFORM.match?(/darwin/)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 require 'stringio'
@@ -354,7 +355,7 @@ module Nokogiri
             </fruit>
           eoxml
 
-          apple = fruits.at_xpath('//fruit:apple', {"fruit" => "http://fruits.org"})
+          apple = fruits.at_xpath('//fruit:apple', { "fruit" => "http://fruits.org" })
           assert(apple)
 
           orange = Nokogiri::XML::Node.new('orange', fruits)
@@ -582,6 +583,7 @@ module Nokogiri
         def test_accept
           visitor = Class.new do
             attr_accessor :visited
+
             def accept(target)
               target.accept(self)
             end

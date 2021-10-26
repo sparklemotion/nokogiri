@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment

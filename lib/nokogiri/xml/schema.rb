@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     class << self
@@ -52,8 +53,8 @@ module Nokogiri
       # Nokogiri::XML::SyntaxError objects found while validating the
       # +thing+ is returned.
       def validate thing
-        if thing.is_a?(Nokogiri::XML::Document) 
-          validate_document(thing) 
+        if thing.is_a?(Nokogiri::XML::Document)
+          validate_document(thing)
         elsif File.file?(thing)
           validate_file(thing)
         else

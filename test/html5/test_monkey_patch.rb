@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 require 'helper'
 
 class TestHtml5SerializationMonkeyPatch < Nokogiri::TestCase

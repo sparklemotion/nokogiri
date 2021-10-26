@@ -22,7 +22,7 @@ require 'psych'
 require 'open-uri'
 
 ENTITIES_URL = 'https://html.spec.whatwg.org/entities.json'
-ACCEPTABLE_CODEPOINTS_LENGTHS = [1,2]
+ACCEPTABLE_CODEPOINTS_LENGTHS = [1, 2]
 
 # Modify the json to remove the characters item because it contains surrogate
 # pairs that Psych errors on.

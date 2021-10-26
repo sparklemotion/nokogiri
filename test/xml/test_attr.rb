@@ -83,7 +83,6 @@ module Nokogiri
         assert_includes %Q{ disabled}, disabled.to_html # but we emit a boolean attribute at serialize-time
       end
 
-
       def test_unlink # aliased as :remove
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('/staff/employee/address').first

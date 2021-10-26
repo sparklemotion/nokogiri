@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
@@ -23,7 +24,7 @@ module Nokogiri
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1], :child => true)
           else
-            "count(preceding-sibling::*)=#{node.value[1].to_i-1}"
+            "count(preceding-sibling::*)=#{node.value[1].to_i - 1}"
           end
         when /^nth-last-of-type\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
@@ -36,7 +37,7 @@ module Nokogiri
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1], :last => true, :child => true)
           else
-            "count(following-sibling::*)=#{node.value[1].to_i-1}"
+            "count(following-sibling::*)=#{node.value[1].to_i - 1}"
           end
         when /^(first|first-of-type)\(/
           "position()=1"
@@ -91,7 +92,7 @@ module Nokogiri
         value = "'#{value}'" if value !~ /^['"]/
 
         # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
-        if (value[0]==value[-1]) && %q{"'}.include?(value[0])
+        if (value[0] == value[-1]) && %q{"'}.include?(value[0])
           str_value = value[1..-2]
           if str_value.include?(value[0])
             value = 'concat("' + str_value.split('"', -1).join(%q{",'"',"}) + '","")'
@@ -161,7 +162,7 @@ module Nokogiri
         'following_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
         'child_selector'            => '/',
-      }.each do |k,v|
+      }.each do |k, v|
         class_eval %{
           def visit_#{k} node
             "\#{node.value.first.accept(self) if node.value.first}#{v}\#{node.value.last.accept(self)}"
@@ -184,7 +185,7 @@ module Nokogiri
 
       private
 
-      def nth node, options={}
+      def nth node, options = {}
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 
         a, b = read_a_and_positive_b node.value
@@ -221,7 +222,7 @@ module Nokogiri
       end
 
       def is_of_type_pseudo_class? node
-        if node.type==:PSEUDO_CLASS
+        if node.type == :PSEUDO_CLASS
           if node.value[0].is_a?(Nokogiri::CSS::Node) and node.value[0].type == :FUNCTION
             node.value[0].value[0]
           else
@@ -245,11 +246,13 @@ module Nokogiri
 
     class XPathVisitorAlwaysUseBuiltins < XPathVisitor # :nodoc:
       private
+
       alias_method :css_class, :css_class_builtin
     end
 
     class XPathVisitorOptimallyUseBuiltins < XPathVisitor # :nodoc:
       private
+
       if Nokogiri.uses_libxml?
         alias_method :css_class, :css_class_builtin
       else

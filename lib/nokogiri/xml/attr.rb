@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     class Attr < Node
@@ -7,6 +8,7 @@ module Nokogiri
       alias :content= :value=
 
       private
+
       def inspect_attributes
         [:name, :namespace, :value]
       end

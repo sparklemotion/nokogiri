@@ -37,6 +37,7 @@ class TestSoap4rSax < Nokogiri::TestCase
   def test_parse
     o = Class.new(::XSD::XMLParser::Nokogiri) do
       attr_accessor :element_started
+
       def initialize *args
         super
         @element_started = false

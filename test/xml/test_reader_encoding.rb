@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -22,7 +23,7 @@ module Nokogiri
 
       def test_attributes
         @reader.each do |node|
-          node.attributes.each do |k,v|
+          node.attributes.each do |k, v|
             assert_equal @reader.encoding, k.encoding.name
             assert_equal @reader.encoding, v.encoding.name
           end

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -124,13 +125,13 @@ module Nokogiri
 
       class ReallyBadIO
         def read(size)
-          'a' * size ** 10
+          'a' * size**10
         end
       end
 
       class ReallyBadIO4Java
-        def read(size=1)
-          'a' * size ** 10
+        def read(size = 1)
+          'a' * size**10
         end
       end
 
@@ -235,11 +236,11 @@ module Nokogiri
         </x>
         eoxml
         assert_equal({}, reader.attributes)
-        assert_equal [{'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
-                       'xmlns'=>'http://mothership.connection.com/',},
-                      {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {},
-                      {'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
-                       'xmlns'=>'http://mothership.connection.com/',}],
+        assert_equal [{ 'xmlns:tenderlove' => 'http://tenderlovemaking.com/',
+                        'xmlns' => 'http://mothership.connection.com/', },
+                      {}, { "awesome" => "true" }, {}, { "awesome" => "true" }, {},
+                      { 'xmlns:tenderlove' => 'http://tenderlovemaking.com/',
+                        'xmlns' => 'http://mothership.connection.com/', },],
           reader.map(&:attributes)
       end
 
@@ -414,7 +415,7 @@ module Nokogiri
                       nil,
                       "http://ecommerce.example.org/schema",
                       nil,
-                      nil],
+                      nil,],
                       reader.map(&:namespace_uri))
       end
 
@@ -450,12 +451,12 @@ module Nokogiri
         attr_ns = []
         while reader.read
           if reader.node_type == Nokogiri::XML::Node::ELEMENT_NODE
-            reader.attribute_nodes.each {|attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
+            reader.attribute_nodes.each { |attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
           end
         end
         assert_equal(['commons',
                       'edi',
-                      nil],
+                      nil,],
                      attr_ns)
       end
 
@@ -505,7 +506,7 @@ module Nokogiri
                       "http://base.example.org/base/relative",
                       "http://base.example.org/base/relative",
                       "http://base.example.org/base/",
-                      "http://base.example.org/base/"],
+                      "http://base.example.org/base/",],
                       reader.map(&:base_uri))
       end
 

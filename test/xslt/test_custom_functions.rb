@@ -63,6 +63,7 @@ module Nokogiri
           # Minitest 5 uses `self.assertions` in `assert()` which is not
           # defined in the Minitest::Assertions module :-(
           attr_writer :assertions
+
           def assertions
             @assertions ||= 0
           end

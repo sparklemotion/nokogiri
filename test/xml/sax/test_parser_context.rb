@@ -21,6 +21,7 @@ world
 
         class Counter < Nokogiri::XML::SAX::Document
           attr_accessor :context, :lines, :columns
+
           def initialize
             @context = nil
             @lines   = []

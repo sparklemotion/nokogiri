@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # replacement for Hoe's task of the same name
 
 desc "Perform a sanity check on the gemspec file list"

@@ -71,7 +71,6 @@ module Nokogiri
 
         assert_equal [], node.namespace_definitions.map(&:prefix)
 
-
         # assert_nothing_raised do
           child_node = Nokogiri::XML::Node.new 'foo', doc
           child_node['xml:lang'] = 'en-GB'

@@ -51,7 +51,7 @@ module Nokogiri
         assert_equal @node.serialize(:save_with => conf.options), io.read
       end
 
-      %w{ xml html xhtml }.each do |type|
+      %w{xml html xhtml}.each do |type|
         define_method(:"test_write_#{type}_to") do
           io = StringIO.new
           assert @node.send(:"write_#{type}_to", io)
@@ -73,11 +73,11 @@ module Nokogiri
       end
 
       def test_values
-        assert_equal %w{ Yes Yes }, @node.xpath('.//address')[1].values
+        assert_equal %w{Yes Yes}, @node.xpath('.//address')[1].values
       end
 
       def test_keys
-        assert_equal %w{ domestic street }, @node.xpath('.//address')[1].keys
+        assert_equal %w{domestic street}, @node.xpath('.//address')[1].keys
       end
 
       def test_each
@@ -460,7 +460,7 @@ module Nokogiri
       def test_illegal_replace_of_node_with_doc
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
         old_node = @node.at('.//employee')
-        assert_raises(ArgumentError){ old_node.replace new_node }
+        assert_raises(ArgumentError) { old_node.replace new_node }
       end
 
       def test_unlink_on_unlinked_node_1

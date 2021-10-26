@@ -1,8 +1,8 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module HTML4
     class ElementDescription
-
       # Methods are defined protected by method_defined? because at
       # this point the C-library or Java library is already loaded,
       # and we don't want to clobber any methods that have been
@@ -131,7 +131,7 @@ module Nokogiri
       FONTSTYLE = ["tt", "i", "b", "u", "s", "strike", "big", "small"]
       PHRASE = ['em', 'strong', 'dfn', 'code', 'samp',
                 'kbd', 'var', 'cite', 'abbr', 'acronym']
-      SPECIAL = ['a', 'img', 'applet', 'embed', 'object', 'font','basefont',
+      SPECIAL = ['a', 'img', 'applet', 'embed', 'object', 'font', 'basefont',
                  'br', 'script', 'map', 'q', 'sub', 'sup', 'span', 'bdo',
                  'iframe']
       PCDATA = []
@@ -156,7 +156,7 @@ module Nokogiri
       EVENTS = ['onclick', 'ondblclick', 'onmousedown', 'onmouseup',
                 'onmouseover', 'onmouseout', 'onkeypress', 'onkeydown',
                 'onkeyup']
-      ATTRS = [COREATTRS, I18N,EVENTS]
+      ATTRS = [COREATTRS, I18N, EVENTS]
       CELLHALIGN = ['align', 'char', 'charoff']
       CELLVALIGN = ['valign']
 
@@ -164,7 +164,6 @@ module Nokogiri
       CORE_I18N_ATTRS = [COREATTRS, I18N]
       CORE_ATTRS = COREATTRS
       I18N_ATTRS = I18N
-
 
       A_ATTRS = [ATTRS, 'charset', 'type', 'name',
                  'href', 'hreflang', 'rel', 'rev', 'accesskey', 'shape',
@@ -192,7 +191,6 @@ module Nokogiri
       BUTTON_ATTRS = [ATTRS, 'name', 'value', 'type',
                       'disabled', 'tabindex', 'accesskey', 'onfocus', 'onblur']
 
-
       COL_ATTRS = [ATTRS, 'span', 'width', CELLHALIGN, CELLVALIGN]
       COL_ELT = ['col']
       EDIT_ATTRS = [ATTRS, 'datetime', 'cite']
@@ -200,15 +198,15 @@ module Nokogiri
       DL_CONTENTS = ['dt', 'dd']
       COMPACT_ATTR = ['compact']
       LABEL_ATTR = ['label']
-      FIELDSET_CONTENTS = [FLOW, 'legend' ]
-      FONT_ATTRS = [COREATTRS, I18N, 'size', 'color', 'face' ]
+      FIELDSET_CONTENTS = [FLOW, 'legend']
+      FONT_ATTRS = [COREATTRS, I18N, 'size', 'color', 'face']
       FORM_CONTENTS = [HEADING, LIST, INLINE, 'pre', 'p', 'div', 'center',
                        'noscript', 'noframes', 'blockquote', 'isindex', 'hr',
                        'table', 'fieldset', 'address']
       FORM_ATTRS = [ATTRS, 'method', 'enctype', 'accept', 'name', 'onsubmit',
                     'onreset', 'accept-charset']
       FRAME_ATTRS = [COREATTRS, 'longdesc', 'name', 'src', 'frameborder',
-                     'marginwidth', 'marginheight', 'noresize', 'scrolling' ]
+                     'marginwidth', 'marginheight', 'noresize', 'scrolling']
       FRAMESET_ATTRS = [COREATTRS, 'rows', 'cols', 'onload', 'onunload']
       FRAMESET_CONTENTS = ['frameset', 'frame', 'noframes']
       HEAD_ATTRS = [I18N, 'profile']

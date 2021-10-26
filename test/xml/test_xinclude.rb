@@ -77,7 +77,6 @@ module Nokogiri
 
         assert exception_raised
       end
-
     end
   end
 end

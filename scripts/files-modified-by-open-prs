@@ -32,7 +32,7 @@ end
 
 prs = get("gh pr list").split("\n")
 
-paths_to_prs = Hash.new { |h,k| h[k] = Set.new }
+paths_to_prs = Hash.new { |h, k| h[k] = Set.new }
 
 prs.each do |pr|
   pr_number, *pr_desc = pr.split(/\s+/)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # frozen_string_literal: true
+
 require "helper"
 
 class TestNokogiriHtmlDocument < Nokogiri::TestCase
@@ -110,7 +111,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
           assert_equal('たこ焼き仮面', html.title)
         end
 
-        {"xhtml" => ENCODING_XHTML_FILE, "html" => ENCODING_HTML_FILE}.each do |flavor, file|
+        { "xhtml" => ENCODING_XHTML_FILE, "html" => ENCODING_HTML_FILE }.each do |flavor, file|
           it "detects #{flavor} document encoding" do
             doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')
             ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map(&:text)
@@ -146,7 +147,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         describe "error handling" do
           RAW = "<html><body><div"
 
-          {"read_memory" => RAW, "read_io" => StringIO.new(RAW)}.each do |flavor, input|
+          { "read_memory" => RAW, "read_io" => StringIO.new(RAW) }.each do |flavor, input|
             it "#{flavor} should handle errors" do
               doc = Nokogiri::HTML.parse(input)
               assert_operator(doc.errors.length, :>, 0)

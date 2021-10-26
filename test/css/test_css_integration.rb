@@ -38,7 +38,7 @@ module Nokogiri
               <i class="b">italic4 </i>
               <em>emphasis3 </em>
               <i class="c">italic5 </i>
-              <span><i class="b">italic6 </i></span>  
+              <span><i class="b">italic6 </i></span>
               <i>italic7 </i>
             </div>
             <div>
@@ -48,7 +48,7 @@ module Nokogiri
             <div>
               <p>para4 </p>
             </div>
-            
+
             <div>
               <h2></h2>
               <h1 class='c'>header1 </h1>
@@ -61,7 +61,7 @@ module Nokogiri
             <div>
               <h1 class='c'>header4</h1>
             </div>
-              
+
             <p class='empty'></p>
             <p class='not-empty'><b></b></p>
           </html>
