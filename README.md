@@ -31,6 +31,8 @@ Some guiding principles Nokogiri tries to follow:
 
 [![Gem Version](https://badge.fury.io/rb/nokogiri.svg)](https://rubygems.org/gems/nokogiri)
 [![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
+
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5344/badge)](https://bestpractices.coreinfrastructure.org/projects/5344)
 [![Tidelift dependencies](https://tidelift.com/badges/package/rubygems/nokogiri)](https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme)
 
 
