@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
   module HTML
     class TestAttributesProperlyEscaped < Nokogiri::TestCase
-
       def test_attribute_macros_are_escaped
         if Nokogiri.uses_libxml? && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0001-Remove-script-macro-support.patch")
           skip("libxml2 has not been patched to be safe against attribute macros")

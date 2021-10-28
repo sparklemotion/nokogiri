@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 class Nokogiri::TestCase
@@ -25,8 +26,8 @@ class Nokogiri::TestCase
       assert_match(%r{<td>Margaret Martin</td>}, result)
       assert_match(%r{<td>Computer Specialist</td>}, result)
       assert_match(%r{<td>100,000</td>}, result)
-      assert_no_match(/Dallas|Texas/, result)
-      assert_no_match(/Female/, result)
+      refute_match(/Dallas|Texas/, result)
+      refute_match(/Female/, result)
 
       assert(result = style.apply_to(doc, ["title", '"Grandma"']))
       assert_match(%r{<h1>Grandma</h1>}, result)
@@ -69,7 +70,6 @@ class Nokogiri::TestCase
     end
 
     def test_transform_with_output_style
-      xslt = ""
       xslt = if Nokogiri.jruby?
         Nokogiri::XSLT(<<~eoxslt)
           <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -97,7 +97,7 @@ class Nokogiri::TestCase
           </xsl:template>
 
           </xsl:stylesheet>
-               eoxslt
+        eoxslt
       else
         Nokogiri::XSLT(<<~eoxslt)
           <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -126,10 +126,10 @@ class Nokogiri::TestCase
           </xsl:template>
 
           </xsl:stylesheet>
-               eoxslt
+        eoxslt
       end
       result = xslt.apply_to(doc, ["title", "foo"])
-      assert_no_match(/<td>/, result)
+      refute_match(/<td>/, result)
 
       # the entity-form is for systems with this bug with Encodings.properties
       # https://issues.apache.org/jira/browse/XALANJ-2618
@@ -320,7 +320,7 @@ class Nokogiri::TestCase
       EOXSL
 
       result = xsl.transform(xml)
-      assert(!result.html?)
+      refute(result.html?)
     end
 
     it "should not crash when given XPath 2.0 features" do
@@ -364,7 +364,7 @@ class Nokogiri::TestCase
 
       doc = Nokogiri::XML(xml)
       xslt = Nokogiri::XSLT(xsl)
-      exception = assert_raise(RuntimeError) do
+      exception = assert_raises(RuntimeError) do
         xslt.transform(doc)
       end
       assert_match(/decimal/, exception.message)

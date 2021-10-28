@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
@@ -25,10 +26,10 @@ module Nokogiri
     # 💡 HTML5 functionality is not available when running JRuby.
     class Document < Nokogiri::HTML4::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
-        yield options if block_given?
-	string_or_io = '' unless string_or_io
+        yield options if block
+        string_or_io = "" unless string_or_io
 
-        if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != 'ASCII-8BIT'
+        if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
           encoding ||= string_or_io.encoding.name
         end
 
@@ -36,23 +37,23 @@ module Nokogiri
           url ||= string_or_io.path
         end
         unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
-          raise ArgumentError.new("not a string or IO object")
+          raise ArgumentError, "not a string or IO object"
         end
         do_parse(string_or_io, url, encoding, options)
       end
 
       def self.read_io(io, url = nil, encoding = nil, **options)
-        raise ArgumentError.new("io object doesn't respond to :read") unless io.respond_to?(:read)
+        raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
         do_parse(io, url, encoding, options)
       end
 
       def self.read_memory(string, url = nil, encoding = nil, **options)
-        raise ArgumentError.new("string object doesn't respond to :to_str") unless string.respond_to?(:to_str)
+        raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
         do_parse(string, url, encoding, options)
       end
 
       def fragment(tags = nil)
-        DocumentFragment.new(self, tags, self.root)
+        DocumentFragment.new(self, tags, root)
       end
 
       def to_xml(options = {}, &block)
@@ -62,13 +63,14 @@ module Nokogiri
       end
 
       private
+
       def self.do_parse(string_or_io, url, encoding, options)
         string = HTML5.read_and_encode(string_or_io, encoding)
         max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
         max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
         max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
         doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth)
-        doc.encoding = 'UTF-8'
+        doc.encoding = "UTF-8"
         doc
       end
     end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -58,22 +59,22 @@ module Nokogiri
         end
 
         {
-          :add_child => { target: "/root/a1", returns_self: false, children_tags: %w[text b1 b2] },
-          :<< => { target: "/root/a1", returns_self: true, children_tags: %w[text b1 b2] },
+          :add_child => { target: "/root/a1", returns_self: false, children_tags: ["text", "b1", "b2"] },
+          :<< => { target: "/root/a1", returns_self: true, children_tags: ["text", "b1", "b2"] },
 
-          :replace => { target: "/root/a1/node()", returns_self: false, children_tags: %w[b1 b2] },
-          :swap => { target: "/root/a1/node()", returns_self: true, children_tags: %w[b1 b2] },
+          :replace => { target: "/root/a1/node()", returns_self: false, children_tags: ["b1", "b2"] },
+          :swap => { target: "/root/a1/node()", returns_self: true, children_tags: ["b1", "b2"] },
 
-          :children= => { target: "/root/a1", returns_self: false, children_tags: %w[b1 b2] },
-          :inner_html= => { target: "/root/a1", returns_self: true, children_tags: %w[b1 b2] },
+          :children= => { target: "/root/a1", children_tags: ["b1", "b2"] },
+          :inner_html= => { target: "/root/a1", children_tags: ["b1", "b2"] },
 
-          :add_previous_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: %w[b1 b2 text] },
-          :previous= => { target: "/root/a1/text()", returns_self: false, children_tags: %w[b1 b2 text] },
-          :before => { target: "/root/a1/text()", returns_self: true, children_tags: %w[b1 b2 text] },
+          :add_previous_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ["b1", "b2", "text"] },
+          :previous= => { target: "/root/a1/text()", children_tags: ["b1", "b2", "text"] },
+          :before => { target: "/root/a1/text()", returns_self: true, children_tags: ["b1", "b2", "text"] },
 
-          :add_next_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: %w[text b1 b2] },
-          :next= => { target: "/root/a1/text()", returns_self: false, children_tags: %w[text b1 b2] },
-          :after => { target: "/root/a1/text()", returns_self: true, children_tags: %w[text b1 b2] },
+          :add_next_sibling => { target: "/root/a1/text()", returns_self: false, children_tags: ["text", "b1", "b2"] },
+          :next= => { target: "/root/a1/text()", children_tags: ["text", "b1", "b2"] },
+          :after => { target: "/root/a1/text()", returns_self: true, children_tags: ["text", "b1", "b2"] },
         }.each do |method, params|
           describe "##{method}" do
             describe "passed a Node" do
@@ -99,7 +100,9 @@ module Nokogiri
                   it "returns the expected value" do
                     sendee = @doc.at_xpath(params[:target])
                     result = sendee.send(method, @other_node)
-                    if params[:returns_self]
+                    if !params.key?(:returns_self)
+                      assert(method.to_s.end_with?("="))
+                    elsif params[:returns_self]
                       _(result).must_equal(sendee)
                     else
                       _(result).must_equal(@other_node)
@@ -118,7 +121,9 @@ module Nokogiri
               it "returns the expected value" do
                 sendee = @doc.at_xpath(params[:target])
                 result = sendee.send(method, @fragment_string)
-                if params[:returns_self]
+                if !params.key?(:returns_self)
+                  assert(method.to_s.end_with?("="))
+                elsif params[:returns_self]
                   _(result).must_equal(sendee)
                 else
                   _(result).must_be_kind_of(Nokogiri::XML::NodeSet)
@@ -135,12 +140,12 @@ module Nokogiri
             end
             describe "passed a document" do
               it "raises an exception" do
-                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, @doc2) }
+                assert_raises(ArgumentError) { @doc.at_xpath("/root/a1").send(method, @doc2) }
               end
             end
             describe "passed a non-Node" do
               it "raises an exception" do
-                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, 42) }
+                assert_raises(ArgumentError) { @doc.at_xpath("/root/a1").send(method, 42) }
               end
             end
             describe "passed a NodeSet" do
@@ -195,10 +200,10 @@ module Nokogiri
             describe "##{method} parsing input" do
               let(:xml) do
                 <<~EOF
-                <root>
-                  <parent><context></context></parent>
-                </root>
-              EOF
+                  <root>
+                    <parent><context></context></parent>
+                  </root>
+                EOF
               end
 
               let(:doc) { Nokogiri::XML::Document.parse(xml) }
@@ -218,6 +223,7 @@ module Nokogiri
                 before do
                   class << expected_callee
                     attr_reader :coerce_was_called
+
                     def coerce(data)
                       @coerce_was_called = true
                       super
@@ -237,7 +243,7 @@ module Nokogiri
                   before { context_node.unlink }
 
                   it "raises an exception" do
-                    ex = assert_raise(RuntimeError) do
+                    ex = assert_raises(RuntimeError) do
                       context_node.__send__(method, "<child>content</child>")
                     end
                     assert_match(/no parent/, ex.message)
@@ -369,19 +375,19 @@ module Nokogiri
                     <pre1:child pre2:attr="attrval">
                   </pre1:root>
                 EOXML
-                assert(source_node = source_doc.at_xpath("//pre1:child", {"pre1" => "ns1"}))
+                assert(source_node = source_doc.at_xpath("//pre1:child", { "pre1" => "ns1" }))
                 assert_equal("attrval", source_node.attribute_with_ns("attr", "ns2")&.value)
 
                 dest_doc = Nokogiri::XML::Document.parse(<<~EOXML)
                   <pre1:root xmlns:pre1="ns1" xmlns:pre2="ns2">
                   </pre1:root>
                 EOXML
-                assert(dest_node = dest_doc.at_xpath("//pre1:root", {"pre1" => "ns1"}))
+                assert(dest_node = dest_doc.at_xpath("//pre1:root", { "pre1" => "ns1" }))
 
                 inserted = dest_node.add_child(source_node)
 
                 assert_equal("attrval", inserted.attribute_with_ns("attr", "ns2")&.value,
-                             "inserted node attribute should be namespaced")
+                  "inserted node attribute should be namespaced")
               end
             end
           end
@@ -408,7 +414,7 @@ module Nokogiri
                 it "inserts a node that inherits the parent's default namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @doc.root.namespace, reparented.namespace
                   assert_equal(
                     {
@@ -429,7 +435,7 @@ module Nokogiri
                 it "inserts a node that uses its own namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -456,7 +462,7 @@ module Nokogiri
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
@@ -477,7 +483,7 @@ module Nokogiri
                 it "inserts a node that uses the parent's namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.empty?
+                  assert_empty reparented.namespace_definitions
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
@@ -498,7 +504,7 @@ module Nokogiri
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -519,7 +525,7 @@ module Nokogiri
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
-                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_includes reparented.namespace_definitions, @ns
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
@@ -543,8 +549,8 @@ module Nokogiri
               it "inserts a node that keeps its namespace" do
                 @node.add_child(@child)
                 assert reparented = @doc.at("//bar:second", "bar" => "http://example.org/")
-                assert reparented.namespace_definitions.include?(@ns)
-                assert reparented.namespace_definitions.include?(@ns2)
+                assert_includes reparented.namespace_definitions, @ns
+                assert_includes reparented.namespace_definitions, @ns2
                 assert_equal @ns, reparented.namespace
                 assert_equal(
                   {
@@ -581,7 +587,7 @@ module Nokogiri
               it "inserts a child node that inherits the parent's namespace" do
                 doc.namespace_inheritance = true
                 child = parent.add_child("<child></child>").first
-                assert_not_nil(child.namespace)
+                refute_nil(child.namespace)
                 assert_equal("http://nokogiri.org/default_ns/test/foo", child.namespace.href)
               end
             end
@@ -612,10 +618,10 @@ module Nokogiri
               pivot.add_previous_sibling("x")
 
               assert_equal "after", after.content
-              assert !after.parent.nil?, "unrelated node should not be affected"
+              refute_nil after.parent, "unrelated node should not be affected"
 
               assert_equal "before", before.content
-              assert !before.parent.nil?, "no need to reparent"
+              refute_nil before.parent, "no need to reparent"
             end
           end
         end
@@ -651,10 +657,10 @@ module Nokogiri
               pivot.add_next_sibling("x")
 
               assert_equal "before", before.content
-              assert !before.parent.nil?, "unrelated node should not be affected"
+              refute_nil before.parent, "unrelated node should not be affected"
 
               assert_equal "after", after.content
-              assert !after.parent.nil?
+              refute_nil after.parent
             end
           end
         end
@@ -793,7 +799,7 @@ module Nokogiri
             insert_point = dest_doc.at_css("DirectoryRef[Id='InstallDir']")
             insert_point.children = stuff.children
 
-            assert_no_match(/default:/, insert_point.children.to_xml)
+            refute_match(/default:/, insert_point.children.to_xml)
             assert_match(/<Component>/, insert_point.children.to_xml)
           end
         end
@@ -803,7 +809,7 @@ module Nokogiri
             doc = Nokogiri::XML("<root><a><b/></a></root>")
             a = doc.at_css("a")
             b = doc.at_css("b")
-            exception = assert_raise(RuntimeError) do
+            exception = assert_raises(RuntimeError) do
               a.parent = b
             end
             if Nokogiri.jruby?

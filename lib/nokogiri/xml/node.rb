@@ -168,7 +168,7 @@ module Nokogiri
       #
       # Also see related method +add_child+.
       def prepend_child(node_or_tags)
-        if first = children.first
+        if (first = children.first)
           # Mimic the error add_child would raise.
           raise "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
           first.__send__(:add_sibling, :previous, node_or_tags)
@@ -209,7 +209,7 @@ module Nokogiri
       # Also see related method +before+.
       def add_previous_sibling(node_or_tags)
         raise ArgumentError,
-          "A document may not have multiple root nodes." if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+          "A document may not have multiple root nodes." if parent&.document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling(:previous, node_or_tags)
       end
@@ -223,7 +223,7 @@ module Nokogiri
       # Also see related method +after+.
       def add_next_sibling(node_or_tags)
         raise ArgumentError,
-          "A document may not have multiple root nodes." if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+          "A document may not have multiple root nodes." if parent&.document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling(:next, node_or_tags)
       end
@@ -256,19 +256,14 @@ module Nokogiri
       # Set the inner html for this Node to +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
       #
-      # Returns self.
-      #
       # Also see related method +children=+
       def inner_html=(node_or_tags)
         self.children = node_or_tags
-        self
       end
 
       ####
       # Set the inner html for this Node +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
-      #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +inner_html=+
       def children=(node_or_tags)
@@ -279,7 +274,6 @@ module Nokogiri
         else
           add_child_node_and_reparent_attrs(node_or_tags)
         end
-        node_or_tags
       end
 
       ####
@@ -336,7 +330,6 @@ module Nokogiri
       # Set the parent Node for this Node
       def parent=(parent_node)
         parent_node.add_child(self)
-        parent_node
       end
 
       ###
@@ -1125,7 +1118,7 @@ module Nokogiri
       # Get the path to this node as a CSS expression
       def css_path
         path.split(%r{/}).map do |part|
-          part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
+          part.empty? ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
         end.compact.join(" > ")
       end
 
@@ -1139,7 +1132,7 @@ module Nokogiri
         parents = [parent]
 
         while parents.last.respond_to?(:parent)
-          break unless ctx_parent = parents.last.parent
+          break unless (ctx_parent = parents.last.parent)
           parents << ctx_parent
         end
 
@@ -1157,7 +1150,7 @@ module Nokogiri
       # Yields self and all children to +block+ recursively.
       def traverse(&block)
         children.each { |j| j.traverse(&block) }
-        block.call(self)
+        yield(self)
       end
 
       ###
@@ -1212,7 +1205,7 @@ module Nokogiri
         encoding = options[:encoding] || document.encoding
         options[:encoding] = encoding
 
-        outstring = String.new
+        outstring = +""
         outstring.force_encoding(Encoding.find(encoding || "utf-8"))
         io = StringIO.new(outstring)
         write_to(io, options, &block)
@@ -1411,7 +1404,7 @@ module Nokogiri
 
       def add_child_node_and_reparent_attrs(node)
         add_child_node(node)
-        node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
+        node.attribute_nodes.find_all { |a| a.name.include?(":") }.each do |attr_node|
           attr_node.remove
           node[attr_node.name] = attr_node.value
         end

@@ -80,14 +80,6 @@ public class XmlNamespace extends RubyObject
     return href;
   }
 
-  void
-  deleteHref()
-  {
-    href = "http://www.w3.org/XML/1998/namespace";
-    hrefRuby = null;
-    attr.getOwnerElement().removeAttributeNode(attr);
-  }
-
   public static XmlNamespace
   createFromAttr(Ruby runtime, Attr attr)
   {

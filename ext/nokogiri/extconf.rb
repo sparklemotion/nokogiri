@@ -1,5 +1,8 @@
 # frozen_string_literal: true
-ENV["RC_ARCHS"] = "" if RUBY_PLATFORM =~ /darwin/
+
+# rubocop:disable Style/GlobalVars
+
+ENV["RC_ARCHS"] = "" if RUBY_PLATFORM.include?("darwin")
 
 require "mkmf"
 require "rbconfig"
@@ -19,7 +22,7 @@ REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 OTHER_LIBRARY_VERSIONS = {}
 
 NOKOGIRI_HELP_MESSAGE = <<~HELP
-  USAGE: ruby #{$0} [options]
+  USAGE: ruby #{$PROGRAM_NAME} [options]
 
     Flags that are always valid:
 
@@ -173,23 +176,23 @@ def config_system_libraries?
 end
 
 def windows?
-  RbConfig::CONFIG["target_os"] =~ /mingw32|mswin/
+  RbConfig::CONFIG["target_os"].match?(/mingw32|mswin/)
 end
 
 def solaris?
-  RbConfig::CONFIG["target_os"] =~ /solaris/
+  RbConfig::CONFIG["target_os"].include?("solaris")
 end
 
 def darwin?
-  RbConfig::CONFIG["target_os"] =~ /darwin/
+  RbConfig::CONFIG["target_os"].include?("darwin")
 end
 
 def openbsd?
-  RbConfig::CONFIG["target_os"] =~ /openbsd/
+  RbConfig::CONFIG["target_os"].include?("openbsd")
 end
 
 def aix?
-  RbConfig::CONFIG["target_os"] =~ /aix/
+  RbConfig::CONFIG["target_os"].include?("aix")
 end
 
 def nix?
@@ -282,17 +285,15 @@ ensure
 end
 
 def abort_could_not_find_library(lib)
-  abort("-----\n#{caller[0]}\n#{lib} is missing. Please locate mkmf.log to investigate how it is failing.\n-----")
+  abort("-----\n#{caller(1..1).first}\n#{lib} is missing. Please locate mkmf.log to investigate how it is failing.\n-----")
 end
 
-def chdir_for_build
+def chdir_for_build(&block)
   # When using rake-compiler-dock on Windows, the underlying Virtualbox shared
   # folders don't support symlinks, but libiconv expects it for a build on
   # Linux. We work around this limitation by using the temp dir for cooking.
-  build_dir = ENV["RCD_HOST_RUBY_PLATFORM"].to_s =~ /mingw|mswin|cygwin/ ? "/tmp" : "."
-  Dir.chdir(build_dir) do
-    yield
-  end
+  build_dir = /mingw|mswin|cygwin/.match?(ENV["RCD_HOST_RUBY_PLATFORM"].to_s) ? "/tmp" : "."
+  Dir.chdir(build_dir, &block)
 end
 
 def sh_export_path(path)
@@ -400,7 +401,7 @@ def iconv_configure_flags
   abort_could_not_find_library("libiconv")
 end
 
-def process_recipe(name, version, static_p, cross_p, cacheable_p=true)
+def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
   require "rubygems"
   gem("mini_portile2", REQUIRED_MINI_PORTILE_VERSION) # gemspec is not respected at install time
   require "mini_portile2"
@@ -460,7 +461,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p=true)
     end
 
     if RbConfig::CONFIG["target_cpu"] == "universal"
-      %w[CFLAGS LDFLAGS].each do |key|
+      ["CFLAGS", "LDFLAGS"].each do |key|
         unless env[key].include?("-arch")
           env[key] = concat_flags(env[key], RbConfig::CONFIG["ARCH_FLAG"])
         end
@@ -485,7 +486,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p=true)
         message("The following patches are being applied:\n")
 
         recipe.patch_files.each do |patch|
-          message("  - %s\n" % File.basename(patch))
+          message(format("  - %s\n", File.basename(patch)))
         end
       end
 
@@ -698,7 +699,7 @@ else
           end
 
           def compile
-            if host =~ /darwin/
+            if /darwin/.match?(host)
               execute("compile", "make AR=#{host}-libtool")
             else
               super
@@ -739,7 +740,7 @@ else
       Tools" to open the developer site, download the installer for your OS
       version and run it.
       -----
-      EOM
+    EOM
   end
 
   unless windows?
@@ -927,7 +928,7 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
 
       env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
       if config_cross_build?
-        if host =~ /darwin/
+        if /darwin/.match?(host)
           env["AR"] = "#{host}-libtool"
           env["ARFLAGS"] = "-o"
         else

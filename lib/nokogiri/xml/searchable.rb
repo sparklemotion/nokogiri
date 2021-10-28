@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     #
@@ -11,7 +12,7 @@ module Nokogiri
     module Searchable
       # Regular expression used by Searchable#search to determine if a query
       # string is CSS or XPath
-      LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
+      LOOKS_LIKE_XPATH = %r{^(\./|/|\.\.|\.$)}
 
       # :section: Searching via XPath or CSS Queries
 
@@ -53,13 +54,13 @@ module Nokogiri
         paths, handler, ns, binds = extract_params(args)
 
         xpaths = paths.map(&:to_s).map do |path|
-          (path =~ LOOKS_LIKE_XPATH) ? path : xpath_query_from_css_rule(path, ns)
+          LOOKS_LIKE_XPATH.match?(path) ? path : xpath_query_from_css_rule(path, ns)
         end.flatten.uniq
 
         xpath(*(xpaths + [ns, handler, binds].compact))
       end
 
-      alias :/ :search
+      alias_method :/, :search
 
       ###
       # call-seq:
@@ -73,7 +74,7 @@ module Nokogiri
         search(*args).first
       end
 
-      alias :% :at
+      alias_method :%, :at
 
       ###
       # call-seq:
@@ -112,7 +113,7 @@ module Nokogiri
       def css(*args)
         rules, handler, ns, _ = extract_params(args)
 
-        css_internal self, rules, handler, ns
+        css_internal(self, rules, handler, ns)
       end
 
       ##
@@ -161,7 +162,7 @@ module Nokogiri
       def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
 
-        xpath_internal self, paths, handler, ns, binds
+        xpath_internal(self, paths, handler, ns, binds)
       end
 
       ##
@@ -181,7 +182,7 @@ module Nokogiri
       private
 
       def css_internal(node, rules, handler, ns)
-        xpath_internal node, css_rules_to_xpath(rules, ns), handler, ns, nil
+        xpath_internal(node, css_rules_to_xpath(rules, ns), handler, ns, nil)
       end
 
       def xpath_internal(node, paths, handler, ns, binds)
@@ -204,9 +205,9 @@ module Nokogiri
         ctx.register_namespaces(ns)
         path = path.gsub(/xmlns:/, " :") unless Nokogiri.uses_libxml?
 
-        binds.each do |key, value|
-          ctx.register_variable key.to_s, value
-        end if binds
+        binds&.each do |key, value|
+          ctx.register_variable(key.to_s, value)
+        end
 
         ctx.evaluate(path, handler)
       end
@@ -218,8 +219,8 @@ module Nokogiri
       def xpath_query_from_css_rule(rule, ns)
         visitor = Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
-          CSS.xpath_for(rule.to_s, {:prefix => implied_xpath_context, :ns => ns,
-                                    :visitor => visitor})
+          CSS.xpath_for(rule.to_s, { prefix: implied_xpath_context, ns: ns,
+                                     visitor: visitor, })
         end.join(" | ")
       end
 

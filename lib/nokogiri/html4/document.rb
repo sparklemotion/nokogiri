@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pathname'
+require "pathname"
 
 module Nokogiri
   module HTML4
@@ -9,11 +9,10 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        case
-        when meta = at('//meta[@charset]')
+        if (meta = at_xpath("//meta[@charset]"))
           meta[:charset]
-        when meta = meta_content_type
-          meta['content'][/charset\s*=\s*([\w-]+)/i, 1]
+        elsif (meta = meta_content_type)
+          meta["content"][/charset\s*=\s*([\w-]+)/i, 1]
         end
       end
 
@@ -33,24 +32,22 @@ module Nokogiri
       #
       # Beware in CRuby, that libxml2 automatically inserts a meta tag
       # into a head element.
-      def meta_encoding= encoding
-        case
-        when meta = meta_content_type
-          meta['content'] = 'text/html; charset=%s' % encoding
+      def meta_encoding=(encoding)
+        if (meta = meta_content_type)
+          meta["content"] = format("text/html; charset=%s", encoding)
           encoding
-        when meta = at('//meta[@charset]')
-          meta['charset'] = encoding
+        elsif (meta = at_xpath("//meta[@charset]"))
+          meta["charset"] = encoding
         else
-          meta = XML::Node.new('meta', self)
-          if dtd = internal_subset and dtd.html5_dtd?
-            meta['charset'] = encoding
+          meta = XML::Node.new("meta", self)
+          if (dtd = internal_subset) && dtd.html5_dtd?
+            meta["charset"] = encoding
           else
-            meta['http-equiv'] = 'Content-Type'
-            meta['content'] = 'text/html; charset=%s' % encoding
+            meta["http-equiv"] = "Content-Type"
+            meta["content"] = format("text/html; charset=%s", encoding)
           end
 
-          case
-          when head = at('//head')
+          if (head = at_xpath("//head"))
             head.prepend_child(meta)
           else
             set_metadata_element(meta)
@@ -60,9 +57,9 @@ module Nokogiri
       end
 
       def meta_content_type
-        xpath('//meta[@http-equiv and boolean(@content)]').find { |node|
-          node['http-equiv'] =~ /\AContent-Type\z/i
-        }
+        xpath("//meta[@http-equiv and boolean(@content)]").find do |node|
+          node["http-equiv"] =~ /\AContent-Type\z/i
+        end
       end
       private :meta_content_type
 
@@ -70,7 +67,7 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at('//title') and title.inner_text
+        (title = at_xpath("//title")) && title.inner_text
       end
 
       ###
@@ -86,44 +83,41 @@ module Nokogiri
       # content element (typically <body>) if any.
       def title=(text)
         tnode = XML::Text.new(text, self)
-        if title = at('//title')
+        if (title = at_xpath("//title"))
           title.children = tnode
           return text
         end
 
-        title = XML::Node.new('title', self) << tnode
-        case
-        when head = at('//head')
+        title = XML::Node.new("title", self) << tnode
+        if (head = at_xpath("//head"))
           head << title
-        when meta = at('//meta[@charset]') || meta_content_type
+        elsif (meta = (at_xpath("//meta[@charset]") || meta_content_type))
           # better put after charset declaration
           meta.add_next_sibling(title)
         else
           set_metadata_element(title)
         end
-        text
       end
 
-      def set_metadata_element(element)
-        case
-        when head = at('//head')
+      def set_metadata_element(element) # rubocop:disable Naming/AccessorMethodName
+        if (head = at_xpath("//head"))
           head << element
-        when html = at('//html')
-          head = html.prepend_child(XML::Node.new('head', self))
+        elsif (html = at_xpath("//html"))
+          head = html.prepend_child(XML::Node.new("head", self))
           head.prepend_child(element)
-        when first = children.find { |node|
-            case node
-            when XML::Element, XML::Text
-              true
-            end
-          }
+        elsif (first = children.find do |node|
+                 case node
+                 when XML::Element, XML::Text
+                   true
+                 end
+               end)
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.
           first.add_previous_sibling(element)
         else
-          html = add_child(XML::Node.new('html', self))
-          head = html.add_child(XML::Node.new('head', self))
+          html = add_child(XML::Node.new("html", self))
+          head = html.add_child(XML::Node.new("head", self))
           head.prepend_child(element)
         end
       end
@@ -143,15 +137,15 @@ module Nokogiri
       #     config.format.as_xml
       #   end
       #
-      def serialize options = {}
+      def serialize(options = {})
         options[:save_with] ||= XML::Node::SaveOptions::DEFAULT_HTML
         super
       end
 
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags = nil
-        DocumentFragment.new(self, tags, self.root)
+      def fragment(tags = nil)
+        DocumentFragment.new(self, tags, root)
       end
 
       class << self
@@ -163,7 +157,7 @@ module Nokogiri
         # is a number that sets options in the parser, such as
         # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
         # Nokogiri::XML::ParseOptions.
-        def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML
+        def parse(string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML)
           options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
           yield options if block_given?
@@ -206,7 +200,7 @@ module Nokogiri
           end
 
           # read_memory pukes on empty docs
-          if string_or_io.nil? or string_or_io.empty?
+          if string_or_io.nil? || string_or_io.empty?
             return encoding ? new.tap { |i| i.encoding = encoding } : new
           end
 
@@ -221,32 +215,32 @@ module Nokogiri
 
         def initialize(encoding)
           @found_encoding = encoding
-          super("encoding found: %s" % encoding)
+          super(format("encoding found: %s", encoding))
         end
       end
 
       class EncodingReader # :nodoc:
         class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
           attr_reader :encoding
-          
+
           def initialize
             @encoding = nil
             super()
           end
-    
+
           def start_element(name, attrs = [])
-            return unless name == 'meta'
+            return unless name == "meta"
             attr = Hash[attrs]
-            charset = attr['charset'] and
-              @encoding = charset
-            http_equiv = attr['http-equiv'] and
-              http_equiv.match(/\AContent-Type\z/i) and
-              content = attr['content'] and
-              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
-              @encoding = m[1]
+            (charset = attr["charset"]) &&
+              (@encoding = charset)
+            (http_equiv = attr["http-equiv"]) &&
+              http_equiv.match(/\AContent-Type\z/i) &&
+              (content = attr["content"]) &&
+              (m = content.match(/;\s*charset\s*=\s*([\w-]+)/)) &&
+              (@encoding = m[1])
           end
         end
-        
+
         class JumpSAXHandler < SAXHandler
           def initialize(jumptag)
             @jumptag = jumptag
@@ -255,26 +249,30 @@ module Nokogiri
 
           def start_element(name, attrs = [])
             super
-            throw @jumptag, @encoding if @encoding
-            throw @jumptag, nil if name =~ /\A(?:div|h1|img|p|br)\z/
+            throw(@jumptag, @encoding) if @encoding
+            throw(@jumptag, nil) if /\A(?:div|h1|img|p|br)\z/.match?(name)
           end
         end
 
         def self.detect_encoding(chunk)
-          m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
-            return Nokogiri.XML(m[1]).encoding
+          (m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/)) &&
+            (return Nokogiri.XML(m[1]).encoding)
 
           if Nokogiri.jruby?
-            m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
-              return m[4]
-            catch(:encoding_found) {
+            (m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i)) &&
+              (return m[4])
+            catch(:encoding_found) do
               Nokogiri::HTML4::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
               nil
-            }
+            end
           else
             handler = SAXHandler.new
             parser = Nokogiri::HTML4::SAX::PushParser.new(handler)
-            parser << chunk rescue Nokogiri::SyntaxError
+            begin
+              parser << chunk
+            rescue
+              Nokogiri::SyntaxError
+            end
             handler.encoding
           end
         end
@@ -293,13 +291,13 @@ module Nokogiri
         def read(len)
           # no support for a call without len
 
-          if !@firstchunk
-            @firstchunk = @io.read(len) or return nil
+          unless @firstchunk
+            (@firstchunk = @io.read(len)) || (return nil)
 
             # This implementation expects that the first call from
             # htmlReadIO() is made with a length long enough (~1KB) to
             # achieve advanced encoding detection.
-            if encoding = EncodingReader.detect_encoding(@firstchunk)
+            if (encoding = EncodingReader.detect_encoding(@firstchunk))
               # The first chunk is stored for the next read in retry.
               raise @encoding_found = EncodingFound.new(encoding)
             end
@@ -308,7 +306,7 @@ module Nokogiri
 
           ret = @firstchunk.slice!(0, len)
           if (len -= ret.length) > 0
-            rest = @io.read(len) and ret << rest
+            (rest = @io.read(len)) && ret << (rest)
           end
           if ret.empty?
             nil

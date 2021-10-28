@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 #
 #  examine the nokogiri dll for external symbols that shouldn't be there
 #
@@ -9,13 +11,12 @@
 require "set"
 
 def find_that_file(glob)
-  Dir.glob(glob).first or raise("could not find #{glob}")
+  Dir.glob(glob).first || raise("could not find #{glob}")
 end
 
 def find_symbols(archive, flavor)
-  `nm #{archive}`.split("\n").grep(/ #{flavor} /).inject(Set.new) do |set, line|
+  %x(nm #{archive}).split("\n").grep(/ #{flavor} /).each_with_object(Set.new) do |line, set|
     set.add(line.split(/\s/).last)
-    set
   end
 end
 
@@ -42,8 +43,8 @@ symbols -= external_symbols(libgumbo_archive)
 puts "#{noko_so} exports the following surprising symbols:"
 symbols.to_a.sort.each do |symbol|
   next if symbol == "Init_nokogiri"
-  next if symbol =~ /^Nokogiri_/
-  next if symbol =~ /^noko_/
+  next if /^Nokogiri_/.match?(symbol)
+  next if /^noko_/.match?(symbol)
   puts "- #{symbol}"
 end
 
@@ -51,5 +52,5 @@ symbols = local_symbols(noko_so)
 
 puts "#{noko_so} has the following surprising local symbols:"
 symbols.to_a.sort.each do |symbol|
-  puts "- #{symbol}" if symbol =~ /^noko_|^Nokogiri_/
+  puts "- #{symbol}" if /^noko_|^Nokogiri_/.match?(symbol)
 end

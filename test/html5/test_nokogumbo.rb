@@ -1,5 +1,6 @@
 # encoding: utf-8
 # frozen_string_literal: true
+
 require "helper"
 
 class TestHtml5Nokogumbo < Nokogiri::TestCase
@@ -15,7 +16,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_element_cdata_script
     doc = Nokogiri::HTML5.fragment(buffer)
-    assert_equal(true, doc.document.html?)
+    assert(doc.document.html?)
     assert_equal("<script> if (a < b) alert(1) </script>", doc.at("script").to_s)
   end
 
@@ -150,8 +151,12 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
   end
 
   def test_default_max_attributes
-    a = String.new("a")
-    attrs = 50_000.times.map { x = a.dup; a.succ!; x }
+    a = +"a"
+    attrs = 50_000.times.map do
+      x = a.dup
+      a.succ!
+      x
+    end
 
     # <div> contains 50,000 attributes, but default limit is 400. Parsing this would take ages if
     # we were not enforcing any limit on attributes. All attributes are duplicated to make sure
@@ -179,8 +184,12 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
   end
 
   def test_fragment_default_max_attributes
-    a = String.new("a")
-    attrs = 50_000.times.map { x = a.dup; a.succ!; x }
+    a = +"a"
+    attrs = 50_000.times.map do
+      x = a.dup
+      a.succ!
+      x
+    end
 
     # <div> contains 50,000 attributes, but default limit is 400. Parsing this would take ages if
     # we were not enforcing any limit on attributes. All attributes are duplicated to make sure
@@ -196,7 +205,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_parse_errors
     doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- <!-- --></a>", max_errors: 10)
-    assert_equal(doc.errors.length, 2)
+    assert_equal(2, doc.errors.length)
     doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 10)
     assert_empty(doc.errors)
   end
@@ -256,12 +265,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
       Nokogiri::HTML5(html, max_tree_depth: depth - 1)
     end
 
-    begin
-      Nokogiri::HTML5(html, max_tree_depth: depth)
-      pass
-    rescue ArgumentError
-      flunk("Expected document parse to succeed")
-    end
+    assert(Nokogiri::HTML5(html, max_tree_depth: depth))
   end
 
   def test_max_depth_fragment
@@ -271,12 +275,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
       Nokogiri::HTML5.fragment(html, max_tree_depth: depth - 1)
     end
 
-    begin
-      Nokogiri::HTML5.fragment(html, max_tree_depth: depth)
-      pass
-    rescue ArgumentError
-      flunk("Expected fragment parse to succeed")
-    end
+    assert(Nokogiri::HTML5.fragment(html, max_tree_depth: depth))
   end
 
   def test_document_encoding

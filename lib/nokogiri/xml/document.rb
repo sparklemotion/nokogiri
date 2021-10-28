@@ -1,7 +1,7 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-require 'pathname'
+require "pathname"
 
 module Nokogiri
   module XML
@@ -45,7 +45,7 @@ module Nokogiri
       #
       # Nokogiri.XML() is a convenience method which will call this method.
       #
-      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML
+      def self.parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
         yield options if block_given?
@@ -54,29 +54,29 @@ module Nokogiri
 
         if empty_doc?(string_or_io)
           if options.strict?
-            raise Nokogiri::XML::SyntaxError.new("Empty document")
+            raise Nokogiri::XML::SyntaxError, "Empty document"
           else
             return encoding ? new.tap { |i| i.encoding = encoding } : new
           end
         end
 
         doc = if string_or_io.respond_to?(:read)
-                if string_or_io.is_a?(Pathname)
-                  # resolve the Pathname to the file and open it as an IO object, see #2110
-                  string_or_io = string_or_io.expand_path.open
-                  url ||= string_or_io.path
-                end
+          if string_or_io.is_a?(Pathname)
+            # resolve the Pathname to the file and open it as an IO object, see #2110
+            string_or_io = string_or_io.expand_path.open
+            url ||= string_or_io.path
+          end
 
-                read_io(string_or_io, url, encoding, options.to_i)
-              else
-                # read_memory pukes on empty docs
-                read_memory(string_or_io, url, encoding, options.to_i)
-              end
+          read_io(string_or_io, url, encoding, options.to_i)
+        else
+          # read_memory pukes on empty docs
+          read_memory(string_or_io, url, encoding, options.to_i)
+        end
 
         # do xinclude processing
         doc.do_xinclude(options) if options.xinclude?
 
-        return doc
+        doc
       end
 
       ##
@@ -98,7 +98,6 @@ module Nokogiri
       #
       # See also \#to_java
 
-
       # :method: to_java
       # :call-seq: to_java() → Java::OrgW3cDom::Document
       #
@@ -114,7 +113,6 @@ module Nokogiri
       #   (The class `Java::OrgW3cDom::Document` is also accessible as `org.w3c.dom.Document`.)
       #
       # See also Document.wrap
-
 
       # The errors found while parsing a document.
       #
@@ -168,7 +166,7 @@ module Nokogiri
       # Since v1.12.4
       attr_accessor :namespace_inheritance
 
-      def initialize *args # :nodoc:
+      def initialize(*args) # :nodoc:
         @errors     = []
         @decorators = nil
         @namespace_inheritance = false
@@ -240,30 +238,30 @@ module Nokogiri
             elm.content = arg
           end
         end
-        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == '') }
+        if (ns = elm.namespace_definitions.find { |n| n.prefix.nil? || (n.prefix == "") })
           elm.namespace = ns
         end
         elm
       end
 
       # Create a Text Node with +string+
-      def create_text_node string, &block
-        Nokogiri::XML::Text.new string.to_s, self, &block
+      def create_text_node(string, &block)
+        Nokogiri::XML::Text.new(string.to_s, self, &block)
       end
 
       # Create a CDATA Node containing +string+
-      def create_cdata string, &block
-        Nokogiri::XML::CDATA.new self, string.to_s, &block
+      def create_cdata(string, &block)
+        Nokogiri::XML::CDATA.new(self, string.to_s, &block)
       end
 
       # Create a Comment Node containing +string+
-      def create_comment string, &block
-        Nokogiri::XML::Comment.new self, string.to_s, &block
+      def create_comment(string, &block)
+        Nokogiri::XML::Comment.new(self, string.to_s, &block)
       end
 
       # The name of this document.  Always returns "document"
       def name
-        'document'
+        "document"
       end
 
       # A reference to +self+
@@ -308,15 +306,14 @@ module Nokogiri
       #   {"xmlns:foo" => "baz"}
       #
       def collect_namespaces
-        xpath("//namespace::*").inject({}) do |hash, ns|
-          hash[["xmlns",ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
-          hash
+        xpath("//namespace::*").each_with_object({}) do |ns, hash|
+          hash[["xmlns", ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
         end
       end
 
       # Get the list of decorators given +key+
-      def decorators key
-        @decorators ||= Hash.new
+      def decorators(key)
+        @decorators ||= {}
         @decorators[key] ||= []
       end
 
@@ -325,7 +322,7 @@ module Nokogiri
       # the document or +nil+ when there is no DTD.
       def validate
         return nil unless internal_subset
-        internal_subset.validate self
+        internal_subset.validate(self)
       end
 
       ##
@@ -345,7 +342,7 @@ module Nokogiri
       #   ... which does absolutely nothing.
       #
       def slop!
-        unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
+        unless decorators(XML::Node).include?(Nokogiri::Decorators::Slop)
           decorators(XML::Node) << Nokogiri::Decorators::Slop
           decorate!
         end
@@ -355,16 +352,16 @@ module Nokogiri
 
       ##
       # Apply any decorators to +node+
-      def decorate node
+      def decorate(node)
         return unless @decorators
-        @decorators.each { |klass,list|
+        @decorators.each do |klass, list|
           next unless node.is_a?(klass)
           list.each { |moodule| node.extend(moodule) }
-        }
+        end
       end
 
-      alias :to_xml :serialize
-      alias :clone :dup
+      alias_method :to_xml, :serialize
+      alias_method :clone, :dup
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces
@@ -374,16 +371,16 @@ module Nokogiri
       ##
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
-      def fragment tags = nil
-        DocumentFragment.new(self, tags, self.root)
+      def fragment(tags = nil)
+        DocumentFragment.new(self, tags, root)
       end
 
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
 
-      def add_child node_or_tags
-        raise "A document may not have multiple root nodes." if (root && root.name != 'nokogiri_text_wrapper') && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+      def add_child(node_or_tags)
+        raise "A document may not have multiple root nodes." if (root && root.name != "nokogiri_text_wrapper") && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           raise "A document may not have multiple root nodes." if node_or_tags.size > 1
@@ -392,17 +389,17 @@ module Nokogiri
           super
         end
       end
-      alias :<< :add_child
+      alias_method :<<, :add_child
 
       private
 
-      def self.empty_doc? string_or_io
+      def self.empty_doc?(string_or_io)
         string_or_io.nil? ||
           (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      IMPLIED_XPATH_CONTEXTS = [ '//'.freeze ].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:
 
       def inspect_attributes
         [:name, :children]

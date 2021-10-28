@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
@@ -16,9 +17,9 @@
 #  limitations under the License.
 #
 
-require_relative 'html5/document'
-require_relative 'html5/document_fragment'
-require_relative 'html5/node'
+require_relative "html5/document"
+require_relative "html5/document_fragment"
+require_relative "html5/node"
 
 module Nokogiri
   # Since v1.12.0
@@ -227,12 +228,12 @@ module Nokogiri
   # Since v1.12.0
   module HTML5
     # HTML uses the XHTML namespace.
-    HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml'.freeze
-    MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML'.freeze
-    SVG_NAMESPACE = 'http://www.w3.org/2000/svg'.freeze
-    XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink'.freeze
-    XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'.freeze
-    XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/'.freeze
+    HTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
+    MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML"
+    SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
+    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
+    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
 
     # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
     def self.parse(string, url = nil, encoding = nil, **options, &block)
@@ -252,34 +253,34 @@ module Nokogiri
     # special option is considered a header.  Special options include:
     #  * :follow_limit => number of redirects which are followed
     #  * :basic_auth => [username, password]
-    def self.get(uri, options={})
+    def self.get(uri, options = {})
       warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
-           uplevel: 1, category: :deprecated)
+        uplevel: 1, category: :deprecated)
       get_impl(uri, options)
     end
 
     private
 
-    def self.get_impl(uri, options={})
+    def self.get_impl(uri, options = {})
       headers = options.clone
-      headers = {:follow_limit => headers} if Numeric === headers # deprecated
-      limit=headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
+      headers = { follow_limit: headers } if Numeric === headers # deprecated
+      limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
 
-      require 'net/http'
+      require "net/http"
       uri = URI(uri) unless URI === uri
 
       http = Net::HTTP.new(uri.host, uri.port)
 
       # TLS / SSL support
-      http.use_ssl = true if uri.scheme == 'https'
+      http.use_ssl = true if uri.scheme == "https"
 
       # Pass through Net::HTTP override values, which currently include:
       #   :ca_file, :ca_path, :cert, :cert_store, :ciphers,
       #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
       #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
       #   :verify_callback, :verify_depth, :verify_mode
-      options.each do |key, value|
-        http.send "#{key}=", headers.delete(key) if http.respond_to? "#{key}="
+      options.each do |key, _value|
+        http.send("#{key}=", headers.delete(key)) if http.respond_to?("#{key}=")
       end
 
       request = Net::HTTP::Get.new(uri.request_uri)
@@ -287,23 +288,23 @@ module Nokogiri
       # basic authentication
       auth = headers.delete(:basic_auth)
       auth ||= [uri.user, uri.password] if uri.user && uri.password
-      request.basic_auth auth.first, auth.last if auth
+      request.basic_auth(auth.first, auth.last) if auth
 
       # remaining options are treated as headers
-      headers.each {|key, value| request[key.to_s] = value.to_s}
+      headers.each { |key, value| request[key.to_s] = value.to_s }
 
       response = http.request(request)
 
       case response
       when Net::HTTPSuccess
-        doc = parse(reencode(response.body, response['content-type']), options)
-        doc.instance_variable_set('@response', response)
+        doc = parse(reencode(response.body, response["content-type"]), options)
+        doc.instance_variable_set("@response", response)
         doc.class.send(:attr_reader, :response)
         doc
       when Net::HTTPRedirection
         response.value if limit <= 1
-        location = URI.join(uri, response['location'])
-        get_impl(location, options.merge(:follow_limit => limit-1))
+        location = URI.join(uri, response["location"])
+        get_impl(location, options.merge(follow_limit: limit - 1))
       else
         response.value
       end
@@ -312,10 +313,10 @@ module Nokogiri
     def self.read_and_encode(string, encoding)
       # Read the string with the given encoding.
       if string.respond_to?(:read)
-        if encoding.nil?
-          string = string.read
+        string = if encoding.nil?
+          string.read
         else
-          string = string.read(encoding: encoding)
+          string.read(encoding: encoding)
         end
       else
         # Otherwise the string has the given encoding.
@@ -345,7 +346,7 @@ module Nokogiri
     # http://bugs.ruby-lang.org/issues/2567
     # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding
     #
-    def self.reencode(body, content_type=nil)
+    def self.reencode(body, content_type = nil)
       if body.encoding == Encoding::ASCII_8BIT
         encoding = nil
 
@@ -365,8 +366,8 @@ module Nokogiri
         end
 
         # look for a charset in a meta tag in the first 1024 bytes
-        if not encoding
-          data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, '')
+        unless encoding
+          data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
           data.scan(/<meta.*?>/m).each do |meta|
             encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
           end
@@ -393,57 +394,56 @@ module Nokogiri
         ns = current_node.namespace
         ns_uri = ns.nil? ? nil : ns.href
         # XXX(sfc): attach namespaces to all nodes, even html?
-        if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
-          tagname = current_node.name
+        tagname = if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
+          current_node.name
         else
-          tagname = "#{ns.prefix}:#{current_node.name}"
+          "#{ns.prefix}:#{current_node.name}"
         end
-        io << '<' << tagname
+        io << "<" << tagname
         current_node.attribute_nodes.each do |attr|
           attr_ns = attr.namespace
           if attr_ns.nil?
             attr_name = attr.name
           else
             ns_uri = attr_ns.href
-            if ns_uri == XML_NAMESPACE
-              attr_name = 'xml:' + attr.name.sub(/^[^:]*:/, '')
-            elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, '') == 'xmlns'
-              attr_name = 'xmlns'
+            attr_name = if ns_uri == XML_NAMESPACE
+              "xml:" + attr.name.sub(/^[^:]*:/, "")
+            elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, "") == "xmlns"
+              "xmlns"
             elsif ns_uri == XMLNS_NAMESPACE
-              attr_name = 'xmlns:' + attr.name.sub(/^[^:]*:/, '')
+              "xmlns:" + attr.name.sub(/^[^:]*:/, "")
             elsif ns_uri == XLINK_NAMESPACE
-              attr_name = 'xlink:' + attr.name.sub(/^[^:]*:/, '')
+              "xlink:" + attr.name.sub(/^[^:]*:/, "")
             else
-              attr_name = "#{attr_ns.prefix}:#{attr.name}"
+              "#{attr_ns.prefix}:#{attr.name}"
             end
           end
-          io << ' ' << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
+          io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
         end
-        io << '>'
-        if !%w[area base basefont bgsound br col embed frame hr img input keygen
-               link meta param source track wbr].include?(current_node.name)
+        io << ">"
+        unless ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
           io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
           current_node.children.each do |child|
             # XXX(sfc): Templates handled specially?
             serialize_node_internal(child, io, encoding, options)
           end
-          io << '</' << tagname << '>'
+          io << "</" << tagname << ">"
         end
       when XML::Node::TEXT_NODE
         parent = current_node.parent
-        if parent.element? && %w[style script xmp iframe noembed noframes plaintext noscript].include?(parent.name)
-          io << current_node.content
+        io << if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
+          current_node.content
         else
-          io << escape_text(current_node.content, encoding, false)
+          escape_text(current_node.content, encoding, false)
         end
       when XML::Node::CDATA_SECTION_NODE
-        io << '<![CDATA[' << current_node.content << ']]>'
+        io << "<![CDATA[" << current_node.content << "]]>"
       when XML::Node::COMMENT_NODE
-        io << '<!--' << current_node.content << '-->'
+        io << "<!--" << current_node.content << "-->"
       when XML::Node::PI_NODE
-        io << '<?' << current_node.content << '>'
+        io << "<?" << current_node.content << ">"
       when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
-          io << '<!DOCTYPE ' << current_node.name << '>'
+        io << "<!DOCTYPE " << current_node.name << ">"
       when XML::Node::HTML_DOCUMENT_NODE, XML::Node::DOCUMENT_FRAG_NODE
         current_node.children.each do |child|
           serialize_node_internal(child, io, encoding, options)
@@ -454,23 +454,23 @@ module Nokogiri
     end
 
     def self.escape_text(text, encoding, attribute_mode)
-      if attribute_mode
-        text = text.gsub(/[&\u00a0"]/,
-                           '&' => '&amp;', "\u00a0" => '&nbsp;', '"' => '&quot;')
+      text = if attribute_mode
+        text.gsub(/[&\u00a0"]/,
+          "&" => "&amp;", "\u00a0" => "&nbsp;", '"' => "&quot;")
       else
-        text = text.gsub(/[&\u00a0<>]/,
-                           '&' => '&amp;', "\u00a0" => '&nbsp;',  '<' => '&lt;', '>' => '&gt;')
+        text.gsub(/[&\u00a0<>]/,
+          "&" => "&amp;", "\u00a0" => "&nbsp;", "<" => "&lt;", ">" => "&gt;")
       end
       # Not part of the standard
       text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
     end
 
     def self.prepend_newline?(node)
-      return false unless %w[pre textarea listing].include?(node.name) && !node.children.empty?
+      return false unless ["pre", "textarea", "listing"].include?(node.name) && !node.children.empty?
       first_child = node.children[0]
       first_child.text? && first_child.content.start_with?("\n")
     end
   end
 end
 
-require_relative 'gumbo'
+require_relative "gumbo"

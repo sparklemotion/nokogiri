@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -13,12 +14,12 @@ module Nokogiri
     #         <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     #       </x>
     #     eoxml
-    #   
+    #
     #     reader.each do |node|
-    #   
+    #
     #       # node is an instance of Nokogiri::XML::Reader
     #       puts node.name
-    #   
+    #
     #     end
     #
     # Note that Nokogiri::XML::Reader#each can only be called once!!  Once
@@ -76,9 +77,9 @@ module Nokogiri
       # The XML source
       attr_reader :source
 
-      alias :self_closing? :empty_element?
+      alias_method :self_closing?, :empty_element?
 
-      def initialize source, url = nil, encoding = nil # :nodoc:
+      def initialize(source, url = nil, encoding = nil) # :nodoc:
         @source   = source
         @errors   = []
         @encoding = encoding
@@ -90,8 +91,8 @@ module Nokogiri
       # [Returns] (Hash<String, String>) Attribute names and values
       def attributes
         attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
-                       hash[node.name] = node.to_s
-                     end
+          hash[node.name] = node.to_s
+        end
         ns = namespaces
         attrs_hash.merge!(ns) if ns
         attrs_hash
@@ -100,7 +101,7 @@ module Nokogiri
       ###
       # Move the cursor through the document yielding the cursor to the block
       def each
-        while cursor = self.read
+        while (cursor = read)
           yield cursor
         end
       end

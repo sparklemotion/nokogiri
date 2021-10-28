@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -33,7 +35,7 @@ module Nokogiri
                 assert_equal 0, subject.children.length
                 assert_equal 1, doc.errors.length
                 assert_match(/Comment not terminated/, doc.errors.first.to_s)
-                assert !other_div
+                refute other_div
               end
             end
           end
@@ -64,7 +66,7 @@ module Nokogiri
                 assert_equal 0, subject.children.length
                 assert_equal 1, doc.errors.length
                 assert_match(/Comment not terminated/, doc.errors.first.to_s)
-                assert !other_div
+                refute other_div
               end
             end
           end
@@ -149,7 +151,7 @@ module Nokogiri
           it "behaves as if the comment encompasses the inner div" do # NON-COMPLIANT
             assert_equal 1, subject.children.length
             assert subject.children.first.comment?
-            assert !inner_div
+            refute inner_div
             assert_match(/id=do-i-exist/, subject.children.first.content)
             assert_equal 0, doc.errors.length
           end

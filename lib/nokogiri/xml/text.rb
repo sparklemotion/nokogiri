@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     class Text < Nokogiri::XML::CharacterData

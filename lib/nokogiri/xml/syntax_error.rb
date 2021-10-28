@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -42,9 +43,9 @@ module Nokogiri
 
       def to_s
         message = super.chomp
-        [location_to_s, level_to_s, message].
-          compact.join(": ").
-          force_encoding(message.encoding)
+        [location_to_s, level_to_s, message]
+          .compact.join(": ")
+          .force_encoding(message.encoding)
       end
 
       private
@@ -54,7 +55,6 @@ module Nokogiri
         when 3 then "FATAL"
         when 2 then "ERROR"
         when 1 then "WARNING"
-        else nil
         end
       end
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -9,26 +10,26 @@ module Nokogiri
         let(:html) { Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) }
 
         def test_ascii_8bit_encoding
-          s = String.new('hello')
+          s = +"hello"
           s.force_encoding(::Encoding::ASCII_8BIT)
           assert_equal("hello", Nokogiri::HTML::DocumentFragment.parse(s).to_html)
         end
 
         def test_inspect_encoding
-          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
           f = Nokogiri::HTML::DocumentFragment.parse(fragment)
           assert_equal("こんにちは！", f.content)
         end
 
         def test_html_parse_encoding
-          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
           f = Nokogiri::HTML.fragment(fragment)
-          assert_equal('EUC-JP', f.document.encoding)
+          assert_equal("EUC-JP", f.document.encoding)
           assert_equal("こんにちは！", f.content)
         end
 
         def test_unlink_empty_document
-          frag = Nokogiri::HTML::DocumentFragment.parse('').unlink # must_not_raise
+          frag = Nokogiri::HTML::DocumentFragment.parse("").unlink # must_not_raise
           assert_nil(frag.parent)
         end
 
@@ -39,27 +40,27 @@ module Nokogiri
 
         def test_parse_encoding
           fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML::DocumentFragment.parse(fragment, 'ISO-8859-1')
-          assert_equal('ISO-8859-1', f.document.encoding)
+          f = Nokogiri::HTML::DocumentFragment.parse(fragment, "ISO-8859-1")
+          assert_equal("ISO-8859-1", f.document.encoding)
           assert_equal("hello world", f.content)
         end
 
         def test_html_parse_with_encoding
           fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML.fragment(fragment, 'ISO-8859-1')
-          assert_equal('ISO-8859-1', f.document.encoding)
+          f = Nokogiri::HTML.fragment(fragment, "ISO-8859-1")
+          assert_equal("ISO-8859-1", f.document.encoding)
           assert_equal("hello world", f.content)
         end
 
         def test_parse_in_context
-          assert_equal('<br>', html.root.parse('<br />').to_s)
+          assert_equal("<br>", html.root.parse("<br />").to_s)
         end
 
         def test_inner_html=
-          fragment = Nokogiri::HTML.fragment('<hr />')
+          fragment = Nokogiri::HTML.fragment("<hr />")
 
           fragment.inner_html = "hello"
-          assert_equal('hello', fragment.inner_html)
+          assert_equal("hello", fragment.inner_html)
         end
 
         def test_ancestors_search
@@ -71,15 +72,15 @@ module Nokogiri
             </div>
           EOF
           fragment = Nokogiri::HTML.fragment(html)
-          li = fragment.at('li')
-          assert(li.matches?('li'))
+          li = fragment.at("li")
+          assert(li.matches?("li"))
         end
 
         def test_fun_encoding
           string = %(<body>こんにちは</body>)
           html = Nokogiri::HTML::DocumentFragment.parse(
             string
-          ).to_html(encoding: 'UTF-8')
+          ).to_html(encoding: "UTF-8")
           assert_equal(string, html)
         end
 
@@ -114,7 +115,7 @@ module Nokogiri
 
         def test_name
           fragment = Nokogiri::HTML::DocumentFragment.new(html)
-          assert_equal('#document-fragment', fragment.name)
+          assert_equal("#document-fragment", fragment.name)
         end
 
         def test_static_method
@@ -167,7 +168,7 @@ module Nokogiri
 
         def test_html_fragment_with_leading_text_and_newline
           fragment = HTML::Document.new.fragment("First line\nSecond line<br>Broken line")
-          assert_equal(fragment.to_s, "First line\nSecond line<br>Broken line")
+          assert_equal("First line\nSecond line<br>Broken line", fragment.to_s)
         end
 
         def test_html_fragment_with_leading_whitespace_and_text_and_newline
@@ -215,14 +216,14 @@ module Nokogiri
           doc = HTML::Document.new
           fragment = doc.fragment("<script>var foo = 'bar';</script>")
           assert_equal("<script>var foo = 'bar';</script>",
-                       fragment.to_s)
+            fragment.to_s)
         end
 
         def test_fragment_with_comment
           doc = HTML::Document.new
           fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
           assert_equal("<p>hello<!-- your ad here --></p>",
-                       fragment.to_s)
+            fragment.to_s)
         end
 
         def test_element_children_counts
@@ -246,7 +247,7 @@ module Nokogiri
 
         def test_error_propagation_on_fragment_parse
           frag = Nokogiri::HTML::DocumentFragment.parse("<hello>oh, hello there.</hello>")
-          assert(frag.errors.any? { |err| err.to_s =~ /Tag hello invalid/ }, "errors should be copied to the fragment")
+          assert(frag.errors.any? { |err| err.to_s.include?("Tag hello invalid") }, "errors should be copied to the fragment")
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context
@@ -254,21 +255,21 @@ module Nokogiri
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
           assert(frag.errors.any? do |err|
-                   err.to_s =~ /Tag hello invalid/
+                   err.to_s.include?("Tag hello invalid")
                  end, "errors should be on the context node's document")
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
           doc = Nokogiri::HTML::Document.parse("<html><body><div></div><jimmy></jimmy></body></html>")
-          assert(doc.errors.any? { |err| err.to_s =~ /jimmy/ }, "assert on setup")
+          assert(doc.errors.any? { |err| err.to_s.include?("jimmy") }, "assert on setup")
 
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
           assert(frag.errors.any? do |err|
-                   err.to_s =~ /Tag hello invalid/
+                   err.to_s.include?("Tag hello invalid")
                  end, "errors should be on the context node's document")
           assert(frag.errors.none? do |err|
-                   err.to_s =~ /jimmy/
+                   err.to_s.include?("jimmy")
                  end, "errors should not include pre-existing document errors")
         end
 
@@ -289,8 +290,8 @@ module Nokogiri
           node2 = frag2.at_css("#unique")
           original_errors1 = frag1.errors.dup
           original_errors2 = frag2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s =~ /Tag diva invalid/ }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s =~ /Tag dive invalid/ }, "it should complain about the tag name")
+          assert(original_errors1.any? { |e| e.to_s.include?("Tag diva invalid") }, "it should complain about the tag name")
+          assert(original_errors2.any? { |e| e.to_s.include?("Tag dive invalid") }, "it should complain about the tag name")
 
           node1.add_child(node2)
 

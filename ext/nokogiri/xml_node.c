@@ -516,18 +516,18 @@ rb_xml_node_attribute(VALUE self, VALUE name)
 
 /*
  * :call-seq: attribute_nodes() → Array<Nokogiri::XML::Attr>
- * 
+ *
  * :category: Working With Node Attributes
- * 
+ *
  * [Returns] Attributes (an Array of Nokogiri::XML::Attr) belonging to this node.
- * 
+ *
  * Note that this is the preferred alternative to #attributes when the simple
  * (non-namespace-prefixed) attribute names may collide.
- * 
+ *
  * *Example:*
- * 
+ *
  * Contrast this with the colliding-name example from #attributes.
- * 
+ *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root xmlns:width='http://example.com/widths'
  *           xmlns:height='http://example.com/heights'>
@@ -565,20 +565,20 @@ rb_xml_node_attribute_nodes(VALUE rb_node)
 
 /*
  * :call-seq: attribute_with_ns(name, namespace) → Nokogiri::XML::Attr
- * 
+ *
  * :category: Working With Node Attributes
- * 
+ *
  * [Returns]
  *   Attribute (Nokogiri::XML::Attr) belonging to this node with matching +name+ and +namespace+.
- * 
+ *
  * [Parameters]
  * - +name+ (String): the simple (non-namespace-prefixed) name of the attribute
  * - +namespace+ (String): the URI of the attribute's namespace
- * 
+ *
  * See related: #attribute
- * 
+ *
  * *Example:*
- * 
+ *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root xmlns:width='http://example.com/widths'
  *           xmlns:height='http://example.com/heights'>
@@ -621,11 +621,11 @@ rb_xml_node_attribute_with_ns(VALUE self, VALUE name, VALUE namespace)
 
 /*
  * call-seq: blank? → Boolean
- * 
+ *
  * [Returns] +true+ if the node is an empty or whitespace-only text or cdata node, else +false+.
- * 
+ *
  * *Example:*
- * 
+ *
  *     Nokogiri("<root><child/></root>").root.child.blank? # => false
  *     Nokogiri("<root>\t \n</root>").root.child.blank? # => true
  *     Nokogiri("<root><![CDATA[\t \n]]></root>").root.child.blank? # => true
@@ -643,15 +643,15 @@ rb_xml_node_blank_eh(VALUE self)
 
 /*
  * :call-seq: child() → Nokogiri::XML::Node
- * 
+ *
  * :category: Traversing Document Structure
- * 
+ *
  * [Returns] First of this node's children, or +nil+ if there are no children
- * 
+ *
  * This is a convenience method and is equivalent to:
- * 
+ *
  *   node.children.first
- * 
+ *
  * See related: #children
  */
 static VALUE
@@ -669,9 +669,9 @@ rb_xml_node_child(VALUE self)
 
 /*
  * :call-seq: children() → Nokogiri::XML::NodeSet
- * 
+ *
  * :category: Traversing Document Structure
- * 
+ *
  * [Returns] Nokogiri::XML::NodeSet containing this node's children.
  */
 static VALUE
@@ -710,28 +710,28 @@ rb_xml_node_children(VALUE self)
  *   inner_text() → String
  *   text() → String
  *   to_str() → String
- * 
+ *
  * [Returns]
  *   Contents of all the text nodes in this node's subtree, concatenated together into a single
  *   String.
- * 
+ *
  * ⚠ Note that entities will _always_ be expanded in the returned String.
- * 
+ *
  * See related: #inner_html
- * 
+ *
  * *Example* of how entities are handled:
- * 
+ *
  * Note that <tt>&lt;</tt> becomes <tt><</tt> in the returned String.
- * 
+ *
  *   doc = Nokogiri::XML.fragment("<child>a &lt; b</child>")
  *   doc.at_css("child").content
  *   # => "a < b"
- * 
+ *
  * *Example* of how a subtree is handled:
- * 
+ *
  * Note that the <tt><span></tt> tags are omitted and only the text node contents are returned,
  * concatenated into a single string.
- * 
+ *
  *   doc = Nokogiri::XML.fragment("<child><span>first</span> <span>second</span></child>")
  *   doc.at_css("child").content
  *   # => "first second"
@@ -1091,15 +1091,15 @@ replace(VALUE self, VALUE new_node)
  * :call-seq:
  *   element_children() → NodeSet
  *   elements() → NodeSet
- * 
+ *
  * [Returns]
  *   The node's child elements as a NodeSet. Only children that are elements will be returned, which
  *   notably excludes Text nodes.
- * 
+ *
  * *Example:*
- * 
+ *
  * Note that #children returns the Text node "hello" while #element_children does not.
- * 
+ *
  *   div = Nokogiri::HTML5("<div>hello<span>world</span>").at_css("div")
  *   div.element_children
  *   # => [#<Nokogiri::XML::Element:0x50 name="span" children=[#<Nokogiri::XML::Text:0x3c "world">]>]
@@ -1139,14 +1139,14 @@ rb_xml_node_element_children(VALUE self)
 /*
  * :call-seq:
  *   first_element_child() → Node
- * 
+ *
  * [Returns] The first child Node that is an element.
- * 
+ *
  * *Example:*
- * 
+ *
  * Note that the "hello" child, which is a Text node, is skipped and the <tt><span></tt> element is
  * returned.
- * 
+ *
  *   div = Nokogiri::HTML5("<div>hello<span>world</span>").at_css("div")
  *   div.first_element_child
  *   # => #(Element:0x3c { name = "span", children = [ #(Text "world")] })
@@ -1166,14 +1166,14 @@ rb_xml_node_first_element_child(VALUE self)
 /*
  * :call-seq:
  *   last_element_child() → Node
- * 
+ *
  * [Returns] The last child Node that is an element.
- * 
+ *
  * *Example:*
- * 
+ *
  * Note that the "hello" child, which is a Text node, is skipped and the <tt><span>yes</span></tt>
  * element is returned.
- * 
+ *
  *   div = Nokogiri::HTML5("<div><span>no</span><span>yes</span>skip</div>").at_css("div")
  *   div.last_element_child
  *   # => #(Element:0x3c { name = "span", children = [ #(Text "yes")] })
@@ -1337,11 +1337,11 @@ set_namespace(VALUE self, VALUE namespace)
 /*
  * :call-seq:
  *   namespace() → Namespace
- * 
+ *
  * [Returns] The Namespace of the element or attribute node, or +nil+ if there is no namespace.
- * 
+ *
  * *Example:*
- * 
+ *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root>
  *       <first/>
@@ -1372,13 +1372,13 @@ rb_xml_node_namespace(VALUE rb_node)
 /*
  * :call-seq:
  *   namespace_definitions() → Array<Nokogiri::XML::Namespace>
- * 
+ *
  * [Returns]
  *   Namespaces that are defined directly on this node, as an Array of Namespace objects. The array
  *   will be empty if no namespaces are defined on this node.
- * 
+ *
  * *Example:*
- * 
+ *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root xmlns="http://example.com/root">
  *       <first/>
@@ -1423,13 +1423,13 @@ namespace_definitions(VALUE rb_node)
 /*
  * :call-seq:
  *   namespace_scopes() → Array<Nokogiri::XML::Namespace>
- * 
+ *
  * [Returns] Array of all the Namespaces on this node and its ancestors.
- * 
+ *
  * See also #namespaces
- * 
+ *
  * *Example:*
- * 
+ *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root xmlns="http://example.com/root" xmlns:bar="http://example.com/bar">
  *       <first/>

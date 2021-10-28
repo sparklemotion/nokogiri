@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   class << self
     ###
@@ -8,7 +9,7 @@ module Nokogiri
     #
     #   xslt = Nokogiri::XSLT(File.read(ARGV[0]))
     #
-    def XSLT stylesheet, modules = {}
+    def XSLT(stylesheet, modules = {})
       XSLT.parse(stylesheet, modules)
     end
   end
@@ -39,7 +40,7 @@ module Nokogiri
         parray = (params.instance_of?(Hash) ? params.to_a.flatten : params).dup
         parray.each_with_index do |v, i|
           parray[i] = if i % 2 > 0
-            if v =~ /'/
+            if /'/.match?(v)
               "concat('#{v.gsub(/'/, %q{', "'", '})}')"
             else
               "'#{v}'"

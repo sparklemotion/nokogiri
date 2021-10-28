@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "helper"
 
 describe "Nokogumbo contract expectations" do
@@ -7,19 +9,19 @@ describe "Nokogumbo contract expectations" do
 
     assert_includes(::Nokogiri.singleton_methods, :HTML5)
 
-    assert_equal(defined?(::Nokogiri::HTML5), "constant")
+    assert_equal("constant", defined?(::Nokogiri::HTML5))
     assert_includes(::Nokogiri::HTML5.singleton_methods, :parse)
     assert_includes(::Nokogiri::HTML5.singleton_methods, :fragment)
 
-    assert_equal(defined?(::Nokogiri::HTML5::Node), "constant")
-    assert_equal(defined?(::Nokogiri::HTML5::Document), "constant")
-    assert_equal(defined?(::Nokogiri::HTML5::DocumentFragment), "constant")
+    assert_equal("constant", defined?(::Nokogiri::HTML5::Node))
+    assert_equal("constant", defined?(::Nokogiri::HTML5::Document))
+    assert_equal("constant", defined?(::Nokogiri::HTML5::DocumentFragment))
   end
 
   it "includes a replacement for the Nokogumbo private interface" do
     skip("Gumbo is not supported on this platform") unless Nokogiri.uses_gumbo?
 
-    assert_equal(defined?(::Nokogiri::Gumbo), "constant")
+    assert_equal("constant", defined?(::Nokogiri::Gumbo))
     assert_includes(::Nokogiri::Gumbo.singleton_methods, :parse)
     assert_includes(::Nokogiri::Gumbo.singleton_methods, :fragment)
   end

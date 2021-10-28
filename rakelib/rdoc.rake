@@ -14,4 +14,4 @@ RDoc::Task.new(rdoc: "rdoc", clobber_rdoc: "rdoc:clean", rerdoc: "rdoc:force") d
   rdoc.options << "--template-stylesheets=misc/rdoc-tweaks.css"
 end
 
-task clean: "rdoc:clean"
+task clean: "rdoc:clean" # rubocop:disable Rake/Desc

@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 module Nokogiri
   class << self
     # :call-seq:

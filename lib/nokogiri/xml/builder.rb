@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -261,7 +262,7 @@ module Nokogiri
     #   </root>
     #
     class Builder
-      DEFAULT_DOCUMENT_OPTIONS = {namespace_inheritance: true}
+      DEFAULT_DOCUMENT_OPTIONS = { namespace_inheritance: true }
 
       # The current Document object being built
       attr_accessor :doc
@@ -308,10 +309,10 @@ module Nokogiri
         else
           klassname = "::" + (self.class.name.split("::")[0..-2] + ["Document"]).join("::")
           klass = begin
-                    Object.const_get(klassname)
-                  rescue NameError
-                    Nokogiri::XML::Document
-                  end
+            Object.const_get(klassname)
+          rescue NameError
+            Nokogiri::XML::Document
+          end
           @parent = @doc = klass.new
         end
 
@@ -324,7 +325,7 @@ module Nokogiri
           @doc.send(:"#{k}=", v)
         end
 
-        return unless block_given?
+        return unless block
 
         @arity = block.arity
         if @arity <= 0
@@ -340,19 +341,19 @@ module Nokogiri
       ###
       # Create a Text Node with content of +string+
       def text(string)
-        insert @doc.create_text_node(string)
+        insert(@doc.create_text_node(string))
       end
 
       ###
       # Create a CDATA Node with content of +string+
       def cdata(string)
-        insert doc.create_cdata(string)
+        insert(doc.create_cdata(string))
       end
 
       ###
       # Create a Comment Node with content of +string+
       def comment(string)
-        insert doc.create_comment(string)
+        insert(doc.create_comment(string))
       end
 
       ###
@@ -370,8 +371,8 @@ module Nokogiri
           return self if @ns
         end
 
-        @ns = { :pending => ns.to_s }
-        return self
+        @ns = { pending: ns.to_s }
+        self
       end
 
       ###
@@ -379,7 +380,7 @@ module Nokogiri
       def to_xml(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::AS_BUILDER
           end
           args.insert(0, options)
@@ -394,18 +395,18 @@ module Nokogiri
       end
 
       def method_missing(method, *args, &block) # :nodoc:
-        if @context && @context.respond_to?(method)
+        if @context&.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) do |n|
             # Set up the namespace
-            if @ns.is_a? Nokogiri::XML::Namespace
+            if @ns.is_a?(Nokogiri::XML::Namespace)
               n.namespace = @ns
               @ns = nil
             end
-          }
+          end
 
-          if @ns.is_a? Hash
+          if @ns.is_a?(Hash)
             node.namespace = node.namespace_definitions.find { |x| x.prefix == @ns[:pending] }
             if node.namespace.nil?
               raise ArgumentError, "Namespace #{@ns[:pending]} has not been defined"
@@ -423,14 +424,14 @@ module Nokogiri
       # Insert +node+ as a child of the current Node
       def insert(node, &block)
         node = @parent.add_child(node)
-        if block_given?
+        if block
           old_parent = @parent
           @parent = node
           @arity ||= block.arity
           if @arity <= 0
             instance_eval(&block)
           else
-            block.call(self)
+            yield(self)
           end
           @parent = old_parent
         end
@@ -455,10 +456,10 @@ module Nokogiri
           opts = args.last.is_a?(Hash) ? args.pop : {}
           case method.to_s
           when /^(.*)!$/
-            @node["id"] = $1
+            @node["id"] = Regexp.last_match(1)
             @node.content = args.first if args.first
           when /^(.*)=/
-            @node[$1] = args.first
+            @node[Regexp.last_match(1)] = args.first
           else
             @node["class"] =
               ((@node["class"] || "").split(/\s/) + [method.to_s]).join(" ")
@@ -470,7 +471,7 @@ module Nokogiri
             @node[k.to_s] = ((@node[k.to_s] || "").split(/\s/) + [v]).join(" ")
           end
 
-          if block_given?
+          if block
             old_parent = @doc_builder.parent
             @doc_builder.parent = @node
             value = @doc_builder.instance_eval(&block)

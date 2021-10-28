@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -7,129 +8,130 @@ module Nokogiri
       describe Nokogiri::XML::NodeSet do
         describe "namespaces" do
           let(:ns_xml) { Nokogiri.XML('<foo xmlns:n0="http://example.com" />') }
-          let(:ns_list) { ns_xml.xpath('//namespace::*') }
+          let(:ns_list) { ns_xml.xpath("//namespace::*") }
+          let(:new_ns) { ns_xml.root.add_namespace_definition("n1", "http://example.com/n1") }
 
           specify "#include?" do
-            assert(ns_list.include?(ns_list.first), 'list should have item')
+            assert_includes(ns_list, ns_list.first, "list should have item")
           end
 
           specify "#push" do
             expected_length = ns_list.length + 1
-            ns_list.push(ns_list.first)
-            assert(expected_length, ns_list.length)
+            ns_list.push(new_ns)
+            assert_equal(expected_length, ns_list.length)
           end
 
           specify "#delete" do
             expected_length = ns_list.length
-            ns_list.push(ns_list.first)
-            ns_list.delete(ns_list.first)
-            assert(expected_length, ns_list.length)
+            ns_list.push(new_ns)
+            ns_list.delete(new_ns)
+            assert_equal(expected_length, ns_list.length)
           end
 
           it "doesn't free namespace nodes when deleted" do
-            first = ns_list.first
-            ns_list.delete(first)
-            assert_equal('http://www.w3.org/XML/1998/namespace', first.href)
+            ns = ns_list.find { |node| node.prefix == "n0" }
+            ns_list.delete(ns)
+            assert_equal("http://example.com", ns.href)
           end
         end
 
         let(:xml) { Nokogiri::XML(File.read(XML_FILE), XML_FILE) }
-        let(:list) { xml.css('employee') }
+        let(:list) { xml.css("employee") }
 
         describe "#filter" do
           it "finds all nodes that match the expression" do
-            list = xml.css('address').filter('*[domestic="Yes"]')
-            assert_equal(%w{Yes} * 4, list.map { |n| n['domestic'] })
+            list = xml.css("address").filter('*[domestic="Yes"]')
+            assert_equal(["Yes"] * 4, list.map { |n| n["domestic"] })
           end
         end
 
         specify "#remove_attr" do
-          list.each { |x| x['class'] = 'blah' }
-          assert_equal(list, list.remove_attr('class'))
-          list.each { |x| assert_nil(x['class']) }
+          list.each { |x| x["class"] = "blah" }
+          assert_equal(list, list.remove_attr("class"))
+          list.each { |x| assert_nil(x["class"]) }
         end
 
         specify "#remove_attribute" do
-          list.each { |x| x['class'] = 'blah' }
-          assert_equal(list, list.remove_attribute('class'))
-          list.each { |x| assert_nil(x['class']) }
+          list.each { |x| x["class"] = "blah" }
+          assert_equal(list, list.remove_attribute("class"))
+          list.each { |x| assert_nil(x["class"]) }
         end
 
         specify "#add_class" do
-          assert_equal(list, list.add_class('bar'))
-          list.each { |x| assert_equal('bar', x['class']) }
+          assert_equal(list, list.add_class("bar"))
+          list.each { |x| assert_equal("bar", x["class"]) }
 
-          list.add_class('bar')
-          list.each { |x| assert_equal('bar', x['class']) }
+          list.add_class("bar")
+          list.each { |x| assert_equal("bar", x["class"]) }
 
-          list.add_class('baz')
-          list.each { |x| assert_equal('bar baz', x['class']) }
+          list.add_class("baz")
+          list.each { |x| assert_equal("bar baz", x["class"]) }
         end
 
         specify "#append_class" do
-          assert_equal(list, list.append_class('bar'))
-          list.each { |x| assert_equal('bar', x['class']) }
+          assert_equal(list, list.append_class("bar"))
+          list.each { |x| assert_equal("bar", x["class"]) }
 
-          list.append_class('bar')
-          list.each { |x| assert_equal('bar bar', x['class']) }
+          list.append_class("bar")
+          list.each { |x| assert_equal("bar bar", x["class"]) }
 
-          list.append_class('baz')
-          list.each { |x| assert_equal('bar bar baz', x['class']) }
+          list.append_class("baz")
+          list.each { |x| assert_equal("bar bar baz", x["class"]) }
         end
 
         describe "#remove_class" do
           it "removes the attribute when no classes remain" do
-            assert_equal(list, list.remove_class('bar'))
-            list.each { |e| assert_nil(e['class']) }
+            assert_equal(list, list.remove_class("bar"))
+            list.each { |e| assert_nil(e["class"]) }
 
-            list.each { |e| e['class'] = '' }
-            assert_equal(list, list.remove_class('bar'))
-            list.each { |e| assert_nil(e['class']) }
+            list.each { |e| e["class"] = "" }
+            assert_equal(list, list.remove_class("bar"))
+            list.each { |e| assert_nil(e["class"]) }
           end
 
           it "leaves the remaining classes" do
-            list.each { |e| e['class'] = 'foo bar' }
+            list.each { |e| e["class"] = "foo bar" }
 
-            assert_equal(list, list.remove_class('bar'))
-            list.each { |e| assert_equal('foo', e['class']) }
+            assert_equal(list, list.remove_class("bar"))
+            list.each { |e| assert_equal("foo", e["class"]) }
           end
 
           it "removes the class attribute when passed no arguments" do
-            list.each { |e| e['class'] = 'foo' }
+            list.each { |e| e["class"] = "foo" }
 
             assert_equal(list, list.remove_class)
-            list.each { |e| assert_nil(e['class']) }
+            list.each { |e| assert_nil(e["class"]) }
           end
         end
 
         [:attribute, :attr, :set].each do |method|
           describe "##{method}" do
             it "sets the attribute value" do
-              list.each { |e| assert_nil(e['foo']) }
+              list.each { |e| assert_nil(e["foo"]) }
 
-              list.send(method, 'foo', 'bar')
-              list.each { |e| assert_equal('bar', e['foo']) }
+              list.send(method, "foo", "bar")
+              list.each { |e| assert_equal("bar", e["foo"]) }
             end
 
             it "sets the attribute value given a block" do
-              list.each { |e| assert_nil(e['foo']) }
+              list.each { |e| assert_nil(e["foo"]) }
 
               list.send(method, "foo") { |e| e.at_css("employeeId").text }
-              list.each { |e| assert_equal(e.at_css("employeeId").text, e['foo']) }
+              list.each { |e| assert_equal(e.at_css("employeeId").text, e["foo"]) }
             end
 
             it "sets the attribute value given a hash" do
-              list.each { |e| assert_nil(e['foo']) }
+              list.each { |e| assert_nil(e["foo"]) }
 
-              list.send(method, { 'foo' => 'bar' })
-              list.each { |e| assert_equal('bar', e['foo']) }
+              list.send(method, { "foo" => "bar" })
+              list.each { |e| assert_equal("bar", e["foo"]) }
             end
           end
         end
 
         it "#attribute with no args gets attribute from first node" do
-          list.first['foo'] = 'bar'
-          assert_equal(list.first.attribute('foo'), list.attribute('foo'))
+          list.first["foo"] = "bar"
+          assert_equal(list.first.attribute("foo"), list.attribute("foo"))
         end
 
         it "#attribute with no args on empty set" do
@@ -140,65 +142,67 @@ module Nokogiri
         describe "searching" do
           it "an empty node set returns no results" do
             set = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
-            assert_equal(0, set.css('foo').length)
-            assert_equal(0, set.xpath('.//foo').length)
-            assert_equal(0, set.search('foo').length)
+            assert_equal(0, set.css("foo").length)
+            assert_equal(0, set.xpath(".//foo").length)
+            assert_equal(0, set.search("foo").length)
           end
 
           it "with multiple queries" do
-            xml = '<document>
-                 <thing>
-                   <div class="title">important thing</div>
-                 </thing>
-                 <thing>
-                   <div class="content">stuff</div>
-                 </thing>
-                 <thing>
-                   <p class="blah">more stuff</div>
-                 </thing>
-               </document>'
+            xml = <<~EOF
+              <document>
+                <thing>
+                  <div class="title">important thing</div>
+                </thing>
+                <thing>
+                  <div class="content">stuff</div>
+                </thing>
+                <thing>
+                  <p class="blah">more stuff</div>
+                </thing>
+              </document>
+            EOF
             set = Nokogiri::XML(xml).xpath(".//thing")
             assert_kind_of(Nokogiri::XML::NodeSet, set)
 
-            assert_equal(3, set.xpath('./div', './p').length)
-            assert_equal(3, set.css('.title', '.content', 'p').length)
-            assert_equal(3, set.search('./div', 'p.blah').length)
+            assert_equal(3, set.xpath("./div", "./p").length)
+            assert_equal(3, set.css(".title", ".content", "p").length)
+            assert_equal(3, set.search("./div", "p.blah").length)
           end
 
           it "with a custom selector" do
-            set = xml.xpath('//staff')
+            set = xml.xpath("//staff")
 
             [
-              [:xpath,  '//*[awesome(.)]'],
-              [:search, '//*[awesome(.)]'],
-              [:css,    '*:awesome'],
-              [:search, '*:awesome'],
+              [:xpath,  "//*[awesome(.)]"],
+              [:search, "//*[awesome(.)]"],
+              [:css,    "*:awesome"],
+              [:search, "*:awesome"],
             ].each do |method, query|
               callback_handler = Class.new do
                 def awesome(ns)
-                  ns.select { |n| n.name == 'employee' }
+                  ns.select { |n| n.name == "employee" }
                 end
               end.new
               custom_employees = set.send(method, query, callback_handler)
 
-              assert_equal(xml.xpath('//employee'), custom_employees,
-                           "using #{method} with custom selector '#{query}'")
+              assert_equal(xml.xpath("//employee"), custom_employees,
+                "using #{method} with custom selector '#{query}'")
             end
           end
 
           it "with variable bindings" do
-            set = xml.xpath('//staff')
+            set = xml.xpath("//staff")
 
-            assert_equal(4, set.xpath('//address[@domestic=$value]', nil, value: 'Yes').length,
-                         "using #xpath with variable binding")
+            assert_equal(4, set.xpath("//address[@domestic=$value]", nil, value: "Yes").length,
+              "using #xpath with variable binding")
 
-            assert_equal(4, set.search('//address[@domestic=$value]', nil, value: 'Yes').length,
-                         "using #search with variable binding")
+            assert_equal(4, set.search("//address[@domestic=$value]", nil, value: "Yes").length,
+              "using #search with variable binding")
           end
 
           it "context search returns itself" do
-            set = xml.xpath('//staff')
-            assert_equal(set.to_a, set.search('.').to_a)
+            set = xml.xpath("//staff")
+            assert_equal(set.to_a, set.search(".").to_a)
           end
 
           it "css searches match self" do
@@ -215,7 +219,7 @@ module Nokogiri
               <body></body>
               </html>
             eoxml
-            assert(fragment.children.search('body', { 'xmlns' => 'http://www.w3.org/1999/xhtml' }))
+            assert(fragment.children.search("body", { "xmlns" => "http://www.w3.org/1999/xhtml" }))
           end
 
           it "xmlns is automatically registered" do
@@ -226,15 +230,15 @@ module Nokogiri
                 </foo>
               </root>
             eoxml
-            set = doc.css('foo')
-            assert_equal(1, set.css('xmlns|bar').length)
-            assert_equal(0, set.css('|bar').length)
-            assert_equal(1, set.xpath('//xmlns:bar').length)
-            assert_equal(1, set.search('xmlns|bar').length)
-            assert_equal(1, set.search('//xmlns:bar').length)
-            assert(set.at('//xmlns:bar'))
-            assert(set.at('xmlns|bar'))
-            assert(set.at('bar'))
+            set = doc.css("foo")
+            assert_equal(1, set.css("xmlns|bar").length)
+            assert_equal(0, set.css("|bar").length)
+            assert_equal(1, set.xpath("//xmlns:bar").length)
+            assert_equal(1, set.search("xmlns|bar").length)
+            assert_equal(1, set.search("//xmlns:bar").length)
+            assert(set.at("//xmlns:bar"))
+            assert(set.at("xmlns|bar"))
+            assert(set.at("bar"))
           end
 
           it "#search accepts a namespace" do
@@ -248,50 +252,50 @@ module Nokogiri
                 </bicycle>
               </root>
             eoxml
-            set = xml / 'root'
+            set = xml / "root"
             assert_equal(1, set.length)
-            bike_tire = set.search('//bike:tire', 'bike' => "http://schwinn.com/")
+            bike_tire = set.search("//bike:tire", "bike" => "http://schwinn.com/")
             assert_equal(1, bike_tire.length)
           end
 
           specify "#search" do
-            assert(node_set = xml.search('//employee'))
-            assert(sub_set = node_set.search('.//name'))
+            assert(node_set = xml.search("//employee"))
+            assert(sub_set = node_set.search(".//name"))
             assert_equal(node_set.length, sub_set.length)
           end
 
           it "returns an empty node set when no results were found" do
-            assert(node_set = xml.search('//asdkfjhasdlkfjhaldskfh'))
+            assert(node_set = xml.search("//asdkfjhasdlkfjhaldskfh"))
             assert_equal(0, node_set.length)
           end
         end
 
         describe "#==" do
           it "checks for equality of contents" do
-            assert(node_set_one = xml.xpath('//employee'))
-            assert(node_set_two = xml.xpath('//employee'))
+            assert(node_set_one = xml.xpath("//employee"))
+            assert(node_set_two = xml.xpath("//employee"))
 
             refute_equal(node_set_one.object_id, node_set_two.object_id)
             refute_same(node_set_one, node_set_two)
 
-            assert(node_set_one == node_set_two)
+            assert_equal(node_set_one, node_set_two)
           end
 
           it "handles comparison to a string" do
-            node_set_one = xml.xpath('//employee')
+            node_set_one = xml.xpath("//employee")
             refute(node_set_one == "asdfadsf")
           end
 
           it "returns false if same elements are out of order" do
-            one = xml.xpath('//employee')
-            two = xml.xpath('//employee')
+            one = xml.xpath("//employee")
+            two = xml.xpath("//employee")
             two.push(two.shift)
-            assert_not_equal(one, two)
+            refute_equal(one, two)
           end
 
           it "returns false if one is a subset of the other" do
-            node_set_one = xml.xpath('//employee')
-            node_set_two = xml.xpath('//employee')
+            node_set_one = xml.xpath("//employee")
+            node_set_two = xml.xpath("//employee")
             node_set_two.delete(node_set_two.first)
 
             refute(node_set_one == node_set_two)
@@ -301,7 +305,7 @@ module Nokogiri
 
         describe "#pop" do
           it "returns the last element and mutates the set" do
-            set = xml.xpath('//employee')
+            set = xml.xpath("//employee")
             last = set.last
             assert_equal(last, set.pop)
           end
@@ -314,7 +318,7 @@ module Nokogiri
 
         describe "#shift" do
           it "returns the first element and mutates the set" do
-            set = xml.xpath('//employee')
+            set = xml.xpath("//employee")
             first = set.first
             assert_equal(first, set.shift)
           end
@@ -327,18 +331,18 @@ module Nokogiri
 
         describe "#first" do
           it "returns the first node" do
-            node_set = xml.xpath('//employee')
-            node = xml.at_xpath('//employee')
+            node_set = xml.xpath("//employee")
+            node = xml.at_xpath("//employee")
             assert_equal(node, node_set.first)
           end
 
           it "returns the first n nodes" do
-            assert(node_set = xml.xpath('//employee'))
+            assert(node_set = xml.xpath("//employee"))
             assert_equal(2, node_set.first(2).length)
           end
 
           it "returns all the nodes if arguments are longer than the set" do
-            assert(node_set = xml.xpath('//employee[position() < 3]'))
+            assert(node_set = xml.xpath("//employee[position() < 3]"))
             assert_equal(2, node_set.length)
             assert_equal(2, node_set.first(5).length)
           end
@@ -346,7 +350,7 @@ module Nokogiri
 
         [:dup, :clone].each do |method_name|
           specify "##{method_name}" do
-            assert node_set = xml.xpath('//employee')
+            assert node_set = xml.xpath("//employee")
             duplicate = node_set.send(method_name)
             assert_equal node_set.length, duplicate.length
             node_set.zip(duplicate).each do |a, b|
@@ -367,12 +371,12 @@ module Nokogiri
         end
 
         it "length and size are aliases" do
-          assert(node_set = xml.search('//employee'))
+          assert(node_set = xml.search("//employee"))
           assert_equal(node_set.length, node_set.size)
         end
 
         it "to_xml" do
-          assert(node_set = xml.search('//employee'))
+          assert(node_set = xml.search("//employee"))
           assert(node_set.to_xml)
         end
 
@@ -389,59 +393,59 @@ module Nokogiri
               </body>
             </html>
           eohtml
-          assert(html = doc.css('div').inner_html)
-          assert_match('<a>one</a>', html)
-          assert_match('<a>two</a>', html)
+          assert(html = doc.css("div").inner_html)
+          assert_match("<a>one</a>", html)
+          assert_match("<a>two</a>", html)
         end
 
         it "gt_string_arg" do
-          assert(node_set = xml.search('//employee'))
-          assert_equal(node_set.xpath('./employeeId'), (node_set > 'employeeId'))
+          assert(node_set = xml.search("//employee"))
+          assert_equal(node_set.xpath("./employeeId"), (node_set > "employeeId"))
         end
 
         it "at_performs_a_search_with_css" do
-          assert(node_set = xml.search('//employee'))
-          assert_equal(node_set.first.first_element_child, node_set.at('employeeId'))
-          assert_equal(node_set.first.first_element_child, node_set.%('employeeId'))
+          assert(node_set = xml.search("//employee"))
+          assert_equal(node_set.first.first_element_child, node_set.at("employeeId"))
+          assert_equal(node_set.first.first_element_child, node_set.%("employeeId"))
         end
 
         it "at_performs_a_search_with_xpath" do
-          assert(node_set = xml.search('//employee'))
-          assert_equal(node_set.first.first_element_child, node_set.at('./employeeId'))
-          assert_equal(node_set.first.first_element_child, node_set.%('./employeeId'))
+          assert(node_set = xml.search("//employee"))
+          assert_equal(node_set.first.first_element_child, node_set.at("./employeeId"))
+          assert_equal(node_set.first.first_element_child, node_set.%("./employeeId"))
         end
 
         it "at_with_integer_index" do
-          assert(node_set = xml.search('//employee'))
+          assert(node_set = xml.search("//employee"))
           assert_equal(node_set.first, node_set.at(0))
           assert_equal(node_set.first, node_set % 0)
         end
 
         it "at_xpath" do
-          assert(node_set = xml.search('//employee'))
-          assert_equal(node_set.first.first_element_child, node_set.at_xpath('./employeeId'))
+          assert(node_set = xml.search("//employee"))
+          assert_equal(node_set.first.first_element_child, node_set.at_xpath("./employeeId"))
         end
 
         it "at_css" do
-          assert(node_set = xml.search('//employee'))
-          assert_equal(node_set.first.first_element_child, node_set.at_css('employeeId'))
+          assert(node_set = xml.search("//employee"))
+          assert_equal(node_set.first.first_element_child, node_set.at_css("employeeId"))
         end
 
         it "to_ary" do
-          assert(node_set = xml.search('//employee'))
+          assert(node_set = xml.search("//employee"))
           foo = []
           foo += node_set
           assert_equal(node_set.length, foo.length)
         end
 
         specify "#push" do
-          node = Nokogiri::XML::Node.new('foo', xml)
-          node.content = 'bar'
+          node = Nokogiri::XML::Node.new("foo", xml)
+          node.content = "bar"
 
-          assert(node_set = xml.search('//employee'))
+          assert(node_set = xml.search("//employee"))
           node_set.push(node)
 
-          assert(node_set.include?(node))
+          assert_includes(node_set, node)
         end
 
         describe "#delete" do
@@ -455,19 +459,19 @@ module Nokogiri
           it "deletes the element when present and returns the deleted element" do
             employees = xml.search("//employee")
             wally = employees.first
-            assert(employees.include?(wally)) # testing setup
+            assert_includes(employees, wally) # testing setup
             length = employees.length
 
             result = employees.delete(wally)
             assert_equal(result, wally)
-            refute(employees.include?(wally))
+            refute_includes(employees, wally)
             assert_equal(length - 1, employees.length)
           end
 
           it "does nothing and returns nil when not present" do
             employees = xml.search("//employee")
             phb = xml.search("//position").first
-            assert(!employees.include?(phb)) # testing setup
+            refute_includes(employees, phb) # testing setup
             length = employees.length
 
             result = employees.delete(phb)
@@ -494,21 +498,21 @@ module Nokogiri
               <a class='bazbar'>Awesome</a>
             </root>
           eoxml
-          set = xml.xpath('//a')
+          set = xml.xpath("//a")
           set.unlink
           set.each do |node|
-            assert(!node.parent)
+            refute(node.parent)
             # assert !node.document
-            assert(!node.previous_sibling)
-            assert(!node.next_sibling)
+            refute(node.previous_sibling)
+            refute(node.next_sibling)
           end
-          assert_no_match(/Hello world/, xml.to_s)
+          refute_match(/Hello world/, xml.to_s)
         end
 
         it "new_nodeset" do
           node_set = Nokogiri::XML::NodeSet.new(xml)
           assert_equal(0, node_set.length)
-          node = Nokogiri::XML::Node.new('form', xml)
+          node = Nokogiri::XML::Node.new("form", xml)
           node_set << node
           assert_equal(1, node_set.length)
           assert_equal(node, node_set.last)
@@ -517,12 +521,12 @@ module Nokogiri
         describe "#wrap" do
           it "wraps each node within a reified copy of the tag passed" do
             employees = (xml / "//employee").wrap("<wrapper/>")
-            assert_equal('wrapper', employees[0].parent.name)
-            assert_equal('employee', xml.search("//wrapper").first.children[0].name)
+            assert_equal("wrapper", employees[0].parent.name)
+            assert_equal("employee", xml.search("//wrapper").first.children[0].name)
           end
 
           it "handles various node types and handles recursive reparenting" do
-            xml = '<root><foo>contents</foo></root>'
+            xml = "<root><foo>contents</foo></root>"
             doc = Nokogiri::XML(xml)
             nodes = doc.at_css("root").xpath(".//* | .//*/text()") # foo and "contents"
             nodes.wrap("<wrapper/>")
@@ -543,16 +547,16 @@ module Nokogiri
             EOXML
             employees = frag.xpath(".//employee")
             employees.wrap("<wrapper/>")
-            assert_equal('wrapper', employees[0].parent.name)
-            assert_equal('employee', frag.at(".//wrapper").children.first.name)
+            assert_equal("wrapper", employees[0].parent.name)
+            assert_equal("employee", frag.at(".//wrapper").children.first.name)
           end
 
           it "preserves document structure" do
             assert_equal("employeeId",
-                         xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
+              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
             xml.xpath("//employeeId[text()='EMP0001']").wrap("<wrapper/>")
             assert_equal("wrapper",
-                         xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
+              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
           end
         end
 
@@ -612,12 +616,12 @@ module Nokogiri
 
         describe "#[]" do
           it "negative_index_works" do
-            assert(node_set = xml.search('//employee'))
+            assert(node_set = xml.search("//employee"))
             assert_equal(node_set.last, node_set[-1])
           end
 
           it "large_negative_index_returns_nil" do
-            assert(node_set = xml.search('//employee'))
+            assert(node_set = xml.search("//employee"))
             assert_nil(node_set[-1 * (node_set.length + 1)])
           end
 
@@ -674,7 +678,7 @@ module Nokogiri
             employees = xml.search("//employee")
             assert_nil(employees[99, 1]) # large start
             assert_nil(employees[1, -1]) # negative len
-            assert_equal([], employees[1, 0].to_a) # zero len
+            assert_empty(employees[1, 0].to_a) # zero len
           end
 
           it "array_slice_with_range" do
@@ -714,20 +718,20 @@ module Nokogiri
             yes = employees.first
             no = xml.search("//position").first
 
-            assert(employees.include?(yes))
-            refute(employees.include?(no))
+            assert_includes(employees, yes)
+            refute_includes(employees, no)
           end
 
           it "returns false on empty set" do
             empty_set = Nokogiri::XML::NodeSet.new(xml, [])
             employee  = xml.at_xpath("//employee")
-            refute(empty_set.include?(employee))
+            refute_includes(empty_set, employee)
           end
         end
 
         describe "#each" do
           it "supports break" do
-            assert_equal(7, xml.root.elements.each { |x| break 7 })
+            assert_equal(7, xml.root.elements.each { |_x| break 7 })
           end
 
           it "returns an enumerator given no block" do
@@ -770,8 +774,8 @@ module Nokogiri
           employees = xml.search("//employee")
           inspected = employees.inspect
 
-          assert_equal("[#{employees.map(&:inspect).join(', ')}]",
-                       inspected)
+          assert_equal("[#{employees.map(&:inspect).join(", ")}]",
+            inspected)
         end
 
         it "should_not_splode_when_accessing_namespace_declarations_in_a_node_set" do
@@ -831,7 +835,7 @@ module Nokogiri
           node_set = xml.css("address")
           new_set  = node_set.dup
           assert_equal(node_set.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_union_result_has_document_and_is_decorated" do
@@ -843,7 +847,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 | node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_intersection_result_has_document_and_is_decorated" do
@@ -855,7 +859,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 & node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_difference_result_has_document_and_is_decorated" do
@@ -867,7 +871,7 @@ module Nokogiri
           node_set2 = xml.css("address")
           new_set = node_set1 - node_set2
           assert_equal(node_set1.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         it "node_set_slice_result_has_document_and_is_decorated" do
@@ -878,7 +882,7 @@ module Nokogiri
           node_set = xml.css("address")
           new_set  = node_set[0..-1]
           assert_equal(node_set.document, new_set.document)
-          assert(new_set.respond_to?(:awesome!))
+          assert_respond_to(new_set, :awesome!)
         end
 
         describe "adding nodes from different documents to the same NodeSet" do

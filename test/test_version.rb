@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 require "rbconfig"
 require "json"
@@ -16,7 +17,7 @@ module TestVersionInfoTests
     assert_equal(Nokogiri::VERSION, Nokogiri::VERSION_INFO["nokogiri"]["version"])
 
     if jruby?
-      refute(Nokogiri::VERSION_INFO["nokogiri"].has_key?("cppflags"), "did not expect cppflags")
+      refute(Nokogiri::VERSION_INFO["nokogiri"].key?("cppflags"), "did not expect cppflags")
     else
       # cppflags/ldflags are more fully tested in scripts/test-gem-installation
       assert_kind_of(Array, Nokogiri::VERSION_INFO["nokogiri"]["cppflags"], "cppflags should be an array")
@@ -51,7 +52,7 @@ module TestVersionInfoTests
     assert_equal(Nokogiri::LIBXML_COMPILED_VERSION, version_info["libxml"]["compiled"])
     assert_match(VERSION_MATCH, version_info["libxml"]["compiled"])
 
-    assert_match VERSION_MATCH, version_info["libxml"]["loaded"]
+    assert_match(VERSION_MATCH, version_info["libxml"]["loaded"])
     Nokogiri::LIBXML_LOADED_VERSION =~ /(\d)(\d{2})(\d{2})/
     major = Regexp.last_match(1).to_i
     minor = Regexp.last_match(2).to_i

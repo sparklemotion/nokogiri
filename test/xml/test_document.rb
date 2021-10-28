@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 require "uri"
@@ -36,10 +37,10 @@ module Nokogiri
         def test_strict_parsing_empty_doc_should_raise_exception
           ["", " "].each do |empty_string|
             assert_raises(SyntaxError, "empty string '#{empty_string}' should raise a SyntaxError") do
-              Nokogiri::XML(empty_string) { |c| c.strict }
+              Nokogiri::XML(empty_string, &:strict)
             end
             assert_raises(SyntaxError, "StringIO of '#{empty_string}' should raise a SyntaxError") do
-              Nokogiri::XML(StringIO.new(empty_string)) { |c| c.strict }
+              Nokogiri::XML(StringIO.new(empty_string), &:strict)
             end
           end
         end
@@ -100,7 +101,7 @@ module Nokogiri
             ]>
             <lolz>&lol9;</lolz>
           EOF
-          assert_not_nil(doc)
+          refute_nil(doc)
         end
 
         def test_million_laugh_attach_2
@@ -119,7 +120,7 @@ module Nokogiri
              &a;
              </member>
           EOF
-          assert_not_nil(doc)
+          refute_nil(doc)
         end
 
         def test_ignore_unknown_namespace
@@ -144,7 +145,7 @@ module Nokogiri
             </xml>
           eoxml
           assert_equal({ "xmlns" => "hello", "xmlns:foo" => "world" },
-                       doc.collect_namespaces)
+            doc.collect_namespaces)
         end
 
         def test_subclass_initialize_modify # testing a segv
@@ -197,22 +198,22 @@ module Nokogiri
         end
 
         def test_create_element_with_namespace
-          elm = xml.create_element("foo", 'xmlns:foo': "http://tenderlovemaking.com")
+          elm = xml.create_element("foo", "xmlns:foo": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:foo"])
         end
 
         def test_create_element_with_hyphenated_namespace
-          elm = xml.create_element("foo", 'xmlns:SOAP-ENC': "http://tenderlovemaking.com")
+          elm = xml.create_element("foo", "xmlns:SOAP-ENC": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:SOAP-ENC"])
         end
 
         def test_create_element_with_invalid_namespace
           if Nokogiri.jruby?
             assert_raises(Java::OrgW3cDom::DOMException) do
-              xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+              xml.create_element("foo", "xmlns:SOAP!ENC": "http://tenderlovemaking.com")
             end
           else
-            elm = xml.create_element("foo", 'xmlns:SOAP!ENC': "http://tenderlovemaking.com")
+            elm = xml.create_element("foo", "xmlns:SOAP!ENC": "http://tenderlovemaking.com")
             refute_includes(elm.namespaces.keys, "xmlns:SOAP!ENC")
           end
         end
@@ -249,13 +250,13 @@ module Nokogiri
         end
 
         def test_pp
-          out = StringIO.new(String.new)
+          out = StringIO.new((+""))
           ::PP.pp(xml, out)
           assert_operator(out.string.length, :>, 0)
         end
 
         def test_create_internal_subset_on_existing_subset
-          assert_not_nil(xml.internal_subset)
+          refute_nil(xml.internal_subset)
           assert_raises(RuntimeError) do
             xml.create_internal_subset("staff", nil, "staff.dtd")
           end
@@ -275,9 +276,7 @@ module Nokogiri
         def test_external_subset
           assert_nil(xml.external_subset)
           xml = Dir.chdir(ASSETS_DIR) do
-            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
-              cfg.dtdload
-            end
+            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdload)
           end
           assert(xml.external_subset)
         end
@@ -285,9 +284,7 @@ module Nokogiri
         def test_create_external_subset_fails_with_existing_subset
           assert_nil(xml.external_subset)
           xml = Dir.chdir(ASSETS_DIR) do
-            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
-              cfg.dtdload
-            end
+            Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdload)
           end
           assert(xml.external_subset)
 
@@ -309,31 +306,31 @@ module Nokogiri
         end
 
         def test_add_namespace
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.add_namespace("foo", "bar")
           end
         end
 
         def test_attributes
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.attributes
           end
         end
 
         def test_namespace
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.namespace
           end
         end
 
         def test_namespace_definitions
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.namespace_definitions
           end
         end
 
         def test_line
-          assert_raise(NoMethodError) do
+          assert_raises(NoMethodError) do
             xml.line
           end
         end
@@ -381,13 +378,13 @@ module Nokogiri
           doc = Nokogiri::XML("<root>")
 
           node_set = doc.root.prepend_child("<branch/>")
-          assert_equal(%w[branch], node_set.map(&:name))
+          assert_equal(["branch"], node_set.map(&:name))
 
           branch = doc.at("//branch")
 
-          leaves = %w[leaf1 leaf2 leaf3]
+          leaves = ["leaf1", "leaf2", "leaf3"]
           leaves.each do |name|
-            branch.prepend_child("<%s/>" % name)
+            branch.prepend_child(format("<%s/>", name))
           end
           assert_equal(leaves.length, branch.children.length)
           assert_equal(leaves.reverse, branch.children.map(&:name))
@@ -426,7 +423,7 @@ module Nokogiri
           if Nokogiri.uses_libxml?
             assert_equal(45, xml.validate.length)
           else
-            xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg| cfg.dtdvalid }
+            xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE, &:dtdvalid)
             assert_equal(40, xml.validate.length)
           end
         end
@@ -614,7 +611,7 @@ module Nokogiri
           doc = Nokogiri::XML(<<~eoxml)
             <foo><bar></foo>
           eoxml
-          assert(doc.errors.length > 0)
+          refute_empty(doc.errors)
           doc.errors.each do |error|
             assert_match(error.message, error.inspect)
             assert_match(error.message, error.to_s)
@@ -627,15 +624,11 @@ module Nokogiri
           end
 
           assert_raises(Nokogiri::XML::SyntaxError) do
-            Nokogiri::XML("<foo><bar></foo>") do |cfg|
-              cfg.strict
-            end
+            Nokogiri::XML("<foo><bar></foo>", &:strict)
           end
 
           assert_raises(Nokogiri::XML::SyntaxError) do
-            Nokogiri::XML(StringIO.new("<foo><bar></foo>")) do |cfg|
-              cfg.strict
-            end
+            Nokogiri::XML(StringIO.new("<foo><bar></foo>"), &:strict)
           end
         end
 
@@ -669,7 +662,7 @@ module Nokogiri
           assert(xml.xml?)
           assert_equal(XML_FILE, xml.url)
           set = xml.search("//employee")
-          assert(set.length > 0)
+          refute_empty(set)
         end
 
         def test_parsing_empty_io
@@ -680,6 +673,7 @@ module Nokogiri
         def test_parse_works_with_an_object_that_responds_to_read
           klass = Class.new do
             def initialize
+              super
               @contents = StringIO.new("<div>foo</div>")
             end
 
@@ -693,7 +687,7 @@ module Nokogiri
         end
 
         def test_parse_works_with_an_object_that_responds_to_path
-          xml = String.new("<root><sub>hello</sub></root>")
+          xml = +"<root><sub>hello</sub></root>"
           def xml.path
             "/i/should/be/the/document/url"
           end
@@ -728,17 +722,19 @@ module Nokogiri
         end
 
         def test_document_search_with_multiple_queries
-          xml = '<document>
-                 <thing>
-                   <div class="title">important thing</div>
-                 </thing>
-                 <thing>
-                   <div class="content">stuff</div>
-                 </thing>
-                 <thing>
-                   <p class="blah">more stuff</div>
-                 </thing>
-               </document>'
+          xml = <<~EOF
+            <document>
+              <thing>
+                <div class="title">important thing</div>
+              </thing>
+              <thing>
+                <div class="content">stuff</div>
+              </thing>
+              <thing>
+                <p class="blah">more stuff</div>
+              </thing>
+            </document>
+          EOF
           document = Nokogiri::XML(xml)
           assert_kind_of(Nokogiri::XML::Document, document)
 
@@ -790,7 +786,7 @@ module Nokogiri
 
         def test_singleton_methods
           assert(node_set = xml.search("//name"))
-          assert(node_set.length > 0)
+          refute_empty(node_set)
           node = node_set.first
           def node.test
             "test"
@@ -836,7 +832,6 @@ module Nokogiri
         end
 
         def test_new
-          doc = nil
           doc = Nokogiri::XML::Document.new
           assert(doc)
           assert(doc.xml?)
@@ -899,7 +894,7 @@ module Nokogiri
 
           util_decorate(xml, decorator)
 
-          assert(xml.search("//@street").first.respond_to?(:test_method))
+          assert_respond_to(xml.search("//@street").first, :test_method)
         end
 
         def test_subset_is_decorated
@@ -909,13 +904,13 @@ module Nokogiri
           end
           util_decorate(xml, x)
 
-          assert(xml.respond_to?(:awesome!))
+          assert_respond_to(xml, :awesome!)
           assert(node_set = xml.search("//staff"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           assert(subset = node_set.search(".//employee"))
-          assert(subset.respond_to?(:awesome!))
+          assert_respond_to(subset, :awesome!)
           assert(sub_subset = node_set.search(".//name"))
-          assert(sub_subset.respond_to?(:awesome!))
+          assert_respond_to(sub_subset, :awesome!)
         end
 
         def test_decorator_is_applied
@@ -925,14 +920,14 @@ module Nokogiri
           end
           util_decorate(xml, x)
 
-          assert(xml.respond_to?(:awesome!))
+          assert_respond_to(xml, :awesome!)
           assert(node_set = xml.search("//employee"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           node_set.each do |node|
-            assert(node.respond_to?(:awesome!), node.class)
+            assert_respond_to(node, :awesome!, node.class)
           end
-          assert(xml.root.respond_to?(:awesome!))
-          assert(xml.children.respond_to?(:awesome!))
+          assert_respond_to(xml.root, :awesome!)
+          assert_respond_to(xml.children, :awesome!)
         end
 
         def test_can_be_closed

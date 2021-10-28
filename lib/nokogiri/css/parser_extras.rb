@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "thread"
 
 module Nokogiri
@@ -16,7 +17,7 @@ module Nokogiri
         end
 
         # Set a thread-local boolean to turn cacheing on and off. Truthy values turn the cache on, falsey values turn the cache off.
-        def set_cache(value)
+        def set_cache(value) # rubocop:disable Naming/AccessorMethodName
           Thread.current[CACHE_SWITCH_NAME] = !value
         end
 
@@ -46,10 +47,10 @@ module Nokogiri
         # Execute +block+ without cache
         def without_cache(&block)
           original_cache_setting = cache_on?
-          set_cache false
-          block.call
+          set_cache(false)
+          yield
         ensure
-          set_cache original_cache_setting
+          set_cache(original_cache_setting)
         end
       end
 
@@ -61,7 +62,7 @@ module Nokogiri
       end
 
       def parse(string)
-        @tokenizer.scan_setup string
+        @tokenizer.scan_setup(string)
         do_parse
       end
 
@@ -79,15 +80,15 @@ module Nokogiri
           options[:prefix] || "//",
           options[:visitor] || XPathVisitor.new,
         ]
-        self.class[key] = parse(string).map { |ast|
+        self.class[key] = parse(string).map do |ast|
           ast.to_xpath(*args)
-        }
+        end
       end
 
       # On CSS parser error, raise an exception
       def on_error(error_token_id, error_value, value_stack)
         after = value_stack.compact.last
-        raise SyntaxError.new("unexpected '#{error_value}' after '#{after}'")
+        raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
       end
     end
   end

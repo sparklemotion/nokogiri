@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
 # frozen_string_literal: true
+
 #
 #  this script is intended to run as part of the CI test suite.
 #
@@ -9,7 +10,7 @@
 #  installed gem (and not against the source code or behavior of the gem itself).
 #
 
-if RUBY_PLATFORM =~ /java/
+if RUBY_PLATFORM.include?("java")
   puts "Skip: Nokogumbo does not support JRuby"
   exit 0
 end
@@ -22,7 +23,7 @@ raise "could not find installed gem" unless gemspec
 
 require "bundler/inline"
 
-nokogumbo_version = if ARGV[0] =~ /\d+\.\d+\.\d+/
+nokogumbo_version = if /\d+\.\d+\.\d+/.match?(ARGV[0])
   ARGV[0]
 end
 

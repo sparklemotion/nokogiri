@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -17,9 +19,9 @@ module Nokogiri
 
         def test_default_xml_save_options
           if Nokogiri.jruby?
-            assert_equal 0, (SaveOptions::DEFAULT_XML & SaveOptions::FORMAT)
+            assert_equal(0, (SaveOptions::DEFAULT_XML & SaveOptions::FORMAT))
           else
-            assert_equal SaveOptions::FORMAT, (SaveOptions::DEFAULT_XML & SaveOptions::FORMAT)
+            assert_equal(SaveOptions::FORMAT, (SaveOptions::DEFAULT_XML & SaveOptions::FORMAT))
           end
         end
       end

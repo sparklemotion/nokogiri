@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 desc "Temporarily set Nokogiri::VERSION to a unique timestamp"
 task "set-version-to-timestamp" do
   # this task is used by scripts/test-gem-build

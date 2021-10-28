@@ -39,8 +39,8 @@ class Nokogiri::SAX::TestCase
     end
 
     it :test_finish_should_rethrow_last_error do
-      expected = assert_raise(Nokogiri::XML::SyntaxError) { parser << "</foo>" }
-      actual = assert_raise(Nokogiri::XML::SyntaxError) { parser.finish }
+      expected = assert_raises(Nokogiri::XML::SyntaxError) { parser << "</foo>" }
+      actual = assert_raises(Nokogiri::XML::SyntaxError) { parser.finish }
       assert_equal actual.message, expected.message
     end
 
@@ -53,8 +53,8 @@ class Nokogiri::SAX::TestCase
       end
       parser = Nokogiri::XML::SAX::PushParser.new(doc)
 
-      exception = assert_raise(RuntimeError) { parser << "</foo>" }
-      assert_equal exception.message, "parse error"
+      exception = assert_raises(RuntimeError) { parser << "</foo>" }
+      assert_equal("parse error", exception.message)
     end
 
     it :test_writing_nil do
@@ -68,7 +68,7 @@ class Nokogiri::SAX::TestCase
           Paragraph 1
         </p>
       EOF
-      assert !parser.document.end_document_called
+      refute parser.document.end_document_called
       parser.finish
       assert parser.document.end_document_called
     end
@@ -195,22 +195,22 @@ class Nokogiri::SAX::TestCase
     it :test_replace_entities_attribute_behavior do
       if Nokogiri.uses_libxml?
         # initially false
-        assert_equal false, parser.replace_entities
+        refute parser.replace_entities
 
         # can be set to true
         parser.replace_entities = true
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
 
         # can be set to false
         parser.replace_entities = false
-        assert_equal false, parser.replace_entities
+        refute parser.replace_entities
       else
         # initially true
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
 
         # ignore attempts to set to false
         parser.replace_entities = false # TODO: should we raise an exception here?
-        assert_equal true, parser.replace_entities
+        assert parser.replace_entities
       end
     end
 

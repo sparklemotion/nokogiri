@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
 # frozen_string_literal: true
+
 #
 #  this script is intended to run as part of the CI test suite.
 #
@@ -25,8 +26,8 @@ gemfile do
   gem "nokogiri"
 end
 
-require 'nokogiri'
-require 'yaml'
+require "nokogiri"
+require "yaml"
 
 if ARGV.include?("-v")
   puts "---------- Nokogiri version info ----------"
@@ -62,7 +63,7 @@ describe gemspec.full_name do
     it "installs nokogiri headers" do
       nokogiri_header_files.each do |header|
         assert(File.file?(File.join(nokogiri_ext_dir, header)),
-               "expected #{header} to be installed in #{nokogiri_ext_dir}")
+          "expected #{header} to be installed in #{nokogiri_ext_dir}")
 
         found = false
         headers_dirs.each do |header_dir|
@@ -90,13 +91,13 @@ describe gemspec.full_name do
           # this is for nokogumbo and shouldn't be forever
           it "declares where headers are installed" do
             assert_equal(nokogiri_ext_dir, Nokogiri::VERSION_INFO["libxml"]["libxml2_path"],
-                         "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}")
+              "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}")
           end
 
           it "installs packaged libraries' headers" do
             packaged_library_header_files.each do |header|
               assert(File.file?(File.join(nokogiri_include_dir, header)),
-                     "expected #{header} to be installed in #{nokogiri_include_dir}")
+                "expected #{header} to be installed in #{nokogiri_include_dir}")
             end
           end
         end
@@ -113,7 +114,7 @@ describe gemspec.full_name do
 
         it "has ldflags pointing to the shared object file" do
           ldflags = Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]
-          if ::RUBY_PLATFORM =~ /mingw|mswin/
+          if ::RUBY_PLATFORM.match?(/mingw|mswin/)
             if gemspec.platform.cpu
               assert_includes(ldflags, "-L#{File.join(nokogiri_lib_dir, ruby_maj_min)}")
             else

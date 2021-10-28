@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 #
 #  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #

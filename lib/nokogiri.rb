@@ -43,7 +43,7 @@ module Nokogiri
     # Parse an HTML or XML document.  +string+ contains the document.
     def parse(string, url = nil, encoding = nil, options = nil)
       if string.respond_to?(:read) ||
-          /^\s*<(?:!DOCTYPE\s+)?html[\s>]/i === string[0, 512]
+          /^\s*<(?:!DOCTYPE\s+)?html[\s>]/i.match?(string[0, 512])
         # Expect an HTML indicator to appear within the first 512
         # characters of a document. (<?xml ?> + <?xml-stylesheet ?>
         # shouldn't be that long)
@@ -107,7 +107,7 @@ end
 #
 # To specify the type of document, use {Nokogiri.XML}, {Nokogiri.HTML4}, or {Nokogiri.HTML5}.
 def Nokogiri(*args, &block)
-  if block_given?
+  if block
     Nokogiri::HTML4::Builder.new(&block).doc.root
   else
     Nokogiri.parse(*args)

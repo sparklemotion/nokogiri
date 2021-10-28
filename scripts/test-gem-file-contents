@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
 # frozen_string_literal: true
+
 #
 #  this script is intended to run as part of the CI test suite.
 #
@@ -27,9 +28,9 @@ def usage_and_exit(message = nil)
 end
 
 usage_and_exit if ARGV.include?("-h")
-usage_and_exit unless gemfile = ARGV[0]
+usage_and_exit unless (gemfile = ARGV[0])
 usage_and_exit("#{gemfile} does not exist") unless File.file?(gemfile)
-usage_and_exit("#{gemfile} is not a gem") unless /\.gem$/.match(gemfile)
+usage_and_exit("#{gemfile} is not a gem") unless /\.gem$/.match?(gemfile)
 gemfile = File.expand_path(gemfile)
 
 gemfile_contents = Dir.mktmpdir do |dir|
@@ -109,9 +110,9 @@ describe File.basename(gemfile) do
     it "contains the port files" do
       actual_ports = gemfile_contents.grep(%r{^ports/})
       assert_equal(1, actual_ports.grep(/libxml2-\d+\.\d+\.\d+\.tar\.gz/).length,
-                   "expected #{actual_ports} to include libxml2")
+        "expected #{actual_ports} to include libxml2")
       assert_equal(1, actual_ports.grep(/libxslt-\d+\.\d+\.\d+\.tar\.gz/).length,
-                   "expected #{actual_ports} to include libxslt")
+        "expected #{actual_ports} to include libxslt")
       assert_equal(2, actual_ports.length)
     end
 
@@ -199,7 +200,7 @@ describe File.basename(gemfile) do
     end
 
     it "contains ext/nokogiri C files" do
-      # Note: we keep the C files because they have docstrings and Java files don't
+      # NOTE: we keep the C files because they have docstrings and Java files don't
       assert_operator(gemfile_contents.grep(%r{^ext/nokogiri/.*\.c}).length, :>, 20)
     end
 

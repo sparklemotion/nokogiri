@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -8,7 +10,7 @@ module Nokogiri
         def setup
           super
           @doc    = DocWithOrderedItems.new
-          @parser = HTML::SAX::Parser.new @doc
+          @parser = HTML::SAX::Parser.new(@doc)
         end
 
         def test_texts_order
@@ -40,49 +42,49 @@ module Nokogiri
             </html>
           eohtml
 
-          @parser.parse html
-          items = @doc.items.get_root_content "body"
-          items = items.select_methods [
+          @parser.parse(html)
+          items = @doc.items.get_root_content("body")
+          items = items.select_methods([
             :start_element, :end_element,
-            :characters, :comment
-          ]
-          items.strip_text! [:characters, :comment]
+            :characters, :comment,
+          ])
+          items.strip_text!([:characters, :comment])
 
-          assert_equal [
-            [:characters, 'text 0'],
+          assert_equal([
+            [:characters, "text 0"],
 
-            [:start_element, 'p', []],
-            [:characters, 'text 1'],
+            [:start_element, "p", []],
+            [:characters, "text 1"],
 
-            [:start_element, 'span', []],
-            [:characters, 'text 2'],
-            [:end_element, 'span'],
+            [:start_element, "span", []],
+            [:characters, "text 2"],
+            [:end_element, "span"],
 
-            [:characters, 'text 3'],
-            [:end_element, 'p'],
+            [:characters, "text 3"],
+            [:end_element, "p"],
 
-            [:characters, 'text 4'],
-            [:comment, 'text 5'],
-            [:characters, ''],
+            [:characters, "text 4"],
+            [:comment, "text 5"],
+            [:characters, ""],
 
-            [:start_element, 'p', []],
-            [:characters, ''],
-            [:comment, 'text 6'],
-            [:characters, ''],
+            [:start_element, "p", []],
+            [:characters, ""],
+            [:comment, "text 6"],
+            [:characters, ""],
 
-            [:start_element, 'span', []],
-            [:comment, 'text 7'],
-            [:end_element, 'span'],
-            [:characters, ''],
+            [:start_element, "span", []],
+            [:comment, "text 7"],
+            [:end_element, "span"],
+            [:characters, ""],
 
-            [:comment, 'text 8'],
-            [:characters, ''],
-            [:end_element, 'p'],
-            [:characters, ''],
+            [:comment, "text 8"],
+            [:characters, ""],
+            [:end_element, "p"],
+            [:characters, ""],
 
-            [:comment, 'text 9'],
-            [:characters, '']
-          ], items
+            [:comment, "text 9"],
+            [:characters, ""],
+          ], items)
 
           nil
         end
@@ -111,49 +113,49 @@ module Nokogiri
             </html>
           eohtml
 
-          @parser.parse html
-          items = @doc.items.get_root_content "body"
-          items = items.select_methods [
+          @parser.parse(html)
+          items = @doc.items.get_root_content("body")
+          items = items.select_methods([
             :start_element, :end_element,
-            :characters, :comment
-          ]
-          items.strip_text! [:characters, :comment]
+            :characters, :comment,
+          ])
+          items.strip_text!([:characters, :comment])
 
-          assert_equal [
-            [:characters, ''],
-            [:start_element, 'p', []],
+          assert_equal([
+            [:characters, ""],
+            [:start_element, "p", []],
 
-            [:characters, ''],
-            [:start_element, 'span', []],
-            [:end_element, 'span'],
-            [:characters, ''],
+            [:characters, ""],
+            [:start_element, "span", []],
+            [:end_element, "span"],
+            [:characters, ""],
 
-            [:start_element, 'span', []],
-            [:characters, ''],
-            [:end_element, 'span'],
-            [:characters, ''],
+            [:start_element, "span", []],
+            [:characters, ""],
+            [:end_element, "span"],
+            [:characters, ""],
 
-            [:start_element, 'span', []],
-            [:characters, ''],
-            [:end_element, 'span'],
-            [:characters, ''],
+            [:start_element, "span", []],
+            [:characters, ""],
+            [:end_element, "span"],
+            [:characters, ""],
 
-            [:end_element, 'p'],
-            [:characters, ''],
+            [:end_element, "p"],
+            [:characters, ""],
 
-            [:start_element, 'p', []],
-            [:characters, ''],
+            [:start_element, "p", []],
+            [:characters, ""],
 
-            [:comment, ''],
-            [:characters, ''],
-            [:comment, ''],
-            [:characters, ''],
-            [:comment, ''],
-            [:characters, ''],
+            [:comment, ""],
+            [:characters, ""],
+            [:comment, ""],
+            [:characters, ""],
+            [:comment, ""],
+            [:characters, ""],
 
-            [:end_element, 'p'],
-            [:characters, '']
-          ], items
+            [:end_element, "p"],
+            [:characters, ""],
+          ], items)
 
           nil
         end

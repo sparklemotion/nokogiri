@@ -1,5 +1,7 @@
 # encoding: utf-8
 # frozen_string_literal: true
+
+require "English"
 require "helper"
 
 if Nokogiri.uses_gumbo?
@@ -7,7 +9,7 @@ if Nokogiri.uses_gumbo?
     test = { script: :both }
     index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
     abort("Expected #errors in\n#{test_data}") if index.nil?
-    skip_amount = $~[0].length
+    skip_amount = $LAST_MATCH_INFO[0].length
     # Omit the final new line
     test[:data] = test_data[0...index]
 
@@ -25,7 +27,7 @@ if Nokogiri.uses_gumbo?
     test[:new_errors] = []
     if lines[index] == "#new-errors"
       index += 1
-      until %w[#document-fragment #document #script-off #script-on].include?(lines[index])
+      until ["#document-fragment", "#document", "#script-off", "#script-on"].include?(lines[index])
         test[:new_errors] << lines[index]
         index += 1
       end
@@ -38,7 +40,7 @@ if Nokogiri.uses_gumbo?
     abort("failed to find fragment: #{index}: #{lines[index]}") if test_data.include?("#document-fragment") && test[:context].nil?
 
     if lines[index] =~ /#script-(on|off)/
-      test[:script] = $~[1].to_sym
+      test[:script] = $LAST_MATCH_INFO[1].to_sym
       index += 1
     end
 
@@ -52,7 +54,7 @@ if Nokogiri.uses_gumbo?
     open_nodes = [document]
     while index < lines.length
       abort("Expected '| ' but got #{lines[index]}") unless /^\| ( *)([^ ].*$)/ =~ lines[index]
-      depth = $~[1].length
+      depth = $LAST_MATCH_INFO[1].length
       if depth.odd?
         abort("Invalid nesting depth")
       else
@@ -61,7 +63,7 @@ if Nokogiri.uses_gumbo?
       abort("Too deep") if depth >= open_nodes.length
 
       node = {}
-      node_text = $~[2]
+      node_text = $LAST_MATCH_INFO[2]
       if node_text[0] == '"'
         if node_text == '"' || node_text[-1] != '"'
           loop do
@@ -74,12 +76,12 @@ if Nokogiri.uses_gumbo?
         node[:contents] = node_text[1..-2]
       elsif /^<!DOCTYPE ([^ >]*)(?: "([^"]*)" "(.*)")?>$/ =~ node_text
         node[:type] = :doctype
-        node[:name] = $~[1]
-        node[:public_id] = $~[2].nil? || $~[2].empty? ? nil : $~[2]
-        node[:system_id] = $~[3].nil? || $~[3].empty? ? nil : $~[3]
-      elsif node_text.start_with?('<!-- ')
+        node[:name] = $LAST_MATCH_INFO[1]
+        node[:public_id] = $LAST_MATCH_INFO[2].nil? || $LAST_MATCH_INFO[2].empty? ? nil : $LAST_MATCH_INFO[2]
+        node[:system_id] = $LAST_MATCH_INFO[3].nil? || $LAST_MATCH_INFO[3].empty? ? nil : $LAST_MATCH_INFO[3]
+      elsif node_text.start_with?("<!-- ")
         loop do
-          break if lines[index].end_with?(' -->')
+          break if lines[index].end_with?(" -->")
           index += 1
           node_text << "\n" + lines[index]
         end
@@ -87,15 +89,15 @@ if Nokogiri.uses_gumbo?
         node[:contents] = node_text[5..-5]
       elsif /^<(svg |math )?(.+)>$/ =~ node_text
         node[:type] = :element
-        node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
-        node[:tag] = $~[2]
+        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:tag] = $LAST_MATCH_INFO[2]
         node[:attributes] = []
         node[:children] = []
       elsif /^([^ ]+ )?([^=]+)="(.*)"$/ =~ node_text
         node[:type] = :attribute
-        node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
-        node[:name] = $~[2]
-        node[:value] = $~[3]
+        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:name] = $LAST_MATCH_INFO[2]
+        node[:value] = $LAST_MATCH_INFO[3]
       elsif node_text == "content"
         node[:type] = :template
       else
@@ -142,7 +144,7 @@ if Nokogiri.uses_gumbo?
     def compare_nodes(node, ng_node)
       case ng_node.type
       when Nokogiri::XML::Node::ELEMENT_NODE
-        assert_equal(node[:type], :element)
+        assert_equal(:element, node[:type])
         if node[:ns]
           refute_nil(ng_node.namespace)
           assert_equal(node[:ns], ng_node.namespace.prefix)
@@ -159,23 +161,23 @@ if Nokogiri.uses_gumbo?
           assert_equal(attr[:value], value)
         end
         assert_equal(node[:children].length, ng_node.children.length,
-          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
+          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
       when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
         # We preserve the CDATA in the tree, but the tests represent it as text.
-        assert_equal(node[:type], :text)
+        assert_equal(:text, node[:type])
         assert_equal(node[:contents], ng_node.content)
       when Nokogiri::XML::Node::COMMENT_NODE
-        assert_equal(node[:type], :comment)
+        assert_equal(:comment, node[:type])
         assert_equal(node[:contents], ng_node.content)
       when Nokogiri::XML::Node::HTML_DOCUMENT_NODE
-        assert_equal(node[:type], :document)
+        assert_equal(:document, node[:type])
         assert_equal(node[:children].length, ng_node.children.length)
       when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
-        assert_equal(node[:type], :fragment)
+        assert_equal(:fragment, node[:type])
         assert_equal(node[:children].length, ng_node.children.length,
-          "Fragment node has wrong number of children #{ng_node.children.map { |c| c.name }} in #{@test[:data]}")
+          "Fragment node has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
       when Nokogiri::XML::Node::DTD_NODE
-        assert_equal(node[:type], :doctype)
+        assert_equal(:doctype, node[:type])
         assert_equal(node[:name], ng_node.name)
         assert_equal_or_nil(node[:public_id], ng_node.external_id)
         assert_equal_or_nil(node[:system_id], ng_node.system_id)
@@ -211,7 +213,7 @@ if Nokogiri.uses_gumbo?
         act_child = act.children[child_index]
         compare_nodes(exp_child, act_child)
         children[-1] = child_index + 1
-        next unless exp_child.has_key?(:children)
+        next unless exp_child.key?(:children)
         exp_nodes << exp_child
         act_nodes << act_child
         children << 0
@@ -252,7 +254,7 @@ if Nokogiri.uses_gumbo?
   Dir[File.join(tc_path, "*.dat")].each do |path|
     test_name = "TestHtml5TreeConstruction" + File.basename(path, ".dat")
       .split(/[_-]/)
-      .map { |s| s.capitalize }
+      .map(&:capitalize)
       .join("")
     tests = []
     File.open(path, "r", encoding: "UTF-8") do |f|

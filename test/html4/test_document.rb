@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -14,13 +15,13 @@ module Nokogiri
         end
 
         def test_does_not_fail_with_illformatted_html
-          doc = Nokogiri::HTML('"</html>";'.dup.force_encoding(Encoding::BINARY))
-          assert_not_nil(doc)
+          doc = Nokogiri::HTML((+'"</html>";').force_encoding(Encoding::BINARY))
+          refute_nil(doc)
         end
 
         def test_exceptions_remove_newlines
           errors = html.errors
-          assert(errors.length > 0, "has errors")
+          refute_empty(errors, "has errors")
           errors.each do |error|
             assert_equal(error.to_s.chomp, error.to_s)
           end
@@ -64,6 +65,7 @@ module Nokogiri
             attr_accessor :initialized_with
 
             def initialize(*args)
+              super
               @initialized_with = args
             end
           end
@@ -199,7 +201,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal(1, doc.css("title").size)
           assert_equal("new", doc.title)
@@ -213,11 +215,11 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           title = doc.at("/html/head/title")
-          assert_not_nil(title)
+          refute_nil(title)
           assert_equal("new", title.text)
           assert_equal(-1, doc.at("meta[@http-equiv]") <=> title)
 
@@ -227,12 +229,12 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           # <head> may or may not be added
           title = doc.at("/html//title")
-          assert_not_nil(title)
+          refute_nil(title)
           assert_equal("new", title.text)
           assert_equal(-1, title <=> doc.at("body"))
 
@@ -243,7 +245,7 @@ module Nokogiri
                 foo
               </body>
             </html>
-            EOHTML
+          EOHTML
           doc.title = "new"
           assert_equal("new", doc.title)
           assert_equal(-1, doc.at("meta[@charset]") <=> doc.at("title"))
@@ -343,6 +345,7 @@ module Nokogiri
         def test_parse_works_with_an_object_that_responds_to_read
           klass = Class.new do
             def initialize
+              super
               @contents = StringIO.new("<div>foo</div>")
             end
 
@@ -386,8 +389,8 @@ module Nokogiri
             <html>
             </html>
           EOHTML
-          assert(html.to_html.length > 0, "html length is too short")
-          assert_no_match(/^<\?xml/, html.to_html)
+          refute_empty(html.to_html, "html length is too short")
+          refute_match(/^<\?xml/, html.to_html)
         end
 
         def test_document_has_error
@@ -401,7 +404,7 @@ module Nokogiri
               </body>
             </html>
           EOHTML
-          assert(html.errors.length > 0)
+          refute_empty(html.errors)
         end
 
         def test_relative_css
@@ -488,15 +491,18 @@ module Nokogiri
         end
 
         def test_find_by_css_with_square_brackets
-          found = html.css("div[@id='header'] > h1")
-          found = html.css("div[@id='header'] h1") # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
+          assert(found = html.css("div[@id='header'] > h1"))
+          assert_equal(1, found.length)
+
+          # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
+          assert(found = html.css("div[@id='header'] h1"))
           assert_equal(1, found.length)
         end
 
         def test_find_by_css_with_escaped_characters
           found_without_escape = html.css("div[@id='abc.123']")
-          found_by_id = html.css('#abc\.123')
-          found_by_class = html.css('.special\.character')
+          found_by_id = html.css("#abc\\.123")
+          found_by_class = html.css(".special\\.character")
           assert_equal(1, found_without_escape.length)
           assert_equal(found_by_id, found_without_escape)
           assert_equal(found_by_class, found_without_escape)
@@ -520,13 +526,13 @@ module Nokogiri
         def test_search_can_handle_xpath_and_css
           found = html.search("//div/a", "div > p")
           length = html.xpath("//div/a").length +
-                   html.css("div > p").length
+            html.css("div > p").length
           assert_equal(length, found.length)
         end
 
         def test_dup_document
           assert(dup = html.dup)
-          assert_not_equal(dup, html)
+          refute_equal(dup, html)
           assert(html.html?)
           assert_instance_of(Nokogiri::HTML::Document, dup)
           assert(dup.html?, "duplicate should be html")
@@ -535,7 +541,7 @@ module Nokogiri
 
         def test_dup_document_shallow
           assert(dup = html.dup(0))
-          assert_not_equal(dup, html)
+          refute_equal(dup, html)
         end
 
         def test_dup
@@ -638,7 +644,7 @@ module Nokogiri
         end
 
         def test_parse_works_with_an_object_that_responds_to_path
-          html = String.new("<html><body>hello</body></html>")
+          html = +"<html><body>hello</body></html>"
           def html.path
             "/i/should/be/the/document/url"
           end
@@ -660,7 +666,7 @@ module Nokogiri
         end
 
         def test_html?
-          assert(!html.xml?)
+          refute(html.xml?)
           assert(html.html?)
         end
 
@@ -692,8 +698,8 @@ module Nokogiri
           node2 = doc2.at_css("#unique")
           original_errors1 = doc1.errors.dup
           original_errors2 = doc2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s =~ /Tag diva invalid/ }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s =~ /Tag dive invalid/ }, "it should complain about the tag name")
+          assert(original_errors1.any? { |e| e.to_s.include?("Tag diva invalid") }, "it should complain about the tag name")
+          assert(original_errors2.any? { |e| e.to_s.include?("Tag dive invalid") }, "it should complain about the tag name")
 
           node1.add_child(node2)
 
@@ -761,7 +767,7 @@ module Nokogiri
           # just checking that this doesn't raise a valgrind error. we
           # don't otherwise have any test coverage for removing DTDs.
           #
-          100.times do |i|
+          100.times do |_i|
             Nokogiri::HTML::Document.new.internal_subset.remove
           end
         end

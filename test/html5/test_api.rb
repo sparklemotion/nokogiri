@@ -1,5 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
+
 require "helper"
 
 class TestHtml5API < Nokogiri::TestCase
@@ -91,7 +92,7 @@ class TestHtml5API < Nokogiri::TestCase
     assert_match("ฉันไม่พูดภาษาไทย", html2)
   end
 
-  %w[pre listing textarea].each do |tag|
+  ["pre", "listing", "textarea"].each do |tag|
     define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
       doc = Nokogiri::HTML5("<!DOCTYPE html><#{tag}>\n\nContent</#{tag}>")
       html = doc.at("/html/body/#{tag}").serialize(preserve_newline: true)
@@ -173,7 +174,7 @@ class TestHtml5API < Nokogiri::TestCase
     doc = Nokogiri.HTML5("<!DOCTYPE html><body>")
     frag = doc.fragment
     assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
-    assert(frag.children.empty?)
+    assert_empty(frag.children)
   end
 
   def test_html_eh

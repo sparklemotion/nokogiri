@@ -53,7 +53,7 @@ module Nokogiri
           </xsl:stylesheet>
         EOXSL
         result = xsl.transform(@xml)
-        assert_match(/FOO/, result.css('title').first.text)
+        assert_match(/FOO/, result.css("title").first.text)
       end
 
       def test_function_arguments
@@ -63,6 +63,7 @@ module Nokogiri
           # Minitest 5 uses `self.assertions` in `assert()` which is not
           # defined in the Minitest::Assertions module :-(
           attr_writer :assertions
+
           def assertions
             @assertions ||= 0
           end
@@ -120,7 +121,7 @@ module Nokogiri
           </xsl:stylesheet>
         EOXSL
         result = xsl.transform(@xml)
-        assert_match(/FOO/, result.css('title').first.text)
+        assert_match(/FOO/, result.css("title").first.text)
       end
     end
   end

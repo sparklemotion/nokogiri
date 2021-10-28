@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     ###
@@ -81,7 +82,8 @@ module Nokogiri
       DEFAULT_SCHEMA = NONET | BIG_LINES
 
       attr_accessor :options
-      def initialize options = STRICT
+
+      def initialize(options = STRICT)
         @options = options
       end
 
@@ -117,14 +119,14 @@ module Nokogiri
         other.to_i == to_i
       end
 
-      alias :to_i :options
+      alias_method :to_i, :options
 
       def inspect
         options = []
         self.class.constants.each do |k|
           options << k.downcase if send(:"#{k.downcase}?")
         end
-        super.sub(/>$/, " " + options.join(', ') + ">")
+        super.sub(/>$/, " " + options.join(", ") + ">")
       end
     end
   end

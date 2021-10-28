@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -157,15 +158,17 @@ module Nokogiri
         end
 
         def test_fragment_search_with_multiple_queries
-          xml = '<thing>
-                 <div class="title">important thing</div>
-               </thing>
-               <thing>
-                 <div class="content">stuff</div>
-               </thing>
-               <thing>
-                 <p class="blah">more stuff</div>
-               </thing>'
+          xml = <<~EOF
+            <thing>
+              <div class="title">important thing</div>
+            </thing>
+            <thing>
+              <div class="content">stuff</div>
+            </thing>
+            <thing>
+              <p class="blah">more stuff</div>
+            </thing>
+          EOF
           fragment = Nokogiri::XML.fragment(xml)
           assert_kind_of(Nokogiri::XML::DocumentFragment, fragment)
 
@@ -216,11 +219,11 @@ module Nokogiri
           fragment = Nokogiri::XML::DocumentFragment.new(xml, "<div>a</div><div>b</div>")
 
           assert(node_set = fragment.css("div"))
-          assert(node_set.respond_to?(:awesome!))
+          assert_respond_to(node_set, :awesome!)
           node_set.each do |node|
-            assert(node.respond_to?(:awesome!), node.class)
+            assert_respond_to(node, :awesome!, node.class)
           end
-          assert(fragment.children.respond_to?(:awesome!), fragment.children.class)
+          assert_respond_to(fragment.children, :awesome!, fragment.children.class)
         end
 
         def test_decorator_is_applied_to_empty_set
@@ -230,7 +233,7 @@ module Nokogiri
           end
           util_decorate(xml, x)
           fragment = Nokogiri::XML::DocumentFragment.new(xml, "")
-          assert(fragment.children.respond_to?(:awesome!), fragment.children.class)
+          assert_respond_to(fragment.children, :awesome!, fragment.children.class)
         end
 
         def test_add_node_to_doc_fragment_segfault
@@ -255,7 +258,7 @@ module Nokogiri
           # https://github.com/sparklemotion/nokogiri/issues/1063
           original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
           duplicate = original.dup
-          assert_not_equal(original.document, duplicate.document)
+          refute_equal(original.document, duplicate.document)
         end
 
         def test_dup_should_create_an_xml_document_fragment
@@ -276,7 +279,7 @@ module Nokogiri
           duplicate = original.dup
           duplicate.at_css("div").add_child("<b>hello there</b>")
           assert_nil(original.at_css("b"))
-          assert_not_nil(duplicate.at_css("b"))
+          refute_nil(duplicate.at_css("b"))
         end
 
         def test_for_libxml_in_context_fragment_parsing_bug_workaround

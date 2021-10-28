@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
@@ -11,7 +12,7 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME],
          [:PSEUDO_CLASS,
-          [:FUNCTION]]]
+          [:FUNCTION],],]
       )
       assert_equal(1, matches.length)
       assert_equal(ast, matches.first)
@@ -23,7 +24,7 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME],
          [:PSEUDO_CLASS,
-          [:FUNCTION]]], ast.to_type
+          [:FUNCTION],],], ast.to_type
       )
     end
 
@@ -33,7 +34,7 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME, ["a"]],
          [:PSEUDO_CLASS,
-          [:FUNCTION, ["nth-child("], ["2"]]]], asts.first.to_a
+          [:FUNCTION, ["nth-child("], ["2"]],],], asts.first.to_a
       )
     end
   end

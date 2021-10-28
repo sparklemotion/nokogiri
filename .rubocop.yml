@@ -1,0 +1,19 @@
+require:
+  - rubocop-minitest
+  - rubocop-performance
+  - rubocop-rake
+inherit_gem:
+  rubocop-shopify: rubocop.yml
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'lib/nokogiri/css/parser.rb'
+    - 'lib/nokogiri/css/tokenizer.rb'
+Naming/MethodName:
+  Enabled: false
+Naming/FileName:
+  Exclude:
+    - rakelib/**
+    - test/html5/test_tree-construction.rb

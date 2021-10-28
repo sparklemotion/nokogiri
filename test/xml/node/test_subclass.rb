@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "helper"
 
 module Nokogiri
@@ -5,17 +7,17 @@ module Nokogiri
     class Node
       class TestSubclass < Nokogiri::TestCase
         {
-          Nokogiri::XML::CDATA                  => 'doc, "foo"',
-          Nokogiri::XML::Attr                   => 'doc, "foo"',
-          Nokogiri::XML::Comment                => 'doc, "foo"',
-          Nokogiri::XML::EntityReference        => 'doc, "foo"',
-          Nokogiri::XML::ProcessingInstruction  => 'doc, "foo", "bar"',
-          Nokogiri::XML::DocumentFragment       => 'doc',
-          Nokogiri::XML::Node                   => '"foo", doc',
-          Nokogiri::XML::Text                   => '"foo", doc',
+          Nokogiri::XML::CDATA => 'doc, "foo"',
+          Nokogiri::XML::Attr => 'doc, "foo"',
+          Nokogiri::XML::Comment => 'doc, "foo"',
+          Nokogiri::XML::EntityReference => 'doc, "foo"',
+          Nokogiri::XML::ProcessingInstruction => 'doc, "foo", "bar"',
+          Nokogiri::XML::DocumentFragment => "doc",
+          Nokogiri::XML::Node => '"foo", doc',
+          Nokogiri::XML::Text => '"foo", doc',
         }.each do |klass, constructor|
           class_eval %{
-            def test_subclass_#{klass.name.gsub('::', '_')}
+            def test_subclass_#{klass.name.gsub("::", "_")}
               doc = Nokogiri::XML::Document.new
               klass = Class.new(#{klass.name})
               node = klass.new(#{constructor})
@@ -24,7 +26,7 @@ module Nokogiri
           }
 
           class_eval <<-eocode, __FILE__, __LINE__ + 1
-            def test_subclass_initialize_#{klass.name.gsub('::', '_')}
+            def test_subclass_initialize_#{klass.name.gsub("::", "_")}
               doc = Nokogiri::XML::Document.new
               klass = Class.new(#{klass.name}) do
                 attr_accessor :initialized_with

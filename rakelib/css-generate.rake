@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace "css" do
   PARSER_DEPS = { "lib/nokogiri/css/parser.rb" => "lib/nokogiri/css/parser.y" }
   TOKENIZER_DEPS = { "lib/nokogiri/css/tokenizer.rb" => "lib/nokogiri/css/tokenizer.rex" }
@@ -8,7 +10,7 @@ namespace "css" do
 
   desc "Clean up generated CSS parser and tokenizer"
   task "clean" do
-    DEPS.keys.each { |f| FileUtils.rm_f f, :verbose => true }
+    DEPS.keys.each { |f| FileUtils.rm_f(f, verbose: true) }
   end
 
   file PARSER_DEPS do |t|
@@ -20,5 +22,5 @@ namespace "css" do
   end
 end
 
-task "compile" => "css:generate"
-task "check_manifest" => "css:generate"
+task "compile" => "css:generate" # rubocop:disable Rake/Desc
+task "check_manifest" => "css:generate" # rubocop:disable Rake/Desc

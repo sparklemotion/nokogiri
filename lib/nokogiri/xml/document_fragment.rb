@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
@@ -8,21 +9,21 @@ module Nokogiri
       #  If +ctx+ is present, it is used as a context node for the
       #  subtree created, e.g., namespaces will be resolved relative
       #  to +ctx+.
-      def initialize document, tags = nil, ctx = nil
+      def initialize(document, tags = nil, ctx = nil)
         return self unless tags
 
         children = if ctx
-                     # Fix for issue#490
-                     if Nokogiri.jruby?
-                       # fix for issue #770
-                       ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
-                     else
-                       ctx.parse(tags)
-                     end
-                   else
-                     XML::Document.parse("<root>#{tags}</root>") \
-                       .xpath("/root/node()")
-                   end
+          # Fix for issue#490
+          if Nokogiri.jruby?
+            # fix for issue #770
+            ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
+          else
+            ctx.parse(tags)
+          end
+        else
+          XML::Document.parse("<root>#{tags}</root>") \
+            .xpath("/root/node()")
+        end
         children.each { |child| child.parent = self }
       end
 
@@ -40,7 +41,7 @@ module Nokogiri
       ###
       # return the name for DocumentFragment
       def name
-        '#document-fragment'
+        "#document-fragment"
       end
 
       ###
@@ -52,10 +53,10 @@ module Nokogiri
       ###
       # Convert this DocumentFragment to html
       # See Nokogiri::XML::NodeSet#to_html
-      def to_html *args
+      def to_html(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::NO_DECLARATION | Node::SaveOptions::NO_EMPTY_TAGS | Node::SaveOptions::AS_HTML
           end
           args.insert(0, options)
@@ -66,10 +67,10 @@ module Nokogiri
       ###
       # Convert this DocumentFragment to xhtml
       # See Nokogiri::XML::NodeSet#to_xhtml
-      def to_xhtml *args
+      def to_xhtml(*args)
         if Nokogiri.jruby?
           options = args.first.is_a?(Hash) ? args.shift : {}
-          if !options[:save_with]
+          unless options[:save_with]
             options[:save_with] = Node::SaveOptions::NO_DECLARATION | Node::SaveOptions::NO_EMPTY_TAGS | Node::SaveOptions::AS_XHTML
           end
           args.insert(0, options)
@@ -80,7 +81,7 @@ module Nokogiri
       ###
       # Convert this DocumentFragment to xml
       # See Nokogiri::XML::NodeSet#to_xml
-      def to_xml *args
+      def to_xml(*args)
         children.to_xml(*args)
       end
 
@@ -91,7 +92,7 @@ module Nokogiri
       # selectors. For example:
       #
       # For more information see Nokogiri::XML::Searchable#css
-      def css *args
+      def css(*args)
         if children.any?
           children.css(*args) # 'children' is a smell here
         else
@@ -110,25 +111,25 @@ module Nokogiri
       # Search this fragment for +paths+. +paths+ must be one or more XPath or CSS queries.
       #
       # For more information see Nokogiri::XML::Searchable#search
-      def search *rules
+      def search(*rules)
         rules, handler, ns, binds = extract_params(rules)
 
         rules.inject(NodeSet.new(document)) do |set, rule|
-          set += if rule =~ Searchable::LOOKS_LIKE_XPATH
-                   xpath(*([rule, ns, handler, binds].compact))
-                 else
-                   children.css(*([rule, ns, handler].compact)) # 'children' is a smell here
-                 end
+          set + if Searchable::LOOKS_LIKE_XPATH.match?(rule)
+            xpath(*[rule, ns, handler, binds].compact)
+          else
+            children.css(*[rule, ns, handler].compact) # 'children' is a smell here
+          end
         end
       end
 
-      alias :serialize :to_s
+      alias_method :serialize, :to_s
 
       class << self
         ####
         # Create a Nokogiri::XML::DocumentFragment from +tags+
-        def parse tags
-          self.new(XML::Document.new, tags)
+        def parse(tags)
+          new(XML::Document.new, tags)
         end
       end
 
@@ -137,7 +138,7 @@ module Nokogiri
         document.errors
       end
 
-      def errors= things # :nodoc:
+      def errors=(things) # :nodoc:
         document.errors = things
       end
 
@@ -148,11 +149,11 @@ module Nokogiri
       private
 
       # fix for issue 770
-      def namespace_declarations ctx
+      def namespace_declarations(ctx)
         ctx.namespace_scopes.map do |namespace|
           prefix = namespace.prefix.nil? ? "" : ":#{namespace.prefix}"
-          %Q{xmlns#{prefix}="#{namespace.href}"}
-        end.join ' '
+          %{xmlns#{prefix}="#{namespace.href}"}
+        end.join(" ")
       end
     end
   end

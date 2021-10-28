@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 #
 #  script to see what PRs, if any, are operating on a file that I care about.
 #  yes, this is a smell. we shouldn't have long-lived PRs, but alas here we are.
@@ -13,37 +15,37 @@ end
 require "git_diff"
 require "set"
 
-gh = `which gh 2> /dev/null`.strip
+gh = %x(which gh 2> /dev/null).strip
 if gh.empty?
   puts "Please install the github CLI at https://cli.github.com/"
   exit 1
 end
 
-def get command
+def get(command)
   puts "> #{command}"
-  output = `#{command}`
+  output = %x(#{command})
   output
 end
 
 def get_paths_from_a_diff(diff)
-  re = /^(?:---|\+\+\+) [ab]\/(.*)$/
-  diff.split("\n").grep(re).map {|line| line.sub(re, '\1') }.uniq
+  re = %r{^(?:---|\+\+\+) [ab]/(.*)$}
+  diff.split("\n").grep(re).map { |line| line.sub(re, '\1') }.uniq
 end
 
 prs = get("gh pr list").split("\n")
 
-paths_to_prs = Hash.new { |h,k| h[k] = Set.new }
+paths_to_prs = Hash.new { |h, k| h[k] = Set.new }
 
 prs.each do |pr|
   pr_number, *pr_desc = pr.split(/\s+/)
   pr_desc = pr_desc.join(" ")
 
   diff = get("gh pr diff #{pr_number}")
-  diff_data = GitDiff::from_string(diff)
+  diff_data = GitDiff.from_string(diff)
 
   relevant_files = diff_data.files.map(&:b_path)
 
-  if relevant_files.length > 0
+  unless relevant_files.empty?
     puts "PR #{pr_number}: #{pr_desc}"
     relevant_files.sort.each do |file|
       puts "- #{file}"

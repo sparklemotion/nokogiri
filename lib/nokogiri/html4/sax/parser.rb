@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Nokogiri
   module HTML4
     ###
@@ -28,7 +29,7 @@ module Nokogiri
         # Parse html stored in +data+ using +encoding+
         def parse_memory(data, encoding = "UTF-8")
           raise ArgumentError unless data
-          return unless data.length > 0
+          return if data.empty?
           ctx = ParserContext.memory(data, encoding)
           yield ctx if block_given?
           ctx.parse_with(self)

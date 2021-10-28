@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "singleton"
 require "shellwords"
 
@@ -102,8 +103,8 @@ module Nokogiri
             ldflags = []
 
             if libxml2_using_packaged?
-              cppflags << "-I#{File.join(header_directory, 'include').shellescape}"
-              cppflags << "-I#{File.join(header_directory, 'include/libxml2').shellescape}"
+              cppflags << "-I#{File.join(header_directory, "include").shellescape}"
+              cppflags << "-I#{File.join(header_directory, "include/libxml2").shellescape}"
 
               if windows?
                 # on windows, nokogumbo needs to link against nokogiri.so to resolve symbols. see #2167
@@ -176,13 +177,9 @@ module Nokogiri
     end
 
     def to_markdown
-      begin
-        require "psych"
-      rescue LoadError
-      end
       require "yaml"
       "# Nokogiri (#{Nokogiri::VERSION})\n" +
-      YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
+        YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
     end
 
     instance.warnings.each do |warning|
