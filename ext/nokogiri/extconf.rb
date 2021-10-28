@@ -285,7 +285,8 @@ ensure
 end
 
 def abort_could_not_find_library(lib)
-  abort("-----\n#{caller(1..1).first}\n#{lib} is missing. Please locate mkmf.log to investigate how it is failing.\n-----")
+  callers = caller(1..2).join("\n")
+  abort("-----\n#{callers}\n#{lib} is missing. Please locate mkmf.log to investigate how it is failing.\n-----")
 end
 
 def chdir_for_build(&block)
