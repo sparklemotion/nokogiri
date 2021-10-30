@@ -14,6 +14,8 @@ BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
+# TODO remove this stanza once https://github.com/rake-compiler/rake-compiler-dock/pull/57 is
+# shipped in a version of rake-compiler-dock
 if [[ "${XRUBIES:-}" != "" ]] ; then
   # normally part of rake-compiler-dock "runas"
   . /etc/rubybashrc
