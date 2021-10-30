@@ -35,7 +35,7 @@ if [[ "${BUILD_NATIVE_GEM}" == "ruby" ]] ; then
 elif [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
   bundle exec rake java gem
 else
-  bundle exec rake gem:${BUILD_NATIVE_GEM}:builder FORCE_CROSS_COMPILING=true
+  bundle exec rake gem:${BUILD_NATIVE_GEM}:builder
 fi
 
 ./scripts/test-gem-file-contents pkg/nokogiri*.gem
