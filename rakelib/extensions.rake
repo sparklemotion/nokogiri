@@ -298,7 +298,7 @@ end
 
 if java?
   require "rake/javaextensiontask"
-  Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
+  Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
     jruby_home = RbConfig::CONFIG["prefix"]
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList["lib/*.jar"]
 
@@ -341,7 +341,7 @@ else
     end
   end
 
-  Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC) do |ext|
+  Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
     ext.source_pattern = "*.{c,cc,cpp,h}"
     ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 

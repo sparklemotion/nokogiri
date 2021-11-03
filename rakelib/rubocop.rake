@@ -5,6 +5,10 @@ require "rubocop/rake_task"
 module RubocopHelper
   class << self
     def common_options(task)
+      task.patterns += [
+        "Gemfile", "Rakefile", "nokogiri.gemspec",
+        "bin", "ext", "lib", "oci-images", "rakelib", "scripts", "test",
+      ]
       task.options << "--cache=true"
       task.options << "--parallel"
     end

@@ -46,11 +46,11 @@ module AstyleHelper
     end
 
     def c_files
-      FileList.new("ext/**/*.[ch]")
+      NOKOGIRI_SPEC.files.grep(%r{ext/nokogiri/.*\.[ch]\Z})
     end
 
     def java_files
-      FileList.new("ext/**/*.java")
+      NOKOGIRI_SPEC.files.grep(%r{ext/java/.*\.java\Z})
     end
   end
 end
