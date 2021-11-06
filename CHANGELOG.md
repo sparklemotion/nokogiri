@@ -6,6 +6,15 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Notes
+
+#### Publishing
+
+Note that this version of Nokogiri opts-in to the ["MFA required to publish" setting](https://guides.rubygems.org/mfa-requirement-opt-in/) on Rubygems.org. This and all future Nokogiri gem files must be published to Rubygems by an account with multi-factor authentication enabled. This should provide some additional protection against supply-chain attacks.
+
+A related discussion about Trust exists at [#2357](https://github.com/sparklemotion/nokogiri/issues/2357) in which I invite you to participate if you have feelings or opinions on this topic.
+
+
 ### Dependencies
 
 * [CRuby] Vendored libiconv is updated from 1.15 to 1.16. (Note that libiconv is only redistributed in the native windows and native darwin gems, see [`LICENSE-DEPENDENCIES.md`](LICENSE-DEPENDENCIES.md) for more information.) [[#2206](https://github.com/sparklemotion/nokogiri/issues/2206)]

@@ -49,6 +49,7 @@ Gem::Specification.new do |spec|
     "documentation_uri" => "https://nokogiri.org/rdoc/index.html",
     "changelog_uri" => "https://nokogiri.org/CHANGELOG.html",
     "source_code_uri" => "https://github.com/sparklemotion/nokogiri",
+    "rubygems_mfa_required" => "true",
   }
 
   spec.files = [
