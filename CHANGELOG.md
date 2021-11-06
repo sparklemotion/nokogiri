@@ -20,6 +20,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Fix memory leak in XPath custom handlers where string arguments were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `Reader#base_uri` where the string returned by libxml2 was not freed. [[#2347](https://github.com/sparklemotion/nokogiri/issues/2347)]
 * [JRuby] Deleting a `Namespace` from a `NodeSet` no longer modifies the `href` to be the default namespace URL.
+* [JRuby] Fix XHTML formatting of closing tags for non-container elements. [[#2355](https://github.com/sparklemotion/nokogiri/issues/2355)]
 
 
 ### Improved

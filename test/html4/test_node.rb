@@ -203,6 +203,12 @@ module Nokogiri
         # are not set. the fix for GH1042 ensures a proper working clone.
         trs.inspect # assert_nothing_raised
       end
+
+      def test_fragment_node_to_xhtml # see #2355
+        html = "<h1><a></a><br>First H1</h1>"
+        fragment = Nokogiri::HTML4::DocumentFragment.parse(html)
+        assert_equal("<h1><a></a><br />First H1</h1>", fragment.at_css("h1").to_xhtml)
+      end
     end
   end
 end

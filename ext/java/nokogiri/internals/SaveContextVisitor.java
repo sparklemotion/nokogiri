@@ -673,6 +673,8 @@ public class SaveContextVisitor
       if (!isEmpty(name) && noEmpty) {
         buffer.append("</").append(name).append('>');
       }
+    } else if (asXhtml && !isEmpty(name)) {
+      buffer.append("</").append(name).append('>');
     }
     if (needBreakInClosing(element)) {
       if (!containsText(element)) { indentation.pop(); }
