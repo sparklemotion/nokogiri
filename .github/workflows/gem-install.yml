@@ -147,6 +147,19 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems
 
+  cruby-x86_64-musl-install:
+    needs: ["cruby-native-package"]
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:3.0-alpine
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x86_64-linux-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+
   cruby-x86_64-darwin-install:
     needs: ["cruby-native-package"]
     strategy:
