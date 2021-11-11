@@ -147,6 +147,23 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems
 
+  cruby-x86_64-musl-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sparklemotion/nokogiri-test:alpine
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x86_64-linux-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+
   cruby-x86_64-darwin-install:
     needs: ["cruby-native-package"]
     strategy:
