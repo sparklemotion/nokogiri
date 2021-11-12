@@ -229,6 +229,7 @@ jobs:
       - run: bundle exec rake test
 
   windows:
+    continue-on-error: ${{matrix.ruby == '2.5'}} # see https://github.com/sparklemotion/nokogiri/issues/2354
     needs: ["basic"]
     strategy:
       fail-fast: false
