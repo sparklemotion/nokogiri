@@ -2,7 +2,7 @@ FROM ruby:alpine3.12
 
 # prelude
 RUN apk update
-RUN apk add bash build-base
+RUN apk add bash build-base git
 
 # valgrind
 RUN apk add valgrind
