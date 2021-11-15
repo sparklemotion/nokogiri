@@ -219,12 +219,13 @@ The bulk of CI is running in Github Actions since May 2021: https://github.com/s
 
 However, we also run tests against 32-bit windows (which aren't supported by GA as of this writing) in Appveyor: https://ci.appveyor.com/project/flavorjones/nokogiri
 
-Please note that there are some known holes in CI coverage due to `actions/download-artifact` (as well as other actions) not supporting systems other than 64-bit glibc:
+Please note that there are some known holes in CI coverage due to github actions limitations:
 
-- installing ruby and native gems on Alpine/musl
-- installing ruby and native gems on 32-bit Linux
+- installing ruby and native gems on 32-bit Linux, see:
+  - [Error: /etc/*release "no such file or directory" · Issue #334 · actions/checkout](https://github.com/actions/checkout/issues/334)
+  - [actions/cache is not working as expected in 32-bit linux containers · Issue #675 · actions/cache](https://github.com/actions/cache/issues/675)
+  - [actions/upload-artifact is not working as expected in 32-bit linux containers · Issue #266 · actions/upload-artifact](https://github.com/actions/upload-artifact/issues/266)
 
-For more information, please check out [#2244](https://github.com/sparklemotion/nokogiri/issues/2244) and [#2247](https://github.com/sparklemotion/nokogiri/issues/2247) which document the migration from Concourse to Github Actions.
 
 ### Coverage
 
