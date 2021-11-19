@@ -80,7 +80,7 @@ Full information and description of our security policy is in [`SECURITY.md`](SE
 
 ### Semantic Versioning Policy
 
-Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). [![Dependabot's SemVer compatibility score for Nokogiri](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
+Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). [![Dependabot's SemVer compatibility score for Nokogiri](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&previous-version=1.11.7&new-version=1.12.5)](https://docs.github.com/en/code-security/supply-chain-security/managing-vulnerabilities-in-your-projects-dependencies/about-dependabot-security-updates#about-compatibility-scores)
 
 We bump `Major.Minor.Patch` versions following this guidance:
 
