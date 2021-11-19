@@ -23,6 +23,7 @@ A related discussion about Trust exists at [#2357](https://github.com/sparklemot
 
 ### Fixed
 
+* XML::Builder blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
 * [CRuby] Fix memory leak in `Document#canonicalize` when inclusive namespaces are passed in. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `Document#canonicalize` when an argument type error is raised. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `EncodingHandler` where iconv handlers were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
