@@ -425,15 +425,18 @@ module Nokogiri
       def insert(node, &block)
         node = @parent.add_child(node)
         if block
-          old_parent = @parent
-          @parent = node
-          @arity ||= block.arity
-          if @arity <= 0
-            instance_eval(&block)
-          else
-            yield(self)
+          begin
+            old_parent = @parent
+            @parent = node
+            @arity ||= block.arity
+            if @arity <= 0
+              instance_eval(&block)
+            else
+              yield(self)
+            end
+          ensure
+            @parent = old_parent
           end
-          @parent = old_parent
         end
         NodeBuilder.new(node, self)
       end
