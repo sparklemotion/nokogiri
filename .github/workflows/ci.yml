@@ -235,8 +235,8 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0", "mingw"]
-    runs-on: windows-latest
+        ruby: ["2.5", "2.6", "2.7", "3.0", "mingw", "head"]
+    runs-on: windows-2022
     steps:
       - name: configure git crlf
         run: |
@@ -245,11 +245,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: MSP-Greg/setup-ruby-pkgs@win-ucrt-2
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/win-ucrt-1
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
