@@ -2,7 +2,7 @@
 
 VALUE cNokogiriXmlNodeSet ;
 
-static ID decorate ;
+/* static ID decorate ; */
 
 static void
 Check_Node_Set_Node_Type(VALUE node)
@@ -415,27 +415,27 @@ to_array(VALUE self)
  *
  * Unlink this NodeSet and all Node objects it contains from their current context.
  */
-static VALUE
-unlink_nodeset(VALUE self)
-{
-  xmlNodeSetPtr node_set;
-  int j, nodeNr ;
+/* static VALUE */
+/* unlink_nodeset(VALUE self) */
+/* { */
+/*   xmlNodeSetPtr node_set; */
+/*   int j, nodeNr ; */
 
-  Data_Get_Struct(self, xmlNodeSet, node_set);
+/*   Data_Get_Struct(self, xmlNodeSet, node_set); */
 
-  nodeNr = node_set->nodeNr ;
-  for (j = 0 ; j < nodeNr ; j++) {
-    if (! NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) {
-      VALUE node ;
-      xmlNodePtr node_ptr;
-      node = noko_xml_node_wrap(Qnil, node_set->nodeTab[j]);
-      rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
-      Noko_Node_Get_Struct(node, xmlNode, node_ptr);
-      node_set->nodeTab[j] = node_ptr ;
-    }
-  }
-  return self ;
-}
+/*   nodeNr = node_set->nodeNr ; */
+/*   for (j = 0 ; j < nodeNr ; j++) { */
+/*     if (! NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) { */
+/*       VALUE node ; */
+/*       xmlNodePtr node_ptr; */
+/*       node = noko_xml_node_wrap(Qnil, node_set->nodeTab[j]); */
+/*       rb_funcall(node, rb_intern("unlink"), 0); /\* modifies the C struct out from under the object *\/ */
+/*       Noko_Node_Get_Struct(node, xmlNode, node_ptr); */
+/*       node_set->nodeTab[j] = node_ptr ; */
+/*     } */
+/*   } */
+/*   return self ; */
+/* } */
 
 
 VALUE
@@ -444,20 +444,13 @@ noko_xml_node_set_wrap(xmlNodeSetPtr c_node_set, VALUE document)
   int j;
   VALUE rb_node_set ;
 
-  if (c_node_set == NULL) {
-    c_node_set = xmlXPathNodeSetCreate(NULL);
-  }
-
-  rb_node_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, mark, deallocate, c_node_set);
-
-  if (!NIL_P(document)) {
-    rb_iv_set(rb_node_set, "@document", document);
-    rb_funcall(document, decorate, 1, rb_node_set);
-  }
+  rb_node_set = rb_class_new_instance(1, &document, cNokogiriXmlNodeSet);
 
   /* make sure we create ruby objects for all the results, so they'll be marked during the GC mark phase */
-  for (j = 0 ; j < c_node_set->nodeNr ; j++) {
-    noko_xml_node_wrap_node_set_result(c_node_set->nodeTab[j], rb_node_set);
+  if (c_node_set) {
+    for (j = 0 ; j < c_node_set->nodeNr ; j++) {
+      rb_ary_push(rb_node_set, noko_xml_node_wrap_node_set_result(c_node_set->nodeTab[j], rb_node_set));
+    }
   }
 
   return rb_node_set ;
@@ -477,22 +470,22 @@ noko_xml_node_wrap_node_set_result(xmlNodePtr node, VALUE node_set)
 void
 noko_init_xml_node_set(void)
 {
-  cNokogiriXmlNodeSet = rb_define_class_under(mNokogiriXml, "NodeSet", rb_cObject);
+  cNokogiriXmlNodeSet = rb_define_class_under(mNokogiriXml, "NodeSet", rb_cArray);
 
-  rb_define_alloc_func(cNokogiriXmlNodeSet, allocate);
+  /* rb_define_alloc_func(cNokogiriXmlNodeSet, allocate); */
 
-  rb_define_method(cNokogiriXmlNodeSet, "length", length, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "[]", slice, -1);
-  rb_define_method(cNokogiriXmlNodeSet, "slice", slice, -1);
-  rb_define_method(cNokogiriXmlNodeSet, "push", push, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "|", rb_xml_node_set_union, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "-", minus, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "unlink", unlink_nodeset, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "to_a", to_array, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "dup", duplicate, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "delete", delete, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "&", intersection, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "include?", include_eh, 1);
+  /* rb_define_method(cNokogiriXmlNodeSet, "length", length, 0); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "[]", slice, -1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "slice", slice, -1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "push", push, 1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "|", rb_xml_node_set_union, 1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "-", minus, 1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "unlink", unlink_nodeset, 0); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "to_a", to_array, 0); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "dup", duplicate, 0); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "delete", delete, 1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "&", intersection, 1); */
+  /* rb_define_method(cNokogiriXmlNodeSet, "include?", include_eh, 1); */
 
-  decorate = rb_intern("decorate");
+  /* decorate = rb_intern("decorate"); */
 }

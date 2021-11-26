@@ -586,8 +586,8 @@ module Nokogiri
             let(:positions) { xml.search("position") }
 
             it "raises an exception when the rhs type isn't a NodeSet" do
-              assert_raises(ArgumentError) { names.send(method, positions.first) }
-              assert_raises(ArgumentError) { names.send(method, 3) }
+              assert_raises(TypeError) { names.send(method, positions.first) }
+              assert_raises(TypeError) { names.send(method, 3) }
             end
 
             it "returns the setwise union" do

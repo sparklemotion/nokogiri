@@ -1068,6 +1068,11 @@ module Nokogiri
         type == DOCUMENT_FRAG_NODE
       end
 
+      # Returns true if this is a Namespace
+      def namespace?
+        type == NAMESPACE_DECL
+      end
+
       ###
       # Fetch the Nokogiri::HTML4::ElementDescription for this node.  Returns
       # nil on XML documents and on unknown tags.
