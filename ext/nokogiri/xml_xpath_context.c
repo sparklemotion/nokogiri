@@ -154,53 +154,102 @@ register_variable(VALUE self, VALUE name, VALUE value)
  *  returns Qundef if no conversion was possible.
  */
 static VALUE
-xpath2ruby(xmlXPathObjectPtr xobj, xmlXPathContextPtr xctx)
+xpath2ruby(xmlXPathObjectPtr xpath_object, xmlXPathContextPtr xpath_context)
 {
   VALUE retval;
 
-  assert(xctx->doc);
-  assert(DOC_RUBY_OBJECT_TEST(xctx->doc));
-
-  switch (xobj->type) {
+  switch (xpath_object->type) {
     case XPATH_STRING:
-      retval = NOKOGIRI_STR_NEW2(xobj->stringval);
-      xmlFree(xobj->stringval);
+      retval = NOKOGIRI_STR_NEW2(xpath_object->stringval);
+      xmlFree(xpath_object->stringval);
       return retval;
 
     case XPATH_NODESET:
-      return noko_xml_node_set_wrap(xobj->nodesetval,
-                                    DOC_RUBY_OBJECT(xctx->doc));
+      assert(xpath_context->doc);
+      assert(DOC_RUBY_OBJECT_TEST(xpath_context->doc));
+      return noko_xml_node_set_wrap(xpath_object->nodesetval,
+                                    DOC_RUBY_OBJECT(xpath_context->doc));
 
     case XPATH_NUMBER:
-      return rb_float_new(xobj->floatval);
+      return rb_float_new(xpath_object->floatval);
 
     case XPATH_BOOLEAN:
-      return (xobj->boolval == 1) ? Qtrue : Qfalse;
+      return (xpath_object->boolval == 1) ? Qtrue : Qfalse;
 
     default:
       return Qundef;
   }
 }
 
+
+/*
+ *  convert a Ruby object into an XPath object of the appropriate type.
+ *  raises an exception if no conversion was possible.
+ */
+static xmlXPathObjectPtr
+ruby2xpath(VALUE rb_object, xmlXPathContextPtr xpath_context)
+{
+  xmlXPathObjectPtr result;
+
+  switch (TYPE(rb_object)) {
+    case T_FLOAT:
+    case T_BIGNUM:
+    case T_FIXNUM:
+      result = xmlXPathNewFloat(NUM2DBL(rb_object));
+      break;
+    case T_STRING:
+      result = xmlXPathWrapString(xmlCharStrdup(StringValueCStr(rb_object)));
+      break;
+    case T_TRUE:
+      result = xmlXPathNewBoolean(1);
+      break;
+    case T_FALSE:
+    case T_NIL:
+      result = xmlXPathNewBoolean(0);
+      break;
+    case T_ARRAY:
+      {
+        xmlNodeSetPtr c_node_set = NULL;
+        VALUE rb_node_set;
+        VALUE args[2];
+
+        assert(xpath_context->doc);
+        assert(DOC_RUBY_OBJECT_TEST(xpath_context->doc));
+
+        args[0] = DOC_RUBY_OBJECT(xpath_context->doc);
+        args[1] = rb_object;
+        rb_node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
+        Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+        result = xmlXPathWrapNodeSet(xmlXPathNodeSetMerge(NULL, c_node_set));
+      }
+      break;
+    case T_DATA:
+      if (rb_obj_is_kind_of(rb_object, cNokogiriXmlNodeSet)) {
+        xmlNodeSetPtr c_node_set = NULL;
+        Data_Get_Struct(rb_object, xmlNodeSet, c_node_set);
+        /* Copy the node set, otherwise it will get GC'd. */
+        result = xmlXPathWrapNodeSet(xmlXPathNodeSetMerge(NULL, c_node_set));
+        break;
+      }
+    default:
+      rb_raise(rb_eRuntimeError, "Invalid return type");
+  }
+  return result;
+}
+
+
 void
 Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name)
 {
-  VALUE result, doc;
+  VALUE result;
   VALUE *argv;
-  VALUE node_set = Qnil;
-  xmlNodeSetPtr xml_node_set = NULL;
   xmlXPathObjectPtr obj;
-
-  assert(ctx->context->doc);
-  assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
 
   argv = (VALUE *)ruby_xcalloc((size_t)nargs, sizeof(VALUE));
   for (int j = 0 ; j < nargs ; ++j) {
     rb_gc_register_address(&argv[j]);
   }
-
-  doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
   for (int j = nargs - 1 ; j >= 0 ; --j) {
     obj = valuePop(ctx);
@@ -218,45 +267,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
   }
   ruby_xfree(argv);
 
-  switch (TYPE(result)) {
-    case T_FLOAT:
-    case T_BIGNUM:
-    case T_FIXNUM:
-      xmlXPathReturnNumber(ctx, NUM2DBL(result));
-      break;
-    case T_STRING:
-      xmlXPathReturnString(
-        ctx,
-        xmlCharStrdup(StringValueCStr(result))
-      );
-      break;
-    case T_TRUE:
-      xmlXPathReturnTrue(ctx);
-      break;
-    case T_FALSE:
-      xmlXPathReturnFalse(ctx);
-      break;
-    case T_NIL:
-      break;
-    case T_ARRAY: {
-      VALUE args[2];
-      args[0] = doc;
-      args[1] = result;
-      node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
-    }
-    break;
-    case T_DATA:
-      if (rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
-        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
-        /* Copy the node set, otherwise it will get GC'd. */
-        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
-        break;
-      }
-    default:
-      rb_raise(rb_eRuntimeError, "Invalid return type");
-  }
+  valuePush(ctx, ruby2xpath(result, ctx->context));
 }
 
 static void
