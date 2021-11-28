@@ -659,6 +659,24 @@ empty_element_p(VALUE self)
   return Qfalse;
 }
 
+static VALUE
+rb_xml_reader_encoding(VALUE rb_reader)
+{
+  xmlTextReaderPtr c_reader;
+  const char *parser_encoding;
+  VALUE constructor_encoding;
+
+  constructor_encoding = rb_iv_get(rb_reader, "@encoding");
+  if (RTEST(constructor_encoding)) {
+    return constructor_encoding;
+  }
+
+  Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
+  parser_encoding = (const char *)xmlTextReaderConstEncoding(c_reader);
+  if (parser_encoding == NULL) { return Qnil; }
+  return NOKOGIRI_STR_NEW2(parser_encoding);
+}
+
 void
 noko_init_xml_reader()
 {
@@ -683,6 +701,7 @@ noko_init_xml_reader()
   rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
   rb_define_method(cNokogiriXmlReader, "depth", depth, 0);
   rb_define_method(cNokogiriXmlReader, "empty_element?", empty_element_p, 0);
+  rb_define_method(cNokogiriXmlReader, "encoding", rb_xml_reader_encoding, 0);
   rb_define_method(cNokogiriXmlReader, "inner_xml", inner_xml, 0);
   rb_define_method(cNokogiriXmlReader, "lang", lang, 0);
   rb_define_method(cNokogiriXmlReader, "local_name", local_name, 0);

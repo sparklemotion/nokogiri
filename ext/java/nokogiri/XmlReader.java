@@ -184,6 +184,18 @@ public class XmlReader extends RubyObject
     return RubyBoolean.newBoolean(context.getRuntime(), !readerNode.hasChildren);
   }
 
+  @JRubyMethod
+  public IRubyObject
+  encoding(ThreadContext context)
+  {
+    IRubyObject constructor_encoding = getInstanceVariable("@encoding");
+    if (!constructor_encoding.isNil()) {
+      return constructor_encoding;
+    }
+    // TODO: get the parser's detected encoding
+    return context.getRuntime().getNil();
+  }
+
   @JRubyMethod(meta = true, rest = true)
   public static IRubyObject
   from_io(ThreadContext context, IRubyObject cls, IRubyObject args[])
