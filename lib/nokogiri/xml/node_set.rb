@@ -13,6 +13,7 @@ module Nokogiri
       attr_accessor :document
 
       # Create a NodeSet with +document+ defaulting to +list+
+      # TODO: test that it can only contain Node and Namespace objects
       def initialize(document, list = [])
         super()
         @document = document
@@ -20,40 +21,6 @@ module Nokogiri
         list.each { |x| self << x }
         yield self if block_given?
       end
-
-      # ###
-      # # Get the first element of the NodeSet.
-      # def first(n = nil)
-      #   return self[0] unless n
-
-      #   list = []
-      #   [n, length].min.times { |i| list << self[i] }
-      #   list
-      # end
-
-      # ###
-      # # Get the last element of the NodeSet.
-      # def last
-      #   self[-1]
-      # end
-
-      # ###
-      # # Is this NodeSet empty?
-      # def empty?
-      #   length == 0
-      # end
-
-      # ###
-      # # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
-      # def index(node = nil)
-      #   if node
-      #     warn("given block not used") if block_given?
-      #     each_with_index { |member, j| return j if member == node }
-      #   elsif block_given?
-      #     each_with_index { |member, j| return j if yield(member) }
-      #   end
-      #   nil
-      # end
 
       ###
       # Insert +datum+ before the first Node in this NodeSet
@@ -68,8 +35,6 @@ module Nokogiri
       def after(datum)
         last.after(datum)
       end
-
-      # alias_method :<<, :push
 
       #  call-seq:
       #    unlink
@@ -235,17 +200,6 @@ module Nokogiri
       end
       alias_method :remove_attribute, :remove_attr
 
-      # ###
-      # # Iterate over each node, yielding  to +block+
-      # def each
-      #   return to_enum unless block_given?
-
-      #   0.upto(length - 1) do |x|
-      #     yield self[x]
-      #   end
-      #   self
-      # end
-
       ###
       # Get the inner text of all contained Node objects
       #
@@ -305,41 +259,6 @@ module Nokogiri
         map { |x| x.to_xml(*args) }.join
       end
 
-      # alias_method :size, :length
-      # alias_method :to_ary, :to_a
-
-      # ###
-      # # Removes the last element from set and returns it, or +nil+ if
-      # # the set is empty
-      # def pop
-      #   return nil if length == 0
-
-      #   delete(last)
-      # end
-
-      # ###
-      # # Returns the first element of the NodeSet and removes it.  Returns
-      # # +nil+ if the set is empty.
-      # def shift
-      #   return nil if length == 0
-
-      #   delete(first)
-      # end
-
-      # ###
-      # # Equality -- Two NodeSets are equal if the contain the same number
-      # # of elements and if each element is equal to the corresponding
-      # # element in the other NodeSet
-      # def ==(other)
-      #   return false unless other.is_a?(Nokogiri::XML::NodeSet)
-      #   return false unless length == other.length
-
-      #   each_with_index do |node, i|
-      #     return false unless node == other[i]
-      #   end
-      #   true
-      # end
-
       ###
       # Returns a new NodeSet containing all the children of all the nodes in
       # the NodeSet
@@ -351,27 +270,44 @@ module Nokogiri
         node_set
       end
 
-      # ###
-      # # Returns a new NodeSet containing all the nodes in the NodeSet
-      # # in reverse order
-      # def reverse
-      #   node_set = NodeSet.new(document)
-      #   (length - 1).downto(0) do |x|
-      #     node_set.push(self[x])
-      #   end
-      #   node_set
-      # end
+      ###
+      # Returns a new NodeSet containing all the nodes in the NodeSet
+      # in reverse order
+      def reverse
+        NodeSet.new(document, super)
+      end
 
-      # ###
-      # # Return a nicely formated string representation
-      # def inspect
-      #   "[#{map(&:inspect).join(", ")}]"
-      # end
+      # TODO: document
+      def difference(*args)
+        NodeSet.new(document, super)
+      end
+      alias_method :-, :difference
 
       # TODO: document
       # TODO: can raise TypeError (was formerly ArgumentError)
+      def union(other)
+        NodeSet.new(document, super)
+      end
       alias_method :+, :union
       alias_method :|, :union
+
+      # TODO: document
+      def intersection(*args)
+        NodeSet.new(document, super)
+      end
+      alias_method :&, :intersection
+
+      # TODO: document
+      def slice(*args)
+        result = super
+        Array === result ? NodeSet.new(document, result) : result
+      end
+      alias_method :[], :slice
+
+      # TODO: document
+      def dup
+        NodeSet.new(document, super)
+      end
 
       IMPLIED_XPATH_CONTEXTS = [".//", "self::"].freeze # :nodoc:
     end

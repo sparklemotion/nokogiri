@@ -182,6 +182,16 @@ xpath2ruby(xmlXPathObjectPtr xpath_object, xmlXPathContextPtr xpath_context)
 }
 
 
+static VALUE
+ruby2xpath_node_set_append(RB_BLOCK_CALL_FUNC_ARGLIST(rb_node, wrapped_c_node_set))
+{
+  xmlNodeSetPtr c_node_set = (xmlNodeSetPtr)wrapped_c_node_set;
+  xmlNodePtr c_node;
+  Data_Get_Struct(rb_node, xmlNode, c_node);
+  xmlXPathNodeSetAddUnique(c_node_set, c_node);
+  return Qnil;
+}
+
 /*
  *  convert a Ruby object into an XPath object of the appropriate type.
  *  raises an exception if no conversion was possible.
@@ -209,28 +219,11 @@ ruby2xpath(VALUE rb_object, xmlXPathContextPtr xpath_context)
       break;
     case T_ARRAY:
       {
-        xmlNodeSetPtr c_node_set = NULL;
-        VALUE rb_node_set;
-        VALUE args[2];
-
-        assert(xpath_context->doc);
-        assert(DOC_RUBY_OBJECT_TEST(xpath_context->doc));
-
-        args[0] = DOC_RUBY_OBJECT(xpath_context->doc);
-        args[1] = rb_object;
-        rb_node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-        Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+        xmlNodeSetPtr c_node_set = xmlXPathNodeSetCreate(NULL);
+        rb_block_call(rb_object, rb_intern("each"), 0, NULL, ruby2xpath_node_set_append, (VALUE)c_node_set);
         result = xmlXPathWrapNodeSet(xmlXPathNodeSetMerge(NULL, c_node_set));
       }
       break;
-    case T_DATA:
-      if (rb_obj_is_kind_of(rb_object, cNokogiriXmlNodeSet)) {
-        xmlNodeSetPtr c_node_set = NULL;
-        Data_Get_Struct(rb_object, xmlNodeSet, c_node_set);
-        /* Copy the node set, otherwise it will get GC'd. */
-        result = xmlXPathWrapNodeSet(xmlXPathNodeSetMerge(NULL, c_node_set));
-        break;
-      }
     default:
       rb_raise(rb_eRuntimeError, "Invalid return type");
   }
