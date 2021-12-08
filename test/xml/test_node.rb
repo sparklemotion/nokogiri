@@ -1262,6 +1262,54 @@ module Nokogiri
         end
 
         describe "#line" do
+          it "properly numbers lines with documents containing XML prolog" do
+            xml = Nokogiri::XML(<<~eoxml)
+              <?xml version="1.0" ?>
+              <a>
+                <b>
+                  Test
+                </b>
+              </root>
+            eoxml
+
+            set = xml.search("//b")
+            assert_equal(3, set[0].line)
+          end
+
+          it "properly numbers lines with documents containing XML comments" do
+            xml = Nokogiri::XML(<<~eoxml)
+              <a>
+                <b>
+                  <!-- This is a comment -->
+                  <c>
+                    Test
+                  </c>
+                </b>
+              </a>
+            eoxml
+
+            set = xml.search("//c")
+            assert_equal(4, set[0].line)
+          end
+
+          it "properly numbers lines with documents containing XML multiline comments" do
+            xml = Nokogiri::XML(<<~eoxml)
+              <a>
+                <b>
+                  <!--
+                    This is a comment
+                  -->
+                  <c>
+                    Test
+                  </c>
+                </b>
+              </a>
+            eoxml
+
+            set = xml.search("//c")
+            assert_equal(6, set[0].line)
+          end
+
           it "returns a sensible line number for each node" do
             xml = Nokogiri::XML(<<~eoxml)
               <a>
