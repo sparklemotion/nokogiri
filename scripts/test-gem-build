@@ -24,6 +24,8 @@ fi
 set -x
 
 bundle install --local || bundle install
+bundle list
+bundle list --paths
 bundle exec rake set-version-to-timestamp
 
 if [[ "${BUILD_NATIVE_GEM}" == "ruby" ]] ; then
