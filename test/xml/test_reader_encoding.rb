@@ -15,6 +15,32 @@ module Nokogiri
         )
       end
 
+      def test_libxml2_detects_internal_encoding_correctly
+        skip_unless_libxml2("This feature wasn't implemented for JRuby")
+
+        reader = Nokogiri::XML::Reader(<<~XML)
+          <?xml version="1.0" encoding="ISO-8859-1"?>
+          <root attr="foo"><employee /></root>
+        XML
+
+        assert_nil(reader.encoding)
+        reader.each do
+          assert_equal("ISO-8859-1", reader.encoding)
+        end
+      end
+
+      def test_libxml2_overrides_internal_encoding_when_specified
+        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
+          <?xml version="1.0" encoding="ISO-8859-1"?>
+          <root attr="foo"><employee /></root>
+        XML
+
+        assert_equal("UTF-8", reader.encoding)
+        reader.each do
+          assert_equal("UTF-8", reader.encoding)
+        end
+      end
+
       def test_attribute_at
         @reader.each do |node|
           next unless (attribute = node.attribute_at(0))

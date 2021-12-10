@@ -71,9 +71,6 @@ module Nokogiri
       # A list of errors encountered while parsing
       attr_accessor :errors
 
-      # The encoding for the document
-      attr_reader :encoding
-
       # The XML source
       attr_reader :source
 
