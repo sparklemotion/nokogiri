@@ -88,6 +88,7 @@ module Nokogiri
       end
 
       def test_nil_raises
+        skip("https://github.com/sparklemotion/nokogiri/issues/2354") if Nokogiri::VersionInfo.instance.windows?
         assert_raises(ArgumentError) do
           Nokogiri::XML::Reader.from_memory(nil)
         end
