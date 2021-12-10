@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rake/testtask"
+require "ruby_memcheck"
 
 #
 #  much of this was ripped out of hoe-debugging
@@ -14,6 +15,11 @@ class ValgrindTestTask < Rake::TestTask
                       "--undef-value-errors=no",
                       "--error-exitcode=#{ERROR_EXITCODE}",
                       "--gen-suppressions=all",]
+
+  RubyMemcheck.config(
+    binary_name: "nokogiri",
+    valgrind_generate_suppressions: true,
+  )
 
   def ruby(*args, **options, &block)
     valgrind_options = check_for_suppression_file(VALGRIND_OPTIONS)
@@ -94,6 +100,10 @@ namespace "test" do
   end
 
   LldbTestTask.new("lldb") do |t|
+    nokogiri_test_task_configuration(t)
+  end
+
+  RubyMemcheck::TestTask.new("memcheck") do |t|
     nokogiri_test_task_configuration(t)
   end
 end
