@@ -6,8 +6,6 @@ class TestCssCacheAccess < Nokogiri::TestCase
   def setup
     super
     @css = "a1 > b2 > c3"
-    @parse_result = Nokogiri::CSS.parse(@css)
-    @to_xpath_result = @parse_result.map(&:to_xpath)
 
     Nokogiri::CSS::Parser.clear_cache
     Nokogiri::CSS::Parser.class_eval do
