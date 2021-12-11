@@ -5,9 +5,10 @@
 # from lexical definition file "lib/nokogiri/css/tokenizer.rex".
 #++
 
+# :stopdoc:
 module Nokogiri
 module CSS
-class Tokenizer # :nodoc:
+class Tokenizer
       require 'strscan'
 
       class ScanError < StandardError ; end

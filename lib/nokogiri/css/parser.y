@@ -253,6 +253,7 @@ end
 
 ---- header
 
+# :stopdoc:
 require_relative "parser_extras"
 
 ---- inner

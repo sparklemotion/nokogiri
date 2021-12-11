@@ -1,6 +1,7 @@
+# :stopdoc:
 module Nokogiri
 module CSS
-class Tokenizer # :nodoc:
+class Tokenizer
 
 macro
   nl        \n|\r\n|\r|\f

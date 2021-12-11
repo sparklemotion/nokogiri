@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# :stopdoc:
 require "thread"
 
 module Nokogiri

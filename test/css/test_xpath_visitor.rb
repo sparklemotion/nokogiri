@@ -17,7 +17,7 @@ class TestNokogiri < Nokogiri::TestCase
     def assert_xpath(expecteds, asts)
       expecteds = [expecteds].flatten
       expecteds.zip(asts).each do |expected, actual|
-        assert_equal(expected, actual.to_xpath)
+        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitor.new))
       end
     end
 

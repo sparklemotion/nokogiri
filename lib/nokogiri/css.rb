@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Nokogiri
+  # Methods to translate CSS queries into XPath queries
   module CSS
     class << self
       ###

@@ -61,6 +61,7 @@ This release ends support for:
 ### Deprecated
 
 * Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
+* `Nokogiri::CSS::Parser`, `Nokogiri::CSS::Tokenizer`, and `Nokogiri::CSS::Node` are now internal-only APIs that are no longer documented, and should not be considered stable. With the introduction of `XPathVisitor` injection into `Nokogiri::CSS.xpath_for` there should be no reason to rely on these internal APIs.
 
 
 ## 1.12.5 / 2021-09-27
