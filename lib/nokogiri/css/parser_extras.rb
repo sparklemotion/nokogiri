@@ -72,17 +72,10 @@ module Nokogiri
       end
 
       # Get the xpath for +string+ using +options+
-      def xpath_for(string, options = {})
-        key = "#{string}#{options[:ns]}#{options[:prefix]}"
-        v = self.class[key]
-        return v if v
-
-        args = [
-          options[:prefix] || "//",
-          options[:visitor] || XPathVisitor.new,
-        ]
-        self.class[key] = parse(string).map do |ast|
-          ast.to_xpath(*args)
+      def xpath_for(string, prefix, visitor)
+        key = cache_key(string, prefix)
+        self.class[key] ||= parse(string).map do |ast|
+          ast.to_xpath(prefix, visitor)
         end
       end
 
@@ -90,6 +83,10 @@ module Nokogiri
       def on_error(error_token_id, error_value, value_stack)
         after = value_stack.compact.last
         raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
+      end
+
+      def cache_key(query, prefix)
+        [query, prefix, @namespaces]
       end
     end
   end

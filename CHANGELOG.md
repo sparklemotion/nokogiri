@@ -35,6 +35,7 @@ This release ends support for:
 ### Improved
 
 * `{XML,HTML4}::DocumentFragment` constructors all now take an optional parse options parameter or block (similar to Document constructors). [[#1692](https://github.com/sparklemotion/nokogiri/issues/1692)] (Thanks, [@JackMc](https://github.com/JackMc)!)
+* `Nokogiri::CSS.xpath_for` allows an `XPathVisitor` to be injected, for finer-grained control over how CSS queries are translated into XPath.
 * [CRuby] `XML::Reader#encoding` will return the encoding detected by the parser when it's not passed to the constructor. [[#980](https://github.com/sparklemotion/nokogiri/issues/980)]
 * [CRuby] Handle abruptly-closed HTML comments as recommended by WHATWG. (Thanks to [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting!)
 * [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES`, which is turned on by default in `ParseOptions::DEFAULT_{XML,XSLT,HTML,SCHEMA}` (Note that JRuby already supported large line numbers.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]
