@@ -46,7 +46,8 @@ This release ends support for:
 
 ### Fixed
 
-* XML::Builder blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
+* `XML::Builder` blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
+* The `Nokogiri::CSS::Parser` cache now uses the `XPathVisitor` configuration as part of the cache key, preventing incorrect cache results from being returned when multiple `XPathVisitor` options are being used.
 * Error recovery from in-context parsing (e.g., `Node#parse`) now always uses the correct `DocumentFragment` class. Previously `Nokogiri::HTML4::DocumentFragment` was always used, even for XML documents. [[#1158](https://github.com/sparklemotion/nokogiri/issues/1158)]
 * `DocumentFragment#>` now works properly, matching a CSS selector against only the fragment roots. [[#1857](https://github.com/sparklemotion/nokogiri/issues/1857)]
 * `XML::DocumentFragment#errors` now correctly contains any parsing errors encountered. Previously this was always empty. (Note that `HTML::DocumentFragment#errors` already did this.)
@@ -63,6 +64,7 @@ This release ends support for:
 
 * Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
 * `Nokogiri::CSS::Parser`, `Nokogiri::CSS::Tokenizer`, and `Nokogiri::CSS::Node` are now internal-only APIs that are no longer documented, and should not be considered stable. With the introduction of `XPathVisitor` injection into `Nokogiri::CSS.xpath_for` there should be no reason to rely on these internal APIs.
+* CSS-to-XPath utility classes `Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins` are deprecated. Prefer `Nokogiri::CSS::XPathVisitor` with appropriate constructor arguments. These classes will be removed in a future version of Nokogiri.
 
 
 ## 1.12.5 / 2021-09-27

@@ -14,11 +14,17 @@ class TestNokogiri < Nokogiri::TestCase
       })
     end
 
+    let(:visitor) { Nokogiri::CSS::XPathVisitor.new }
+
     def assert_xpath(expecteds, asts)
       expecteds = [expecteds].flatten
       expecteds.zip(asts).each do |expected, actual|
-        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitor.new))
+        assert_equal(expected, actual.to_xpath("//", visitor))
       end
+    end
+
+    it "exposes its configuration" do
+      assert_equal({ builtins: :never }, visitor.config)
     end
 
     it "raises an exception on single quote" do
@@ -407,58 +413,63 @@ class TestNokogiri < Nokogiri::TestCase
       # TODO: should we make this work?
       # assert_xpath ['//x/y', '//y/z'], parser.parse('x > y | y > z')
     end
-  end
 
-  describe Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins do
-    let(:parser) { Nokogiri::CSS::Parser.new }
+    describe "builtins:always" do
+      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: :always) }
 
-    def assert_xpath(expecteds, asts)
-      expecteds = [expecteds].flatten
-      expecteds.zip(asts).each do |expected, actual|
-        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins.new))
+      it "exposes its configuration" do
+        assert_equal({ builtins: :always }, visitor.config)
+      end
+
+      it ". class" do
+        assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse(".awesome"))
+        assert_xpath("//foo[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse("foo.awesome"))
+        assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse("foo .awesome"))
+        assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awe.some')]",
+          parser.parse("foo .awe\\.some"))
+        assert_xpath("//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
+          parser.parse(".a.b"))
+      end
+
+      it "~=" do
+        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~='bar']"))
+        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class ~= 'bar']"))
+        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~=bar]"))
+        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~=\"bar\"]"))
+        assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+          parser.parse("a[data-words~=\"bar\"]"))
+        assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+          parser.parse("a[@data-words~=\"bar\"]"))
+      end
+
+      describe "XPathVisitorAlwaysUseBuiltins" do
+        let(:visitor) { Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins.new }
+
+        it "supports deprecated class" do
+          assert_output("", /XPathVisitorAlwaysUseBuiltins is deprecated/) { visitor }
+          assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
+          assert_equal({ builtins: :always }, visitor.config)
+
+          assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
+            parser.parse(".awesome"))
+        end
       end
     end
 
-    it ". class" do
-      assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
-        parser.parse(".awesome"))
-      assert_xpath("//foo[nokogiri-builtin:css-class(@class,'awesome')]",
-        parser.parse("foo.awesome"))
-      assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awesome')]",
-        parser.parse("foo .awesome"))
-      assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awe.some')]",
-        parser.parse("foo .awe\\.some"))
-      assert_xpath("//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
-        parser.parse(".a.b"))
-    end
+    describe "builtins:optimal" do
+      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: :optimal) }
 
-    it "~=" do
-      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-        parser.parse("a[@class~='bar']"))
-      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-        parser.parse("a[@class ~= 'bar']"))
-      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-        parser.parse("a[@class~=bar]"))
-      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-        parser.parse("a[@class~=\"bar\"]"))
-      assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
-        parser.parse("a[data-words~=\"bar\"]"))
-      assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
-        parser.parse("a[@data-words~=\"bar\"]"))
-    end
-  end
-
-  describe Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins do
-    let(:parser) { Nokogiri::CSS::Parser.new }
-
-    def assert_xpath(expecteds, asts)
-      expecteds = [expecteds].flatten
-      expecteds.zip(asts).each do |expected, actual|
-        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new))
+      it "exposes its configuration" do
+        assert_equal({ builtins: :optimal }, visitor.config)
       end
-    end
 
-    describe "css class lookup" do
       #
       #  only use the builtin css-class method if we're in libxml2, because incredibly the native
       #  impl is slower in JRuby:
@@ -516,6 +527,24 @@ class TestNokogiri < Nokogiri::TestCase
         else
           assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
             parser.parse("a[@class~='bar']"))
+        end
+      end
+
+      describe "XPathVisitorOptimallyUseBuiltins" do
+        let(:visitor) { Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new }
+
+        it "supports deprecated class" do
+          assert_output("", /XPathVisitorOptimallyUseBuiltins is deprecated/) { visitor }
+          assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
+          assert_equal({ builtins: :optimal }, visitor.config)
+
+          if Nokogiri.uses_libxml?
+            assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
+              parser.parse(".awesome"))
+          else
+            assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+              parser.parse(".awesome"))
+          end
         end
       end
     end

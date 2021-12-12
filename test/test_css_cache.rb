@@ -121,6 +121,20 @@ class TestCssCache < Nokogiri::TestCase
     assert(Nokogiri::CSS::Parser.cache_on?)
   end
 
+  def test_cache_key_on_ns_prefix_and_visitor_config
+    Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache(true)
+
+    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    assert_empty(cache)
+
+    Nokogiri::CSS.xpath_for("foo")
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//")
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" })
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" }, visitor: Nokogiri::CSS::XPathVisitor.new(builtins: :always))
+    assert_equal(4, cache.length)
+  end
+
   def test_race_condition
     # https://github.com/sparklemotion/nokogiri/issues/1935
     threads = []

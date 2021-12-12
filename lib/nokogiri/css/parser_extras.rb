@@ -24,7 +24,7 @@ module Nokogiri
 
         # Get the css selector in +string+ from the cache
         def [](string)
-          return unless cache_on?
+          return nil unless cache_on?
           @mutex.synchronize { @cache[string] }
         end
 
@@ -73,7 +73,7 @@ module Nokogiri
 
       # Get the xpath for +string+ using +options+
       def xpath_for(string, prefix, visitor)
-        key = cache_key(string, prefix)
+        key = cache_key(string, prefix, visitor)
         self.class[key] ||= parse(string).map do |ast|
           ast.to_xpath(prefix, visitor)
         end
@@ -85,8 +85,10 @@ module Nokogiri
         raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
       end
 
-      def cache_key(query, prefix)
-        [query, prefix, @namespaces]
+      def cache_key(query, prefix, visitor)
+        if self.class.cache_on?
+          [query, prefix, @namespaces, visitor.config]
+        end
       end
     end
   end

@@ -3,6 +3,24 @@
 module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
+      def initialize(builtins: :never)
+        @builtins = builtins
+
+        if builtins == :always || (builtins == :optimal && Nokogiri.uses_libxml?)
+          class << self
+            alias_method :css_class, :css_class_builtin
+          end
+        else
+          class << self
+            alias_method :css_class, :css_class_standard
+          end
+        end
+      end
+
+      def config
+        { builtins: @builtins }
+      end
+
       def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
         return send(msg, node) if respond_to?(msg)
@@ -240,23 +258,25 @@ module Nokogiri
       def css_class_builtin(hay, needle)
         "nokogiri-builtin:css-class(#{hay},'#{needle}')"
       end
-
-      alias_method :css_class, :css_class_standard
     end
 
-    class XPathVisitorAlwaysUseBuiltins < XPathVisitor # :nodoc:
-      private
-
-      alias_method :css_class, :css_class_builtin
+    module XPathVisitorAlwaysUseBuiltins # :nodoc:
+      def self.new
+        warn(
+          "Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
+          { uplevel: 1 },
+        )
+        XPathVisitor.new(builtins: :always)
+      end
     end
 
-    class XPathVisitorOptimallyUseBuiltins < XPathVisitor # :nodoc:
-      private
-
-      if Nokogiri.uses_libxml?
-        alias_method :css_class, :css_class_builtin
-      else
-        alias_method :css_class, :css_class_standard
+    module XPathVisitorOptimallyUseBuiltins # :nodoc:
+      def self.new
+        warn(
+          "Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
+          { uplevel: 1 },
+        )
+        XPathVisitor.new(builtins: :optimal)
       end
     end
   end
