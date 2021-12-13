@@ -96,14 +96,14 @@ rule
     ;
   attrib_name
     : namespace '|' IDENT {
-        result = Node.new(:ELEMENT_NAME,
+        result = Node.new(:ATTRIB_NAME,
           [[val.first, val.last].compact.join(':')]
         )
       }
     | IDENT {
         # Default namespace is not applied to attributes.
         # So we don't add prefix "xmlns:" as in namespaced_ident.
-        result = Node.new(:ELEMENT_NAME, [val.first])
+        result = Node.new(:ATTRIB_NAME, [val.first])
       }
     ;
   function

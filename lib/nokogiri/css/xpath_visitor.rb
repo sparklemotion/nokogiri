@@ -197,6 +197,10 @@ module Nokogiri
         node.value.first
       end
 
+      def visit_attrib_name(node)
+        node.value.first
+      end
+
       def accept(node)
         node.accept(self)
       end
