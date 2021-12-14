@@ -28,10 +28,19 @@ class TestNokogiri < Nokogiri::TestCase
       refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS))
       refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL))
       assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(builtins: :not_valid) }
+
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML))
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4))
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5))
+      assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
     end
 
     it "exposes its configuration" do
-      assert_equal({ builtins: :never }, visitor.config)
+      expected = {
+        builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
+        doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+      }
+      assert_equal(expected, visitor.config)
     end
 
     it "raises an exception on single quote" do
@@ -425,7 +434,7 @@ class TestNokogiri < Nokogiri::TestCase
       let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS) }
 
       it "exposes its configuration" do
-        assert_equal({ builtins: :always }, visitor.config)
+        assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
       end
 
       it ". class" do
@@ -462,7 +471,7 @@ class TestNokogiri < Nokogiri::TestCase
         it "supports deprecated class" do
           assert_output("", /XPathVisitorAlwaysUseBuiltins is deprecated/) { visitor }
           assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
-          assert_equal({ builtins: :always }, visitor.config)
+          assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
 
           assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
             parser.parse(".awesome"))
@@ -474,7 +483,7 @@ class TestNokogiri < Nokogiri::TestCase
       let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL) }
 
       it "exposes its configuration" do
-        assert_equal({ builtins: :optimal }, visitor.config)
+        assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
       end
 
       #
@@ -543,7 +552,7 @@ class TestNokogiri < Nokogiri::TestCase
         it "supports deprecated class" do
           assert_output("", /XPathVisitorOptimallyUseBuiltins is deprecated/) { visitor }
           assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
-          assert_equal({ builtins: :optimal }, visitor.config)
+          assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
 
           if Nokogiri.uses_libxml?
             assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
@@ -553,6 +562,14 @@ class TestNokogiri < Nokogiri::TestCase
               parser.parse(".awesome"))
           end
         end
+      end
+    end
+
+    describe "doctype:html5" do
+      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5) }
+
+      it "matches on the element's local-name, ignoring namespaces" do
+        assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
       end
     end
   end

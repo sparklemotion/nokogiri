@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require "pathname"
@@ -146,6 +147,16 @@ module Nokogiri
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       def fragment(tags = nil)
         DocumentFragment.new(self, tags, root)
+      end
+
+      # :call-seq:
+      #   xpath_doctype() → Nokogiri::CSS::XPathVisitor::DoctypeConfig
+      #
+      # [Returns] The document type which determines CSS-to-XPath translation.
+      #
+      # See XPathVisitor for more information.
+      def xpath_doctype
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4
       end
 
       class << self

@@ -600,6 +600,111 @@ module Nokogiri
           assert_equal(1, @handler.things.length)
         end
       end
+
+      describe "Document#xpath_doctype" do
+        it "Nokogiri::XML::Document" do
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+            Nokogiri::XML::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+            Nokogiri::XML::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+
+        it "Nokogiri::HTML4::Document" do
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+            Nokogiri::HTML4::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+            Nokogiri::HTML4::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+
+        it "Nokogiri::HTML5::Document" do
+          skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+            Nokogiri::HTML5::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+            Nokogiri::HTML5::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+      end
+
+      describe "HTML5 foreign elements" do
+        # https://github.com/sparklemotion/nokogiri/issues/2376
+        let(:html) { <<~HTML }
+          <!DOCTYPE html>
+          <html>
+            <head>
+               <meta charset="utf-8">
+               <meta name="viewport" content="width=device-width, initial-scale=1">
+               <title>svg test</title>
+            </head>
+            <body>
+              <div id="svg-container">
+                <svg version="1.1" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100%" height="100%" fill="red" />
+                  <circle cx="150" cy="100" r="80" fill="green" />
+                  <text x="150" y="125" font-size="60" text-anchor="middle" fill="white">SVG</text>
+                </svg>
+              </div>
+            </body>
+          </html>
+        HTML
+
+        let(:ns) { { "nsfoo" => "http://www.w3.org/2000/svg" } }
+
+        describe "in an XML doc" do
+          let(:doc) { Nokogiri::XML::Document.parse(html) }
+
+          it "requires namespace in XPath queries" do
+            assert_empty(doc.xpath("//svg"))
+            refute_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "requires namespace in CSS queries" do
+            assert_empty(doc.css("svg"))
+            refute_empty(doc.css("nsfoo|svg", ns))
+          end
+        end
+
+        describe "in an HTML4 doc" do
+          let(:doc) { Nokogiri::HTML4::Document.parse(html) }
+
+          it "omits namespace in XPath queries" do
+            refute_empty(doc.xpath("//svg"))
+            assert_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "omits namespace in CSS queries" do
+            refute_empty(doc.css("svg"))
+            assert_empty(doc.css("nsfoo|svg", ns))
+          end
+        end
+
+        describe "in an HTML5 doc" do
+          let(:doc) { Nokogiri::HTML5::Document.parse(html) }
+
+          it "requires namespace in XPath queries" do
+            skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+            assert_empty(doc.xpath("//svg"))
+            refute_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "omits namespace in CSS queries" do
+            skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+            refute_empty(doc.css("svg"))
+            assert_empty(doc.css("nsfoo|svg", ns))
+          end
+        end
+      end
     end
   end
 end

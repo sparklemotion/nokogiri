@@ -133,6 +133,10 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" })
     Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" },
       visitor: Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS))
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" },
+                            visitor: Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+                              doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5))
+    assert_equal(5, cache.length)
   end
 
   def test_race_condition

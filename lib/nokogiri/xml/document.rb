@@ -390,6 +390,16 @@ module Nokogiri
       end
       alias_method :<<, :add_child
 
+      # :call-seq:
+      #   xpath_doctype() → Nokogiri::CSS::XPathVisitor::DoctypeConfig
+      #
+      # [Returns] The document type which determines CSS-to-XPath translation.
+      #
+      # See XPathVisitor for more information.
+      def xpath_doctype
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML
+      end
+
       private
 
       def self.empty_doc?(string_or_io)

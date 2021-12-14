@@ -10,15 +10,27 @@ module Nokogiri
         VALUES = [NEVER, ALWAYS, OPTIMAL]
       end
 
-      def initialize(builtins: BuiltinsConfig::NEVER)
+      module DoctypeConfig
+        XML = :xml
+        HTML4 = :html4
+        HTML5 = :html5
+        VALUES = [XML, HTML4, HTML5]
+      end
+
+      def initialize(builtins: BuiltinsConfig::NEVER, doctype: DoctypeConfig::XML)
         unless BuiltinsConfig::VALUES.include?(builtins)
           raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
         end
+        unless DoctypeConfig::VALUES.include?(doctype)
+          raise(ArgumentError, "Invalid values #{doctype.inspect} for doctype: keyword parameter")
+        end
+
         @builtins = builtins
+        @doctype = doctype
       end
 
       def config
-        { builtins: @builtins }
+        { builtins: @builtins, doctype: @doctype }
       end
 
       def visit_function(node)
@@ -194,7 +206,13 @@ module Nokogiri
       end
 
       def visit_element_name(node)
-        node.value.first
+        if @doctype == DoctypeConfig::HTML5 && node.value.first != "*"
+          # HTML5 has namespaces that should be ignored in CSS queries
+          # https://github.com/sparklemotion/nokogiri/issues/2376
+          "*[local-name()='#{node.value.first}']"
+        else
+          node.value.first
+        end
       end
 
       def visit_attrib_name(node)

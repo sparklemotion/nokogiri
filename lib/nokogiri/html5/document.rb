@@ -62,6 +62,16 @@ module Nokogiri
         XML::Node.instance_method(:to_xml).bind(self).call(options, &block)
       end
 
+      # :call-seq:
+      #   xpath_doctype() → Nokogiri::CSS::XPathVisitor::DoctypeConfig
+      #
+      # [Returns] The document type which determines CSS-to-XPath translation.
+      #
+      # See XPathVisitor for more information.
+      def xpath_doctype
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5
+      end
+
       private
 
       def self.do_parse(string_or_io, url, encoding, options)

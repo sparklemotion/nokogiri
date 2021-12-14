@@ -46,6 +46,7 @@ This release ends support for:
 
 ### Fixed
 
+* CSS queries on HTML5 documents now correctly match foreign elements (SVG, MathML) when namespaces are not specified in the query. [[#2376](https://github.com/sparklemotion/nokogiri/issues/2376)]
 * `XML::Builder` blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
 * The `Nokogiri::CSS::Parser` cache now uses the `XPathVisitor` configuration as part of the cache key, preventing incorrect cache results from being returned when multiple `XPathVisitor` options are being used.
 * Error recovery from in-context parsing (e.g., `Node#parse`) now always uses the correct `DocumentFragment` class. Previously `Nokogiri::HTML4::DocumentFragment` was always used, even for XML documents. [[#1158](https://github.com/sparklemotion/nokogiri/issues/1158)]
