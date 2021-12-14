@@ -23,6 +23,13 @@ class TestNokogiri < Nokogiri::TestCase
       end
     end
 
+    it "accepts some config parameters" do
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER))
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS))
+      refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL))
+      assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(builtins: :not_valid) }
+    end
+
     it "exposes its configuration" do
       assert_equal({ builtins: :never }, visitor.config)
     end
@@ -415,7 +422,7 @@ class TestNokogiri < Nokogiri::TestCase
     end
 
     describe "builtins:always" do
-      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: :always) }
+      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS) }
 
       it "exposes its configuration" do
         assert_equal({ builtins: :always }, visitor.config)
@@ -464,7 +471,7 @@ class TestNokogiri < Nokogiri::TestCase
     end
 
     describe "builtins:optimal" do
-      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: :optimal) }
+      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL) }
 
       it "exposes its configuration" do
         assert_equal({ builtins: :optimal }, visitor.config)

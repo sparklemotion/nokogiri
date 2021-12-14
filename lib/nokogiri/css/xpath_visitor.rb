@@ -3,18 +3,18 @@
 module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
-      def initialize(builtins: :never)
-        @builtins = builtins
+      module BuiltinsConfig
+        NEVER = :never
+        ALWAYS = :always
+        OPTIMAL = :optimal
+        VALUES = [NEVER, ALWAYS, OPTIMAL]
+      end
 
-        if builtins == :always || (builtins == :optimal && Nokogiri.uses_libxml?)
-          class << self
-            alias_method :css_class, :css_class_builtin
-          end
-        else
-          class << self
-            alias_method :css_class, :css_class_standard
-          end
+      def initialize(builtins: BuiltinsConfig::NEVER)
+        unless BuiltinsConfig::VALUES.include?(builtins)
+          raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
         end
+        @builtins = builtins
       end
 
       def config
@@ -253,14 +253,14 @@ module Nokogiri
         end
       end
 
-      # use only ordinary xpath functions
-      def css_class_standard(hay, needle)
-        "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
-      end
-
-      # use the builtin implementation
-      def css_class_builtin(hay, needle)
-        "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+      def css_class(hay, needle)
+        if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+          # use the builtin implementation
+          "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+        else
+          # use only ordinary xpath functions
+          "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+        end
       end
     end
 
