@@ -642,11 +642,6 @@ module Nokogiri
         let(:html) { <<~HTML }
           <!DOCTYPE html>
           <html>
-            <head>
-               <meta charset="utf-8">
-               <meta name="viewport" content="width=device-width, initial-scale=1">
-               <title>svg test</title>
-            </head>
             <body>
               <div id="svg-container">
                 <svg version="1.1" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
@@ -701,7 +696,8 @@ module Nokogiri
           it "omits namespace in CSS queries" do
             skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
             refute_empty(doc.css("svg"))
-            assert_empty(doc.css("nsfoo|svg", ns))
+            refute_empty(doc.css("nsfoo|svg", ns)) # if they specify the valid ns, use it
+            assert_empty(doc.css("nsbar|svg", { "nsbar" => "http://example.com/nsbar" }))
           end
         end
       end

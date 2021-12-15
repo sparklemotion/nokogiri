@@ -248,9 +248,16 @@ module Nokogiri
 
       def visit_element_name(node)
         if @doctype == DoctypeConfig::HTML5 && node.value.first != "*"
+          # if there is already a namespace, use it as normal
+          return node.value.first if node.value.first.include?(":")
+
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
-          "*[local-name()='#{node.value.first}']"
+          if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+            "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+          else
+            "*[local-name()='#{node.value.first}']"
+          end
         else
           node.value.first
         end

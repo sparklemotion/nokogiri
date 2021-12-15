@@ -566,10 +566,40 @@ class TestNokogiri < Nokogiri::TestCase
     end
 
     describe "doctype:html5" do
-      let(:visitor) { Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5) }
+      let(:visitor) do
+        Nokogiri::CSS::XPathVisitor.new(
+          doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+          builtins: builtins,
+        )
+      end
 
-      it "matches on the element's local-name, ignoring namespaces" do
-        assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
+      describe "builtins:always" do
+        let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS }
+        it "matches on the element's local-name, ignoring namespaces" do
+          assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+        end
+
+        it "avoids the wildcard when using namespaces" do
+          assert_xpath("//ns1:foo", parser.parse("ns1|foo"))
+        end
+      end
+
+      describe "builtins:never" do
+        let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER }
+        it "matches on the element's local-name, ignoring namespaces" do
+          assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
+        end
+      end
+
+      describe "builtins:optimal" do
+        let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL }
+        it "matches on the element's local-name, ignoring namespaces" do
+          if Nokogiri.uses_libxml?
+            assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+          else
+            assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
+          end
+        end
       end
     end
   end

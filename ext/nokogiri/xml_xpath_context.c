@@ -86,6 +86,26 @@ xpath_builtin_css_class(xmlXPathParserContextPtr ctxt, int nargs)
   xmlXPathFreeObject(needle);
 }
 
+
+/* xmlXPathFunction to select nodes whose local name matches, for HTML5 CSS queries that should ignore namespaces */
+static void
+xpath_builtin_local_name_is(xmlXPathParserContextPtr ctxt, int nargs)
+{
+  xmlXPathObjectPtr element_name;
+
+  assert(ctxt->context->node);
+
+  CHECK_ARITY(1);
+  CAST_TO_STRING;
+  CHECK_TYPE(XPATH_STRING);
+  element_name = valuePop(ctxt);
+
+  valuePush(ctxt, xmlXPathNewBoolean(xmlStrEqual(ctxt->context->node->name, element_name->stringval)));
+
+  xmlXPathFreeObject(element_name);
+}
+
+
 /*
  * call-seq:
  *  register_ns(prefix, uri)
@@ -361,6 +381,8 @@ new (VALUE klass, VALUE nodeobj)
   xmlXPathRegisterNs(ctx, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
   xmlXPathRegisterFuncNS(ctx, (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
                          xpath_builtin_css_class);
+  xmlXPathRegisterFuncNS(ctx, (const xmlChar *)"local-name-is", NOKOGIRI_BUILTIN_URI,
+                         xpath_builtin_local_name_is);
 
   self = Data_Wrap_Struct(klass, 0, deallocate, ctx);
   return self;
