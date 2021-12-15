@@ -2,9 +2,10 @@
 
 module Nokogiri
   module XML
+    # :nodoc: all
     module PP
       module Node
-        def inspect # :nodoc:
+        def inspect
           attributes = inspect_attributes.reject do |x|
             attribute = send(x)
             !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
@@ -16,7 +17,7 @@ module Nokogiri
           "#<#{self.class.name}:#{format("0x%x", object_id)} #{attributes}>"
         end
 
-        def pretty_print(pp) # :nodoc:
+        def pretty_print(pp)
           nice_name = self.class.name.split("::").last
           pp.group(2, "#(#{nice_name}:#{format("0x%x", object_id)} {", "})") do
             pp.breakable

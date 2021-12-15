@@ -8,8 +8,15 @@
 require 'racc/parser.rb'
 
 
-# :stopdoc:
 require_relative "parser_extras"
+
+module Nokogiri
+  module CSS
+    # :nodoc: all
+    class Parser < Racc::Parser
+    end
+  end
+end
 
 module Nokogiri
   module CSS

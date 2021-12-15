@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-# :stopdoc:
 require "thread"
 
 module Nokogiri
   module CSS
-    class Parser < Racc::Parser
+    class Parser < Racc::Parser # :nodoc:
       CACHE_SWITCH_NAME = :nokogiri_css_parser_cache_is_off
 
       @cache = {}

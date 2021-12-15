@@ -2,8 +2,8 @@
 
 require "nokogiri"
 
-module XSD # :nodoc:
-  module XMLParser # :nodoc:
+module XSD
+  module XMLParser
     ###
     # Nokogiri XML parser for soap4r.
     #

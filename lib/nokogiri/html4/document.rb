@@ -220,7 +220,7 @@ module Nokogiri
         end
       end
 
-      class EncodingFound < StandardError # :nodoc:
+      class EncodingFound < StandardError # :nodoc: all
         attr_reader :found_encoding
 
         def initialize(encoding)
@@ -229,8 +229,9 @@ module Nokogiri
         end
       end
 
-      class EncodingReader # :nodoc:
-        class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
+      # :nodoc: all
+      class EncodingReader
+        class SAXHandler < Nokogiri::XML::SAX::Document
           attr_reader :encoding
 
           def initialize

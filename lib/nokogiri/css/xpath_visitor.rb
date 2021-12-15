@@ -1,22 +1,57 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
   module CSS
-    class XPathVisitor # :nodoc:
+    # When translating CSS selectors to XPath queries with Nokogiri::CSS.xpath_for, the XPathVisitor
+    # class allows for changing some of the behaviors related to builtin xpath functions and quirks
+    # of HTML5.
+    class XPathVisitor
+      # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
       module BuiltinsConfig
+        # Never use Nokogiri builtin functions, always generate vanilla XPath 1.0 queries. This is
+        # the default when calling Nokogiri::CSS.xpath_for directly.
         NEVER = :never
+
+        # Always use Nokogiri builtin functions whenever possible. This is probably only useful for testing.
         ALWAYS = :always
+
+        # Only use Nokogiri builtin functions when they will be faster than vanilla XPath. This is
+        # the behavior chosen when searching for CSS selectors on a Nokogiri document, fragment, or
+        # node.
         OPTIMAL = :optimal
+
+        # :nodoc: array of values for validation
         VALUES = [NEVER, ALWAYS, OPTIMAL]
       end
 
+      # Enum to direct XPathVisitor when to tweak the XPath query to suit the nature of the document
+      # being searched. Note that searches for CSS selectors from a Nokogiri document, fragment, or
+      # node will choose the correct option automatically.
       module DoctypeConfig
+        # The document being searched is an XML document. This is the default.
         XML = :xml
+
+        # The document being searched is an HTML4 document.
         HTML4 = :html4
+
+        # The document being searched is an HTML5 document.
         HTML5 = :html5
+
+        # :nodoc: array of values for validation
         VALUES = [XML, HTML4, HTML5]
       end
 
+      # :call-seq:
+      #   new() → XPathVisitor
+      #   new(builtins:, doctype:) → XPathVisitor
+      #
+      # [Parameters]
+      # - +builtins:+ (BuiltinsConfig) Determine when to use Nokogiri's built-in xpath functions for performance improvements.
+      # - +doctype:+ (DoctypeConfig) Make document-type-specific accommodations for CSS queries.
+      #
+      # [Returns] XPathVisitor
+      #
       def initialize(builtins: BuiltinsConfig::NEVER, doctype: DoctypeConfig::XML)
         unless BuiltinsConfig::VALUES.include?(builtins)
           raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
@@ -29,10 +64,16 @@ module Nokogiri
         @doctype = doctype
       end
 
+      # :call-seq: config() → Hash
+      #
+      # [Returns]
+      #   a Hash representing the configuration of the XPathVisitor, suitable for use as
+      #   part of the CSS cache key.
       def config
         { builtins: @builtins, doctype: @doctype }
       end
 
+      # :stopdoc:
       def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
         return send(msg, node) if respond_to?(msg)

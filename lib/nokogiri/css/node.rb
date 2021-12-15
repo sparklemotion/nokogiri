@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# :stopdoc:
 module Nokogiri
   module CSS
-    class Node
+    class Node # :nodoc:
       ALLOW_COMBINATOR_ON_SELF = [:DIRECT_ADJACENT_SELECTOR, :FOLLOWING_SELECTOR, :CHILD_SELECTOR]
 
       # Get the type of this node

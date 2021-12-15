@@ -1,6 +1,6 @@
-# :stopdoc:
 module Nokogiri
 module CSS
+# :nodoc: all
 class Tokenizer
 
 macro
