@@ -201,12 +201,9 @@ module Nokogiri
     VersionInfo.instance.jruby?
   end
 
-  # Ensure constants used in this file are loaded - see #1896
-  if Nokogiri.jruby?
-    require_relative "../jruby/dependencies"
-  end
+  require_relative "../jruby/dependencies" if Nokogiri.jruby?
   require_relative "../extension"
 
-  # More complete version information about libxml
+  # Detailed version info about Nokogiri and the installed extension dependencies.
   VERSION_INFO = VersionInfo.instance.to_hash
 end

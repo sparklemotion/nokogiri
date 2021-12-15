@@ -57,9 +57,9 @@ entities(VALUE self)
 
 /*
  * call-seq:
- *   notations
+ *   notations() → Hash<name(String)⇒Notation>
  *
- * Get a hash of the notations for this DTD.
+ * [Returns] All the notations for this DTD in a Hash of Notation +name+ to Notation.
  */
 static VALUE
 notations(VALUE self)

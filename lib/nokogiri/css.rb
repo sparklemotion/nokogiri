@@ -17,8 +17,6 @@ module Nokogiri
       #
       # Translate a CSS selector to the equivalent XPath query.
       #
-      # 💡 Note that translated queries are cached.
-      #
       # [Parameters]
       # - +selector+ (String) The CSS selector to be translated into XPath
       #
@@ -38,6 +36,8 @@ module Nokogiri
       #   the namespace prefix and the values are the namespace URIs. Default is an empty Hash.
       #
       # [Returns] (String) The equivalent XPath query for +selector+
+      #
+      # 💡 Note that translated queries are cached for performance concerns.
       #
       def xpath_for(selector, options = {})
         prefix = options.fetch(:prefix, Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX)
