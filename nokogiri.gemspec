@@ -232,6 +232,7 @@ Gem::Specification.new do |spec|
     "lib/nekodtd.jar",
     "lib/nekohtml.jar",
     "lib/nokogiri.rb",
+    "lib/nokogiri/class_resolver.rb",
     "lib/nokogiri/css.rb",
     "lib/nokogiri/css/node.rb",
     "lib/nokogiri/css/parser.rb",

@@ -424,11 +424,14 @@ module Nokogiri
         xml_builder = Nokogiri::XML::Builder.new
         assert_instance_of(Nokogiri::XML::Document, xml_builder.doc)
 
-        html_builder = Nokogiri::HTML::Builder.new
-        assert_instance_of(Nokogiri::HTML::Document, html_builder.doc)
+        html_builder = Nokogiri::HTML4::Builder.new
+        assert_instance_of(Nokogiri::HTML4::Document, html_builder.doc)
 
         foo_builder = ThisIsATestBuilder.new
         assert_instance_of(Nokogiri::XML::Document, foo_builder.doc)
+
+        foo_builder = ThisIsAnotherTestBuilder.new
+        assert_instance_of(Nokogiri::HTML4::Document, foo_builder.doc)
       end
 
       private
@@ -441,5 +444,9 @@ module Nokogiri
 end
 
 class ThisIsATestBuilder < Nokogiri::XML::Builder
+  # this exists for the test_builder_uses_proper_document_class and should be empty
+end
+
+class ThisIsAnotherTestBuilder < Nokogiri::HTML4::Builder
   # this exists for the test_builder_uses_proper_document_class and should be empty
 end
