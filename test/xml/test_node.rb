@@ -1273,7 +1273,9 @@ module Nokogiri
             eoxml
 
             set = xml.search("//b")
-            assert_equal(3, set[0].line)
+            pending_if("https://github.com/sparklemotion/nokogiri/issues/2380", Nokogiri.jruby?) do
+              assert_equal(3, set[0].line)
+            end
           end
 
           it "properly numbers lines with documents containing XML comments" do
@@ -1307,7 +1309,9 @@ module Nokogiri
             eoxml
 
             set = xml.search("//c")
-            assert_equal(6, set[0].line)
+            pending_if("https://github.com/sparklemotion/nokogiri/issues/2380", Nokogiri.jruby?) do
+              assert_equal(6, set[0].line)
+            end
           end
 
           it "returns a sensible line number for each node" do
