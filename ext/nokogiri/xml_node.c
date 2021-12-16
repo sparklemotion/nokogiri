@@ -1895,9 +1895,7 @@ in_context(VALUE self, VALUE _str, VALUE _options)
    */
   child_iter = node->doc->children ;
   while (child_iter) {
-    if (child_iter->parent != (xmlNodePtr)node->doc) {
-      child_iter->parent = (xmlNodePtr)node->doc;
-    }
+    child_iter->parent = (xmlNodePtr)node->doc;
     child_iter = child_iter->next;
   }
 
