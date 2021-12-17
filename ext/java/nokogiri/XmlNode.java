@@ -36,6 +36,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.Comment;
 
 import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.NokogiriHelpers;
@@ -1599,9 +1600,14 @@ public class XmlNode extends RubyObject
     NodeList list = node.getChildNodes();
     for (int jchild = 0; jchild < list.getLength(); jchild++) {
       Node child = list.item(jchild);
+      String text = null;
 
       if (child instanceof Text) {
-        String text = ((Text)child).getData();
+        text = ((Text)child).getData();
+      } else if (child instanceof Comment) {
+        text = ((Comment)child).getData();
+      }
+      if (text != null) {
         int textLength = text.length();
         for (int jchar = 0; jchar < textLength; jchar++) {
           if (text.charAt(jchar) == '\n') {
