@@ -1580,6 +1580,10 @@ public class XmlNode extends RubyObject
     return getNokogiriClass(context.runtime, "Nokogiri::XML::Node").getConstant(type);
   }
 
+  /*
+   * NOTE that the behavior of this function is very difference from the CRuby implementation, see
+   * the docstring in ext/nokogiri/xml_node.c for details.
+   */
   @JRubyMethod
   public IRubyObject
   line(ThreadContext context)
@@ -1587,7 +1591,10 @@ public class XmlNode extends RubyObject
     Node root = getOwnerDocument();
     int[] counter = new int[1];
     count(root, counter);
-    return RubyFixnum.newFixnum(context.runtime, counter[0] + 1);
+    // offset of 2:
+    // - one because humans start counting at 1 not zero
+    // - one to account for the XML declaration present in the output
+    return RubyFixnum.newFixnum(context.runtime, counter[0] + 2);
   }
 
   private boolean

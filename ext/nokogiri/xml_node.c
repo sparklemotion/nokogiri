@@ -1698,10 +1698,31 @@ native_write_to(
 }
 
 /*
- * call-seq:
- *  line
+ * :call-seq:
+ *   line() → Integer
  *
- * Returns the line for this Node
+ * [Returns] The line number of this Node.
+ *
+ * ---
+ *
+ * <b> ⚠ The CRuby and JRuby implementations differ in important ways! </b>
+ *
+ * Semantic differences:
+ * - The CRuby method reflects the node's line number <i>in the parsed string</i>
+ * - The JRuby method reflects the node's line number <i>in the final DOM structure</i> after
+ *   corrections have been applied
+ *
+ * Performance differences:
+ * - The CRuby method is {O(1)}[https://en.wikipedia.org/wiki/Time_complexity#Constant_time]
+ *   (constant time)
+ * - The JRuby method is {O(n)}[https://en.wikipedia.org/wiki/Time_complexity#Linear_time] (linear
+ *   time, where n is the number of nodes before/above the element in the DOM)
+ *
+ * If you'd like to help improve the JRuby implementation, please review these issues and reach out
+ * to the maintainers:
+ * - https://github.com/sparklemotion/nokogiri/issues/1223
+ * - https://github.com/sparklemotion/nokogiri/pull/2177
+ * - https://github.com/sparklemotion/nokogiri/issues/2380
  */
 static VALUE
 rb_xml_node_line(VALUE rb_node)

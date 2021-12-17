@@ -1262,6 +1262,22 @@ module Nokogiri
         end
 
         describe "#line" do
+          it "counts lines" do
+            xml = Nokogiri::XML(<<~XML)
+              <a>
+                <b>Test</b>
+              </a>
+            XML
+
+            if Nokogiri.jruby?
+              # in the output
+              assert_equal(3, xml.at_css("b").line)
+            else
+              # in the input
+              assert_equal(2, xml.at_css("b").line)
+            end
+          end
+
           it "properly numbers lines with documents containing XML prolog" do
             xml = Nokogiri::XML(<<~XML)
               <?xml version="1.0" ?>
@@ -1270,9 +1286,7 @@ module Nokogiri
               </a>
             XML
 
-            pending_if("https://github.com/sparklemotion/nokogiri/issues/2380", Nokogiri.jruby?) do
-              assert_equal(3, xml.at_css("b").line)
-            end
+            assert_equal(3, xml.at_css("b").line)
           end
 
           it "properly numbers lines with documents containing XML comments" do
@@ -1285,7 +1299,11 @@ module Nokogiri
               </a>
             XML
 
-            assert_equal(4, xml.at_css("c").line)
+            if Nokogiri.jruby?
+              assert_equal(5, xml.at_css("c").line)
+            else
+              assert_equal(4, xml.at_css("c").line)
+            end
           end
 
           it "properly numbers lines with documents containing XML multiline comments" do
@@ -1302,7 +1320,11 @@ module Nokogiri
               </a>
             XML
 
-            assert_equal(6, xml.at_css("c").line)
+            if Nokogiri.jruby?
+              assert_equal(7, xml.at_css("c").line)
+            else
+              assert_equal(6, xml.at_css("c").line)
+            end
           end
 
           it "returns a sensible line number for each node" do
@@ -1318,8 +1340,13 @@ module Nokogiri
             XML
 
             set = xml.css("b")
-            assert_equal(2, set[0].line)
-            assert_equal(5, set[1].line)
+            if Nokogiri.jruby?
+              assert_equal(3, set[0].line)
+              assert_equal(6, set[1].line)
+            else
+              assert_equal(2, set[0].line)
+              assert_equal(5, set[1].line)
+            end
           end
 
           it "supports a line number greater than a short int" do
