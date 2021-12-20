@@ -656,7 +656,7 @@ else
   if cross_build_p || windows?
     zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
       recipe.files = [{
-        url: "http://zlib.net/fossils/#{recipe.name}-#{recipe.version}.tar.gz",
+        url: "https://zlib.net/fossils/#{recipe.name}-#{recipe.version}.tar.gz",
         sha256: dependencies["zlib"]["sha256"],
       }]
       if windows?
@@ -714,7 +714,7 @@ else
       libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"]["version"], static_p,
         cross_build_p) do |recipe|
         recipe.files = [{
-          url: "http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
+          url: "https://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["libiconv"]["sha256"],
         }]
 
