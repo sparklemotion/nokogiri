@@ -115,6 +115,7 @@ def Nokogiri(*args, &block)
 end
 
 require_relative "nokogiri/version"
+require_relative "nokogiri/class_resolver"
 require_relative "nokogiri/syntax_error"
 require_relative "nokogiri/xml"
 require_relative "nokogiri/xslt"

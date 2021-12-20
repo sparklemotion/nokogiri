@@ -91,31 +91,43 @@ module Nokogiri
         end
 
         def test_node_context_parsing_of_malformed_html_fragment
-          doc = HTML.parse("<html><body><div></div></body></html>")
+          doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>")
 
           assert_equal(1, doc.errors.length)
           assert_equal(1, nodeset.length)
           assert_equal("<div></div>", nodeset.to_s)
+          assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
+          assert_instance_of(Nokogiri::HTML4::Document, nodeset.first.document)
         end
 
         def test_node_context_parsing_of_malformed_html_fragment_with_recover_is_corrected
-          doc = HTML.parse("<html><body><div></div></body></html>")
+          doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>", &:recover)
 
           assert_equal(1, doc.errors.length)
           assert_equal(1, nodeset.length)
           assert_equal("<div></div>", nodeset.to_s)
+          assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
+          assert_instance_of(Nokogiri::HTML4::Document, nodeset.first.document)
         end
 
         def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
-          doc = HTML.parse("<html><body><div></div></body></html>")
+          doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           assert_raises(Nokogiri::XML::SyntaxError) do
             context_node.parse("<div </div>", &:strict)
           end
+        end
+
+        def test_node_context_parsing_of_malformed_xml_fragment_uses_the_right_class_to_recover
+          doc = XML.parse("<root><body><div></div></body></root>")
+          context_node = doc.at_css("div")
+          nodeset = context_node.parse("<div </div") # causes an error and recovers
+          assert_instance_of(Nokogiri::XML::Document, nodeset.document)
+          assert_instance_of(Nokogiri::XML::Document, nodeset.first.document)
         end
 
         def test_parse_error_list
@@ -419,6 +431,14 @@ module Nokogiri
             assert_equal "employee", other.name
             assert_nil other.parent
           end
+        end
+
+        def test_fragment_creates_appropriate_class
+          frag = Nokogiri.XML("<root><child/></root>").at_css("child").fragment("<thing/>")
+          assert_instance_of(Nokogiri::XML::DocumentFragment, frag)
+
+          frag = Nokogiri.HTML4("<root><child/></root>").at_css("child").fragment("<thing/>")
+          assert_instance_of(Nokogiri::HTML4::DocumentFragment, frag)
         end
 
         def test_fragment_creates_elements

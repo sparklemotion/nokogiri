@@ -262,6 +262,8 @@ module Nokogiri
     #   </root>
     #
     class Builder
+      include Nokogiri::ClassResolver
+
       DEFAULT_DOCUMENT_OPTIONS = { namespace_inheritance: true }
 
       # The current Document object being built
@@ -307,13 +309,7 @@ module Nokogiri
           @doc = root.document
           @parent = root
         else
-          klassname = "::" + (self.class.name.split("::")[0..-2] + ["Document"]).join("::")
-          klass = begin
-            Object.const_get(klassname)
-          rescue NameError
-            Nokogiri::XML::Document
-          end
-          @parent = @doc = klass.new
+          @parent = @doc = related_class("Document").new
         end
 
         @context = nil

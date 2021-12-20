@@ -56,6 +56,7 @@ module Nokogiri
     class Node
       include Nokogiri::XML::PP::Node
       include Nokogiri::XML::Searchable
+      include Nokogiri::ClassResolver
       include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
@@ -936,8 +937,7 @@ module Nokogiri
       # Create a DocumentFragment containing +tags+ that is relative to _this_
       # context node.
       def fragment(tags)
-        type = document.html? ? Nokogiri::HTML : Nokogiri::XML
-        type::DocumentFragment.new(document, tags, self)
+        document.related_class("DocumentFragment").new(document, tags, self)
       end
 
       ###
@@ -988,7 +988,7 @@ module Nokogiri
         node_set = in_context(contents, options.to_i)
         if node_set.empty? && (document.errors.length > error_count)
           if options.recover?
-            fragment = Nokogiri::HTML4::DocumentFragment.parse(contents)
+            fragment = document.related_class("DocumentFragment").parse(contents)
             node_set = fragment.children
           else
             raise document.errors[error_count]

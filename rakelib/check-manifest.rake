@@ -18,6 +18,7 @@ task :check_manifest do
     coverage
     doc
     gems
+    misc
     nokogumbo-import
     oci-images
     patches
@@ -38,6 +39,8 @@ task :check_manifest do
     .gitignore
     .gitmodules
     .yardopts
+    .rubocop.yml
+    .rubocop_todo.yml
     CHANGELOG.md
     CODE_OF_CONDUCT.md
     CONTRIBUTING.md
@@ -76,10 +79,10 @@ task :check_manifest do
 
   unless missing_files.empty?
     puts "missing:"
-    missing_files.each { |f| puts "- #{f}" }
+    missing_files.sort.each { |f| puts "- #{f}" }
   end
   unless extra_files.empty?
     puts "unexpected:"
-    extra_files.each { |f| puts "+ #{f}" }
+    extra_files.sort.each { |f| puts "+ #{f}" }
   end
 end
