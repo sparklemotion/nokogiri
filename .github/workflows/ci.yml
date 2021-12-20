@@ -299,7 +299,6 @@ jobs:
             bundle exec rake test
 
   memcheck:
-    continue-on-error: true # this is experimental!
     strategy:
       fail-fast: false
       matrix:
