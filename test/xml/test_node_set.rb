@@ -398,9 +398,29 @@ module Nokogiri
           assert_match("<a>two</a>", html)
         end
 
-        it "gt_string_arg" do
-          assert(node_set = xml.search("//employee"))
-          assert_equal(node_set.xpath("./employeeId"), (node_set > "employeeId"))
+        it "searches direct children of nodes with :>" do
+          xml = <<~XML
+            <root>
+              <wrap>
+                <div class="section header" id="1">
+                  <div class="subsection header">sub 1</div>
+                  <div class="subsection header">sub 2</div>
+                </div>
+              </wrap>
+              <wrap>
+                <div class="section header" id="2">
+                  <div class="subsection header">sub 3</div>
+                  <div class="subsection header">sub 4</div>
+                </div>
+              </wrap>
+            </root>
+          XML
+          node_set = Nokogiri::XML::Document.parse(xml).xpath("/root/wrap")
+          result = (node_set > "div.header")
+          assert_equal(2, result.length)
+          assert_equal(["1", "2"], result.map { |n| n["id"] })
+
+          assert_empty(node_set > ".no-such-match")
         end
 
         it "at_performs_a_search_with_css" do

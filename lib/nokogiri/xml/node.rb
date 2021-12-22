@@ -133,15 +133,6 @@ module Nokogiri
         document.decorate(self)
       end
 
-      # :section: Searching via XPath or CSS Queries
-
-      ###
-      # Search this node's immediate children using CSS selector +selector+
-      def >(other)
-        ns = document.root.namespaces
-        xpath(CSS.xpath_for(other, prefix: "./", ns: ns).first)
-      end
-
       # :section: Manipulating Document Structure
 
       ###

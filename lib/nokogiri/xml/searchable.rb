@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
@@ -177,6 +178,15 @@ module Nokogiri
         xpath(*args).first
       end
 
+      # :call-seq:
+      #   >(selector) → NodeSet
+      #
+      # Search this node's immediate children using CSS selector +selector+
+      def >(selector) # rubocop:disable Naming/BinaryOperatorParameterName
+        ns = (document.root&.namespaces || {})
+        xpath(CSS.xpath_for(selector, prefix: "./", ns: ns).first)
+      end
+
       # :section:
 
       private
@@ -237,7 +247,7 @@ module Nokogiri
         end
         ns, binds = hashes.reverse
 
-        ns ||= document.root ? document.root.namespaces : {}
+        ns ||= (document.root&.namespaces || {})
 
         [params, handler, ns, binds]
       end
