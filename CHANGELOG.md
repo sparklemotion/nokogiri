@@ -18,6 +18,13 @@ Note that this version of Nokogiri opts-in to the ["MFA required to publish" set
 
 A related discussion about Trust exists at [#2357](https://github.com/sparklemotion/nokogiri/issues/2357) in which I invite you to participate if you have feelings or opinions on this topic.
 
+#### Ruby
+
+This release ends support for:
+
+* Ruby 2.5, for which [official support ended 2021-03-31](https://www.ruby-lang.org/en/downloads/branches/).
+* JRuby 9.2, which is a Ruby 2.5-compatible release.
+
 
 ### Dependencies
 

@@ -282,6 +282,7 @@ namespace "gem" do
     desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh(<<~EOT, platform: plat)
+        rvm use 3.0 &&
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'

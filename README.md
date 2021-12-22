@@ -107,8 +107,8 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 Requirements:
 
-- Ruby >= 2.5
-- JRuby >= 9.2.0.0
+- Ruby >= 2.6
+- JRuby >= 9.3.0.0
 
 
 ### Native Gems: Faster, more reliable installation
@@ -117,12 +117,12 @@ Requirements:
 
 ### Supported Platforms
 
-As of v1.11.0, Nokogiri ships pre-compiled, "native" gems for the following platforms:
+Nokogiri ships pre-compiled, "native" gems for the following platforms:
 
 - Linux: `x86-linux` and `x86_64-linux` (req: `glibc >= 2.17`), including musl platforms like Alpine
 - Darwin/MacOS: `x86_64-darwin` and `arm64-darwin`
 - Windows: `x86-mingw32` and `x64-mingw32`
-- Java: any platform running JRuby 9.2 or higher
+- Java: any platform running JRuby 9.3 or higher
 
 To determine whether your system supports one of these gems, look at the output of `bundle platform` or `ruby -e 'puts Gem::Platform.local.to_s'`.
 
