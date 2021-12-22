@@ -196,6 +196,20 @@ module Nokogiri
       refute(recv.__send__(msg, *args), m)
     end unless method_defined?(:assert_not_send)
 
+    def pending(msg)
+      begin
+        yield
+      rescue MiniTest::Assertion
+        skip("pending #{msg}")
+      end
+      flunk("pending test unexpectedly passed: #{msg}")
+    end
+
+    def pending_if(msg, pend_eh, &block)
+      return yield unless pend_eh
+      pending(msg, &block)
+    end
+
     def i_am_ruby_matching(gem_version_requirement_string)
       Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
     end

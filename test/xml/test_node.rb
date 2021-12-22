@@ -299,11 +299,11 @@ module Nokogiri
         end
 
         def test_inspect_ns
-          xml = Nokogiri::XML(<<~eoxml, &:noblanks)
+          xml = Nokogiri::XML(<<~XML, &:noblanks)
             <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
               <awesome/>
             </root>
-          eoxml
+          XML
           ins = xml.inspect
 
           xml.traverse do |node|
@@ -323,30 +323,30 @@ module Nokogiri
         end
 
         def test_namespace_definitions_when_some_exist
-          xml = Nokogiri::XML(<<~eoxml)
+          xml = Nokogiri::XML(<<~XML)
             <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
               <awesome/>
             </root>
-          eoxml
+          XML
           namespace_definitions = xml.root.namespace_definitions
           assert_equal(2, namespace_definitions.length)
         end
 
         def test_namespace_definitions_when_no_exist
-          xml = Nokogiri::XML(<<~eoxml)
+          xml = Nokogiri::XML(<<~XML)
             <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
               <awesome/>
             </root>
-          eoxml
+          XML
           namespace_definitions = xml.at_xpath("//xmlns:awesome").namespace_definitions
           assert_equal(0, namespace_definitions.length)
         end
 
         def test_default_namespace_goes_to_children
-          fruits = Nokogiri::XML(<<~eoxml)
+          fruits = Nokogiri::XML(<<~XML)
             <Fruit xmlns='www.fruits.org'>
             </Fruit>
-          eoxml
+          XML
           apple = Nokogiri::XML::Node.new("Apple", fruits)
           orange = Nokogiri::XML::Node.new("Orange", fruits)
           apple << orange
@@ -356,11 +356,11 @@ module Nokogiri
         end
 
         def test_parent_namespace_is_not_inherited
-          fruits = Nokogiri::XML(<<-eoxml)
+          fruits = Nokogiri::XML(<<-XML)
             <fruit xmlns:fruit="http://fruits.org">
               <fruit:apple />
             </fruit>
-          eoxml
+          XML
 
           apple = fruits.at_xpath("//fruit:apple", { "fruit" => "http://fruits.org" })
           assert(apple)
@@ -412,11 +412,11 @@ module Nokogiri
         end
 
         def test_duplicate_node_removes_namespace
-          fruits = Nokogiri::XML(<<~eoxml)
+          fruits = Nokogiri::XML(<<~XML)
             <Fruit xmlns='www.fruits.org'>
             <Apple></Apple>
             </Fruit>
-          eoxml
+          XML
           apple = fruits.root.xpath("fruit:Apple", { "fruit" => "www.fruits.org" })[0]
           new_apple = apple.dup
           fruits.root << new_apple
@@ -450,10 +450,10 @@ module Nokogiri
         end
 
         def test_node_added_to_root_should_get_namespace
-          fruits = Nokogiri::XML(<<~eoxml)
+          fruits = Nokogiri::XML(<<~XML)
             <Fruit xmlns='http://www.fruits.org'>
             </Fruit>
-          eoxml
+          XML
           apple = fruits.fragment("<Apple/>")
           fruits.root << apple
           assert_equal(1, fruits.xpath("//xmlns:Apple").length)
@@ -466,15 +466,15 @@ module Nokogiri
         end
 
         def test_children
-          doc = Nokogiri::XML(<<~eoxml)
+          doc = Nokogiri::XML(<<~XML)
             <root>#{"<a/>" * 9}</root>
-          eoxml
+          XML
           assert_equal(9, doc.root.children.length)
           assert_equal(9, doc.root.children.to_a.length)
 
-          doc = Nokogiri::XML(<<~eoxml)
+          doc = Nokogiri::XML(<<~XML)
             <root>#{"<a/>" * 15}</root>
-          eoxml
+          XML
           assert_equal(15, doc.root.children.length)
           assert_equal(15, doc.root.children.to_a.length)
         end
@@ -658,13 +658,13 @@ module Nokogiri
         end
 
         def test_hold_refence_to_subnode
-          doc = Nokogiri::XML(<<~eoxml)
+          doc = Nokogiri::XML(<<~XML)
             <root>
               <a>
                 <b />
               </a>
             </root>
-          eoxml
+          XML
           assert(node_a = doc.css("a").first)
           assert(node_b = node_a.css("b").first)
           node_a.unlink
@@ -730,7 +730,7 @@ module Nokogiri
         end
 
         def test_find_by_css_with_tilde_eql
-          xml = Nokogiri::XML.parse(<<~eoxml)
+          xml = Nokogiri::XML.parse(<<~XML)
             <root>
               <a>Hello world</a>
               <a class='foo bar'>Bar</a>
@@ -740,14 +740,14 @@ module Nokogiri
               <a class='bazbarfoo'>Awesome</a>
               <a class='bazbar'>Awesome</a>
             </root>
-          eoxml
+          XML
           set = xml.css('a[@class~="bar"]')
           assert_equal(4, set.length)
           assert_equal(["Bar"], set.map(&:content).uniq)
         end
 
         def test_unlink
-          xml = Nokogiri::XML.parse(<<~eoxml)
+          xml = Nokogiri::XML.parse(<<~XML)
             <root>
               <a class='foo bar'>Bar</a>
               <a class='bar foo'>Bar</a>
@@ -757,7 +757,7 @@ module Nokogiri
               <a class='bazbarfoo'>Awesome</a>
               <a class='bazbar'>Awesome</a>
             </root>
-          eoxml
+          XML
           node = xml.xpath("//a")[3]
           assert_equal("Hello world", node.text)
           assert_match(/Hello world/, xml.to_s)
@@ -921,7 +921,7 @@ module Nokogiri
         end
 
         def test_namespace_search_with_xpath_and_hash
-          xml = Nokogiri::XML.parse(<<~eoxml)
+          xml = Nokogiri::XML.parse(<<~XML)
             <root>
               <car xmlns:part="http://general-motors.com/">
                 <part:tire>Michelin Model XGV</part:tire>
@@ -930,14 +930,14 @@ module Nokogiri
                 <part:tire>I'm a bicycle tire!</part:tire>
               </bicycle>
             </root>
-          eoxml
+          XML
 
           tires = xml.xpath("//bike:tire", { "bike" => "http://schwinn.com/" })
           assert_equal(1, tires.length)
         end
 
         def test_namespace_search_with_xpath_and_hash_with_symbol_keys
-          xml = Nokogiri::XML.parse(<<~eoxml)
+          xml = Nokogiri::XML.parse(<<~XML)
             <root>
               <car xmlns:part="http://general-motors.com/">
                 <part:tire>Michelin Model XGV</part:tire>
@@ -946,14 +946,14 @@ module Nokogiri
                 <part:tire>I'm a bicycle tire!</part:tire>
               </bicycle>
             </root>
-          eoxml
+          XML
 
           tires = xml.xpath("//bike:tire", bike: "http://schwinn.com/")
           assert_equal(1, tires.length)
         end
 
         def test_namespace_search_with_css
-          xml = Nokogiri::XML.parse(<<~eoxml)
+          xml = Nokogiri::XML.parse(<<~XML)
             <root>
               <car xmlns:part="http://general-motors.com/">
                 <part:tire>Michelin Model XGV</part:tire>
@@ -962,7 +962,7 @@ module Nokogiri
                 <part:tire>I'm a bicycle tire!</part:tire>
               </bicycle>
             </root>
-          eoxml
+          XML
 
           tires = xml.css("bike|tire", "bike" => "http://schwinn.com/")
           assert_equal(1, tires.length)
@@ -970,13 +970,13 @@ module Nokogiri
 
         def test_namespaced_attribute_search_with_xpath
           # from #593
-          xml_content = <<~EOXML
+          xml_content = <<~XML
             <?xml version="1.0"?>
             <ns1:el1 xmlns:ns1="http://blabla.com" >
               <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
               <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
             </ns1:el1>
-          EOXML
+          XML
           xml_doc = Nokogiri::XML(xml_content)
 
           no_ns = xml_doc.xpath("//*[@att]")
@@ -990,13 +990,13 @@ module Nokogiri
 
         def test_namespaced_attribute_search_with_css
           # from #593
-          xml_content = <<~EOXML
+          xml_content = <<~XML
             <?xml version="1.0"?>
             <ns1:el1 xmlns:ns1="http://blabla.com" >
               <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
               <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
             </ns1:el1>
-          EOXML
+          XML
           xml_doc = Nokogiri::XML(xml_content)
 
           no_ns = xml_doc.css("*[att]")
@@ -1009,14 +1009,14 @@ module Nokogiri
         end
 
         def test_namespaces_should_include_all_namespace_definitions
-          xml = Nokogiri::XML.parse(<<~EOF)
+          xml = Nokogiri::XML.parse(<<~XML)
             <x xmlns="http://quux.com/" xmlns:a="http://foo.com/" xmlns:b="http://bar.com/">
               <y xmlns:c="http://bazz.com/">
                 <z>hello</z>
                 <a xmlns:c="http://newc.com/" />
               </y>
             </x>
-          EOF
+          XML
 
           namespaces = xml.namespaces # Document#namespace
           assert_equal({ "xmlns" => "http://quux.com/",
@@ -1048,7 +1048,7 @@ module Nokogiri
         end
 
         def test_namespace
-          xml = Nokogiri::XML.parse(<<~EOF)
+          xml = Nokogiri::XML.parse(<<~XML)
             <x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
               <y xmlns:c='http://bazz.com/'>
                 <a:div>hello a</a:div>
@@ -1058,7 +1058,7 @@ module Nokogiri
                 <div x="1">hello moon</div>
               </y>
             </x>
-          EOF
+          XML
           set = xml.search("//y/*")
           assert_equal("a", set[0].namespace.prefix)
           assert_equal("http://foo.com/", set[0].namespace.href)
@@ -1082,9 +1082,9 @@ module Nokogiri
           #  describe how we handle microsoft word's HTML formatting.
           #  this test is descriptive, not prescriptive.
           #
-          html = Nokogiri::HTML.parse(<<~EOF)
+          html = Nokogiri::HTML.parse(<<~XML)
             <div><o:p>foo</o:p></div>
-          EOF
+          XML
           node = html.at("div").children.first
           refute_nil(node)
 
@@ -1171,11 +1171,11 @@ module Nokogiri
 
         # issue 771
         def test_format_noblank
-          content = <<~eoxml
+          content = <<~XML
             <foo>
               <bar>hello</bar>
             </foo>
-          eoxml
+          XML
           subject = Nokogiri::XML(content) do |conf|
             conf.default_xml.noblanks
           end
@@ -1212,7 +1212,7 @@ module Nokogiri
         end
 
         def test_node_lang
-          document = Nokogiri::XML(<<~EOXML)
+          document = Nokogiri::XML(<<~XML)
             <root>
               <div class='english'  xml:lang='en'>
                 <div class='english_child'>foo</div>
@@ -1220,7 +1220,7 @@ module Nokogiri
               <div class='japanese' xml:lang='jp'>bar</div>
               <div class='unspecified'>bar</div>
             </root>
-          EOXML
+          XML
           assert_equal("en", document.at_css(".english").lang)
           assert_equal("en", document.at_css(".english_child").lang)
           assert_equal("jp", document.at_css(".japanese").lang)
@@ -1262,8 +1262,73 @@ module Nokogiri
         end
 
         describe "#line" do
+          it "counts lines" do
+            xml = Nokogiri::XML(<<~XML)
+              <a>
+                <b>Test</b>
+              </a>
+            XML
+
+            if Nokogiri.jruby?
+              # in the output
+              assert_equal(3, xml.at_css("b").line)
+            else
+              # in the input
+              assert_equal(2, xml.at_css("b").line)
+            end
+          end
+
+          it "properly numbers lines with documents containing XML prolog" do
+            xml = Nokogiri::XML(<<~XML)
+              <?xml version="1.0" ?>
+              <a>
+                <b>Test</b>
+              </a>
+            XML
+
+            assert_equal(3, xml.at_css("b").line)
+          end
+
+          it "properly numbers lines with documents containing XML comments" do
+            xml = Nokogiri::XML(<<~XML)
+              <a>
+                <b>
+                  <!-- This is a comment -->
+                  <c>Test</c>
+                </b>
+              </a>
+            XML
+
+            if Nokogiri.jruby?
+              assert_equal(5, xml.at_css("c").line)
+            else
+              assert_equal(4, xml.at_css("c").line)
+            end
+          end
+
+          it "properly numbers lines with documents containing XML multiline comments" do
+            xml = Nokogiri::XML(<<~XML)
+              <a>
+                <b>
+                  <!--
+                    This is a comment
+                  -->
+                  <c>
+                    Test
+                  </c>
+                </b>
+              </a>
+            XML
+
+            if Nokogiri.jruby?
+              assert_equal(7, xml.at_css("c").line)
+            else
+              assert_equal(6, xml.at_css("c").line)
+            end
+          end
+
           it "returns a sensible line number for each node" do
-            xml = Nokogiri::XML(<<~eoxml)
+            xml = Nokogiri::XML(<<~XML)
               <a>
                 <b>
                   Hello world
@@ -1272,11 +1337,16 @@ module Nokogiri
                   Goodbye world
                 </b>
               </root>
-            eoxml
+            XML
 
-            set = xml.search("//b")
-            assert_equal(2, set[0].line)
-            assert_equal(5, set[1].line)
+            set = xml.css("b")
+            if Nokogiri.jruby?
+              assert_equal(3, set[0].line)
+              assert_equal(6, set[1].line)
+            else
+              assert_equal(2, set[0].line)
+              assert_equal(5, set[1].line)
+            end
           end
 
           it "supports a line number greater than a short int" do
