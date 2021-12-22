@@ -14,6 +14,8 @@ BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
+# TODO remove this stanza once https://github.com/rake-compiler/rake-compiler-dock/pull/57 is
+# shipped in a version of rake-compiler-dock
 if [[ "${XRUBIES:-}" != "" ]] ; then
   # normally part of rake-compiler-dock "runas"
   . /etc/rubybashrc
@@ -35,7 +37,7 @@ if [[ "${BUILD_NATIVE_GEM}" == "ruby" ]] ; then
 elif [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
   bundle exec rake java gem
 else
-  bundle exec rake gem:${BUILD_NATIVE_GEM}:builder FORCE_CROSS_COMPILING=true
+  bundle exec rake gem:${BUILD_NATIVE_GEM}:builder
 fi
 
 ./scripts/test-gem-file-contents pkg/nokogiri*.gem
