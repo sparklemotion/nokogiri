@@ -119,7 +119,12 @@ if @rng
     puts error.message
   end
 elsif @script
-  eval @script, binding, "<main>" # rubocop:disable Security/Eval
+  begin
+    eval(@script, binding, "<main>") # rubocop:disable Security/Eval
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    warn("ERROR: Exception raised while evaluating '#{@script}'")
+    raise e
+  end
 else
   puts "Your document is stored in @doc..."
   Nokogiri::CLI.console.start
