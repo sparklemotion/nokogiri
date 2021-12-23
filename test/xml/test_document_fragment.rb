@@ -157,6 +157,25 @@ module Nokogiri
           end
         end
 
+        def test_search_direct_children_of_fragment
+          xml = <<~XML
+            <div class="section header" id="1">
+              <div class="subsection header">sub 1</div>
+              <div class="subsection header">sub 2</div>
+            </div>
+            <div class="section header" id="2">
+              <div class="subsection header">sub 3</div>
+              <div class="subsection header">sub 4</div>
+            </div>
+          XML
+          fragment = Nokogiri::XML.fragment(xml)
+          result = (fragment > "div.header")
+          assert_equal(2, result.length)
+          assert_equal(["1", "2"], result.map { |n| n["id"] })
+
+          assert_empty(fragment > ".no-such-match")
+        end
+
         def test_fragment_search_with_multiple_queries
           xml = <<~EOF
             <thing>

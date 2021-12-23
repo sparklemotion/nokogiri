@@ -214,11 +214,46 @@ module Nokogiri
           assert_instance_of(subclass, node)
         end
 
-        def test_gt_string_arg
-          node = xml.at("employee")
-          nodes = (node > "name")
-          assert_equal(1, nodes.length)
-          assert_equal(node, nodes.first.parent)
+        def test_search_direct_children_of_node
+          xml = <<~XML
+            <root>
+              <div class="section header" id="1">
+                <div class="subsection header">sub 1</div>
+                <div class="subsection header">sub 2</div>
+              </div>
+              <div class="section header" id="2">
+                <div class="subsection header">sub 3</div>
+                <div class="subsection header">sub 4</div>
+              </div>
+            </root>
+          XML
+          node = Nokogiri::XML::Document.parse(xml).root
+          result = (node > "div.header")
+          assert_equal(2, result.length)
+          assert_equal(["1", "2"], result.map { |n| n["id"] })
+
+          assert_empty(node > ".no-such-match")
+        end
+
+        def test_search_direct_children_of_node_provides_root_namespaces_implicitly
+          xml = <<~XML
+            <root xmlns:foo="http://nokogiri.org/ns/foo">
+              <foo:div class="section header" id="1">
+                <foo:div class="subsection header">sub 1</foo:div>
+                <foo:div class="subsection header">sub 2</foo:div>
+              </foo:div>
+              <foo:div class="section header" id="2">
+                <foo:div class="subsection header">sub 3</foo:div>
+                <foo:div class="subsection header">sub 4</foo:div>
+              </foo:div>
+            </root>
+          XML
+          node = Nokogiri::XML::Document.parse(xml).root
+          result = (node > "foo|div.header")
+          assert_equal(2, result.length)
+          assert_equal(["1", "2"], result.map { |n| n["id"] })
+
+          assert_empty(node > ".no-such-match")
         end
 
         def test_next_element_when_next_sibling_is_element_should_return_next_sibling
