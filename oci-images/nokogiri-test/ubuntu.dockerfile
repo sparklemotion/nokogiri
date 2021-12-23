@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 # -*- dockerfile -*-
 
@@ -10,7 +10,7 @@ RUN apt-get install -y apt-utils
 
 # -*- dockerfile -*-
 
-RUN apt-get install -y libxslt-dev libxml2-dev pkg-config
+RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
 
 
 # -*- dockerfile -*-

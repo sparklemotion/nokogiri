@@ -59,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: ["bionic", "bionic32"]
+        image: ["ubuntu", "ubuntu32"]
         sys: ["enable"]
     runs-on: ubuntu-latest
     container:
