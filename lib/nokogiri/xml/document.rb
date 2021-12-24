@@ -47,7 +47,6 @@ module Nokogiri
       #
       def self.parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-
         yield options if block_given?
 
         url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil

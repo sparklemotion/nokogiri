@@ -306,6 +306,147 @@ module Nokogiri
           assert_instance_of(Nokogiri::HTML::DocumentFragment, duplicate)
         end
 
+        describe "parse options" do
+          let(:html4_default) do
+            Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML)
+          end
+
+          let(:html4_strict) do
+            Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML).norecover
+          end
+
+          let(:input) { "<div>foo</div" }
+
+          it "sets the test up correctly" do
+            assert(html4_strict.strict?)
+          end
+
+          describe "HTML4.fragment" do
+            it "has sane defaults" do
+              frag = Nokogiri::HTML4.fragment(input)
+              assert_equal("<div>foo</div>", frag.to_html)
+              refute_empty(frag.errors)
+            end
+
+            it "accepts options" do
+              frag = Nokogiri::HTML4.fragment(input, nil, html4_default)
+              assert_equal("<div>foo</div>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::HTML4.fragment(input, nil, html4_strict)
+              end
+            end
+
+            it "takes a config block" do
+              default_config = nil
+              Nokogiri::HTML4.fragment(input) do |config|
+                default_config = config
+              end
+              refute(default_config.strict?)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::HTML4.fragment(input, &:norecover)
+              end
+            end
+          end
+
+          describe "HTML4::DocumentFragment.parse" do
+            it "has sane defaults" do
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input)
+              assert_equal("<div>foo</div>", frag.to_html)
+              refute_empty(frag.errors)
+            end
+
+            it "accepts options" do
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_default)
+              assert_equal("<div>foo</div>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_strict)
+              end
+            end
+
+            it "takes a config block" do
+              default_config = nil
+              Nokogiri::HTML4::DocumentFragment.parse(input) do |config|
+                default_config = config
+              end
+              refute(default_config.strict?)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::HTML4::DocumentFragment.parse(input, &:norecover)
+              end
+            end
+          end
+
+          describe "HTML4::DocumentFragment.new" do
+            describe "without a context node" do
+              it "has sane defaults" do
+                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input)
+                assert_equal("<div>foo</div>", frag.to_html)
+                refute_empty(frag.errors)
+              end
+
+              it "accepts options" do
+                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_default)
+                assert_equal("<div>foo</div>", frag.to_html)
+                refute_empty(frag.errors)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_strict)
+                end
+              end
+
+              it "takes a config block" do
+                default_config = nil
+                Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input) do |config|
+                  default_config = config
+                end
+                refute(default_config.strict?)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, &:norecover)
+                end
+              end
+            end
+
+            describe "with a context node" do
+              let(:document) { Nokogiri::HTML4::Document.parse("<context></context>") }
+              let(:context_node) { document.at_css("context") }
+
+              it "has sane defaults" do
+                frag = Nokogiri::HTML4::DocumentFragment.new(document, input, context_node)
+                assert_equal("<div>foo</div>", frag.to_html)
+                refute_empty(frag.errors)
+              end
+
+              it "accepts options" do
+                frag = Nokogiri::HTML4::DocumentFragment.new(document, input, context_node, html4_default)
+                assert_equal("<div>foo</div>", frag.to_html)
+                refute_empty(frag.errors)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4::DocumentFragment.new(document, input, context_node, html4_strict)
+                end
+              end
+
+              it "takes a config block" do
+                default_config = nil
+                Nokogiri::HTML4::DocumentFragment.new(document, input, context_node) do |config|
+                  default_config = config
+                end
+                refute(default_config.strict?)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4::DocumentFragment.new(document, input, context_node, &:norecover)
+                end
+              end
+            end
+          end
+        end
+
         describe "subclassing" do
           let(:klass) do
             Class.new(Nokogiri::HTML::DocumentFragment) do

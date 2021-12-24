@@ -22,7 +22,6 @@ module Nokogiri
       # Nokogiri::XML::Reader for mor information
       def Reader(string_or_io, url = nil, encoding = nil, options = ParseOptions::STRICT)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-        # Give the options to the user
         yield options if block_given?
 
         if string_or_io.respond_to?(:read)
@@ -39,8 +38,8 @@ module Nokogiri
 
       ####
       # Parse a fragment from +string+ in to a NodeSet.
-      def fragment(string)
-        XML::DocumentFragment.parse(string)
+      def fragment(string, options = ParseOptions::DEFAULT_XML, &block)
+        XML::DocumentFragment.parse(string, options, &block)
       end
     end
   end

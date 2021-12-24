@@ -332,6 +332,147 @@ module Nokogiri
           end
         end
 
+        describe "parse options" do
+          let(:xml_default) do
+            Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_XML)
+          end
+
+          let(:xml_strict) do
+            Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_XML).norecover
+          end
+
+          let(:input) { "<a>foo</a" }
+
+          it "sets the test up correctly" do
+            assert(xml_strict.strict?)
+          end
+
+          describe "XML.fragment" do
+            it "has sane defaults" do
+              frag = Nokogiri::XML.fragment(input)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+            end
+
+            it "accepts options" do
+              frag = Nokogiri::XML.fragment(input, xml_default)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML.fragment(input, xml_strict)
+              end
+            end
+
+            it "takes a config block" do
+              default_config = nil
+              Nokogiri::XML.fragment(input) do |config|
+                default_config = config
+              end
+              refute(default_config.strict?)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML.fragment(input, &:norecover)
+              end
+            end
+          end
+
+          describe "XML::DocumentFragment.parse" do
+            it "has sane defaults" do
+              frag = Nokogiri::XML::DocumentFragment.parse(input)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+            end
+
+            it "accepts options" do
+              frag = Nokogiri::XML::DocumentFragment.parse(input, xml_default)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML::DocumentFragment.parse(input, xml_strict)
+              end
+            end
+
+            it "takes a config block" do
+              default_config = nil
+              Nokogiri::XML::DocumentFragment.parse(input) do |config|
+                default_config = config
+              end
+              refute(default_config.strict?)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML::DocumentFragment.parse(input, &:norecover)
+              end
+            end
+          end
+
+          describe "XML::DocumentFragment.new" do
+            describe "without a context node" do
+              it "has sane defaults" do
+                frag = Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input)
+                assert_equal("<a>foo</a>", frag.to_html)
+                refute_empty(frag.errors)
+              end
+
+              it "accepts options" do
+                frag = Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, nil, xml_default)
+                assert_equal("<a>foo</a>", frag.to_html)
+                refute_empty(frag.errors)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, nil, xml_strict)
+                end
+              end
+
+              it "takes a config block" do
+                default_config = nil
+                Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input) do |config|
+                  default_config = config
+                end
+                refute(default_config.strict?)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, &:norecover)
+                end
+              end
+            end
+
+            describe "with a context node" do
+              let(:document) { Nokogiri::XML::Document.parse("<context></context>") }
+              let(:context_node) { document.at_css("context") }
+
+              it "has sane defaults" do
+                frag = Nokogiri::XML::DocumentFragment.new(document, input, context_node)
+                assert_equal("<a>foo</a>", frag.to_html)
+                refute_empty(frag.errors)
+              end
+
+              it "accepts options" do
+                frag = Nokogiri::XML::DocumentFragment.new(document, input, context_node, xml_default)
+                assert_equal("<a>foo</a>", frag.to_html)
+                refute_empty(frag.errors)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::XML::DocumentFragment.new(document, input, context_node, xml_strict)
+                end
+              end
+
+              it "takes a config block" do
+                default_config = nil
+                Nokogiri::XML::DocumentFragment.new(document, input, context_node) do |config|
+                  default_config = config
+                end
+                refute(default_config.strict?)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::XML::DocumentFragment.new(document, input, context_node, &:norecover)
+                end
+              end
+            end
+          end
+        end
+
         describe "subclassing" do
           let(:klass) do
             Class.new(Nokogiri::XML::DocumentFragment) do

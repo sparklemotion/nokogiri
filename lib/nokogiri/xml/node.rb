@@ -359,8 +359,6 @@ module Nokogiri
       # passed to it, allowing more convenient modification of the parser options.
       def do_xinclude(options = XML::ParseOptions::DEFAULT_XML)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-
-        # give options to user
         yield options if block_given?
 
         # call c extension
@@ -946,10 +944,7 @@ module Nokogiri
         end
 
         options ||= (document.html? ? ParseOptions::DEFAULT_HTML : ParseOptions::DEFAULT_XML)
-        if Integer === options
-          options = Nokogiri::XML::ParseOptions.new(options)
-        end
-        # Give the options to the user
+        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         yield options if block_given?
 
         contents = if string_or_io.respond_to?(:read)

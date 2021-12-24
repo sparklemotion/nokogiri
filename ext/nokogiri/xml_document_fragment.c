@@ -28,8 +28,6 @@ new (int argc, VALUE *argv, VALUE klass)
   rb_node = noko_xml_node_wrap(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if (rb_block_given_p()) { rb_yield(rb_node); }
-
   return rb_node;
 }
 
