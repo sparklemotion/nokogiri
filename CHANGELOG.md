@@ -14,7 +14,7 @@ This version of Nokogiri ships experimental native gem support for the `aarch64-
 
 #### Publishing
 
-Note that this version of Nokogiri opts-in to the ["MFA required to publish" setting](https://guides.rubygems.org/mfa-requirement-opt-in/) on Rubygems.org. This and all future Nokogiri gem files must be published to Rubygems by an account with multi-factor authentication enabled. This should provide some additional protection against supply-chain attacks.
+This version of Nokogiri opts-in to the ["MFA required to publish" setting](https://guides.rubygems.org/mfa-requirement-opt-in/) on Rubygems.org. This and all future Nokogiri gem files must be published to Rubygems by an account with multi-factor authentication enabled. This should provide some additional protection against supply-chain attacks.
 
 A related discussion about Trust exists at [#2357](https://github.com/sparklemotion/nokogiri/issues/2357) in which I invite you to participate if you have feelings or opinions on this topic.
 
@@ -32,12 +32,23 @@ This release ends support for:
 * [CRuby] Upgrade mini_portile2 dependency from `~> 2.6.1` to `~> 2.7.0`. ("ruby" platform gem only.)
 
 
+### Improved
+
+* `{XML,HTML4}::DocumentFragment` constructors all now take an optional parse options parameter or block (similar to Document constructors). [[#1692](https://github.com/sparklemotion/nokogiri/issues/1692)] (Thanks, [@JackMc](https://github.com/JackMc)!)
+* [CRuby] `XML::Reader#encoding` will return the encoding detected by the parser when it's not passed to the constructor. [[#980](https://github.com/sparklemotion/nokogiri/issues/980)]
+* [CRuby] Handle abruptly-closed HTML comments as recommended by WHATWG. (Thanks to [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting!)
+* [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES`, which is turned on by default in `ParseOptions::DEFAULT_{XML,XSLT,HTML,SCHEMA}` (Note that JRuby already supported large line numbers.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]
+* [CRuby] If a cycle is introduced when reparenting a node (i.e., the node becomes its own ancestor), a `RuntimeError` is raised. libxml2 does no checking for this, which means cycles would otherwise result in infinite loops on subsequent operations. (Note that JRuby already did this.) [[#1912](https://github.com/sparklemotion/nokogiri/issues/1912)]
+* [CRuby] Source builds will download zlib and libiconv via HTTPS. ("ruby" platform gem only.) [[#2391](https://github.com/sparklemotion/nokogiri/issues/2391)] (Thanks, [@jmartin-r7](https://github.com/jmartin-r7)!)
+* [JRuby] `Node#line` behavior has been modified to return the line number of the node in the _final DOM structure_. This behavior is different from CRuby, which returns the node's position in the _input string_. Ideally the two implementations would be the same, but at least is now officially documented and tested. The real-world impact of this change is that the value returned in JRuby is greater by 1 to account for the XML prolog in the output. [[#2380](https://github.com/sparklemotion/nokogiri/issues/2380)] (Thanks, [@dabdine](https://github.com/dabdine)!)
+
+
 ### Fixed
 
 * XML::Builder blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
 * Error recovery from in-context parsing (e.g., `Node#parse`) now always uses the correct `DocumentFragment` class. Previously `Nokogiri::HTML4::DocumentFragment` was always used, even for XML documents. [[#1158](https://github.com/sparklemotion/nokogiri/issues/1158)]
 * `DocumentFragment#>` now works properly, matching a CSS selector against only the fragment roots. [[#1857](https://github.com/sparklemotion/nokogiri/issues/1857)]
-* `XML::DocumentFragment#errors` now correctly contains any parsing errors encountered. Previously this was always empty. (Note that `HTML::DocumentFragment#errors` did not need to be fixed.)
+* `XML::DocumentFragment#errors` now correctly contains any parsing errors encountered. Previously this was always empty. (Note that `HTML::DocumentFragment#errors` already did this.)
 * [CRuby] Fix memory leak in `Document#canonicalize` when inclusive namespaces are passed in. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `Document#canonicalize` when an argument type error is raised. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `EncodingHandler` where iconv handlers were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
@@ -45,17 +56,6 @@ This release ends support for:
 * [CRuby] Fix memory leak in `Reader#base_uri` where the string returned by libxml2 was not freed. [[#2347](https://github.com/sparklemotion/nokogiri/issues/2347)]
 * [JRuby] Deleting a `Namespace` from a `NodeSet` no longer modifies the `href` to be the default namespace URL.
 * [JRuby] Fix XHTML formatting of closing tags for non-container elements. [[#2355](https://github.com/sparklemotion/nokogiri/issues/2355)]
-
-
-### Improved
-
-* `{XML,HTML4}::DocumentFragment` constructors all now take an optional parse options parameter or block (similar to Document constructors). [[#1692](https://github.com/sparklemotion/nokogiri/issues/1692)] (Thanks, [@JackMc](https://github.com/JackMc)!)
-* [CRuby] XML::Reader#encoding will return the encoding detected by the parser when it's not passed to the constructor. [[#980](https://github.com/sparklemotion/nokogiri/issues/980)]
-* [CRuby] Handle abruptly-closed HTML comments as WHATWG recommends for browsers. (Thanks to HackerOne user [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting this!)
-* [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES` and set in `ParseOptions::DEFAULT_XML`, `::DEFAULT_XSLT`, `::DEFAULT_HTML`, and `::DEFAULT_SCHEMA`. (Note that JRuby never had this problem.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]
-* [CRuby] If a cycle is introduced when reparenting a node (i.e., the node becomes its own ancestor), a `RuntimeError` is raised. libxml2 does no checking for this, which means cycles would otherwise result in infinite loops on subsequent operations. (Note: JRuby/Xerces already does this.) [[#1912](https://github.com/sparklemotion/nokogiri/issues/1912)]
-* [CRuby] Source builds will download zlib and libiconv via HTTPS. [[#2391](https://github.com/sparklemotion/nokogiri/issues/2391)] (Thanks, [@jmartin-r7](https://github.com/jmartin-r7)!)
-* [JRuby] `Node#line` behavior has been modified to return the line number of the node in the _final DOM structure_ (the value returned in JRuby is increased by 1 to count the XML prolog). This behavior is different from CRuby, which returns the node's position in the _input string_. This difference is not ideal, but at least is now officially documented and tested. The real-world impact of this change is that the value returned in JRuby is greater by 1 to account for the XML prolog in the output. [[#2380](https://github.com/sparklemotion/nokogiri/issues/2380)] (Thanks, [@dabdine](https://github.com/dabdine)!)
 
 
 ## 1.12.5 / 2021-09-27

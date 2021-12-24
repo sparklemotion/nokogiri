@@ -179,7 +179,7 @@ bundle exec rake compile test
 
 We use `rdoc` to build Nokogiri's documentation. Run `rake rdoc` to build into the `./html` directory, and see the rdoc tasks in [rakelib/rdoc.rake](rakelib/rdoc.rake).
 
-Previously we made some effort to move towards `yard` but that work was stopped (and the decision record can be found at [RFC: convert to use `yard` for documentation · Issue #1996 · sparklemotion/nokogiri](https://github.com/sparklemotion/nokogiri/issues/1996)).
+Previously we made some effort to move towards `yard` but that work was stopped (and the decision record can be found at [RFC: convert to use `yard` for documentation](https://github.com/sparklemotion/nokogiri/issues/1996)).
 
 I would prefer docstrings to be in `RDoc::Markup` format, though simple docstrings may be in Markdown (using `:markup: markdown`).
 
@@ -222,9 +222,9 @@ However, we also run tests against 32-bit windows (which aren't supported by GA 
 Please note that there are some known holes in CI coverage due to github actions limitations:
 
 - installing ruby and native gems on 32-bit Linux, see:
-  - [Error: /etc/*release "no such file or directory" · Issue #334 · actions/checkout](https://github.com/actions/checkout/issues/334)
-  - [actions/cache is not working as expected in 32-bit linux containers · Issue #675 · actions/cache](https://github.com/actions/cache/issues/675)
-  - [actions/upload-artifact is not working as expected in 32-bit linux containers · Issue #266 · actions/upload-artifact](https://github.com/actions/upload-artifact/issues/266)
+  - [actions/checkout error: /etc/*release "no such file or directory"](https://github.com/actions/checkout/issues/334)
+  - [actions/cache is not working as expected in 32-bit linux containers](https://github.com/actions/cache/issues/675)
+  - [actions/upload-artifact is not working as expected in 32-bit linux containers](https://github.com/actions/upload-artifact/issues/266)
 
 
 ### Coverage
