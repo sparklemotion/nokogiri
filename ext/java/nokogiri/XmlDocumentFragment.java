@@ -17,6 +17,7 @@ import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -46,9 +47,9 @@ public class XmlDocumentFragment extends XmlNode
     super(ruby, klazz);
   }
 
-  @JRubyMethod(name = "new", meta = true, required = 1, optional = 2)
+  @JRubyMethod(name = "new", meta = true, required = 1, optional = 3)
   public static IRubyObject
-  rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args)
+  rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args, Block block)
   {
     if (args.length < 1) {
       throw context.runtime.newArgumentError(args.length, 1);
@@ -73,7 +74,7 @@ public class XmlDocumentFragment extends XmlNode
     fragment.setDocument(context, doc);
     fragment.setNode(context.runtime, doc.getDocument().createDocumentFragment());
 
-    Helpers.invoke(context, fragment, "initialize", args);
+    Helpers.invoke(context, fragment, "initialize", args, block);
     return fragment;
   }
 

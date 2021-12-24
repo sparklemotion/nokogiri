@@ -37,6 +37,7 @@ This release ends support for:
 * XML::Builder blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
 * Error recovery from in-context parsing (e.g., `Node#parse`) now always uses the correct `DocumentFragment` class. Previously `Nokogiri::HTML4::DocumentFragment` was always used, even for XML documents. [[#1158](https://github.com/sparklemotion/nokogiri/issues/1158)]
 * `DocumentFragment#>` now works properly, matching a CSS selector against only the fragment roots. [[#1857](https://github.com/sparklemotion/nokogiri/issues/1857)]
+* `XML::DocumentFragment#errors` now correctly contains any parsing errors encountered. Previously this was always empty. (Note that `HTML::DocumentFragment#errors` did not need to be fixed.)
 * [CRuby] Fix memory leak in `Document#canonicalize` when inclusive namespaces are passed in. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `Document#canonicalize` when an argument type error is raised. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
 * [CRuby] Fix memory leak in `EncodingHandler` where iconv handlers were not being cleaned up. [[#2345](https://github.com/sparklemotion/nokogiri/issues/2345)]
@@ -48,6 +49,7 @@ This release ends support for:
 
 ### Improved
 
+* `{XML,HTML4}::DocumentFragment` constructors all now take an optional parse options parameter or block (similar to Document constructors). [[#1692](https://github.com/sparklemotion/nokogiri/issues/1692)] (Thanks, [@JackMc](https://github.com/JackMc)!)
 * [CRuby] XML::Reader#encoding will return the encoding detected by the parser when it's not passed to the constructor. [[#980](https://github.com/sparklemotion/nokogiri/issues/980)]
 * [CRuby] Handle abruptly-closed HTML comments as WHATWG recommends for browsers. (Thanks to HackerOne user [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting this!)
 * [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES` and set in `ParseOptions::DEFAULT_XML`, `::DEFAULT_XSLT`, `::DEFAULT_HTML`, and `::DEFAULT_SCHEMA`. (Note that JRuby never had this problem.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]

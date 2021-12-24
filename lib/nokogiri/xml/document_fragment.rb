@@ -3,26 +3,36 @@
 module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
+      ####
+      # Create a Nokogiri::XML::DocumentFragment from +tags+
+      def self.parse(tags, options = ParseOptions::DEFAULT_XML, &block)
+        new(XML::Document.new, tags, nil, options, &block)
+      end
+
       ##
       #  Create a new DocumentFragment from +tags+.
       #
       #  If +ctx+ is present, it is used as a context node for the
       #  subtree created, e.g., namespaces will be resolved relative
       #  to +ctx+.
-      def initialize(document, tags = nil, ctx = nil)
+      def initialize(document, tags = nil, ctx = nil, options = ParseOptions::DEFAULT_XML)
         return self unless tags
+
+        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
+        yield options if block_given?
 
         children = if ctx
           # Fix for issue#490
           if Nokogiri.jruby?
             # fix for issue #770
-            ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
+            ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>", options).children
           else
-            ctx.parse(tags)
+            ctx.parse(tags, options)
           end
         else
-          XML::Document.parse("<root>#{tags}</root>") \
-            .xpath("/root/node()")
+          wrapper_doc = XML::Document.parse("<root>#{tags}</root>", nil, nil, options)
+          self.errors = wrapper_doc.errors
+          wrapper_doc.xpath("/root/node()")
         end
         children.each { |child| child.parent = self }
       end
@@ -124,14 +134,6 @@ module Nokogiri
       end
 
       alias_method :serialize, :to_s
-
-      class << self
-        ####
-        # Create a Nokogiri::XML::DocumentFragment from +tags+
-        def parse(tags)
-          new(XML::Document.new, tags)
-        end
-      end
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       def errors
