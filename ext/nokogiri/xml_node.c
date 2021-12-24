@@ -1765,24 +1765,31 @@ rb_xml_node_line_set(VALUE rb_node, VALUE rb_line_number)
 static VALUE
 rb_xml_node_new(int argc, VALUE *argv, VALUE klass)
 {
-  xmlDocPtr doc;
-  xmlNodePtr node;
-  VALUE name;
-  VALUE document;
+  xmlNodePtr c_document_node;
+  xmlNodePtr c_node;
+  VALUE rb_name;
+  VALUE rb_document_node;
   VALUE rest;
   VALUE rb_node;
 
-  rb_scan_args(argc, argv, "2*", &name, &document, &rest);
+  rb_scan_args(argc, argv, "2*", &rb_name, &rb_document_node, &rest);
 
-  Data_Get_Struct(document, xmlDoc, doc);
+  if (!rb_obj_is_kind_of(rb_document_node, cNokogiriXmlNode)) {
+    rb_raise(rb_eArgError, "document must be a Nokogiri::XML::Node");
+  }
+  if (!rb_obj_is_kind_of(rb_document_node, cNokogiriXmlDocument)) {
+    // TODO: deprecate allowing Node
+    rb_warn("Passing a Node as the second parameter to Node.new is deprecated. Please pass a Document instead, or prefer an alternative constructor like Node#add_child. This will become an error in a future release of Nokogiri.");
+  }
+  Data_Get_Struct(rb_document_node, xmlNode, c_document_node);
 
-  node = xmlNewNode(NULL, (xmlChar *)StringValueCStr(name));
-  node->doc = doc->doc;
-  noko_xml_document_pin_node(node);
+  c_node = xmlNewNode(NULL, (xmlChar *)StringValueCStr(rb_name));
+  c_node->doc = c_document_node->doc;
+  noko_xml_document_pin_node(c_node);
 
   rb_node = noko_xml_node_wrap(
               klass == cNokogiriXmlNode ? (VALUE)NULL : klass,
-              node
+              c_node
             );
   rb_obj_call_init(rb_node, argc, argv);
 

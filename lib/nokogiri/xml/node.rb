@@ -119,7 +119,7 @@ module Nokogiri
       #
       # [Parameters]
       # - +name+ (String)
-      # - +document+ (Nokogiri::XML::Document)
+      # - +document+ (Nokogiri::XML::Document) The document to which the the returned node will belong.
       # [Yields] Nokogiri::XML::Node
       # [Returns] Nokogiri::XML::Node
       #
