@@ -18,7 +18,7 @@ task "set-version-to-timestamp" do
     raise("Could not hack the VERSION constant")
   end
 
-  File.open(version_file_path, "w") { |f| f.write(version_file_contents) }
+  File.write(version_file_path, version_file_contents)
 
   puts "NOTE: wrote version as \"#{fake_version}\""
 end

@@ -33,7 +33,7 @@ class TestMemoryLeak < Nokogiri::TestCase
   #
   if ENV["NOKOGIRI_GC"] # turning these off by default for now
     def test_dont_hurt_em_why
-      content = File.open("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml").read
+      content = File.read("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml")
       ndoc = Nokogiri::XML(content)
       2.times do
         ndoc.search("status text").first.inner_text
