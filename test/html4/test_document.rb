@@ -491,11 +491,13 @@ module Nokogiri
         end
 
         def test_find_by_css_with_square_brackets
-          assert(found = html.css("div[@id='header'] > h1"))
+          found = html.css("div[@id='header'] > h1")
+          refute_nil(found)
           assert_equal(1, found.length)
 
           # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
-          assert(found = html.css("div[@id='header'] h1"))
+          found = html.css("div[@id='header'] h1")
+          refute_nil(found)
           assert_equal(1, found.length)
         end
 
