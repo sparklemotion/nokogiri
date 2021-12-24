@@ -30,27 +30,20 @@ jobs:
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:alpine
           file: oci-images/nokogiri-test/alpine.dockerfile
-      - name: bionic
+      - name: ubuntu
         uses: docker/build-push-action@v2
         with:
           context: "."
           push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:bionic
-          file: oci-images/nokogiri-test/bionic.dockerfile
-      - name: bionic32
+          tags: ghcr.io/sparklemotion/nokogiri-test:ubuntu
+          file: oci-images/nokogiri-test/ubuntu.dockerfile
+      - name: ubuntu32
         uses: docker/build-push-action@v2
         with:
           context: "."
           push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:bionic32
-          file: oci-images/nokogiri-test/bionic32.dockerfile
-      - name: mri-2.5
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.5
-          file: oci-images/nokogiri-test/mri-2.5.dockerfile
+          tags: ghcr.io/sparklemotion/nokogiri-test:ubuntu32
+          file: oci-images/nokogiri-test/ubuntu32.dockerfile
       - name: mri-2.6
         uses: docker/build-push-action@v2
         with:

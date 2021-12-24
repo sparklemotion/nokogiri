@@ -59,7 +59,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: ["bionic", "bionic32"]
+        image: ["ubuntu", "ubuntu32"]
         sys: ["enable"]
     runs-on: ubuntu-latest
     container:
@@ -78,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -101,7 +101,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -210,7 +210,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -229,13 +229,12 @@ jobs:
       - run: bundle exec rake test
 
   windows:
-    continue-on-error: ${{matrix.ruby == '2.5'}} # see https://github.com/sparklemotion/nokogiri/issues/2354
     needs: ["basic"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0", "mingw"]
+        ruby: ["2.6", "2.7", "3.0", "mingw"]
     runs-on: windows-latest
     steps:
       - name: configure git crlf
@@ -263,7 +262,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.2"]
+        ruby: ["jruby-9.3"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

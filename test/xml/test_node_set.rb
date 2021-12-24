@@ -755,14 +755,6 @@ module Nokogiri
           end
 
           it "returns an enumerator given no block" do
-            if i_am_ruby_matching("~> 2.5.0") && i_am_in_a_systemd_container
-              # Ruby 2.5 Enumerators cause a segfault in systemd containers. Yes, really!
-              #
-              #   https://bugs.ruby-lang.org/issues/14883
-              #
-              # So let's skip this test if we think that's where we are.
-              skip("cannot use Ruby 2.5 Enumerator#each in a systemd container")
-            end
             skip("enumerators confuse valgrind") if i_am_running_in_valgrind
             skip("enumerators confuse ASan") if i_am_running_with_asan
 

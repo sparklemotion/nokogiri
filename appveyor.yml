@@ -39,7 +39,7 @@ environment:
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
 
-    - ruby_version: 25
-    - ruby_version: 25
+    - ruby_version: 26
+    - ruby_version: 26
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"

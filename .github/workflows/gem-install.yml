@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.5", "2.6", "2.7", "3.0", "head"]
+        ruby: ["2.6", "2.7", "3.0", "head"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -132,7 +132,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -169,7 +169,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -189,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0"]
     runs-on: windows-latest
     steps:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
@@ -226,7 +226,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.2", "jruby-head"]
+        ruby: ["jruby-9.3", "jruby-head"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

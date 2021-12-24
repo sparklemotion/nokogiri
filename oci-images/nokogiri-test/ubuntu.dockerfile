@@ -1,4 +1,4 @@
-FROM ruby:2.5
+FROM ubuntu:focal
 
 # -*- dockerfile -*-
 
@@ -10,17 +10,12 @@ RUN apt-get install -y apt-utils
 
 # -*- dockerfile -*-
 
-RUN apt-get install -y valgrind
+RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
 
 
 # -*- dockerfile -*-
 
-RUN apt-get install -y libxslt-dev libxml2-dev pkg-config
-
-
-# -*- dockerfile -*-
-
-RUN gem install bundler
+RUN apt-get install -y ruby ruby-dev bundler
 
 
 # -*- dockerfile -*-
