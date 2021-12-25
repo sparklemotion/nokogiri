@@ -58,6 +58,11 @@ This release ends support for:
 * [JRuby] Fix XHTML formatting of closing tags for non-container elements. [[#2355](https://github.com/sparklemotion/nokogiri/issues/2355)]
 
 
+### Deprecated
+
+* Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
+
+
 ## 1.12.5 / 2021-09-27
 
 ### Security

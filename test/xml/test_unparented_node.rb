@@ -91,7 +91,7 @@ module Nokogiri
       end
 
       def test_new
-        assert(node = Nokogiri::XML::Node.new("input", @node))
+        assert(node = Nokogiri::XML::Node.new("input", @node.document))
         assert_equal(1, node.node_type)
       end
 
@@ -423,7 +423,7 @@ module Nokogiri
       end
 
       def test_content
-        node = Nokogiri::XML::Node.new("form", @node)
+        node = Nokogiri::XML::Node.new("form", @node.document)
         assert_equal("", node.content)
 
         node.content = "hello world!"
@@ -445,7 +445,7 @@ module Nokogiri
         first = set[0]
         second = set[1]
 
-        node = Nokogiri::XML::Node.new("form", @node)
+        node = Nokogiri::XML::Node.new("form", @node.document)
         first.replace(node)
 
         assert(set = @node.search(".//employee"))

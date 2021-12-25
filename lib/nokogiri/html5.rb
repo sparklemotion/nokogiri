@@ -254,6 +254,7 @@ module Nokogiri
     #  * :follow_limit => number of redirects which are followed
     #  * :basic_auth => [username, password]
     def self.get(uri, options = {})
+      # TODO: deprecate
       warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
         uplevel: 1, category: :deprecated)
       get_impl(uri, options)

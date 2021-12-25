@@ -726,6 +726,16 @@ module Nokogiri
           assert_equal(node, block_param, "Node.new block should be passed the new node")
         end
 
+        def test_xml_node_new_must_take_document_type
+          assert_raises(ArgumentError) do
+            Nokogiri::XML::Node.new("input", "not-a-document")
+          end
+
+          assert_output(nil, /deprecated/) do
+            Nokogiri::XML::Node.new("input", xml.root.children.first)
+          end
+        end
+
         def test_to_str
           name = xml.xpath("//name").first
           assert_match(/Margaret/, "" + name)
