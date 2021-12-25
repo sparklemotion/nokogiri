@@ -477,9 +477,7 @@ module Nokogiri
       end
 
       def test_huge_xpath_query
-        if Nokogiri.uses_libxml?("~>2.9.11") && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0007-Fix-XPath-recursion-limit.patch")
-          skip("libxml2 under test is broken with respect to xpath query recusion depth")
-        end
+        skip_unless_libxml2_patch("0007-Fix-XPath-recursion-limit.patch") if Nokogiri.uses_libxml?("~>2.9.11")
 
         # real world example
         # from https://github.com/sparklemotion/nokogiri/issues/2257

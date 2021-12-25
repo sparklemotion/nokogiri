@@ -33,6 +33,7 @@ module TestVersionInfoTests
     skip_unless_jruby("xerces/nekohtml is only used for JRuby")
     assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xerces"])
     assert_equal(Nokogiri::NEKO_VERSION, version_info["other_libraries"]["nekohtml"])
+    assert_empty(Nokogiri.libxml2_patches)
   end
 
   def test_version_info_for_libxml
@@ -41,12 +42,14 @@ module TestVersionInfoTests
     if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
       assert_equal("packaged", version_info["libxml"]["source"])
       assert(version_info["libxml"]["patches"])
+      assert_equal(Nokogiri.libxml2_patches, version_info["libxml"]["patches"])
       assert_equal(Nokogiri::VersionInfo.instance.libxml2_precompiled?, version_info["libxml"]["precompiled"])
     end
     if Nokogiri::VersionInfo.instance.libxml2_using_system?
       assert_equal("system", version_info["libxml"]["source"])
       refute(version_info["libxml"].key?("precompiled"))
       refute(version_info["libxml"].key?("patches"))
+      assert_empty(Nokogiri.libxml2_patches)
     end
 
     assert_equal(Nokogiri::LIBXML_COMPILED_VERSION, version_info["libxml"]["compiled"])

@@ -23,7 +23,7 @@ module Nokogiri
           let(:html) { "<html><body><div id=under-test><!--></div><div id=also-here></div></body></html>" }
 
           if Nokogiri.uses_libxml?
-            if Nokogiri::VersionInfo.instance.libxml2_using_packaged? && Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
                 assert subject.children.first.comment?
@@ -54,7 +54,7 @@ module Nokogiri
           let(:html) { "<html><body><div id=under-test><!---></div><div id=also-here></div></body></html>" }
 
           if Nokogiri.uses_libxml?
-            if Nokogiri::VersionInfo.instance.libxml2_using_packaged? && Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
                 assert subject.children.first.comment?

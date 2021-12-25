@@ -396,8 +396,7 @@ class Nokogiri::SAX::TestCase
     end
 
     it :test_large_cdata_is_handled do
-      # see #2132 and https://gitlab.gnome.org/GNOME/libxml2/-/issues/200
-      skip("Upstream libxml2 <= 2.9.10 needs to be patched") if Nokogiri::VersionInfo.instance.libxml2_using_system?
+      skip("see #2132 and https://gitlab.gnome.org/GNOME/libxml2/-/issues/200") if Nokogiri.uses_libxml?("<=2.9.10")
 
       template = <<~EOF
         <?xml version="1.0" encoding="UTF-8"?>
