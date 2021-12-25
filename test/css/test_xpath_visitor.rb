@@ -565,6 +565,34 @@ class TestNokogiri < Nokogiri::TestCase
       end
     end
 
+    #
+    #  HTML5 documents have namespaces, and gumbo attaches namespaces to the relevant elements; but
+    #  CSS selectors should not require namespaces. See #2376 for the discussion around this design
+    #  decision, along with some of the relevant benchmarks and call stack analyses.
+    #
+    #  (HTML5 today is only supported by CRuby/gumbo/libxml2 and so we'll ignore JRuby support for
+    #  now.)
+    #
+    #  The way to implement this CSS search using standard XPath 1.0 queries is to check for a match
+    #  with `local-name()`. However, this is about ~10x slower than a standard search along the
+    #  `child` axis.
+    #
+    #  I've written a builtin function in C named `nokogiri-builtin:local-name-is()` which is a bit
+    #  faster, but still ~7x slower than a standard search.
+    #
+    #  Finally, I've patched libxml2 to support wildcard namespaces, and this is ~1.1x slower but
+    #  only available with the packaged libxml2.
+    #
+    #  In any case, the logic for the html5 builtins here goes:
+    #
+    #    if ALWAYS or (OPTIMAL and libxml2)
+    #      if we've patched libxml2 with wildcard support
+    #        use wildard namespacing
+    #      else
+    #        use `nokogiri-builtin:local-name-is()`
+    #    else
+    #      use `local-name()`
+    #
     describe "doctype:html5" do
       let(:visitor) do
         Nokogiri::CSS::XPathVisitor.new(
@@ -575,8 +603,13 @@ class TestNokogiri < Nokogiri::TestCase
 
       describe "builtins:always" do
         let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS }
+
         it "matches on the element's local-name, ignoring namespaces" do
-          assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+          if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
+            assert_xpath("//*:foo", parser.parse("foo"))
+          else
+            assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+          end
         end
 
         it "avoids the wildcard when using namespaces" do
@@ -595,7 +628,11 @@ class TestNokogiri < Nokogiri::TestCase
         let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL }
         it "matches on the element's local-name, ignoring namespaces" do
           if Nokogiri.uses_libxml?
-            assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+            if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
+              assert_xpath("//*:foo", parser.parse("foo"))
+            else
+              assert_xpath("//*[nokogiri-builtin:local-name-is('foo')]", parser.parse("foo"))
+            end
           else
             assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
           end

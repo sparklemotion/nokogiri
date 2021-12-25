@@ -1,0 +1,77 @@
+From 74c95ec5932c737d4fcb06b8646b0017364ada14 Mon Sep 17 00:00:00 2001
+From: Mike Dalessio <mike.dalessio@gmail.com>
+Date: Fri, 24 Dec 2021 19:08:01 -0500
+Subject: [PATCH] attempt to hack in wildcard namespaces to xpath
+
+I'm not confident this is a bulletproof patch.
+---
+ xpath.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/xpath.c b/xpath.c
+index 1aa2f1a..c7f0885 100644
+--- a/xpath.c
++++ b/xpath.c
+@@ -146,6 +146,9 @@
+ #define XPATH_MAX_RECURSION_DEPTH 5000
+ #endif
+ 
++#define WILDCARD_PREFIX "*"
++#define IS_WILDCARD_PREFIX(p) xmlStrEqual((xmlChar*)WILDCARD_PREFIX, p)
++
+ /*
+  * TODO:
+  * There are a few spots where some tests are done which depend upon ascii
+@@ -11073,12 +11076,15 @@ xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTestVal *test,
+     SKIP_BLANKS;
+ 
+     if ((name == NULL) && (CUR == '*')) {
+-	/*
+-	 * All elements
+-	 */
+ 	NEXT;
+-	*test = NODE_TEST_ALL;
+-	return(NULL);
++	if (CUR != ':') {
++	    /*
++	     * All elements
++	     */
++	    *test = NODE_TEST_ALL;
++	    return(NULL);
++	}
++	name = xmlCharStrdup(WILDCARD_PREFIX);
+     }
+ 
+     if (name == NULL)
+@@ -11327,6 +11333,10 @@ xmlXPathCompStep(xmlXPathParserContextPtr ctxt) {
+ 	}
+ #endif
+ 	if (CUR == '*') {
++	    if (NXT(1) == ':') {
++		NEXT;
++		name = xmlCharStrdup(WILDCARD_PREFIX);
++	    }
+ 	    axis = AXIS_CHILD;
+ 	} else {
+ 	    if (name == NULL)
+@@ -12030,7 +12040,7 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+     /*
+     * Setup namespaces.
+     */
+-    if (prefix != NULL) {
++    if (prefix != NULL && !IS_WILDCARD_PREFIX(prefix)) {
+         URI = xmlXPathNsLookup(xpctxt, prefix);
+         if (URI == NULL) {
+ 	    xmlXPathReleaseObject(xpctxt, obj);
+@@ -12369,6 +12379,8 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+ 				    {
+ 					XP_TEST_HIT
+                                     }
++                                } else if (IS_WILDCARD_PREFIX(prefix)) {
++                                    XP_TEST_HIT
+                                 } else {
+                                     if ((cur->ns != NULL) &&
+                                         (xmlStrEqual(URI, cur->ns->href)))
+-- 
+2.31.0
+

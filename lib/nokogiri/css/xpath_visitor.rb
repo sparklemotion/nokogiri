@@ -7,6 +7,8 @@ module Nokogiri
     # class allows for changing some of the behaviors related to builtin xpath functions and quirks
     # of HTML5.
     class XPathVisitor
+      WILDCARD_NAMESPACES = Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch") # :nodoc:
+
       # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
       module BuiltinsConfig
         # Never use Nokogiri builtin functions, always generate vanilla XPath 1.0 queries. This is
@@ -254,7 +256,11 @@ module Nokogiri
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
-            "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+            if WILDCARD_NAMESPACES
+              "*:#{node.value.first}"
+            else
+              "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+            end
           else
             "*[local-name()='#{node.value.first}']"
           end

@@ -699,6 +699,27 @@ module Nokogiri
           end
         end
       end
+
+      describe "XPath wildcard namespaces" do
+        let(:xml) { <<~XML }
+          <root xmlns:ns1="http://nokogiri.org/ns1" xmlns:ns2="http://nokogiri.org/ns2">
+            <ns1:child>ns1 child</ns1:child>
+            <ns2:child>ns2 child</ns2:child>
+            <child>plain child</child>
+          </root>
+        XML
+
+        let(:doc) { Nokogiri::XML::Document.parse(xml) }
+
+        it "allows namespace wildcards" do
+          skip_unless_libxml2_patch("0009-allow-wildcard-namespaces.patch")
+
+          assert_equal(1, doc.xpath("//n:child", { "n" => "http://nokogiri.org/ns1" }).length)
+          assert_equal(3, doc.xpath("//*:child").length)
+          assert_equal(1, doc.xpath("//self::n:child", { "n" => "http://nokogiri.org/ns1" }).length)
+          assert_equal(3, doc.xpath("//self::*:child").length)
+        end
+      end
     end
   end
 end
