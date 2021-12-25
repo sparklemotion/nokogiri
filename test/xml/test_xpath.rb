@@ -5,19 +5,13 @@ require "helper"
 module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
-      # ** WHY ALL THOSE _if Nokogiri.uses_libxml?_ **
-      # Hi, my dear readers,
       #
-      # After reading these tests you may be wondering why all those ugly
-      # if Nokogiri.uses_libxml? sparsed over the whole document. Well, let
-      # me explain it. While using XPath in Java, you need the extension
-      # functions to be in a namespace. This is not required by XPath, afaik,
-      # but it is an usual convention though.
+      # Note that many of these tests vary for jruby because custom xpath functions in JRuby require
+      # a namespace, and libxml2 (and the original implementation of Nokogiri) do not.
       #
-      # Yours truly,
+      # Ideally we should change this to always require a namespace.
+      # See https://github.com/sparklemotion/nokogiri/issues/2147
       #
-      # The guy whose headaches belong to Nokogiri JRuby impl.
-
       def setup
         super
 
