@@ -42,6 +42,10 @@ module AstyleHelper
 
         # gotta set a limit somewhere
         "--max-code-length=120",
+
+        # be quiet about files that haven't changed
+        "--formatted",
+        "--verbose",
       ]
     end
 
@@ -58,11 +62,13 @@ end
 namespace "format" do
   desc "Format Nokogiri's C code"
   task "c" do
+    puts "Running astyle on C files ..."
     AstyleHelper.run(AstyleHelper.c_files)
   end
 
   desc "Format Nokogiri's Java code"
   task "java" do
+    puts "Running astyle on Java files ..."
     AstyleHelper.run(AstyleHelper.java_files)
   end
 
