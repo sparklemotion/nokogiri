@@ -176,7 +176,7 @@ def config_system_libraries?
 end
 
 def windows?
-  RbConfig::CONFIG["target_os"].match?(/mingw32|mswin/)
+  RbConfig::CONFIG["target_os"].match?(/mingw|mswin/)
 end
 
 def solaris?
@@ -413,11 +413,17 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
   end
 
   MiniPortile.new(name, version).tap do |recipe|
+    def recipe.port_path
+      "#{@target}/#{RUBY_PLATFORM}/#{@name}/#{@version}"
+    end
+
     recipe.target = File.join(PACKAGE_ROOT_DIR, "ports") if cacheable_p
-    # Prefer host_alias over host in order to use i586-mingw32msvc as
+    # Prefer host_alias over host in order to use the
     # correct compiler prefix for cross build, but use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
     recipe.configure_options << "--libdir=#{File.join(recipe.path, "lib")}"
+    # The libiconv configure script doesn't accept "arm64" host string but "aarch64"
+    recipe.host = recipe.host.gsub("arm64-apple-darwin", "aarch64-apple-darwin")
 
     yield recipe
 
@@ -473,7 +479,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
       "#{key}=#{value.strip}"
     end
 
-    checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+    checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{RUBY_PLATFORM}.installed"
     if File.exist?(checkpoint) && !recipe.source_directory
       message("Building Nokogiri with a packaged version of #{name}-#{version}.\n")
     else
