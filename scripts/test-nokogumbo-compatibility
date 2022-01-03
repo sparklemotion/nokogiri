@@ -15,6 +15,11 @@ if RUBY_PLATFORM.include?("java")
   exit 0
 end
 
+if Gem::Requirement.new(">= 3.2.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
+  puts "Skip: Nokogumbo does not support Ruby #{RUBY_VERSION}"
+  exit 0
+end
+
 # this line needs to come before the bundler bit, to assert that we're running against an
 # already-installed version (and not some other version that bundler/inline might install if it came
 # first)
