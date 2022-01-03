@@ -21,7 +21,7 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.0
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
     steps:
       - uses: actions/checkout@v2
         with:
@@ -47,7 +47,7 @@ jobs:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
-          ruby-version: "3.0"
+          ruby-version: "3.0" # OK for now, until ruby 3.1 CI is stable
           apt-get: "ragel"
           brew: "ragel"
           mingw: "ragel"
@@ -78,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -101,7 +101,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -160,7 +160,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable"]
-        ruby: ["3.0"]
+        ruby: ["3.1"]
     env:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
@@ -185,7 +185,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["disable"]
-        ruby: ["3.0"]
+        ruby: ["3.1"]
     env:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
@@ -210,7 +210,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -234,7 +234,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0", "mingw"]
+        ruby: ["2.6", "2.7", "3.0", "3.1", "mingw"]
     runs-on: windows-latest
     steps:
       - name: configure git crlf
@@ -302,7 +302,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["disable"]
-        ruby: ["3.0"]
+        ruby: ["3.1"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
