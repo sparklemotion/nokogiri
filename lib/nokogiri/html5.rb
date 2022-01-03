@@ -299,7 +299,7 @@ module Nokogiri
       case response
       when Net::HTTPSuccess
         doc = parse(reencode(response.body, response["content-type"]), options)
-        doc.instance_variable_set("@response", response)
+        doc.instance_variable_set(:@response, response)
         doc.class.send(:attr_reader, :response)
         doc
       when Net::HTTPRedirection
