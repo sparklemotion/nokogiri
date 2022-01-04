@@ -132,7 +132,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32"]
+        plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32", "x64-mingw-ucrt"]
     runs-on: ubuntu-latest
     container:
       image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.1.0"
@@ -156,7 +156,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -193,7 +193,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0"]
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -228,6 +228,26 @@ jobs:
           gem list -d nokogiri
           nokogiri -v
 
+  cruby-x64-mingw-ucrt-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.1"]
+    runs-on: windows-2022
+    steps:
+      - uses: MSP-Greg/setup-ruby-pkgs@win-ucrt-2
+        with:
+          ruby-version: "${{matrix.ruby}}"
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/win-ucrt-1
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x64-mingw-ucrt-gem
+          path: gems
+      - run: |
+          gem install --verbose --no-document gems/*.gem
+          gem list -d nokogiri
+          nokogiri -v
 
   jruby-package:
     name: "jruby-package"
