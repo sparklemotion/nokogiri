@@ -48,9 +48,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:xmlXPathNewParserContext
   fun:xmlXPathEval
   fun:evaluate
@@ -79,9 +77,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:xmlStrndup
   fun:xmlXPathParseNCName
   ...
@@ -127,9 +123,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:xmlXPathNodeSetCreate
   fun:xmlXPathNodeCollectAndTest
   fun:xmlXPathCompOpEval
@@ -144,9 +138,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:ar_alloc_table
   fun:rb_hash_aset
   fun:registr
@@ -167,9 +159,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:xmlNewNodeEatName
   fun:xmlNewDocNodeEatName
   fun:xmlSAX2StartElementNs
@@ -198,9 +188,7 @@
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
-  fun:ruby_xmalloc0
-  fun:ruby_xmalloc_body
-  fun:ruby_xmalloc
+  ...
   fun:xmlXPathWrapNodeSet
   fun:xmlXPathNodeCollectAndTest
   ...
