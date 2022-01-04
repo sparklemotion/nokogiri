@@ -1,8 +1,81 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
   module CSS
-    class XPathVisitor # :nodoc:
+    # When translating CSS selectors to XPath queries with Nokogiri::CSS.xpath_for, the XPathVisitor
+    # class allows for changing some of the behaviors related to builtin xpath functions and quirks
+    # of HTML5.
+    class XPathVisitor
+      WILDCARD_NAMESPACES = Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch") # :nodoc:
+
+      # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
+      module BuiltinsConfig
+        # Never use Nokogiri builtin functions, always generate vanilla XPath 1.0 queries. This is
+        # the default when calling Nokogiri::CSS.xpath_for directly.
+        NEVER = :never
+
+        # Always use Nokogiri builtin functions whenever possible. This is probably only useful for testing.
+        ALWAYS = :always
+
+        # Only use Nokogiri builtin functions when they will be faster than vanilla XPath. This is
+        # the behavior chosen when searching for CSS selectors on a Nokogiri document, fragment, or
+        # node.
+        OPTIMAL = :optimal
+
+        # :nodoc: array of values for validation
+        VALUES = [NEVER, ALWAYS, OPTIMAL]
+      end
+
+      # Enum to direct XPathVisitor when to tweak the XPath query to suit the nature of the document
+      # being searched. Note that searches for CSS selectors from a Nokogiri document, fragment, or
+      # node will choose the correct option automatically.
+      module DoctypeConfig
+        # The document being searched is an XML document. This is the default.
+        XML = :xml
+
+        # The document being searched is an HTML4 document.
+        HTML4 = :html4
+
+        # The document being searched is an HTML5 document.
+        HTML5 = :html5
+
+        # :nodoc: array of values for validation
+        VALUES = [XML, HTML4, HTML5]
+      end
+
+      # :call-seq:
+      #   new() → XPathVisitor
+      #   new(builtins:, doctype:) → XPathVisitor
+      #
+      # [Parameters]
+      # - +builtins:+ (BuiltinsConfig) Determine when to use Nokogiri's built-in xpath functions for performance improvements.
+      # - +doctype:+ (DoctypeConfig) Make document-type-specific accommodations for CSS queries.
+      #
+      # [Returns] XPathVisitor
+      #
+      def initialize(builtins: BuiltinsConfig::NEVER, doctype: DoctypeConfig::XML)
+        unless BuiltinsConfig::VALUES.include?(builtins)
+          raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
+        end
+        unless DoctypeConfig::VALUES.include?(doctype)
+          raise(ArgumentError, "Invalid values #{doctype.inspect} for doctype: keyword parameter")
+        end
+
+        @builtins = builtins
+        @doctype = doctype
+      end
+
+      # :call-seq: config() → Hash
+      #
+      # [Returns]
+      #   a Hash representing the configuration of the XPathVisitor, suitable for use as
+      #   part of the CSS cache key.
+      def config
+        { builtins: @builtins, doctype: @doctype }
+      end
+
+      # :stopdoc:
       def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
         return send(msg, node) if respond_to?(msg)
@@ -176,6 +249,27 @@ module Nokogiri
       end
 
       def visit_element_name(node)
+        if @doctype == DoctypeConfig::HTML5 && node.value.first != "*"
+          # if there is already a namespace, use it as normal
+          return node.value.first if node.value.first.include?(":")
+
+          # HTML5 has namespaces that should be ignored in CSS queries
+          # https://github.com/sparklemotion/nokogiri/issues/2376
+          if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+            if WILDCARD_NAMESPACES
+              "*:#{node.value.first}"
+            else
+              "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+            end
+          else
+            "*[local-name()='#{node.value.first}']"
+          end
+        else
+          node.value.first
+        end
+      end
+
+      def visit_attrib_name(node)
         node.value.first
       end
 
@@ -231,32 +325,34 @@ module Nokogiri
         end
       end
 
-      # use only ordinary xpath functions
-      def css_class_standard(hay, needle)
-        "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+      def css_class(hay, needle)
+        if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+          # use the builtin implementation
+          "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+        else
+          # use only ordinary xpath functions
+          "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+        end
       end
-
-      # use the builtin implementation
-      def css_class_builtin(hay, needle)
-        "nokogiri-builtin:css-class(#{hay},'#{needle}')"
-      end
-
-      alias_method :css_class, :css_class_standard
     end
 
-    class XPathVisitorAlwaysUseBuiltins < XPathVisitor # :nodoc:
-      private
-
-      alias_method :css_class, :css_class_builtin
+    module XPathVisitorAlwaysUseBuiltins # :nodoc:
+      def self.new
+        warn(
+          "Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
+          { uplevel: 1 },
+        )
+        XPathVisitor.new(builtins: :always)
+      end
     end
 
-    class XPathVisitorOptimallyUseBuiltins < XPathVisitor # :nodoc:
-      private
-
-      if Nokogiri.uses_libxml?
-        alias_method :css_class, :css_class_builtin
-      else
-        alias_method :css_class, :css_class_standard
+    module XPathVisitorOptimallyUseBuiltins # :nodoc:
+      def self.new
+        warn(
+          "Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
+          { uplevel: 1 },
+        )
+        XPathVisitor.new(builtins: :optimal)
       end
     end
   end

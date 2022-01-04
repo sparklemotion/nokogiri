@@ -4,7 +4,7 @@ require "thread"
 
 module Nokogiri
   module CSS
-    class Parser < Racc::Parser
+    class Parser < Racc::Parser # :nodoc:
       CACHE_SWITCH_NAME = :nokogiri_css_parser_cache_is_off
 
       @cache = {}
@@ -23,7 +23,7 @@ module Nokogiri
 
         # Get the css selector in +string+ from the cache
         def [](string)
-          return unless cache_on?
+          return nil unless cache_on?
           @mutex.synchronize { @cache[string] }
         end
 
@@ -71,17 +71,10 @@ module Nokogiri
       end
 
       # Get the xpath for +string+ using +options+
-      def xpath_for(string, options = {})
-        key = "#{string}#{options[:ns]}#{options[:prefix]}"
-        v = self.class[key]
-        return v if v
-
-        args = [
-          options[:prefix] || "//",
-          options[:visitor] || XPathVisitor.new,
-        ]
-        self.class[key] = parse(string).map do |ast|
-          ast.to_xpath(*args)
+      def xpath_for(string, prefix, visitor)
+        key = cache_key(string, prefix, visitor)
+        self.class[key] ||= parse(string).map do |ast|
+          ast.to_xpath(prefix, visitor)
         end
       end
 
@@ -89,6 +82,12 @@ module Nokogiri
       def on_error(error_token_id, error_value, value_stack)
         after = value_stack.compact.last
         raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
+      end
+
+      def cache_key(query, prefix, visitor)
+        if self.class.cache_on?
+          [query, prefix, @namespaces, visitor.config]
+        end
       end
     end
   end

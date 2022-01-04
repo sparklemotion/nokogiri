@@ -35,6 +35,7 @@ This release ends support for:
 ### Improved
 
 * `{XML,HTML4}::DocumentFragment` constructors all now take an optional parse options parameter or block (similar to Document constructors). [[#1692](https://github.com/sparklemotion/nokogiri/issues/1692)] (Thanks, [@JackMc](https://github.com/JackMc)!)
+* `Nokogiri::CSS.xpath_for` allows an `XPathVisitor` to be injected, for finer-grained control over how CSS queries are translated into XPath.
 * [CRuby] `XML::Reader#encoding` will return the encoding detected by the parser when it's not passed to the constructor. [[#980](https://github.com/sparklemotion/nokogiri/issues/980)]
 * [CRuby] Handle abruptly-closed HTML comments as recommended by WHATWG. (Thanks to [tehryanx](https://hackerone.com/tehryanx?type=user) for reporting!)
 * [CRuby] `Node#line` is no longer capped at 65535. libxml v2.9.0 and later support a new parse option, exposed as `Nokogiri::XML::ParseOptions::PARSE_BIG_LINES`, which is turned on by default in `ParseOptions::DEFAULT_{XML,XSLT,HTML,SCHEMA}` (Note that JRuby already supported large line numbers.) [[#1764](https://github.com/sparklemotion/nokogiri/issues/1764), [#1493](https://github.com/sparklemotion/nokogiri/issues/1493), [#1617](https://github.com/sparklemotion/nokogiri/issues/1617), [#1505](https://github.com/sparklemotion/nokogiri/issues/1505), [#1003](https://github.com/sparklemotion/nokogiri/issues/1003), [#533](https://github.com/sparklemotion/nokogiri/issues/533)]
@@ -45,7 +46,9 @@ This release ends support for:
 
 ### Fixed
 
-* XML::Builder blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
+* CSS queries on HTML5 documents now correctly match foreign elements (SVG, MathML) when namespaces are not specified in the query. [[#2376](https://github.com/sparklemotion/nokogiri/issues/2376)]
+* `XML::Builder` blocks restore context properly when exceptions are raised. [[#2372](https://github.com/sparklemotion/nokogiri/issues/2372)] (Thanks, [@ric2b](https://github.com/ric2b) and [@rinthedev](https://github.com/rinthedev)!)
+* The `Nokogiri::CSS::Parser` cache now uses the `XPathVisitor` configuration as part of the cache key, preventing incorrect cache results from being returned when multiple `XPathVisitor` options are being used.
 * Error recovery from in-context parsing (e.g., `Node#parse`) now always uses the correct `DocumentFragment` class. Previously `Nokogiri::HTML4::DocumentFragment` was always used, even for XML documents. [[#1158](https://github.com/sparklemotion/nokogiri/issues/1158)]
 * `DocumentFragment#>` now works properly, matching a CSS selector against only the fragment roots. [[#1857](https://github.com/sparklemotion/nokogiri/issues/1857)]
 * `XML::DocumentFragment#errors` now correctly contains any parsing errors encountered. Previously this was always empty. (Note that `HTML::DocumentFragment#errors` already did this.)
@@ -61,6 +64,8 @@ This release ends support for:
 ### Deprecated
 
 * Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
+* `Nokogiri::CSS::Parser`, `Nokogiri::CSS::Tokenizer`, and `Nokogiri::CSS::Node` are now internal-only APIs that are no longer documented, and should not be considered stable. With the introduction of `XPathVisitor` injection into `Nokogiri::CSS.xpath_for` there should be no reason to rely on these internal APIs.
+* CSS-to-XPath utility classes `Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins` are deprecated. Prefer `Nokogiri::CSS::XPathVisitor` with appropriate constructor arguments. These classes will be removed in a future version of Nokogiri.
 
 
 ## 1.12.5 / 2021-09-27

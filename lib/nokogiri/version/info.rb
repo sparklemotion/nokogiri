@@ -187,26 +187,35 @@ module Nokogiri
     end
   end
 
-  def self.uses_libxml?(requirement = nil) # :nodoc:
+  # :nodoc:
+  def self.uses_libxml?(requirement = nil)
     return false unless VersionInfo.instance.libxml2?
     return true unless requirement
     Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 
-  def self.uses_gumbo? # :nodoc:
+  # :nodoc:
+  def self.uses_gumbo?
     uses_libxml? # TODO: replace with Gumbo functionality
   end
 
-  def self.jruby? # :nodoc:
+  # :nodoc:
+  def self.jruby?
     VersionInfo.instance.jruby?
   end
 
-  # Ensure constants used in this file are loaded - see #1896
-  if Nokogiri.jruby?
-    require_relative "../jruby/dependencies"
+  # :nodoc:
+  def self.libxml2_patches
+    if VersionInfo.instance.libxml2_using_packaged?
+      Nokogiri::VERSION_INFO["libxml"]["patches"]
+    else
+      []
+    end
   end
+
+  require_relative "../jruby/dependencies" if Nokogiri.jruby?
   require_relative "../extension"
 
-  # More complete version information about libxml
+  # Detailed version info about Nokogiri and the installed extension dependencies.
   VERSION_INFO = VersionInfo.instance.to_hash
 end

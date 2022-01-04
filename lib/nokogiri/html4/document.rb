@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require "pathname"
@@ -148,6 +149,16 @@ module Nokogiri
         DocumentFragment.new(self, tags, root)
       end
 
+      # :call-seq:
+      #   xpath_doctype() → Nokogiri::CSS::XPathVisitor::DoctypeConfig
+      #
+      # [Returns] The document type which determines CSS-to-XPath translation.
+      #
+      # See XPathVisitor for more information.
+      def xpath_doctype
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4
+      end
+
       class << self
         ###
         # Parse HTML.  +string_or_io+ may be a String, or any object that
@@ -209,7 +220,7 @@ module Nokogiri
         end
       end
 
-      class EncodingFound < StandardError # :nodoc:
+      class EncodingFound < StandardError # :nodoc: all
         attr_reader :found_encoding
 
         def initialize(encoding)
@@ -218,8 +229,9 @@ module Nokogiri
         end
       end
 
-      class EncodingReader # :nodoc:
-        class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
+      # :nodoc: all
+      class EncodingReader
+        class SAXHandler < Nokogiri::XML::SAX::Document
           attr_reader :encoding
 
           def initialize

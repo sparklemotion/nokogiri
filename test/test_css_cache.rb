@@ -39,8 +39,8 @@ class TestCssCacheAccess < Nokogiri::TestCase
 
       Nokogiri::CSS.xpath_for(@css)
       Nokogiri::CSS.xpath_for(@css)
-      Nokogiri::CSS::Parser.new.xpath_for(@css)
-      Nokogiri::CSS::Parser.new.xpath_for(@css)
+      Nokogiri::CSS::Parser.new.xpath_for(@css, "//", Nokogiri::CSS::XPathVisitor.new)
+      Nokogiri::CSS::Parser.new.xpath_for(@css, "//", Nokogiri::CSS::XPathVisitor.new)
 
       if cache_setting
         assert_equal(1, Nokogiri::CSS::Parser.class_eval { @cache.count })
@@ -66,11 +66,12 @@ class TestCssCache < Nokogiri::TestCase
     css = ".foo .bar .baz"
     cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
 
-    assert_nil(cache[css])
+    assert_empty(cache)
     Nokogiri::CSS.xpath_for(css)
-    assert(cache[css])
+    refute_empty(cache)
+    key = cache.keys.first
 
-    cache[css] = "this is an injected value"
+    cache[key] = "this is an injected value"
     assert_equal("this is an injected value", Nokogiri::CSS.xpath_for(css))
   end
 
@@ -81,9 +82,9 @@ class TestCssCache < Nokogiri::TestCase
     css = ".foo .bar .baz"
     cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
 
-    assert_nil(cache[css])
+    assert_empty(cache)
     Nokogiri::CSS.xpath_for(css)
-    assert_nil(cache[css])
+    assert_empty(cache)
   end
 
   def test_without_cache_avoids_cache
@@ -93,11 +94,11 @@ class TestCssCache < Nokogiri::TestCase
     css = ".foo .bar .baz"
     cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
 
-    assert_nil(cache[css])
+    assert_empty(cache)
     Nokogiri::CSS::Parser.without_cache do
       Nokogiri::CSS.xpath_for(css)
     end
-    assert_nil(cache[css])
+    assert_empty(cache)
   end
 
   def test_without_cache_resets_cache_value
@@ -118,6 +119,24 @@ class TestCssCache < Nokogiri::TestCase
       end
     end
     assert(Nokogiri::CSS::Parser.cache_on?)
+  end
+
+  def test_cache_key_on_ns_prefix_and_visitor_config
+    Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache(true)
+
+    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    assert_empty(cache)
+
+    Nokogiri::CSS.xpath_for("foo")
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//")
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" })
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" },
+      visitor: Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS))
+    Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" },
+                            visitor: Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+                              doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5))
+    assert_equal(5, cache.length)
   end
 
   def test_race_condition

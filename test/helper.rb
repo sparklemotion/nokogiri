@@ -157,6 +157,16 @@ module Nokogiri
       skip(msg) unless Nokogiri.uses_libxml?
     end
 
+    def skip_unless_libxml2_patch(patch_name)
+      patch_dir = File.join(__dir__, "..", "patches", "libxml2")
+      if File.directory?(patch_dir) && !File.exist?(File.join(patch_dir, patch_name))
+        raise("checking for nonexistent patch file #{patch_name.inspect}")
+      end
+      unless Nokogiri.libxml2_patches.include?(patch_name)
+        skip("this test needs libxml2 patched with #{patch_name}")
+      end
+    end
+
     def skip_unless_jruby(msg = "this test should only run with jruby")
       skip(msg) unless Nokogiri.jruby?
     end

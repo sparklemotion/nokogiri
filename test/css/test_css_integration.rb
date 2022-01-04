@@ -2,233 +2,245 @@
 
 require "helper"
 
-module Nokogiri
-  module CSS
-    class TestCssIntegration < Nokogiri::TestCase
-      def setup
-        super
-        doc = <<~EOF
-          <html>
-            <table>
-              <tr><td>row1 </td></tr>
-              <tr><td>row2 </td></tr>
-              <tr><td>row3 </td></tr>
-              <tr><td>row4 </td></tr>
-              <tr><td>row5 </td></tr>
-              <tr><td>row6 </td></tr>
-              <tr><td>row7 </td></tr>
-              <tr><td>row8 </td></tr>
-              <tr><td>row9 </td></tr>
-              <tr><td>row10 </td></tr>
-              <tr><td>row11 </td></tr>
-              <tr><td>row12 </td></tr>
-              <tr><td>row13 </td></tr>
-              <tr><td>row14 </td></tr>
-            </table>
-            <div>
-              <b>bold1 </b>
-              <i>italic1 </i>
-              <b class="a">bold2 </b>
-              <em class="a">emphasis1 </em>
-              <i>italic2 </i>
-              <p>para1 </p>
-              <b class="a">bold3 </b>
-            </div>
-            <div>
-              <i class="b">italic3 </i>
-              <em>emphasis2 </em>
-              <i class="b">italic4 </i>
-              <em>emphasis3 </em>
-              <i class="c">italic5 </i>
-              <span><i class="b">italic6 </i></span>
-              <i>italic7 </i>
-            </div>
-            <div>
-              <p>para2 </p>
-              <p>para3 </p>
-            </div>
-            <div>
-              <p>para4 </p>
-            </div>
+class TestNokogiriCssIntegration < Nokogiri::TestCase
+  let(:subject) do
+    subject_class.parse(<<~HTML)
+      <html>
+        <table>
+          <tr><td>row1 </td></tr>
+          <tr><td>row2 </td></tr>
+          <tr><td>row3 </td></tr>
+          <tr><td>row4 </td></tr>
+          <tr><td>row5 </td></tr>
+          <tr><td>row6 </td></tr>
+          <tr><td>row7 </td></tr>
+          <tr><td>row8 </td></tr>
+          <tr><td>row9 </td></tr>
+          <tr><td>row10 </td></tr>
+          <tr><td>row11 </td></tr>
+          <tr><td>row12 </td></tr>
+          <tr><td>row13 </td></tr>
+          <tr><td>row14 </td></tr>
+        </table>
+        <div>
+          <b>bold1 </b>
+          <i>italic1 </i>
+          <b class="a">bold2 </b>
+          <em class="a">emphasis1 </em>
+          <i>italic2 </i>
+          <p>para1 </p>
+          <b class="a">bold3 </b>
+        </div>
+        <div>
+          <i class="b">italic3 </i>
+          <em>emphasis2 </em>
+          <i class="b">italic4 </i>
+          <em>emphasis3 </em>
+          <i class="c">italic5 </i>
+          <span><i class="b">italic6 </i></span>
+          <i>italic7 </i>
+        </div>
+        <div>
+          <p>para2 </p>
+          <p>para3 </p>
+        </div>
+        <div>
+          <p>para4 </p>
+        </div>
 
-            <div>
-              <h2></h2>
-              <h1 class='c'>header1 </h1>
-              <h2></h2>
-            </div>
-            <div>
-              <h1 class='c'>header2 </h1>
-              <h1 class='c'>header3 </h1>
-            </div>
-            <div>
-              <h1 class='c'>header4</h1>
-            </div>
+        <div>
+          <h2></h2>
+          <h1 class='c'>header1 </h1>
+          <h2></h2>
+        </div>
+        <div>
+          <h1 class='c'>header2 </h1>
+          <h1 class='c'>header3 </h1>
+        </div>
+        <div>
+          <h1 class='c'>header4</h1>
+        </div>
 
-            <p class='empty'></p>
-            <p class='not-empty'><b></b></p>
-          </html>
-        EOF
-        @parser = Nokogiri.HTML(doc)
+        <p class='empty'></p>
+        <p class='not-empty'><b></b></p>
+      </html>
+    HTML
+  end
 
-        @nested = Nokogiri.HTML(<<~EOF)
-          <html><body>
-            <div class='unnested direct'>
-              <b>bold</b>
-              <p>para</p>
-            </div>
+  let(:nested) do
+    subject_class.parse(<<~HTML)
+      <html><body>
+        <div class='unnested direct'>
+          <b>bold</b>
+          <p>para</p>
+        </div>
 
-            <div class='unnested indirect'>
-              <b>bold</b>
-              <i>...</i>
-              <i>...</i>
-              <p>para</p>
-            </div>
+        <div class='unnested indirect'>
+          <b>bold</b>
+          <i>...</i>
+          <i>...</i>
+          <p>para</p>
+        </div>
 
-            <div class='nested-parent'>
-              <div class='nested-child direct'>
-                <b>bold</b>
-                <p>para</p>
-              </div>
+        <div class='nested-parent'>
+          <div class='nested-child direct'>
+            <b>bold</b>
+            <p>para</p>
+          </div>
 
-              <div class='nested-child indirect'>
-                <b>bold</b>
-                <i>...</i>
-                <i>...</i>
-                <p>para</p>
-              </div>
-            </div>
+          <div class='nested-child indirect'>
+            <b>bold</b>
+            <i>...</i>
+            <i>...</i>
+            <p>para</p>
+          </div>
+        </div>
 
-            <div class="has-bold">
-              <b>bold</b>
-            </div>
+        <div class="has-bold">
+          <b>bold</b>
+        </div>
 
-            <div class="has-para">
-              <p>para</p>
-            </div>
-        EOF
+        <div class="has-para">
+          <p>para</p>
+        </div>
+    HTML
+  end
+
+  def assert_result_rows(intarray, result, word = "row")
+    assert_equal(intarray.size, result.size,
+      "unexpected number of rows returned: '#{result.inner_text}'")
+    assert_equal(intarray.map { |j| "#{word}#{j}" }.join(" "), result.inner_text.strip,
+      result.inner_text)
+  end
+
+  doctypes = [Nokogiri::XML::Document, Nokogiri::HTML4::Document]
+  doctypes << Nokogiri::HTML5::Document if defined?(Nokogiri::HTML5::Document)
+
+  doctypes.each do |doctype|
+    describe doctype do
+      let(:subject_class) { doctype }
+
+      it "selects even" do
+        assert_result_rows([2, 4, 6, 8, 10, 12, 14], subject.search("table//tr:nth(even)"))
       end
 
-      def test_even
-        assert_result_rows([2, 4, 6, 8, 10, 12, 14], @parser.search("table//tr:nth(even)"))
+      it "selects odd" do
+        assert_result_rows([1, 3, 5, 7, 9, 11, 13], subject.search("table//tr:nth(odd)"))
       end
 
-      def test_odd
-        assert_result_rows([1, 3, 5, 7, 9, 11, 13], @parser.search("table//tr:nth(odd)"))
+      it "selects n" do
+        assert_result_rows((1..14).to_a, subject.search("table//tr:nth(n)"))
       end
 
-      def test_n
-        assert_result_rows((1..14).to_a, @parser.search("table//tr:nth(n)"))
+      it "selects 2n" do
+        assert_equal(subject.search("table//tr:nth(even)").inner_text, subject.search("table//tr:nth(2n)").inner_text)
       end
 
-      def test_2n
-        assert_equal(@parser.search("table//tr:nth(even)").inner_text, @parser.search("table//tr:nth(2n)").inner_text)
+      it "selects 2np1" do
+        assert_equal(subject.search("table//tr:nth(odd)").inner_text, subject.search("table//tr:nth(2n+1)").inner_text)
       end
 
-      def test_2np1
-        assert_equal(@parser.search("table//tr:nth(odd)").inner_text, @parser.search("table//tr:nth(2n+1)").inner_text)
+      it "selects 4np3" do
+        assert_result_rows([3, 7, 11], subject.search("table//tr:nth(4n+3)"))
       end
 
-      def test_4np3
-        assert_result_rows([3, 7, 11], @parser.search("table//tr:nth(4n+3)"))
+      it "selects 3np4" do
+        assert_result_rows([4, 7, 10, 13], subject.search("table//tr:nth(3n+4)"))
       end
 
-      def test_3np4
-        assert_result_rows([4, 7, 10, 13], @parser.search("table//tr:nth(3n+4)"))
+      it "selects mnp3" do
+        assert_result_rows([1, 2, 3], subject.search("table//tr:nth(-n+3)"))
       end
 
-      def test_mnp3
-        assert_result_rows([1, 2, 3], @parser.search("table//tr:nth(-n+3)"))
+      it "selects 4nm1" do
+        assert_result_rows([3, 7, 11], subject.search("table//tr:nth(4n-1)"))
       end
 
-      def test_4nm1
-        assert_result_rows([3, 7, 11], @parser.search("table//tr:nth(4n-1)"))
+      it "selects np3" do
+        assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], subject.search("table//tr:nth(n+3)"))
       end
 
-      def test_np3
-        assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], @parser.search("table//tr:nth(n+3)"))
+      it "selects first" do
+        assert_result_rows([1], subject.search("table//tr:first"))
+        assert_result_rows([1], subject.search("table//tr:first()"))
       end
 
-      def test_first
-        assert_result_rows([1], @parser.search("table//tr:first"))
-        assert_result_rows([1], @parser.search("table//tr:first()"))
+      it "selects last" do
+        assert_result_rows([14], subject.search("table//tr:last"))
+        assert_result_rows([14], subject.search("table//tr:last()"))
       end
 
-      def test_last
-        assert_result_rows([14], @parser.search("table//tr:last"))
-        assert_result_rows([14], @parser.search("table//tr:last()"))
+      it "selects first_child" do
+        assert_result_rows([1], subject.search("div/b:first-child"), "bold")
+        assert_result_rows([1], subject.search("table//tr:first-child"))
+        assert_result_rows([2, 4], subject.search("div/h1.c:first-child"), "header")
       end
 
-      def test_first_child
-        assert_result_rows([1], @parser.search("div/b:first-child"), "bold")
-        assert_result_rows([1], @parser.search("table//tr:first-child"))
-        assert_result_rows([2, 4], @parser.search("div/h1.c:first-child"), "header")
+      it "selects last_child" do
+        assert_result_rows([3], subject.search("div/b:last-child"), "bold")
+        assert_result_rows([14], subject.search("table//tr:last-child"))
+        assert_result_rows([3, 4], subject.search("div/h1.c:last-child"), "header")
       end
 
-      def test_last_child
-        assert_result_rows([3], @parser.search("div/b:last-child"), "bold")
-        assert_result_rows([14], @parser.search("table//tr:last-child"))
-        assert_result_rows([3, 4], @parser.search("div/h1.c:last-child"), "header")
+      it "selects nth_child" do
+        assert_result_rows([2], subject.search("div/b:nth-child(3)"), "bold")
+        assert_result_rows([5], subject.search("table//tr:nth-child(5)"))
+        assert_result_rows([1, 3], subject.search("div/h1.c:nth-child(2)"), "header")
+        assert_result_rows([3, 4], subject.search("div/i.b:nth-child(2n+1)"), "italic")
       end
 
-      def test_nth_child
-        assert_result_rows([2], @parser.search("div/b:nth-child(3)"), "bold")
-        assert_result_rows([5], @parser.search("table//tr:nth-child(5)"))
-        assert_result_rows([1, 3], @parser.search("div/h1.c:nth-child(2)"), "header")
-        assert_result_rows([3, 4], @parser.search("div/i.b:nth-child(2n+1)"), "italic")
+      it "selects first_of_type" do
+        assert_result_rows([1], subject.search("table//tr:first-of-type"))
+        assert_result_rows([1], subject.search("div/b:first-of-type"), "bold")
+        assert_result_rows([2], subject.search("div/b.a:first-of-type"), "bold")
+        assert_result_rows([3], subject.search("div/i.b:first-of-type"), "italic")
       end
 
-      def test_first_of_type
-        assert_result_rows([1], @parser.search("table//tr:first-of-type"))
-        assert_result_rows([1], @parser.search("div/b:first-of-type"), "bold")
-        assert_result_rows([2], @parser.search("div/b.a:first-of-type"), "bold")
-        assert_result_rows([3], @parser.search("div/i.b:first-of-type"), "italic")
+      it "selects last_of_type" do
+        assert_result_rows([14], subject.search("table//tr:last-of-type"))
+        assert_result_rows([3], subject.search("div/b:last-of-type"), "bold")
+        assert_result_rows([2, 7], subject.search("div/i:last-of-type"), "italic")
+        assert_result_rows([2, 6, 7], subject.search("div i:last-of-type"), "italic")
+        assert_result_rows([4], subject.search("div/i.b:last-of-type"), "italic")
       end
 
-      def test_last_of_type
-        assert_result_rows([14], @parser.search("table//tr:last-of-type"))
-        assert_result_rows([3], @parser.search("div/b:last-of-type"), "bold")
-        assert_result_rows([2, 7], @parser.search("div/i:last-of-type"), "italic")
-        assert_result_rows([2, 6, 7], @parser.search("div i:last-of-type"), "italic")
-        assert_result_rows([4], @parser.search("div/i.b:last-of-type"), "italic")
+      it "selects nth_of_type" do
+        assert_result_rows([1], subject.search("div/b:nth-of-type(1)"), "bold")
+        assert_result_rows([2], subject.search("div/b:nth-of-type(2)"), "bold")
+        assert_result_rows([2], subject.search("div/.a:nth-of-type(1)"), "bold")
+        assert_result_rows([2, 4, 7], subject.search("div i:nth-of-type(2n)"), "italic")
+        assert_result_rows([1, 3, 5, 6], subject.search("div i:nth-of-type(2n+1)"), "italic")
+        assert_result_rows([1], subject.search("div .a:nth-of-type(2n)"), "emphasis")
+        assert_result_rows([2, 3], subject.search("div .a:nth-of-type(2n+1)"), "bold")
       end
 
-      def test_nth_of_type
-        assert_result_rows([1], @parser.search("div/b:nth-of-type(1)"), "bold")
-        assert_result_rows([2], @parser.search("div/b:nth-of-type(2)"), "bold")
-        assert_result_rows([2], @parser.search("div/.a:nth-of-type(1)"), "bold")
-        assert_result_rows([2, 4, 7], @parser.search("div i:nth-of-type(2n)"), "italic")
-        assert_result_rows([1, 3, 5, 6], @parser.search("div i:nth-of-type(2n+1)"), "italic")
-        assert_result_rows([1], @parser.search("div .a:nth-of-type(2n)"), "emphasis")
-        assert_result_rows([2, 3], @parser.search("div .a:nth-of-type(2n+1)"), "bold")
+      it "selects nth_last_of_type" do
+        assert_result_rows([14], subject.search("table//tr:nth-last-of-type(1)"))
+        assert_result_rows([12], subject.search("table//tr:nth-last-of-type(3)"))
+        assert_result_rows([2, 6, 7], subject.search("div i:nth-last-of-type(1)"), "italic")
+        assert_result_rows([1, 5], subject.search("div i:nth-last-of-type(2)"), "italic")
+        assert_result_rows([4], subject.search("div/i.b:nth-last-of-type(1)"), "italic")
+        assert_result_rows([3], subject.search("div/i.b:nth-last-of-type(2)"), "italic")
       end
 
-      def test_nth_last_of_type
-        assert_result_rows([14], @parser.search("table//tr:nth-last-of-type(1)"))
-        assert_result_rows([12], @parser.search("table//tr:nth-last-of-type(3)"))
-        assert_result_rows([2, 6, 7], @parser.search("div i:nth-last-of-type(1)"), "italic")
-        assert_result_rows([1, 5], @parser.search("div i:nth-last-of-type(2)"), "italic")
-        assert_result_rows([4], @parser.search("div/i.b:nth-last-of-type(1)"), "italic")
-        assert_result_rows([3], @parser.search("div/i.b:nth-last-of-type(2)"), "italic")
+      it "selects only_of_type" do
+        assert_result_rows([1, 4], subject.search("div/p:only-of-type"), "para")
+        assert_result_rows([5], subject.search("div/i.c:only-of-type"), "italic")
       end
 
-      def test_only_of_type
-        assert_result_rows([1, 4], @parser.search("div/p:only-of-type"), "para")
-        assert_result_rows([5], @parser.search("div/i.c:only-of-type"), "italic")
+      it "selects only_child" do
+        assert_result_rows([4], subject.search("div/p:only-child"), "para")
+        assert_result_rows([4], subject.search("div/h1.c:only-child"), "header")
       end
 
-      def test_only_child
-        assert_result_rows([4], @parser.search("div/p:only-child"), "para")
-        assert_result_rows([4], @parser.search("div/h1.c:only-child"), "header")
-      end
-
-      def test_empty
-        result = @parser.search("p:empty")
+      it "selects empty" do
+        result = subject.search("p:empty")
         assert_equal(1, result.size, "unexpected number of rows returned: '#{result.inner_text}'")
         assert_equal("empty", result.first["class"])
       end
 
-      def test_parent
-        result = @parser.search("p:parent")
+      it "selects parent" do
+        result = subject.search("p:parent")
         assert_equal(5, result.size)
         0.upto(3) do |j|
           assert_equal("para#{j + 1} ", result[j].inner_text)
@@ -236,124 +248,118 @@ module Nokogiri
         assert_equal("not-empty", result[4]["class"])
       end
 
-      def test_siblings
-        doc = <<~EOF
+      it "selects siblings" do
+        html = <<~HTML
           <html><body><div>
             <p id="1">p1 </p>
             <p id="2">p2 </p>
             <p id="3">p3 </p>
             <p id="4">p4 </p>
             <p id="5">p5 </p>
-        EOF
-        parser = Nokogiri.HTML(doc)
-        assert_equal(2, parser.search("#3 ~ p").size)
-        assert_equal("p4 p5 ", parser.search("#3 ~ p").inner_text)
-        assert_equal(0, parser.search("#5 ~ p").size)
+        HTML
+        doc = subject_class.parse(html)
+        assert_equal(2, doc.search("#3 ~ p").size)
+        assert_equal("p4 p5 ", doc.search("#3 ~ p").inner_text)
+        assert_equal(0, doc.search("#5 ~ p").size)
 
-        assert_equal(1, parser.search("#3 + p").size)
-        assert_equal("p4 ", parser.search("#3 + p").inner_text)
-        assert_equal(0, parser.search("#5 + p").size)
+        assert_equal(1, doc.search("#3 + p").size)
+        assert_equal("p4 ", doc.search("#3 + p").inner_text)
+        assert_equal(0, doc.search("#5 + p").size)
       end
 
-      def test_has_a
-        result = @nested.css("div:has(b)")
+      it "selects has_a" do
+        result = nested.css("div:has(b)")
         expected = [
-          @nested.at_css(".unnested.direct"),
-          @nested.at_css(".unnested.indirect"),
-          @nested.at_css(".nested-parent"),
-          @nested.at_css(".nested-child.direct"),
-          @nested.at_css(".nested-child.indirect"),
-          @nested.at_css(".has-bold"),
+          nested.at_css(".unnested.direct"),
+          nested.at_css(".unnested.indirect"),
+          nested.at_css(".nested-parent"),
+          nested.at_css(".nested-child.direct"),
+          nested.at_css(".nested-child.indirect"),
+          nested.at_css(".has-bold"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_a_gt_b
-        result = @nested.css("body *:has(div > b)")
+      it "selects has_a_gt_b" do
+        result = nested.css("body *:has(div > b)")
         expected = [
-          @nested.at_css(".nested-parent"),
+          nested.at_css(".nested-parent"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_gt_b
-        result = @nested.css("body *:has(> b)")
+      it "selects has_gt_b" do
+        result = nested.css("body *:has(> b)")
         expected = [
-          @nested.at_css(".unnested.direct"),
-          @nested.at_css(".unnested.indirect"),
-          @nested.at_css(".nested-child.direct"),
-          @nested.at_css(".nested-child.indirect"),
-          @nested.at_css(".has-bold"),
+          nested.at_css(".unnested.direct"),
+          nested.at_css(".unnested.indirect"),
+          nested.at_css(".nested-child.direct"),
+          nested.at_css(".nested-child.indirect"),
+          nested.at_css(".has-bold"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_a_plus_b
-        result = @nested.css("div:has(b + p)")
+      it "selects has_a_plus_b" do
+        result = nested.css("div:has(b + p)")
         expected = [
-          @nested.at_css(".unnested.direct"),
-          @nested.at_css(".nested-parent"),
-          @nested.at_css(".nested-child.direct"),
+          nested.at_css(".unnested.direct"),
+          nested.at_css(".nested-parent"),
+          nested.at_css(".nested-child.direct"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_plus_b
-        result = @nested.css("b:has(+ p)")
+      it "selects has_plus_b" do
+        result = nested.css("b:has(+ p)")
         expected = [
-          @nested.at_css(".unnested.direct b"),
-          @nested.at_css(".nested-child.direct b"),
+          nested.at_css(".unnested.direct b"),
+          nested.at_css(".nested-child.direct b"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_a_tilde_b
-        result = @nested.css("div:has(b ~ p)")
+      it "selects has_a_tilde_b" do
+        result = nested.css("div:has(b ~ p)")
         expected = [
-          @nested.at_css(".unnested.direct"),
-          @nested.at_css(".unnested.indirect"),
-          @nested.at_css(".nested-parent"),
-          @nested.at_css(".nested-child.direct"),
-          @nested.at_css(".nested-child.indirect"),
+          nested.at_css(".unnested.direct"),
+          nested.at_css(".unnested.indirect"),
+          nested.at_css(".nested-parent"),
+          nested.at_css(".nested-child.direct"),
+          nested.at_css(".nested-child.indirect"),
         ]
         assert_equal(expected, result.to_a)
       end
 
-      def test_has_tilde_b
-        result = @nested.css("b:has(~ p)")
+      it "selects has_tilde_b" do
+        result = nested.css("b:has(~ p)")
         expected = [
-          @nested.at_css(".unnested.direct b"),
-          @nested.at_css(".unnested.indirect b"),
-          @nested.at_css(".nested-child.direct b"),
-          @nested.at_css(".nested-child.indirect b"),
+          nested.at_css(".unnested.direct b"),
+          nested.at_css(".unnested.indirect b"),
+          nested.at_css(".nested-child.direct b"),
+          nested.at_css(".nested-child.indirect b"),
         ].flatten
         assert_equal(expected, result.to_a)
       end
 
-      def test_class_attr_selector
-        doc = Nokogiri::HTML::Document.parse(<<~EOF)
+      it "selects class_attr_selector" do
+        doc = subject_class.parse(<<~HTML)
           <html><body>
             <div class="qwer asdf zxcv">space-delimited</div>
             <div class="qwer\tasdf\tzxcv">tab-delimited</div>
             <div class="qwer\nasdf\nzxcv">newline-delimited</div>
             <div class="qwer\rasdf\rzxcv">carriage-return-delimited</div>
           </body></html>
-        EOF
+        HTML
 
         result = doc.css("div[class~='asdf']")
         assert_equal(4, result.length)
 
+        result = doc.css("div[@class~='asdf']")
+        assert_equal(4, result.length)
+
         expected = doc.css("div")
         assert_equal(expected, result)
-      end
-
-      private
-
-      def assert_result_rows(intarray, result, word = "row")
-        assert_equal(intarray.size, result.size,
-          "unexpected number of rows returned: '#{result.inner_text}'")
-        assert_equal(intarray.map { |j| "#{word}#{j}" }.join(" "), result.inner_text.strip,
-          result.inner_text)
       end
     end
   end

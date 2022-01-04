@@ -1,6 +1,7 @@
 module Nokogiri
 module CSS
-class Tokenizer # :nodoc:
+# :nodoc: all
+class Tokenizer
 
 macro
   nl        \n|\r\n|\r|\f

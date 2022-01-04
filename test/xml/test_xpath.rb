@@ -5,19 +5,13 @@ require "helper"
 module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
-      # ** WHY ALL THOSE _if Nokogiri.uses_libxml?_ **
-      # Hi, my dear readers,
       #
-      # After reading these tests you may be wondering why all those ugly
-      # if Nokogiri.uses_libxml? sparsed over the whole document. Well, let
-      # me explain it. While using XPath in Java, you need the extension
-      # functions to be in a namespace. This is not required by XPath, afaik,
-      # but it is an usual convention though.
+      # Note that many of these tests vary for jruby because custom xpath functions in JRuby require
+      # a namespace, and libxml2 (and the original implementation of Nokogiri) do not.
       #
-      # Yours truly,
+      # Ideally we should change this to always require a namespace.
+      # See https://github.com/sparklemotion/nokogiri/issues/2147
       #
-      # The guy whose headaches belong to Nokogiri JRuby impl.
-
       def setup
         super
 
@@ -483,9 +477,7 @@ module Nokogiri
       end
 
       def test_huge_xpath_query
-        if Nokogiri.uses_libxml?("~>2.9.11") && !Nokogiri::VERSION_INFO["libxml"]["patches"]&.include?("0007-Fix-XPath-recursion-limit.patch")
-          skip("libxml2 under test is broken with respect to xpath query recusion depth")
-        end
+        skip_unless_libxml2_patch("0007-Fix-XPath-recursion-limit.patch") if Nokogiri.uses_libxml?("~>2.9.11")
 
         # real world example
         # from https://github.com/sparklemotion/nokogiri/issues/2257
@@ -604,6 +596,128 @@ module Nokogiri
           result = @xml.xpath("//employee[last()]/employeeId[thing(.)]", @handler)
           assert_equal(1, result.length)
           assert_equal(1, @handler.things.length)
+        end
+      end
+
+      describe "Document#xpath_doctype" do
+        it "Nokogiri::XML::Document" do
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+            Nokogiri::XML::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+            Nokogiri::XML::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+
+        it "Nokogiri::HTML4::Document" do
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+            Nokogiri::HTML4::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+            Nokogiri::HTML4::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+
+        it "Nokogiri::HTML5::Document" do
+          skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+            Nokogiri::HTML5::Document.parse("<root></root>").xpath_doctype,
+          )
+          assert_equal(
+            Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+            Nokogiri::HTML5::DocumentFragment.parse("<root></root>").document.xpath_doctype,
+          )
+        end
+      end
+
+      describe "HTML5 foreign elements" do
+        # https://github.com/sparklemotion/nokogiri/issues/2376
+        let(:html) { <<~HTML }
+          <!DOCTYPE html>
+          <html>
+            <body>
+              <div id="svg-container">
+                <svg version="1.1" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100%" height="100%" fill="red" />
+                  <circle cx="150" cy="100" r="80" fill="green" />
+                  <text x="150" y="125" font-size="60" text-anchor="middle" fill="white">SVG</text>
+                </svg>
+              </div>
+            </body>
+          </html>
+        HTML
+
+        let(:ns) { { "nsfoo" => "http://www.w3.org/2000/svg" } }
+
+        describe "in an XML doc" do
+          let(:doc) { Nokogiri::XML::Document.parse(html) }
+
+          it "requires namespace in XPath queries" do
+            assert_empty(doc.xpath("//svg"))
+            refute_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "requires namespace in CSS queries" do
+            assert_empty(doc.css("svg"))
+            refute_empty(doc.css("nsfoo|svg", ns))
+          end
+        end
+
+        describe "in an HTML4 doc" do
+          let(:doc) { Nokogiri::HTML4::Document.parse(html) }
+
+          it "omits namespace in XPath queries" do
+            refute_empty(doc.xpath("//svg"))
+            assert_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "omits namespace in CSS queries" do
+            refute_empty(doc.css("svg"))
+            assert_empty(doc.css("nsfoo|svg", ns))
+          end
+        end
+
+        describe "in an HTML5 doc" do
+          let(:doc) { Nokogiri::HTML5::Document.parse(html) }
+
+          it "requires namespace in XPath queries" do
+            skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+            assert_empty(doc.xpath("//svg"))
+            refute_empty(doc.xpath("//nsfoo:svg", ns))
+          end
+
+          it "omits namespace in CSS queries" do
+            skip("HTML5 is not supported") unless defined?(Nokogiri::HTML5)
+            refute_empty(doc.css("svg"))
+            refute_empty(doc.css("nsfoo|svg", ns)) # if they specify the valid ns, use it
+            assert_empty(doc.css("nsbar|svg", { "nsbar" => "http://example.com/nsbar" }))
+          end
+        end
+      end
+
+      describe "XPath wildcard namespaces" do
+        let(:xml) { <<~XML }
+          <root xmlns:ns1="http://nokogiri.org/ns1" xmlns:ns2="http://nokogiri.org/ns2">
+            <ns1:child>ns1 child</ns1:child>
+            <ns2:child>ns2 child</ns2:child>
+            <child>plain child</child>
+          </root>
+        XML
+
+        let(:doc) { Nokogiri::XML::Document.parse(xml) }
+
+        it "allows namespace wildcards" do
+          skip_unless_libxml2_patch("0009-allow-wildcard-namespaces.patch")
+
+          assert_equal(1, doc.xpath("//n:child", { "n" => "http://nokogiri.org/ns1" }).length)
+          assert_equal(3, doc.xpath("//*:child").length)
+          assert_equal(1, doc.xpath("//self::n:child", { "n" => "http://nokogiri.org/ns1" }).length)
+          assert_equal(3, doc.xpath("//self::*:child").length)
         end
       end
     end
