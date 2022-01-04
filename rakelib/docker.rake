@@ -8,7 +8,7 @@ module DockerHelper
   IMAGE_DIR = "oci-images/nokogiri-test"
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
-    mri: ["2.6", "2.7", "3.0"],
+    mri: ["2.6", "2.7", "3.0", "3.1"],
     truffle: ["nightly"],
   }
 
@@ -63,7 +63,7 @@ module DockerHelper
                   submodules: true
               - uses: ruby/setup-ruby@v1
                 with:
-                  ruby-version: "3.0"
+                  ruby-version: "3.1"
                   bundler-cache: true
               - uses: docker/setup-buildx-action@v1
               - uses: docker/login-action@v1
@@ -87,7 +87,7 @@ EOF
       File.open(filename, "w") do |io|
         io.write(pipeline_prelude)
 
-        Dir.glob(File.join(IMAGE_DIR, "*.dockerfile")).each do |dockerfile|
+        Dir.glob(File.join(IMAGE_DIR, "*.dockerfile")).sort.each do |dockerfile|
           image_tag = Regexp.new("(.*)\.dockerfile").match(File.basename(dockerfile))[1]
           template_params = {
             job_name: image_tag,

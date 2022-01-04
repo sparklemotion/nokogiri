@@ -79,7 +79,7 @@ Clone https://github.com/sparklemotion/nokogiri and run `bundle install`.
 
 ### Advanced
 
-Please install the latest or previous version of CRuby (e.g., 3.0 or 2.7 as of 2021-02), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
+Please install the latest or previous version of CRuby (e.g., 3.1 or 3.0 as of 2022-01), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
 
 Please install a system version of libxml2/libxslt (see [Installing Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries) for details) so that you can test against both the packaged libraries and your system libraries.
 

@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0", "head"]
+        ruby: ["2.6", "2.7", "3.0", "3.1", "head"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.0"
+          ruby-version: "3.1"
       - uses: actions/download-artifact@v2
         with:
           name: cruby-gem
@@ -102,6 +102,30 @@ jobs:
           gem list -d nokogiri
           nokogiri -v
 
+  cruby-windows-install-ucrt:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: MSP-Greg/setup-ruby-pkgs@win-ucrt-2
+        with:
+          ruby-version: "3.1"
+          mingw: "libxml2 libxslt"
+          setup-ruby-ref: MSP-Greg/ruby-setup-ruby/win-ucrt-1
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-gem
+          path: gems
+      - run: |
+          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
+          gem list -d nokogiri
+          nokogiri -v
 
   cruby-native-package:
     name: "cruby-native-package"
