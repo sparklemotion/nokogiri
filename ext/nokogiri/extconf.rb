@@ -418,12 +418,10 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
     end
 
     recipe.target = File.join(PACKAGE_ROOT_DIR, "ports") if cacheable_p
-    # Prefer host_alias over host in order to use the
-    # correct compiler prefix for cross build, but use host if not set.
+    # Prefer host_alias over host in order to use the correct compiler prefix for cross build, but
+    # use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
     recipe.configure_options << "--libdir=#{File.join(recipe.path, "lib")}"
-    # The libiconv configure script doesn't accept "arm64" host string but "aarch64"
-    recipe.host = recipe.host.gsub("arm64-apple-darwin", "aarch64-apple-darwin")
 
     yield recipe
 
@@ -723,6 +721,9 @@ else
           url: "https://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["libiconv"]["sha256"],
         }]
+
+        # The libiconv configure script doesn't accept "arm64" host string but "aarch64"
+        recipe.host = recipe.host.gsub("arm64-apple-darwin", "aarch64-apple-darwin")
 
         cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
