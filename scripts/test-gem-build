@@ -14,18 +14,7 @@ BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
-set -u
-
-# TODO remove this stanza once https://github.com/rake-compiler/rake-compiler-dock/pull/57 is
-# shipped in a version of rake-compiler-dock
-if [[ "${XRUBIES:-}" != "" ]] ; then
-  # normally part of rake-compiler-dock "runas"
-  . /etc/rubybashrc
-  ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
-  export RAKE_EXTENSION_TASK_NO_NATIVE=true
-fi
-
-set -x
+set -u -x
 
 if [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
   # TODO remove after ruby-maven 3.3.13 or later is shipped
