@@ -20,7 +20,7 @@ jobs:
     name: "cruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.1.0"
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.2.0"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -135,7 +135,7 @@ jobs:
         plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32", "x64-mingw-ucrt"]
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.1.0"
+      image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -253,7 +253,7 @@ jobs:
     name: "jruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-jruby:1.1.0"
+      image: "larskanis/rake-compiler-dock-jruby:1.2.0"
     steps:
       - uses: actions/checkout@v2
         with:

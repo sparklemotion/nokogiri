@@ -47,7 +47,7 @@ gemspec = Dir.mktmpdir do |dir|
     unless system("tar -xf #{gemfile} metadata.gz")
       raise "could not unpack gem #{gemfile}"
     end
-    YAML.load(%x(gunzip -c metadata.gz))
+    YAML.safe_load(%x(gunzip -c metadata.gz), permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol])
   end
 end
 
@@ -67,10 +67,14 @@ Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 puts "Testing '#{gemfile}' (#{gemspec.platform})"
 describe File.basename(gemfile) do
   let(:cross_rubies_path) { File.join(File.dirname(__FILE__), "..", ".cross_rubies") }
+
+  # Ruby versions that should be supported by the native gem depending on the platform
   let(:native_ruby_versions) do
     File.read(cross_rubies_path).split("\n").map do |line|
-      line.split(":").first.split(".").take(2).join(".") # ugh
-    end.uniq.sort
+      ver, plat = line.split(":")
+      next if plat != gemspec.platform.to_s
+      ver.split(".").take(2).join(".") # ugh
+    end.compact.uniq.sort
   end
 
   describe "setup" do

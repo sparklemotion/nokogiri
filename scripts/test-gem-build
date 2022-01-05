@@ -14,10 +14,6 @@ BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
-if [[ "${BUILD_NATIVE_GEM}" != "java" ]] ; then
-  rvm use 3.0 # because the default ruby is 2.5 as of rake-compiler-dock 1.1.0
-fi
-
 set -u
 
 # TODO remove this stanza once https://github.com/rake-compiler/rake-compiler-dock/pull/57 is
