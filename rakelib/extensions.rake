@@ -405,6 +405,15 @@ else
       spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
       spec.dependencies.reject! { |dep| dep.name == "mini_portile2" }
 
+      # I would like rake-compiler to do this, but can't quite figure it out right now
+      supported_rubies = CROSS_RUBIES.select { |c| spec.platform =~ c.platform }
+        .map { |c| Gem::Version.new(c.ver) }
+        .sort
+      spec.required_ruby_version = [
+        ">= #{supported_rubies.first.to_s.split(".").take(2).join(".")}",
+        "< #{supported_rubies.last.to_s.split(".").take(2).join(".").succ}.dev",
+      ]
+
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
       # which were copied there in the $INSTALLFILES section of extconf.rb.
       # (see scripts/test-gem-file-contents and scripts/test-gem-installation for tests)

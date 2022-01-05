@@ -68,13 +68,19 @@ puts "Testing '#{gemfile}' (#{gemspec.platform})"
 describe File.basename(gemfile) do
   let(:cross_rubies_path) { File.join(File.dirname(__FILE__), "..", ".cross_rubies") }
 
-  # Ruby versions that should be supported by the native gem depending on the platform
-  let(:native_ruby_versions) do
+  let(:platform_supported_ruby_versions) do
     File.read(cross_rubies_path).split("\n").map do |line|
       ver, plat = line.split(":")
       next if plat != gemspec.platform.to_s
       ver.split(".").take(2).join(".") # ugh
     end.compact.uniq.sort
+  end
+
+  let(:all_supported_ruby_versions) do
+    File.read(cross_rubies_path).split("\n").map do |line|
+      ver, _ = line.split(":")
+      ver.split(".").take(2).join(".") # ugh
+    end.uniq.sort
   end
 
   describe "setup" do
@@ -179,7 +185,7 @@ describe File.basename(gemfile) do
     end
 
     it "contains expected shared library files " do
-      native_ruby_versions.each do |version|
+      platform_supported_ruby_versions.each do |version|
         actual = gemfile_contents.find do |p|
           File.fnmatch?("lib/nokogiri/#{version}/nokogiri.{so,bundle}", p, File::FNM_EXTGLOB)
         end
@@ -194,7 +200,27 @@ describe File.basename(gemfile) do
       actual = gemfile_contents.find_all do |p|
         File.fnmatch?("lib/nokogiri/**/*.{so,bundle}", p, File::FNM_EXTGLOB)
       end
-      assert_equal(native_ruby_versions.length, actual.length, "did not expect extra shared library files")
+      assert_equal(
+        platform_supported_ruby_versions.length,
+        actual.length,
+        "did not expect extra shared library files",
+      )
+    end
+
+    it "sets required_ruby_version appropriately" do
+      unsupported_versions = all_supported_ruby_versions - platform_supported_ruby_versions
+      platform_supported_ruby_versions.each do |v|
+        assert(
+          gemspec.required_ruby_version.satisfied_by?(Gem::Version.new(v)),
+          "required_ruby_version='#{gemspec.required_ruby_version}' should support ruby #{v}",
+        )
+      end
+      unsupported_versions.each do |v|
+        refute(
+          gemspec.required_ruby_version.satisfied_by?(Gem::Version.new(v)),
+          "required_ruby_version='#{gemspec.required_ruby_version}' should not support ruby #{v}",
+        )
+      end
     end
   end if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
 
