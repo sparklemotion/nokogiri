@@ -347,6 +347,6 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
   end
 
   def attributes(element)
-    element.attributes.map { |name, attribute| [name, attribute.value] }.to_h
+    element.attributes.to_h { |name, attribute| [name, attribute.value] }
   end
 end if Nokogiri.uses_gumbo?

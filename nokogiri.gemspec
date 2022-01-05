@@ -40,12 +40,7 @@ Gem::Specification.new do |spec|
 
   spec.license = "MIT"
 
-  if java_p # rubocop:disable Style/ConditionalAssignment
-    # TODO: drop this more-liberal requirement for jruby when https://github.com/jruby/jruby/issues/6904 is fixed
-    spec.required_ruby_version = ">= 2.5.0"
-  else
-    spec.required_ruby_version = ">= 2.6.0" # rubocop:disable Gemspec/DuplicatedAssignment
-  end
+  spec.required_ruby_version = ">= 2.6.0"
 
   spec.homepage = "https://nokogiri.org"
   spec.metadata = {

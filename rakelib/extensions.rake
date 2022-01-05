@@ -326,8 +326,14 @@ namespace "gem" do
 
   desc "build a jruby gem"
   task "jruby" do
-    RakeCompilerDock.sh("gem install bundler --no-document && bundle && bundle exec rake java gem",
-      rubyvm: "jruby", platform: "jruby")
+    # TODO: remove the ruby-maven bit after ruby-maven 3.3.13 or later is shipped
+    # see https://github.com/jruby/jruby/issues/6904
+    RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby")
+      gem install bundler --no-document &&
+      gem install misc/ruby-maven-*.gem --no-document &&
+      bundle &&
+      bundle exec rake java gem
+    EOF
   end
 
   desc "build native gems for windows"

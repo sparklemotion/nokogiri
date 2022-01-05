@@ -27,7 +27,12 @@ fi
 
 set -x
 
-bundle install --local || bundle install
+if [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
+  # TODO remove after ruby-maven 3.3.13 or later is shipped
+  # see https://github.com/jruby/jruby/issues/6904
+  gem install misc/ruby-maven-*.gem --no-document
+fi
+bundle
 bundle list
 bundle list --paths
 bundle exec rake set-version-to-timestamp
