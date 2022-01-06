@@ -10,4 +10,3 @@ CLEAN.add(
   "tmp",
 )
 CLOBBER.add("ports/*").exclude(%r{ports/archives$})
-CLOBBER.add("gems")

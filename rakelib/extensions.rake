@@ -306,7 +306,7 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
-      RakeCompilerDock.sh(<<~EOT, platform: plat)
+      RakeCompilerDock.sh(<<~EOT, platform: plat, verbose: true)
         rvm use 3.1.0 &&
         gem install bundler --no-document &&
         bundle &&
@@ -328,7 +328,7 @@ namespace "gem" do
   task "jruby" do
     # TODO: remove the ruby-maven bit after ruby-maven 3.3.13 or later is shipped
     # see https://github.com/jruby/jruby/issues/6904
-    RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby")
+    RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby", verbose: true)
       gem install bundler --no-document &&
       gem install misc/ruby-maven-*.gem --no-document &&
       bundle &&
