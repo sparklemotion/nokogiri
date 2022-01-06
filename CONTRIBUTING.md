@@ -311,6 +311,7 @@ A quick checklist:
 - [ ] create a release at https://github.com/sparklemotion/nokogiri/releases and provide sha2 checksums
 - [ ] if security-related, email ruby-security-ann@googlegroups.com and ruby-talk@ruby-lang.org
 - [ ] update nokogiri.org
+- [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
 
 
 ## Code of Conduct
