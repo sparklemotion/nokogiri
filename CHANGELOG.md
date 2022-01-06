@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## 1.13.0 / 2022-01-06
 
 ### Notes
 
@@ -67,7 +67,7 @@ A related discussion about Trust exists at [#2357](https://github.com/sparklemot
 
 ### Deprecated
 
-* Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
+* Passing a `Nokogiri::XML::Node` as the second parameter to `Node.new` is deprecated and will generate a warning. This parameter should be a kind of `Nokogiri::XML::Document`. This will become an error in a future version of Nokogiri. [[#975](https://github.com/sparklemotion/nokogiri/issues/975)]
 * `Nokogiri::CSS::Parser`, `Nokogiri::CSS::Tokenizer`, and `Nokogiri::CSS::Node` are now internal-only APIs that are no longer documented, and should not be considered stable. With the introduction of `XPathVisitor` injection into `Nokogiri::CSS.xpath_for` there should be no reason to rely on these internal APIs.
 * CSS-to-XPath utility classes `Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins` are deprecated. Prefer `Nokogiri::CSS::XPathVisitor` with appropriate constructor arguments. These classes will be removed in a future version of Nokogiri.
 
