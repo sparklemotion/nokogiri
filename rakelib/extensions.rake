@@ -3,8 +3,9 @@
 require "rbconfig"
 require "shellwords"
 
-CrossRuby = Struct.new(:version, :host) do
+CrossRuby = Struct.new(:version, :platform) do
   WINDOWS_PLATFORM_REGEX = /mingw|mswin/
+  MINGWUCRT_PLATFORM_REGEX = /mingw-ucrt/
   MINGW32_PLATFORM_REGEX = /mingw32/
   LINUX_PLATFORM_REGEX = /linux/
   X86_LINUX_PLATFORM_REGEX = /x86.*linux/
@@ -40,30 +41,32 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
-  def platform
-    @platform ||= case host
-    when /\Ax86_64.*mingw32/
-      "x64-mingw32"
-    when /\Ai[3-6]86.*mingw32/
-      "x86-mingw32"
-    when /\Ax86_64.*linux/
-      "x86_64-linux"
-    when /\Ai[3-6]86.*linux/
-      "x86-linux"
-    when /\Aaarch64-linux/
+  def host
+    @host ||= case platform
+    when "x64-mingw-ucrt"
+      "x86_64-w64-mingw32"
+    when "x64-mingw32"
+      "x86_64-w64-mingw32"
+    when "x86-mingw32"
+      "i686-w64-mingw32"
+    when "x86_64-linux"
+      "x86_64-linux-gnu"
+    when "x86-linux"
+      "i686-linux-gnu"
+    when "aarch64-linux"
       "aarch64-linux"
-    when /\Ax86_64-darwin/
+    when "x86_64-darwin"
       "x86_64-darwin"
-    when /\Aarm64-darwin/
-      "arm64-darwin"
+    when "arm64-darwin"
+      "aarch64-darwin"
     else
-      raise "CrossRuby.platform: unsupported host: #{host}"
+      raise "CrossRuby.platform: unsupported platform: #{platform}"
     end
   end
 
   def tool(name)
     (@binutils_prefix ||= case platform
-     when "x64-mingw32"
+     when "x64-mingw-ucrt", "x64-mingw32"
        "x86_64-w64-mingw32-"
      when "x86-mingw32"
        "i686-w64-mingw32-"
@@ -71,11 +74,11 @@ CrossRuby = Struct.new(:version, :host) do
        "x86_64-redhat-linux-"
      when "x86-linux"
        "i686-redhat-linux-"
-     when /a.*64.*linux/
+     when "aarch64-linux"
        "aarch64-linux-gnu-"
-     when /x86_64.*darwin/
+     when "x86_64-darwin"
        "x86_64-apple-darwin-"
-     when /a.*64.*darwin/
+     when "arm64-darwin"
        "aarch64-apple-darwin-"
      else
        raise "CrossRuby.tool: unmatched platform: #{platform}"
@@ -84,7 +87,7 @@ CrossRuby = Struct.new(:version, :host) do
 
   def target_file_format
     case platform
-    when "x64-mingw32"
+    when "x64-mingw-ucrt", "x64-mingw32"
       "pei-x86-64"
     when "x86-mingw32"
       "pei-i386"
@@ -113,6 +116,8 @@ CrossRuby = Struct.new(:version, :host) do
 
   def libruby_dll
     case platform
+    when "x64-mingw-ucrt"
+      "x64-ucrt-ruby#{api_ver_suffix}.dll"
     when "x64-mingw32"
       "x64-msvcrt-ruby#{api_ver_suffix}.dll"
     when "x86-mingw32"
@@ -133,6 +138,25 @@ CrossRuby = Struct.new(:version, :host) do
         "advapi32.dll",
         libruby_dll,
       ]
+    when MINGWUCRT_PLATFORM_REGEX
+      [
+        "kernel32.dll",
+        "ws2_32.dll",
+        "advapi32.dll",
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-locale-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-private-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        libruby_dll,
+      ]
     when X86_LINUX_PLATFORM_REGEX
       [
         "libm.so.6",
@@ -145,6 +169,7 @@ CrossRuby = Struct.new(:version, :host) do
       [
         "libm.so.6",
         "libc.so.6",
+        "libdl.so.2", # on old dists only - now in libc
         "ld-linux-aarch64.so.1",
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver < "2.6.0"
@@ -282,7 +307,7 @@ namespace "gem" do
     desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh(<<~EOT, platform: plat)
-        rvm use 3.0 &&
+        rvm use 3.1.0 &&
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
@@ -301,8 +326,14 @@ namespace "gem" do
 
   desc "build a jruby gem"
   task "jruby" do
-    RakeCompilerDock.sh("gem install bundler --no-document && bundle && bundle exec rake java gem",
-      rubyvm: "jruby", platform: "jruby")
+    # TODO: remove the ruby-maven bit after ruby-maven 3.3.13 or later is shipped
+    # see https://github.com/jruby/jruby/issues/6904
+    RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby")
+      gem install bundler --no-document &&
+      gem install misc/ruby-maven-*.gem --no-document &&
+      bundle &&
+      bundle exec rake java gem
+    EOF
   end
 
   desc "build native gems for windows"
@@ -373,6 +404,15 @@ else
       spec.files.reject! { |path| File.fnmatch?("ports/*", path) }
       spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
       spec.dependencies.reject! { |dep| dep.name == "mini_portile2" }
+
+      # I would like rake-compiler to do this, but can't quite figure it out right now
+      supported_rubies = CROSS_RUBIES.select { |c| spec.platform =~ c.platform }
+        .map { |c| Gem::Version.new(c.ver) }
+        .sort
+      spec.required_ruby_version = [
+        ">= #{supported_rubies.first.to_s.split(".").take(2).join(".")}",
+        "< #{supported_rubies.last.to_s.split(".").take(2).join(".").succ}.dev",
+      ]
 
       # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
       # which were copied there in the $INSTALLFILES section of extconf.rb.

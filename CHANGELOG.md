@@ -8,22 +8,26 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notes
 
+#### Ruby
+
+This release introduces native gem support for Ruby 3.1. Please note that Windows users should use the `x64-mingw-ucrt` platform gem for Ruby 3.1, and `x64-mingw32` for Ruby 2.6&ndash;3.0 (see [RubyInstaller 3.1.0 release notes](https://rubyinstaller.org/2021/12/31/rubyinstaller-3.1.0-1-released.html)).
+
+This release ends support for:
+
+* Ruby 2.5, for which [official support ended 2021-03-31](https://www.ruby-lang.org/en/downloads/branches/).
+* JRuby 9.2, which is a Ruby 2.5-compatible release.
+
+
 #### Faster, more reliable installation: Native Gem for ARM64 Linux
 
 This version of Nokogiri ships experimental native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM Linux platforms. We don't yet have CI running for this platform, and so we're interested in hearing back from y'all whether this is working, and what problems you're seeing. Please send us feedback here: [Feedback: Have you used the `aarch64-linux` native gem?](https://github.com/sparklemotion/nokogiri/discussions/2359)
+
 
 #### Publishing
 
 This version of Nokogiri opts-in to the ["MFA required to publish" setting](https://guides.rubygems.org/mfa-requirement-opt-in/) on Rubygems.org. This and all future Nokogiri gem files must be published to Rubygems by an account with multi-factor authentication enabled. This should provide some additional protection against supply-chain attacks.
 
 A related discussion about Trust exists at [#2357](https://github.com/sparklemotion/nokogiri/issues/2357) in which I invite you to participate if you have feelings or opinions on this topic.
-
-#### Ruby
-
-This release ends support for:
-
-* Ruby 2.5, for which [official support ended 2021-03-31](https://www.ruby-lang.org/en/downloads/branches/).
-* JRuby 9.2, which is a Ruby 2.5-compatible release.
 
 
 ### Dependencies

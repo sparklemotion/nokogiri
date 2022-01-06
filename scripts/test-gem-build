@@ -14,24 +14,14 @@ BUILD_NATIVE_GEM=$2
 
 test -e /etc/os-release && cat /etc/os-release
 
-if [[ "${BUILD_NATIVE_GEM}" != "java" ]] ; then
-  rvm use 3.0 # because the default ruby is 2.5 as of rake-compiler-dock 1.1.0
+set -u -x
+
+if [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
+  # TODO remove after ruby-maven 3.3.13 or later is shipped
+  # see https://github.com/jruby/jruby/issues/6904
+  gem install misc/ruby-maven-*.gem --no-document
 fi
-
-set -u
-
-# TODO remove this stanza once https://github.com/rake-compiler/rake-compiler-dock/pull/57 is
-# shipped in a version of rake-compiler-dock
-if [[ "${XRUBIES:-}" != "" ]] ; then
-  # normally part of rake-compiler-dock "runas"
-  . /etc/rubybashrc
-  ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
-  export RAKE_EXTENSION_TASK_NO_NATIVE=true
-fi
-
-set -x
-
-bundle install --local || bundle install
+bundle
 bundle list
 bundle list --paths
 bundle exec rake set-version-to-timestamp

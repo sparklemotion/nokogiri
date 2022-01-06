@@ -40,12 +40,7 @@ Gem::Specification.new do |spec|
 
   spec.license = "MIT"
 
-  if java_p # rubocop:disable Style/ConditionalAssignment
-    # TODO: drop this more-liberal requirement for jruby when https://github.com/jruby/jruby/issues/6904 is fixed
-    spec.required_ruby_version = ">= 2.5.0"
-  else
-    spec.required_ruby_version = ">= 2.6.0" # rubocop:disable Gemspec/DuplicatedAssignment
-  end
+  spec.required_ruby_version = ">= 2.6.0"
 
   spec.homepage = "https://nokogiri.org"
   spec.metadata = {
@@ -332,7 +327,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency("minitest-reporters", "~> 1.4")
   spec.add_development_dependency("rake", "~> 13.0")
   spec.add_development_dependency("rake-compiler", "= 1.1.6")
-  spec.add_development_dependency("rake-compiler-dock", "~> 1.1")
+  spec.add_development_dependency("rake-compiler-dock", "~> 1.2")
   spec.add_development_dependency("rdoc", "~> 6.3")
   spec.add_development_dependency("rexical", "~> 1.0.7")
   spec.add_development_dependency("rubocop", "~> 1.23")
