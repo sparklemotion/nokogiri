@@ -107,19 +107,117 @@ serialize(VALUE self, VALUE xmlobj)
 }
 
 /*
- *  call-seq:
- *    transform(document, params = [])
+ * call-seq:
+ *   transform(document)
+ *   transform(document, params = {})
  *
- *  Apply an XSLT stylesheet to an XML::Document.
- *  +params+ is an array of strings used as XSLT parameters.
- *  returns Nokogiri::XML::Document
+ * Apply an XSLT stylesheet to an XML::Document.
  *
- *  Example:
+ * [Parameters]
+ * - +document+ (Nokogiri::XML::Document) the document to be transformed.
+ * - +params+ (Hash, Array) strings used as XSLT parameters.
  *
- *    doc   = Nokogiri::XML(File.read(ARGV[0]))
- *    xslt  = Nokogiri::XSLT(File.read(ARGV[1]))
- *    puts xslt.transform(doc, ['key', 'value'])
+ * [Returns] Nokogiri::XML::Document
  *
+ * *Example* of basic transformation:
+ *
+ *   xslt = <<~XSLT
+ *     <xsl:stylesheet version="1.0"
+ *     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+ *
+ *     <xsl:param name="title"/>
+ *
+ *     <xsl:template match="/">
+ *       <html>
+ *         <body>
+ *           <h1><xsl:value-of select="$title"/></h1>
+ *           <ol>
+ *             <xsl:for-each select="staff/employee">
+ *               <li><xsl:value-of select="employeeId"></li>
+ *             </xsl:for-each>
+ *           </ol>
+ *         </body>
+ *       </html>
+ *     </xsl:stylesheet>
+ *   XSLT
+ *
+ *   xml = <<~XML
+ *     <?xml version="1.0"?>
+ *     <staff>
+ *       <employee>
+ *         <employeeId>EMP0001</employeeId>
+ *         <position>Accountant</position>
+ *       </employee>
+ *       <employee>
+ *         <employeeId>EMP0002</employeeId>
+ *         <position>Developer</position>
+ *       </employee>
+ *     </staff>
+ *   XML
+ *
+ *   doc = Nokogiri::XML::Document.parse(xml)
+ *   stylesheet = Nokogiri::XSLT.parse(xslt)
+ *
+ * ⚠ Note that the +h1+ element is empty because no param has been provided!
+ *
+ *   stylesheet.transform(doc).to_xml
+ *   # => "<html><body>\n" +
+ *   #    "<h1></h1>\n" +
+ *   #    "<ol>\n" +
+ *   #    "<li>EMP0001</li>\n" +
+ *   #    "<li>EMP0002</li>\n" +
+ *   #    "</ol>\n" +
+ *   #    "</body></html>\n"
+ *
+ * *Example* of using an input parameter hash:
+ *
+ * ⚠ The title is populated, but note how we need to quote-escape the value.
+ *
+ *   stylesheet.transform(doc, { "title" => "'Employee List'" }).to_xml
+ *   # => "<html><body>\n" +
+ *   #    "<h1>Employee List</h1>\n" +
+ *   #    "<ol>\n" +
+ *   #    "<li>EMP0001</li>\n" +
+ *   #    "<li>EMP0002</li>\n" +
+ *   #    "</ol>\n" +
+ *   #    "</body></html>\n"
+ *
+ * *Example* using the XSLT.quote_params helper method to safely quote-escape strings:
+ *
+ *   stylesheet.transform(doc, Nokogiri::XSLT.quote_params({ "title" => "Aaron's List" })).to_xml
+ *   # => "<html><body>\n" +
+ *   #    "<h1>Aaron's List</h1>\n" +
+ *   #    "<ol>\n" +
+ *   #    "<li>EMP0001</li>\n" +
+ *   #    "<li>EMP0002</li>\n" +
+ *   #    "</ol>\n" +
+ *   #    "</body></html>\n"
+ *
+ * *Example* using an array of XSLT parameters
+ *
+ * You can also use an array if you want to.
+ *
+ *   stylesheet.transform(doc, ["title", "'Employee List'"]).to_xml
+ *   # => "<html><body>\n" +
+ *   #    "<h1>Employee List</h1>\n" +
+ *   #    "<ol>\n" +
+ *   #    "<li>EMP0001</li>\n" +
+ *   #    "<li>EMP0002</li>\n" +
+ *   #    "</ol>\n" +
+ *   #    "</body></html>\n"
+ *
+ * Or pass an array to XSLT.quote_params:
+ *
+ *   stylesheet.transform(doc, Nokogiri::XSLT.quote_params(["title", "Aaron's List"])).to_xml
+ *   # => "<html><body>\n" +
+ *   #    "<h1>Aaron's List</h1>\n" +
+ *   #    "<ol>\n" +
+ *   #    "<li>EMP0001</li>\n" +
+ *   #    "<li>EMP0002</li>\n" +
+ *   #    "</ol>\n" +
+ *   #    "</body></html>\n"
+ *
+ * See: Nokogiri::XSLT.quote_params
  */
 static VALUE
 transform(int argc, VALUE *argv, VALUE self)
