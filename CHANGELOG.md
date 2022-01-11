@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.13.1 / unreleased
+
+### Fixed
+
+* Fix `Nokogiri::XSLT.quote_params` regression in v1.13.0 which raised an exception when non-string stylesheet parameters were passed. Non-string parameters (e.g., integers and symbols) are now explicitly supported and both keys and values will be stringified with `#to_s`. [[#2418](https://github.com/sparklemotion/nokogiri/issues/2418)]
+
+
 ## 1.13.0 / 2022-01-06
 
 ### Notes

@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
@@ -34,22 +35,28 @@ module Nokogiri
         end
       end
 
-      ###
-      # Quote parameters in +params+ for stylesheet safety
+      # :call-seq:
+      #   quote_params(params) → Array
+      #
+      # Quote parameters in +params+ for stylesheet safety.
+      # See Nokogiri::XSLT::Stylesheet.transform for example usage.
+      #
+      # [Parameters]
+      # - +params+ (Hash, Array) XSLT parameters (key->value, or tuples of [key, value])
+      #
+      # [Returns] Array of string parameters, with quotes correctly escaped for use with XSLT::Stylesheet.transform
+      #
       def quote_params(params)
-        parray = (params.instance_of?(Hash) ? params.to_a.flatten : params).dup
-        parray.each_with_index do |v, i|
-          parray[i] = if i % 2 > 0
-            if /'/.match?(v)
-              "concat('#{v.gsub(/'/, %q{', "'", '})}')"
-            else
-              "'#{v}'"
-            end
+        params.flatten.each_slice(2).each_with_object([]) do |kv, quoted_params|
+          key, value = kv.map(&:to_s)
+          value = if /'/.match?(value)
+            "concat('#{value.gsub(/'/, %q{', "'", '})}')"
           else
-            v.to_s
+            "'#{value}'"
           end
+          quoted_params << key
+          quoted_params << value
         end
-        parray.flatten
       end
     end
   end
