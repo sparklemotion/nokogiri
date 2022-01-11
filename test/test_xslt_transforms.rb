@@ -4,6 +4,12 @@ require "helper"
 
 class Nokogiri::TestCase
   describe Nokogiri::XSLT::Stylesheet do
+    def check_params(result_doc, params)
+      result_doc.xpath("/root/params/*").each do |p|
+        assert_equal(p.content, params[p.name.intern])
+      end
+    end
+
     let(:doc) { Nokogiri::XML(File.open(XML_FILE)) }
 
     def test_class_methods
@@ -180,25 +186,6 @@ class Nokogiri::TestCase
       assert_equal("Booyah", result_doc.at_css("h1").content)
     end
 
-    def test_quote_params
-      h = {
-        :sym => %{xxx},
-        "str" => %{"xxx"},
-        :sym2 => %{'xxx'},
-        "str2" => %{x'x'x},
-        :sym3 => %{x"x"x},
-      }
-      hh = h.dup
-      result_hash = Nokogiri::XSLT.quote_params(h)
-      assert_equal(hh, h) # non-destructive
-
-      a = h.to_a.flatten
-      result_array = Nokogiri::XSLT.quote_params(a)
-      assert_equal(h.to_a.flatten, a) # non-destructive
-
-      assert_equal(result_array, result_hash)
-    end
-
     def test_exslt
       # see http://yokolet.blogspot.com/2010/10/pure-java-nokogiri-xslt-extension.html")
       skip_unless_libxml2("cannot get it working on JRuby")
@@ -290,12 +277,6 @@ class Nokogiri::TestCase
       xsl = Nokogiri::XSLT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"></xsl:stylesheet>')
       assert_raises(ArgumentError) { xsl.transform("<div></div>") }
       assert_raises(ArgumentError) { xsl.transform(Nokogiri::HTML("").css("body")) }
-    end
-
-    def check_params(result_doc, params)
-      result_doc.xpath("/root/params/*").each do |p|
-        assert_equal(p.content, params[p.name.intern])
-      end
     end
 
     def test_non_html_xslt_transform
@@ -400,6 +381,56 @@ class Nokogiri::TestCase
 
         result = stylesheet.transform(doc)
         assert_equal("<>", result.children.to_xml)
+      end
+    end
+
+    describe "XSLT.quote_params" do
+      it "returns quoted values" do
+        assert_equal(["asdf", "'qwer'"], Nokogiri::XSLT.quote_params({ "asdf" => "qwer" }))
+      end
+
+      it "stringifies non-string keys and values" do
+        assert_equal(["asdf", "'1234'"], Nokogiri::XSLT.quote_params({ asdf: 1234 }))
+        assert_equal(["1234", "'asdf'"], Nokogiri::XSLT.quote_params({ 1234 => :asdf }))
+      end
+
+      it "handles multiple key-value pairs" do
+        actual = Nokogiri::XSLT.quote_params({ "abcd" => "efgh", "ijkl" => "mnop" })
+        expected = ["abcd", "'efgh'", "ijkl", "'mnop'"]
+        assert_equal(expected, actual)
+      end
+
+      it "handles an array of pairs" do
+        actual = Nokogiri::XSLT.quote_params(["abcd", "efgh", "ijkl", "mnop"])
+        expected = ["abcd", "'efgh'", "ijkl", "'mnop'"]
+        assert_equal(expected, actual)
+      end
+
+      it "handles double quotes" do
+        assert_equal(["a", %{'"asdf"'}], Nokogiri::XSLT.quote_params({ "a" => %{"asdf"} }))
+      end
+
+      it "handles single quotes" do
+        actual = Nokogiri::XSLT.quote_params({ "a" => %{'asdf'} })
+        expected = ["a", %{concat('', "'", 'asdf', "'", '')}]
+        assert_equal(expected, actual)
+
+        actual = Nokogiri::XSLT.quote_params({ "a" => %{a'sd'f} })
+        expected = ["a", %{concat('a', "'", 'sd', "'", 'f')}]
+        assert_equal(expected, actual)
+      end
+
+      it "does not change the input parameters" do
+        input_h = { "abcd" => "efgh", "ijkl" => "mnop" }
+        expected_h = input_h.dup
+        input_a = input_h.to_a.flatten
+        expected_a = input_a.dup
+
+        Nokogiri::XSLT.quote_params(input_h)
+        assert_equal(expected_h, input_h)
+
+        Nokogiri::XSLT.quote_params(input_a)
+        assert_equal(expected_a, input_a)
       end
     end
   end
