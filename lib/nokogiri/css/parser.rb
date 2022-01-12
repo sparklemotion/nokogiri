@@ -422,42 +422,34 @@ end
 # reduce 12 omitted
 
 def _reduce_13(val, _values, result)
-      result = Node.new(:CONDITIONAL_SELECTOR, val)
-
+ result = Node.new(:CONDITIONAL_SELECTOR, val)
     result
 end
 
 def _reduce_14(val, _values, result)
-      result = Node.new(:CONDITIONAL_SELECTOR, val)
-
+ result = Node.new(:CONDITIONAL_SELECTOR, val)
     result
 end
 
 def _reduce_15(val, _values, result)
-      result = Node.new(:CONDITIONAL_SELECTOR,
-        [Node.new(:ELEMENT_NAME, ['*']), val[0]]
-      )
-
+ result = Node.new(:CONDITIONAL_SELECTOR, [Node.new(:ELEMENT_NAME, ['*']), val[0]])
     result
 end
 
 # reduce 16 omitted
 
 def _reduce_17(val, _values, result)
-      result = Node.new(val[0], [nil, val[1]])
-
+ result = Node.new(val[0], [nil, val[1]])
     result
 end
 
 def _reduce_18(val, _values, result)
-      result = Node.new(val[1], [val[0], val[2]])
-
+ result = Node.new(val[1], [val[0], val[2]])
     result
 end
 
 def _reduce_19(val, _values, result)
-      result = Node.new(:DESCENDANT_SELECTOR, [val[0], val[2]])
-
+ result = Node.new(:DESCENDANT_SELECTOR, [val[0], val[2]])
     result
 end
 
@@ -476,10 +468,7 @@ def _reduce_23(val, _values, result)
 end
 
 def _reduce_24(val, _values, result)
-      result = Node.new(:ELEMENT_NAME,
-        [[val[0], val[2]].compact.join(':')]
-      )
-
+ result = Node.new(:ELEMENT_NAME, [[val[0], val[2]].compact.join(':')])
     result
 end
 
@@ -498,43 +487,30 @@ end
 # reduce 27 omitted
 
 def _reduce_28(val, _values, result)
-      result = Node.new(:ATTRIBUTE_CONDITION,
-        [val[1]] + (val[2] || [])
-      )
+      result = Node.new(:ATTRIBUTE_CONDITION, [val[1]] + (val[2] || []))
 
     result
 end
 
 def _reduce_29(val, _values, result)
-      result = Node.new(:ATTRIBUTE_CONDITION,
-        [val[1]] + (val[2] || [])
-      )
+      result = Node.new(:ATTRIBUTE_CONDITION, [val[1]] + (val[2] || []))
 
     result
 end
 
 def _reduce_30(val, _values, result)
-      # non-standard, from hpricot
-      result = Node.new(:PSEUDO_CLASS,
-        [Node.new(:FUNCTION, ['nth-child(', val[1]])]
-      )
+      result = Node.new(:PSEUDO_CLASS, [Node.new(:FUNCTION, ['nth-child(', val[1]])])
 
     result
 end
 
 def _reduce_31(val, _values, result)
-      result = Node.new(:ATTRIB_NAME,
-        [[val[0], val[2]].compact.join(':')]
-      )
-
+ result = Node.new(:ATTRIB_NAME, [[val[0], val[2]].compact.join(':')])
     result
 end
 
 def _reduce_32(val, _values, result)
-      # Default namespace is not applied to attributes.
-      # So we don't add prefix "xmlns:" as in namespaced_ident.
-      result = Node.new(:ATTRIB_NAME, [val[0]])
-
+ result = Node.new(:ATTRIB_NAME, [val[0]])
     result
 end
 

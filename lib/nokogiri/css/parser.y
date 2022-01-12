@@ -38,33 +38,19 @@ rule
                 end
     }
   | function
-  | function pseudo {
-      result = Node.new(:CONDITIONAL_SELECTOR, val)
-    }
-  | function attrib {
-      result = Node.new(:CONDITIONAL_SELECTOR, val)
-    }
-  | hcap_1toN {
-      result = Node.new(:CONDITIONAL_SELECTOR,
-        [Node.new(:ELEMENT_NAME, ['*']), val[0]]
-      )
-    }
+  | function pseudo { result = Node.new(:CONDITIONAL_SELECTOR, val) }
+  | function attrib { result = Node.new(:CONDITIONAL_SELECTOR, val) }
+  | hcap_1toN { result = Node.new(:CONDITIONAL_SELECTOR, [Node.new(:ELEMENT_NAME, ['*']), val[0]]) }
   | xpath_attribute
   ;
 
   prefixless_combinator_selector:
-    combinator simple_selector_1toN {
-      result = Node.new(val[0], [nil, val[1]])
-    }
+    combinator simple_selector_1toN { result = Node.new(val[0], [nil, val[1]]) }
   ;
 
   simple_selector_1toN:
-    simple_selector combinator simple_selector_1toN {
-      result = Node.new(val[1], [val[0], val[2]])
-    }
-  | simple_selector S simple_selector_1toN {
-      result = Node.new(:DESCENDANT_SELECTOR, [val[0], val[2]])
-    }
+    simple_selector combinator simple_selector_1toN { result = Node.new(val[1], [val[0], val[2]]) }
+  | simple_selector S simple_selector_1toN { result = Node.new(:DESCENDANT_SELECTOR, [val[0], val[2]]) }
   | simple_selector
   ;
 
@@ -78,11 +64,7 @@ rule
   ;
 
   namespaced_ident:
-    namespace '|' IDENT {
-      result = Node.new(:ELEMENT_NAME,
-        [[val[0], val[2]].compact.join(':')]
-      )
-    }
+    namespace '|' IDENT { result = Node.new(:ELEMENT_NAME, [[val[0], val[2]].compact.join(':')]) }
   | IDENT {
       name = @namespaces.key?('xmlns') ? "xmlns:#{val[0]}" : val[0]
       result = Node.new(:ELEMENT_NAME, [name])
@@ -96,34 +78,19 @@ rule
 
   attrib:
     LSQUARE attrib_name attrib_val_0or1 RSQUARE {
-      result = Node.new(:ATTRIBUTE_CONDITION,
-        [val[1]] + (val[2] || [])
-      )
+      result = Node.new(:ATTRIBUTE_CONDITION, [val[1]] + (val[2] || []))
     }
   | LSQUARE function attrib_val_0or1 RSQUARE {
-      result = Node.new(:ATTRIBUTE_CONDITION,
-        [val[1]] + (val[2] || [])
-      )
+      result = Node.new(:ATTRIBUTE_CONDITION, [val[1]] + (val[2] || []))
     }
   | LSQUARE NUMBER RSQUARE {
-      # non-standard, from hpricot
-      result = Node.new(:PSEUDO_CLASS,
-        [Node.new(:FUNCTION, ['nth-child(', val[1]])]
-      )
+      result = Node.new(:PSEUDO_CLASS, [Node.new(:FUNCTION, ['nth-child(', val[1]])])
     }
   ;
 
   attrib_name:
-    namespace '|' IDENT {
-      result = Node.new(:ATTRIB_NAME,
-        [[val[0], val[2]].compact.join(':')]
-      )
-    }
-  | IDENT {
-      # Default namespace is not applied to attributes.
-      # So we don't add prefix "xmlns:" as in namespaced_ident.
-      result = Node.new(:ATTRIB_NAME, [val[0]])
-    }
+    namespace '|' IDENT { result = Node.new(:ATTRIB_NAME, [[val[0], val[2]].compact.join(':')]) }
+  | IDENT { result = Node.new(:ATTRIB_NAME, [val[0]]) }
   | xpath_attribute
   ;
 
