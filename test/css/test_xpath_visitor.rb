@@ -300,7 +300,9 @@ class TestNokogiri < Nokogiri::TestCase
         assert_xpath("//a[active(.)]", parser.parse("a:active"))
 
         assert_xpath("//a[foo(.,@href)]", parser.parse("a:foo(@href)"))
+        assert_xpath("//a[foo(.,@href,@id)]", parser.parse("a:foo(@href, @id)"))
         assert_xpath("//a[foo(.,@a,b)]", parser.parse("a:foo(@a, b)"))
+        assert_xpath("//a[foo(.,a,@b)]", parser.parse("a:foo(a, @b)"))
         assert_xpath("//a[foo(.,a,10)]", parser.parse("a:foo(a, 10)"))
         assert_xpath("//a[foo(.,42)]", parser.parse("a:foo(42)"))
         assert_xpath("//a[foo(.,'bar')]", parser.parse("a:foo('bar')"))

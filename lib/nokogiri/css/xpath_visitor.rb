@@ -128,8 +128,11 @@ module Nokogiri
           is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
           ".#{"//" unless is_direct}#{node.value[1].accept(self)}"
         else
-          # non-standard. this looks like a function call.
-          args = ["."] + node.value[1..-1]
+          # xpath function call, let's marshal those arguments
+          args = ["."]
+          args += node.value[1..-1].map do |n|
+            n.is_a?(Nokogiri::CSS::Node) ? n.accept(self) : n
+          end
           "#{node.value.first}#{args.join(",")})"
         end
       end
@@ -149,17 +152,8 @@ module Nokogiri
       end
 
       def visit_attribute_condition(node)
-        attribute = if (node.value.first.type == :FUNCTION) || (node.value.first.value.first =~ /::/)
-          ""
-        else
-          "@"
-        end
-        attribute += node.value.first.accept(self)
-
-        # non-standard. attributes starting with '@'
-        attribute.gsub!(/^@@/, "@")
-
-        return attribute unless node.value.length == 3
+        attribute = node.value.first.accept(self)
+        return attribute if node.value.length == 1
 
         value = node.value.last
         value = "'#{value}'" unless /^['"]/.match?(value)
@@ -267,7 +261,7 @@ module Nokogiri
       end
 
       def visit_attrib_name(node)
-        node.value.first
+        "@#{node.value.first}"
       end
 
       def accept(node)
