@@ -362,6 +362,48 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
           expected = doc.css("div")
           assert_equal(expected, result)
         end
+
+        it "handles xpath attribute selectors" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <div class="first">
+                <span class="child"></span>
+              </div>
+              <div class="second"></div>
+              <div class="third"></div>
+              <div class="fourth"></div>
+            </body></html>
+          HTML
+
+          result = doc.css("div > @class")
+          assert_equal(["first", "second", "third", "fourth"], result.map(&:to_s))
+
+          result = doc.css("div/@class")
+          assert_equal(["first", "second", "third", "fourth"], result.map(&:to_s))
+
+          result = doc.css("div @class")
+          assert_equal(["first", "child", "second", "third", "fourth"], result.map(&:to_s))
+        end
+
+        it "handles xpath functions" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <div>first<span>child</span></div>
+              <div>second</div>
+              <div>third</div>
+              <div>fourth</div>
+            </body></html>
+          HTML
+
+          result = doc.css("div > text()")
+          assert_equal(["first", "second", "third", "fourth"], result.map(&:to_s))
+
+          result = doc.css("div/text()")
+          assert_equal(["first", "second", "third", "fourth"], result.map(&:to_s))
+
+          result = doc.css("div text()")
+          assert_equal(["first", "child", "second", "third", "fourth"], result.map(&:to_s))
+        end
       end
     end
   end

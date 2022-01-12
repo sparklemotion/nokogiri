@@ -21,6 +21,14 @@ rule
   | SLASH { result = :CHILD_SELECTOR }
   ;
 
+  xpath_attribute_name:
+    '@' IDENT { result = val.join }
+  ;
+
+  xpath_attribute:
+    xpath_attribute_name { result = Node.new(:ATTRIB_NAME, [val[0]]) }
+  ;
+
   simple_selector:
     element_name hcap_0toN {
       result =  if val[1].nil?
@@ -41,6 +49,7 @@ rule
         [Node.new(:ELEMENT_NAME, ['*']), val[0]]
       )
     }
+  | xpath_attribute
   ;
 
   prefixless_combinator_selector:
@@ -115,6 +124,7 @@ rule
       # So we don't add prefix "xmlns:" as in namespaced_ident.
       result = Node.new(:ATTRIB_NAME, [val[0]])
     }
+  | xpath_attribute
   ;
 
   function:
@@ -139,6 +149,7 @@ rule
     NUMBER COMMA expr { result = [val[0], val[2]] }
   | STRING COMMA expr { result = [val[0], val[2]] }
   | IDENT COMMA expr { result = [val[0], val[2]] }
+  | xpath_attribute_name COMMA expr { result = [val[0], val[2]] }
   | NUMBER
   | STRING
   | IDENT {
@@ -153,6 +164,7 @@ rule
         result = val
       end
     }
+  | xpath_attribute_name
   ;
 
   nth:

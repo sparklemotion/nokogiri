@@ -37,5 +37,13 @@ class TestNokogiri < Nokogiri::TestCase
           [:FUNCTION, ["nth-child("], ["2"]],],], asts.first.to_a
       )
     end
+
+    it "parses xpath attributes" do
+      ast = parser.parse("a/@href").first
+      assert_equal(
+        [:CHILD_SELECTOR, [:ELEMENT_NAME, ["a"]], [:ATTRIB_NAME, ["@href"]]],
+        ast.to_a
+      )
+    end
   end
 end
