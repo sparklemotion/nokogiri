@@ -22,7 +22,7 @@ rule
   ;
 
   xpath_attribute_name:
-    '@' IDENT { result = val.join }
+    '@' IDENT { result = val[1] }
   ;
 
   xpath_attribute:
@@ -149,7 +149,7 @@ rule
     NUMBER COMMA expr { result = [val[0], val[2]] }
   | STRING COMMA expr { result = [val[0], val[2]] }
   | IDENT COMMA expr { result = [val[0], val[2]] }
-  | xpath_attribute_name COMMA expr { result = [val[0], val[2]] }
+  | xpath_attribute COMMA expr { result = [val[0], val[2]] }
   | NUMBER
   | STRING
   | IDENT {
@@ -164,7 +164,7 @@ rule
         result = val
       end
     }
-  | xpath_attribute_name
+  | xpath_attribute
   ;
 
   nth:

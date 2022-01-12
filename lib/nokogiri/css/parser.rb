@@ -121,32 +121,32 @@ racc_action_default = [
    -29,   -31,   -39,   -82,   -40,   -41,   -48,   -42,   -47 ]
 
 racc_goto_table = [
-    58,    42,    13,     1,    46,    52,    15,    68,    37,    71,
-    55,    39,    15,    69,    41,    15,    73,    74,    75,    76,
-    77,    44,    68,    81,    90,    45,    54,    51,    69,    15,
-    59,   nil,    70,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
-   nil,   nil,   nil,   nil,   nil,    78,    79,   nil,   nil,    15,
-    15,   nil,   nil,   104,   nil,   nil,   nil,   nil,   nil,   nil,
+    58,    42,    13,     1,    46,    52,    19,    68,    37,    71,
+    41,    39,    19,    69,    44,    19,    73,    74,    75,    76,
+    77,    45,    68,    81,    90,    54,    51,    59,    69,    55,
+   nil,   nil,    70,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,    78,    79,   nil,   nil,    19,
+    19,   nil,   nil,   104,   nil,   nil,   nil,   nil,   nil,   nil,
    nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   112,
    nil,   114,   115,   nil,   117 ]
 
 racc_goto_check = [
-    20,    14,     2,     1,     5,    11,     6,     9,     2,    11,
-     7,     2,     6,    14,    10,     6,    14,    14,    14,    14,
-    14,    12,     9,    19,    19,    13,    17,    18,    14,     6,
-    21,   nil,     1,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
-   nil,   nil,   nil,   nil,   nil,     2,     2,   nil,   nil,     6,
-     6,   nil,   nil,    14,   nil,   nil,   nil,   nil,   nil,   nil,
+    20,    14,     2,     1,     5,    11,     7,     9,     2,    11,
+    10,     2,     7,    14,    12,     7,    14,    14,    14,    14,
+    14,    13,     9,    19,    19,    17,    18,    21,    14,     7,
+   nil,   nil,     1,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,     2,     2,   nil,   nil,     7,
+     7,   nil,   nil,    14,   nil,   nil,   nil,   nil,   nil,   nil,
    nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,    20,
    nil,    20,    20,   nil,    20 ]
 
 racc_goto_pointer = [
-   nil,     3,    -1,   nil,   nil,   -16,     3,   -16,   nil,   -21,
-    -2,   -21,     4,     8,   -15,   nil,   nil,     0,     1,   -28,
-   -27,     3,   nil,   nil,   nil,   nil ]
+   nil,     3,    -1,   nil,   nil,   -16,   nil,     3,   nil,   -21,
+    -6,   -21,    -3,     4,   -15,   nil,   nil,    -1,     0,   -28,
+   -27,     0,   nil,   nil,   nil,   nil ]
 
 racc_goto_default = [
-   nil,   nil,   nil,     2,     3,     9,    63,    19,    20,    16,
+   nil,   nil,   nil,     2,     3,     9,    15,    63,    20,    16,
    nil,    17,    34,    33,    18,    32,    22,    24,   nil,   nil,
     65,   nil,    31,    35,    82,    67 ]
 
@@ -400,7 +400,7 @@ def _reduce_8(val, _values, result)
 end
 
 def _reduce_9(val, _values, result)
- result = val.join
+ result = val[1]
     result
 end
 
