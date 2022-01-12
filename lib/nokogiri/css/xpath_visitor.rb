@@ -249,10 +249,7 @@ module Nokogiri
       end
 
       def visit_element_name(node)
-        if @doctype == DoctypeConfig::HTML5 && node.value.first != "*"
-          # if there is already a namespace, use it as normal
-          return node.value.first if node.value.first.include?(":")
-
+        if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
@@ -278,6 +275,13 @@ module Nokogiri
       end
 
       private
+
+      def html5_element_name_needs_namespace_handling(node)
+        # if this is the wildcard selector "*", use it as normal
+        node.value.first != "*" &&
+          # if there is already a namespace (i.e., it is a prefixed QName), use it as normal
+          !node.value.first.include?(":")
+      end
 
       def nth(node, options = {})
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
