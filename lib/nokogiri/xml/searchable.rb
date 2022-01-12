@@ -6,7 +6,7 @@ module Nokogiri
     #
     #  The Searchable module declares the interface used for searching your DOM.
     #
-    #  It implements the public methods `search`, `css`, and `xpath`,
+    #  It implements the public methods #search, #css, and #xpath,
     #  as well as allowing specific implementations to specialize some
     #  of the important behaviors.
     #
@@ -30,25 +30,22 @@ module Nokogiri
       #   node.search('.//bike:tire', {'bike' => 'http://schwinn.com/'})
       #   node.search('bike|tire', {'bike' => 'http://schwinn.com/'})
       #
-      # For XPath queries, a hash of variable bindings may also be
-      # appended to the namespace bindings. For example:
+      # For XPath queries, a hash of variable bindings may also be appended to the namespace
+      # bindings. For example:
       #
       #   node.search('.//address[@domestic=$value]', nil, {:value => 'Yes'})
       #
-      # Custom XPath functions and CSS pseudo-selectors may also be
-      # defined. To define custom functions create a class and
-      # implement the function you want to define.  The first argument
-      # to the method will be the current matching NodeSet.  Any other
-      # arguments are ones that you pass in.  Note that this class may
-      # appear anywhere in the argument list.  For example:
+      # 💡 Custom XPath functions and CSS pseudo-selectors may also be defined. To define custom
+      # functions create a class and implement the function you want to define. The first argument
+      # to the method will be the current matching NodeSet. Any other arguments are ones that you
+      # pass in. Note that this class may appear anywhere in the argument list. For example:
       #
-      #   node.search('.//title[regex(., "\w+")]', 'div.employee:regex("[0-9]+")'
-      #     Class.new {
-      #       def regex node_set, regex
-      #         node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #       end
-      #     }.new
-      #   )
+      #   handler = Class.new {
+      #     def regex node_set, regex
+      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
+      #     end
+      #   }.new
+      #   node.search('.//title[regex(., "\w+")]', 'div.employee:regex("[0-9]+")', handler)
       #
       # See Searchable#xpath and Searchable#css for further usage help.
       def search(*args)
@@ -92,25 +89,40 @@ module Nokogiri
       #
       #   node.css('bike|tire', {'bike' => 'http://schwinn.com/'})
       #
-      # Custom CSS pseudo classes may also be defined.  To define
-      # custom pseudo classes, create a class and implement the custom
-      # pseudo class you want defined.  The first argument to the
-      # method will be the current matching NodeSet.  Any other
-      # arguments are ones that you pass in.  For example:
+      # 💡 Custom CSS pseudo classes may also be defined which are mapped to a custom XPath
+      # function.  To define custom pseudo classes, create a class and implement the custom pseudo
+      # class you want defined. The first argument to the method will be the matching context
+      # NodeSet. Any other arguments are ones that you pass in. For example:
       #
-      #   node.css('title:regex("\w+")', Class.new {
-      #     def regex node_set, regex
+      #   handler = Class.new {
+      #     def regex(node_set, regex)
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
-      #   }.new)
+      #   }.new
+      #   node.css('title:regex("\w+")', handler)
       #
-      # Note that the CSS query string is case-sensitive with regards
-      # to your document type. That is, if you're looking for "H1" in
-      # an HTML document, you'll never find anything, since HTML tags
-      # will match only lowercase CSS queries. However, "H1" might be
-      # found in an XML document, where tags names are case-sensitive
-      # (e.g., "H1" is distinct from "h1").
+      # 💡 Some XPath syntax is supported in CSS queries. For example, to query for an attribute:
       #
+      #   node.css('img > @href') # returns all +href+ attributes on an +img+ element
+      #   node.css('img / @href') # same
+      #
+      #   # ⚠ this returns +class+ attributes from all +div+ elements AND THEIR CHILDREN!
+      #   node.css('div @class')
+      #
+      #   node.css
+      #
+      # 💡 Array-like syntax is supported in CSS queries as an alternative to using +:nth-child()+.
+      #
+      # ⚠ NOTE that indices are 1-based like +:nth-child+ and not 0-based like Ruby Arrays. For
+      # example:
+      #
+      #   # equivalent to 'li:nth-child(2)'
+      #   node.css('li[2]') # retrieve the second li element in a list
+      #
+      # ⚠ NOTE that the CSS query string is case-sensitive with regards to your document type. HTML
+      # tags will match only lowercase CSS queries, so if you search for "H1" in an HTML document,
+      # you'll never find anything. However, "H1" might be found in an XML document, where tags
+      # names are case-sensitive (e.g., "H1" is distinct from "h1").
       def css(*args)
         rules, handler, ns, _ = extract_params(args)
 
@@ -147,18 +159,17 @@ module Nokogiri
       #
       #   node.xpath('.//address[@domestic=$value]', nil, {:value => 'Yes'})
       #
-      # Custom XPath functions may also be defined.  To define custom
-      # functions create a class and implement the function you want
-      # to define.  The first argument to the method will be the
-      # current matching NodeSet.  Any other arguments are ones that
-      # you pass in.  Note that this class may appear anywhere in the
-      # argument list.  For example:
+      # 💡 Custom XPath functions may also be defined. To define custom functions create a class and
+      # implement the function you want to define. The first argument to the method will be the
+      # current matching NodeSet. Any other arguments are ones that you pass in. Note that this
+      # class may appear anywhere in the argument list. For example:
       #
-      #   node.xpath('.//title[regex(., "\w+")]', Class.new {
-      #     def regex node_set, regex
+      #   handler = Class.new {
+      #     def regex(node_set, regex)
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
-      #   }.new)
+      #   }.new
+      #   node.xpath('.//title[regex(., "\w+")]', handler)
       #
       def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
