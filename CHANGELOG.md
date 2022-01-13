@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.13.1 / 2022-01-13
+
+### Fixed
+
+* Fix `Nokogiri::XSLT.quote_params` regression in v1.13.0 that raised an exception when non-string stylesheet parameters were passed. Non-string parameters (e.g., integers and symbols) are now explicitly supported and both keys and values will be stringified with `#to_s`. [[#2418](https://github.com/sparklemotion/nokogiri/issues/2418)]
+* Fix CSS selector query regression in v1.13.0 that raised an `Nokogiri::XML::XPath::SyntaxError` when parsing XPath attributes mixed into the CSS query. Although this mash-up of XPath and CSS syntax previously worked unintentionally, it is now an officially supported feature and is documented as such. [[#2419](https://github.com/sparklemotion/nokogiri/issues/2419)]
+
+
 ## 1.13.0 / 2022-01-06
 
 ### Notes
