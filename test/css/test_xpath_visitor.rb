@@ -300,7 +300,9 @@ class TestNokogiri < Nokogiri::TestCase
         assert_xpath("//a[active(.)]", parser.parse("a:active"))
 
         assert_xpath("//a[foo(.,@href)]", parser.parse("a:foo(@href)"))
+        assert_xpath("//a[foo(.,@href,@id)]", parser.parse("a:foo(@href, @id)"))
         assert_xpath("//a[foo(.,@a,b)]", parser.parse("a:foo(@a, b)"))
+        assert_xpath("//a[foo(.,a,@b)]", parser.parse("a:foo(a, @b)"))
         assert_xpath("//a[foo(.,a,10)]", parser.parse("a:foo(a, 10)"))
         assert_xpath("//a[foo(.,42)]", parser.parse("a:foo(42)"))
         assert_xpath("//a[foo(.,'bar')]", parser.parse("a:foo('bar')"))
@@ -371,6 +373,10 @@ class TestNokogiri < Nokogiri::TestCase
       it "handles text() (non-standard)" do
         assert_xpath("//a[child::text()]", parser.parse("a[text()]"))
         assert_xpath("//child::text()", parser.parse("text()"))
+        assert_xpath("//a//child::text()", parser.parse("a text()"))
+        assert_xpath("//a/child::text()", parser.parse("a / text()"))
+        assert_xpath("//a/child::text()", parser.parse("a > text()"))
+        assert_xpath("//a//child::text()", parser.parse("a text()"))
       end
 
       it "handles comment() (non-standard)" do
@@ -615,12 +621,24 @@ class TestNokogiri < Nokogiri::TestCase
         it "avoids the wildcard when using namespaces" do
           assert_xpath("//ns1:foo", parser.parse("ns1|foo"))
         end
+
+        it "avoids the wildcard when using attribute selectors" do
+          if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
+            assert_xpath("//*:a/@href", parser.parse("a/@href"))
+          else
+            assert_xpath("//*[nokogiri-builtin:local-name-is('a')]/@href", parser.parse("a/@href"))
+          end
+        end
       end
 
       describe "builtins:never" do
         let(:builtins) { Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER }
         it "matches on the element's local-name, ignoring namespaces" do
           assert_xpath("//*[local-name()='foo']", parser.parse("foo"))
+        end
+
+        it "avoids the wildcard when using attribute selectors" do
+          assert_xpath("//*[local-name()='a']/@href", parser.parse("a/@href"))
         end
       end
 

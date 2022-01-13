@@ -128,8 +128,11 @@ module Nokogiri
           is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
           ".#{"//" unless is_direct}#{node.value[1].accept(self)}"
         else
-          # non-standard. this looks like a function call.
-          args = ["."] + node.value[1..-1]
+          # xpath function call, let's marshal those arguments
+          args = ["."]
+          args += node.value[1..-1].map do |n|
+            n.is_a?(Nokogiri::CSS::Node) ? n.accept(self) : n
+          end
           "#{node.value.first}#{args.join(",")})"
         end
       end
@@ -149,17 +152,8 @@ module Nokogiri
       end
 
       def visit_attribute_condition(node)
-        attribute = if (node.value.first.type == :FUNCTION) || (node.value.first.value.first =~ /::/)
-          ""
-        else
-          "@"
-        end
-        attribute += node.value.first.accept(self)
-
-        # non-standard. attributes starting with '@'
-        attribute.gsub!(/^@@/, "@")
-
-        return attribute unless node.value.length == 3
+        attribute = node.value.first.accept(self)
+        return attribute if node.value.length == 1
 
         value = node.value.last
         value = "'#{value}'" unless /^['"]/.match?(value)
@@ -249,10 +243,7 @@ module Nokogiri
       end
 
       def visit_element_name(node)
-        if @doctype == DoctypeConfig::HTML5 && node.value.first != "*"
-          # if there is already a namespace, use it as normal
-          return node.value.first if node.value.first.include?(":")
-
+        if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
@@ -270,7 +261,7 @@ module Nokogiri
       end
 
       def visit_attrib_name(node)
-        node.value.first
+        "@#{node.value.first}"
       end
 
       def accept(node)
@@ -278,6 +269,13 @@ module Nokogiri
       end
 
       private
+
+      def html5_element_name_needs_namespace_handling(node)
+        # if this is the wildcard selector "*", use it as normal
+        node.value.first != "*" &&
+          # if there is already a namespace (i.e., it is a prefixed QName), use it as normal
+          !node.value.first.include?(":")
+      end
 
       def nth(node, options = {})
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4

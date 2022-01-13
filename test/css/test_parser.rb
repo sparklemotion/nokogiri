@@ -24,7 +24,8 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME],
          [:PSEUDO_CLASS,
-          [:FUNCTION],],], ast.to_type
+          [:FUNCTION],],],
+        ast.to_type
       )
     end
 
@@ -34,7 +35,52 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME, ["a"]],
          [:PSEUDO_CLASS,
-          [:FUNCTION, ["nth-child("], ["2"]],],], asts.first.to_a
+          [:FUNCTION, ["nth-child("], ["2"]],],],
+        asts.first.to_a
+      )
+    end
+
+    it "parses xpath attributes in conditional selectors" do
+      ast = parser.parse("a[@class~=bar]").first
+      assert_equal(
+        [:CONDITIONAL_SELECTOR,
+         [:ELEMENT_NAME, ["a"]],
+         [:ATTRIBUTE_CONDITION,
+          [:ATTRIB_NAME, ["class"]],
+          [:includes],
+          ["bar"],],],
+        ast.to_a
+      )
+    end
+
+    it "parses xpath attributes" do
+      ast = parser.parse("a/@href").first
+      assert_equal(
+        [:CHILD_SELECTOR, [:ELEMENT_NAME, ["a"]], [:ATTRIB_NAME, ["href"]]],
+        ast.to_a
+      )
+    end
+
+    it "parses xpath attributes passed to xpath functions" do
+      ast = parser.parse("a:foo(@href)").first
+      assert_equal(
+        [:CONDITIONAL_SELECTOR,
+         [:ELEMENT_NAME, ["a"]],
+         [:PSEUDO_CLASS,
+          [:FUNCTION, ["foo("],
+           [:ATTRIB_NAME, ["href"]],],],],
+        ast.to_a,
+      )
+
+      ast = parser.parse("a:foo(@href,@id)").first
+      assert_equal(
+        [:CONDITIONAL_SELECTOR,
+         [:ELEMENT_NAME, ["a"]],
+         [:PSEUDO_CLASS,
+          [:FUNCTION, ["foo("],
+           [:ATTRIB_NAME, ["href"]],
+           [:ATTRIB_NAME, ["id"]],],],],
+        ast.to_a,
       )
     end
   end

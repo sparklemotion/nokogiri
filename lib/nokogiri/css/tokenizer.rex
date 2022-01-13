@@ -13,7 +13,7 @@ macro
   escape    {unicode}|\\[^\n\r\f0-9A-Fa-f]
   nmchar    [_A-Za-z0-9-]|{nonascii}|{escape}
   nmstart   [_A-Za-z]|{nonascii}|{escape}
-  ident     [-@]?({nmstart})({nmchar})*
+  ident     -?({nmstart})({nmchar})*
   name      ({nmchar})+
   string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*"
   string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*'
