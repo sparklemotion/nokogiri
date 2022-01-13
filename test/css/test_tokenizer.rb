@@ -19,6 +19,14 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def assert_tokens(tokens, scanner)
+        toks = []
+        while (tok = @scanner.next_token)
+          toks << tok
+        end
+        assert_equal(tokens, toks)
+      end
+
       def test_has
         @scanner.scan("a:has(b)")
         assert_tokens(
@@ -189,12 +197,16 @@ module Nokogiri
                        [:RSQUARE, "]"],], @scanner)
       end
 
-      def assert_tokens(tokens, scanner)
-        toks = []
-        while (tok = @scanner.next_token)
-          toks << tok
-        end
-        assert_equal(tokens, toks)
+      def test_xpath_attributes
+        @scanner.scan("a/@href")
+        assert_tokens([[:IDENT, "a"], [:SLASH, "/"], ["@", "@"], [:IDENT, "href"]],
+          @scanner)
+      end
+
+      def test_xpath_functions
+        @scanner.scan("a/text()")
+        assert_tokens([[:IDENT, "a"], [:SLASH, "/"], [:FUNCTION, "text("], [:RPAREN, ")"]],
+          @scanner)
       end
     end
   end
