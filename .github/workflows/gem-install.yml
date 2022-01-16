@@ -138,8 +138,6 @@ jobs:
           - "x86_64-darwin"
           - "x86_64-linux"
     runs-on: ubuntu-latest
-    container:
-      image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -148,7 +146,10 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: "./scripts/test-gem-build gems ${{matrix.plat}}"
+      - run: |
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0 \
+            ./scripts/test-gem-build gems ${{matrix.plat}}
       - uses: actions/upload-artifact@v2
         with:
           name: "cruby-${{matrix.plat}}-gem"
