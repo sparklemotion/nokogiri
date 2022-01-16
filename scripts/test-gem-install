@@ -29,6 +29,7 @@ if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
   export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
 fi
 
+gem install bundler -v "~> 2.2"
 bundle install --local || bundle install
 
 rm -rf lib ext # ensure we don't use the local files
