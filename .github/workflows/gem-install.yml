@@ -132,7 +132,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32", "x64-mingw-ucrt"]
+        plat:
+          - "x64-mingw-ucrt"
+          - "x64-mingw32"
+          - "x86_64-darwin"
+          - "x86_64-linux"
     runs-on: ubuntu-latest
     container:
       image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0"
