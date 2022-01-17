@@ -132,10 +132,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        plat: ["x86_64-linux", "x86_64-darwin", "x64-mingw32", "x64-mingw-ucrt"]
+        plat:
+          - "aarch64-linux"
+          # - "arm64-darwin" # github actions does not support this as of 2022-01
+          - "x64-mingw-ucrt"
+          - "x64-mingw32"
+          - "x86-linux"
+          # - "x86-mingw32" # github actions does not support this as of 2022-01
+          - "x86_64-darwin"
+          - "x86_64-linux"
     runs-on: ubuntu-latest
-    container:
-      image: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -144,12 +150,59 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: "./scripts/test-gem-build gems ${{matrix.plat}}"
+      - run: |
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0 \
+            ./scripts/test-gem-build gems ${{matrix.plat}}
       - uses: actions/upload-artifact@v2
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
           retention-days: 1
+
+  cruby-x86-linux-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-x86-linux-gem
+          path: gems
+      - run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            --platform=linux/386 \
+            ruby:${{matrix.ruby}} \
+            ./scripts/test-gem-install gems
+
+  cruby-aarch64-linux-install:
+    needs: ["cruby-native-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["2.6", "2.7", "3.0", "3.1"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v2
+        with:
+          name: cruby-aarch64-linux-gem
+          path: gems
+      - run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            --platform=linux/arm64/v8 \
+            ruby:${{matrix.ruby}} \
+            ./scripts/test-gem-install gems
 
   cruby-x86_64-linux-install:
     needs: ["cruby-native-package"]
