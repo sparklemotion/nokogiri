@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.14.0 / unreleased
+
+#### Faster, more reliable installation: Native Gem for ARM64 Linux
+
+This version of Nokogiri ships full native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
+
+
 ## 1.13.1 / 2022-01-13
 
 ### Fixed
