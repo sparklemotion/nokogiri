@@ -119,9 +119,12 @@ Requirements:
 
 Nokogiri ships pre-compiled, "native" gems for the following platforms:
 
-- Linux: `x86-linux` and `x86_64-linux` (req: `glibc >= 2.17`), including musl platforms like Alpine
+- Linux:
+  - `x86-linux` and `x86_64-linux` (req: `glibc >= 2.17`)
+  - `aarch64-linux` (req: `glibc >= 2.29`)
+  - Note that musl platforms like Alpine are supported
 - Darwin/MacOS: `x86_64-darwin` and `arm64-darwin`
-- Windows: `x86-mingw32` and `x64-mingw32`
+- Windows: `x86-mingw32`, `x64-mingw32`, and `x64-mingw-ucrt`
 - Java: any platform running JRuby 9.3 or higher
 
 To determine whether your system supports one of these gems, look at the output of `bundle platform` or `ruby -e 'puts Gem::Platform.local.to_s'`.

@@ -9,7 +9,8 @@ rescue LoadError => e
   if /GLIBC/.match?(e.message)
     warn(<<~EOM)
 
-      ERROR: It looks like you're trying to use Nokogiri as a precompiled native gem on a system with glibc < 2.17:
+      ERROR: It looks like you're trying to use Nokogiri as a precompiled native gem on a system
+             with an unsupported version of glibc.
 
         #{e.message}
 
