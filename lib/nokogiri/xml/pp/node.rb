@@ -5,6 +5,8 @@ module Nokogiri
     # :nodoc: all
     module PP
       module Node
+        COLLECTIONS = [:attribute_nodes, :children]
+
         def inspect
           attributes = inspect_attributes.reject do |x|
             attribute = send(x)
@@ -25,7 +27,7 @@ module Nokogiri
               [t, send(t)] if respond_to?(t)
             end.compact.find_all do |x|
               if x.last
-                if [:attribute_nodes, :children].include?(x.first)
+                if COLLECTIONS.include?(x.first)
                   !x.last.empty?
                 else
                   true
@@ -34,7 +36,7 @@ module Nokogiri
             end
 
             pp.seplist(attrs) do |v|
-              if [:attribute_nodes, :children].include?(v.first)
+              if COLLECTIONS.include?(v.first)
                 pp.group(2, "#{v.first.to_s.sub(/_\w+$/, "s")} = [", "]") do
                   pp.breakable
                   pp.seplist(v.last) do |item|
