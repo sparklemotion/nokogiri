@@ -4,7 +4,7 @@
 require "helper"
 
 class TestHtml5Encoding < Nokogiri::TestCase
-  if "".respond_to?("encoding")
+  if "".respond_to?(:encoding)
     def test_macroman_encoding
       mac = (+"<span>\xCA</span>").force_encoding("macroman")
       doc = Nokogiri::HTML5(mac)

@@ -19,63 +19,72 @@ module Nokogiri
       NCNAME_CHAR       = NCNAME_START_CHAR + "\\-\\.0-9"
       NCNAME_RE         = /^xmlns(?::([#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*))?$/
 
-      ##
-      # Parse an XML file.
-      #
-      # +string_or_io+ may be a String, or any object that responds to
-      # _read_ and _close_ such as an IO, or StringIO.
-      #
-      # +url+ (optional) is the URI where this document is located.
-      #
-      # +encoding+ (optional) is the encoding that should be used when processing
-      # the document.
-      #
-      # +options+ (optional) is a configuration object that sets options during
-      # parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
-      # Nokogiri::XML::ParseOptions for more information.
-      #
-      # +block+ (optional) is passed a configuration object on which
-      # parse options may be set.
-      #
-      # By default, Nokogiri treats documents as untrusted, and so
-      # does not attempt to load DTDs or access the network. See
-      # Nokogiri::XML::ParseOptions for a complete list of options;
-      # and that module's DEFAULT_XML constant for what's set (and not
-      # set) by default.
-      #
-      # Nokogiri.XML() is a convenience method which will call this method.
-      #
-      def self.parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
-        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-        yield options if block_given?
+      class << self
+        # Parse an XML file.
+        #
+        # +string_or_io+ may be a String, or any object that responds to
+        # _read_ and _close_ such as an IO, or StringIO.
+        #
+        # +url+ (optional) is the URI where this document is located.
+        #
+        # +encoding+ (optional) is the encoding that should be used when processing
+        # the document.
+        #
+        # +options+ (optional) is a configuration object that sets options during
+        # parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
+        # Nokogiri::XML::ParseOptions for more information.
+        #
+        # +block+ (optional) is passed a configuration object on which
+        # parse options may be set.
+        #
+        # By default, Nokogiri treats documents as untrusted, and so
+        # does not attempt to load DTDs or access the network. See
+        # Nokogiri::XML::ParseOptions for a complete list of options;
+        # and that module's DEFAULT_XML constant for what's set (and not
+        # set) by default.
+        #
+        # Nokogiri.XML() is a convenience method which will call this method.
+        #
+        def parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
+          options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
+          yield options if block_given?
 
-        url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
 
-        if empty_doc?(string_or_io)
-          if options.strict?
-            raise Nokogiri::XML::SyntaxError, "Empty document"
+          if empty_doc?(string_or_io)
+            if options.strict?
+              raise Nokogiri::XML::SyntaxError, "Empty document"
+            else
+              return encoding ? new.tap { |i| i.encoding = encoding } : new
+            end
+          end
+
+          doc = if string_or_io.respond_to?(:read)
+            if string_or_io.is_a?(Pathname)
+              # resolve the Pathname to the file and open it as an IO object, see #2110
+              string_or_io = string_or_io.expand_path.open
+              url ||= string_or_io.path
+            end
+
+            read_io(string_or_io, url, encoding, options.to_i)
           else
-            return encoding ? new.tap { |i| i.encoding = encoding } : new
-          end
-        end
-
-        doc = if string_or_io.respond_to?(:read)
-          if string_or_io.is_a?(Pathname)
-            # resolve the Pathname to the file and open it as an IO object, see #2110
-            string_or_io = string_or_io.expand_path.open
-            url ||= string_or_io.path
+            # read_memory pukes on empty docs
+            read_memory(string_or_io, url, encoding, options.to_i)
           end
 
-          read_io(string_or_io, url, encoding, options.to_i)
-        else
-          # read_memory pukes on empty docs
-          read_memory(string_or_io, url, encoding, options.to_i)
+          # do xinclude processing
+          doc.do_xinclude(options) if options.xinclude?
+
+          doc
         end
 
-        # do xinclude processing
-        doc.do_xinclude(options) if options.xinclude?
+        private
 
-        doc
+        def empty_doc?(string_or_io)
+          string_or_io.nil? ||
+            (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
+            (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
+        end
       end
 
       ##
@@ -165,6 +174,7 @@ module Nokogiri
       # Since v1.12.4
       attr_accessor :namespace_inheritance
 
+      # rubocop:disable Lint/MissingSuper
       def initialize(*args) # :nodoc:
         @errors     = []
         @decorators = nil
@@ -401,12 +411,6 @@ module Nokogiri
       end
 
       private
-
-      def self.empty_doc?(string_or_io)
-        string_or_io.nil? ||
-          (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
-          (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
-      end
 
       IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:
 

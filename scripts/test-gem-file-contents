@@ -47,7 +47,10 @@ gemspec = Dir.mktmpdir do |dir|
     unless system("tar -xf #{gemfile} metadata.gz")
       raise "could not unpack gem #{gemfile}"
     end
-    YAML.safe_load(%x(gunzip -c metadata.gz), permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol])
+    YAML.safe_load(
+      %x(gunzip -c metadata.gz),
+      permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol]
+    )
   end
 end
 
