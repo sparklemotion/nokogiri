@@ -235,6 +235,12 @@ module Nokogiri
     XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
     XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
 
+    VOID_ELEMENTS = ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr",
+                     "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr",]
+
+    UNESCAPED_TEXT_ELEMENTS = ["style", "script", "xmp", "iframe", "noembed", "noframes",
+                               "plaintext", "noscript",]
+
     class << self
       # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
       def parse(string, url = nil, encoding = nil, **options, &block)
@@ -320,7 +326,7 @@ module Nokogiri
             io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
           end
           io << ">"
-          unless ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
+          unless VOID_ELEMENTS.include?(current_node.name)
             io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
             current_node.children.each do |child|
               # XXX(sfc): Templates handled specially?
@@ -330,7 +336,7 @@ module Nokogiri
           end
         when XML::Node::TEXT_NODE
           parent = current_node.parent
-          io << if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
+          io << if parent.element? && UNESCAPED_TEXT_ELEMENTS.include?(parent.name)
             current_node.content
           else
             escape_text(current_node.content, encoding, false)
