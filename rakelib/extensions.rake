@@ -349,9 +349,6 @@ end
 if java?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
-    jruby_home = RbConfig::CONFIG["prefix"]
-    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList["lib/*.jar"]
-
     # Keep the extension C files because they have docstrings (and Java files don't)
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
     ext.gem_spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
@@ -360,12 +357,19 @@ if java?
     ext.lib_dir = "lib/nokogiri"
     ext.source_version = "1.7"
     ext.target_version = "1.7"
-    ext.classpath = jars.map { |x| File.expand_path(x) }.join(":")
+    ext.classpath = ext.gem_spec.files.select { |path| File.fnmatch?("**/*.jar", path) }.join(":")
     ext.debug = true if ENV["JAVA_DEBUG"]
   end
 
   task gem_build_path => [:compile] do
     add_file_to_gem "lib/nokogiri/nokogiri.jar"
+  end
+
+  desc "Vendor java dependencies"
+  task :vendor_jars do
+    require "jars/installer"
+    FileUtils.rm(FileList["lib/nokogiri/jruby/*/**/*.jar"], verbose: true)
+    Jars::Installer.vendor_jars!("lib/nokogiri/jruby")
   end
 else
   require "rake/extensiontask"
