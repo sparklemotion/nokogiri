@@ -174,6 +174,7 @@ module Nokogiri
       # Since v1.12.4
       attr_accessor :namespace_inheritance
 
+      # rubocop:disable Lint/MissingSuper
       def initialize(*args) # :nodoc:
         @errors     = []
         @decorators = nil
