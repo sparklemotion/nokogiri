@@ -64,7 +64,7 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.set_cache(true)
 
     css = ".foo .bar .baz"
-    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    cache = Nokogiri::CSS::Parser.instance_variable_get(:@cache)
 
     assert_empty(cache)
     Nokogiri::CSS.xpath_for(css)
@@ -80,7 +80,7 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.set_cache(false)
 
     css = ".foo .bar .baz"
-    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    cache = Nokogiri::CSS::Parser.instance_variable_get(:@cache)
 
     assert_empty(cache)
     Nokogiri::CSS.xpath_for(css)
@@ -92,7 +92,7 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.set_cache(true)
 
     css = ".foo .bar .baz"
-    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    cache = Nokogiri::CSS::Parser.instance_variable_get(:@cache)
 
     assert_empty(cache)
     Nokogiri::CSS::Parser.without_cache do
@@ -125,7 +125,7 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.clear_cache
     Nokogiri::CSS::Parser.set_cache(true)
 
-    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+    cache = Nokogiri::CSS::Parser.instance_variable_get(:@cache)
     assert_empty(cache)
 
     Nokogiri::CSS.xpath_for("foo")

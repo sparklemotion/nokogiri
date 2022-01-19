@@ -411,8 +411,8 @@ module Nokogiri
       def test_builder_reuses_namespaces
         # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
         builder = Nokogiri::XML::Builder.new
-        builder.send("envelope", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" }) do
-          builder.send("package", { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" })
+        builder.send(:envelope, { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" }) do
+          builder.send(:package, { "xmlns" => "http://schemas.xmlsoap.org/soap/envelope/" })
         end
         envelope = builder.doc.at_css("envelope")
         package = builder.doc.at_css("package")

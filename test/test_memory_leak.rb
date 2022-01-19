@@ -167,8 +167,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send("Envelope", ns) do
-              xml.send("Foobar", ns)
+            xml.send(:Envelope, ns) do
+              xml.send(:Foobar, ns)
             end
           end
         end
@@ -182,8 +182,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       20.times do
         10_000.times do
           Nokogiri::XML::Builder.new do |xml|
-            xml.send("Envelope", ns) do
-              xml.send("Foobar", ns)
+            xml.send(:Envelope, ns) do
+              xml.send(:Foobar, ns)
             end
           end
         end

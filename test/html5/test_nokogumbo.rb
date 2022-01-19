@@ -152,7 +152,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_default_max_attributes
     a = +"a"
-    attrs = 50_000.times.map do
+    attrs = Array.new(50_000) do
       x = a.dup
       a.succ!
       x
@@ -185,7 +185,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_fragment_default_max_attributes
     a = +"a"
-    attrs = 50_000.times.map do
+    attrs = Array.new(50_000) do
       x = a.dup
       a.succ!
       x
