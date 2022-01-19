@@ -25,31 +25,45 @@ module Nokogiri
     #
     # 💡 HTML5 functionality is not available when running JRuby.
     class Document < Nokogiri::HTML4::Document
-      def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
-        yield options if block
-        string_or_io = "" unless string_or_io
+      class << self
+        def parse(string_or_io, url = nil, encoding = nil, **options, &block)
+          yield options if block
+          string_or_io = "" unless string_or_io
 
-        if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
-          encoding ||= string_or_io.encoding.name
+          if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
+            encoding ||= string_or_io.encoding.name
+          end
+
+          if string_or_io.respond_to?(:read) && string_or_io.respond_to?(:path)
+            url ||= string_or_io.path
+          end
+          unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
+            raise ArgumentError, "not a string or IO object"
+          end
+          do_parse(string_or_io, url, encoding, options)
         end
 
-        if string_or_io.respond_to?(:read) && string_or_io.respond_to?(:path)
-          url ||= string_or_io.path
+        def read_io(io, url = nil, encoding = nil, **options)
+          raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
+          do_parse(io, url, encoding, options)
         end
-        unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
-          raise ArgumentError, "not a string or IO object"
+
+        def read_memory(string, url = nil, encoding = nil, **options)
+          raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
+          do_parse(string, url, encoding, options)
         end
-        do_parse(string_or_io, url, encoding, options)
-      end
 
-      def self.read_io(io, url = nil, encoding = nil, **options)
-        raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
-        do_parse(io, url, encoding, options)
-      end
+        private
 
-      def self.read_memory(string, url = nil, encoding = nil, **options)
-        raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
-        do_parse(string, url, encoding, options)
+        def do_parse(string_or_io, url, encoding, options)
+          string = HTML5.read_and_encode(string_or_io, encoding)
+          max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
+          max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
+          max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
+          doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth)
+          doc.encoding = "UTF-8"
+          doc
+        end
       end
 
       def fragment(tags = nil)
@@ -70,18 +84,6 @@ module Nokogiri
       # See XPathVisitor for more information.
       def xpath_doctype
         Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5
-      end
-
-      private
-
-      def self.do_parse(string_or_io, url, encoding, options)
-        string = HTML5.read_and_encode(string_or_io, encoding)
-        max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
-        max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
-        max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
-        doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth)
-        doc.encoding = "UTF-8"
-        doc
       end
     end
   end

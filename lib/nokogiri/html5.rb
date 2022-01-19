@@ -235,241 +235,246 @@ module Nokogiri
     XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
     XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
 
-    # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
-    def self.parse(string, url = nil, encoding = nil, **options, &block)
-      Document.parse(string, url, encoding, **options, &block)
-    end
-
-    # Parse a fragment from +string+. Convenience method for
-    # {Nokogiri::HTML5::DocumentFragment.parse}.
-    def self.fragment(string, encoding = nil, **options)
-      DocumentFragment.parse(string, encoding, options)
-    end
-
-    # Fetch and parse a HTML document from the web, following redirects,
-    # handling https, and determining the character encoding using HTML5
-    # rules.  +uri+ may be a +String+ or a +URI+.  +options+ contains
-    # http headers and special options.  Everything which is not a
-    # special option is considered a header.  Special options include:
-    #  * :follow_limit => number of redirects which are followed
-    #  * :basic_auth => [username, password]
-    def self.get(uri, options = {})
-      # TODO: deprecate
-      warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
-        uplevel: 1, category: :deprecated)
-      get_impl(uri, options)
-    end
-
-    private
-
-    def self.get_impl(uri, options = {})
-      headers = options.clone
-      headers = { follow_limit: headers } if Numeric === headers # deprecated
-      limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
-
-      require "net/http"
-      uri = URI(uri) unless URI === uri
-
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      # TLS / SSL support
-      http.use_ssl = true if uri.scheme == "https"
-
-      # Pass through Net::HTTP override values, which currently include:
-      #   :ca_file, :ca_path, :cert, :cert_store, :ciphers,
-      #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
-      #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
-      #   :verify_callback, :verify_depth, :verify_mode
-      options.each do |key, _value|
-        http.send("#{key}=", headers.delete(key)) if http.respond_to?("#{key}=")
+    class << self
+      # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
+      def parse(string, url = nil, encoding = nil, **options, &block)
+        Document.parse(string, url, encoding, **options, &block)
       end
 
-      request = Net::HTTP::Get.new(uri.request_uri)
-
-      # basic authentication
-      auth = headers.delete(:basic_auth)
-      auth ||= [uri.user, uri.password] if uri.user && uri.password
-      request.basic_auth(auth.first, auth.last) if auth
-
-      # remaining options are treated as headers
-      headers.each { |key, value| request[key.to_s] = value.to_s }
-
-      response = http.request(request)
-
-      case response
-      when Net::HTTPSuccess
-        doc = parse(reencode(response.body, response["content-type"]), options)
-        doc.instance_variable_set("@response", response)
-        doc.class.send(:attr_reader, :response)
-        doc
-      when Net::HTTPRedirection
-        response.value if limit <= 1
-        location = URI.join(uri, response["location"])
-        get_impl(location, options.merge(follow_limit: limit - 1))
-      else
-        response.value
-      end
-    end
-
-    def self.read_and_encode(string, encoding)
-      # Read the string with the given encoding.
-      if string.respond_to?(:read)
-        string = if encoding.nil?
-          string.read
-        else
-          string.read(encoding: encoding)
-        end
-      else
-        # Otherwise the string has the given encoding.
-        string = string.to_s
-        if encoding
-          string = string.dup
-          string.force_encoding(encoding)
-        end
+      # Parse a fragment from +string+. Convenience method for
+      # {Nokogiri::HTML5::DocumentFragment.parse}.
+      def fragment(string, encoding = nil, **options)
+        DocumentFragment.parse(string, encoding, options)
       end
 
-      # convert to UTF-8
-      if string.encoding != Encoding::UTF_8
-        string = reencode(string)
-      end
-      string
-    end
-
-    # Charset sniffing is a complex and controversial topic that understandably isn't done _by
-    # default_ by the Ruby Net::HTTP library.  This being said, it is a very real problem for
-    # consumers of HTML as the default for HTML is iso-8859-1, most "good" producers use utf-8, and
-    # the Gumbo parser *only* supports utf-8.
-    #
-    # Accordingly, Nokogiri::HTML4::Document.parse provides limited encoding detection.  Following
-    # this lead, Nokogiri::HTML5 attempts to do likewise, while attempting to more closely follow
-    # the HTML5 standard.
-    #
-    # http://bugs.ruby-lang.org/issues/2567
-    # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding
-    #
-    def self.reencode(body, content_type = nil)
-      if body.encoding == Encoding::ASCII_8BIT
-        encoding = nil
-
-        # look for a Byte Order Mark (BOM)
-        initial_bytes = body[0..2].bytes
-        if initial_bytes[0..2] == [0xEF, 0xBB, 0xBF]
-          encoding = Encoding::UTF_8
-        elsif initial_bytes[0..1] == [0xFE, 0xFF]
-          encoding = Encoding::UTF_16BE
-        elsif initial_bytes[0..1] == [0xFF, 0xFE]
-          encoding = Encoding::UTF_16LE
-        end
-
-        # look for a charset in a content-encoding header
-        if content_type
-          encoding ||= content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
-        end
-
-        # look for a charset in a meta tag in the first 1024 bytes
-        unless encoding
-          data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
-          data.scan(/<meta.*?>/m).each do |meta|
-            encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
-          end
-        end
-
-        # if all else fails, default to the official default encoding for HTML
-        encoding ||= Encoding::ISO_8859_1
-
-        # change the encoding to match the detected or inferred encoding
-        body = body.dup
-        begin
-          body.force_encoding(encoding)
-        rescue ArgumentError
-          body.force_encoding(Encoding::ISO_8859_1)
-        end
+      # Fetch and parse a HTML document from the web, following redirects,
+      # handling https, and determining the character encoding using HTML5
+      # rules.  +uri+ may be a +String+ or a +URI+.  +options+ contains
+      # http headers and special options.  Everything which is not a
+      # special option is considered a header.  Special options include:
+      #  * :follow_limit => number of redirects which are followed
+      #  * :basic_auth => [username, password]
+      def get(uri, options = {})
+        # TODO: deprecate
+        warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
+          uplevel: 1, category: :deprecated)
+        get_impl(uri, options)
       end
 
-      body.encode(Encoding::UTF_8)
-    end
-
-    def self.serialize_node_internal(current_node, io, encoding, options)
-      case current_node.type
-      when XML::Node::ELEMENT_NODE
-        ns = current_node.namespace
-        ns_uri = ns.nil? ? nil : ns.href
-        # XXX(sfc): attach namespaces to all nodes, even html?
-        tagname = if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
-          current_node.name
-        else
-          "#{ns.prefix}:#{current_node.name}"
-        end
-        io << "<" << tagname
-        current_node.attribute_nodes.each do |attr|
-          attr_ns = attr.namespace
-          if attr_ns.nil?
-            attr_name = attr.name
+      # :nodoc:
+      def read_and_encode(string, encoding)
+        # Read the string with the given encoding.
+        if string.respond_to?(:read)
+          string = if encoding.nil?
+            string.read
           else
-            ns_uri = attr_ns.href
-            attr_name = if ns_uri == XML_NAMESPACE
-              "xml:" + attr.name.sub(/^[^:]*:/, "")
-            elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, "") == "xmlns"
-              "xmlns"
-            elsif ns_uri == XMLNS_NAMESPACE
-              "xmlns:" + attr.name.sub(/^[^:]*:/, "")
-            elsif ns_uri == XLINK_NAMESPACE
-              "xlink:" + attr.name.sub(/^[^:]*:/, "")
-            else
-              "#{attr_ns.prefix}:#{attr.name}"
-            end
+            string.read(encoding: encoding)
           end
-          io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
+        else
+          # Otherwise the string has the given encoding.
+          string = string.to_s
+          if encoding
+            string = string.dup
+            string.force_encoding(encoding)
+          end
         end
-        io << ">"
-        unless ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
-          io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
+
+        # convert to UTF-8
+        if string.encoding != Encoding::UTF_8
+          string = reencode(string)
+        end
+        string
+      end
+
+      # :nodoc:
+      def serialize_node_internal(current_node, io, encoding, options)
+        case current_node.type
+        when XML::Node::ELEMENT_NODE
+          ns = current_node.namespace
+          ns_uri = ns.nil? ? nil : ns.href
+          # XXX(sfc): attach namespaces to all nodes, even html?
+          tagname = if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
+            current_node.name
+          else
+            "#{ns.prefix}:#{current_node.name}"
+          end
+          io << "<" << tagname
+          current_node.attribute_nodes.each do |attr|
+            attr_ns = attr.namespace
+            if attr_ns.nil?
+              attr_name = attr.name
+            else
+              ns_uri = attr_ns.href
+              attr_name = if ns_uri == XML_NAMESPACE
+                "xml:" + attr.name.sub(/^[^:]*:/, "")
+              elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, "") == "xmlns"
+                "xmlns"
+              elsif ns_uri == XMLNS_NAMESPACE
+                "xmlns:" + attr.name.sub(/^[^:]*:/, "")
+              elsif ns_uri == XLINK_NAMESPACE
+                "xlink:" + attr.name.sub(/^[^:]*:/, "")
+              else
+                "#{attr_ns.prefix}:#{attr.name}"
+              end
+            end
+            io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
+          end
+          io << ">"
+          unless ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"].include?(current_node.name)
+            io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
+            current_node.children.each do |child|
+              # XXX(sfc): Templates handled specially?
+              serialize_node_internal(child, io, encoding, options)
+            end
+            io << "</" << tagname << ">"
+          end
+        when XML::Node::TEXT_NODE
+          parent = current_node.parent
+          io << if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
+            current_node.content
+          else
+            escape_text(current_node.content, encoding, false)
+          end
+        when XML::Node::CDATA_SECTION_NODE
+          io << "<![CDATA[" << current_node.content << "]]>"
+        when XML::Node::COMMENT_NODE
+          io << "<!--" << current_node.content << "-->"
+        when XML::Node::PI_NODE
+          io << "<?" << current_node.content << ">"
+        when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
+          io << "<!DOCTYPE " << current_node.name << ">"
+        when XML::Node::HTML_DOCUMENT_NODE, XML::Node::DOCUMENT_FRAG_NODE
           current_node.children.each do |child|
-            # XXX(sfc): Templates handled specially?
             serialize_node_internal(child, io, encoding, options)
           end
-          io << "</" << tagname << ">"
-        end
-      when XML::Node::TEXT_NODE
-        parent = current_node.parent
-        io << if parent.element? && ["style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript"].include?(parent.name)
-          current_node.content
         else
-          escape_text(current_node.content, encoding, false)
+          raise "Unexpected node '#{current_node.name}' of type #{current_node.type}"
         end
-      when XML::Node::CDATA_SECTION_NODE
-        io << "<![CDATA[" << current_node.content << "]]>"
-      when XML::Node::COMMENT_NODE
-        io << "<!--" << current_node.content << "-->"
-      when XML::Node::PI_NODE
-        io << "<?" << current_node.content << ">"
-      when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
-        io << "<!DOCTYPE " << current_node.name << ">"
-      when XML::Node::HTML_DOCUMENT_NODE, XML::Node::DOCUMENT_FRAG_NODE
-        current_node.children.each do |child|
-          serialize_node_internal(child, io, encoding, options)
+      end
+
+      # :nodoc:
+      def prepend_newline?(node)
+        return false unless ["pre", "textarea", "listing"].include?(node.name) && !node.children.empty?
+        first_child = node.children[0]
+        first_child.text? && first_child.content.start_with?("\n")
+      end
+
+      private
+
+      def get_impl(uri, options = {})
+        headers = options.clone
+        headers = { follow_limit: headers } if Numeric === headers # deprecated
+        limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
+
+        require "net/http"
+        uri = URI(uri) unless URI === uri
+
+        http = Net::HTTP.new(uri.host, uri.port)
+
+        # TLS / SSL support
+        http.use_ssl = true if uri.scheme == "https"
+
+        # Pass through Net::HTTP override values, which currently include:
+        #   :ca_file, :ca_path, :cert, :cert_store, :ciphers,
+        #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
+        #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
+        #   :verify_callback, :verify_depth, :verify_mode
+        options.each do |key, _value|
+          http.send("#{key}=", headers.delete(key)) if http.respond_to?("#{key}=")
         end
-      else
-        raise "Unexpected node '#{current_node.name}' of type #{current_node.type}"
-      end
-    end
 
-    def self.escape_text(text, encoding, attribute_mode)
-      text = if attribute_mode
-        text.gsub(/[&\u00a0"]/,
-          "&" => "&amp;", "\u00a0" => "&nbsp;", '"' => "&quot;")
-      else
-        text.gsub(/[&\u00a0<>]/,
-          "&" => "&amp;", "\u00a0" => "&nbsp;", "<" => "&lt;", ">" => "&gt;")
-      end
-      # Not part of the standard
-      text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
-    end
+        request = Net::HTTP::Get.new(uri.request_uri)
 
-    def self.prepend_newline?(node)
-      return false unless ["pre", "textarea", "listing"].include?(node.name) && !node.children.empty?
-      first_child = node.children[0]
-      first_child.text? && first_child.content.start_with?("\n")
+        # basic authentication
+        auth = headers.delete(:basic_auth)
+        auth ||= [uri.user, uri.password] if uri.user && uri.password
+        request.basic_auth(auth.first, auth.last) if auth
+
+        # remaining options are treated as headers
+        headers.each { |key, value| request[key.to_s] = value.to_s }
+
+        response = http.request(request)
+
+        case response
+        when Net::HTTPSuccess
+          doc = parse(reencode(response.body, response["content-type"]), options)
+          doc.instance_variable_set(:@response, response)
+          doc.class.send(:attr_reader, :response)
+          doc
+        when Net::HTTPRedirection
+          response.value if limit <= 1
+          location = URI.join(uri, response["location"])
+          get_impl(location, options.merge(follow_limit: limit - 1))
+        else
+          response.value
+        end
+      end
+
+      # Charset sniffing is a complex and controversial topic that understandably isn't done _by
+      # default_ by the Ruby Net::HTTP library.  This being said, it is a very real problem for
+      # consumers of HTML as the default for HTML is iso-8859-1, most "good" producers use utf-8, and
+      # the Gumbo parser *only* supports utf-8.
+      #
+      # Accordingly, Nokogiri::HTML4::Document.parse provides limited encoding detection.  Following
+      # this lead, Nokogiri::HTML5 attempts to do likewise, while attempting to more closely follow
+      # the HTML5 standard.
+      #
+      # http://bugs.ruby-lang.org/issues/2567
+      # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding
+      #
+      def reencode(body, content_type = nil)
+        if body.encoding == Encoding::ASCII_8BIT
+          encoding = nil
+
+          # look for a Byte Order Mark (BOM)
+          initial_bytes = body[0..2].bytes
+          if initial_bytes[0..2] == [0xEF, 0xBB, 0xBF]
+            encoding = Encoding::UTF_8
+          elsif initial_bytes[0..1] == [0xFE, 0xFF]
+            encoding = Encoding::UTF_16BE
+          elsif initial_bytes[0..1] == [0xFF, 0xFE]
+            encoding = Encoding::UTF_16LE
+          end
+
+          # look for a charset in a content-encoding header
+          if content_type
+            encoding ||= content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
+          end
+
+          # look for a charset in a meta tag in the first 1024 bytes
+          unless encoding
+            data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
+            data.scan(/<meta.*?>/m).each do |meta|
+              encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
+            end
+          end
+
+          # if all else fails, default to the official default encoding for HTML
+          encoding ||= Encoding::ISO_8859_1
+
+          # change the encoding to match the detected or inferred encoding
+          body = body.dup
+          begin
+            body.force_encoding(encoding)
+          rescue ArgumentError
+            body.force_encoding(Encoding::ISO_8859_1)
+          end
+        end
+
+        body.encode(Encoding::UTF_8)
+      end
+
+      def escape_text(text, encoding, attribute_mode)
+        text = if attribute_mode
+          text.gsub(/[&\u00a0"]/,
+            "&" => "&amp;", "\u00a0" => "&nbsp;", '"' => "&quot;")
+        else
+          text.gsub(/[&\u00a0<>]/,
+            "&" => "&amp;", "\u00a0" => "&nbsp;", "<" => "&lt;", ">" => "&gt;")
+        end
+        # Not part of the standard
+        text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
+      end
     end
   end
 end
