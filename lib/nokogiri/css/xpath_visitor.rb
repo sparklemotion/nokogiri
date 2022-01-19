@@ -278,7 +278,9 @@ module Nokogiri
       end
 
       def nth(node, options = {})
-        raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
+        unless node.value.size == 4
+          raise(ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}")
+        end
 
         a, b = read_a_and_positive_b(node.value)
         position = if options[:child]
