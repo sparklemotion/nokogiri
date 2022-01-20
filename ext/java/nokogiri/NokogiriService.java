@@ -92,6 +92,8 @@ public class NokogiriService implements BasicLibraryService
     createSaxModule(ruby, xmlSaxModule, htmlSaxModule);
     createXsltModule(ruby, xsltModule);
     nokogiri.setInternalVariable("cache", populateNokogiriClassCahce(ruby));
+
+    org.apache.xml.security.Init.init();
   }
 
   private void

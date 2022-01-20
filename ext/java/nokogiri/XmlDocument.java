@@ -8,6 +8,7 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.util.List;
+import java.io.ByteArrayOutputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,13 +37,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.xml.security.exceptions.XMLSecurityException;
+import org.apache.xml.security.c14n.Canonicalizer;
+
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
-import nokogiri.internals.c14n.CanonicalFilter;
-import nokogiri.internals.c14n.CanonicalizationException;
-import nokogiri.internals.c14n.Canonicalizer;
 
 /**
  * Class for Nokogiri::XML::Document
@@ -673,15 +674,14 @@ public class XmlDocument extends XmlNode
     try {
       Canonicalizer canonicalizer = Canonicalizer.getInstance(algorithmURI);
       XmlNode startingNode = getStartingNode(block);
-      byte[] result;
-      CanonicalFilter filter = new CanonicalFilter(context, block);
+      ByteArrayOutputStream writer = new ByteArrayOutputStream();
       if (inclusive_namespace == null) {
-        result = canonicalizer.canonicalizeSubtree(startingNode.getNode(), filter);
+        canonicalizer.canonicalizeSubtree(startingNode.getNode(), writer);
       } else {
-        result = canonicalizer.canonicalizeSubtree(startingNode.getNode(), inclusive_namespace, filter);
+        canonicalizer.canonicalizeSubtree(startingNode.getNode(), inclusive_namespace, writer);
       }
-      return RubyString.newString(context.runtime, new ByteList(result, UTF8Encoding.INSTANCE));
-    } catch (Exception e) {
+      return RubyString.newString(context.runtime, writer.toString());
+    } catch (XMLSecurityException e) {
       throw context.getRuntime().newRuntimeError(e.getMessage());
     }
   }

@@ -49,6 +49,8 @@ module Nokogiri
       end
 
       def test_exclude_block_params
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -57,20 +59,15 @@ module Nokogiri
           list << [node, parent]
           true
         end
-        if Nokogiri.jruby?
-          assert_equal(
-            ["a", "document", "document", nil, "b", "a"],
-            list.flatten.map { |x| x ? x.name : x }
-          )
-        else
-          assert_equal(
-            ["a", "document", "document", nil, "b", "a", "a", "document"],
-            list.flatten.map { |x| x ? x.name : x }
-          )
-        end
+        assert_equal(
+          ["a", "document", "document", nil, "b", "a", "a", "document"],
+          list.flatten.map { |x| x ? x.name : x }
+        )
       end
 
       def test_exclude_block_true
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -81,6 +78,8 @@ module Nokogiri
       end
 
       def test_exclude_block_false
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -91,6 +90,8 @@ module Nokogiri
       end
 
       def test_exclude_block_conditional
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<root><a></a><b></b><c></c><d></d></root>"
         doc = Nokogiri.XML(xml)
 
@@ -102,12 +103,12 @@ module Nokogiri
         c14n = doc.canonicalize do |node, _parent|
           node.name == "a" || node.name == "c"
         end
-        pending_if("java c14n is not completely compatible with libxml2 c14n", Nokogiri.jruby?) do
-          assert_equal("<a></a><c></c>", c14n)
-        end
+        assert_equal("<a></a><c></c>", c14n)
       end
 
       def test_exclude_block_nil
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 

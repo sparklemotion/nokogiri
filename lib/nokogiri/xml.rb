@@ -11,7 +11,7 @@ module Nokogiri
 
   module XML
     # Original C14N 1.0 spec canonicalization
-    XML_C14N_1_0 =       0
+    XML_C14N_1_0 = 0
     # Exclusive C14N 1.0 spec canonicalization
     XML_C14N_EXCLUSIVE_1_0 = 1
     # C14N 1.1 spec canonicalization
