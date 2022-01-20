@@ -681,11 +681,9 @@ public class XmlDocument extends XmlNode
         result = canonicalizer.canonicalizeSubtree(startingNode.getNode(), inclusive_namespace, filter);
       }
       return RubyString.newString(context.runtime, new ByteList(result, UTF8Encoding.INSTANCE));
-    } catch (CanonicalizationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (Exception e) {
+      throw context.getRuntime().newRuntimeError(e.getMessage());
     }
-    return context.nil;
   }
 
   private XmlNode
