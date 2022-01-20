@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require "helper"
@@ -236,6 +237,21 @@ module Nokogiri
         assert_raises(TypeError) { doc.canonicalize(:wrong_type) }
         assert_raises(TypeError) { doc.canonicalize(nil, :wrong_type) }
         doc.canonicalize(nil, nil, :wrong_type)
+      end
+
+      def test_multibyte_unicode
+        # https://github.com/sparklemotion/nokogiri/issues/2410
+        doc = Nokogiri.XML(%{<foo>𡏅</foo>}, nil, "EUC-JP")
+
+        # I do not understand what's going on here
+        expected = if Nokogiri.jruby?
+          %{<foo>𡏅</foo>}
+        else
+          %{<foo>陝</foo>}
+        end
+
+        result = doc.canonicalize
+        assert_equal(expected, result)
       end
     end
   end
