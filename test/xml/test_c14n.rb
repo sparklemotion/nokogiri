@@ -24,14 +24,27 @@ module Nokogiri
           <!-- Comment 3 -->
         eoxml
 
+        expected = <<~EOF.strip
+          <?xml-stylesheet href="doc.xsl"
+             type="text/xsl"   ?>
+          <doc>Hello, world!</doc>
+          <?pi-without-data?>
+        EOF
         c14n = doc.canonicalize
-        refute_match(/version=/, c14n)
-        assert_match(/Hello, world/, c14n)
-        refute_match(/Comment/, c14n)
-        c14n = doc.canonicalize(nil, nil, true)
-        assert_match(/Comment/, c14n)
+        assert_equal(expected, c14n)
         c14n = doc.canonicalize(nil, nil, false)
-        refute_match(/Comment/, c14n)
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <?xml-stylesheet href="doc.xsl"
+             type="text/xsl"   ?>
+          <doc>Hello, world!<!-- Comment 1 --></doc>
+          <?pi-without-data?>
+          <!-- Comment 2 -->
+          <!-- Comment 3 -->
+        EOF
+        c14n = doc.canonicalize(nil, nil, true)
+        assert_equal(expected, c14n)
       end
 
       def test_exclude_block_params
@@ -74,6 +87,23 @@ module Nokogiri
           false
         end
         assert_equal("", c14n)
+      end
+
+      def test_exclude_block_conditional
+        xml = "<root><a></a><b></b><c></c><d></d></root>"
+        doc = Nokogiri.XML(xml)
+
+        c14n = doc.canonicalize do |node, _parent|
+          node.name == "root" || node.name == "a" || node.name == "c"
+        end
+        assert_equal("<root><a></a><c></c></root>", c14n)
+
+        c14n = doc.canonicalize do |node, _parent|
+          node.name == "a" || node.name == "c"
+        end
+        pending_if("java c14n is not completely compatible with libxml2 c14n", Nokogiri.jruby?) do
+          assert_equal("<a></a><c></c>", c14n)
+        end
       end
 
       def test_exclude_block_nil
