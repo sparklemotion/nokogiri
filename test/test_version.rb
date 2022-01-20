@@ -31,8 +31,14 @@ module TestVersionInfoTests
 
   def test_version_info_for_xerces_and_nekohtml
     skip_unless_jruby("xerces/nekohtml is only used for JRuby")
-    assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xerces"])
+    assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xercesImpl"])
     assert_equal(Nokogiri::NEKO_VERSION, version_info["other_libraries"]["nekohtml"])
+    refute_nil(version_info["other_libraries"]["isorelax"])
+    refute_nil(version_info["other_libraries"]["jing"])
+    refute_nil(version_info["other_libraries"]["serializer"])
+    refute_nil(version_info["other_libraries"]["xalan"])
+    refute_nil(version_info["other_libraries"]["xercesImpl"])
+    refute_nil(version_info["other_libraries"]["xml-apis"])
     assert_empty(Nokogiri.libxml2_patches)
   end
 

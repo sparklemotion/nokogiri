@@ -169,8 +169,10 @@ module Nokogiri
           vi["other_libraries"] = Hash[*Nokogiri::OTHER_LIBRARY_VERSIONS.split(/[,:]/)]
         elsif jruby?
           vi["other_libraries"] = {}.tap do |ol|
-            ol["xerces"] = Nokogiri::XERCES_VERSION
             ol["nekohtml"] = Nokogiri::NEKO_VERSION
+            Nokogiri::JAR_DEPENDENCIES.each do |k, v|
+              ol[k] = v
+            end
           end
         end
       end

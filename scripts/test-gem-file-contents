@@ -266,20 +266,25 @@ describe File.basename(gemfile) do
     end
 
     it "contains the java jar files" do
+      assert_includes(gemfile_contents, "lib/nokogiri/nokogiri.jar")
+      assert_includes(gemfile_contents, "lib/nokogiri/jruby/nekodtd.jar")
+      assert_includes(gemfile_contents, "lib/nokogiri/jruby/nekohtml.jar")
+
       actual_jars = gemfile_contents.grep(/.*\.jar$/)
       expected_jars = [
         "isorelax",
         "jing",
-        "nekodtd",
-        "nekohtml",
-        "nokogiri",
         "serializer",
         "xalan",
         "xercesImpl",
         "xml-apis",
       ]
-      expected_jars.each do |jar|
-        assert_equal(1, actual_jars.grep(%r{/#{jar}\.jar$}).length, "expected to contain #{jar}.jar")
+      expected_jars.each do |name|
+        assert_equal(
+          1,
+          actual_jars.count { |j| File.fnmatch?("lib/nokogiri/jruby/**/#{name}-*.jar", j) },
+          "expected to contain '#{name}-*.jar'"
+        )
       end
     end
   end if gemspec.platform == Gem::Platform.new("java")

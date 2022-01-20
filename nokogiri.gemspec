@@ -227,10 +227,6 @@ Gem::Specification.new do |spec|
     "gumbo-parser/src/util.h",
     "gumbo-parser/src/vector.c",
     "gumbo-parser/src/vector.h",
-    "lib/isorelax.jar",
-    "lib/jing.jar",
-    "lib/nekodtd.jar",
-    "lib/nekohtml.jar",
     "lib/nokogiri.rb",
     "lib/nokogiri/class_resolver.rb",
     "lib/nokogiri/css.rb",
@@ -261,6 +257,16 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/html5/document_fragment.rb",
     "lib/nokogiri/html5/node.rb",
     "lib/nokogiri/jruby/dependencies.rb",
+    "lib/nokogiri/jruby/isorelax/isorelax/20030108/isorelax-20030108.jar",
+    "lib/nokogiri/jruby/nekodtd.jar",
+    "lib/nokogiri/jruby/nekohtml.jar",
+    "lib/nokogiri/jruby/net/sf/saxon/Saxon-HE/9.6.0-4/Saxon-HE-9.6.0-4.jar",
+    "lib/nokogiri/jruby/nokogiri_jars.rb",
+    "lib/nokogiri/jruby/nu/validator/jing/20200702VNU/jing-20200702VNU.jar",
+    "lib/nokogiri/jruby/xalan/serializer/2.7.2/serializer-2.7.2.jar",
+    "lib/nokogiri/jruby/xalan/xalan/2.7.2/xalan-2.7.2.jar",
+    "lib/nokogiri/jruby/xerces/xercesImpl/2.12.1/xercesImpl-2.12.1.jar",
+    "lib/nokogiri/jruby/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar",
     "lib/nokogiri/syntax_error.rb",
     "lib/nokogiri/version.rb",
     "lib/nokogiri/version/constant.rb",
@@ -304,13 +310,8 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/xml/xpath_context.rb",
     "lib/nokogiri/xslt.rb",
     "lib/nokogiri/xslt/stylesheet.rb",
-    "lib/serializer.jar",
-    "lib/xalan.jar",
-    "lib/xercesImpl.jar",
-    "lib/xml-apis.jar",
     "lib/xsd/xmlparser/nokogiri.rb",
   ]
-
   spec.bindir = "bin"
   spec.executables = spec.files.grep(/^bin/) { |f| File.basename(f) }
 
@@ -318,7 +319,20 @@ Gem::Specification.new do |spec|
   spec.extra_rdoc_files += Dir.glob("README.md")
   spec.rdoc_options = ["--main", "README.md"]
 
-  spec.add_runtime_dependency("mini_portile2", "~> 2.7.0") unless java_p # keep version in sync with extconf.rb
+  if java_p
+    spec.add_development_dependency("jar-dependencies", "~> 0.4.1")
+    spec.require_paths << "lib/nokogiri/jruby" # where we install the jars, see the :vendor_jars rake task
+    spec.requirements << "jar isorelax, isorelax, 20030108" # https://search.maven.org/artifact/isorelax/isorelax
+    # spec.requirements << "jar nekohtml, nekodtd, 0.1.11" # FIXME, we should use Shahid's fork
+    # spec.requirements << "jar nekohtml, nekohtml, 1.9.6.2" # FIXME, we should use Shahid's fork
+    spec.requirements << "jar nu.validator, jing, 20200702VNU" # https://search.maven.org/artifact/nu.validator/jing
+    spec.requirements << "jar xalan, serializer, 2.7.2" # https://search.maven.org/artifact/xalan/serializer
+    spec.requirements << "jar xalan, xalan, 2.7.2" # https://search.maven.org/artifact/xalan/xalan
+    spec.requirements << "jar xerces, xercesImpl, 2.12.1" # https://search.maven.org/artifact/xerces/xercesImpl
+    spec.requirements << "jar xml-apis, xml-apis, 1.4.01" # https://search.maven.org/artifact/xml-apis/xml-apis
+  else
+    spec.add_runtime_dependency("mini_portile2", "~> 2.7.0") # keep version in sync with extconf.rb
+  end
   spec.add_runtime_dependency("racc", "~> 1.4")
 
   spec.add_development_dependency("bundler", "~> 2.2")

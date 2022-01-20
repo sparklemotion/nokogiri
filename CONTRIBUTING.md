@@ -22,6 +22,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [How Continuous Integration ("CI") is configured](#how-continuous-integration-ci-is-configured)
 - [Building gems](#building-gems)
 - [Other utilities](#other-utilities)
+- [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
 - [Making a release](#making-a-release)
 - [Code of Conduct](#code-of-conduct)
@@ -292,6 +293,30 @@ Run `scripts/build-gems` which will package gems for all supported platforms, an
 `scripts/files-modified-by-open-prs` is a hack to see what files are being proposed to change in the set of open pull requests. This might be useful if you're thinking about radically changing a file, to be aware of what merge conflicts might result. This could probably be a rake task.
 
 There's a `Vagrantfile` in the project root which I've used once or twice to try to reproduce problems non-Linux systems (like OpenBSD). It's not well-maintained so YMMV.
+
+
+## Bumping Java dependencies
+
+Java dependencies, in the form of `.jar` files, are all vendored as part of the `java` platform gem.
+
+We use [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) as a development dependency to manage the project's Java dependencies, with the current exception of:
+
+- nekohtml, forked in [`6166964`](https://github.com/sparklemotion/nokogiri/commit/6166964) for a few issues in v1.6.8, lives at https://github.com/jvshahid/nekohtml
+- nekodtd, forked to solve [#547](https://github.com/sparklemotion/nokogiri/issues/547), lives at https://github.com/jvshahid/nekodtd
+
+To modify or add a dependency, a few things needs to be in sync:
+
+- `nokogiri.gemspec`: `spec.requirements` need to specify the maven group Id, artifact ID, and version
+- `nokogiri.gemspec`: `spec.files` need to include the jar files
+- git: the jar files under `lib/nokogiri/jruby/` need to be committed to git
+- `lib/nokogiri/jruby/nokogiri_jars.rb`: needs to include all the jars
+
+A quick summary of what this looks like for you, the developer:
+
+- edit the `requirements` in the gemspec
+- run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
+- run `bundle exec check_manifest` and if necessary update the gemspec `files`
+- make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
 
 
 ## Rake tasks

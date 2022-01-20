@@ -99,7 +99,6 @@ public class NokogiriService implements BasicLibraryService
   private void
   createJavaLibraryVersionConstants(Ruby ruby, RubyModule nokogiri)
   {
-    nokogiri.defineConstant("XERCES_VERSION", ruby.newString(org.apache.xerces.impl.Version.getVersion()));
     nokogiri.defineConstant("NEKO_VERSION", ruby.newString(org.cyberneko.html.Version.getVersion()));
   }
 
