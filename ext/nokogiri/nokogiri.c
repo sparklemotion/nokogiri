@@ -49,7 +49,7 @@ void noko_init_html_sax_push_parser(void);
 void noko_init_gumbo(void);
 void noko_init_test_global_handlers(void);
 
-static ID id_read, id_write;
+static ID id_read, id_write, id_external_encoding;
 
 
 #ifndef HAVE_VASPRINTF
@@ -135,9 +135,10 @@ noko_io_write(void *io, char *c_buffer, int c_buffer_len)
 {
   VALUE rb_args[2], rb_n_bytes_written;
   VALUE rb_io = (VALUE)io;
+  rb_encoding *io_encoding = rb_to_encoding(rb_funcall(rb_io, id_external_encoding, 0));
 
   rb_args[0] = rb_io;
-  rb_args[1] = rb_str_new(c_buffer, (long)c_buffer_len);
+  rb_args[1] = rb_enc_str_new(c_buffer, (long)c_buffer_len, io_encoding);
 
   rb_n_bytes_written = rb_rescue(noko_io_write_check, (VALUE)rb_args, noko_io_write_failed, 0);
   if (rb_n_bytes_written == Qundef) { return -1; }
@@ -277,4 +278,5 @@ Init_nokogiri()
 
   id_read = rb_intern("read");
   id_write = rb_intern("write");
+  id_external_encoding = rb_intern("external_encoding");
 }

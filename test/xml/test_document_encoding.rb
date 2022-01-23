@@ -43,6 +43,25 @@ module Nokogiri
           assert_equal("UTF-8", Nokogiri::LIBXML_COMPILED_VERSION.encoding.name)
           assert_equal("UTF-8", Nokogiri::LIBXSLT_COMPILED_VERSION.encoding.name)
         end
+
+        it "serializes UTF-16 correctly across libxml2 buffer flushes" do
+          # https://github.com/sparklemotion/nokogiri/issues/752
+          skip_unless_libxml2
+
+          # the document needs to be large enough to trigger a libxml2 buffer flush. the buffer size
+          # is determined by MINLEN in xmlIO.c, which is hardcoded to 4000 code points.
+          size = 4000
+          input = String.new(<<~XML, encoding: "UTF-16")
+            <?xml version="1.0" encoding="UTF-16"?>
+            <root>
+              <bar>#{"A" * size}</bar>
+            </root>
+          XML
+          expected_length = (input.bytesize * 2) + 2 # double character width, add BOM bytes 0xFEFF
+
+          output = Nokogiri::XML(input).to_xml
+          assert_equal(expected_length, output.bytesize)
+        end
       end
     end
   end
