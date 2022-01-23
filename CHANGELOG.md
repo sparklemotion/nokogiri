@@ -6,6 +6,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## 1.14.0 / unreleased
 
+### Notes
+
 #### Faster, more reliable installation: Native Gem for ARM64 Linux
 
 This version of Nokogiri ships full native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
@@ -14,6 +16,11 @@ This version of Nokogiri ships full native gem support for the `aarch64-linux` p
 #### Maven-managed JRuby dependencies
 
 This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
+
+
+### Fixed
+
+* [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
 
 
 ## 1.13.1 / 2022-01-13

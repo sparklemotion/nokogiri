@@ -49,7 +49,7 @@ void noko_init_html_sax_push_parser(void);
 void noko_init_gumbo(void);
 void noko_init_test_global_handlers(void);
 
-static ID id_read, id_write;
+static ID id_read, id_write, id_external_encoding;
 
 
 #ifndef HAVE_VASPRINTF
@@ -76,7 +76,7 @@ vasprintf(char **strp, const char *fmt, va_list ap)
 
 
 static VALUE
-read_check(VALUE val)
+noko_io_read_check(VALUE val)
 {
   VALUE *args = (VALUE *)val;
   return rb_funcall(args[0], id_read, 1, args[1]);
@@ -84,68 +84,71 @@ read_check(VALUE val)
 
 
 static VALUE
-read_failed(VALUE arg, VALUE exc)
+noko_io_read_failed(VALUE arg, VALUE exc)
 {
   return Qundef;
 }
 
 
 int
-noko_io_read(void *ctx, char *buffer, int len)
+noko_io_read(void *io, char *c_buffer, int c_buffer_len)
 {
-  VALUE string, args[2];
-  size_t str_len, safe_len;
+  VALUE rb_io = (VALUE)io;
+  VALUE rb_read_string, rb_args[2];
+  size_t n_bytes_read, safe_len;
 
-  args[0] = (VALUE)ctx;
-  args[1] = INT2NUM(len);
+  rb_args[0] = rb_io;
+  rb_args[1] = INT2NUM(c_buffer_len);
 
-  string = rb_rescue(read_check, (VALUE)args, read_failed, 0);
+  rb_read_string = rb_rescue(noko_io_read_check, (VALUE)rb_args, noko_io_read_failed, 0);
 
-  if (NIL_P(string)) { return 0; }
-  if (string == Qundef) { return -1; }
-  if (TYPE(string) != T_STRING) { return -1; }
+  if (NIL_P(rb_read_string)) { return 0; }
+  if (rb_read_string == Qundef) { return -1; }
+  if (TYPE(rb_read_string) != T_STRING) { return -1; }
 
-  str_len = (size_t)RSTRING_LEN(string);
-  safe_len = str_len > (size_t)len ? (size_t)len : str_len;
-  memcpy(buffer, StringValuePtr(string), safe_len);
+  n_bytes_read = (size_t)RSTRING_LEN(rb_read_string);
+  safe_len = (n_bytes_read > (size_t)c_buffer_len) ? (size_t)c_buffer_len : n_bytes_read;
+  memcpy(c_buffer, StringValuePtr(rb_read_string), safe_len);
 
   return (int)safe_len;
 }
 
 
 static VALUE
-write_check(VALUE val)
+noko_io_write_check(VALUE rb_args)
 {
-  VALUE *args = (VALUE *)val;
-  return rb_funcall(args[0], id_write, 1, args[1]);
+  VALUE rb_io = ((VALUE *)rb_args)[0];
+  VALUE rb_output = ((VALUE *)rb_args)[1];
+  return rb_funcall(rb_io, id_write, 1, rb_output);
 }
 
 
 static VALUE
-write_failed(VALUE arg, VALUE exc)
+noko_io_write_failed(VALUE arg, VALUE exc)
 {
   return Qundef;
 }
 
 
 int
-noko_io_write(void *ctx, char *buffer, int len)
+noko_io_write(void *io, char *c_buffer, int c_buffer_len)
 {
-  VALUE args[2], size;
+  VALUE rb_args[2], rb_n_bytes_written;
+  VALUE rb_io = (VALUE)io;
+  rb_encoding *io_encoding = rb_to_encoding(rb_funcall(rb_io, id_external_encoding, 0));
 
-  args[0] = (VALUE)ctx;
-  args[1] = rb_str_new(buffer, (long)len);
+  rb_args[0] = rb_io;
+  rb_args[1] = rb_enc_str_new(c_buffer, (long)c_buffer_len, io_encoding);
 
-  size = rb_rescue(write_check, (VALUE)args, write_failed, 0);
+  rb_n_bytes_written = rb_rescue(noko_io_write_check, (VALUE)rb_args, noko_io_write_failed, 0);
+  if (rb_n_bytes_written == Qundef) { return -1; }
 
-  if (size == Qundef) { return -1; }
-
-  return NUM2INT(size);
+  return NUM2INT(rb_n_bytes_written);
 }
 
 
 int
-noko_io_close(void *ctx)
+noko_io_close(void *io)
 {
   return 0;
 }
@@ -275,4 +278,5 @@ Init_nokogiri()
 
   id_read = rb_intern("read");
   id_write = rb_intern("write");
+  id_external_encoding = rb_intern("external_encoding");
 }
