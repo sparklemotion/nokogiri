@@ -50,20 +50,21 @@ module Nokogiri
         schema = Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
         assert_equal(Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options)
 
-        schema = Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)),
-          Nokogiri::XML::ParseOptions.new.recover)
+        schema = Nokogiri::XML::RelaxNG.from_document(
+          Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)),
+          Nokogiri::XML::ParseOptions.new.recover
+        )
         assert_equal(Nokogiri::XML::ParseOptions.new.recover, schema.parse_options)
       end
 
       def test_read_memory_with_parse_options
-        # https://github.com/sparklemotion/nokogiri/issues/2115
-        skip_unless_libxml2
-
         schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE))
         assert_equal(Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options)
 
-        schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE),
-          Nokogiri::XML::ParseOptions.new.recover)
+        schema = Nokogiri::XML::RelaxNG.read_memory(
+          File.read(ADDRESS_SCHEMA_FILE),
+          Nokogiri::XML::ParseOptions.new.recover
+        )
         assert_equal(Nokogiri::XML::ParseOptions.new.recover, schema.parse_options)
       end
 

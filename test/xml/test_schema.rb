@@ -104,7 +104,7 @@ module Nokogiri
 
       def test_parse_with_memory
         assert_instance_of(Nokogiri::XML::Schema, @xsd)
-        assert_equal(0, @xsd.errors.length)
+        assert_empty(@xsd.errors)
       end
 
       def test_new
@@ -150,7 +150,7 @@ module Nokogiri
         File.open(PO_SCHEMA_FILE, "rb") do |f|
           assert(xsd = Nokogiri::XML::Schema(f))
         end
-        assert_equal(0, xsd.errors.length)
+        assert_empty(xsd.errors)
       end
 
       def test_parse_with_errors
@@ -163,12 +163,12 @@ module Nokogiri
       def test_validate_document
         doc = Nokogiri::XML(File.read(PO_XML_FILE))
         assert(errors = @xsd.validate(doc))
-        assert_equal(0, errors.length)
+        assert_empty(errors)
       end
 
       def test_validate_file
         assert(errors = @xsd.validate(PO_XML_FILE))
-        assert_equal(0, errors.length)
+        assert_empty(errors)
       end
 
       def test_validate_invalid_document
@@ -231,6 +231,47 @@ module Nokogiri
         Nokogiri::XML::Schema(xsd) # assert_nothing_raised
       end
 
+      describe "Schema#validate" do
+        let(:xsd) do
+          <<~EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              targetNamespace="http://www.example.org/contactExample">
+              <xs:element name="Contacts"></xs:element>
+            </xs:schema>
+          EOF
+        end
+
+        let(:good_xml) { %(<Contacts xmlns="http://www.example.org/contactExample"><Contact></Contact></Contacts>) }
+        let(:bad_xml) { %(<Contacts xmlns="http://www.example.org/wrongNs"><Contact></Contact></Contacts>) }
+
+        it "does not clobber @errors" do
+          schema = Nokogiri::XML::Schema.new(xsd)
+          bad_doc = Nokogiri::XML(bad_xml)
+
+          # assert on setup
+          assert_empty(schema.errors)
+          refute_empty(schema.validate(bad_doc))
+
+          # this is the bit under test
+          assert_empty(schema.errors)
+        end
+
+        it "returns only the most recent document's errors" do
+          # https://github.com/sparklemotion/nokogiri/issues/1282
+          schema = Nokogiri::XML::Schema.new(xsd)
+          good_doc = Nokogiri::XML(good_xml)
+          bad_doc = Nokogiri::XML(bad_xml)
+
+          # assert on setup
+          assert_empty(schema.validate(good_doc))
+          refute_empty(schema.validate(bad_doc))
+
+          # this is the bit under test
+          assert_empty(schema.validate(good_doc))
+        end
+      end
+
       describe "CVE-2020-26247" do
         # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
         let(:schema) do
@@ -270,17 +311,19 @@ module Nokogiri
             it "XML::Schema parsing attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
               errors = doc.errors.map(&:to_s)
-              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+              assert_empty(errors.grep(/ERROR: Attempt to load network entity/),
                 "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
-              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+              assert_equal(1,
+                errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
             end
 
             it "XML::Schema parsing of memory attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
               errors = doc.errors.map(&:to_s)
-              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+              assert_empty(errors.grep(/ERROR: Attempt to load network entity/),
                 "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
-              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+              assert_equal(1,
+                errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
             end
           end
         end
@@ -289,28 +332,28 @@ module Nokogiri
           describe "with default parse options" do
             it "XML::Schema parsing does not attempt to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema)
-              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_equal(1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length)
             end
 
             it "XML::Schema parsing of memory does not attempt to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema)
-              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_equal(1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length)
             end
           end
 
           describe "with NONET turned off" do
             it "XML::Schema parsing attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
-              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_empty(doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/))
             end
 
             it "XML::Schema parsing of memory attempts to access external DTDs" do
               doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
-              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              assert_empty(doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/))
             end
           end
         end
-      end
+      end # "CVE-2020-26247"
     end
   end
 end
