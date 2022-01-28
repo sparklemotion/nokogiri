@@ -8,7 +8,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 
 ## Contents
 
-<!-- regenerate with `markdown-toc --maxdepth=2 -i CONTRIBUTING.md` -->
+<!-- regenerate TOC with `rake format:toc` -->
 
 <!-- toc -->
 

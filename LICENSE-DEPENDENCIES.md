@@ -4,7 +4,7 @@ Nokogiri ships with some third party dependencies, which are listed here along w
 
 Note that this document is broken into multiple sections, each of which describes the dependencies of a different "platform release" of Nokogiri.
 
-<!-- regenerate TOC with `markdown-toc -i` -->
+<!-- regenerate TOC with `rake format:toc` -->
 
 <!-- toc -->
 
