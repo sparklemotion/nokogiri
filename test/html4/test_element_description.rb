@@ -43,7 +43,7 @@ module Nokogiri
       end
 
       def test_inline?
-        assert_predicate(ElementDescription["a"], :inline?)
+        assert_predicate(ElementDescription["strong"], :inline?)
         refute_predicate(ElementDescription["div"], :inline?)
       end
 
