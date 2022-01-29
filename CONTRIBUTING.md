@@ -8,7 +8,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 
 ## Contents
 
-<!-- regenerate with `markdown-toc --maxdepth=2 -i CONTRIBUTING.md` -->
+<!-- regenerate TOC with `rake format:toc` -->
 
 <!-- toc -->
 
@@ -16,6 +16,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Some guiding principles of the project](#some-guiding-principles-of-the-project)
 - [Where to start getting involved](#where-to-start-getting-involved)
 - [Submitting Pull Requests](#submitting-pull-requests)
+- [Branch Management and Release Management](#branch-management-and-release-management)
 - [How to set up your local development environment](#how-to-set-up-your-local-development-environment)
 - [How to run the tests](#how-to-run-the-tests)
 - [Style Guide](#style-guide)
@@ -64,11 +65,24 @@ Also, [pull requests for documentation improvements are always welcome](#documen
 
 ## Submitting Pull Requests
 
-Pull requests that introduce behavior change must always contain a test demonstrating the behavior being introduced, fixed, or changed. These tests should ideally communicate to the maintainers the problem being solved. We will ask you for clarification if we don't understand the problem you're trying to solve.
+Pull requests should be made with `main` as the merge base. See the next section for details.
 
-Please do not submit pull requests that make purely cosmetic changes to the code (style, naming, etc.). While we recognize that the code can always be improved, we would prefer you to focus on more impactful contributions.
+**Pull requests that introduce behavior change must always contain a test** demonstrating the behavior being introduced, fixed, or changed. These tests should ideally communicate to the maintainers the problem being solved. We will ask you for clarification if we don't understand the problem you're trying to solve.
+
+If the pull request contains a feature or a bugfix, please make sure to create a CHANGELOG entry in the "unreleased" section.
+
+Please do not submit pull requests that make purely cosmetic changes to the code (style, naming, etc.). While we recognize that the code can always be improved, we prefer that you focus on more impactful contributions.
 
 Feel free to push a "work in progress" to take advantage of the feedback loops from CI. But then please indicate that it's still in progress by marking it as a [Draft Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests#draft-pull-requests).
+
+
+## Branch Management and Release Management
+
+Nokogiri follows SemVer, and some nuances of that policy are spelled out in the README's "Semantic Versioning Policy" section.
+
+Development should be happening on `main`, which will have `Nokogiri::VERSION` be a development version of the next minor release (e.g., `1.14.0.dev`). All pull requests should have `main` as the merge base.
+
+Patch releases should be made by cherry-picking commits from `main` onto the release branch (e.g., `v1.13.x`) in a pull request labeled `backport`.
 
 
 ## How to set up your local development environment
@@ -209,7 +223,7 @@ I don't feel very strongly about code style, but when possible I follow [Shopify
 
 You can format the C, Java, and Ruby code with `rake format`.
 
-There are likely some pending Rubocop rules in `.rubocop_todo.yml` which I'd be happy to merge if you enabled them and submit a PR.
+There are likely some pending Rubocop rules in `.rubocop_todo.yml` which I'd be happy to merge if you enabled them and submit a pull request.
 
 No, I don't want to talk to you about any of the style choices.
 
@@ -262,7 +276,7 @@ The `gem-install.yml` pipeline includes jobs to:
     - install and test on musl
 - build a jruby gem, install and test it
 
-The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes and PRs. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
+The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes and pull requests. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
 
 
 ### Valgrind

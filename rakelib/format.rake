@@ -75,8 +75,19 @@ namespace "format" do
   desc "Format Nokogiri's Ruby code"
   task "ruby" => "rubocop:check:auto_correct"
 
+  desc "Regenerate tables of contents in some files"
+  task "toc" do
+    require "mkmf"
+    if find_executable0("markdown-toc")
+      sh "markdown-toc --maxdepth=2 -i CONTRIBUTING.md"
+      sh "markdown-toc -i LICENSE-DEPENDENCIES.md"
+    else
+      puts "WARN: cannot find markdown-toc, skipping. install with 'npm install markdown-toc'"
+    end
+  end
+
   CLEAN.add(AstyleHelper.c_files.map { |f| "#{f}.orig" })
   CLEAN.add(AstyleHelper.java_files.map { |f| "#{f}.orig" })
 end
 
-task "format" => ["format:c", "format:java", "format:ruby"]
+task "format" => ["format:c", "format:java", "format:ruby", "format:toc"]
