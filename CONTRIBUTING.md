@@ -339,7 +339,7 @@ A quick summary of what this looks like for you, the developer:
 
 - edit the `requirements` in the gemspec
 - run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
-- run `bundle exec check_manifest` and if necessary update the gemspec `files`
+- run `bundle exec rake check_manifest` and if necessary update the gemspec `files`
 - make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
 
 
