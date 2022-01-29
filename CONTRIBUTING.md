@@ -1,7 +1,5 @@
 # Contributing to Nokogiri
 
-**This document is still a work-in-progress.**
-
 This doc is intended to be a short introduction on how to modify and maintain Nokogiri.
 
 If you're looking for guidance on filing a bug report or getting support, please visit the ["Getting Help" tutorial](http://www.nokogiri.org/tutorials/getting_help.html) at the [nokogiri.org](http://nokogiri.org) site.
@@ -21,7 +19,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [How to run the tests](#how-to-run-the-tests)
 - [Style Guide](#style-guide)
 - [How Continuous Integration ("CI") is configured](#how-continuous-integration-ci-is-configured)
-- [Building gems](#building-gems)
+- [Packaging releases](#packaging-releases)
 - [Other utilities](#other-utilities)
 - [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
@@ -34,7 +32,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 
 Hello there! I'm super excited that you're interested in contributing to Nokogiri. Welcome!
 
-This document is intended only to provide a brief introduction on how to contribute to Nokogiri. It's not a complete specification of everything you need to know, so if you want to know more, I encourage you to reach out to the maintainers in the [Discord channel](https://nokogiri.org/tutorials/getting_help.html#ask-for-help). We'd love to get to know you a bit better!
+This document is intended only to provide a brief introduction on how to contribute to Nokogiri. It's not a complete specification of everything you need to know, so if you want to know more, I encourage you to reach out to the maintainers via email, twitter, or a new Github issue. We'd love to get to know you a bit better!
 
 ## Some guiding principles of the project
 
@@ -48,7 +46,7 @@ Nokogiri supports both CRuby and JRuby, and has native code specific to each (th
 
 - Whenever possible, implement the same functionality for both CRuby and JRuby.
 - Whenever possible, implement shared behavior as shared Ruby code (i.e., write as little native code as reasonable).
-- Whenever possible, write tests that are not platform-specific (which includes skipping).
+- Whenever possible, avoid writing tests that are platform-specific (but if you do, use `skip` to provide an explanation).
 
 Notably, despite all parsers being standards-compliant, there are behavioral inconsistencies between the parsers used in the CRuby and JRuby implementations, and Nokogiri does not and should not attempt to remove these inconsistencies. Instead, we surface these differences in the test suite when they are important/semantic; or we intentionally write tests to depend only on the important/semantic bits (omitting whitespace from regex matchers on results, for example).
 
@@ -78,9 +76,9 @@ Feel free to push a "work in progress" to take advantage of the feedback loops f
 
 ## Branch Management and Release Management
 
-Nokogiri follows SemVer, and some nuances of that policy are spelled out in the README's "Semantic Versioning Policy" section.
+Nokogiri follows SemVer, and some nuances of that policy are spelled out in [Semantic Versioning Policy](https://nokogiri.org/index.html#semantic-versioning-policy).
 
-Development should be happening on `main`, which will have `Nokogiri::VERSION` be a development version of the next minor release (e.g., `1.14.0.dev`). All pull requests should have `main` as the merge base.
+Development should be happening on `main`, which sets `Nokogiri::VERSION` to a development version of the next minor release (e.g., `"1.14.0.dev"`). All pull requests should have `main` as the merge base.
 
 Patch releases should be made by cherry-picking commits from `main` onto the release branch (e.g., `v1.13.x`) in a pull request labeled `backport`.
 
@@ -89,7 +87,10 @@ Patch releases should be made by cherry-picking commits from `main` onto the rel
 
 ### Basic
 
-Clone https://github.com/sparklemotion/nokogiri and run `bundle install`.
+``` sh
+git clone --recurse-submodules https://github.com/sparklemotion/nokogiri
+bundle install
+```
 
 
 ### Advanced
@@ -105,7 +106,7 @@ If you plan to package precompiled native gems, make sure `docker` is installed 
 
 ## How to run the tests
 
-Note that `rake test` does not compile the native extension, and this is intentional. If you're modifying the extension code, please make sure you re-compile each time you run the tests to ensure you're testing your changes.
+Note that `rake test` does not compile the native extension, and this is intentional (so we can run the test suite against an installed gem). If you're modifying the extension code, please make sure you re-compile each time you run the tests to ensure you're testing your changes.
 
 
 ### The short version
@@ -120,8 +121,8 @@ bundle exec rake compile test
 Test using your system's libraries:
 
 ``` sh
-bundle exec rake clean # blow away pre-existing libraries using packaged libs
-NOKOGIRI_USE_SYSTEM_LIBRARIES=t bundle exec rake compile test
+bundle exec rake clean  #  blow away pre-existing libraries using packaged libs
+bundle exec rake compile test -- --enable-system-libraries
 ```
 
 Run tests using valgrind:
@@ -135,10 +136,18 @@ Run tests in the debugger:
 
 ``` sh
 bundle exec rake compile test:gdb
+# or
+bundle exec rake compile test:lldb
+```
+
+Run tests and look for new memory leaks:
+
+``` sh
+bundle exec rake compile test:memcheck
 ```
 
 
-Note that by default the test suite will run a major GC after each test completes. This has shown to be useful for localizing entire classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
+Note that by default the test suite will run a major GC after each test completes. This has shown to be useful for localizing some classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
 
 ``` sh
 # see failure messages immediately
@@ -180,10 +189,10 @@ To run the test suite for the gumbo parser:
 bundle exec rake gumbo
 ```
 
-To make sure to run additional html5lib tests for Nokogiri's HTML5 parser:
+Please note that additional html5lib tests for Nokogiri's HTML5 parser exist in a submodule. If you haven't checked that submodule out, here's how to do so:
 
 ``` sh
-git submodule update --init # test/html5lib-tests
+git submodule update --init  #  test/html5lib-tests
 bundle exec rake compile test
 ```
 
@@ -196,36 +205,36 @@ We use `rdoc` to build Nokogiri's documentation. Run `rake rdoc` to build into t
 
 Previously we made some effort to move towards `yard` but that work was stopped (and the decision record can be found at [RFC: convert to use `yard` for documentation](https://github.com/sparklemotion/nokogiri/issues/1996)).
 
-I would prefer docstrings to be in `RDoc::Markup` format, though simple docstrings may be in Markdown (using `:markup: markdown`).
+Docstrings should be in `RDoc::Markup` format, though simple docstrings may be in Markdown (using `:markup: markdown`).
 
 If you submit pull requests that improve documentation, **I will happily merge them** and credit you in the CHANGELOG.
 
 Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [ext/nokogiri/xml/node.c](ext/nokogiri/xml/node.c) for examples):
 
-- use `:call-seq:` to:
+- Use `:call-seq:` to ...
   - note the return type of the method whenever possible, e.g. `:call-seq: upcase(name) → String`
-  - to name all the aliases of a method
-  - to indicate block/yield usage of a method
-- briefly explain the purpose of the method, what it returns, and what side effects it has
-- use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
-- use a `[Returns]` definition to note the return type
-- use a `[Yields]` definition to note the block parameters
-- use a `⚠` character to warn the user about tricky usage
-- use a `💡` character to call attention to important notes
+  - name all the aliases of a method
+  - indicate block/yield usage of a method
+- Briefly explain the purpose of the method, what it returns, and what side effects it has
+- Use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
+- Use a `[Returns]` definition to note the return type
+- Use a `[Yields]` definition to note the block parameters
+- Use a `⚠` character to warn the user about tricky usage
+- Use a `💡` character to call attention to important notes
 - `See also:` should be used to call out related methods
-- `Since` should be used to indicate the version that code was introduced
-- prefer to show nuanced behavior in code examples, rather than by explaining it
+- `Since` should be used to indicate the version in which the code was introduced
+- Prefer to **show** nuanced behavior in code examples, rather than try to explain it in prose.
 
 
 ### Code
 
-I don't feel very strongly about code style, but when possible I follow [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code I use the `astyle` settings laid out in `/rakelib/format.rake`.
+I don't feel very strongly about code style, but this project follows [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code the project uses the `astyle` configuration laid out in `/rakelib/format.rake`.
 
-You can format the C, Java, and Ruby code with `rake format`.
+You can auto-format the C, Java, and Ruby code with `rake format`.
 
-There are likely some pending Rubocop rules in `.rubocop_todo.yml` which I'd be happy to merge if you enabled them and submit a pull request.
+There are some pending Rubocop rules in `.rubocop_todo.yml`. If you'd like to fix them up, I will happily merge your pull request.
 
-No, I don't want to talk to you about any of the style choices.
+No, I don't want to debate any of the style choices.
 
 
 ## How Continuous Integration ("CI") is configured
@@ -234,66 +243,67 @@ The bulk of CI is running in Github Actions since May 2021: https://github.com/s
 
 However, we also run tests against 32-bit windows (which aren't supported by GA as of this writing) in Appveyor: https://ci.appveyor.com/project/flavorjones/nokogiri
 
-Please note that there are some known holes in CI coverage due to github actions limitations:
-
-- installing ruby and native gems on 32-bit Linux, see:
-  - [actions/checkout error: /etc/*release "no such file or directory"](https://github.com/actions/checkout/issues/334)
-  - [actions/cache is not working as expected in 32-bit linux containers](https://github.com/actions/cache/issues/675)
-  - [actions/upload-artifact is not working as expected in 32-bit linux containers](https://github.com/actions/upload-artifact/issues/266)
+A known hole in CI coverage is the lack native gem tests for arm64-darwin.
 
 
 ### Coverage
 
 The `ci.yml` pipeline includes jobs to:
 
-- basic security sanity check: run rubocop
+- basic security sanity check and formatting check, using Rubocop
 - fast feedback for obvious failures: run against system libraries on vanilla ubuntu
-- run the gumbo parser tests on ubuntu, macos, and windows
+- run the Gumbo parser tests on ubuntu, macos, and windows
 - run on all supported versions of CRuby:
     - once with packaged libraries
     - once with system libraries
     - once on valgrind (to look for memory bugs)
+- run the test suite looking for new memory leaks (using ruby_memcheck)
 - run on JRuby
 - run on a Musl (Alpine) system:
     - against system libraries
     - with valgrind using packaged libraries
-- run with libxml-ruby loaded (because this interacts with libxml2 in conflicting ways)
+- run with libxml-ruby loaded (because this can interact with libxml2 in conflicting ways)
     - against system libraries
     - with valgrind using packaged libraries
 
 The `upstream.yml` pipeline includes jobs to:
 
-- run against CRuby head (linux, windows, macos) including valgrind
+- run against libxml2 and libxslt head (linux), including a valgrind check
+- run against CRuby head (linux, windows, macos) including a valgrind check
 - run against JRuby head
-- run against libxml2 and libxslt head (linux only today) including valgrind
+- run html5lib-tests from that project's `origin/master`
 
 The `gem-install.yml` pipeline includes jobs to:
 
 - build a "ruby" platform gem
     - install and test on linux, macos, and windows
-- build a native 64-bit gem (linux, macos, windows)
+- build native gems
     - install and test against all supported versions of CRuby
-    - install and test on musl
+    - install and test on a variety of linux, macos, and windows systems
 - build a jruby gem, install and test it
 
-The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes and pull requests. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
+The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes or pull requests. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
+
+The `generate-ci-images.yml` pipeline builds some containers used by the other pipelines once a week. This is primarily an optimization to make sure system packages (like `libxml2-dev` and `valgrind`) are already installed. See `oci-images/nokogiri-test/` for details on what's in these containers.
 
 
-### Valgrind
+### Valgrind and `ruby_memcheck`
 
-We rely heavily on Valgrind to catch memory bugs by running in combination with every version of CRuby. We use suppressions, too -- because some Rubies seem to have memory issues? See the files in the `/suppressions` directory and `/rakelib/test.rake` for more information.
+We rely heavily on Valgrind and [`ruby_memcheck`](https://github.com/Shopify/ruby_memcheck) to catch memory bugs by running in combination with every version of CRuby.
+
+We use suppressions primarily to quiet known small memory leaks or quirks of certain Ruby versions. See the files in the `/suppressions` directory and `/rakelib/test.rake` for more information.
 
 
-### Conventions
+### Helpful hints when writing new CI jobs
 
-- Always checkout the source code including submodules (for the html5lib tests)
+- Always checkout the source code **including submodules** (for the html5lib tests)
 - When testing packaged libraries (not system libraries), cache either `ports/` (for compiled libraries) or `ports/archives/` (for just tarballs)
   - note that `libgumbo` is built outside of `ports/` to allow us to do this caching safely
 
 
-## Building gems
+## Packaging releases
 
-As a prerequisite please make sure you have `docker` correctly installed.
+As a prerequisite please make sure you have `docker` correctly installed, to build native (precompiled) gems.
 
 Run `scripts/build-gems` which will package gems for all supported platforms, and run some basic sanity tests on those packages using `scripts/test-gem-set`, `scripts/test-gem-file-contents`, and `scripts/test-gem-installation`.
 
@@ -361,4 +371,4 @@ For best results, be nice. Remember that Nokogiri maintainers are volunteers, an
 
 Do not act entitled to service. Do not be rude. Do not use judgmental or foul language.
 
-The maintainers reserve the right to delete comments that are rude, or that contain foul language. The maintainers reserve the right to delete comments that they deem harassing or offensive.
+The maintainers reserve the right to delete issues or comments that are rude, or that contain foul language, and will permanently block users who violate the code.
