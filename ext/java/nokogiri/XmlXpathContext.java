@@ -39,6 +39,8 @@ import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 @JRubyClass(name = "Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   static
   {
     final String DTMManager = "org.apache.xml.dtm.DTMManager";

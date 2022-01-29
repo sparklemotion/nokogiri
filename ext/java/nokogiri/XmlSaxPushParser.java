@@ -29,6 +29,8 @@ import static org.jruby.runtime.Helpers.invoke;
 @JRubyClass(name = "Nokogiri::XML::SAX::PushParser")
 public class XmlSaxPushParser extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   ParserContext.Options options;
   IRubyObject saxParser;
 
@@ -45,6 +47,7 @@ public class XmlSaxPushParser extends RubyObject
     super(ruby, rubyClass);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void
   finalize()

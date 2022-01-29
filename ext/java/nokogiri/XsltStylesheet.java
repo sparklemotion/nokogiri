@@ -9,6 +9,7 @@ import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.StringReader;
 import java.util.Set;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ import nokogiri.internals.NokogiriXsltErrorListener;
 @JRubyClass(name = "Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
 
   private TransformerFactory factory = null;
   private Templates sheet = null;
@@ -86,18 +88,17 @@ public class XsltStylesheet extends RubyObject
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void
   setHashParameters(Transformer transformer, RubyHash hash)
   {
-    Set<String> keys = hash.keySet();
-    for (String key : keys) {
-      String value = (String)hash.get(key);
-      transformer.setParameter(key, unparseValue(value));
+    for (Map.Entry<Object, Object> entry : (Set<Map.Entry<Object, Object>>)hash.entrySet()) {
+      transformer.setParameter((String)entry.getKey(), unparseValue((String)entry.getValue()));
     }
   }
 
   private void
-  setArrayParameters(Transformer transformer, Ruby runtime, RubyArray params)
+  setArrayParameters(Transformer transformer, Ruby runtime, RubyArray<?> params)
   {
     int limit = params.getLength();
     if (limit % 2 == 1) { limit--; }
@@ -168,7 +169,7 @@ public class XsltStylesheet extends RubyObject
   ensureDocumentHasNoError(ThreadContext context, XmlDocument xmlDoc)
   {
     Ruby runtime = context.getRuntime();
-    RubyArray errors_of_xmlDoc = (RubyArray) xmlDoc.getInstanceVariable("@errors");
+    RubyArray<?> errors_of_xmlDoc = (RubyArray) xmlDoc.getInstanceVariable("@errors");
     if (!errors_of_xmlDoc.isEmpty()) {
       throw runtime.newRuntimeError(errors_of_xmlDoc.first().asString().asJavaString());
     }
@@ -329,7 +330,7 @@ public class XsltStylesheet extends RubyObject
       RubyClass xmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::XML::Document");
       XmlDocument xmlDocument = (XmlDocument) Helpers.invoke(context, xmlDocumentClass, "parse", args);
       if (((Document)xmlDocument.getNode()).getDocumentElement() == null) {
-        RubyArray errors = (RubyArray) xmlDocument.getInstanceVariable("@errors");
+        RubyArray<?> errors = (RubyArray) xmlDocument.getInstanceVariable("@errors");
         Helpers.invoke(context, errors, "<<", args[0]);
       }
       return xmlDocument;

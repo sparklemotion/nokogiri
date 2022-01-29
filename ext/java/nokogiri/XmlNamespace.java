@@ -25,6 +25,8 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   private Attr attr;
   private transient IRubyObject prefixRuby;
   private transient IRubyObject hrefRuby;

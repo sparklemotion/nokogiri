@@ -30,10 +30,10 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::HTML4::SAX::ParserContext", parent = "Nokogiri::XML::SAX::ParserContext")
 public class Html4SaxParserContext extends XmlSaxParserContext
 {
+  private static final long serialVersionUID = 1L;
 
   static Html4SaxParserContext
   newInstance(final Ruby runtime, final RubyClass klazz)

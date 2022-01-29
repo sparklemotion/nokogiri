@@ -645,10 +645,10 @@ public class NokogiriHelpers
     return result;
   }
 
-  public static RubyArray
+  public static RubyArray<?>
   nodeArrayToRubyArray(Ruby ruby, Node[] nodes)
   {
-    RubyArray n = RubyArray.newArray(ruby, nodes.length);
+    RubyArray<?> n = RubyArray.newArray(ruby, nodes.length);
     for (int i = 0; i < nodes.length; i++) {
       n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]));
     }
@@ -754,10 +754,9 @@ public class NokogiriHelpers
     else if (NokogiriHelpers.EUC_JP.compareTo(encoding) == 0) { opt = _Ew; }
     else { opt = _Ww; } // should not come here. should be treated before this method.
 
-    Class nkfClass;
+    Class<?> nkfClass;
     try {
-      // JRuby 1.7 and later
-      nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
+      nkfClass = Ruby.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
     } catch (ClassNotFoundException e1) {
       return str;
     }

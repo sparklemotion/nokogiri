@@ -29,6 +29,7 @@ public class NokogiriService implements BasicLibraryService
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   public static Map<String, RubyClass>
   getNokogiriClassCache(Ruby ruby)
   {

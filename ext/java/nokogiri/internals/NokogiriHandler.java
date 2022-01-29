@@ -114,9 +114,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
     final ThreadContext context = runtime.getCurrentContext();
 
     // for attributes other than namespace attrs
-    RubyArray rubyAttr = RubyArray.newArray(runtime);
+    RubyArray<?> rubyAttr = RubyArray.newArray(runtime);
     // for namespace defining attributes
-    RubyArray rubyNSAttr = RubyArray.newArray(runtime);
+    RubyArray<?> rubyNSAttr = RubyArray.newArray(runtime);
 
     boolean fromFragmentHandler = false; // isFromFragmentHandler();
 

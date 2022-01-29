@@ -21,6 +21,7 @@ import org.xml.sax.SAXParseException;
 @JRubyClass(name = "Nokogiri::XML::SyntaxError", parent = "Nokogiri::SyntaxError")
 public class XmlSyntaxError extends RubyException
 {
+  private static final long serialVersionUID = 1L;
 
   private Exception exception;
   private boolean messageSet; // whether a custom error message was set

@@ -19,6 +19,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 @JRubyClass(name = "Nokogiri::HTML4::EntityLookup")
 public class Html4EntityLookup extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
 
   public
   Html4EntityLookup(Ruby runtime, RubyClass rubyClass)

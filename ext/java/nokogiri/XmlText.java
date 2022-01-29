@@ -25,6 +25,7 @@ import org.w3c.dom.Text;
 @JRubyClass(name = "Nokogiri::XML::Text", parent = "Nokogiri::XML::CharacterData")
 public class XmlText extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   private static final ByteList TEXT = ByteList.create("text");
   static { TEXT.setEncoding(USASCIIEncoding.INSTANCE); }

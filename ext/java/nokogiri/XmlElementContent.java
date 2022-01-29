@@ -26,6 +26,8 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::ElementContent")
 public class XmlElementContent extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   protected String element_name = null;
 
   protected String name;
@@ -145,8 +147,9 @@ public class XmlElementContent extends RubyObject
       case SEQ:
       case OR:
         applyGroup(runtime, klass, doc, iter);
+        break;
       default:
-        // noop
+        break;
     }
   }
 

@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
  */
 public class HtmlDomParserContext extends XmlDomParserContext
 {
+  private static final long serialVersionUID = 1L;
 
   public
   HtmlDomParserContext(Ruby runtime, IRubyObject options)

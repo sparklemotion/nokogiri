@@ -24,6 +24,7 @@ import nokogiri.internals.SaveContextVisitor;
 @JRubyClass(name = "Nokogiri::XML::ProcessingInstruction", parent = "Nokogiri::XML::Node")
 public class XmlProcessingInstruction extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public
   XmlProcessingInstruction(Ruby ruby, RubyClass klazz)

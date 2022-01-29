@@ -50,6 +50,8 @@ import org.xml.sax.SAXParseException;
 @JRubyClass(name = "Nokogiri::XML::Schema")
 public class XmlSchema extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   private Validator validator;
 
   public
@@ -149,7 +151,7 @@ public class XmlSchema extends RubyObject
 
     XmlDocument doc = ((XmlDocument)((XmlNode) document).document(context));
 
-    RubyArray errors = (RubyArray) doc.getInstanceVariable("@errors");
+    RubyArray<?> errors = (RubyArray) doc.getInstanceVariable("@errors");
     if (!errors.isEmpty()) {
       throw((XmlSyntaxError) errors.first()).toThrowable();
     }
@@ -212,7 +214,7 @@ public class XmlSchema extends RubyObject
   IRubyObject
   validate_document_or_file(ThreadContext context, XmlDocument xmlDocument)
   {
-    RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
+    RubyArray<?> errors = (RubyArray) this.getInstanceVariable("@errors");
     ErrorHandler errorHandler = new SchemaErrorHandler(context.runtime, errors);
     setErrorHandler(errorHandler);
 

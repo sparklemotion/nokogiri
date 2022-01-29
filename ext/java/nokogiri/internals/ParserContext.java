@@ -28,6 +28,8 @@ import org.xml.sax.InputSource;
  */
 public abstract class ParserContext extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   protected InputSource source = null;
   protected IRubyObject detected_encoding = null;
   protected int stringDataSize = -1;

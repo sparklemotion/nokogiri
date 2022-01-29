@@ -23,6 +23,8 @@ import org.jruby.runtime.builtin.IRubyObject;
 @JRubyClass(name = "Nokogiri::EncodingHandler")
 public class EncodingHandler extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   protected static HashMap<String, String> map = new HashMap<String, String>();
   static
   {

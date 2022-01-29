@@ -18,10 +18,11 @@ import org.w3c.dom.Node;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::XML::Comment", parent = "Nokogiri::XML::CharacterData")
 public class XmlComment extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
+
   public
   XmlComment(Ruby ruby, RubyClass rubyClass, Node node)
   {

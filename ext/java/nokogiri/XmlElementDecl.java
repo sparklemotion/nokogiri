@@ -22,7 +22,9 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::ElementDecl", parent = "Nokogiri::XML::Node")
 public class XmlElementDecl extends XmlNode
 {
-  RubyArray attrDecls;
+  private static final long serialVersionUID = 1L;
+
+  RubyArray<?> attrDecls;
   IRubyObject contentModel;
 
   public

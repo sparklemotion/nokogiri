@@ -23,6 +23,7 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::EntityReference", parent = "Nokogiri::XML::Node")
 public class XmlEntityReference extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public
   XmlEntityReference(Ruby ruby, RubyClass klazz)

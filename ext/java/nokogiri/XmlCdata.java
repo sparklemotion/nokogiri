@@ -19,10 +19,11 @@ import org.w3c.dom.Node;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::XML::CDATA", parent = "Nokogiri::XML::Text")
 public class XmlCdata extends XmlText
 {
+  private static final long serialVersionUID = 1L;
+
   public
   XmlCdata(Ruby ruby, RubyClass rubyClass)
   {

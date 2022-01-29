@@ -30,6 +30,8 @@ import static org.jruby.runtime.Helpers.invoke;
 @JRubyClass(name = "Nokogiri::HTML4::SAX::PushParser")
 public class Html4SaxPushParser extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
+
   ParserContext.Options options;
   IRubyObject saxParser;
 
@@ -45,6 +47,7 @@ public class Html4SaxPushParser extends RubyObject
     super(ruby, rubyClass);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void
   finalize()

@@ -51,10 +51,11 @@ import nokogiri.internals.c14n.Canonicalizer;
  * @author Yoko Harada <yokolet@gmail.com>
  * @author John Shahid <jvshahid@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::XML::Document", parent = "Nokogiri::XML::Node")
 public class XmlDocument extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
+
   private NokogiriNamespaceCache nsCache;
 
   /* UserData keys for storing extra info in the document node. */
@@ -600,7 +601,7 @@ public class XmlDocument extends XmlNode
   public static IRubyObject
   wrap(ThreadContext context, IRubyObject klass, IRubyObject arg)
   {
-    XmlDocument xmlDocument = new XmlDocument(context.runtime, (RubyClass) klass, (Document) arg.toJava(Document.class));
+    XmlDocument xmlDocument = new XmlDocument(context.runtime, (RubyClass) klass, arg.toJava(Document.class));
     Helpers.invoke(context, xmlDocument, "initialize");
     return xmlDocument;
   }

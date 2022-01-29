@@ -34,6 +34,7 @@ import org.w3c.dom.NamedNodeMap;
 @JRubyClass(name = "Nokogiri::XML::DocumentFragment", parent = "Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public
   XmlDocumentFragment(Ruby ruby)
@@ -122,7 +123,7 @@ public class XmlDocumentFragment extends XmlNode
         if (isNamespaceDefined(qName, nodeMap)) {
           CharSequence namespaceDecl = getNamespaceDecl(getPrefix(qName), nodeMap);
           if (namespaceDecl != null) {
-            if (rewriteTable == null) { rewriteTable = new HashMap(8, 1); }
+            if (rewriteTable == null) { rewriteTable = new HashMap<CharSequence, CharSequence>(8, 1); }
             StringBuilder str = new StringBuilder(qName.length() + namespaceDecl.length() + 3);
             String key = str.append('<').append(qName).append('>').toString();
             str.setCharAt(key.length() - 1, ' '); // (last) '>' -> ' '
