@@ -28,6 +28,7 @@ import static org.jruby.runtime.Helpers.invoke;
 @JRubyClass(name = "Nokogiri::XML::SAX::ParserContext")
 public class XmlSaxParserContext extends ParserContext
 {
+  private static final long serialVersionUID = 1L;
 
   protected static final String FEATURE_NAMESPACES =
     "http://xml.org/sax/features/namespaces";

@@ -20,10 +20,10 @@ public class SchemaErrorHandler implements ErrorHandler
 {
 
   private final Ruby runtime;
-  final RubyArray errors;
+  final RubyArray<?> errors;
 
   public
-  SchemaErrorHandler(Ruby ruby, RubyArray array)
+  SchemaErrorHandler(Ruby ruby, RubyArray<?> array)
   {
     this.runtime = ruby;
     this.errors = array;

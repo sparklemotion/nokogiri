@@ -23,6 +23,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 @JRubyClass(name = "Nokogiri::HTML4::ElementDescription")
 public class Html4ElementDescription extends RubyObject
 {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Stores memoized hash of element -> list of valid subelements.

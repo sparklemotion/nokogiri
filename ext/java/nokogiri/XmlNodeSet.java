@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
 @JRubyClass(name = "Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject implements NodeList
 {
+  private static final long serialVersionUID = 1L;
 
   IRubyObject[] nodes;
 
@@ -407,7 +408,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
   }
 
   @JRubyMethod(name = {"to_a", "to_ary"})
-  public RubyArray
+  public RubyArray<?>
   to_a(ThreadContext context)
   {
     return context.runtime.newArrayNoCopy(nodes);

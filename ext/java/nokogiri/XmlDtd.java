@@ -34,10 +34,11 @@ import nokogiri.internals.SaveContextVisitor;
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::XML::DTD", parent = "Nokogiri::XML::Node")
 public class XmlDtd extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
+
   /** cache of children, Nokogiri::XML::NodeSet */
   protected IRubyObject children = null;
 
@@ -331,7 +332,7 @@ public class XmlDtd extends XmlNode
   public IRubyObject
   validate(ThreadContext context, IRubyObject doc)
   {
-    RubyArray errors = RubyArray.newArray(context.getRuntime());
+    RubyArray<?> errors = RubyArray.newArray(context.getRuntime());
     if (doc instanceof XmlDocument) {
       errors = (RubyArray)((XmlDocument)doc).getInstanceVariable("@errors");
     }
@@ -416,7 +417,7 @@ public class XmlDtd extends XmlNode
     children = XmlNodeSet.newNodeSet(runtime, extractDecls(context, node.getFirstChild()));
 
     // add attribute decls as attributes to the matching element decl
-    RubyArray keys = attributes.keys();
+    RubyArray<?> keys = attributes.keys();
     for (int i = 0; i < keys.getLength(); ++i) {
       IRubyObject akey = keys.entry(i);
       IRubyObject val;

@@ -91,7 +91,7 @@ public abstract class ReaderNode
   public IRubyObject
   getAttributesNodes()
   {
-    RubyArray array = RubyArray.newArray(ruby);
+    RubyArray<?> array = RubyArray.newArray(ruby);
     if (attributeList != null && attributeList.length > 0) {
       if (document == null) {
         document = XmlDocument.createNewDocument(ruby);

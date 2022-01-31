@@ -20,6 +20,8 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::EntityDecl", parent = "Nokogiri::XML::Node")
 public class XmlEntityDecl extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
+
   public static final int INTERNAL_GENERAL = 1;
   public static final int EXTERNAL_GENERAL_PARSED = 2;
   public static final int EXTERNAL_GENERAL_UNPARSED  = 3;

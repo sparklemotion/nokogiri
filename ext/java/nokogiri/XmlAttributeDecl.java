@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 @JRubyClass(name = "Nokogiri::XML::AttributeDecl", parent = "Nokogiri::XML::Node")
 public class XmlAttributeDecl extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public
   XmlAttributeDecl(Ruby ruby, RubyClass klass)
@@ -105,7 +106,7 @@ public class XmlAttributeDecl extends XmlNode
       // removed enclosing parens
       String valueStr = atype.substring(1, atype.length() - 1);
       String[] values = valueStr.split("\\|");
-      RubyArray enumVals = RubyArray.newArray(context.runtime, values.length);
+      RubyArray<?> enumVals = RubyArray.newArray(context.runtime, values.length);
       for (int i = 0; i < values.length; i++) {
         enumVals.append(context.runtime.newString(values[i]));
       }

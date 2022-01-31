@@ -30,6 +30,7 @@ import static nokogiri.internals.NokogiriHelpers.isBlank;
  */
 public class XmlDomParserContext extends ParserContext
 {
+  private static final long serialVersionUID = 1L;
 
   protected static final String FEATURE_LOAD_EXTERNAL_DTD =
     "http://apache.org/xml/features/nonvalidating/load-external-dtd";
@@ -150,7 +151,7 @@ public class XmlDomParserContext extends ParserContext
   }
 
 
-  public static RubyArray
+  public static RubyArray<?>
   mapErrors(ThreadContext context, NokogiriErrorHandler errorHandler)
   {
     final Ruby runtime = context.runtime;

@@ -19,6 +19,7 @@ import nokogiri.internals.SaveContextVisitor;
 @JRubyClass(name = "Nokogiri::XML::Element", parent = "Nokogiri::XML::Node")
 public class XmlElement extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public
   XmlElement(Ruby runtime, RubyClass klazz)

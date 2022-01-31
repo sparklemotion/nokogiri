@@ -580,7 +580,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
 
     int identity = makeNodeIdentity(nodeHandle);
 
-    return (Node) m_nodes.get(identity);
+    return m_nodes.get(identity);
   }
 
   /**
@@ -593,7 +593,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   protected Node
   lookupNode(int nodeIdentity)
   {
-    return (Node) m_nodes.get(nodeIdentity);
+    return m_nodes.get(nodeIdentity);
   }
 
   /**
@@ -987,7 +987,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
 //        {
     int id = makeNodeIdentity(nodeHandle);
     if (NULL == id) { return null; }
-    Node newnode = (Node)m_nodes.get(id);
+    Node newnode = m_nodes.get(id);
     String newname = newnode.getLocalName();
     if (null == newname) {
       // XSLT treats PIs, and possibly other things, as having QNames.
@@ -1102,7 +1102,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
 //        {
     int id = makeNodeIdentity(nodeHandle);
     if (id == NULL) { return null; }
-    Node node = (Node)m_nodes.get(id);
+    Node node = m_nodes.get(id);
     return node.getNamespaceURI();
 //        }
 //        else
@@ -1608,6 +1608,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
    * @param node Node whose subtree is to be walked, gathering the
    * contents of all Text or CDATASection nodes.
    */
+  @SuppressWarnings("fallthrough")
   protected static void
   dispatchNodeData(Node node,
                    org.xml.sax.ContentHandler ch,

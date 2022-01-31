@@ -22,10 +22,10 @@ import org.w3c.dom.Node;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-
 @JRubyClass(name = "Nokogiri::XML::Attr", parent = "Nokogiri::XML::Node")
 public class XmlAttr extends XmlNode
 {
+  private static final long serialVersionUID = 1L;
 
   public static final String[] HTML_BOOLEAN_ATTRS = {
     "checked", "compact", "declare", "defer", "disabled", "ismap",

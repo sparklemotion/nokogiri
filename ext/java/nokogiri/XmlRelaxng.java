@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 @JRubyClass(name = "Nokogiri::XML::RelaxNG", parent = "Nokogiri::XML::Schema")
 public class XmlRelaxng extends XmlSchema
 {
+  private static final long serialVersionUID = 1L;
   private Verifier verifier;
 
   public

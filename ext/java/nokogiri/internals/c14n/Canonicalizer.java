@@ -87,6 +87,7 @@ public class Canonicalizer
    * @param algorithmURI
    * @throws InvalidCanonicalizerException
    */
+  @SuppressWarnings("deprecation")
   private
   Canonicalizer(String algorithmURI) throws CanonicalizationException
   {

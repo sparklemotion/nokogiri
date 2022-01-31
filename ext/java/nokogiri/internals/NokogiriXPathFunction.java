@@ -52,7 +52,7 @@ public class NokogiriXPathFunction implements XPathFunction
   }
 
   public Object
-  evaluate(List args) throws XPathFunctionException
+  evaluate(List<?> args) throws XPathFunctionException
   {
     if (args.size() != this.arity) {
       throw new XPathFunctionException("arity does not match");
@@ -76,7 +76,7 @@ public class NokogiriXPathFunction implements XPathFunction
   }
 
   private static IRubyObject[]
-  fromObjectToRubyArgs(final Ruby runtime, List args)
+  fromObjectToRubyArgs(final Ruby runtime, List<?> args)
   {
     IRubyObject[] newArgs = new IRubyObject[args.size()];
     for (int i = 0; i < args.size(); i++) {
@@ -114,7 +114,7 @@ public class NokogiriXPathFunction implements XPathFunction
   }
 
   private static boolean
-  builtinCssClass(List args) throws XPathFunctionException
+  builtinCssClass(List<?> args) throws XPathFunctionException
   {
     if (args.size() != 2) {
       throw new XPathFunctionException("builtin function nokogiri:css-class takes two arguments");
