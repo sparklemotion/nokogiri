@@ -50,7 +50,7 @@ module Nokogiri
 
           # the document needs to be large enough to trigger a libxml2 buffer flush. the buffer size
           # is determined by MINLEN in xmlIO.c, which is hardcoded to 4000 code points.
-          size = 4000
+          size = 8000
           input = String.new(<<~XML, encoding: "UTF-16")
             <?xml version="1.0" encoding="UTF-16"?>
             <root>
