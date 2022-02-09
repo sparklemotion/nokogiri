@@ -1191,7 +1191,7 @@ module Nokogiri
         options[:encoding] ||= document.encoding
         encoding = Encoding.find(options[:encoding] || "UTF-8")
 
-        io = StringIO.new(String.new(encoding: encoding), "wb:#{encoding}:#{encoding}")
+        io = StringIO.new(String.new(encoding: encoding))
 
         write_to(io, options, &block)
         io.string
