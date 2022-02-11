@@ -125,6 +125,13 @@ bundle exec rake clean  #  blow away pre-existing libraries using packaged libs
 bundle exec rake compile test -- --enable-system-libraries
 ```
 
+Run performance tests:
+
+``` sh
+bundle exec rake compile test:bench
+```
+
+
 Run tests using valgrind:
 
 ``` sh
@@ -139,6 +146,7 @@ bundle exec rake compile test:gdb
 # or
 bundle exec rake compile test:lldb
 ```
+
 
 Run tests and look for new memory leaks:
 
@@ -292,6 +300,13 @@ The `generate-ci-images.yml` pipeline builds some containers used by the other p
 We rely heavily on Valgrind and [`ruby_memcheck`](https://github.com/Shopify/ruby_memcheck) to catch memory bugs by running in combination with every version of CRuby.
 
 We use suppressions primarily to quiet known small memory leaks or quirks of certain Ruby versions. See the files in the `/suppressions` directory and `/rakelib/test.rake` for more information.
+
+
+### Benchmark / Performance tests
+
+A separate suite, `test:bench`, can be run to ensure a few performance expectations. As of 2022-02 this suite is small, but we can grow it over time.
+
+These tests should use `Nokogiri::TestBenchmark` as the base class, and be in a file matching the glob `test/**/bench_*.rb`. They'll be run in CI on CRuby and JRuby.
 
 
 ### Helpful hints when writing new CI jobs
