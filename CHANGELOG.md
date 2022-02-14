@@ -21,7 +21,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 ### Fixed
 
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
-
+* [HTML5] The Gumbo parser now correctly handles text at the end of `form` elements.
 
 ## 1.13.1 / 2022-01-13
 

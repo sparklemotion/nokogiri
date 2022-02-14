@@ -1285,6 +1285,31 @@ TEST_F(GumboParserTest, MisnestedFormInTable) {
   ASSERT_EQ(0, GetChildCount(form2));
 }
 
+TEST_F(GumboParserTest, TextInForm) {
+  Parse("<form>text</form>");
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, GetTag(html));
+  EXPECT_EQ(GUMBO_INSERTION_BY_PARSER | GUMBO_INSERTION_IMPLICIT_END_TAG |
+                GUMBO_INSERTION_IMPLIED,
+      html->parse_flags);
+  ASSERT_EQ(2, GetChildCount(html));
+
+  GumboNode* body = GetChild(html, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, body->type);
+  EXPECT_EQ(GUMBO_TAG_BODY, GetTag(body));
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* form = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, form->type);
+  EXPECT_EQ(GUMBO_TAG_FORM, GetTag(form));
+  ASSERT_EQ(1, GetChildCount(form));
+
+  GumboNode* text = GetChild(form, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_STREQ("text", text->v.text.text);
+}
+
 TEST_F(GumboParserTest, NestedRawtextTags) {
   Parse(
       "<noscript><noscript jstag=false>"
