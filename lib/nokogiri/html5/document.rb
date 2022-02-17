@@ -30,7 +30,7 @@ module Nokogiri
           yield options if block
           string_or_io = "" unless string_or_io
 
-          if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != "ASCII-8BIT"
+          if string_or_io.respond_to?(:encoding) && string_or_io.encoding != Encoding::ASCII_8BIT
             encoding ||= string_or_io.encoding.name
           end
 
