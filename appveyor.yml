@@ -34,8 +34,8 @@ test_script:
 
 environment:
   matrix:
-    - ruby_version: 30
-    - ruby_version: 30
+    - ruby_version: 31
+    - ruby_version: 31
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
 
