@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.13.2 / unreleased
+
+### Dependencies
+
+* [CRuby] Vendored libxslt is updated from 1.1.34 to 1.1.35. This update addresses [CVE-2021-30560](https://nvd.nist.gov/vuln/detail/CVE-2021-30560). Full changelog is available at https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.35.news
+
+
 ## 1.13.1 / 2022-01-13
 
 ### Fixed
