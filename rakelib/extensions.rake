@@ -213,6 +213,10 @@ def java?
 end
 
 def add_file_to_gem(relative_source_path)
+  if relative_source_path.nil? || !File.exist?(relative_source_path)
+    raise "Cannot find file '#{relative_source_path}'"
+  end
+
   dest_path = File.join(gem_build_path, relative_source_path)
   dest_dir = File.dirname(dest_path)
 
@@ -377,8 +381,8 @@ else
 
     ["libxml2", "libxslt"].each do |lib|
       version = dependencies[lib]["version"]
-      archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
-      add_file_to_gem archive
+      archive = Dir.glob(File.join("ports", "archives", "#{lib}-#{version}.tar.*")).first
+      add_file_to_gem(archive)
 
       patchesdir = File.join("patches", lib)
       patches = %x(#{["git", "ls-files", patchesdir].shelljoin}).split("\n").grep(/\.patch\z/)
