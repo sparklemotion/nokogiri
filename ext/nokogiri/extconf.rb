@@ -211,6 +211,18 @@ def local_have_library(lib, func = nil, headers = nil)
   have_library(lib, func, headers) || have_library("lib#{lib}", func, headers)
 end
 
+def gnome_source
+  # As of 2022-02-20, some mirrors have expired SSL certificates. I'm able to retrieve from my home,
+  # but whatever host is resolved on the github actions workers see an expired cert.
+  #
+  # See https://github.com/sparklemotion/nokogiri/runs/5266206403?check_suite_focus=true
+  if ENV["NOKOGIRI_USE_CANONICAL_GNOME_SOURCE"]
+    "https://download.gnome.org"
+  else
+    "https://mirror.csclub.uwaterloo.ca/gnome" # old reliable
+  end
+end
+
 LOCAL_PACKAGE_RESPONSE = Object.new
 def LOCAL_PACKAGE_RESPONSE.%(package)
   package ? "yes: #{package}" : "no"
@@ -512,6 +524,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
 
       EOM
 
+      pp(recipe.files)
       chdir_for_build { recipe.cook }
       FileUtils.touch(checkpoint)
     end
@@ -772,7 +785,7 @@ else
     else
       minor_version = Gem::Version.new(recipe.version).segments.take(2).join(".")
       recipe.files = [{
-        url: "https://download.gnome.org/sources/libxml2/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
+        url: "#{gnome_source}/sources/libxml2/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
         sha256: dependencies["libxml2"]["sha256"],
       }]
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxml2", "*.patch")].sort
@@ -821,7 +834,7 @@ else
     else
       minor_version = Gem::Version.new(recipe.version).segments.take(2).join(".")
       recipe.files = [{
-        url: "https://download.gnome.org/sources/libxslt/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
+        url: "#{gnome_source}/sources/libxslt/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
         sha256: dependencies["libxslt"]["sha256"],
       }]
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxslt", "*.patch")].sort
