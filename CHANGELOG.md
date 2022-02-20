@@ -28,6 +28,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Dependencies
 
+* [CRuby] Vendored libxml2 is updated from 2.9.12 to 2.9.13. This update addresses [CVE-2022-23308](https://gitlab.gnome.org/GNOME/libxml2/-/commit/652dd12). Full changelog is available at https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.news
 * [CRuby] Vendored libxslt is updated from 1.1.34 to 1.1.35. This update addresses [CVE-2021-30560](https://nvd.nist.gov/vuln/detail/CVE-2021-30560). Full changelog is available at https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.35.news
 
 
