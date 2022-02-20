@@ -31,18 +31,18 @@ diff --git a/xmlstring.c b/xmlstring.c
 index e8a1e45d..df247dff 100644
 --- a/xmlstring.c
 +++ b/xmlstring.c
-@@ -423,14 +423,9 @@ xmlStrsub(const xmlChar *str, int start, int len) {
+@@ -423,12 +423,7 @@ xmlStrsub(const xmlChar *str, int start, int len) {
 
  int
  xmlStrlen(const xmlChar *str) {
--    int len = 0;
+-    size_t len = 0;
 -
      if (str == NULL) return(0);
 -    while (*str != 0) { /* non input consuming */
 -        str++;
 -        len++;
 -    }
--    return(len);
+-    return(len > INT_MAX ? 0 : len);
 +
 +    return strlen((const char*)str);
  }

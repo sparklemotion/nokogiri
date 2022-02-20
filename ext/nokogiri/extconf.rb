@@ -770,8 +770,9 @@ else
     if source_dir
       recipe.source_directory = source_dir
     else
+      minor_version = Gem::Version.new(recipe.version).segments.take(2).join(".")
       recipe.files = [{
-        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        url: "https://download.gnome.org/sources/libxml2/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
         sha256: dependencies["libxml2"]["sha256"],
       }]
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxml2", "*.patch")].sort

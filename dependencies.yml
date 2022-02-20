@@ -1,32 +1,7 @@
 libxml2:
-  version: "2.9.12"
-  sha256: "c8d6681e38c56f172892c85ddc0852e1fd4b53b4209e7f4ebf17f7e2eae71d92"
-  #  manually verified checksum:
-  #
-  #    $ gpg --verify libxml2-2.9.12.tar.gz.asc ports/archives/libxml2-2.9.12.tar.gz
-  #    gpg: Signature made Thu 13 May 2021 02:59:16 PM EDT
-  #    gpg:                using RSA key DB46681BB91ADCEA170FA2D415588B26596BEA5D
-  #    gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>" [unknown]
-  #    gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>" [unknown]
-  #    gpg: WARNING: This key is not certified with a trusted signature!
-  #    gpg:          There is no indication that the signature belongs to the owner.
-  #    Primary key fingerprint: C744 15BA 7C9C 7F78 F02E  1DC3 4606 B8A5 DE95 BC1F
-  #         Subkey fingerprint: DB46 681B B91A DCEA 170F  A2D4 1558 8B26 596B EA5D
-  #
-  #  using this pgp signature:
-  #
-  #    -----BEGIN PGP SIGNATURE-----
-  #    
-  #    iQEzBAABCAAdFiEE20ZoG7ka3OoXD6LUFViLJllr6l0FAmCddwQACgkQFViLJllr
-  #    6l11LQgAioRTdfmcC+uK/7+6HPtF/3c5zkX6j8VGYuvFBwZ0jayqMRBAl++fcpjE
-  #    JUU/JKebSZ/KCYjzyeOWK/i3Gq77iqm3UbZFB85rqu4a5P3gmj/4STWVyAx0KU3z
-  #    G3jKqDhJOt7c0acXb5lh2DngfDa1dn/VGcQcIXsqplNxNr4ET7MnSJjZ3nlxYfW2
-  #    E5vWBdPCMUeXDBl6MjYvw9XnGGBLUAaEJWoFToG6jKmVf4GAd9nza20jj5dtbcJq
-  #    QEOaSDKDr+f9h2NS8haOhJ9vOpy52PdeGzaFlbRkXarGXuAr8kITgATVs8FAqcgv
-  #    MoVhmrO5r2hJf0dCM9fZoYqzpMfmNA==
-  #    =KfJ9
-  #    -----END PGP SIGNATURE-----
-  #
+  version: "2.9.13"
+  sha256: "276130602d12fe484ecc03447ee5e759d0465558fbc9d6bd144e3745306ebf0e"
+  # sha-256 hash provided in https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.sha256sum
 
 libxslt:
   version: "1.1.35"
