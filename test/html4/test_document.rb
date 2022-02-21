@@ -783,6 +783,26 @@ module Nokogiri
             assert(html_strict.strict?)
           end
 
+          describe "ill-formed < character" do
+            let(:input) { %{<html><body><div>this < that</div><div>second element</div></body></html>} }
+
+            it "skips to the next start tag" do
+              # see https://github.com/sparklemotion/nokogiri/issues/2461 for why we're testing this edge case
+              if Nokogiri.uses_libxml?(">= 2.9.13")
+                skip_unless_libxml2_patch("0010-Revert-Different-approach-to-fix-quadratic-behavior.patch")
+              end
+
+              doc = Nokogiri::HTML4.parse(input)
+              body = doc.at_xpath("//body")
+
+              expected_error_snippet = Nokogiri.uses_libxml? ? "invalid element name" : "Missing start element name"
+              assert_includes(doc.errors.first.to_s, expected_error_snippet)
+
+              assert_equal("this < that", body.children.first.text, body.to_html)
+              assert_equal(["div", "div"], body.children.map(&:name), body.to_html)
+            end
+          end
+
           describe "read memory" do
             let(:input) { "<html><body><div" }
 
