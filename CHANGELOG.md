@@ -24,6 +24,11 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [HTML5] The Gumbo parser now correctly handles text at the end of `form` elements.
 
 
+### Improved
+
+* Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
+
+
 ## 1.13.2 / unreleased
 
 ### Dependencies
