@@ -175,7 +175,7 @@ module Nokogiri
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
 
           if string_or_io.respond_to?(:encoding)
-            unless string_or_io.encoding.name == "ASCII-8BIT"
+            unless string_or_io.encoding == Encoding::ASCII_8BIT
               encoding ||= string_or_io.encoding.name
             end
           end
