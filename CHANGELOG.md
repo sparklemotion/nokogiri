@@ -29,12 +29,20 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
 
 
-## 1.13.2 / unreleased
+## 1.13.2 / 2022-02-21
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated from 2.9.12 to 2.9.13. This update addresses [CVE-2022-23308](https://nvd.nist.gov/vuln/detail/CVE-2022-23308).
+* [CRuby] Vendored libxslt is updated from 1.1.34 to 1.1.35. This update addresses [CVE-2021-30560](https://nvd.nist.gov/vuln/detail/CVE-2021-30560).
+
+Please see [GHSA-fq42-c5rg-92c2](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-fq42-c5rg-92c2) for more information about these CVEs.
+
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated from 2.9.12 to 2.9.13. This update addresses [CVE-2022-23308](https://gitlab.gnome.org/GNOME/libxml2/-/commit/652dd12). Full changelog is available at https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.news
-* [CRuby] Vendored libxslt is updated from 1.1.34 to 1.1.35. This update addresses [CVE-2021-30560](https://nvd.nist.gov/vuln/detail/CVE-2021-30560). Full changelog is available at https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.35.news
+* [CRuby] Vendored libxml2 is updated from 2.9.12 to 2.9.13. Full changelog is available at https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.news
+* [CRuby] Vendored libxslt is updated from 1.1.34 to 1.1.35. Full changelog is available at https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.35.news
 
 
 ## 1.13.1 / 2022-01-13
