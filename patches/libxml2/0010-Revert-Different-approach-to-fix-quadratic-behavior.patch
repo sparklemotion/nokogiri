@@ -1,0 +1,45 @@
+From ddc5f3d22644e0f6fbcc20541c86825757ffee62 Mon Sep 17 00:00:00 2001
+From: Mike Dalessio <mike.dalessio@gmail.com>
+Date: Mon, 21 Feb 2022 18:27:45 -0500
+Subject: [PATCH] Revert "Different approach to fix quadratic behavior in HTML
+ push parser"
+
+This reverts commit 798bdf13f6964a650b9a0b7b4b3a769f6f1d509a.
+---
+ HTMLparser.c | 14 +-------------
+ 1 file changed, 1 insertion(+), 13 deletions(-)
+
+diff --git a/HTMLparser.c b/HTMLparser.c
+index eba2d7c..c0b8119 100644
+--- a/HTMLparser.c
++++ b/HTMLparser.c
+@@ -3960,25 +3960,13 @@ htmlParseStartTag(htmlParserCtxtPtr ctxt) {
+ 	htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED,
+ 	             "htmlParseStartTag: invalid element name\n",
+ 		     NULL, NULL);
+-        /*
+-         * The recovery code is disabled for now as it can result in
+-         * quadratic behavior with the push parser. htmlParseStartTag
+-         * must consume all content up to the final '>' in order to avoid
+-         * rescanning for this terminator.
+-         *
+-         * For a proper fix in line with HTML5, htmlParseStartTag and
+-         * htmlParseElement should only be called when there's an ASCII
+-         * alpha character following the initial '<'. Otherwise, the '<'
+-         * should be emitted as text (unless followed by '!', '/' or '?').
+-         */
+-#if 0
+ 	/* if recover preserve text on classic misconstructs */
+ 	if ((ctxt->recovery) && ((IS_BLANK_CH(CUR)) || (CUR == '<') ||
+ 	    (CUR == '=') || (CUR == '>') || (((CUR >= '0') && (CUR <= '9'))))) {
+ 	    htmlParseCharDataInternal(ctxt, '<');
+ 	    return(-1);
+ 	}
+-#endif
++
+ 
+ 	/* Dump the bogus tag like browsers do */
+ 	while ((CUR != 0) && (CUR != '>') &&
+-- 
+2.31.0
+
