@@ -15,7 +15,7 @@ PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."
 REQUIRED_LIBXML_VERSION = "2.6.21"
 RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
-REQUIRED_MINI_PORTILE_VERSION = "~> 2.7.0" # keep this version in sync with the one in the gemspec
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.0" # keep this version in sync with the one in the gemspec
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 # Keep track of what versions of what libraries we build against
@@ -209,6 +209,18 @@ end
 
 def local_have_library(lib, func = nil, headers = nil)
   have_library(lib, func, headers) || have_library("lib#{lib}", func, headers)
+end
+
+def gnome_source
+  # As of 2022-02-20, some mirrors have expired SSL certificates. I'm able to retrieve from my home,
+  # but whatever host is resolved on the github actions workers see an expired cert.
+  #
+  # See https://github.com/sparklemotion/nokogiri/runs/5266206403?check_suite_focus=true
+  if ENV["NOKOGIRI_USE_CANONICAL_GNOME_SOURCE"]
+    "https://download.gnome.org"
+  else
+    "https://mirror.csclub.uwaterloo.ca/gnome" # old reliable
+  end
 end
 
 LOCAL_PACKAGE_RESPONSE = Object.new
@@ -512,6 +524,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
 
       EOM
 
+      pp(recipe.files)
       chdir_for_build { recipe.cook }
       FileUtils.touch(checkpoint)
     end
@@ -770,8 +783,9 @@ else
     if source_dir
       recipe.source_directory = source_dir
     else
+      minor_version = Gem::Version.new(recipe.version).segments.take(2).join(".")
       recipe.files = [{
-        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        url: "#{gnome_source}/sources/libxml2/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
         sha256: dependencies["libxml2"]["sha256"],
       }]
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxml2", "*.patch")].sort
@@ -818,8 +832,9 @@ else
     if source_dir
       recipe.source_directory = source_dir
     else
+      minor_version = Gem::Version.new(recipe.version).segments.take(2).join(".")
       recipe.files = [{
-        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        url: "#{gnome_source}/sources/libxslt/#{minor_version}/#{recipe.name}-#{recipe.version}.tar.xz",
         sha256: dependencies["libxslt"]["sha256"],
       }]
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxslt", "*.patch")].sort
