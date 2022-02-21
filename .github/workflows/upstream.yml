@@ -4,16 +4,6 @@ concurrency:
   cancel-in-progress: true
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - v*.*.x
-    tags:
-      - v*.*.*
-  pull_request:
-    types: [opened, synchronize]
-    branches:
-      - '*'
   schedule:
     - cron: "0 8 * * 1,3,5" # At 08:00 on Monday, Wednesday, and Friday # https://crontab.guru/#0_8_*_*_1,3,5
 

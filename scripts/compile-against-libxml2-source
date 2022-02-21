@@ -17,7 +17,7 @@ fi
 if [[ $clean_p -gt 0 ]] ; then
   make clean || true
 
-  ./configure --prefix="${PREFIX}" --without-python --without-readline --with-c14n --with-debug --with-threads --with-iconv=yes --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g"
+  ./configure --prefix="${PREFIX}" --without-python --without-readline --with-c14n --with-debug --with-threads --with-iconv=yes --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g -std=c89 -D_XOPEN_SOURCE=700"
 fi
 
 make install
