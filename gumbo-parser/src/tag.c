@@ -14,7 +14,7 @@
  limitations under the License.
 */
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "util.h"
 #include "tag_lookup.h"
 

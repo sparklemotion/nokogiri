@@ -1,7 +1,7 @@
 #ifndef GUMBO_ATTRIBUTE_H_
 #define GUMBO_ATTRIBUTE_H_
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 
 #ifdef __cplusplus
 extern "C" {

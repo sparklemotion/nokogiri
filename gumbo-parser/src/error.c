@@ -21,7 +21,7 @@
 #include <string.h>
 #include "ascii.h"
 #include "error.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "macros.h"
 #include "parser.h"
 #include "string_buffer.h"

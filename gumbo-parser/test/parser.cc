@@ -15,7 +15,7 @@
 // Author: jdtang@google.com (Jonathan Tang)
 
 #include <string>
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "gtest/gtest.h"
 #include "test_utils.h"
 

@@ -2,7 +2,7 @@
 #define GUMBO_REPLACEMENT_H_
 
 #include <stddef.h>
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 
 typedef struct {
   const char *const from;

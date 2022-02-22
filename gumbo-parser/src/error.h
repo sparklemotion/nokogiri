@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "insertion_mode.h"
 #include "string_buffer.h"
 #include "token_type.h"

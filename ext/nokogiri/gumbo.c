@@ -29,7 +29,7 @@
 
 #include <nokogiri.h>
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 
 VALUE cNokogiriHtml5Document;
 

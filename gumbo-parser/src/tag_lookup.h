@@ -1,7 +1,7 @@
 #ifndef GUMBO_TAG_LOOKUP_H_
 #define GUMBO_TAG_LOOKUP_H_
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 
 typedef struct {
     const char *key;

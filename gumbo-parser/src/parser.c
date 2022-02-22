@@ -24,7 +24,7 @@
 #include "ascii.h"
 #include "attribute.h"
 #include "error.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "insertion_mode.h"
 #include "macros.h"
 #include "parser.h"
