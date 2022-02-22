@@ -27,6 +27,14 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 ### Improved
 
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
+* Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
+
+
+## 1.13.3 / 2022-02-21
+
+### Fixed
+
+* [CRuby] Revert a HTML4 parser bug in libxml 2.9.13 (introduced in Nokogiri v1.13.2). The bug causes libxml2's HTML4 parser to fail to recover when encountering a bare `<` character in some contexts. This version of Nokogiri restores the earlier behavior, which is to recover from the parse error and treat the `<` as normal character data (which will be serialized as `&lt;` in a text node). The bug (and the fix) is only relevant when the `RECOVER` parse option is set, as it is by default. [[#2461](https://github.com/sparklemotion/nokogiri/issues/2461)]
 
 
 ## 1.13.2 / 2022-02-21
