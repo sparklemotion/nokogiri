@@ -23,7 +23,7 @@
 #include <string>
 
 #include "gtest/gtest.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "parser.h"
 
 inline std::string ToString(const GumboStringPiece& str) {

@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "error.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "parser.h"
 #include "ascii.h"
 #include "vector.h"

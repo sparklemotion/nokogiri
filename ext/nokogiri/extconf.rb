@@ -972,7 +972,7 @@ end
 append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
 $libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
 $LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
-ensure_func("gumbo_parse_with_options", "gumbo.h")
+ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 
 have_func("xmlHasFeature") || abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
 have_func("xmlFirstElementChild") # introduced in libxml 2.7.3

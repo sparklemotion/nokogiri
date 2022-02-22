@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "macros.h"
 
 #ifdef __cplusplus

@@ -17,7 +17,7 @@
 
 #include <stddef.h>
 #include <string.h>
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "ascii.h"
 
 bool gumbo_string_equals (

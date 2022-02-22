@@ -50,7 +50,7 @@
 #include "attribute.h"
 #include "char_ref.h"
 #include "error.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "parser.h"
 #include "string_buffer.h"
 #include "token_type.h"

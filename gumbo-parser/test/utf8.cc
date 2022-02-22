@@ -20,7 +20,7 @@
 
 #include "gtest/gtest.h"
 #include "error.h"
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 #include "test_utils.h"
 
 namespace {

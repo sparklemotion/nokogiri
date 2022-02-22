@@ -20,7 +20,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "gumbo.h"
+#include "nokogiri_gumbo.h"
 
 #ifdef __cplusplus
 extern "C" {

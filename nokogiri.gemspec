@@ -198,7 +198,7 @@ Gem::Specification.new do |spec|
     "gumbo-parser/src/error.h",
     "gumbo-parser/src/foreign_attrs.c",
     "gumbo-parser/src/foreign_attrs.gperf",
-    "gumbo-parser/src/gumbo.h",
+    "gumbo-parser/src/nokogiri_gumbo.h",
     "gumbo-parser/src/insertion_mode.h",
     "gumbo-parser/src/macros.h",
     "gumbo-parser/src/parser.c",
