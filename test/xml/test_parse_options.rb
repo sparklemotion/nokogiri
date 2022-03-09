@@ -17,6 +17,7 @@ module Nokogiri
 
       ParseOptions.constants.each do |constant|
         next if constant == "STRICT"
+
         class_eval %{
           def test_predicate_#{constant.downcase}
             options = ParseOptions.new(ParseOptions::#{constant})

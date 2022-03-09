@@ -521,6 +521,7 @@ module Nokogiri
 
         reader.each do |node|
           next unless node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
+
           if node.name == "link"
             assert_nil(node.base_uri)
           end
