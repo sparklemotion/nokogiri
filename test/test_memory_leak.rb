@@ -206,6 +206,7 @@ class TestMemoryLeak < Nokogiri::TestCase
         100_001.times do |j|
           Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
           next unless j % 10_000 == 0
+
           curr_rss = MemInfo.rss
           diff_rss = curr_rss - prev_rss
           printf("\n(iter %d) %d", j, curr_rss)
@@ -232,6 +233,7 @@ class TestMemoryLeak < Nokogiri::TestCase
       if STATM_FOUND
         return (File.read(STATM_PATH).split(" ")[1].to_i * PAGE_SIZE) / 1024
       end
+
       0
     end
   end

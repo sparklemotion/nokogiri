@@ -64,6 +64,7 @@ module Nokogiri
 
       def location_to_s
         return nil if nil_or_zero?(line) && nil_or_zero?(column)
+
         "#{line}:#{column}"
       end
     end

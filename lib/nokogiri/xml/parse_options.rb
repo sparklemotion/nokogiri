@@ -89,6 +89,7 @@ module Nokogiri
 
       constants.each do |constant|
         next if constant.to_sym == :STRICT
+
         class_eval %{
           def #{constant.downcase}
             @options |= #{constant}

@@ -82,6 +82,7 @@ if Nokogiri.uses_gumbo?
       elsif node_text.start_with?("<!-- ")
         loop do
           break if lines[index].end_with?(" -->")
+
           index += 1
           node_text << "\n" + lines[index]
         end
@@ -214,6 +215,7 @@ if Nokogiri.uses_gumbo?
         compare_nodes(exp_child, act_child)
         children[-1] = child_index + 1
         next unless exp_child.key?(:children)
+
         exp_nodes << exp_child
         act_nodes << act_child
         children << 0
@@ -272,6 +274,7 @@ if Nokogiri.uses_gumbo?
     klass = Class.new(TestHtml5TreeConstructionBase) do
       tests.each_with_index do |test, index|
         next if test[:script] == :on
+
         define_method "test_#{index}".to_sym do
           @test = test
           @index = index

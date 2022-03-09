@@ -27,6 +27,7 @@ module Nokogiri
         if string_or_io.respond_to?(:read)
           return Reader.from_io(string_or_io, url, encoding, options.to_i)
         end
+
         Reader.from_memory(string_or_io, url, encoding, options.to_i)
       end
 

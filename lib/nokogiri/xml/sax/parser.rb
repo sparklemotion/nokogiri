@@ -101,6 +101,7 @@ module Nokogiri
           raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exist?(filename)
           raise Errno::EISDIR if File.directory?(filename)
+
           ctx = ParserContext.file(filename)
           yield ctx if block_given?
           ctx.parse_with(self)

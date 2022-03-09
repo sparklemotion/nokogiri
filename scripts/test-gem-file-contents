@@ -38,6 +38,7 @@ gemfile_contents = Dir.mktmpdir do |dir|
     unless system("tar -xf #{gemfile} data.tar.gz")
       raise "could not unpack gem #{gemfile}"
     end
+
     %x(tar -ztf data.tar.gz).split("\n")
   end
 end
@@ -47,6 +48,7 @@ gemspec = Dir.mktmpdir do |dir|
     unless system("tar -xf #{gemfile} metadata.gz")
       raise "could not unpack gem #{gemfile}"
     end
+
     YAML.safe_load(
       %x(gunzip -c metadata.gz),
       permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol]
@@ -75,6 +77,7 @@ describe File.basename(gemfile) do
     File.read(cross_rubies_path).split("\n").map do |line|
       ver, plat = line.split(":")
       next if plat != gemspec.platform.to_s
+
       ver.split(".").take(2).join(".") # ugh
     end.compact.uniq.sort
   end

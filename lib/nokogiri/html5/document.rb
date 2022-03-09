@@ -40,16 +40,19 @@ module Nokogiri
           unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
             raise ArgumentError, "not a string or IO object"
           end
+
           do_parse(string_or_io, url, encoding, options)
         end
 
         def read_io(io, url = nil, encoding = nil, **options)
           raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
+
           do_parse(io, url, encoding, options)
         end
 
         def read_memory(string, url = nil, encoding = nil, **options)
           raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
+
           do_parse(string, url, encoding, options)
         end
 

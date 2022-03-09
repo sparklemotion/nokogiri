@@ -162,6 +162,7 @@ module Nokogiri
       if File.directory?(patch_dir) && !File.exist?(File.join(patch_dir, patch_name))
         raise("checking for nonexistent patch file #{patch_name.inspect}")
       end
+
       unless Nokogiri.libxml2_patches.include?(patch_name)
         skip("this test needs libxml2 patched with #{patch_name}")
       end
@@ -217,6 +218,7 @@ module Nokogiri
 
     def pending_if(msg, pend_eh, &block)
       return yield unless pend_eh
+
       pending(msg, &block)
     end
 
