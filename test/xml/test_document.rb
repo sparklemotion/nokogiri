@@ -468,9 +468,9 @@ module Nokogiri
             options = cfg
             options.nonet.nowarning.dtdattr
           end
-          assert(options.nonet?)
-          assert(options.nowarning?)
-          assert(options.dtdattr?)
+          assert_predicate(options, :nonet?)
+          assert_predicate(options, :nowarning?)
+          assert_predicate(options, :dtdattr?)
         end
 
         def test_XML_takes_block
@@ -479,9 +479,9 @@ module Nokogiri
             options = cfg
             options.nonet.nowarning.dtdattr
           end
-          assert(options.nonet?)
-          assert(options.nowarning?)
-          assert(options.dtdattr?)
+          assert_predicate(options, :nonet?)
+          assert_predicate(options, :nowarning?)
+          assert_predicate(options, :dtdattr?)
         end
 
         def test_document_parse_method
@@ -626,7 +626,7 @@ module Nokogiri
 
         def test_XML_function
           xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
-          assert(xml.xml?)
+          assert_predicate(xml, :xml?)
         end
 
         def test_url
@@ -651,7 +651,7 @@ module Nokogiri
           File.open(XML_FILE, "rb") do |f|
             xml = Nokogiri::XML(f)
           end
-          assert(xml.xml?)
+          assert_predicate(xml, :xml?)
           assert_equal(XML_FILE, xml.url)
           set = xml.search("//employee")
           refute_empty(set)
@@ -769,7 +769,7 @@ module Nokogiri
         end
 
         def test_xml?
-          assert(xml.xml?)
+          assert_predicate(xml, :xml?)
         end
 
         def test_document
@@ -820,13 +820,13 @@ module Nokogiri
         def test_dup
           dup = xml.dup
           assert_instance_of(Nokogiri::XML::Document, dup)
-          assert(dup.xml?, "duplicate should be xml")
+          assert_predicate(dup, :xml?, "duplicate should be xml")
         end
 
         def test_new
           doc = Nokogiri::XML::Document.new
           assert(doc)
-          assert(doc.xml?)
+          assert_predicate(doc, :xml?)
           assert_nil(doc.root)
         end
 
@@ -1013,7 +1013,7 @@ module Nokogiri
           end
 
           it "sets the test up correctly" do
-            assert(xml_strict.strict?)
+            assert_predicate(xml_strict, :strict?)
           end
 
           describe "read memory" do

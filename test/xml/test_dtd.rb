@@ -93,14 +93,14 @@ module Nokogiri
           dtd = doc.internal_subset
           assert_instance_of(Nokogiri::XML::DTD, dtd, name)
           if html_p
-            assert(dtd.html_dtd?, "expected #{name} to be html_dtd?")
+            assert_predicate(dtd, :html_dtd?, "expected #{name} to be html_dtd?")
           else
-            refute(dtd.html_dtd?, "expected #{name} to not be html_dtd?")
+            refute_predicate(dtd, :html_dtd?, "expected #{name} to not be html_dtd?")
           end
           if html5_p
-            assert(dtd.html5_dtd?, "expected #{name} to be html5_dtd?")
+            assert_predicate(dtd, :html5_dtd?, "expected #{name} to be html5_dtd?")
           else
-            refute(dtd.html5_dtd?, "expected #{name} to not be html5_dtd?")
+            refute_predicate(dtd, :html5_dtd?, "expected #{name} to not be html5_dtd?")
           end
         end
       end
