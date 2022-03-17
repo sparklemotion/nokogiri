@@ -554,7 +554,7 @@ module Nokogiri
             assert_equal("root", wrappers.first.parent.name)
             assert_equal("foo", wrappers.first.children.first.name)
             assert_equal("foo", wrappers.last.parent.name)
-            assert(wrappers.last.children.first.text?)
+            assert_predicate(wrappers.last.children.first, :text?)
             assert_equal("contents", wrappers.last.children.first.text)
           end
 

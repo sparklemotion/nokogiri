@@ -318,7 +318,7 @@ module Nokogiri
           let(:input) { "<div>foo</div" }
 
           it "sets the test up correctly" do
-            assert(html4_strict.strict?)
+            assert_predicate(html4_strict, :strict?)
           end
 
           describe "HTML4.fragment" do
@@ -343,7 +343,7 @@ module Nokogiri
               Nokogiri::HTML4.fragment(input) do |config|
                 default_config = config
               end
-              refute(default_config.strict?)
+              refute_predicate(default_config, :strict?)
 
               assert_raises(Nokogiri::SyntaxError) do
                 Nokogiri::HTML4.fragment(input, &:norecover)
@@ -373,7 +373,7 @@ module Nokogiri
               Nokogiri::HTML4::DocumentFragment.parse(input) do |config|
                 default_config = config
               end
-              refute(default_config.strict?)
+              refute_predicate(default_config, :strict?)
 
               assert_raises(Nokogiri::SyntaxError) do
                 Nokogiri::HTML4::DocumentFragment.parse(input, &:norecover)
@@ -404,7 +404,7 @@ module Nokogiri
                 Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input) do |config|
                   default_config = config
                 end
-                refute(default_config.strict?)
+                refute_predicate(default_config, :strict?)
 
                 assert_raises(Nokogiri::SyntaxError) do
                   Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, &:norecover)
@@ -437,7 +437,7 @@ module Nokogiri
                 Nokogiri::HTML4::DocumentFragment.new(document, input, context_node) do |config|
                   default_config = config
                 end
-                refute(default_config.strict?)
+                refute_predicate(default_config, :strict?)
 
                 assert_raises(Nokogiri::SyntaxError) do
                   Nokogiri::HTML4::DocumentFragment.new(document, input, context_node, &:norecover)

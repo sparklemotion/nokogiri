@@ -13,7 +13,7 @@ module Nokogiri
         def test_first_element_child
           node = xml.root.first_element_child
           assert_equal("employee", node.name)
-          assert(node.element?, "node is an element")
+          assert_predicate(node, :element?, "node is an element")
         end
 
         def test_element_children
@@ -260,7 +260,7 @@ module Nokogiri
           doc = Nokogiri::XML("<root><foo /><quux /></root>")
           node         = doc.at_css("foo")
           next_element = node.next_element
-          assert(next_element.element?)
+          assert_predicate(next_element, :element?)
           assert_equal(doc.at_css("quux"), next_element)
         end
 
@@ -273,7 +273,7 @@ module Nokogiri
           doc = Nokogiri::XML("<root><foo />bar<quux /></root>")
           node         = doc.at_css("foo")
           next_element = node.next_element
-          assert(next_element.element?)
+          assert_predicate(next_element, :element?)
           assert_equal(doc.at_css("quux"), next_element)
         end
 
@@ -288,7 +288,7 @@ module Nokogiri
           doc = Nokogiri::XML("<root><foo /><quux /></root>")
           node             = doc.at_css("quux")
           previous_element = node.previous_element
-          assert(previous_element.element?)
+          assert_predicate(previous_element, :element?)
           assert_equal(doc.at_css("foo"), previous_element)
         end
 
@@ -301,7 +301,7 @@ module Nokogiri
           doc = Nokogiri::XML("<root><foo />bar<quux /></root>")
           node             = doc.at_css("quux")
           previous_element = node.previous_element
-          assert(previous_element.element?)
+          assert_predicate(previous_element, :element?)
           assert_equal(doc.at_css("foo"), previous_element)
         end
 
@@ -313,7 +313,7 @@ module Nokogiri
         end
 
         def test_element?
-          assert(xml.root.element?, "is an element")
+          assert_predicate(xml.root, :element?, "is an element")
         end
 
         def test_slash_search
@@ -753,7 +753,7 @@ module Nokogiri
           assert(entity_decl = xml.internal_subset.children.find do |x|
             x.type == Node::ENTITY_DECL
           end)
-          assert(entity_decl.read_only?)
+          assert_predicate(entity_decl, :read_only?)
         end
 
         def test_set_content_with_symbol
@@ -1168,11 +1168,11 @@ module Nokogiri
         end
 
         def test_blank_eh
-          refute(Nokogiri("").blank?)
-          refute(Nokogiri("<root><child/></root>").root.child.blank?)
-          assert(Nokogiri("<root>\t \n</root>").root.child.blank?)
-          assert(Nokogiri("<root><![CDATA[\t \n]]></root>").root.child.blank?)
-          assert(Nokogiri("<root>not-blank</root>").root.child.tap { |n| n.content = "" }.blank?)
+          refute_predicate(Nokogiri(""), :blank?)
+          refute_predicate(Nokogiri("<root><child/></root>").root.child, :blank?)
+          assert_predicate(Nokogiri("<root>\t \n</root>").root.child, :blank?)
+          assert_predicate(Nokogiri("<root><![CDATA[\t \n]]></root>").root.child, :blank?)
+          assert_predicate(Nokogiri("<root>not-blank</root>").root.child.tap { |n| n.content = "" }, :blank?)
         end
 
         def test_to_xml_allows_to_serialize_with_as_xml_save_option
@@ -1242,18 +1242,18 @@ module Nokogiri
           html_node = html_doc.at_css("div")
           xml_node = xml_doc.at_css("div")
 
-          assert(html_doc.document?)
-          assert(xml_doc.document?)
-          refute(html_node.document?)
-          refute(xml_node.document?)
+          assert_predicate(html_doc, :document?)
+          assert_predicate(xml_doc, :document?)
+          refute_predicate(html_node, :document?)
+          refute_predicate(xml_node, :document?)
         end
 
         def test_processing_instruction_eh
           xml_doc = Nokogiri::XML(%{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<?xml-stylesheet type="text/xsl" href="foo2.xsl"?>\n<root><div>foo</div></root>})
           pi_node = xml_doc.children.first
           div_node = xml_doc.at_css("div")
-          assert(pi_node.processing_instruction?)
-          refute(div_node.processing_instruction?)
+          assert_predicate(pi_node, :processing_instruction?)
+          refute_predicate(div_node, :processing_instruction?)
         end
 
         def test_node_lang

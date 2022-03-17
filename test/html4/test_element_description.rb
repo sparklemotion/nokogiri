@@ -19,17 +19,17 @@ module Nokogiri
       end
 
       def test_implied_start_tag?
-        refute(ElementDescription["a"].implied_start_tag?)
+        refute_predicate(ElementDescription["a"], :implied_start_tag?)
       end
 
       def test_implied_end_tag?
-        refute(ElementDescription["a"].implied_end_tag?)
-        assert(ElementDescription["p"].implied_end_tag?)
+        refute_predicate(ElementDescription["a"], :implied_end_tag?)
+        assert_predicate(ElementDescription["p"], :implied_end_tag?)
       end
 
       def test_save_end_tag?
-        refute(ElementDescription["a"].save_end_tag?)
-        assert(ElementDescription["br"].save_end_tag?)
+        refute_predicate(ElementDescription["a"], :save_end_tag?)
+        assert_predicate(ElementDescription["br"], :save_end_tag?)
       end
 
       def test_empty?
@@ -38,13 +38,13 @@ module Nokogiri
       end
 
       def test_deprecated?
-        assert(ElementDescription["applet"].deprecated?)
-        refute(ElementDescription["br"].deprecated?)
+        assert_predicate(ElementDescription["applet"], :deprecated?)
+        refute_predicate(ElementDescription["br"], :deprecated?)
       end
 
       def test_inline?
-        assert(ElementDescription["a"].inline?)
-        refute(ElementDescription["div"].inline?)
+        assert_predicate(ElementDescription["a"], :inline?)
+        refute_predicate(ElementDescription["div"], :inline?)
       end
 
       def test_block?

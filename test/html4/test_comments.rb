@@ -26,7 +26,7 @@ module Nokogiri
             if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
-                assert subject.children.first.comment?
+                assert_predicate subject.children.first, :comment?
                 assert_equal "", subject.children.first.content
                 assert other_div
               end
@@ -43,7 +43,7 @@ module Nokogiri
           if Nokogiri.jruby?
             it "behaves as if the comment is closed correctly" do # COMPLIANT
               assert_equal 1, subject.children.length
-              assert subject.children.first.comment?
+              assert_predicate subject.children.first, :comment?
               assert_equal "", subject.children.first.content
               assert other_div
             end
@@ -57,7 +57,7 @@ module Nokogiri
             if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
-                assert subject.children.first.comment?
+                assert_predicate subject.children.first, :comment?
                 assert_equal "", subject.children.first.content
                 assert other_div
               end
@@ -74,7 +74,7 @@ module Nokogiri
           if Nokogiri.jruby?
             it "behaves as if the comment is closed correctly" do # COMPLIANT
               assert_equal 1, subject.children.length
-              assert subject.children.first.comment?
+              assert_predicate subject.children.first, :comment?
               assert_equal "-", subject.children.first.content # curious, potentially non-compliant?
               assert other_div
             end
@@ -86,7 +86,7 @@ module Nokogiri
 
           it "behaves as if the comment is closed correctly" do # COMPLIANT
             assert_equal 1, subject.children.length
-            assert subject.children.first.comment?
+            assert_predicate subject.children.first, :comment?
             assert_equal "", subject.children.first.content
             assert other_div
           end
@@ -115,7 +115,7 @@ module Nokogiri
         if Nokogiri.jruby?
           it "behaves as if the comment is closed immediately before the end of the input stream" do # COMPLIANT
             assert_equal 1, subject.children.length
-            assert subject.children.first.comment?
+            assert_predicate subject.children.first, :comment?
             assert_equal "start of unterminated comment", subject.children.first.content
           end
         end
@@ -136,11 +136,11 @@ module Nokogiri
         if Nokogiri::VersionInfo.instance.libxml2_using_packaged? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?(">=2.9.11"))
           it "behaves as if the comment is normally closed" do # COMPLIANT
             assert_equal 3, subject.children.length
-            assert subject.children[0].comment?
+            assert_predicate subject.children[0], :comment?
             assert_equal "foo", subject.children[0].content
             assert inner_div
             assert_equal inner_div, subject.children[1]
-            assert subject.children[2].comment?
+            assert_predicate subject.children[2], :comment?
             assert_equal "bar", subject.children[2].content
             assert_equal 1, doc.errors.length
             assert_match(/Comment incorrectly closed/, doc.errors.first.to_s)
@@ -150,7 +150,7 @@ module Nokogiri
         if Nokogiri.jruby? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?("<2.9.11"))
           it "behaves as if the comment encompasses the inner div" do # NON-COMPLIANT
             assert_equal 1, subject.children.length
-            assert subject.children.first.comment?
+            assert_predicate subject.children.first, :comment?
             refute inner_div
             assert_match(/id=do-i-exist/, subject.children.first.content)
             assert_equal 0, doc.errors.length
@@ -178,9 +178,9 @@ module Nokogiri
             assert_equal 2, body.children.length
             assert_equal body.children[0], subject
             assert_equal 1, subject.children.length
-            assert subject.children[0].text?
+            assert_predicate subject.children[0], :text?
             assert_equal "inner content", subject.children[0].content
-            assert body.children[1].text?
+            assert_predicate body.children[1], :text?
             assert_equal "-->hello", body.children[1].content
           end
         end
@@ -188,7 +188,7 @@ module Nokogiri
         if Nokogiri.jruby?
           it "ignores up to the next '-->'" do # NON-COMPLIANT
             assert_equal 1, subject.children.length
-            assert subject.children[0].text?
+            assert_predicate subject.children[0], :text?
             assert_equal "hello", subject.children[0].content
           end
         end
@@ -208,11 +208,11 @@ module Nokogiri
 
         it "ignores to the next '-->'" do # COMPLIANT
           assert_equal 3, subject.children.length
-          assert subject.children[0].comment?
+          assert_predicate subject.children[0], :comment?
           assert_equal " outer <!-- inner ", subject.children[0].content
           assert inner_div
           assert_equal inner_div, subject.children[1]
-          assert subject.children[2].text?
+          assert_predicate subject.children[2], :text?
           assert_equal "-->", subject.children[2].content
         end
       end

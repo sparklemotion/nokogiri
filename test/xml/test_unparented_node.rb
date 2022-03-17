@@ -113,7 +113,7 @@ module Nokogiri
           x.type == Node::ENTITY_DECL
         end
         assert(entity_decl)
-        assert(entity_decl.read_only?)
+        assert_predicate(entity_decl, :read_only?)
       end
 
       def test_remove_attribute
@@ -203,8 +203,8 @@ module Nokogiri
 
         left_space = a_tag.previous
         right_space = a_tag.next
-        assert(left_space.text?)
-        assert(right_space.text?)
+        assert_predicate(left_space, :text?)
+        assert_predicate(right_space, :text?)
 
         left_space.add_previous_sibling(right_space)
         assert_equal(left_space, right_space)
@@ -221,8 +221,8 @@ module Nokogiri
 
         left_space = a_tag.previous
         right_space = a_tag.next
-        assert(left_space.text?)
-        assert(right_space.text?)
+        assert_predicate(left_space, :text?)
+        assert_predicate(right_space, :text?)
 
         right_space.add_next_sibling(left_space)
         assert_equal(left_space, right_space)

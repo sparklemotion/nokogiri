@@ -82,9 +82,9 @@ module Nokogiri
           options = cfg
           options.nonet.nowarning.dtdattr
         end
-        assert(options.nonet?)
-        assert(options.nowarning?)
-        assert(options.dtdattr?)
+        assert_predicate(options, :nonet?)
+        assert_predicate(options, :nowarning?)
+        assert_predicate(options, :dtdattr?)
       end
 
       def test_nil_raises
@@ -99,7 +99,7 @@ module Nokogiri
       def test_from_io
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader.from_io(io)
-        refute(reader.default?)
+        refute_predicate(reader, :default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -107,7 +107,7 @@ module Nokogiri
       def test_io
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader(io)
-        refute(reader.default?)
+        refute_predicate(reader, :default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -119,7 +119,7 @@ module Nokogiri
         </x>
         eoxml
         reader = Nokogiri::XML::Reader(io)
-        refute(reader.default?)
+        refute_predicate(reader, :default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -169,7 +169,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        refute(reader.default?)
+        refute_predicate(reader, :default?)
         assert_equal([false, false, false, false, false, false, false],
           reader.map(&:default?))
       end
@@ -180,7 +180,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        refute(reader.value?)
+        refute_predicate(reader, :value?)
         assert_equal([false, true, false, true, false, true, false],
           reader.map(&:value?))
       end
@@ -223,7 +223,7 @@ module Nokogiri
           <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
         </x>
         eoxml
-        refute(reader.attributes?)
+        refute_predicate(reader, :attributes?)
         assert_equal([true, false, true, false, true, false, true],
           reader.map(&:attributes?))
       end

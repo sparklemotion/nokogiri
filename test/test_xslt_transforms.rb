@@ -156,19 +156,19 @@ module Nokogiri
       def test_transform_with_hash
         assert(style = Nokogiri::XSLT(File.read(XSLT_FILE)))
         result = style.transform(doc, { "title" => '"Booyah"' })
-        assert(result.html?)
+        assert_predicate(result, :html?)
         assert_equal("Booyah", result.at_css("h1").content)
       end
 
       def test_transform2
         assert(style = Nokogiri::XSLT(File.open(XSLT_FILE)))
         assert(result_doc = style.transform(doc))
-        assert(result_doc.html?)
+        assert_predicate(result_doc, :html?)
         assert_equal("", result_doc.at_css("h1").content)
 
         assert(style = Nokogiri::XSLT(File.read(XSLT_FILE)))
         assert(result_doc = style.transform(doc, ["title", '"Booyah"']))
-        assert(result_doc.html?)
+        assert_predicate(result_doc, :html?)
         assert_equal("Booyah", result_doc.at_css("h1").content)
 
         assert(result_string = style.apply_to(doc, ["title", '"Booyah"']))
@@ -178,12 +178,12 @@ module Nokogiri
       def test_transform_with_quote_params
         assert(style = Nokogiri::XSLT(File.open(XSLT_FILE)))
         assert(result_doc = style.transform(doc, Nokogiri::XSLT.quote_params(["title", "Booyah"])))
-        assert(result_doc.html?)
+        assert_predicate(result_doc, :html?)
         assert_equal("Booyah", result_doc.at_css("h1").content)
 
         assert(style = Nokogiri::XSLT.parse(File.read(XSLT_FILE)))
         assert(result_doc = style.transform(doc, Nokogiri::XSLT.quote_params({ "title" => "Booyah" })))
-        assert(result_doc.html?)
+        assert_predicate(result_doc, :html?)
         assert_equal("Booyah", result_doc.at_css("h1").content)
       end
 
@@ -192,7 +192,7 @@ module Nokogiri
         skip_unless_libxml2("cannot get it working on JRuby")
 
         assert(doc = Nokogiri::XML.parse(File.read(EXML_FILE)))
-        assert(doc.xml?)
+        assert_predicate(doc, :xml?)
 
         assert(style = Nokogiri::XSLT.parse(File.read(EXSLT_FILE)))
         params = {
@@ -302,7 +302,7 @@ module Nokogiri
         EOXSL
 
         result = xsl.transform(xml)
-        refute(result.html?)
+        refute_predicate(result, :html?)
       end
 
       it "should not crash when given XPath 2.0 features" do

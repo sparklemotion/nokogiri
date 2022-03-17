@@ -16,7 +16,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_element_cdata_script
     doc = Nokogiri::HTML5.fragment(buffer)
-    assert(doc.document.html?)
+    assert_predicate(doc.document, :html?)
     assert_equal("<script> if (a < b) alert(1) </script>", doc.at("script").to_s)
   end
 
@@ -318,7 +318,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     html = "<!DOCTYPE html>\n<svg>\n<script><![CDATA[ ]]></script></svg>"
     doc = Nokogiri.HTML5(html)
     node = doc.at_xpath("/html/body/svg:svg/svg:script/text()")
-    assert(node.cdata?)
+    assert_predicate(node, :cdata?)
     assert_equal(3, node.line)
   end
 

@@ -344,7 +344,7 @@ module Nokogiri
           let(:input) { "<a>foo</a" }
 
           it "sets the test up correctly" do
-            assert(xml_strict.strict?)
+            assert_predicate(xml_strict, :strict?)
           end
 
           describe "XML.fragment" do
@@ -369,7 +369,7 @@ module Nokogiri
               Nokogiri::XML.fragment(input) do |config|
                 default_config = config
               end
-              refute(default_config.strict?)
+              refute_predicate(default_config, :strict?)
 
               assert_raises(Nokogiri::SyntaxError) do
                 Nokogiri::XML.fragment(input, &:norecover)
@@ -399,7 +399,7 @@ module Nokogiri
               Nokogiri::XML::DocumentFragment.parse(input) do |config|
                 default_config = config
               end
-              refute(default_config.strict?)
+              refute_predicate(default_config, :strict?)
 
               assert_raises(Nokogiri::SyntaxError) do
                 Nokogiri::XML::DocumentFragment.parse(input, &:norecover)
@@ -430,7 +430,7 @@ module Nokogiri
                 Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input) do |config|
                   default_config = config
                 end
-                refute(default_config.strict?)
+                refute_predicate(default_config, :strict?)
 
                 assert_raises(Nokogiri::SyntaxError) do
                   Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, &:norecover)
@@ -463,7 +463,7 @@ module Nokogiri
                 Nokogiri::XML::DocumentFragment.new(document, input, context_node) do |config|
                   default_config = config
                 end
-                refute(default_config.strict?)
+                refute_predicate(default_config, :strict?)
 
                 assert_raises(Nokogiri::SyntaxError) do
                   Nokogiri::XML::DocumentFragment.new(document, input, context_node, &:norecover)
