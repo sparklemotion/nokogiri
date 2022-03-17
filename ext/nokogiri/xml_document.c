@@ -72,7 +72,7 @@ dealloc(xmlDocPtr doc)
   st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
   st_free_table(node_hash);
 
-  free(doc->_private);
+  ruby_xfree(doc->_private);
 
   /* When both Nokogiri and libxml-ruby are loaded, make sure that all nodes
    * have their _private pointers cleared. This is to avoid libxml-ruby's
@@ -569,7 +569,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     c_namespaces = NULL;
   } else {
     long ns_len = RARRAY_LEN(rb_namespaces);
-    c_namespaces = calloc((size_t)ns_len + 1, sizeof(xmlChar *));
+    c_namespaces = ruby_xcalloc((size_t)ns_len + 1, sizeof(xmlChar *));
     for (int j = 0 ; j < ns_len ; j++) {
       VALUE entry = rb_ary_entry(rb_namespaces, j);
       c_namespaces[j] = (xmlChar *)StringValueCStr(entry);
@@ -582,7 +582,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
                  (int)RTEST(rb_comments_p),
                  c_obuf);
 
-  free(c_namespaces);
+  ruby_xfree(c_namespaces);
   xmlOutputBufferClose(c_obuf);
 
   return rb_funcall(rb_io, rb_intern("string"), 0);
@@ -600,7 +600,7 @@ noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr c_document, int arg
 
   rb_document = Data_Wrap_Struct(klass, mark, dealloc, c_document);
 
-  tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
+  tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
   tuple->doc = rb_document;
   tuple->unlinkedNodes = st_init_numtable_with_size(128);
   tuple->node_cache = rb_ary_new();
