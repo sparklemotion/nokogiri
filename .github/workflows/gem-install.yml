@@ -20,7 +20,7 @@ jobs:
     name: "cruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.2.0"
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.2.1"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -151,7 +151,7 @@ jobs:
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.0 \
+            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.1 \
             ./scripts/test-gem-build gems ${{matrix.plat}}
       - uses: actions/upload-artifact@v2
         with:
@@ -304,7 +304,7 @@ jobs:
     name: "jruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-jruby:1.2.0"
+      image: "larskanis/rake-compiler-dock-jruby:1.2.1"
     steps:
       - uses: actions/checkout@v2
         with:
