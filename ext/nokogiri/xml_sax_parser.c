@@ -205,11 +205,11 @@ warning_func(void *ctx, const char *msg, ...)
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  noko_vasprintf(&message, msg, args);
   va_end(args);
 
   ruby_message = NOKOGIRI_STR_NEW2(message);
-  free(message);
+  ruby_xfree(message);
   rb_funcall(doc, id_warning, 1, ruby_message);
 }
 
@@ -223,11 +223,11 @@ error_func(void *ctx, const char *msg, ...)
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  noko_vasprintf(&message, msg, args);
   va_end(args);
 
   ruby_message = NOKOGIRI_STR_NEW2(message);
-  free(message);
+  ruby_xfree(message);
   rb_funcall(doc, id_error, 1, ruby_message);
 }
 

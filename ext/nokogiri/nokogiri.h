@@ -162,7 +162,7 @@ typedef struct _nokogiriXsltStylesheetTuple {
   VALUE func_instances;
 } nokogiriXsltStylesheetTuple;
 
-int vasprintf(char **strp, const char *fmt, va_list ap);
+int noko_vasprintf(char **strp, const char *fmt, va_list ap);
 void noko_xml_document_pin_node(xmlNodePtr);
 void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
 
