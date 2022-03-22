@@ -265,7 +265,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/jruby/nu/validator/jing/20200702VNU/jing-20200702VNU.jar",
     "lib/nokogiri/jruby/xalan/serializer/2.7.2/serializer-2.7.2.jar",
     "lib/nokogiri/jruby/xalan/xalan/2.7.2/xalan-2.7.2.jar",
-    "lib/nokogiri/jruby/xerces/xercesImpl/2.12.1/xercesImpl-2.12.1.jar",
+    "lib/nokogiri/jruby/xerces/xercesImpl/2.12.2/xercesImpl-2.12.2.jar",
     "lib/nokogiri/jruby/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar",
     "lib/nokogiri/syntax_error.rb",
     "lib/nokogiri/version.rb",
@@ -328,7 +328,7 @@ Gem::Specification.new do |spec|
     spec.requirements << "jar nu.validator, jing, 20200702VNU" # https://search.maven.org/artifact/nu.validator/jing
     spec.requirements << "jar xalan, serializer, 2.7.2" # https://search.maven.org/artifact/xalan/serializer
     spec.requirements << "jar xalan, xalan, 2.7.2" # https://search.maven.org/artifact/xalan/xalan
-    spec.requirements << "jar xerces, xercesImpl, 2.12.1" # https://search.maven.org/artifact/xerces/xercesImpl
+    spec.requirements << "jar xerces, xercesImpl, 2.12.2" # https://search.maven.org/artifact/xerces/xercesImpl
     spec.requirements << "jar xml-apis, xml-apis, 1.4.01" # https://search.maven.org/artifact/xml-apis/xml-apis
   else
     spec.add_runtime_dependency("mini_portile2", "~> 2.8.0") # keep version in sync with extconf.rb
