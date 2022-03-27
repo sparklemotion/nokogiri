@@ -1170,8 +1170,9 @@ module Nokogiri
       # :section: Serialization and Generating Output
 
       ###
-      # Serialize Node using +options+.  Save options can also be set using a
-      # block. See SaveOptions.
+      # Serialize Node using +options+. Save options can also be set using a block.
+      #
+      # See also Nokogiri::XML::Node::SaveOptions and Node@Serialization+and+Generating+Output.
       #
       # These two statements are equivalent:
       #
