@@ -126,7 +126,7 @@ module Nokogiri
 
       ####
       # Serialize Node using +options+.  Save options can also be set using a
-      # block. See SaveOptions.
+      # block. See Nokogiri::XML::Node::SaveOptions.
       #
       # These two statements are equivalent:
       #
