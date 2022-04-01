@@ -460,6 +460,20 @@ module Nokogiri
 
           assert_nil(doc.data)
         end
+
+        it "handles parser warnings" do
+          skip_unless_libxml2("this is testing error message formatting in the C extension")
+          xml = <<~XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <doc xmlns="x">
+              this element's ns definition is crafted to raise a warning
+              from libxml2's SAX2.c:xmlSAX2AttributeInternal()
+            </doc>
+          XML
+          parser.parse(xml)
+          refute_empty(parser.document.warnings)
+          assert_match(/URI .* is not absolute/, parser.document.warnings.first)
+        end
       end
     end
   end
