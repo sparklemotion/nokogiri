@@ -17,7 +17,7 @@ dealloc(nokogiriXsltStylesheetTuple *wrapper)
   xsltFreeStylesheet(doc); /* commented out for now. */
   NOKOGIRI_DEBUG_END(doc);
 
-  free(wrapper);
+  ruby_xfree(wrapper);
 }
 
 static void
