@@ -63,7 +63,11 @@ noko_vasprintf(char **strp, const char *fmt, va_list ap)
    * So we use a one byte buffer instead.
    */
   char tmp[1];
-  int len = vsnprintf(tmp, 1, fmt, ap) + 1;
+  va_list tmp_ap;
+  va_copy(tmp_ap, ap);
+  int len = vsnprintf(tmp, 1, fmt, tmp_ap) + 1;
+  va_end(tmp_ap);
+
   char *res = (char *)ruby_xmalloc((unsigned int)len);
   *strp = res;
   return vsnprintf(res, (unsigned int)len, fmt, ap);
