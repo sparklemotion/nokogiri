@@ -86,30 +86,6 @@
 }
 {
   TODO
-  # 44 bytes in 1 blocks are definitely lost in loss record 14,160 of 37,883
-  # *xmlXPathCompOpEval (xpath.c:13197)
-  # *xmlXPathCompOpEval (xpath.c:12947)
-  # *xmlXPathCompOpEvalToBoolean (xpath.c:13589)
-  # *xmlXPathNodeSetFilter (xpath.c:11664)
-  # *xmlXPathNodeCollectAndTest (xpath.c:12492)
-  # *xmlXPathCompOpEval (xpath.c:13105)
-  # *xmlXPathCompOpEval (xpath.c:12947)
-  # *xmlXPathCompOpEval (xpath.c:13353)
-  # *xmlXPathCompOpEval (xpath.c:12947)
-  # *xmlXPathRunEval (xpath.c:13946)
-  # *xmlXPathEval (xpath.c:14463)
-  # *evaluate (xml_xpath_context.c:322)
-  Memcheck:Leak
-  fun:malloc
-  fun:__vasprintf_internal
-  fun:xpath_generic_exception_handler
-  fun:xmlXPathCompOpEval
-  ...
-  fun:xmlXPathEval
-  fun:evaluate
-}
-{
-  TODO
   # 96 (16 direct, 80 indirect) bytes in 1 blocks are definitely lost in loss record 24,755 of 37,883
   # *xmlXPathNodeSetCreate (xpath.c:3564)
   # *xmlXPathNodeCollectAndTest (xpath.c:12201)
