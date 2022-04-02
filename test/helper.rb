@@ -280,7 +280,7 @@ module Nokogiri
         end
 
         def warning(warning)
-          (@warning ||= []) << warning
+          (@warnings ||= []) << warning
           super
         end
 

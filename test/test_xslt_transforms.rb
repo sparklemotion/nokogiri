@@ -349,7 +349,10 @@ module Nokogiri
         exception = assert_raises(RuntimeError) do
           xslt.transform(doc)
         end
-        assert_match(/decimal/, exception.message)
+        assert_match(
+          /xmlXPathCompOpEval: function decimal not found|java.lang.NoSuchMethodException.*decimal/,
+          exception.message,
+        )
       end
 
       describe "DEFAULT_XSLT parse options" do

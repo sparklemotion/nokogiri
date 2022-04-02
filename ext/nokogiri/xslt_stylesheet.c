@@ -23,16 +23,14 @@ dealloc(nokogiriXsltStylesheetTuple *wrapper)
 static void
 xslt_generic_error_handler(void *ctx, const char *msg, ...)
 {
-  char *message;
+  VALUE message;
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  message = rb_vsprintf(msg, args);
   va_end(args);
 
-  rb_str_cat2((VALUE)ctx, message);
-
-  free(message);
+  rb_str_concat((VALUE)ctx, message);
 }
 
 VALUE

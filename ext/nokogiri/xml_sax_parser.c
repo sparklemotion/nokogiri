@@ -200,17 +200,14 @@ warning_func(void *ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
-  char *message;
-  VALUE ruby_message;
+  VALUE rb_message;
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  rb_message = rb_vsprintf(msg, args);
   va_end(args);
 
-  ruby_message = NOKOGIRI_STR_NEW2(message);
-  free(message);
-  rb_funcall(doc, id_warning, 1, ruby_message);
+  rb_funcall(doc, id_warning, 1, rb_message);
 }
 
 static void
@@ -218,17 +215,14 @@ error_func(void *ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
-  char *message;
-  VALUE ruby_message;
+  VALUE rb_message;
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  rb_message = rb_vsprintf(msg, args);
   va_end(args);
 
-  ruby_message = NOKOGIRI_STR_NEW2(message);
-  free(message);
-  rb_funcall(doc, id_error, 1, ruby_message);
+  rb_funcall(doc, id_error, 1, rb_message);
 }
 
 static void

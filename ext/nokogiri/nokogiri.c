@@ -52,29 +52,6 @@ void noko_init_test_global_handlers(void);
 static ID id_read, id_write, id_external_encoding;
 
 
-#ifndef HAVE_VASPRINTF
-/*
- * Thank you Geoffroy Couprie for this implementation of vasprintf!
- */
-int
-vasprintf(char **strp, const char *fmt, va_list ap)
-{
-  /* Mingw32/64 have a broken vsnprintf implementation that fails when
-   * using a zero-byte limit in order to retrieve the required size for malloc.
-   * So we use a one byte buffer instead.
-   */
-  char tmp[1];
-  int len = vsnprintf(tmp, 1, fmt, ap) + 1;
-  char *res = (char *)malloc((unsigned int)len);
-  if (res == NULL) {
-    return -1;
-  }
-  *strp = res;
-  return vsnprintf(res, (unsigned int)len, fmt, ap);
-}
-#endif
-
-
 static VALUE
 noko_io_read_check(VALUE val)
 {

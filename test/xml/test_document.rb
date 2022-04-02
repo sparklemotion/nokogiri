@@ -497,19 +497,14 @@ module Nokogiri
           end
         end
 
-        def test_non_existant_function
-          # WTF.  I don't know why this is different between MRI and Jruby
-          # They should be the same...  Either way, raising an exception
-          # is the correct thing to do.
-          exception = RuntimeError
+        def test_non_existent_function
+          # TODO: we should not be raising different types on the different engines
+          e_class = Nokogiri.uses_libxml? ? RuntimeError : Nokogiri::XML::XPath::SyntaxError
 
-          if !Nokogiri.uses_libxml? || (Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO["libxml"]["platform"] == "jruby")
-            exception = Nokogiri::XML::XPath::SyntaxError
-          end
-
-          assert_raises(exception) do
+          e = assert_raises(e_class) do
             xml.xpath("//name[foo()]")
           end
+          assert_match(/function.*not found|Could not find function/, e.to_s)
         end
 
         def test_xpath_syntax_error

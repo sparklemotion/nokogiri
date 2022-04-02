@@ -293,14 +293,14 @@ NORETURN(static void xpath_generic_exception_handler(void *ctx, const char *msg,
 static void
 xpath_generic_exception_handler(void *ctx, const char *msg, ...)
 {
-  char *message;
+  VALUE rb_message;
 
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
+  rb_message = rb_vsprintf(msg, args);
   va_end(args);
 
-  rb_raise(rb_eRuntimeError, "%s", message);
+  rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_message));
 }
 
 /*
