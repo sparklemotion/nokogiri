@@ -6,7 +6,7 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
   describe "CSS integration tests" do
     let(:subject) do
       subject_class.parse(<<~HTML)
-        <html>
+        <html><body>
           <table>
             <tr><td>row1 </td></tr>
             <tr><td>row2 </td></tr>
@@ -64,7 +64,7 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
 
           <p class='empty'></p>
           <p class='not-empty'><b></b></p>
-        </html>
+        </body></html>
       HTML
     end
 
@@ -341,6 +341,14 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
             nested.at_css(".nested-child.indirect b"),
           ].flatten
           assert_equal(expected, result.to_a)
+        end
+
+        it "selects using contains" do
+          assert_equal(14, subject.css("td:contains('row')").length)
+          assert_equal(6, subject.css("td:contains('row1')").length)
+          assert_equal(4, subject.css("h1:contains('header')").length)
+          assert_equal(4, subject.css("div :contains('header')").length)
+          assert_equal(9, subject.css(":contains('header')").length) # 9 = 4xh1 + 3xdiv + body + html
         end
 
         it "selects class_attr_selector" do
