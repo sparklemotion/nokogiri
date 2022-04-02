@@ -17,7 +17,7 @@ dealloc(nokogiriXsltStylesheetTuple *wrapper)
   xsltFreeStylesheet(doc); /* commented out for now. */
   NOKOGIRI_DEBUG_END(doc);
 
-  free(wrapper);
+  ruby_xfree(wrapper);
 }
 
 static void
@@ -248,7 +248,7 @@ transform(int argc, VALUE *argv, VALUE self)
   Data_Get_Struct(self, nokogiriXsltStylesheetTuple, wrapper);
 
   param_len = RARRAY_LEN(paramobj);
-  params = calloc((size_t)param_len + 1, sizeof(char *));
+  params = ruby_xcalloc((size_t)param_len + 1, sizeof(char *));
   for (j = 0 ; j < param_len ; j++) {
     VALUE entry = rb_ary_entry(paramobj, j);
     const char *ptr = StringValueCStr(entry);
@@ -261,7 +261,7 @@ transform(int argc, VALUE *argv, VALUE self)
   xmlSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
 
   result = xsltApplyStylesheet(wrapper->ss, xml, params);
-  free(params);
+  ruby_xfree(params);
 
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);

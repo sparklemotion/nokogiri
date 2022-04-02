@@ -195,7 +195,7 @@ NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
 #define NOKOGIRI_SAX_SELF(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->self
 #define NOKOGIRI_SAX_CTXT(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->ctxt
 #define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) nokogiri_sax_tuple_new(_ctxt, _self)
-#define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) free(_tuple)
+#define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) ruby_xfree(_tuple)
 
 #define DISCARD_CONST_QUAL(t, v) ((t)(uintptr_t)(v))
 #define DISCARD_CONST_QUAL_XMLCHAR(v) DISCARD_CONST_QUAL(xmlChar *, v)
@@ -214,7 +214,7 @@ static inline
 nokogiriSAXTuplePtr
 nokogiri_sax_tuple_new(xmlParserCtxtPtr ctxt, VALUE self)
 {
-  nokogiriSAXTuplePtr tuple = malloc(sizeof(nokogiriSAXTuple));
+  nokogiriSAXTuplePtr tuple = ruby_xmalloc(sizeof(nokogiriSAXTuple));
   tuple->self = self;
   tuple->ctxt = ctxt;
   return tuple;

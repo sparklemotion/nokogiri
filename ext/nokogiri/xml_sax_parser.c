@@ -261,14 +261,14 @@ static void
 deallocate(xmlSAXHandlerPtr handler)
 {
   NOKOGIRI_DEBUG_START(handler);
-  free(handler);
+  ruby_xfree(handler);
   NOKOGIRI_DEBUG_END(handler);
 }
 
 static VALUE
 allocate(VALUE klass)
 {
-  xmlSAXHandlerPtr handler = calloc((size_t)1, sizeof(xmlSAXHandler));
+  xmlSAXHandlerPtr handler = ruby_xcalloc((size_t)1, sizeof(xmlSAXHandler));
 
   handler->startDocument = start_document;
   handler->endDocument = end_document;

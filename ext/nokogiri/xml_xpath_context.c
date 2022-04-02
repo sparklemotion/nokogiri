@@ -195,7 +195,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
   assert(ctx->context->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
 
-  argv = (VALUE *)calloc((size_t)nargs, sizeof(VALUE));
+  argv = (VALUE *)ruby_xcalloc((size_t)nargs, sizeof(VALUE));
   for (int j = 0 ; j < nargs ; ++j) {
     rb_gc_register_address(&argv[j]);
   }
@@ -216,7 +216,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
   for (int j = 0 ; j < nargs ; ++j) {
     rb_gc_unregister_address(&argv[j]);
   }
-  free(argv);
+  ruby_xfree(argv);
 
   switch (TYPE(result)) {
     case T_FLOAT:
