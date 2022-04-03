@@ -93,6 +93,28 @@ module Nokogiri
         assert_equal("urn:xmpp:foospec:barfoo", child.namespace.href)
         assert_empty(child.attributes)
       end
+
+      def test_maintain_element_namespaces_with_abbreviation_squating
+        root_namespace_href = "urn:root_namespace"
+        child1_namespace_href = "urn:child1_namespace"
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="#{root_namespace_href}">
+            <child1 xmlns="#{child1_namespace_href}"/>
+            <child2/>
+          </root>
+        eoxml
+
+        child2 = doc.at_xpath("//ns1:child2", { "ns1" => root_namespace_href })
+        child1 = doc.at_xpath("//ns2:child1", { "ns2" => child1_namespace_href })
+        child1.add_child(child2)
+        new_xml = doc.to_xml
+
+        new_doc = Nokogiri::XML(new_xml)
+        new_child1 = new_doc.at_xpath("//ns2:child1", { "ns2" => child1_namespace_href })
+        new_child2 = new_child1.first_element_child
+        new_child2_ns_href = new_child2.namespace.href
+        assert_equal(root_namespace_href, new_child2_ns_href)
+      end
     end
   end
 end

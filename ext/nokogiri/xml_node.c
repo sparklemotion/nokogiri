@@ -64,10 +64,16 @@ static const rb_data_type_t nokogiri_node_type = {
 };
 
 static void
-relink_namespace(xmlNodePtr reparented)
+relink_namespace(xmlNodePtr reparented, int reconcile_namespaces)
 {
   xmlNodePtr child;
   xmlAttrPtr attr;
+  xmlNsPtr possible_collision_ns;
+  int ns_collision;
+
+  if (reconcile_namespaces && reparented->doc) {
+    xmlReconciliateNs(reparented->doc, reparented);
+  }
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
@@ -118,9 +124,16 @@ relink_namespace(xmlNodePtr reparented)
                       reparented->parent,
                       curr->href
                     );
+      /* Track and check for a namespace which might be 'squatting' on a
+       * the same prefix but a different href. */
+      ns_collision = 0;
+      possible_collision_ns = xmlSearchNs(reparented->doc, reparented->parent, curr->prefix);
+      if (possible_collision_ns && !xmlStrEqual(curr->href, possible_collision_ns->href)) {
+        ns_collision = 1;
+      }
       /* If we find the namespace is already declared, remove it from this
        * definition list. */
-      if (ns && ns != curr && xmlStrEqual(ns->prefix, curr->prefix)) {
+      if (ns && ns != curr && !ns_collision && xmlStrEqual(ns->prefix, curr->prefix)) {
         if (prev) {
           prev->next = curr->next;
         } else {
@@ -161,14 +174,14 @@ relink_namespace(xmlNodePtr reparented)
   /* their namespaces are reparented as well. */
   child = reparented->children;
   while (NULL != child) {
-    relink_namespace(child);
+    relink_namespace(child, 0);
     child = child->next;
   }
 
   if (reparented->type == XML_ELEMENT_NODE) {
     attr = reparented->properties;
     while (NULL != attr) {
-      relink_namespace((xmlNodePtr)attr);
+      relink_namespace((xmlNodePtr)attr, 0);
       attr = attr->next;
     }
   }
@@ -218,6 +231,7 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
 {
   VALUE reparented_obj ;
   xmlNodePtr reparentee, original_reparentee, pivot, reparented, next_text, new_next_text, parent ;
+  int reconcile_ns = 1;
   int original_ns_prefix_is_default = 0 ;
 
   if (!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode)) {
@@ -225,6 +239,11 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
   }
   if (rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlDocument)) {
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+  }
+
+  // Don't reconcile children of fragments.
+  if (rb_obj_is_kind_of(pivot_obj, cNokogiriXmlDocumentFragment)) {
+    reconcile_ns = 0;
   }
 
   Noko_Node_Get_Struct(reparentee_obj, xmlNode, reparentee);
@@ -408,7 +427,7 @@ ok:
   /* if we've created a cycle, raise an exception */
   raise_if_ancestor_of_self(reparented);
 
-  relink_namespace(reparented);
+  relink_namespace(reparented, reconcile_ns);
 
   return reparented_obj ;
 }
