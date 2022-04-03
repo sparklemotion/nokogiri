@@ -383,6 +383,21 @@ class TestNokogiri < Nokogiri::TestCase
         assert_xpath("//script//comment()", parser.parse("script comment()"))
       end
 
+      it "handles contains() (non-standard)" do
+        # https://api.jquery.com/contains-selector/
+        assert_xpath(%{//div[contains(.,"youtube")]}, parser.parse(%{div:contains("youtube")}))
+      end
+
+      it "handles gt() (non-standard)" do
+        # https://api.jquery.com/gt-selector/
+        assert_xpath("//td[position()>3]", parser.parse("td:gt(3)"))
+      end
+
+      it "handles self()" do
+        # TODO: it's unclear how this is useful and we should consider deprecating it
+        assert_xpath("//self::div", parser.parse("self(div)"))
+      end
+
       it "supports custom functions" do
         visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
           attr_accessor :awesome
