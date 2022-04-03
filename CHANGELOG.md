@@ -18,6 +18,13 @@ This version of Nokogiri ships full native gem support for the `aarch64-linux` p
 This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
 
 
+### Dependencies
+
+* [JRuby] Vendored xercesImpl is updated from 2.12.0 → 2.12.2. Full changelog is available at https://xerces.apache.org/xerces2-j/releases.html
+* [JRuby] Vendored Jing is updated from com.thaiopensource:jing:20091111 to nu.validator:jing:20200702VNU.
+* [JRuby] New dependency on Saxon-HE 9.6.0-4 (via nu.validator:jing:20200702VNU).
+
+
 ### Fixed
 
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
