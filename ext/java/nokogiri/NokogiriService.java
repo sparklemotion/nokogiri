@@ -86,7 +86,6 @@ public class NokogiriService implements BasicLibraryService
     RubyModule htmlSaxModule = htmlModule.defineModuleUnder("SAX");
     RubyModule xsltModule = nokogiri.defineModuleUnder("XSLT");
 
-    createJavaLibraryVersionConstants(ruby, nokogiri);
     createNokogiriModule(ruby, nokogiri);
     createSyntaxErrors(ruby, nokogiri, xmlModule);
     RubyClass xmlNode = createXmlModule(ruby, xmlModule);
@@ -95,12 +94,6 @@ public class NokogiriService implements BasicLibraryService
     createSaxModule(ruby, xmlSaxModule, htmlSaxModule);
     createXsltModule(ruby, xsltModule);
     nokogiri.setInternalVariable("cache", populateNokogiriClassCahce(ruby));
-  }
-
-  private void
-  createJavaLibraryVersionConstants(Ruby ruby, RubyModule nokogiri)
-  {
-    nokogiri.defineConstant("NEKO_VERSION", ruby.newString(org.cyberneko.html.Version.getVersion()));
   }
 
   private void

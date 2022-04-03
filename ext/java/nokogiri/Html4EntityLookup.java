@@ -2,7 +2,7 @@ package nokogiri;
 
 import static org.jruby.runtime.Helpers.invoke;
 
-import org.cyberneko.html.HTMLEntities;
+import net.sourceforge.htmlunit.cyberneko.HTMLEntitiesParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -38,8 +38,18 @@ public class Html4EntityLookup extends RubyObject
   {
     Ruby ruby = context.getRuntime();
     String name = key.toString();
-    int val = HTMLEntities.get(name);
-    if (val == -1) { return ruby.getNil(); }
+
+    HTMLEntitiesParser parser = new HTMLEntitiesParser();
+    for (int j = 0 ; j < name.length() ; j++) {
+      if (!parser.parse(name.charAt(j))) {
+        break;
+      }
+    }
+    String match = parser.getMatch();
+
+    if (match == null) { return ruby.getNil(); }
+
+    int val = match.charAt(0);
 
     IRubyObject edClass =
       ruby.getClassFromPath("Nokogiri::HTML4::EntityDescription");
