@@ -191,6 +191,7 @@ module Nokogiri
   def self.uses_libxml?(requirement = nil)
     return false unless VersionInfo.instance.libxml2?
     return true unless requirement
+
     Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 

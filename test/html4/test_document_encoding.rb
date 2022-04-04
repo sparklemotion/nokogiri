@@ -138,6 +138,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
             assert_equal(evil, ary_from_string)
 
             next unless !Nokogiri.uses_libxml? || Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+
             # libxml2 without iconv does not pass this test
             assert_equal(evil, ary_from_file_enc)
             assert_equal(evil, ary_from_file)

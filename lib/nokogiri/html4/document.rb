@@ -242,6 +242,7 @@ module Nokogiri
 
           def start_element(name, attrs = [])
             return unless name == "meta"
+
             attr = Hash[attrs]
             (charset = attr["charset"]) &&
               (@encoding = charset)

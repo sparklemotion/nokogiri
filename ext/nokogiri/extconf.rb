@@ -382,6 +382,7 @@ def iconv_configure_flags
   ["iconv", "opt"].each do |target|
     config = preserving_globals { dir_config(target) }
     next unless config.any? && try_link_iconv("--with-#{target}-* flags") { dir_config(target) }
+
     idirs, ldirs = config.map do |dirs|
       Array(dirs).flat_map do |dir|
         dir.split(File::PATH_SEPARATOR)

@@ -24,7 +24,7 @@ class TestCssCacheAccess < Nokogiri::TestCase
       end
     end
 
-    assert(Nokogiri::CSS::Parser.cache_on?)
+    assert_predicate(Nokogiri::CSS::Parser, :cache_on?)
   end
 
   def teardown
@@ -105,9 +105,9 @@ class TestCssCache < Nokogiri::TestCase
     Nokogiri::CSS::Parser.set_cache(true)
 
     Nokogiri::CSS::Parser.without_cache do
-      refute(Nokogiri::CSS::Parser.cache_on?)
+      refute_predicate(Nokogiri::CSS::Parser, :cache_on?)
     end
-    assert(Nokogiri::CSS::Parser.cache_on?)
+    assert_predicate(Nokogiri::CSS::Parser, :cache_on?)
   end
 
   def test_without_cache_resets_cache_value_even_after_exception
@@ -118,7 +118,7 @@ class TestCssCache < Nokogiri::TestCase
         raise RuntimeError
       end
     end
-    assert(Nokogiri::CSS::Parser.cache_on?)
+    assert_predicate(Nokogiri::CSS::Parser, :cache_on?)
   end
 
   def test_cache_key_on_ns_prefix_and_visitor_config
@@ -161,6 +161,6 @@ class TestCssCache < Nokogiri::TestCase
 
     threads.each(&:join)
 
-    assert(Nokogiri::CSS::Parser.cache_on?)
+    assert_predicate(Nokogiri::CSS::Parser, :cache_on?)
   end
 end

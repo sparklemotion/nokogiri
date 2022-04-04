@@ -38,9 +38,9 @@ module Nokogiri
             options = cfg
             options.nonet.nowarning.dtdattr
           end
-          assert(options.nonet?)
-          assert(options.nowarning?)
-          assert(options.dtdattr?)
+          assert_predicate(options, :nonet?)
+          assert_predicate(options, :nowarning?)
+          assert_predicate(options, :dtdattr?)
         end
 
         def test_parse_takes_config_block
@@ -49,9 +49,9 @@ module Nokogiri
             options = cfg
             options.nonet.nowarning.dtdattr
           end
-          assert(options.nonet?)
-          assert(options.nowarning?)
-          assert(options.dtdattr?)
+          assert_predicate(options, :nonet?)
+          assert_predicate(options, :nowarning?)
+          assert_predicate(options, :dtdattr?)
         end
 
         def test_subclass
@@ -339,7 +339,7 @@ module Nokogiri
 
         def test_HTML_function
           html = Nokogiri::HTML(File.read(HTML_FILE))
-          assert(html.html?)
+          assert_predicate(html, :html?)
         end
 
         def test_parse_works_with_an_object_that_responds_to_read
@@ -535,9 +535,9 @@ module Nokogiri
         def test_dup_document
           assert(dup = html.dup)
           refute_equal(dup, html)
-          assert(html.html?)
+          assert_predicate(html, :html?)
           assert_instance_of(Nokogiri::HTML::Document, dup)
-          assert(dup.html?, "duplicate should be html")
+          assert_predicate(dup, :html?, "duplicate should be html")
           assert_equal(html.to_s, dup.to_s)
         end
 
@@ -641,7 +641,7 @@ module Nokogiri
           File.open(HTML_FILE, "rb") do |f|
             html = Nokogiri::HTML(f)
           end
-          assert(html.html?)
+          assert_predicate(html, :html?)
           assert_equal(HTML_FILE, html.url)
         end
 
@@ -668,8 +668,8 @@ module Nokogiri
         end
 
         def test_html?
-          refute(html.xml?)
-          assert(html.html?)
+          refute_predicate(html, :xml?)
+          assert_predicate(html, :html?)
         end
 
         def test_serialize
@@ -780,7 +780,7 @@ module Nokogiri
           end
 
           it "sets the test up correctly" do
-            assert(html_strict.strict?)
+            assert_predicate(html_strict, :strict?)
           end
 
           describe "ill-formed < character" do

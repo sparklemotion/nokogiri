@@ -17,6 +17,7 @@ module Nokogiri
 
       ParseOptions.constants.each do |constant|
         next if constant == "STRICT"
+
         class_eval %{
           def test_predicate_#{constant.downcase}
             options = ParseOptions.new(ParseOptions::#{constant})
@@ -29,7 +30,7 @@ module Nokogiri
 
       def test_strict_noent
         options = ParseOptions.new.recover.noent
-        refute(options.strict?)
+        refute_predicate(options, :strict?)
       end
 
       def test_new_with_argument
@@ -39,20 +40,20 @@ module Nokogiri
 
       def test_unsetting
         options = Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML)
-        assert(options.nonet?)
-        assert(options.recover?)
+        assert_predicate(options, :nonet?)
+        assert_predicate(options, :recover?)
         options.nononet.norecover
-        refute(options.nonet?)
-        refute(options.recover?)
+        refute_predicate(options, :nonet?)
+        refute_predicate(options, :recover?)
         options.nonet.recover
-        assert(options.nonet?)
-        assert(options.recover?)
+        assert_predicate(options, :nonet?)
+        assert_predicate(options, :recover?)
       end
 
       def test_chaining
         options = Nokogiri::XML::ParseOptions.new.recover.noent
-        assert(options.recover?)
-        assert(options.noent?)
+        assert_predicate(options, :recover?)
+        assert_predicate(options, :noent?)
       end
 
       def test_inspect

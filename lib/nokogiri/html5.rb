@@ -468,6 +468,7 @@ module Nokogiri
 
     def self.prepend_newline?(node)
       return false unless ["pre", "textarea", "listing"].include?(node.name) && !node.children.empty?
+
       first_child = node.children[0]
       first_child.text? && first_child.content.start_with?("\n")
     end
