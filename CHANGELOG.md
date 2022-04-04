@@ -18,9 +18,14 @@ This version of Nokogiri ships full native gem support for the `aarch64-linux` p
 This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
 
 
+### Security
+
+* [JRuby] Vendored xercesImpl is updated from 2.12.0 to 2.12.2. This update addresses [CVE-2022-23437](https://nvd.nist.gov/vuln/detail/CVE-2022-23437). More information is available at [GHSA-h65f-jvqw-m9fj](https://github.com/advisories/GHSA-h65f-jvqw-m9fj).
+
+
 ### Dependencies
 
-* [JRuby] Vendored xercesImpl is updated from 2.12.0 → 2.12.2. Full changelog is available at https://xerces.apache.org/xerces2-j/releases.html
+* [JRuby] Vendored xercesImpl is updated from 2.12.0 to 2.12.2. Full changelog is available at https://xerces.apache.org/xerces2-j/releases.html
 * [JRuby] Vendored Jing is updated from com.thaiopensource:jing:20091111 to nu.validator:jing:20200702VNU.
 * [JRuby] New dependency on Saxon-HE 9.6.0-4 (via nu.validator:jing:20200702VNU).
 
