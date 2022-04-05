@@ -156,7 +156,7 @@ class TestHtml5API < Nokogiri::TestCase
     assert_equal(1, frag.children.length)
     nested_form = frag.at_xpath("form")
     assert_nil(nested_form)
-    assert(frag.children[0].text?)
+    assert_predicate(frag.children[0], :text?)
   end
 
   def test_fragment_from_node_no_form
@@ -179,7 +179,7 @@ class TestHtml5API < Nokogiri::TestCase
 
   def test_html_eh
     doc = Nokogiri.HTML5("<html><body><div></div></body></html>")
-    assert(doc.html?)
-    refute(doc.xml?)
+    assert_predicate(doc, :html?)
+    refute_predicate(doc, :xml?)
   end
 end if Nokogiri.uses_gumbo?

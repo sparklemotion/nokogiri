@@ -163,6 +163,7 @@ module Nokogiri
         if (first = children.first)
           # Mimic the error add_child would raise.
           raise "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
+
           first.__send__(:add_sibling, :previous, node_or_tags)
         else
           add_child(node_or_tags)
@@ -1072,6 +1073,7 @@ module Nokogiri
       # nil on XML documents and on unknown tags.
       def description
         return nil if document.xml?
+
         Nokogiri::HTML4::ElementDescription[name]
       end
 
@@ -1119,6 +1121,7 @@ module Nokogiri
 
         while parents.last.respond_to?(:parent)
           break unless (ctx_parent = parents.last.parent)
+
           parents << ctx_parent
         end
 
@@ -1150,6 +1153,7 @@ module Nokogiri
       def ==(other)
         return false unless other
         return false unless other.respond_to?(:pointer_id)
+
         pointer_id == other.pointer_id
       end
 
@@ -1159,14 +1163,16 @@ module Nokogiri
       def <=>(other)
         return nil unless other.is_a?(Nokogiri::XML::Node)
         return nil unless document == other.document
+
         compare(other)
       end
 
       # :section: Serialization and Generating Output
 
       ###
-      # Serialize Node using +options+.  Save options can also be set using a
-      # block. See SaveOptions.
+      # Serialize Node using +options+. Save options can also be set using a block.
+      #
+      # See also Nokogiri::XML::Node::SaveOptions and Node@Serialization+and+Generating+Output.
       #
       # These two statements are equivalent:
       #

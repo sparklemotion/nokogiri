@@ -24,12 +24,14 @@ module Nokogiri
         # Get the css selector in +string+ from the cache
         def [](string)
           return nil unless cache_on?
+
           @mutex.synchronize { @cache[string] }
         end
 
         # Set the css selector in +string+ in the cache to +value+
         def []=(string, value)
           return value unless cache_on?
+
           @mutex.synchronize { @cache[string] = value }
         end
 

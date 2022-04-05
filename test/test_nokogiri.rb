@@ -16,20 +16,20 @@ class Nokogiri::TestCase
 
     def test_xml?
       doc = Nokogiri.parse(File.read(XML_FILE))
-      assert(doc.xml?)
-      refute(doc.html?)
+      assert_predicate(doc, :xml?)
+      refute_predicate(doc, :html?)
     end
 
     def test_atom_is_xml?
       doc = Nokogiri.parse(File.read(XML_ATOM_FILE))
-      assert(doc.xml?)
-      refute(doc.html?)
+      assert_predicate(doc, :xml?)
+      refute_predicate(doc, :html?)
     end
 
     def test_html?
       doc = Nokogiri.parse(File.read(HTML_FILE))
-      refute(doc.xml?)
-      assert(doc.html?)
+      refute_predicate(doc, :xml?)
+      assert_predicate(doc, :html?)
     end
 
     def test_nokogiri_method_with_html

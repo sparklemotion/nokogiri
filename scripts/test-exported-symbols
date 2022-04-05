@@ -45,6 +45,7 @@ symbols.to_a.sort.each do |symbol|
   next if symbol == "Init_nokogiri"
   next if /^Nokogiri_/.match?(symbol)
   next if /^noko_/.match?(symbol)
+
   puts "- #{symbol}"
 end
 

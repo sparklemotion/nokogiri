@@ -27,6 +27,7 @@ module Nokogiri
       # Get the first element of the NodeSet.
       def first(n = nil)
         return self[0] unless n
+
         list = []
         [n, length].min.times { |i| list << self[i] }
         list
@@ -304,6 +305,7 @@ module Nokogiri
       # the set is empty
       def pop
         return nil if length == 0
+
         delete(last)
       end
 
@@ -312,6 +314,7 @@ module Nokogiri
       # +nil+ if the set is empty.
       def shift
         return nil if length == 0
+
         delete(first)
       end
 
@@ -322,6 +325,7 @@ module Nokogiri
       def ==(other)
         return false unless other.is_a?(Nokogiri::XML::NodeSet)
         return false unless length == other.length
+
         each_with_index do |node, i|
           return false unless node == other[i]
         end

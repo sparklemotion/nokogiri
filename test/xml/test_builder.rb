@@ -369,7 +369,7 @@ module Nokogiri
             comment("this is a comment")
           end
         end
-        assert(builder.doc.root.children.first.comment?)
+        assert_predicate(builder.doc.root.children.first, :comment?)
       end
 
       def test_builder_no_block

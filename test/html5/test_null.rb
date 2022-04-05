@@ -107,7 +107,7 @@ class TestHtml5Null < Nokogiri::TestCase
 
   def test_error_api_with_null
     frag = fragment("<p \u0000>")
-    assert(frag.errors.any?)
+    assert_predicate(frag.errors, :any?)
     assert_includes(frag.errors[0].to_s, "<p \u0000>")
   end
 end if Nokogiri.uses_gumbo?

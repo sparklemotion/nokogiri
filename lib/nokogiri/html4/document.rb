@@ -125,8 +125,9 @@ module Nokogiri
       private :set_metadata_element
 
       ####
-      # Serialize Node using +options+.  Save options can also be set using a
-      # block. See SaveOptions.
+      # Serialize Node using +options+. Save options can also be set using a block.
+      #
+      # See also Nokogiri::XML::Node::SaveOptions and Node@Serialization+and+Generating+Output.
       #
       # These two statements are equivalent:
       #
@@ -241,6 +242,7 @@ module Nokogiri
 
           def start_element(name, attrs = [])
             return unless name == "meta"
+
             attr = Hash[attrs]
             (charset = attr["charset"]) &&
               (@encoding = charset)

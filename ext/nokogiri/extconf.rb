@@ -382,6 +382,7 @@ def iconv_configure_flags
   ["iconv", "opt"].each do |target|
     config = preserving_globals { dir_config(target) }
     next unless config.any? && try_link_iconv("--with-#{target}-* flags") { dir_config(target) }
+
     idirs, ldirs = config.map do |dirs|
       Array(dirs).flat_map do |dir|
         dir.split(File::PATH_SEPARATOR)
@@ -714,14 +715,6 @@ else
             cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
             execute("configure",
               ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix])
-          end
-
-          def compile
-            if /darwin/.match?(host)
-              execute("compile", "make AR=#{host}-libtool")
-            else
-              super
-            end
           end
         end
       end
