@@ -716,14 +716,6 @@ else
             execute("configure",
               ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix])
           end
-
-          def compile
-            if /darwin/.match?(host)
-              execute("compile", "make AR=#{host}-libtool")
-            else
-              super
-            end
-          end
         end
       end
     end
