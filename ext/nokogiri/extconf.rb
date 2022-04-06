@@ -400,8 +400,8 @@ def iconv_configure_flags
     return ["--with-iconv=yes"]
   end
 
-  config = preserving_globals { have_package_configuration("libiconv") }
-  if config && try_link_iconv("pkg-config libiconv") { have_package_configuration("libiconv") }
+  config = preserving_globals { pkg_config("libiconv") }
+  if config && try_link_iconv("pkg-config libiconv") { pkg_config("libiconv") }
     cflags, ldflags, libs = config
 
     return [
