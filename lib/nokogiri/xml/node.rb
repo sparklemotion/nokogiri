@@ -123,7 +123,7 @@ module Nokogiri
       # [Yields] Nokogiri::XML::Node
       # [Returns] Nokogiri::XML::Node
       #
-      def initialize(name, document)
+      def initialize(name, document) # rubocop:disable Style/RedundantInitialize
         # This is intentionally empty.
       end
 
