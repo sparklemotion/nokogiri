@@ -727,6 +727,17 @@ module Nokogiri
           assert_equal(0, doc.errors.length)
         end
 
+        def test_leaking_dtd_nodes_after_internal_subset_removal
+          # see https://github.com/sparklemotion/nokogiri/issues/1784
+          #
+          # just checking that this doesn't raise a valgrind error. we
+          # don't otherwise have any test coverage for removing DTDs.
+          #
+          100.times do |_i|
+            Nokogiri::HTML::Document.new.internal_subset.remove
+          end
+        end
+
         it "skips encoding for script tags" do
           html = Nokogiri::HTML(<<~EOHTML)
             <html>
@@ -763,15 +774,17 @@ module Nokogiri
           assert_equal "ISO-8859-1", html.encoding.name
         end
 
-        def test_leaking_dtd_nodes_after_internal_subset_removal
-          # see https://github.com/sparklemotion/nokogiri/issues/1784
-          #
-          # just checking that this doesn't raise a valgrind error. we
-          # don't otherwise have any test coverage for removing DTDs.
-          #
-          100.times do |_i|
-            Nokogiri::HTML::Document.new.internal_subset.remove
+        it "handles ill-formed processing instructions" do
+          html = %{<html><body><!--><?a/}
+          doc = Nokogiri::HTML4::Document.parse(html)
+          expected = if Nokogiri.jruby?
+            [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::PI_NODE]
+          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+            [Nokogiri::XML::Node::COMMENT_NODE]
+          else
+            []
           end
+          assert_equal(expected, doc.at_css("body").children.map(&:type))
         end
 
         describe ".parse" do
