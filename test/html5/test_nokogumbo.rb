@@ -322,6 +322,20 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     assert_equal(3, node.line)
   end
 
+  it "handles ill-formed processing instructions in a document" do
+    html = %{<html><body><!--><?a/}
+    doc = Nokogiri::HTML5::Document.parse(html)
+    expected = [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::COMMENT_NODE]
+    assert_equal(expected, doc.at_css("body").children.map(&:type))
+  end
+
+  it "handles ill-formed processing instructions in a fragment" do
+    html = %{<div><!--><?a/}
+    frag = Nokogiri::HTML5::DocumentFragment.parse(html)
+    expected = [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::COMMENT_NODE]
+    assert_equal(expected, frag.at_css("div").children.map(&:type))
+  end
+
   private
 
   def buffer
