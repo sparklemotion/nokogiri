@@ -155,6 +155,18 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
             end
           end
         end
+
+        it "does not start backtracking during detection of XHTML encoding" do
+          # this test is a quick and dirty version
+          # of the more complete perf test that is on main.
+          n = 40_000
+          redos_string = "<?xml " + (" " * n)
+          redos_string.encode!("ASCII-8BIT")
+          start_time = Time.now
+          Nokogiri::HTML4(redos_string)
+          elapsed_time = Time.now - start_time
+          assert_operator(elapsed_time, :<, 1)
+        end
       end
     end
   end
