@@ -268,7 +268,7 @@ module Nokogiri
         end
 
         def self.detect_encoding(chunk)
-          (m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/)) &&
+          (m = chunk.match(/\A(<\?xml[ \t\r\n][^>]*>)/)) &&
             (return Nokogiri.XML(m[1]).encoding)
 
           if Nokogiri.jruby?
