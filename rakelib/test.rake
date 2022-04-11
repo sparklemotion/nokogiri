@@ -81,29 +81,42 @@ end
 
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
-  t.test_files = FileList["test/**/test_*.rb"]
   t.verbose = true
   t.options = "-v" if ENV["CI"]
 end
 
-Rake::TestTask.new do |t|
+def nokogiri_test_case_configuration(t)
   nokogiri_test_task_configuration(t)
+  t.test_files = FileList["test/**/test_*.rb"]
+end
+
+def nokogiri_test_bench_configuration(t)
+  nokogiri_test_task_configuration(t)
+  t.test_files = FileList["test/**/bench_*.rb"]
+end
+
+Rake::TestTask.new do |t|
+  nokogiri_test_case_configuration(t)
 end
 
 namespace "test" do
+  Rake::TestTask.new("bench") do |t|
+    nokogiri_test_bench_configuration(t)
+  end
+
   ValgrindTestTask.new("valgrind") do |t|
-    nokogiri_test_task_configuration(t)
+    nokogiri_test_case_configuration(t)
   end
 
   GdbTestTask.new("gdb") do |t|
-    nokogiri_test_task_configuration(t)
+    nokogiri_test_case_configuration(t)
   end
 
   LldbTestTask.new("lldb") do |t|
-    nokogiri_test_task_configuration(t)
+    nokogiri_test_case_configuration(t)
   end
 
   RubyMemcheck::TestTask.new("memcheck") do |t|
-    nokogiri_test_task_configuration(t)
+    nokogiri_test_case_configuration(t)
   end
 end

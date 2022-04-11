@@ -24,11 +24,13 @@ end
 $VERBOSE = true
 
 require "minitest/autorun"
+require "minitest/benchmark"
 require "minitest/reporters"
-NOKOGIRI_MINITEST_REPORTERS_OPTIONS = { color: true, slow_count: 10, detailed_skip: false }
-NOKOGIRI_MINITEST_REPORTERS_OPTIONS[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
-puts "Minitest::Reporters options: #{NOKOGIRI_MINITEST_REPORTERS_OPTIONS}"
-Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(NOKOGIRI_MINITEST_REPORTERS_OPTIONS))
+
+nokogiri_minitest_reporters_options = { color: true, slow_count: 10, detailed_skip: false }
+nokogiri_minitest_reporters_options[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
+puts "Minitest::Reporters options: #{nokogiri_minitest_reporters_options}"
+Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(nokogiri_minitest_reporters_options))
 
 require "fileutils"
 require "tempfile"
@@ -55,7 +57,7 @@ warn "#{__FILE__}:#{__LINE__}: version info:"
 warn Nokogiri::VERSION_INFO.to_yaml
 
 module Nokogiri
-  class TestCase < MiniTest::Spec
+  module TestBase
     ASSETS_DIR           = File.expand_path(File.join(File.dirname(__FILE__), "files"))
     ADDRESS_SCHEMA_FILE  = File.join(ASSETS_DIR, "address_book.rlx")
     ADDRESS_XML_FILE     = File.join(ASSETS_DIR, "address_book.xml")
@@ -79,8 +81,63 @@ module Nokogiri
     XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
     XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
 
-    unless Nokogiri.jruby?
-      GC_LEVEL = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
+    def i_am_ruby_matching(gem_version_requirement_string)
+      Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
+    end
+
+    def i_am_in_a_systemd_container
+      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
+    end
+
+    def i_am_running_in_valgrind
+      # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
+      ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
+    end
+
+    def i_am_running_with_asan
+      # https://stackoverflow.com/questions/35012059/check-whether-sanitizer-like-addresssanitizer-is-active
+      %x"ldd #{Gem.ruby}".include?("libasan.so")
+    rescue
+      false
+    end
+
+    def skip_unless_libxml2(msg = "this test should only run with libxml2")
+      skip(msg) unless Nokogiri.uses_libxml?
+    end
+
+    def skip_unless_libxml2_patch(patch_name)
+      patch_dir = File.join(__dir__, "..", "patches", "libxml2")
+      if File.directory?(patch_dir) && !File.exist?(File.join(patch_dir, patch_name))
+        raise("checking for nonexistent patch file #{patch_name.inspect}")
+      end
+
+      unless Nokogiri.libxml2_patches.include?(patch_name)
+        skip("this test needs libxml2 patched with #{patch_name}")
+      end
+    end
+
+    def skip_unless_jruby(msg = "this test should only run with jruby")
+      skip(msg) unless Nokogiri.jruby?
+    end
+  end
+
+  class TestBenchmark < Minitest::BenchSpec
+    extend TestBase
+  end
+
+  class TestCase < MiniTest::Spec
+    include TestBase
+
+    COMPACT_EVERY = 20
+    @@test_count = 0 # rubocop:disable Style/ClassVars
+    @@gc_level = nil # rubocop:disable Style/ClassVars
+
+    def initialize_nokogiri_test_gc_level
+      return if Nokogiri.jruby?
+      return if @@gc_level
+
+      # rubocop:disable Style/ClassVars
+      @@gc_level = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
         ENV["NOKOGIRI_TEST_GC_LEVEL"]
       elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
         "compact"
@@ -89,13 +146,12 @@ module Nokogiri
       else
         defined?(GC.compact) ? "compact" : "major"
       end
-      warn "#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{GC_LEVEL}"
+      warn("#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{@@gc_level}")
     end
 
-    COMPACT_EVERY = 20
-    @@test_count = 0 # rubocop:disable Style/ClassVars
-
     def setup
+      initialize_nokogiri_test_gc_level
+
       @@test_count += 1 # rubocop:disable Style/ClassVars
       if Nokogiri.uses_libxml?
         @fake_error_handler_called = false
@@ -105,15 +161,17 @@ module Nokogiri
       end
 
       unless Nokogiri.jruby?
-        if GC_LEVEL == "stress"
+        if @@gc_level == "stress"
           GC.stress = true
         end
       end
+
+      super
     end
 
     def teardown
       unless Nokogiri.jruby?
-        case GC_LEVEL
+        case @@gc_level
         when "minor"
           GC.start(full_mark: false)
         when "major"
@@ -138,6 +196,8 @@ module Nokogiri
       if Nokogiri.uses_libxml?
         refute(@fake_error_handler_called, "the fake error handler should never get called")
       end
+
+      super
     end
 
     def stress_memory_while(&block)
@@ -153,31 +213,12 @@ module Nokogiri
       end
     end
 
-    def skip_unless_libxml2(msg = "this test should only run with libxml2")
-      skip(msg) unless Nokogiri.uses_libxml?
-    end
-
-    def skip_unless_libxml2_patch(patch_name)
-      patch_dir = File.join(__dir__, "..", "patches", "libxml2")
-      if File.directory?(patch_dir) && !File.exist?(File.join(patch_dir, patch_name))
-        raise("checking for nonexistent patch file #{patch_name.inspect}")
-      end
-
-      unless Nokogiri.libxml2_patches.include?(patch_name)
-        skip("this test needs libxml2 patched with #{patch_name}")
-      end
-    end
-
-    def skip_unless_jruby(msg = "this test should only run with jruby")
-      skip(msg) unless Nokogiri.jruby?
-    end
-
     def refute_valgrind_errors
       # force the test to explicitly declare a skip
       raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
 
       yield.tap do
-        GC.start(full_mark: true) if GC_LEVEL == "minor"
+        GC.start(full_mark: true) if @@gc_level == "minor"
       end
     end
 
@@ -220,27 +261,6 @@ module Nokogiri
       return yield unless pend_eh
 
       pending(msg, &block)
-    end
-
-    def i_am_ruby_matching(gem_version_requirement_string)
-      Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
-    end
-
-    def i_am_in_a_systemd_container
-      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
-    end
-
-    def i_am_running_in_valgrind
-      # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
-      ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
-    end
-
-    def i_am_running_with_asan
-      # https://stackoverflow.com/questions/35012059/check-whether-sanitizer-like-addresssanitizer-is-active
-
-      %x"ldd #{Gem.ruby}".include?("libasan.so")
-    rescue
-      false
     end
   end
 

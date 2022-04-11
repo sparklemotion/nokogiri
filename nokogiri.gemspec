@@ -248,6 +248,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/html4/document_fragment.rb",
     "lib/nokogiri/html4/element_description.rb",
     "lib/nokogiri/html4/element_description_defaults.rb",
+    "lib/nokogiri/html4/encoding_reader.rb",
     "lib/nokogiri/html4/entity_lookup.rb",
     "lib/nokogiri/html4/sax/parser.rb",
     "lib/nokogiri/html4/sax/parser_context.rb",

@@ -39,6 +39,7 @@ end
 require_relative "html4/entity_lookup"
 require_relative "html4/document"
 require_relative "html4/document_fragment"
+require_relative "html4/encoding_reader"
 require_relative "html4/sax/parser_context"
 require_relative "html4/sax/parser"
 require_relative "html4/sax/push_parser"
