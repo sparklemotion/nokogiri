@@ -18,14 +18,8 @@ This version of Nokogiri ships full native gem support for the `aarch64-linux` p
 This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
 
 
-### Security
-
-* [JRuby] Vendored xercesImpl is updated from 2.12.0 to 2.12.2. This update addresses [CVE-2022-23437](https://nvd.nist.gov/vuln/detail/CVE-2022-23437). More information is available at [GHSA-h65f-jvqw-m9fj](https://github.com/advisories/GHSA-h65f-jvqw-m9fj).
-
-
 ### Dependencies
 
-* [JRuby] Vendored xercesImpl is updated from 2.12.0 to 2.12.2. Full changelog is available at https://xerces.apache.org/xerces2-j/releases.html
 * [JRuby] Vendored Jing is updated from com.thaiopensource:jing:20091111 to nu.validator:jing:20200702VNU.
 * [JRuby] New dependency on Saxon-HE 9.6.0-4 (via nu.validator:jing:20200702VNU).
 
@@ -43,6 +37,23 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
 * Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [#2505]
+
+
+## 1.13.4 / 2022-04-11
+
+### Security
+
+* Address [CVE-2022-24836](https://nvd.nist.gov/vuln/detail/CVE-2022-24836), a regular expression denial-of-service vulnerability. See [GHSA-crjr-9rc5-ghw8](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-crjr-9rc5-ghw8) for more information.
+* [CRuby] Vendored zlib is updated to address [CVE-2018-25032](https://nvd.nist.gov/vuln/detail/CVE-2018-25032). See [GHSA-v6gp-9mmm-c6p5](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v6gp-9mmm-c6p5) for more information.
+* [JRuby] Vendored Xerces-J (`xerces:xercesImpl`) is updated to address [CVE-2022-23437](https://nvd.nist.gov/vuln/detail/CVE-2022-23437). See [GHSA-xxx9-3xcr-gjj3](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-xxx9-3xcr-gjj3) for more information.
+* [JRuby] Vendored nekohtml (`org.cyberneko.html`) is updated to address [CVE-2022-24839](https://nvd.nist.gov/vuln/detail/CVE-2022-24839). See [GHSA-gx8x-g87m-h5q6](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-gx8x-g87m-h5q6) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored zlib is updated from 1.2.11 to 1.2.12. (See [LICENSE-DEPENDENCIES.md](https://github.com/sparklemotion/nokogiri/blob/v1.13.x/LICENSE-DEPENDENCIES.md#platform-releases) for details on which packages redistribute this library.)
+* [JRuby] Vendored Xerces-J (`xerces:xercesImpl`) is updated from 2.12.0 to 2.12.2.
+* [JRuby] Vendored nekohtml (`org.cyberneko.html`) is updated from a fork of 1.9.21 to 1.9.22.noko2. This fork is now publicly developed at https://github.com/sparklemotion/nekohtml
 
 
 ## 1.13.3 / 2022-02-21
