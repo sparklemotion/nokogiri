@@ -373,6 +373,7 @@ if java?
   end
 else
   require "rake/extensiontask"
+  require "yaml"
 
   dependencies = YAML.load_file("dependencies.yml")
 
