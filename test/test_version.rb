@@ -60,13 +60,7 @@ module TestVersionInfoTests
     major = Regexp.last_match(1).to_i
     minor = Regexp.last_match(2).to_i
     bug = Regexp.last_match(3).to_i
-    if RbConfig::CONFIG["target_os"].include?("freebsd13") && Nokogiri::VersionInfo.instance.libxml2_using_system?
-      pending("https://github.com/sparklemotion/nokogiri/issues/2506") do
-        assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxml"]["loaded"])
-      end
-    else
-      assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxml"]["loaded"])
-    end
+    assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxml"]["loaded"])
 
     assert(version_info["libxml"].key?("iconv_enabled"))
     assert(version_info["libxslt"].key?("datetime_enabled"))
