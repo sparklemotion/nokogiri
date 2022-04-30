@@ -1403,6 +1403,69 @@ module Nokogiri
         end
       end
 
+      DECONSTRUCT_KEYS = [:name, :attributes, :children, :namespace, :content, :elements, :inner_html].freeze # :nodoc:
+      DECONSTRUCT_METHODS = { attributes: :attribute_nodes }.freeze # :nodoc:
+
+      #
+      #  :call-seq: deconstruct_keys(array_of_names) → Hash
+      #
+      #  Returns a hash describing the Node, to use in pattern matching.
+      #
+      #  Valid keys and their values:
+      #  - +name+ → (String) The name of this node, or "text" if it is a Text node.
+      #  - +namespace+ → (Namespace, nil) The namespace of this node, or nil if there is no namespace.
+      #  - +attributes+ → (Array<Attr>) The attributes of this node.
+      #  - +children+ → (Array<Node>) The children of this node. 💡 Note this includes text nodes.
+      #  - +elements+ → (Array<Node>) The child elements of this node. 💡 Note this does not include text nodes.
+      #  - +content+ → (String) The contents of all the text nodes in this node's subtree. See #content.
+      #  - +inner_html+ → (String) The inner markup for the children of this node. See #inner_html.
+      #
+      #  ⚡ This is an experimental feature, available since v1.14.0
+      #
+      #  *Example*
+      #
+      #    doc = Nokogiri::XML.parse(<<~XML)
+      #      <?xml version="1.0"?>
+      #      <parent xmlns="http://nokogiri.org/ns/default" xmlns:noko="http://nokogiri.org/ns/noko">
+      #        <child1 foo="abc" noko:bar="def">First</child1>
+      #        <noko:child2 foo="qwe" noko:bar="rty">Second</noko:child2>
+      #      </parent>
+      #    XML
+      #
+      #    doc.root.deconstruct_keys([:name, :namespace])
+      #    # => {:name=>"parent",
+      #    #     :namespace=>
+      #    #      #(Namespace:0x35c { href = "http://nokogiri.org/ns/default" })}
+      #
+      #    doc.root.deconstruct_keys([:inner_html, :content])
+      #    # => {:content=>"\n" + "  First\n" + "  Second\n",
+      #    #     :inner_html=>
+      #    #      "\n" +
+      #    #      "  <child1 foo=\"abc\" noko:bar=\"def\">First</child1>\n" +
+      #    #      "  <noko:child2 foo=\"qwe\" noko:bar=\"rty\">Second</noko:child2>\n"}
+      #
+      #    doc.root.elements.first.deconstruct_keys([:attributes])
+      #    # => {:attributes=>
+      #    #      [#(Attr:0x370 { name = "foo", value = "abc" }),
+      #    #       #(Attr:0x384 {
+      #    #         name = "bar",
+      #    #         namespace = #(Namespace:0x398 {
+      #    #           prefix = "noko",
+      #    #           href = "http://nokogiri.org/ns/noko"
+      #    #           }),
+      #    #         value = "def"
+      #    #         })]}
+      #
+      def deconstruct_keys(keys)
+        requested_keys = DECONSTRUCT_KEYS & keys
+        {}.tap do |values|
+          requested_keys.each do |key|
+            method = DECONSTRUCT_METHODS[key] || key
+            values[key] = send(method)
+          end
+        end
+      end
+
       # :section:
 
       protected

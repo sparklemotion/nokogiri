@@ -429,6 +429,17 @@ module Nokogiri
 
       alias_method :+, :|
 
+      #
+      #  :call-seq: deconstruct() → Array
+      #
+      #  Returns the members of this NodeSet as an array, to use in pattern matching.
+      #
+      #  ⚡ This is an experimental feature, available since v1.14.0
+      #
+      def deconstruct
+        to_a
+      end
+
       IMPLIED_XPATH_CONTEXTS = [".//", "self::"].freeze # :nodoc:
     end
   end

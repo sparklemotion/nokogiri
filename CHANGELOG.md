@@ -18,6 +18,22 @@ This version of Nokogiri ships official native gem support for the `aarch64-linu
 This version of Nokogiri ships experimental native gem support for the `arm-linux` platform. Please note that glibc >= 2.29 is required for arm-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
 
 
+#### Experimental pattern matching support
+
+This version introduces an experimental pattern matching API for `XML::Attr`, `XML::Document`, `XML::DocumentFragment`, `XML::Namespace`, `XML::Node`, and `XML::NodeSet` (and their subclasses).
+
+Some documentation on what can be matched:
+
+- [`XML::Attr#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Attr.html?h=deconstruct#method-i-deconstruct_keys)
+- [`XML::Document#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Document.html?h=deconstruct#method-i-deconstruct_keys)
+- [`XML::Namespace#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Namespace.html?h=deconstruct+namespace#method-i-deconstruct_keys)
+- [`XML::Node#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Node.html?h=deconstruct#method-i-deconstruct_keys)
+- [`XML::DocumentFragment#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/DocumentFragment.html?h=deconstruct#method-i-deconstruct)
+- [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
+
+We welcome feedback on this API at [#2360](https://github.com/sparklemotion/nokogiri/issues/2360).
+
+
 #### Maven-managed JRuby dependencies
 
 This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]

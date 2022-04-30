@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
@@ -142,6 +143,52 @@ module Nokogiri
 
       def fragment(data)
         document.fragment(data)
+      end
+
+      #
+      #  :call-seq: deconstruct() → Array
+      #
+      #  Returns the root nodes of this document fragment as an array, to use in pattern matching.
+      #
+      #  💡 Note that text nodes are returned as well as elements. If you wish to operate only on
+      #  root elements, you should deconstruct the array returned by
+      #  <tt>DocumentFragment#elements</tt>.
+      #
+      #  ⚡ This is an experimental feature, available since v1.14.0
+      #
+      #  *Example*
+      #
+      #    frag = Nokogiri::HTML5.fragment(<<~HTML)
+      #      <div>Start</div>
+      #      This is a <a href="#jump">shortcut</a> for you.
+      #      <div>End</div>
+      #    HTML
+      #
+      #    frag.deconstruct
+      #    # => [#(Element:0x35c { name = "div", children = [ #(Text "Start")] }),
+      #    #     #(Text "\n" + "This is a "),
+      #    #     #(Element:0x370 {
+      #    #       name = "a",
+      #    #       attributes = [ #(Attr:0x384 { name = "href", value = "#jump" })],
+      #    #       children = [ #(Text "shortcut")]
+      #    #       }),
+      #    #     #(Text " for you.\n"),
+      #    #     #(Element:0x398 { name = "div", children = [ #(Text "End")] }),
+      #    #     #(Text "\n")]
+      #
+      #  *Example* only the elements, not the text nodes.
+      #
+      #    frag.elements.deconstruct
+      #    # => [#(Element:0x35c { name = "div", children = [ #(Text "Start")] }),
+      #    #     #(Element:0x370 {
+      #    #       name = "a",
+      #    #       attributes = [ #(Attr:0x384 { name = "href", value = "#jump" })],
+      #    #       children = [ #(Text "shortcut")]
+      #    #       }),
+      #    #     #(Element:0x398 { name = "div", children = [ #(Text "End")] })]
+      #
+      def deconstruct
+        children.to_a
       end
 
       private
