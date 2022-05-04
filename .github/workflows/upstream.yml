@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+    env:
+      CI_UPSTREAM_XMLSOFT: t
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+    env:
+      CI_UPSTREAM_XMLSOFT: t
     steps:
       - uses: actions/checkout@v2
         with:

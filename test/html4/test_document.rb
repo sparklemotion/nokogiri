@@ -779,7 +779,7 @@ module Nokogiri
           doc = Nokogiri::HTML4::Document.parse(html)
           expected = if Nokogiri.jruby?
             [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::PI_NODE]
-          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch") || upstream_xmlsoft?
             [Nokogiri::XML::Node::COMMENT_NODE]
           else
             []
@@ -801,18 +801,25 @@ module Nokogiri
 
             it "skips to the next start tag" do
               # see https://github.com/sparklemotion/nokogiri/issues/2461 for why we're testing this edge case
-              if Nokogiri.uses_libxml?(">= 2.9.13")
-                skip_unless_libxml2_patch("0010-Revert-Different-approach-to-fix-quadratic-behavior.patch")
-              end
-
               doc = Nokogiri::HTML4.parse(input)
               body = doc.at_xpath("//body")
 
-              expected_error_snippet = Nokogiri.uses_libxml? ? "invalid element name" : "Missing start element name"
-              assert_includes(doc.errors.first.to_s, expected_error_snippet)
-
-              assert_equal("this < that", body.children.first.text, body.to_html)
-              assert_equal(["div", "div"], body.children.map(&:name), body.to_html)
+              if Nokogiri.uses_libxml?("= 2.9.13") && !upstream_xmlsoft?
+                # <body><div>this <div>second element</div></div></body>
+                assert_equal(1, body.children.length)
+                body.children.first.tap do |div|
+                  assert_equal(2, div.children.length)
+                  assert_equal("this ", div.children[0].content)
+                  assert_equal("div", div.children[1].name)
+                  assert_equal("second element", div.children[1].content)
+                end
+              else
+                # <body><div>this &lt; that</div><div>second element</div></body>
+                assert_equal(2, body.children.length)
+                assert_equal(["div", "div"], body.children.map(&:name), body.to_html)
+                assert_equal("this < that", body.children[0].text, body.to_html)
+                assert_equal("second element", body.children[1].text, body.to_html)
+              end
             end
           end
 
