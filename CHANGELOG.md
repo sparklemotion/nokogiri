@@ -4,6 +4,28 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.13.5 / 2022-05-04
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address [CVE-2022-29824](https://nvd.nist.gov/vuln/detail/CVE-2022-29824). See [GHSA-cgx6-hpwq-fhv5](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-cgx6-hpwq-fhv5) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated from v2.9.13 to [v2.9.14](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.9.14).
+
+
+### Improvements
+
+* [CRuby] The libxml2 HTML parser no longer exhibits quadratic behavior when recovering some broken markup related to start-of-tag and bare `<` characters.
+
+
+### Changed
+
+* [CRuby] The libxml2 HTML parser in v2.9.14 recovers from some broken markup differently. Notably, the XML CDATA escape sequence `<![CDATA[` and incorrectly-opened comments will result in HTML text nodes starting with `&lt;!` instead of skipping the invalid tag. This behavior is a direct result of the [quadratic-behavior fix](https://gitlab.gnome.org/GNOME/libxml2/-/commit/798bdf1) noted above. The behavior of downstream sanitizers relying on this behavior will also change. Some tests describing the changed behavior are in [`test/html4/test_comments.rb`](https://github.com/sparklemotion/nokogiri/blob/3ed5bf2b5a367cb9dc6e329c5a1c512e1dd4565d/test/html4/test_comments.rb#L187-L204).
+
+
 ## 1.13.4 / 2022-04-11
 
 ### Security
