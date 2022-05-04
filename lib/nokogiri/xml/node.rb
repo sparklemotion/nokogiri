@@ -123,8 +123,8 @@ module Nokogiri
       # [Yields] Nokogiri::XML::Node
       # [Returns] Nokogiri::XML::Node
       #
-      def initialize(name, document) # rubocop:disable Style/RedundantInitialize
-        # This is intentionally empty.
+      def initialize(name, document)
+        # This is intentionally empty, and sets the method signature for subclasses.
       end
 
       ###
