@@ -779,7 +779,7 @@ module Nokogiri
           doc = Nokogiri::HTML4::Document.parse(html)
           expected = if Nokogiri.jruby?
             [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::PI_NODE]
-          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch") || upstream_xmlsoft?
             [Nokogiri::XML::Node::COMMENT_NODE]
           else
             []
@@ -804,7 +804,7 @@ module Nokogiri
               doc = Nokogiri::HTML4.parse(input)
               body = doc.at_xpath("//body")
 
-              if Nokogiri.uses_libxml?("= 2.9.13")
+              if Nokogiri.uses_libxml?("= 2.9.13") && !upstream_xmlsoft?
                 # <body><div>this <div>second element</div></div></body>
                 assert_equal(1, body.children.length)
                 body.children.first.tap do |div|

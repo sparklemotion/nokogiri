@@ -23,7 +23,7 @@ module Nokogiri
           let(:html) { "<html><body><div id=under-test><!--></div><div id=also-here></div></body></html>" }
 
           if Nokogiri.uses_libxml?
-            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch") || upstream_xmlsoft?
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
                 assert_predicate subject.children.first, :comment?
@@ -54,7 +54,7 @@ module Nokogiri
           let(:html) { "<html><body><div id=under-test><!---></div><div id=also-here></div></body></html>" }
 
           if Nokogiri.uses_libxml?
-            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
+            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch") || upstream_xmlsoft?
               it "behaves as if the comment is closed correctly" do # COMPLIANT
                 assert_equal 1, subject.children.length
                 assert_predicate subject.children.first, :comment?
@@ -173,7 +173,7 @@ module Nokogiri
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?("<=2.9.13")
+        if Nokogiri.uses_libxml?("<=2.9.13") && !upstream_xmlsoft?
           it "ignores up to the next '>'" do # NON-COMPLIANT
             assert_equal 2, body.children.length
             assert_equal body.children[0], subject
