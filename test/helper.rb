@@ -260,9 +260,9 @@ module Nokogiri
       begin
         yield
       rescue MiniTest::Assertion
-        skip("pending #{msg}")
+        skip("pending #{msg} [#{caller(2..2).first}]")
       end
-      flunk("pending test unexpectedly passed: #{msg}")
+      flunk("pending test unexpectedly passed: #{msg} [#{caller(1..1).first}]")
     end
 
     def pending_if(msg, pend_eh, &block)
