@@ -130,9 +130,12 @@ public class XmlSaxParserContext extends ParserContext
   parse_io(ThreadContext context,
            IRubyObject klazz,
            IRubyObject data,
-           IRubyObject enc)
+           IRubyObject encoding)
   {
-    //int encoding = (int)enc.convertToInteger().getLongValue();
+    // check the type of the unused encoding to match behavior of CRuby
+    if (!(encoding instanceof RubyFixnum)) {
+      throw context.getRuntime().newTypeError("encoding must be kind_of String");
+    }
     final Ruby runtime = context.runtime;
     XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
     ctx.initialize(runtime);
