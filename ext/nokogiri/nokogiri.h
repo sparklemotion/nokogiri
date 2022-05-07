@@ -83,11 +83,19 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #  define NOKOGIRI_DEBUG_END(p)
 #endif
 
-#ifndef NORETURN
+#ifndef NORETURN_DECL
 #  if defined(__GNUC__)
-#    define NORETURN(name) __attribute__((noreturn)) name
+#    define NORETURN_DECL __attribute__ ((noreturn))
 #  else
-#    define NORETURN(name) name
+#    define NORETURN_DECL
+#  endif
+#endif
+
+#ifndef PRINTFLIKE_DECL
+#  if defined(__GNUC__)
+#    define PRINTFLIKE_DECL(stringidx, argidx) __attribute__ ((format(printf,stringidx,argidx)))
+#  else
+#    define PRINTFLIKE_DECL(stringidx, argidx)
 #  endif
 #endif
 
@@ -205,7 +213,7 @@ void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerSta
 void Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
 VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error);
 void Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
-NORETURN(void Nokogiri_error_raise(void *ctx, xmlErrorPtr error));
+NORETURN_DECL void Nokogiri_error_raise(void *ctx, xmlErrorPtr error);
 void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name) ;
 
