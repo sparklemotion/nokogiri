@@ -54,7 +54,7 @@ module Nokogiri
         end
 
         def test_parse_memory_nil
-          assert_raises(ArgumentError) do
+          assert_raises(TypeError) do
             @parser.parse_memory(nil)
           end
         end
@@ -160,6 +160,12 @@ module Nokogiri
 
         def test_empty_processing_instruction
           @parser.parse_memory("<strong>this will segfault<?strong>")
+        end
+
+        it "handles invalid types gracefully" do
+          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse_memory(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse_io(0xcafecafe) }
         end
       end
     end

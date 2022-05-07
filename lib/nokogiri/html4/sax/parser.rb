@@ -28,7 +28,7 @@ module Nokogiri
         ###
         # Parse html stored in +data+ using +encoding+
         def parse_memory(data, encoding = "UTF-8")
-          raise ArgumentError unless data
+          raise TypeError unless String === data
           return if data.empty?
 
           ctx = ParserContext.memory(data, encoding)

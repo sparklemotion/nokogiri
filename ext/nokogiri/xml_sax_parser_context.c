@@ -2,6 +2,8 @@
 
 VALUE cNokogiriXmlSaxParserContext ;
 
+static ID id_read;
+
 static void
 deallocate(xmlParserCtxtPtr ctxt)
 {
@@ -25,6 +27,10 @@ parse_io(VALUE klass, VALUE io, VALUE encoding)
 {
   xmlParserCtxtPtr ctxt;
   xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding);
+
+  if (!rb_respond_to(io, id_read)) {
+    rb_raise(rb_eTypeError, "argument expected to respond to :read");
+  }
 
   ctxt = xmlCreateIOParserCtxt(NULL, NULL,
                                (xmlInputReadCallback)noko_io_read,
@@ -62,9 +68,8 @@ parse_memory(VALUE klass, VALUE data)
 {
   xmlParserCtxtPtr ctxt;
 
-  if (NIL_P(data)) {
-    rb_raise(rb_eArgError, "data cannot be nil");
-  }
+  Check_Type(data, T_STRING);
+
   if (!(int)RSTRING_LEN(data)) {
     rb_raise(rb_eRuntimeError, "data cannot be empty");
   }
@@ -278,4 +283,6 @@ noko_init_xml_sax_parser_context()
   rb_define_method(cNokogiriXmlSaxParserContext, "recovery", get_recovery, 0);
   rb_define_method(cNokogiriXmlSaxParserContext, "line", line, 0);
   rb_define_method(cNokogiriXmlSaxParserContext, "column", column, 0);
+
+  id_read = rb_intern("read");
 }

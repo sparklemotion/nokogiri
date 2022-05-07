@@ -231,6 +231,13 @@ public class Html4SaxParserContext extends XmlSaxParserContext
              IRubyObject data,
              IRubyObject encoding)
   {
+    if (!(data instanceof RubyString)) {
+      throw context.getRuntime().newTypeError("data must be kind_of String");
+    }
+    if (!(encoding instanceof RubyString)) {
+      throw context.getRuntime().newTypeError("data must be kind_of String");
+    }
+
     Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klass);
     ctx.setInputSourceFile(context, data);
     String javaEncoding = findEncodingName(context, encoding);
@@ -247,6 +254,10 @@ public class Html4SaxParserContext extends XmlSaxParserContext
            IRubyObject data,
            IRubyObject encoding)
   {
+    if (!(encoding instanceof RubyFixnum)) {
+      throw context.getRuntime().newTypeError("encoding must be kind_of String");
+    }
+
     Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klass);
     ctx.setIOInputSource(context, data, context.nil);
     String javaEncoding = findEncodingName(context, encoding);

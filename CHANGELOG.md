@@ -28,6 +28,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
 * [HTML5] The Gumbo parser now correctly handles text at the end of `form` elements.
+* `{HTML4,XML}::SAX::{Parser,ParserContext}` constructor methods now raise `TypeError` instead of segfaulting when an incorrect type is passed. (Thanks to [@agustingianni](https://github.com/agustingianni) from the Github Security Lab for reporting!)
 
 
 ### Improved
@@ -36,7 +37,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
 * Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
-* Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [#2505]
+* Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
 
 
 ## 1.13.5 / 2022-05-04
