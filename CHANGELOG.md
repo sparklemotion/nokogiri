@@ -4,6 +4,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.13.6 / 2022-05-08
+
+### Security
+
+* [CRuby] Address [CVE-2022-29181](https://nvd.nist.gov/vuln/detail/CVE-2022-29181), improper handling of unexpected data types, related to untrusted inputs to the SAX parsers. See [GHSA-xh29-r2w5-wx8m](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-xh29-r2w5-wx8m) for more information.
+
+
+### Improvements
+
+* `{HTML4,XML}::SAX::{Parser,ParserContext}` constructor methods now raise `TypeError` instead of segfaulting when an incorrect type is passed.
+
+
 ## 1.13.5 / 2022-05-04
 
 ### Security
