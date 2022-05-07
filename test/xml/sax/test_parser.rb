@@ -73,6 +73,12 @@ module Nokogiri
           end
         end
 
+        it "handles invalid types gracefully" do
+          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_memory(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_io(0xcafecafe) }
+        end
+
         it :test_namespace_declaration_order_is_saved do
           parser.parse(<<~EOF)
             <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
@@ -263,7 +269,7 @@ module Nokogiri
         end
 
         it :test_render_parse_nil_param do
-          assert_raises(ArgumentError) { parser.parse_memory(nil) }
+          assert_raises(TypeError) { parser.parse_memory(nil) }
         end
 
         it :test_bad_encoding_args do

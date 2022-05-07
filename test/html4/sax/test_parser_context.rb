@@ -40,6 +40,15 @@ module Nokogiri
           ctx.parse_with(parser)
           # end
         end
+
+        def test_graceful_handling_of_invalid_types
+          assert_raises(TypeError) { ParserContext.new(0xcafecafe) }
+          assert_raises(TypeError) { ParserContext.memory(0xcafecafe, "UTF-8") }
+          assert_raises(TypeError) { ParserContext.io(0xcafecafe, 1) }
+          assert_raises(TypeError) { ParserContext.io(StringIO.new("asdf"), "should be an index into ENCODINGS") }
+          assert_raises(TypeError) { ParserContext.file(0xcafecafe, "UTF-8") }
+          assert_raises(TypeError) { ParserContext.file("path/to/file", 0xcafecafe) }
+        end
       end
     end
   end
