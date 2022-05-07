@@ -80,6 +80,13 @@ module Nokogiri
           assert(pc.recovery)
         end
 
+        def test_graceful_handling_of_invalid_types
+          assert_raises(TypeError) { ParserContext.new(0xcafecafe) }
+          assert_raises(TypeError) { ParserContext.memory(0xcafecafe) }
+          assert_raises(TypeError) { ParserContext.io(0xcafecafe, 1) }
+          assert_raises(TypeError) { ParserContext.io(StringIO.new("asdf"), "should be an index into ENCODINGS") }
+        end
+
         def test_from_io
           ctx = ParserContext.new(StringIO.new("fo"), "UTF-8")
           assert(ctx)
