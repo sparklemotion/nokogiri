@@ -154,6 +154,16 @@ module Nokogiri
       else
         defined?(GC.compact) ? "compact" : "major"
       end
+      if ["compact", "verify"].include?(@@gc_level)
+        # the only way of detecting an unsupported platform is actually
+        # trying GC compaction
+        begin
+          GC.compact
+        rescue NotImplementedError
+          @@gc_level = "normal"
+          warn("#{__FILE__}:#{__LINE__}: GC compaction not suppport by platform")
+        end
+      end
       warn("#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{@@gc_level}")
     end
 
