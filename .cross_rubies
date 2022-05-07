@@ -1,4 +1,5 @@
 2.6.0:aarch64-linux
+2.6.0:arm-linux
 2.6.0:arm64-darwin
 2.6.0:x64-mingw32
 2.6.0:x86-linux
@@ -6,6 +7,7 @@
 2.6.0:x86_64-darwin
 2.6.0:x86_64-linux
 2.7.0:aarch64-linux
+2.7.0:arm-linux
 2.7.0:arm64-darwin
 2.7.0:x64-mingw32
 2.7.0:x86-linux
@@ -13,6 +15,7 @@
 2.7.0:x86_64-darwin
 2.7.0:x86_64-linux
 3.0.0:aarch64-linux
+3.0.0:arm-linux
 3.0.0:arm64-darwin
 3.0.0:x64-mingw32
 3.0.0:x86-linux
@@ -20,6 +23,7 @@
 3.0.0:x86_64-darwin
 3.0.0:x86_64-linux
 3.1.0:aarch64-linux
+3.1.0:arm-linux
 3.1.0:arm64-darwin
 3.1.0:x64-mingw-ucrt
 3.1.0:x86-linux
