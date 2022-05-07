@@ -14,7 +14,9 @@ bundle update
 bundle package
 
 bundle exec rake clean clobber
-bundle exec rake compile test
+bundle exec rake compile
+bundle exec rake test
+bundle exec rake test:bench
 
 # MRI et al (standard gem)
 bundle exec rake clean clobber
