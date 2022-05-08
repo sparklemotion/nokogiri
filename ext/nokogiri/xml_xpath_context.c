@@ -289,7 +289,7 @@ lookup(void *ctx,
   return NULL;
 }
 
-PRINTFLIKE_DECL(2,3)
+PRINTFLIKE_DECL(2, 3)
 NORETURN_DECL
 static void
 xpath_generic_exception_handler(void *ctx, const char *msg, ...)

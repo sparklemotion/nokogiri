@@ -20,7 +20,7 @@ dealloc(nokogiriXsltStylesheetTuple *wrapper)
   ruby_xfree(wrapper);
 }
 
-PRINTFLIKE_DECL(2,3)
+PRINTFLIKE_DECL(2, 3)
 static void
 xslt_generic_error_handler(void *ctx, const char *msg, ...)
 {

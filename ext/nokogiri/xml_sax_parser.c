@@ -195,7 +195,7 @@ comment_func(void *ctx, const xmlChar *value)
   rb_funcall(doc, id_comment, 1, str);
 }
 
-PRINTFLIKE_DECL(2,3)
+PRINTFLIKE_DECL(2, 3)
 static void
 warning_func(void *ctx, const char *msg, ...)
 {
@@ -211,7 +211,7 @@ warning_func(void *ctx, const char *msg, ...)
   rb_funcall(doc, id_warning, 1, rb_message);
 }
 
-PRINTFLIKE_DECL(2,3)
+PRINTFLIKE_DECL(2, 3)
 static void
 error_func(void *ctx, const char *msg, ...)
 {
