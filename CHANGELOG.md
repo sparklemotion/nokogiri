@@ -8,9 +8,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notes
 
-#### Faster, more reliable installation: Native Gem for ARM64 Linux
+#### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)
 
-This version of Nokogiri ships full native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
+This version of Nokogiri ships official native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM64 Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
+
+
+#### Faster, more reliable installation: Native Gem for `arm-linux` (aka `linux/arm/v7`)
+
+This version of Nokogiri ships experimental native gem support for the `arm-linux` platform. Please note that glibc >= 2.29 is required for arm-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
 
 
 #### Maven-managed JRuby dependencies
