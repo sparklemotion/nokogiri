@@ -151,7 +151,7 @@ module Nokogiri
         end
 
         def test_parse_with_unparented_html_text_context_node
-          doc = HTML::Document.new
+          doc = Nokogiri::HTML4::Document.new
           elem = XML::Text.new("div", doc)
           x = elem.parse("<div/>") # should not raise an exception
           assert_equal("div", x.first.name)
@@ -165,7 +165,7 @@ module Nokogiri
         end
 
         def test_parse_with_unparented_html_fragment_text_context_node
-          doc = HTML::DocumentFragment.parse("<div><span>foo</span></div>")
+          doc = Nokogiri::HTML4::DocumentFragment.parse("<div><span>foo</span></div>")
           elem = doc.at_css("span")
           x = elem.parse("<span/>") # should not raise an exception
           assert_equal("span", x.first.name)
@@ -196,8 +196,8 @@ module Nokogiri
 
         def test_dup_to_another_document
           skip_unless_libxml2("Node.dup with new_parent arg is only implemented on CRuby")
-          doc1 = HTML::Document.parse("<root><div><p>hello</p></div></root>")
-          doc2 = HTML::Document.parse("<div></div>")
+          doc1 = Nokogiri::HTML4::Document.parse("<root><div><p>hello</p></div></root>")
+          doc2 = Nokogiri::HTML4::Document.parse("<div></div>")
 
           div = doc1.at_css("div")
           duplicate_div = div.dup(1, doc2)
@@ -1127,7 +1127,7 @@ module Nokogiri
           #  describe how we handle microsoft word's HTML formatting.
           #  this test is descriptive, not prescriptive.
           #
-          html = Nokogiri::HTML.parse(<<~XML)
+          html = Nokogiri::HTML4.parse(<<~XML)
             <div><o:p>foo</o:p></div>
           XML
           node = html.at("div").children.first
@@ -1291,7 +1291,7 @@ module Nokogiri
           # side note: this was fixed in libxml-ruby 2.9.0 by https://github.com/xml4r/libxml-ruby/pull/119
           message = "<section><h2>BOOM!</h2></section>"
           10_000.times do
-            node = Nokogiri::HTML::DocumentFragment.parse(message).at_css("h2")
+            node = Nokogiri::HTML4::DocumentFragment.parse(message).at_css("h2")
             node.add_previous_sibling(Nokogiri::XML::Text.new("before", node.document))
             node.add_next_sibling(Nokogiri::XML::Text.new("after", node.document))
           end

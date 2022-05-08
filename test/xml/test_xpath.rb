@@ -116,7 +116,7 @@ module Nokogiri
       def test_css_search_with_ambiguous_integer_or_string_attributes
         # https://github.com/sparklemotion/nokogiri/issues/711
         html = "<body><div><img width=200>"
-        doc = Nokogiri::HTML(html)
+        doc = Nokogiri::HTML4(html)
         refute_nil(doc.at_css("img[width='200']"))
         refute_nil(doc.at_css("img[width=200]"))
       end
@@ -315,7 +315,7 @@ module Nokogiri
       def test_code_that_invokes_OP_RESET_inside_libxml2
         doc = "<html><body id='foo'><foo>hi</foo></body></html>"
         xpath = 'id("foo")//foo'
-        nokogiri = Nokogiri::HTML.parse(doc)
+        nokogiri = Nokogiri::HTML4.parse(doc)
         assert(nokogiri.xpath(xpath))
       end
 
@@ -500,7 +500,7 @@ module Nokogiri
 
       describe "nokogiri-builtin:css-class xpath function" do
         before do
-          @doc = Nokogiri::HTML::Document.parse("<html></html>")
+          @doc = Nokogiri::HTML4::Document.parse("<html></html>")
         end
 
         it "accepts exactly two arguments" do

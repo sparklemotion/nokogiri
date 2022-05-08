@@ -4,10 +4,10 @@
 require "helper"
 
 class TestNokogiriHtmlDocument < Nokogiri::TestCase
-  describe "Nokogiri::HTML::Document" do
+  describe "Nokogiri::HTML4::Document" do
     describe "Encoding" do
       def test_encoding
-        doc = Nokogiri::HTML(File.open(SHIFT_JIS_HTML, "rb"))
+        doc = Nokogiri::HTML4(File.open(SHIFT_JIS_HTML, "rb"))
 
         hello = "こんにちは"
 
@@ -21,7 +21,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
       end
 
       def test_encoding_without_charset
-        doc = Nokogiri::HTML(File.open(SHIFT_JIS_NO_CHARSET, "r:Shift_JIS:Shift_JIS").read)
+        doc = Nokogiri::HTML4(File.open(SHIFT_JIS_NO_CHARSET, "r:Shift_JIS:Shift_JIS").read)
 
         hello = "こんにちは"
 
@@ -42,7 +42,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
           </body>
           </html>
         eohtml
-        doc = Nokogiri::HTML(bad_charset)
+        doc = Nokogiri::HTML4(bad_charset)
         assert_equal(bad_charset.encoding.name, doc.encoding)
 
         doc = Nokogiri.parse(bad_charset)
@@ -58,7 +58,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
             <meta http-equiv="Content-Type" content="text/html; charset=#{enc.name}">
             <title xml:lang="ja">#{orig}</title></html>
           eohtml
-          text = Nokogiri::HTML.parse(html).at("title").inner_text
+          text = Nokogiri::HTML4.parse(html).at("title").inner_text
           assert_equal(
             orig.encode(enc).force_encoding(bin),
             text.encode(enc).force_encoding(bin)
@@ -78,14 +78,14 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
           </body>
           </html>
         eohtml
-        doc = Nokogiri::HTML(bad_charset, nil, "askldjfhalsdfjhlkasdfjh")
+        doc = Nokogiri::HTML4(bad_charset, nil, "askldjfhalsdfjhlkasdfjh")
         assert_equal(["http://tenderlovemaking.com/"],
           doc.css("a").map { |a| a["href"] })
       end
 
       def test_empty_doc_encoding
         encoding = "US-ASCII"
-        assert_equal(encoding, Nokogiri::HTML.parse(nil, nil, encoding).encoding)
+        assert_equal(encoding, Nokogiri::HTML4.parse(nil, nil, encoding).encoding)
       end
 
       describe "Detection" do
@@ -98,31 +98,31 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         end
 
         it "handles both memory and IO" do
-          from_stream = Nokogiri::HTML(binopen(NOENCODING_FILE))
-          from_string = Nokogiri::HTML(binread(NOENCODING_FILE))
+          from_stream = Nokogiri::HTML4(binopen(NOENCODING_FILE))
+          from_string = Nokogiri::HTML4(binread(NOENCODING_FILE))
 
           assert_equal(from_string.to_s.size, from_stream.to_s.size)
           assert_operator(from_string.to_s.size, :>, 0)
         end
 
         it "uses meta charset encoding when present" do
-          html = Nokogiri::HTML(binopen(METACHARSET_FILE))
+          html = Nokogiri::HTML4(binopen(METACHARSET_FILE))
           assert_equal("iso-2022-jp", html.encoding)
           assert_equal("たこ焼き仮面", html.title)
         end
 
         { "xhtml" => ENCODING_XHTML_FILE, "html" => ENCODING_HTML_FILE }.each do |flavor, file|
           it "detects #{flavor} document encoding" do
-            doc_from_string_enc = Nokogiri::HTML(binread(file), nil, "Shift_JIS")
+            doc_from_string_enc = Nokogiri::HTML4(binread(file), nil, "Shift_JIS")
             ary_from_string_enc = doc_from_string_enc.xpath("//p/text()").map(&:text)
 
-            doc_from_string = Nokogiri::HTML(binread(file))
+            doc_from_string = Nokogiri::HTML4(binread(file))
             ary_from_string = doc_from_string.xpath("//p/text()").map(&:text)
 
-            doc_from_file_enc = Nokogiri::HTML(binopen(file), nil, "Shift_JIS")
+            doc_from_file_enc = Nokogiri::HTML4(binopen(file), nil, "Shift_JIS")
             ary_from_file_enc = doc_from_file_enc.xpath("//p/text()").map(&:text)
 
-            doc_from_file = Nokogiri::HTML(binopen(file))
+            doc_from_file = Nokogiri::HTML4(binopen(file))
             ary_from_file = doc_from_file.xpath("//p/text()").map(&:text)
 
             title = "たこ焼き仮面"
@@ -150,7 +150,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
 
           { "read_memory" => RAW, "read_io" => StringIO.new(RAW) }.each do |flavor, input|
             it "#{flavor} should handle errors" do
-              doc = Nokogiri::HTML.parse(input)
+              doc = Nokogiri::HTML4.parse(input)
               assert_operator(doc.errors.length, :>, 0)
             end
           end

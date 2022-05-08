@@ -72,7 +72,7 @@ module Nokogiri
       end
 
       def test_null_default_sub_element
-        doc = Nokogiri::HTML("foo")
+        doc = Nokogiri::HTML4("foo")
         doc.root.description.default_sub_element
       end
 

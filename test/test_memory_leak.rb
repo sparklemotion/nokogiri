@@ -114,8 +114,8 @@ class TestMemoryLeak < Nokogiri::TestCase
         Nokogiri::XML::SAX::ParserContext.new(io)
         io.rewind
 
-        Nokogiri::HTML::SAX::ParserContext.new(@str)
-        Nokogiri::HTML::SAX::ParserContext.new(io)
+        Nokogiri::HTML4::SAX::ParserContext.new(@str)
+        Nokogiri::HTML4::SAX::ParserContext.new(io)
         io.rewind
       end
     end
@@ -136,7 +136,7 @@ class TestMemoryLeak < Nokogiri::TestCase
 
       loop do
         catch(:foo) do
-          Nokogiri::HTML::SAX::Parser.new(doc).parse(@str)
+          Nokogiri::HTML4::SAX::Parser.new(doc).parse(@str)
         end
       end
     end
@@ -194,7 +194,7 @@ class TestMemoryLeak < Nokogiri::TestCase
     def test_leaking_dtd_nodes_after_internal_subset_removal
       # see https://github.com/sparklemotion/nokogiri/issues/1784
       100_000.times do |i|
-        doc = Nokogiri::HTML::Document.new
+        doc = Nokogiri::HTML4::Document.new
         doc.internal_subset.remove
         puts MemInfo.rss if i % 1000 == 0
       end

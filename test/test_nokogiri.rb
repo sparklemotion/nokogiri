@@ -12,7 +12,7 @@ module Nokogiri
 
       def test_parse_with_io
         doc = Nokogiri.parse(StringIO.new("<html><head><title></title><body></body></html>"))
-        assert_instance_of(Nokogiri::HTML::Document, doc)
+        assert_instance_of(Nokogiri::HTML4::Document, doc)
       end
 
       def test_xml?
@@ -40,13 +40,15 @@ module Nokogiri
       end
 
       def test_nokogiri_method_with_block
-        doc = Nokogiri { b("bold tag") }
-        assert_equal("<b>bold tag</b>", doc.to_html.chomp)
+        root = Nokogiri { b("bold tag") }
+        assert_instance_of(Nokogiri::HTML4::Document, root.document)
+        assert_equal("<b>bold tag</b>", root.to_html.chomp)
       end
 
       def test_make_with_html
-        doc = Nokogiri.make("<b>bold tag</b>")
-        assert_equal("<b>bold tag</b>", doc.to_html.chomp)
+        root = Nokogiri.make("<b>bold tag</b>")
+        assert_instance_of(Nokogiri::HTML4::Document, root.document)
+        assert_equal("<b>bold tag</b>", root.to_html.chomp)
       end
 
       def test_make_with_block
