@@ -23,7 +23,7 @@
 //
 // Processing starts by calling gumbo_parse_with_options. The resulting document tree
 // is then walked, a parallel libxml2 tree is constructed, and the final document is
-// then wrapped using Nokogiri_wrap_xml_document. This approach reduces memory and CPU
+// then wrapped using noko_xml_document_wrap. This approach reduces memory and CPU
 // requirements as Ruby objects are only built when necessary.
 //
 
@@ -297,6 +297,7 @@ typedef struct {
   GumboOutput *output;
   VALUE input;
   VALUE url_or_frag;
+  VALUE klass;
   xmlDocPtr doc;
 } ParseArgs;
 
@@ -321,7 +322,7 @@ static VALUE parse_continue(VALUE parse_args);
  *  @!visibility protected
  */
 static VALUE
-parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth)
+parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth, VALUE klass)
 {
   GumboOptions options = kGumboDefaultOptions;
   options.max_attributes = NUM2INT(max_attributes);
@@ -333,6 +334,7 @@ parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors
     .output = output,
     .input = input,
     .url_or_frag = url,
+    .klass = klass,
     .doc = NULL,
   };
 
@@ -357,7 +359,7 @@ parse_continue(VALUE parse_args)
   }
   args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
-  VALUE rdoc = Nokogiri_wrap_xml_document(cNokogiriHtml5Document, doc);
+  VALUE rdoc = noko_xml_document_wrap(args->klass, doc);
   args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
@@ -577,7 +579,7 @@ noko_init_gumbo()
   parent = rb_intern_const("parent");
 
   // Define Nokogumbo module with parse and fragment methods.
-  rb_define_singleton_method(mNokogiriGumbo, "parse", parse, 5);
+  rb_define_singleton_method(mNokogiriGumbo, "parse", parse, 6);
   rb_define_singleton_method(mNokogiriGumbo, "fragment", fragment, 6);
 }
 

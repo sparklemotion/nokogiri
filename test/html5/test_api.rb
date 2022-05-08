@@ -182,4 +182,122 @@ class TestHtml5API < Nokogiri::TestCase
     assert_predicate(doc, :html?)
     refute_predicate(doc, :xml?)
   end
+
+  describe Nokogiri::HTML5::Document do
+    describe "subclassing" do
+      let(:klass) do
+        Class.new(Nokogiri::HTML5::Document) do
+          attr_accessor :initialized_with, :initialized_count
+
+          def initialize(*args)
+            super
+            @initialized_with = args
+            @initialized_count ||= 0
+            @initialized_count += 1
+          end
+        end
+      end
+
+      describe ".new" do
+        it "returns an instance of the expected class" do
+          doc = klass.new
+          assert_instance_of(klass, doc)
+        end
+
+        it "calls #initialize exactly once" do
+          doc = klass.new
+          assert_equal(1, doc.initialized_count)
+        end
+
+        it "passes arguments to #initialize" do
+          doc = klass.new("http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN")
+          assert_equal(
+            ["http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN"],
+            doc.initialized_with
+          )
+        end
+      end
+
+      it "#dup returns the expected class" do
+        doc = klass.new.dup
+        assert_instance_of(klass, doc)
+      end
+
+      describe ".parse" do
+        let(:html) { Nokogiri::HTML5.parse(File.read(HTML_FILE)) }
+
+        it "returns an instance of the expected class" do
+          doc = klass.parse(File.read(HTML_FILE))
+          assert_instance_of(klass, doc)
+        end
+
+        it "calls #initialize exactly once" do
+          doc = klass.parse(File.read(HTML_FILE))
+          assert_equal(1, doc.initialized_count)
+        end
+
+        it "parses the doc" do
+          doc = klass.parse(File.read(HTML_FILE))
+          assert_equal(html.root.to_s, doc.root.to_s)
+        end
+      end
+    end
+  end
+
+  describe Nokogiri::HTML5::DocumentFragment do
+    describe "subclassing" do
+      let(:klass) do
+        Class.new(Nokogiri::HTML5::DocumentFragment) do
+          attr_accessor :initialized_with, :initialized_count
+
+          def initialize(*args)
+            super
+            @initialized_with = args
+            @initialized_count ||= 0
+            @initialized_count += 1
+          end
+        end
+      end
+      let(:html) { Nokogiri::HTML5.parse(File.read(HTML_FILE), HTML_FILE) }
+
+      describe ".new" do
+        it "returns an instance of the right class" do
+          fragment = klass.new(html, "<div>a</div>")
+          assert_instance_of(klass, fragment)
+        end
+
+        it "calls #initialize exactly once" do
+          fragment = klass.new(html, "<div>a</div>")
+          assert_equal(1, fragment.initialized_count)
+        end
+
+        it "passes args to #initialize" do
+          fragment = klass.new(html, "<div>a</div>")
+          assert_equal([html, "<div>a</div>"], fragment.initialized_with)
+        end
+      end
+
+      it "#dup returns the expected class" do
+        doc = klass.new(html, "<div>a</div>").dup
+        assert_instance_of(klass, doc)
+      end
+
+      describe ".parse" do
+        it "returns an instance of the right class" do
+          fragment = klass.parse("<div>a</div>")
+          assert_instance_of(klass, fragment)
+        end
+
+        it "calls #initialize exactly once" do
+          fragment = klass.parse("<div>a</div>")
+          assert_equal(1, fragment.initialized_count)
+        end
+
+        it "passes the fragment" do
+          fragment = klass.parse("<div>a</div>")
+          assert_equal(Nokogiri::HTML5::DocumentFragment.parse("<div>a</div>").to_s, fragment.to_s)
+        end
+      end
+    end
+  end
 end if Nokogiri.uses_gumbo?
