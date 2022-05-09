@@ -55,7 +55,7 @@ module Nokogiri
 
           html = %{<#{config[:tag]} #{config[:attr]}='examp<!--" unsafeattr=unsafevalue()>-->le.com'>test</#{config[:tag]}>}
 
-          reparsed = HTML.fragment(HTML.fragment(html).to_html)
+          reparsed = Nokogiri::HTML4.fragment(Nokogiri::HTML4.fragment(html).to_html)
           attributes = reparsed.at_css(config[:tag]).attribute_nodes
 
           assert_equal [config[:attr]], attributes.collect(&:name)

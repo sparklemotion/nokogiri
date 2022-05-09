@@ -9,7 +9,7 @@ module Nokogiri
       class TestPushParser < Nokogiri::SAX::TestCase
         def setup
           super
-          @parser = HTML::SAX::PushParser.new(Doc.new)
+          @parser = Nokogiri::HTML4::SAX::PushParser.new(Doc.new)
         end
 
         def test_end_document_called

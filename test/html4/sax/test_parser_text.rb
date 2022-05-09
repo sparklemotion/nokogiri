@@ -10,7 +10,7 @@ module Nokogiri
         def setup
           super
           @doc    = DocWithOrderedItems.new
-          @parser = HTML::SAX::Parser.new(@doc)
+          @parser = Nokogiri::HTML4::SAX::Parser.new(@doc)
         end
 
         def test_texts_order

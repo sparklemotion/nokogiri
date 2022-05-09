@@ -15,7 +15,7 @@ module Nokogiri
       # <!--> or <!--->). The parser behaves as if the comment is
       # closed correctly.
       describe "abrupt closing of empty comment" do
-        let(:doc) { Nokogiri::HTML(html) }
+        let(:doc) { Nokogiri::HTML4(html) }
         let(:subject) { doc.at_css("div#under-test") }
         let(:other_div) { doc.at_css("div#also-here") }
 
@@ -101,7 +101,7 @@ module Nokogiri
       # stream.
       describe "eof in comment" do
         let(:html) { "<html><body><div id=under-test><!--start of unterminated comment" }
-        let(:doc) { Nokogiri::HTML(html) }
+        let(:doc) { Nokogiri::HTML4(html) }
         let(:subject) { doc.at_css("div#under-test") }
 
         if Nokogiri.uses_libxml?
@@ -129,7 +129,7 @@ module Nokogiri
       # code point sequence.
       describe "incorrectly closed comment" do
         let(:html) { "<html><body><div id=under-test><!--foo--!><div id=do-i-exist></div><!--bar--></div></body></html>" }
-        let(:doc) { Nokogiri::HTML(html) }
+        let(:doc) { Nokogiri::HTML4(html) }
         let(:subject) { doc.at_css("div#under-test") }
         let(:inner_div) { doc.at_css("div#do-i-exist") }
 
@@ -169,7 +169,7 @@ module Nokogiri
       describe "incorrectly opened comment" do
         let(:html) { "<html><body><div id=under-test><! comment <div id=do-i-exist>inner content</div>-->hello</div></body></html>" }
 
-        let(:doc) { Nokogiri::HTML(html) }
+        let(:doc) { Nokogiri::HTML4(html) }
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
@@ -225,7 +225,7 @@ module Nokogiri
       # everything that follows will be treated as markup.
       describe "nested comment" do
         let(:html) { "<html><body><div id=under-test><!-- outer <!-- inner --><div id=do-i-exist></div>--></div></body></html>" }
-        let(:doc) { Nokogiri::HTML(html) }
+        let(:doc) { Nokogiri::HTML4(html) }
         let(:subject) { doc.at_css("div#under-test") }
         let(:inner_div) { doc.at_css("div#do-i-exist") }
 

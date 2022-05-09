@@ -603,7 +603,7 @@ module Nokogiri
           end
 
           it "should remove the child node after the operation" do
-            fragment = Nokogiri::HTML::DocumentFragment.parse("a<a>b</a>")
+            fragment = Nokogiri::HTML4::DocumentFragment.parse("a<a>b</a>")
             node = fragment.children.last
             node.add_previous_sibling(node.children)
             assert_empty node.children, "should have no childrens"

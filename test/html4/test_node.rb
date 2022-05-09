@@ -9,7 +9,7 @@ module Nokogiri
     class TestNode < Nokogiri::TestCase
       def setup
         super
-        @html = Nokogiri::HTML(<<-eohtml)
+        @html = Nokogiri::HTML4(<<-eohtml)
         <html>
           <head></head>
           <body>
@@ -40,12 +40,12 @@ module Nokogiri
       # are treated as as undeclared and have to be accessed via prefix:tagname
       def test_ns_attribute
         html = '<i foo:bar="baz"></i>'
-        doc = Nokogiri::HTML(html)
+        doc = Nokogiri::HTML4(html)
         assert_equal("baz", (doc % "i")["foo:bar"])
       end
 
       def test_css_path_round_trip
-        doc = Nokogiri::HTML(File.read(HTML_FILE))
+        doc = Nokogiri::HTML4(File.read(HTML_FILE))
         ["#header", "small", "div[2]", "div.post", "body"].each do |css_sel|
           ele = doc.at(css_sel)
           assert_equal(ele, doc.at(ele.css_path), ele.css_path)
@@ -53,7 +53,7 @@ module Nokogiri
       end
 
       def test_path_round_trip
-        doc = Nokogiri::HTML(File.read(HTML_FILE))
+        doc = Nokogiri::HTML4(File.read(HTML_FILE))
         ["#header", "small", "div[2]", "div.post", "body"].each do |css_sel|
           ele = doc.at(css_sel)
           assert_equal(ele, doc.at(ele.path), ele.path)
@@ -62,7 +62,7 @@ module Nokogiri
 
       def test_append_with_document
         assert_raises(ArgumentError) do
-          @html.root << Nokogiri::HTML::Document.new
+          @html.root << Nokogiri::HTML4::Document.new
         end
       end
 
@@ -161,7 +161,7 @@ module Nokogiri
       end
 
       def test_fragment_serialization
-        fragment = Nokogiri::HTML.fragment("<div>foo</div>")
+        fragment = Nokogiri::HTML4.fragment("<div>foo</div>")
         assert_equal("<div>foo</div>", fragment.serialize.chomp)
         assert_equal("<div>foo</div>", fragment.to_xml.chomp)
         assert_equal("<div>foo</div>", fragment.inner_html)
@@ -178,7 +178,7 @@ module Nokogiri
         foo bar </p>
         </body></html>
         EOH
-        nokogiri = Nokogiri::HTML.parse(html)
+        nokogiri = Nokogiri::HTML4.parse(html)
 
         if RUBY_PLATFORM.include?("java")
           # NKF linebreak modes are not supported as of jruby 1.2
@@ -193,7 +193,7 @@ module Nokogiri
 
       def test_GH_1042
         file = File.join(ASSETS_DIR, "GH_1042.html")
-        html = Nokogiri::HTML(File.read(file))
+        html = Nokogiri::HTML4(File.read(file))
         table = html.xpath("//table")[1]
         trs = table.xpath("tr").drop(1)
 

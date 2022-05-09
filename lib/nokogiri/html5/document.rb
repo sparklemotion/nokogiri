@@ -63,7 +63,7 @@ module Nokogiri
           max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
           max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
           max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
-          doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth)
+          doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth, self)
           doc.encoding = "UTF-8"
           doc
         end

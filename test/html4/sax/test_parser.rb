@@ -9,7 +9,7 @@ module Nokogiri
       class TestParser < Nokogiri::SAX::TestCase
         def setup
           super
-          @parser = HTML::SAX::Parser.new(Doc.new)
+          @parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
         end
 
         def test_parse_empty_document
@@ -163,9 +163,9 @@ module Nokogiri
         end
 
         it "handles invalid types gracefully" do
-          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse(0xcafecafe) }
-          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse_memory(0xcafecafe) }
-          assert_raises(TypeError) { Nokogiri::HTML::SAX::Parser.new.parse_io(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_memory(0xcafecafe) }
+          assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_io(0xcafecafe) }
         end
       end
     end
