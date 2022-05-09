@@ -20,7 +20,6 @@ on:
 jobs:
   downstream:
     name: downstream-${{matrix.name}}
-    needs: ["basic"]
     strategy:
       fail-fast: false
       matrix:
