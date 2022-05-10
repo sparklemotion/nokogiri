@@ -340,7 +340,6 @@ Java dependencies, in the form of `.jar` files, are all vendored as part of the 
 
 We use [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) as a development dependency to manage the project's Java dependencies, with the current exception of:
 
-- nekohtml, forked in [`6166964`](https://github.com/sparklemotion/nokogiri/commit/6166964) for a few issues in v1.6.8, lives at https://github.com/jvshahid/nekohtml
 - nekodtd, forked to solve [#547](https://github.com/sparklemotion/nokogiri/issues/547), lives at https://github.com/jvshahid/nekodtd
 
 To modify or add a dependency, a few things needs to be in sync:
