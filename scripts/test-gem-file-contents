@@ -271,12 +271,12 @@ describe File.basename(gemfile) do
     it "contains the java jar files" do
       assert_includes(gemfile_contents, "lib/nokogiri/nokogiri.jar")
       assert_includes(gemfile_contents, "lib/nokogiri/jruby/nekodtd.jar")
-      assert_includes(gemfile_contents, "lib/nokogiri/jruby/nekohtml.jar")
 
       actual_jars = gemfile_contents.grep(/.*\.jar$/)
       expected_jars = [
         "isorelax",
         "jing",
+        "neko-htmlunit",
         "serializer",
         "xalan",
         "xercesImpl",

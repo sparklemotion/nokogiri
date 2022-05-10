@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.cyberneko.html.HTMLElements;
+import net.sourceforge.htmlunit.cyberneko.HTMLElements;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -80,6 +80,8 @@ public class SaveContextVisitor
   public static final int WITH_COMMENTS = 4;
   public static final int SUBSETS = 8;
   public static final int EXCLUSIVE = 16;
+
+  private static final HTMLElements htmlElements_ = new HTMLElements();
 
   public
   SaveContextVisitor(int options, CharSequence indent, String encoding, boolean htmlDoc, boolean fragment,
@@ -498,7 +500,7 @@ public class SaveContextVisitor
   private boolean
   isEmpty(String name)
   {
-    HTMLElements.Element element = HTMLElements.getElement(name);
+    HTMLElements.Element element = htmlElements_.getElement(name);
     return element.isEmpty();
   }
 

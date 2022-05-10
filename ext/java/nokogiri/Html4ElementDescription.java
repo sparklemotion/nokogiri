@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cyberneko.html.HTMLElements;
+import net.sourceforge.htmlunit.cyberneko.HTMLElements;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -24,6 +24,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 public class Html4ElementDescription extends RubyObject
 {
   private static final long serialVersionUID = 1L;
+  private static final HTMLElements htmlElements_ = new HTMLElements();
 
   /**
    * Stores memoized hash of element -> list of valid subelements.
@@ -63,9 +64,8 @@ public class Html4ElementDescription extends RubyObject
        * the list of elements directly because it's protected.
        */
       for (short c = 0; c < HTMLElements.UNKNOWN; c++) {
-        HTMLElements.Element maybe_sub =
-          HTMLElements.getElement(c);
-        if (maybe_sub.isParent(elem)) {
+        HTMLElements.Element maybe_sub = htmlElements_.getElement(c);
+        if (maybe_sub != null && maybe_sub.isParent(elem)) {
           subs.add(maybe_sub.name);
         }
       }
@@ -82,11 +82,10 @@ public class Html4ElementDescription extends RubyObject
       IRubyObject klazz, IRubyObject name)
   {
 
-    // nekohtml will return an element even for invalid names, see
-    // http://sourceforge.net/p/nekohtml/code/HEAD/tree/trunk/src/org/cyberneko/html/HTMLElements.java#l514
-    // which breaks `test_fetch_nonexistent'
-    HTMLElements.Element elem = HTMLElements.getElement(name.asJavaString(), HTMLElements.NO_SUCH_ELEMENT);
-    if (elem == HTMLElements.NO_SUCH_ELEMENT) {
+    // nekohtml will return an element even for invalid names, which breaks `test_fetch_nonexistent'
+    // see getElement() in HTMLElements.java
+    HTMLElements.Element elem = htmlElements_.getElement(name.asJavaString(), htmlElements_.NO_SUCH_ELEMENT);
+    if (elem == htmlElements_.NO_SUCH_ELEMENT) {
       return context.nil;
     }
 

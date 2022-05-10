@@ -260,8 +260,8 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/jruby/dependencies.rb",
     "lib/nokogiri/jruby/isorelax/isorelax/20030108/isorelax-20030108.jar",
     "lib/nokogiri/jruby/nekodtd.jar",
-    "lib/nokogiri/jruby/nekohtml.jar",
     "lib/nokogiri/jruby/net/sf/saxon/Saxon-HE/9.6.0-4/Saxon-HE-9.6.0-4.jar",
+    "lib/nokogiri/jruby/net/sourceforge/htmlunit/neko-htmlunit/2.61.0/neko-htmlunit-2.61.0.jar",
     "lib/nokogiri/jruby/nokogiri_jars.rb",
     "lib/nokogiri/jruby/nu/validator/jing/20200702VNU/jing-20200702VNU.jar",
     "lib/nokogiri/jruby/xalan/serializer/2.7.2/serializer-2.7.2.jar",
@@ -324,8 +324,8 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency("jar-dependencies", "~> 0.4.1")
     spec.require_paths << "lib/nokogiri/jruby" # where we install the jars, see the :vendor_jars rake task
     spec.requirements << "jar isorelax, isorelax, 20030108" # https://search.maven.org/artifact/isorelax/isorelax
-    # spec.requirements << "jar nekohtml, nekodtd, 0.1.11" # FIXME, we should use Shahid's fork
-    # spec.requirements << "jar nekohtml, nekohtml, 1.9.6.2" # FIXME, we should use Shahid's fork
+    # spec.requirements << "jar nekohtml, nekodtd, 0.1.11" # FIXME https://github.com/sparklemotion/nokogiri/issues/2437
+    spec.requirements << "jar net.sourceforge.htmlunit, neko-htmlunit, 2.61.0"
     spec.requirements << "jar nu.validator, jing, 20200702VNU" # https://search.maven.org/artifact/nu.validator/jing
     spec.requirements << "jar xalan, serializer, 2.7.2" # https://search.maven.org/artifact/xalan/serializer
     spec.requirements << "jar xalan, xalan, 2.7.2" # https://search.maven.org/artifact/xalan/xalan

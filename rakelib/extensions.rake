@@ -396,6 +396,7 @@ if java?
         module Nokogiri
           JAR_DEPENDENCIES = #{jar_dependencies}.freeze
           XERCES_VERSION = JAR_DEPENDENCIES["xercesImpl"]
+          NEKO_VERSION = JAR_DEPENDENCIES["neko-htmlunit"]
         end
       EOF
     end

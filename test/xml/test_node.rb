@@ -95,7 +95,9 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>")
 
-          assert_equal(1, doc.errors.length)
+          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+            assert_equal(1, doc.errors.length)
+          end
           assert_equal(1, nodeset.length)
           assert_equal("<div></div>", nodeset.to_s)
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
@@ -107,7 +109,9 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>", &:recover)
 
-          assert_equal(1, doc.errors.length)
+          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+            assert_equal(1, doc.errors.length)
+          end
           assert_equal(1, nodeset.length)
           assert_equal("<div></div>", nodeset.to_s)
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
@@ -117,8 +121,10 @@ module Nokogiri
         def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
           doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
-          assert_raises(Nokogiri::XML::SyntaxError) do
-            context_node.parse("<div </div>", &:strict)
+          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+            assert_raises(Nokogiri::XML::SyntaxError) do
+              context_node.parse("<div </div>", &:strict)
+            end
           end
         end
 

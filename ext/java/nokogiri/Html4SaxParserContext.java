@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.xerces.parsers.AbstractSAXParser;
-import org.cyberneko.html.parsers.SAXParser;
+import net.sourceforge.htmlunit.cyberneko.parsers.SAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;

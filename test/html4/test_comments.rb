@@ -75,7 +75,7 @@ module Nokogiri
             it "behaves as if the comment is closed correctly" do # COMPLIANT
               assert_equal 1, subject.children.length
               assert_predicate subject.children.first, :comment?
-              assert_equal "-", subject.children.first.content # curious, potentially non-compliant?
+              assert_equal "", subject.children.first.content
               assert other_div
             end
           end

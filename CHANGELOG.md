@@ -25,8 +25,9 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Dependencies
 
-* [JRuby] Vendored Jing is updated from com.thaiopensource:jing:20091111 to nu.validator:jing:20200702VNU.
-* [JRuby] New dependency on Saxon-HE 9.6.0-4 (via nu.validator:jing:20200702VNU).
+* [JRuby] HTML parsing is now provided `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously was a fork of `org.cyberneko.html:nekohtml`)
+* [JRuby] Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
+* [JRuby] New dependency on `net.sf.saxon:Saxon-HE:9.6.0-4` (via `nu.validator:jing:20200702VNU`).
 
 
 ### Fixed
