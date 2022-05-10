@@ -385,10 +385,11 @@ if java?
   task :vendor_jars do
     require "jars/installer"
     FileUtils.rm(FileList["lib/nokogiri/jruby/*/**/*.jar"], verbose: true)
-    Jars::Installer.vendor_jars!("lib/nokogiri/jruby")
-    jar_dependencies = Jars::GemspecArtifacts.new(NOKOGIRI_SPEC).artifacts.each_with_object({}) do |a, d|
-      d[a.artifact_id] = a.to_gacv
-    end.to_s
+    jars = Jars::Installer.vendor_jars!("lib/nokogiri/jruby")
+    jar_dependencies = jars.sort_by(&:gav).each_with_object({}) do |a, d|
+      artifact_id = a.coord.split(":")[1]
+      d[artifact_id] = a.gav
+    end
     File.open("lib/nokogiri/jruby/nokogiri_jars.rb", "a") do |f|
       f.puts
       f.puts <<~EOF
