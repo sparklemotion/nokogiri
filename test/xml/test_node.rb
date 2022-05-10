@@ -95,7 +95,7 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>")
 
-          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
             assert_equal(1, doc.errors.length)
           end
           assert_equal(1, nodeset.length)
@@ -109,7 +109,7 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>", &:recover)
 
-          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
             assert_equal(1, doc.errors.length)
           end
           assert_equal(1, nodeset.length)
@@ -121,7 +121,7 @@ module Nokogiri
         def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
           doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
-          pending_if("nekohtml commit 21286e4 not applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["neko-htmlunit"]) do
+          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
             assert_raises(Nokogiri::XML::SyntaxError) do
               context_node.parse("<div </div>", &:strict)
             end
