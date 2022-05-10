@@ -33,7 +33,6 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
 * [HTML5] The Gumbo parser now correctly handles text at the end of `form` elements.
-* `{HTML4,XML}::SAX::{Parser,ParserContext}` constructor methods now raise `TypeError` instead of segfaulting when an incorrect type is passed. (Thanks to [@agustingianni](https://github.com/agustingianni) from the Github Security Lab for reporting!)
 
 
 ### Improved
@@ -43,6 +42,18 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
 * Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
+
+
+## 1.13.6 / 2022-05-08
+
+### Security
+
+* [CRuby] Address [CVE-2022-29181](https://nvd.nist.gov/vuln/detail/CVE-2022-29181), improper handling of unexpected data types, related to untrusted inputs to the SAX parsers. See [GHSA-xh29-r2w5-wx8m](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-xh29-r2w5-wx8m) for more information.
+
+
+### Improvements
+
+* `{HTML4,XML}::SAX::{Parser,ParserContext}` constructor methods now raise `TypeError` instead of segfaulting when an incorrect type is passed.
 
 
 ## 1.13.5 / 2022-05-04
@@ -282,7 +293,7 @@ Many thanks to Sam Ruby, Steve Checkoway, and Craig Barnes for creating and main
 
 ### Notable Change: `Nokogiri::HTML4` module and namespace
 
-`Nokogiri::HTML` has been renamed to `Nokogiri::HTML4`, and `Nokogiri::HTML` is aliased to preserve backwards-compatibility. `Nokogiri::HTML` and `Nokogiri::HTML4` parse methods still use libxml2's (or NekoHTML's) HTML4 parser in the v1.12 release series. 
+`Nokogiri::HTML` has been renamed to `Nokogiri::HTML4`, and `Nokogiri::HTML` is aliased to preserve backwards-compatibility. `Nokogiri::HTML` and `Nokogiri::HTML4` parse methods still use libxml2's (or NekoHTML's) HTML4 parser in the v1.12 release series.
 
 Take special note that if you rely on the class name of an object in your code, objects will now report a class of `Nokogiri::HTML4::Foo` where they previously reported `Nokogiri::HTML::Foo`. Instead of relying on the string returned by `Object#class`, prefer `Class#===` or `Object#is_a?` or `Object#instance_of?`.
 
@@ -420,7 +431,7 @@ Please see [nokogiri/GHSA-7rrm-v45f-jp64 ](https://github.com/sparklemotion/noko
 
 #### Faster, more reliable installation: Native Gems for Linux and OSX/Darwin
 
-"Native gems" contain pre-compiled libraries for a specific machine architecture. On supported platforms, this removes the need for compiling the C extension and the packaged libraries. This results in **much faster installation** and **more reliable installation**, which as you probably know are the biggest headaches for Nokogiri users. 
+"Native gems" contain pre-compiled libraries for a specific machine architecture. On supported platforms, this removes the need for compiling the C extension and the packaged libraries. This results in **much faster installation** and **more reliable installation**, which as you probably know are the biggest headaches for Nokogiri users.
 
 We've been shipping native Windows gems since 2009, but starting in v1.11.0 we are also shipping native gems for these platforms:
 
