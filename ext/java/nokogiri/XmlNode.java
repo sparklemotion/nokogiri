@@ -600,22 +600,23 @@ public class XmlNode extends RubyObject
       hrefStr = rubyStringToString(href.convertToString());
     }
 
-    NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCache(node);
-    XmlNamespace cachedNamespace = nsCache.get(prefixStr, hrefStr);
-    if (cachedNamespace != null) { return cachedNamespace; }
-
     Node namespaceOwner;
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       namespaceOwner = node;
-      Element element = (Element) node;
       // adds namespace as node's attribute
       String qName = prefix.isNil() ? "xmlns" : "xmlns:" + prefixStr;
-      element.setAttributeNS("http://www.w3.org/2000/xmlns/", qName, hrefStr);
-    } else if (node.getNodeType() == Node.ATTRIBUTE_NODE) { namespaceOwner = ((Attr) node).getOwnerElement(); }
-    else { namespaceOwner = node.getParentNode(); }
+      ((Element)node).setAttributeNS("http://www.w3.org/2000/xmlns/", qName, hrefStr);
+    } else if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+      namespaceOwner = ((Attr) node).getOwnerElement();
+    } else {
+      namespaceOwner = node.getParentNode();
+    }
 
-    XmlNamespace ns = XmlNamespace.createImpl(namespaceOwner, prefix, prefixStr, href, hrefStr);
-
+    NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCache(node);
+    XmlNamespace ns = nsCache.get(prefixStr, hrefStr);
+    if (ns == null) {
+      ns = XmlNamespace.createImpl(namespaceOwner, prefix, prefixStr, href, hrefStr);
+    }
     if (node != namespaceOwner) {
       node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ':' + node.getLocalName());
     }
@@ -1206,6 +1207,18 @@ public class XmlNode extends RubyObject
 
     List<XmlNamespace> namespaces = doc.getNamespaceCache().get(node);
     return RubyArray.newArray(context.runtime, namespaces);
+
+    // // TODO: I think this implementation would be better but there are edge cases
+    // // See https://github.com/sparklemotion/nokogiri/issues/2543
+    // RubyArray<?> nsdefs = RubyArray.newArray(context.getRuntime());
+    // NamedNodeMap attrs = node.getAttributes();
+    // for (int j = 0 ; j < attrs.getLength() ; j++) {
+    //   Attr attr = (Attr)attrs.item(j);
+    //   if ("http://www.w3.org/2000/xmlns/" == attr.getNamespaceURI()) {
+    //     nsdefs.append(XmlNamespace.createFromAttr(context.getRuntime(), attr));
+    //   }
+    // }
+    // return nsdefs;
   }
 
   /**
