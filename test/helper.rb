@@ -448,3 +448,5 @@ module Nokogiri
     end
   end
 end
+
+Minitest::Spec.register_spec_type(//, Nokogiri::TestCase) # make TestCase the default
