@@ -1207,6 +1207,18 @@ public class XmlNode extends RubyObject
 
     List<XmlNamespace> namespaces = doc.getNamespaceCache().get(node);
     return RubyArray.newArray(context.runtime, namespaces);
+
+    // // TODO: I think this implementation would be better but there are edge cases
+    // // See https://github.com/sparklemotion/nokogiri/issues/2543
+    // RubyArray<?> nsdefs = RubyArray.newArray(context.getRuntime());
+    // NamedNodeMap attrs = node.getAttributes();
+    // for (int j = 0 ; j < attrs.getLength() ; j++) {
+    //   Attr attr = (Attr)attrs.item(j);
+    //   if ("http://www.w3.org/2000/xmlns/" == attr.getNamespaceURI()) {
+    //     nsdefs.append(XmlNamespace.createFromAttr(context.getRuntime(), attr));
+    //   }
+    // }
+    // return nsdefs;
   }
 
   /**
