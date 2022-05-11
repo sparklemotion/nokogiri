@@ -10,6 +10,11 @@ module Nokogiri
       describe Nokogiri::XML::Node do
         let(:xml) { Nokogiri::XML(File.read(XML_FILE), XML_FILE) }
 
+        def pending_if_neko_htmlunit_is_not_patched_with_21286e4(&block)
+          # see https://github.com/sparklemotion/nekohtml/commit/21286e4de6c05d40c2ebdda11805082fde36188b
+          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"], &block)
+        end
+
         def test_first_element_child
           node = xml.root.first_element_child
           assert_equal("employee", node.name)
@@ -95,7 +100,7 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>")
 
-          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
+          pending_if_neko_htmlunit_is_not_patched_with_21286e4 do
             assert_equal(1, doc.errors.length)
           end
           assert_equal(1, nodeset.length)
@@ -109,7 +114,7 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>", &:recover)
 
-          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
+          pending_if_neko_htmlunit_is_not_patched_with_21286e4 do
             assert_equal(1, doc.errors.length)
           end
           assert_equal(1, nodeset.length)
@@ -121,7 +126,7 @@ module Nokogiri
         def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
           doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
-          pending_if("nekohtml 21286e4 should be applied to neko-htmlunit", Nokogiri::VERSION_INFO["other_libraries"]["net.sourceforge.htmlunit:neko-htmlunit"]) do
+          pending_if_neko_htmlunit_is_not_patched_with_21286e4 do
             assert_raises(Nokogiri::XML::SyntaxError) do
               context_node.parse("<div </div>", &:strict)
             end
