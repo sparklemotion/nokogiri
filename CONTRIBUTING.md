@@ -338,9 +338,7 @@ There's a `Vagrantfile` in the project root which I've used once or twice to try
 
 Java dependencies, in the form of `.jar` files, are all vendored as part of the `java` platform gem.
 
-We use [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) as a development dependency to manage the project's Java dependencies, with the current exception of:
-
-- nekodtd, forked to solve [#547](https://github.com/sparklemotion/nokogiri/issues/547), lives at https://github.com/jvshahid/nekodtd
+We use [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) as a development dependency to manage the project's Java dependencies. Note, however, that we use our own fork of NekoDTD that lives at https://github.com/sparklemotion/nekodtd
 
 To modify or add a dependency, a few things needs to be in sync:
 
