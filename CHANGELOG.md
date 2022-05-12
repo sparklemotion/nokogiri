@@ -39,6 +39,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Improved
 
+* `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. XML_C14N_1_0 or XML_C14N_1_1. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
 * Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`

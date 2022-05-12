@@ -536,6 +536,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   VALUE rb_mode;
   VALUE rb_namespaces;
   VALUE rb_comments_p;
+  int c_mode = 0;
   xmlChar **c_namespaces;
 
   xmlDocPtr c_doc;
@@ -547,8 +548,16 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   VALUE rb_io;
 
   rb_scan_args(argc, argv, "03", &rb_mode, &rb_namespaces, &rb_comments_p);
-  if (!NIL_P(rb_mode)) { Check_Type(rb_mode, T_FIXNUM); }
-  if (!NIL_P(rb_namespaces)) { Check_Type(rb_namespaces, T_ARRAY); }
+  if (!NIL_P(rb_mode)) {
+    Check_Type(rb_mode, T_FIXNUM);
+    c_mode = NUM2INT(rb_mode);
+  }
+  if (!NIL_P(rb_namespaces)) {
+    Check_Type(rb_namespaces, T_ARRAY);
+    if (c_mode == XML_C14N_1_0 || c_mode == XML_C14N_1_1) {
+      rb_raise(rb_eRuntimeError, "This canonicalizer does not support this operation");
+    }
+  }
 
   Data_Get_Struct(self, xmlDoc, c_doc);
 
@@ -577,7 +586,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   }
 
   xmlC14NExecute(c_doc, c_callback_wrapper, rb_callback,
-                 (int)(NIL_P(rb_mode) ? 0 : NUM2INT(rb_mode)),
+                 c_mode,
                  c_namespaces,
                  (int)RTEST(rb_comments_p),
                  c_obuf);
