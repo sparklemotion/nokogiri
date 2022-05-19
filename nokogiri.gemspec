@@ -349,7 +349,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency("rubocop-minitest", "~> 0.17")
   spec.add_development_dependency("rubocop-performance", "~> 1.12")
   spec.add_development_dependency("rubocop-rake", "~> 0.6")
-  spec.add_development_dependency("rubocop-shopify", "~> 2.3")
+  spec.add_development_dependency("rubocop-shopify", "= 2.5.0") # TODO: loosen this after dropping support for Ruby 2.6
   spec.add_development_dependency("ruby_memcheck", "~> 1.0")
   spec.add_development_dependency("simplecov", "~> 0.21")
 
