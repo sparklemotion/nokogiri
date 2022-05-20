@@ -114,7 +114,7 @@ module Nokogiri
 
       # Parse a HTML5 document fragment from +tags+, returning a HTML5::DocumentFragment.
       def fragment(tags = nil)
-        DocumentFragment.new(self, tags, root)
+        DocumentFragment.new(self, tags, nil)
       end
 
       def to_xml(options = {}, &block) # :nodoc:

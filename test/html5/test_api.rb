@@ -193,6 +193,13 @@ class TestHtml5API < Nokogiri::TestCase
     refute_predicate(doc, :xml?)
   end
 
+  def test_document_fragment
+    doc = Nokogiri.HTML5("x")
+    # This calls fragment on the document rather than on an element.
+    frag = doc.fragment("z")
+    assert_equal("z", frag.to_s)
+  end
+
   describe Nokogiri::HTML5::Document do
     describe "subclassing" do
       let(:klass) do
