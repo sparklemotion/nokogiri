@@ -17,4 +17,3 @@ Naming/MethodName:
 Naming/FileName:
   Exclude:
     - rakelib/**
-    - test/html5/test_tree-construction.rb
