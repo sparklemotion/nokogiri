@@ -27,7 +27,7 @@ Metrics/ParameterLists:
 # Configuration parameters: MinSize.
 Performance/CollectionLiteralInLoop:
   Exclude:
-    - 'test/html5/test_tree-construction.rb'
+    - 'test/html5/test_tree_construction.rb'
     - 'test/xml/test_dtd_encoding.rb'
     - 'test/xml/test_node_reparenting.rb'
 
