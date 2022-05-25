@@ -124,10 +124,13 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
 end
 
 module Html5libTestCaseParser
+  class BadHtml5libFormat < RuntimeError; end
+
   def self.parse_test(test_data)
     test = { script: :both }
     index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
-    abort("Expected #errors in\n#{test_data}") if index.nil?
+    raise(BadHtml5libFormat, "Expected #errors in\n#{test_data}") if index.nil?
+
     skip_amount = $LAST_MATCH_INFO[0].length
     # Omit the final new line
     test[:data] = test_data[0...index]
@@ -141,7 +144,8 @@ module Html5libTestCaseParser
         line == "#script-on" ||
         line == "#new-errors"
     end
-    abort("Expected #document") if index.nil?
+    raise(BadHtml5libFormat, "Expected #document") if index.nil?
+
     test[:errors] = lines[0...index]
     test[:new_errors] = []
     if lines[index] == "#new-errors"
@@ -156,14 +160,15 @@ module Html5libTestCaseParser
       test[:context] = lines[index + 1].chomp.split(" ", 2)
       index += 2
     end
-    abort("failed to find fragment: #{index}: #{lines[index]}") if test_data.include?("#document-fragment") && test[:context].nil?
+    raise(BadHtml5libFormat, "failed to find fragment: #{index}: #{lines[index]}") if test_data.include?("#document-fragment") && test[:context].nil?
 
     if lines[index] =~ /#script-(on|off)/
       test[:script] = $LAST_MATCH_INFO[1].to_sym
       index += 1
     end
 
-    abort("Expected #document, got #{lines[index]}") unless lines[index] == "#document"
+    raise(BadHtml5libFormat, "Expected #document, got #{lines[index]}") unless lines[index] == "#document"
+
     index += 1
 
     document = {
@@ -172,14 +177,15 @@ module Html5libTestCaseParser
     }
     open_nodes = [document]
     while index < lines.length
-      abort("Expected '| ' but got #{lines[index]}") unless /^\| ( *)([^ ].*$)/ =~ lines[index]
+      raise(BadHtml5libFormat, "Expected '| ' but got #{lines[index]}") unless /^\| ( *)([^ ].*$)/ =~ lines[index]
+
       depth = $LAST_MATCH_INFO[1].length
       if depth.odd?
-        abort("Invalid nesting depth")
+        raise(BadHtml5libFormat, "Invalid nesting depth")
       else
         depth /= 2
       end
-      abort("Too deep") if depth >= open_nodes.length
+      raise(BadHtml5libFormat, "Too deep") if depth >= open_nodes.length
 
       node = {}
       node_text = $LAST_MATCH_INFO[2]
@@ -221,19 +227,21 @@ module Html5libTestCaseParser
       elsif node_text == "content"
         node[:type] = :template
       else
-        abort("Unexpected node_text: #{node_text}")
+        raise(BadHtml5libFormat, "Unexpected node_text: #{node_text}")
       end
 
       if node[:type] == :attribute
-        abort("depth #{depth} != #{open_nodes.length}") unless depth == open_nodes.length - 1
-        abort("type :#{open_nodes[-1][:type]} != :element") unless open_nodes[-1][:type] == :element
-        abort("element has children") unless open_nodes[-1][:children].empty?
+        raise(BadHtml5libFormat, "depth #{depth} != #{open_nodes.length}") unless depth == open_nodes.length - 1
+        raise(BadHtml5libFormat, "type :#{open_nodes[-1][:type]} != :element") unless open_nodes[-1][:type] == :element
+        raise(BadHtml5libFormat, "element has children") unless open_nodes[-1][:children].empty?
+
         open_nodes[-1][:attributes] << node
       elsif node[:type] == :template
-        abort("depth #{depth} != #{open_nodes.length}") unless depth == open_nodes.length - 1
-        abort("type :#{open_nodes[-1][:type]} != :element") unless open_nodes[-1][:type] == :element
-        abort("tag :#{open_nodes[-1][:tag]} != template") unless open_nodes[-1][:tag] == "template"
-        abort("template has children before the 'content'") unless open_nodes[-1][:children].empty?
+        raise(BadHtml5libFormat, "depth #{depth} != #{open_nodes.length}") unless depth == open_nodes.length - 1
+        raise(BadHtml5libFormat, "type :#{open_nodes[-1][:type]} != :element") unless open_nodes[-1][:type] == :element
+        raise(BadHtml5libFormat, "tag :#{open_nodes[-1][:tag]} != template") unless open_nodes[-1][:tag] == "template"
+        raise(BadHtml5libFormat, "template has children before the 'content'") unless open_nodes[-1][:children].empty?
+
         # Hack. We want the children of this template node to be reparented as
         # children of the template element.
         # XXX: Template contents are _not_ supposed to be children of the
@@ -268,7 +276,11 @@ module Html5libTestCaseParser
           if test_data.end_with?("\n\n#data\n")
             test_data = test_data[0..-9]
           end
-          tests << parse_test(test_data)
+          begin
+            tests << parse_test(test_data)
+          rescue BadHtml5libFormat => e
+            warn("WARNING: #{path} is an invalid format: #{e.message}")
+          end
         end
       end
 
