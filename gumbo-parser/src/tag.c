@@ -172,6 +172,7 @@ static const char kGumboTagNames[GUMBO_TAG_LAST+1][15] = {
     [GUMBO_TAG_TT] = "tt",
     [GUMBO_TAG_RTC] = "rtc",
     [GUMBO_TAG_DIALOG] = "dialog",
+    [GUMBO_TAG_SEARCH] = "search",
 
     [GUMBO_TAG_UNKNOWN] = "",
     [GUMBO_TAG_LAST] = "",
