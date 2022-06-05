@@ -1,7 +1,7 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -m100 lib/svg_attrs.gperf  */
+/* Command-line: gperf -m100 src/svg_attrs.gperf  */
 /* Computed positions: -k'1,10,$' */
-/* Filtered by: mk/gperf-filter.sed */
+/* Filtered by: gperf-filter.sed */
 
 #include "replacement.h"
 #include "macros.h"

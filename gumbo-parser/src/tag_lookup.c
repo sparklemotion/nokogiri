@@ -1,7 +1,7 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -m100 lib/tag_lookup.gperf  */
+/* Command-line: gperf -m100 src/tag_lookup.gperf  */
 /* Computed positions: -k'1-2,$' */
-/* Filtered by: mk/gperf-filter.sed */
+/* Filtered by: gperf-filter.sed */
 
 #include "tag_lookup.h"
 #include "macros.h"

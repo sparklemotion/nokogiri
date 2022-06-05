@@ -1,7 +1,7 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -m100 -n lib/foreign_attrs.gperf  */
+/* Command-line: gperf -m100 -n src/foreign_attrs.gperf  */
 /* Computed positions: -k'2,8' */
-/* Filtered by: mk/gperf-filter.sed */
+/* Filtered by: gperf-filter.sed */
 
 #include "replacement.h"
 #include "macros.h"
