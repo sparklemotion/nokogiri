@@ -7,3 +7,6 @@ FROM ubuntu:focal
 <%= File.read "debian-ruby.step" %>
 
 <%= File.read "bundle-install.step" %>
+
+# for libxml2 canonicalization
+ENV LANG=C.UTF-8

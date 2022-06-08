@@ -27,3 +27,6 @@ COPY nokogiri.gemspec nokogiri/
 RUN gem install bundler -v "$(grep -A 1 "BUNDLED WITH" nokogiri/Gemfile.lock | tail -n 1)"
 RUN cd nokogiri && bundle install
 
+
+# for libxml2 canonicalization
+ENV LANG=C.UTF-8
