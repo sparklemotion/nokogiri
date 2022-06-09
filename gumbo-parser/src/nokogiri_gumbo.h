@@ -292,6 +292,7 @@ typedef enum {
   GUMBO_TAG_TT,
   GUMBO_TAG_RTC,
   GUMBO_TAG_DIALOG,
+  GUMBO_TAG_SEARCH,
   // Used for all tags that don't have special handling in HTML.
   GUMBO_TAG_UNKNOWN,
   // A marker value to indicate the end of the enum, for iterating over it.

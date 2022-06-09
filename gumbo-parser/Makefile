@@ -13,8 +13,18 @@ LDFLAGS := -pthread
 
 all: check
 
+# don't try to regenerate ragel or gperf files in CI, that should be a development-only action and
+# the generated files should be committed to SCM
+ifneq ($(CI),true)
+src/foreign_attrs.c: src/foreign_attrs.gperf
+	gperf -m100 -n $< | ./gperf-filter.sed > $@
+
+src/%.c: src/%.gperf
+	gperf -m100 $< | ./gperf-filter.sed > $@
+
 src/%.c: src/%.rl
 	ragel -F1 -o $@ $<
+endif
 
 build/src:
 	mkdir -p $@

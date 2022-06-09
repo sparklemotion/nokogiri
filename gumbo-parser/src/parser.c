@@ -2940,7 +2940,7 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
       TAG(DETAILS), TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET),
       TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER), TAG(HGROUP),
       TAG(MAIN), TAG(MENU), TAG(NAV), TAG(OL), TAG(P), TAG(SECTION),
-      TAG(SUMMARY), TAG(UL)
+      TAG(SUMMARY), TAG(UL), TAG(SEARCH)
     })
   ) {
     maybe_implicitly_close_p_tag(parser, token);
@@ -3018,7 +3018,7 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
       TAG(CENTER), TAG(DETAILS), TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL),
       TAG(FIELDSET), TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER),
       TAG(HGROUP), TAG(LISTING), TAG(MAIN), TAG(MENU), TAG(NAV), TAG(OL),
-      TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL)
+      TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL), TAG(SEARCH)
     })
   ) {
     GumboTag tag = token->v.end_tag.tag;

@@ -1,14 +1,14 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -m100 lib/tag_lookup.gperf  */
+/* Command-line: gperf -m100 src/tag_lookup.gperf  */
 /* Computed positions: -k'1-2,$' */
-/* Filtered by: mk/gperf-filter.sed */
+/* Filtered by: gperf-filter.sed */
 
 #include "tag_lookup.h"
 #include "macros.h"
 #include "ascii.h"
 #include <string.h>
 
-#define TOTAL_KEYWORDS 150
+#define TOTAL_KEYWORDS 151
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 14
 #define MIN_HASH_VALUE 9
@@ -26,7 +26,7 @@ hash (register const char *str, register size_t len)
       272, 272, 272, 272, 272, 272, 272, 272, 272, 272,
       272, 272, 272, 272, 272, 272, 272, 272, 272, 272,
       272, 272, 272, 272, 272, 272, 272, 272, 272, 272,
-      272, 272, 272, 272, 272, 272, 272, 272, 272,   9,
+      272, 272, 272, 272, 272, 272, 272, 272, 272,  11,
         7,   6,   4,   4,   3,   4,   3,   3, 272, 272,
       272, 272, 272, 272, 272,  70,  83, 152,   7,  16,
        61,  98,   5,  76, 102, 126,  12,  19,  54,  54,
@@ -69,7 +69,7 @@ gumbo_tag_lookup (register const char *str, register size_t len)
   static const unsigned char lengthtable[] =
     {
        0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  2,
-       2,  2,  2,  6,  2,  6,  2,  4,  0,  7,  6,  3,  0,  3,
+       2,  2,  2,  6,  2,  6,  6,  4,  2,  7,  6,  3,  0,  3,
        0,  6,  6,  8,  5,  0,  0,  4,  5,  5,  8,  0,  2,  4,
        5,  2,  0,  5,  4,  2,  0,  7,  0,  8,  5,  0,  0,  0,
        0,  0,  0,  5,  3,  4,  5,  1,  4,  0,  4,  1,  2,  8,
@@ -111,9 +111,9 @@ gumbo_tag_lookup (register const char *str, register size_t len)
       {"spacer", GUMBO_TAG_SPACER},
       {"h2", GUMBO_TAG_H2},
       {"header", GUMBO_TAG_HEADER},
-      {"h1", GUMBO_TAG_H1},
+      {"search", GUMBO_TAG_SEARCH},
       {"head", GUMBO_TAG_HEAD},
-      {(char*)0,GUMBO_TAG_UNKNOWN},
+      {"h1", GUMBO_TAG_H1},
       {"details", GUMBO_TAG_DETAILS},
       {"select", GUMBO_TAG_SELECT},
       {"dir", GUMBO_TAG_DIR},
