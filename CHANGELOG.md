@@ -30,6 +30,11 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [JRuby] New dependency on `net.sf.saxon:Saxon-HE:9.6.0-4` (via `nu.validator:jing:20200702VNU`).
 
 
+### Added
+
+* [CRuby] The HTML5 parser handles the [new `search` element](https://github.com/whatwg/html/pull/7320). [#2566](https://github.com/sparklemotion/nokogiri/issues/2566)
+
+
 ### Fixed
 
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
