@@ -23,6 +23,21 @@ module Nokogiri
         yield self if block_given?
       end
 
+      def process_text
+        result = self.map { |node| node.process_text }.compact
+        result.any? ? result.join(' ') : nil
+      end
+
+      def process_text!
+        process_text || raise(NoFoundText.new)
+      end
+
+      class NoFoundText < RuntimeError
+        def message
+          "Text wasn't found in the node"
+        end
+      end
+
       ###
       # Get the first element of the NodeSet.
       def first(n = nil)

@@ -127,6 +127,21 @@ module Nokogiri
         # This is intentionally empty, and sets the method signature for subclasses.
       end
 
+      def process_text
+        result = self.children.map { |child| child.process_text }.compact
+        result.any? ? result.join(' ') : nil
+      end
+
+      def process_text!
+        process_text || raise(NoFoundText.new)
+      end
+
+      class NoFoundText < RuntimeError
+        def message
+          "Text wasn't found in the node"
+        end
+      end
+
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!
