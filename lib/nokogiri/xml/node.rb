@@ -128,6 +128,28 @@ module Nokogiri
       end
 
       ###
+      # The method is necessary in order to correctly join the received text
+      # (the text is not stuck together and without unnecessary spaces).
+      def process_text
+        result = self.children.map { |child| child.process_text }.compact
+        result.any? ? result.join(' ') : nil
+      end
+
+      ###
+      # Similar to process_text except that if no text was found, it will return raise(NoFoundText.new).
+      def process_text!
+        process_text || raise(NoFoundText.new)
+      end
+
+      ###
+      # Empty text processing class.
+      class NoFoundText < RuntimeError
+        def message
+          "Text wasn't found in the node"
+        end
+      end
+
+      ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!
         document.decorate(self)
