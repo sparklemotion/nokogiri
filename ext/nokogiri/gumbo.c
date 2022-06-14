@@ -313,7 +313,7 @@ parse_args_mark(void *parse_args)
 static VALUE
 wrap_parse_args(ParseArgs *args)
 {
-  return Data_Wrap_Struct(rb_cData, parse_args_mark, RUBY_NEVER_FREE, args);
+  return Data_Wrap_Struct(rb_cObject, parse_args_mark, RUBY_NEVER_FREE, args);
 }
 
 // Returnsd the underlying ParseArgs wrapped by wrap_parse_args.
