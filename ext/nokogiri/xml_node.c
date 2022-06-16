@@ -19,10 +19,13 @@ _xml_node_dealloc(xmlNodePtr x)
 #  define _xml_node_dealloc 0
 #endif
 
-
 static void
 _xml_node_mark(xmlNodePtr node)
 {
+  if (!DOC_RUBY_OBJECT_TEST(node->doc)) {
+    return;
+  }
+
   xmlDocPtr doc = node->doc;
   if (doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE) {
     if (DOC_RUBY_OBJECT_TEST(doc)) {
@@ -1981,7 +1984,6 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
   VALUE rb_document, rb_node_cache, rb_node;
   nokogiriTuplePtr node_has_a_document;
   xmlDocPtr c_doc;
-  void (*f_mark)(xmlNodePtr) = NULL ;
 
   assert(c_node);
 
@@ -1989,11 +1991,9 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
     return DOC_RUBY_OBJECT(c_node->doc);
   }
 
-  /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
-  /* see https://github.com/sparklemotion/nokogiri/issues/95 */
-  /* and https://github.com/sparklemotion/nokogiri/issues/439 */
   c_doc = c_node->doc;
-  if (c_doc->type == XML_DOCUMENT_FRAG_NODE) { c_doc = c_doc->doc; }
+
+  // Nodes yielded from XML::Reader don't have a fully-realized Document
   node_has_a_document = DOC_RUBY_OBJECT_TEST(c_doc);
 
   if (c_node->_private && node_has_a_document) {
@@ -2043,9 +2043,7 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
     }
   }
 
-  f_mark = node_has_a_document ? _xml_node_mark : NULL ;
-
-  rb_node = Data_Wrap_Struct(rb_class, f_mark, _xml_node_dealloc, c_node) ;
+  rb_node = Data_Wrap_Struct(rb_class, _xml_node_mark, _xml_node_dealloc, c_node) ;
   c_node->_private = (void *)rb_node;
 
   if (node_has_a_document) {
