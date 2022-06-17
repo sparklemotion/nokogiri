@@ -4,6 +4,8 @@ require "helper"
 
 describe "compaction" do
   it "https://github.com/sparklemotion/nokogiri/pull/2579" do
+    skip unless GC.respond_to?(:verify_compaction_references)
+
     big_doc = "<root>" + ("a".."zz").map { |x| "<#{x}>#{x}</#{x}>" }.join + "</root>"
     doc = Nokogiri.XML(big_doc)
 
