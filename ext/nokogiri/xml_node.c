@@ -35,6 +35,7 @@ _xml_node_mark(xmlNodePtr node)
   }
 }
 
+#ifdef HAVE_RB_GC_LOCATION
 static void
 _xml_node_update_references(xmlNodePtr node)
 {
@@ -42,15 +43,21 @@ _xml_node_update_references(xmlNodePtr node)
     node->_private = (void *)rb_gc_location((VALUE)node->_private);
   }
 }
+#endif
 
 typedef void (*gc_callback_t)(void *);
 
 static const rb_data_type_t nokogiri_node_type = {
-    "Nokogiri/XMLNode",
-    {(gc_callback_t)_xml_node_mark, (gc_callback_t)_xml_node_dealloc, 0, (gc_callback_t)_xml_node_update_references},
-    0, 0,
+  "Nokogiri/XMLNode",
+  {
+    (gc_callback_t)_xml_node_mark, (gc_callback_t)_xml_node_dealloc, 0,
+#ifdef HAVE_RB_GC_LOCATION
+    (gc_callback_t)_xml_node_update_references
+#endif
+  },
+  0, 0,
 #ifdef RUBY_TYPED_FREE_IMMEDIATELY
-    RUBY_TYPED_FREE_IMMEDIATELY,
+  RUBY_TYPED_FREE_IMMEDIATELY,
 #endif
 };
 
