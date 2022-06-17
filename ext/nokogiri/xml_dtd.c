@@ -44,7 +44,7 @@ entities(VALUE self)
   xmlDtdPtr dtd;
   VALUE hash;
 
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   if (!dtd->entities) { return Qnil; }
 
@@ -67,7 +67,7 @@ notations(VALUE self)
   xmlDtdPtr dtd;
   VALUE hash;
 
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   if (!dtd->notations) { return Qnil; }
 
@@ -90,7 +90,7 @@ attributes(VALUE self)
   xmlDtdPtr dtd;
   VALUE hash;
 
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   hash = rb_hash_new();
 
@@ -113,7 +113,7 @@ elements(VALUE self)
   xmlDtdPtr dtd;
   VALUE hash;
 
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   if (!dtd->elements) { return Qnil; }
 
@@ -138,8 +138,8 @@ validate(VALUE self, VALUE document)
   xmlValidCtxtPtr ctxt;
   VALUE error_list;
 
-  Data_Get_Struct(self, xmlDtd, dtd);
-  Data_Get_Struct(document, xmlDoc, doc);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(document, xmlDoc, doc);
   error_list = rb_ary_new();
 
   ctxt = xmlNewValidCtxt();
@@ -165,7 +165,7 @@ static VALUE
 system_id(VALUE self)
 {
   xmlDtdPtr dtd;
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   if (!dtd->SystemID) { return Qnil; }
 
@@ -182,7 +182,7 @@ static VALUE
 external_id(VALUE self)
 {
   xmlDtdPtr dtd;
-  Data_Get_Struct(self, xmlDtd, dtd);
+  Noko_Node_Get_Struct(self, xmlDtd, dtd);
 
   if (!dtd->ExternalID) { return Qnil; }
 
