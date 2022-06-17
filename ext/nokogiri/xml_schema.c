@@ -25,7 +25,7 @@ validate_document(VALUE self, VALUE document)
   VALUE errors;
 
   Data_Get_Struct(self, xmlSchema, schema);
-  Data_Get_Struct(document, xmlDoc, doc);
+  Noko_Node_Get_Struct(document, xmlDoc, doc);
 
   errors = rb_ary_new();
 
@@ -179,7 +179,7 @@ has_blank_nodes_p(VALUE cache)
   for (i = 0; i < RARRAY_LEN(cache); i++) {
     xmlNodePtr node;
     VALUE element = rb_ary_entry(cache, i);
-    Data_Get_Struct(element, xmlNode, node);
+    Noko_Node_Get_Struct(element, xmlNode, node);
     if (xmlIsBlankNode(node)) {
       return 1;
     }
@@ -210,7 +210,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 
   scanned_args = rb_scan_args(argc, argv, "11", &document, &parse_options);
 
-  Data_Get_Struct(document, xmlDoc, doc);
+  Noko_Node_Get_Struct(document, xmlDoc, doc);
   doc = doc->doc; /* In case someone passes us a node. ugh. */
 
   if (scanned_args == 1) {

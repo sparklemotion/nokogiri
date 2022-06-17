@@ -404,7 +404,7 @@ static xmlNodePtr
 extract_xml_node(VALUE node)
 {
   xmlNodePtr xml_node;
-  Data_Get_Struct(node, xmlNode, xml_node);
+  Noko_Node_Get_Struct(node, xmlNode, xml_node);
   return xml_node;
 }
 

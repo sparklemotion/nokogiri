@@ -12,7 +12,7 @@ static VALUE
 attribute_type(VALUE self)
 {
   xmlAttributePtr node;
-  Data_Get_Struct(self, xmlAttribute, node);
+  Noko_Node_Get_Struct(self, xmlAttribute, node);
   return INT2NUM((long)node->atype);
 }
 
@@ -26,7 +26,7 @@ static VALUE
 default_value(VALUE self)
 {
   xmlAttributePtr node;
-  Data_Get_Struct(self, xmlAttribute, node);
+  Noko_Node_Get_Struct(self, xmlAttribute, node);
 
   if (node->defaultValue) { return NOKOGIRI_STR_NEW2(node->defaultValue); }
   return Qnil;
@@ -45,7 +45,7 @@ enumeration(VALUE self)
   xmlEnumerationPtr enm;
   VALUE list;
 
-  Data_Get_Struct(self, xmlAttribute, node);
+  Noko_Node_Get_Struct(self, xmlAttribute, node);
 
   list = rb_ary_new();
   enm = node->tree;

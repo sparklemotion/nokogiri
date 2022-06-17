@@ -372,7 +372,7 @@ new (VALUE klass, VALUE nodeobj)
   xmlXPathContextPtr ctx;
   VALUE self;
 
-  Data_Get_Struct(nodeobj, xmlNode, node);
+  Noko_Node_Get_Struct(nodeobj, xmlNode, node);
 
   xmlXPathInit();
 
