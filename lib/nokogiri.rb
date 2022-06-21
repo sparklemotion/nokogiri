@@ -1,8 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-require "rbconfig"
-
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require_relative "nokogiri/jruby/dependencies"
 end
