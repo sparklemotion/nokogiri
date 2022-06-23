@@ -25,9 +25,39 @@ module Nokogiri
     #
     # 💡 HTML5 functionality is not available when running JRuby.
     class Document < Nokogiri::HTML4::Document
+      # Get the url name for this document, as passed into Document.parse, Document.read_io, or
+      # Document.read_memory
       attr_reader :url
 
       class << self
+        # :call-seq:
+        #   parse(input)
+        #   parse(input, url=nil, encoding=nil, **options)
+        #   parse(input, url=nil, encoding=nil) { |options| ... }
+        #
+        # Parse HTML5 input.
+        #
+        # [Parameters]
+        # - +input+ may be a String, or any object that responds to _read_ and _close_ such as an
+        #   IO, or StringIO.
+        #
+        # - +url+ (optional) is a String indicating the canonical URI where this document is located.
+        #
+        # - +encoding+ (optional) is the encoding that should be used when processing
+        #   the document.
+        #
+        # - +options+ (optional) is a configuration Hash (or keyword arguments) to set options
+        #   during parsing. The three currently supported options are +:max_errors+,
+        #   +:max_tree_depth+ and +:max_attributes+, described at Nokogiri::HTML5.
+        #
+        #   ⚠ Note that these options are different than those made available by
+        #   Nokogiri::XML::Document and Nokogiri::HTML4::Document.
+        #
+        # - +block+ (optional) is passed a configuration Hash on which parse options may be set. See
+        #   Nokogiri::HTML5 for more information and usage.
+        #
+        # [Returns] Nokogiri::HTML5::Document
+        #
         def parse(string_or_io, url = nil, encoding = nil, **options, &block)
           yield options if block
           string_or_io = "" unless string_or_io
@@ -46,12 +76,18 @@ module Nokogiri
           do_parse(string_or_io, url, encoding, options)
         end
 
+        # Create a new document from an IO object.
+        #
+        # 💡 Most users should prefer Document.parse to this method.
         def read_io(io, url = nil, encoding = nil, **options)
           raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
 
           do_parse(io, url, encoding, options)
         end
 
+        # Create a new document from a String.
+        #
+        # 💡 Most users should prefer Document.parse to this method.
         def read_memory(string, url = nil, encoding = nil, **options)
           raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
 
@@ -75,11 +111,13 @@ module Nokogiri
         super
         @url = nil
       end
+
+      # Parse a HTML5 document fragment from +tags+, returning a HTML5::DocumentFragment.
       def fragment(tags = nil)
         DocumentFragment.new(self, tags, root)
       end
 
-      def to_xml(options = {}, &block)
+      def to_xml(options = {}, &block) # :nodoc:
         # Bypass XML::Document#to_xml which doesn't add
         # XML::Node::SaveOptions::AS_XML like XML::Node#to_xml does.
         XML::Node.instance_method(:to_xml).bind(self).call(options, &block)
@@ -90,7 +128,7 @@ module Nokogiri
       #
       # [Returns] The document type which determines CSS-to-XPath translation.
       #
-      # See XPathVisitor for more information.
+      # See CSS::XPathVisitor for more information.
       def xpath_doctype
         Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5
       end
