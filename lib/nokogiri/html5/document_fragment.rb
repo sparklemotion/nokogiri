@@ -41,7 +41,7 @@ module Nokogiri
         Nokogiri::Gumbo.fragment(self, tags, ctx, max_attributes, max_errors, max_depth)
       end
 
-      def serialize(options = {}, &block)
+      def serialize(options = {}, &block) # :nodoc:
         # Bypass XML::Document.serialize which doesn't support options even
         # though XML::Node.serialize does!
         XML::Node.instance_method(:serialize).bind(self).call(options, &block)
