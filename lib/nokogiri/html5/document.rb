@@ -25,6 +25,8 @@ module Nokogiri
     #
     # 💡 HTML5 functionality is not available when running JRuby.
     class Document < Nokogiri::HTML4::Document
+      attr_reader :url
+
       class << self
         def parse(string_or_io, url = nil, encoding = nil, **options, &block)
           yield options if block
@@ -69,6 +71,10 @@ module Nokogiri
         end
       end
 
+      def initialize(*args) # :nodoc:
+        super
+        @url = nil
+      end
       def fragment(tags = nil)
         DocumentFragment.new(self, tags, root)
       end

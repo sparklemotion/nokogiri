@@ -24,6 +24,16 @@ class TestHtml5API < Nokogiri::TestCase
   def test_url
     html = "<p>hi"
     url = "http://example.com"
+
+    doc = Nokogiri::HTML5::Document.parse(html)
+    assert_nil(doc.url)
+
+    doc = Nokogiri::HTML5::Document.parse(html, nil)
+    assert_nil(doc.url)
+
+    doc = Nokogiri::HTML5::Document.parse(html, url)
+    assert_equal(url, doc.url)
+
     doc = Nokogiri::HTML5::Document.parse(html, url, max_errors: 1)
     assert_equal(url, doc.errors[0].file)
 
