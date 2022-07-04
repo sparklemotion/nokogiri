@@ -345,7 +345,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency("rake-compiler-dock", "~> 1.2", ">= 1.2.2")
   spec.add_development_dependency("rdoc", "~> 6.3")
   spec.add_development_dependency("rexical", "~> 1.0.7")
-  spec.add_development_dependency("rubocop", "~> 1.30.1")
+  spec.add_development_dependency("rubocop", "~> 1.31.1")
   spec.add_development_dependency("rubocop-minitest", "~> 0.17")
   spec.add_development_dependency("rubocop-performance", "~> 1.12")
   spec.add_development_dependency("rubocop-rake", "~> 0.6")
