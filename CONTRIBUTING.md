@@ -325,7 +325,7 @@ Run `scripts/build-gems` which will package gems for all supported platforms, an
 
 ## Other utilities
 
-`scripts/test-exported-symbols` checks the compiled `nokogiri.so` library for surprising exported symbols. This script likely only works on Linux, sorry.
+`scripts/test-exported-symbols` checks the compiled `nokogiri_ext.so` library for surprising exported symbols. This script likely only works on Linux, sorry.
 
 `scripts/test-nokogumbo-compatibility` is used by CI to ensure that Nokogumbo installs correctly against the currently-installed version of Nokogiri. Nokogumbo receives this extra care because it compiles against Nokogiri's and libxml2's header files, and makes assumptions about what symbols are exported by Nokogiri's extension library.
 

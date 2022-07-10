@@ -120,7 +120,7 @@ describe gemspec.full_name do
             else
               assert_includes(ldflags, "-L#{nokogiri_lib_dir}")
             end
-            assert_includes(ldflags, "-l:nokogiri.so")
+            assert_includes(ldflags, "-l:nokogiri_ext.so")
           else
             assert_empty(ldflags)
           end

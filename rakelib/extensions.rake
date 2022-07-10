@@ -364,7 +364,7 @@ end
 
 if java?
   require "rake/javaextensiontask"
-  Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
+  Rake::JavaExtensionTask.new("nokogiri_ext", NOKOGIRI_SPEC.dup) do |ext|
     # Keep the extension C files because they have docstrings (and Java files don't)
     ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
     ext.gem_spec.files.reject! { |path| File.fnmatch?("gumbo-parser/**/*", path) }
@@ -428,7 +428,8 @@ else
     end
   end
 
-  Rake::ExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
+  Rake::ExtensionTask.new("nokogiri_ext", NOKOGIRI_SPEC.dup) do |ext|
+    ext.ext_dir = "ext/nokogiri"
     ext.source_pattern = "*.{c,cc,cpp,h}"
     ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 

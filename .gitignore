@@ -7,11 +7,11 @@
 /ext/nokogiri/**/nokogiri.dll
 /ext/nokogiri/include
 /gems/
-/lib/nokogiri/**/nokogiri.bundle
-/lib/nokogiri/**/nokogiri.so
-/lib/nokogumbo/**/nokogumbo.bundle
-/lib/nokogumbo/**/nokogumbo.so
-/lib/nokogiri/nokogiri.jar
+/lib/nokogiri/**/nokogiri_ext.bundle
+/lib/nokogiri/**/nokogiri_ext.so
+/lib/nokogumbo/**/nokogumbo_ext.bundle
+/lib/nokogumbo/**/nokogumbo_ext.so
+/lib/nokogiri/nokogiri_ext.jar
 /pkg/
 /ports/
 /tmp/

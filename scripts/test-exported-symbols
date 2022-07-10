@@ -4,7 +4,7 @@
 #
 #  examine the nokogiri dll for external symbols that shouldn't be there
 #
-#  this assumes that we're on a linux machine, and that nokogiri.so, libxml2.a, libxslt.a, and
+#  this assumes that we're on a linux machine, and that nokogiri_ext.so, libxml2.a, libxslt.a, and
 #  libexslt.a exist and can be found under the pwd.
 #
 
@@ -28,7 +28,7 @@ def local_symbols(archive)
   find_symbols(archive, "t")
 end
 
-noko_so = find_that_file("lib/**/nokogiri.so")
+noko_so = find_that_file("lib/**/nokogiri_ext.so")
 libxml2_archive = find_that_file("ports/**/libxml2.a")
 libxslt_archive = find_that_file("ports/**/libxslt.a")
 libexslt_archive = find_that_file("ports/**/libexslt.a")

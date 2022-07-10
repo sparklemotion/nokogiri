@@ -554,7 +554,7 @@ def do_clean
     message("Cleaning files only used during build.\n")
 
     # (root + 'tmp') cannot be removed at this stage because
-    # nokogiri.so is yet to be copied to lib.
+    # nokogiri_ext.so is yet to be copied to lib.
 
     # clean the ports build directory
     Pathname.glob(pwd.join("tmp", "*", "ports")) do |dir|
@@ -990,7 +990,7 @@ unless config_system_libraries?
   end
 end
 
-create_makefile("nokogiri/nokogiri")
+create_makefile("nokogiri/nokogiri_ext")
 
 if config_clean?
   # Do not clean if run in a development work tree.

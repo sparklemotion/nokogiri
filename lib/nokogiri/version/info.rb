@@ -107,13 +107,13 @@ module Nokogiri
               cppflags << "-I#{File.join(header_directory, "include/libxml2").shellescape}"
 
               if windows?
-                # on windows, nokogumbo needs to link against nokogiri.so to resolve symbols. see #2167
+                # on windows, nokogumbo needs to link against nokogiri_ext.so to resolve symbols. see #2167
                 lib_directory = File.expand_path(File.join(File.dirname(__FILE__), "../#{ruby_minor}"))
                 unless File.exist?(lib_directory)
                   lib_directory = File.expand_path(File.join(File.dirname(__FILE__), ".."))
                 end
                 ldflags << "-L#{lib_directory.shellescape}"
-                ldflags << "-l:nokogiri.so"
+                ldflags << "-l:nokogiri_ext.so"
               end
             end
 

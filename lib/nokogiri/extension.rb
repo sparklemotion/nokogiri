@@ -4,7 +4,7 @@
 begin
   # native precompiled gems package shared libraries in <gem_dir>/lib/nokogiri/<ruby_version>
   ::RUBY_VERSION =~ /(\d+\.\d+)/
-  require_relative "#{Regexp.last_match(1)}/nokogiri"
+  require_relative "#{Regexp.last_match(1)}/nokogiri_ext"
 rescue LoadError => e
   if /GLIBC/.match?(e.message)
     warn(<<~EOM)
@@ -28,5 +28,5 @@ rescue LoadError => e
   # use "require" instead of "require_relative" because non-native gems will place C extension files
   # in Gem::BasicSpecification#extension_dir after compilation (during normal installation), which
   # is in $LOAD_PATH but not necessarily relative to this file (see #2300)
-  require "nokogiri/nokogiri"
+  require "nokogiri/nokogiri_ext"
 end
