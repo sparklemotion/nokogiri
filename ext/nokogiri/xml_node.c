@@ -2225,12 +2225,17 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  /* Workaround for a libxml2 bug where a parsing error may leave a broken
+  /*
+   * Workaround for a libxml2 bug where a parsing error may leave a broken
    * node reference in node->doc->children.
+   *
+   * https://bugzilla.gnome.org/show_bug.cgi?id=668155
+   *
    * This workaround is limited to when a parse error occurs, the document
    * went from having no children to having children, and the context node is
    * part of a document fragment.
-   * https://bugzilla.gnome.org/show_bug.cgi?id=668155
+   *
+   * TODO: This was fixed in libxml 2.8.0 by 71a243d
    */
   if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
     child_iter = node;
