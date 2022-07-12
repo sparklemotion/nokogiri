@@ -14,7 +14,7 @@ static VALUE
 element_type(VALUE self)
 {
   xmlElementPtr node;
-  Data_Get_Struct(self, xmlElement, node);
+  Noko_Node_Get_Struct(self, xmlElement, node);
   return INT2NUM((long)node->etype);
 }
 
@@ -28,7 +28,7 @@ static VALUE
 content(VALUE self)
 {
   xmlElementPtr node;
-  Data_Get_Struct(self, xmlElement, node);
+  Noko_Node_Get_Struct(self, xmlElement, node);
 
   if (!node->content) { return Qnil; }
 
@@ -48,7 +48,7 @@ static VALUE
 prefix(VALUE self)
 {
   xmlElementPtr node;
-  Data_Get_Struct(self, xmlElement, node);
+  Noko_Node_Get_Struct(self, xmlElement, node);
 
   if (!node->prefix) { return Qnil; }
 

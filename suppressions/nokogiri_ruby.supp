@@ -197,3 +197,51 @@
   fun:xmlXPathEval
   fun:evaluate
 }
+{
+  triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
+  #
+  # 39,848 bytes in 1 blocks are definitely lost in loss record 38,618 of 38,681
+  #   realloc (vg_replace_malloc.c:834)
+  #   objspace_xrealloc.constprop.0 (gc.c:11516)
+  #   ary_heap_realloc (array.c:381)
+  #   ary_resize_capa (array.c:461)
+  #   ary_double_capa (array.c:507)
+  #   ary_ensure_room_for_push (array.c:654)
+  #   rb_ary_push (array.c:1311)
+  #  *noko_xml_node_wrap (xml_node.c:2075)
+  #  *noko_xml_node_attrs (xml_node.c:2094)
+  #
+  Memcheck:Leak
+  fun:realloc
+  fun:objspace_xrealloc*
+  fun:ary_heap_realloc
+  ...
+  fun:ary_ensure_room_for_push
+  fun:rb_ary_push
+  fun:noko_xml_node_wrap
+}
+{
+  triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
+  #
+  # 52,104 (4,008 direct, 48,096 indirect) bytes in 1 blocks are definitely lost in loss record 38,831 of 38,877
+  #   malloc (vg_replace_malloc.c:307)
+  #   stack_chunk_alloc (gc.c:5917)
+  #   push_mark_stack_chunk (gc.c:5980)
+  #   push_mark_stack (gc.c:6038)
+  #   gc_grey (gc.c:6665)
+  #  *mark (xml_node_set.c:50)
+  #   gc_mark_stacked_objects (gc.c:7071)
+  #   gc_mark_stacked_objects_all (gc.c:7111)
+  #   gc_marks_rest (gc.c:8095)
+  #   gc_marks (gc.c:8151)
+  #   gc_start (gc.c:8967)
+  #
+  Memcheck:Leak
+  fun:malloc
+  fun:stack_chunk_alloc
+  fun:push_mark_stack_chunk
+  fun:push_mark_stack
+  fun:gc_grey
+  ...
+  fun:gc_start
+}

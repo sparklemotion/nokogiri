@@ -973,6 +973,7 @@ have_func("xmlRelaxNGSetParserStructuredErrors") # introduced in libxml 2.6.24
 have_func("xmlRelaxNGSetValidStructuredErrors") # introduced in libxml 2.6.21
 have_func("xmlSchemaSetValidStructuredErrors") # introduced in libxml 2.6.23
 have_func("xmlSchemaSetParserStructuredErrors") # introduced in libxml 2.6.23
+have_func("rb_gc_location") # introduced in Ruby 2.7
 
 have_func("vasprintf")
 

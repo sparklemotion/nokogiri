@@ -161,7 +161,7 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
                rb_obj_class(rb_new_root));
     }
 
-    Data_Get_Struct(rb_new_root, xmlNode, c_new_root);
+    Noko_Node_Get_Struct(rb_new_root, xmlNode, c_new_root);
 
     /* If the new root's document is not the same as the current document,
      * then we need to dup the node in to this document. */

@@ -156,7 +156,7 @@ push(VALUE self, VALUE rb_node)
   Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
-  Data_Get_Struct(rb_node, xmlNode, node);
+  Noko_Node_Get_Struct(rb_node, xmlNode, node);
 
   xmlXPathNodeSetAdd(node_set, node);
 
@@ -179,7 +179,7 @@ delete (VALUE self, VALUE rb_node)
   Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
-  Data_Get_Struct(rb_node, xmlNode, node);
+  Noko_Node_Get_Struct(rb_node, xmlNode, node);
 
   if (xmlXPathNodeSetContains(node_set, node)) {
     xpath_node_set_del(node_set, node);
@@ -228,7 +228,7 @@ include_eh(VALUE self, VALUE rb_node)
   Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
-  Data_Get_Struct(rb_node, xmlNode, node);
+  Noko_Node_Get_Struct(rb_node, xmlNode, node);
 
   return (xmlXPathNodeSetContains(node_set, node) ? Qtrue : Qfalse);
 }
@@ -430,7 +430,7 @@ unlink_nodeset(VALUE self)
       xmlNodePtr node_ptr;
       node = noko_xml_node_wrap(Qnil, node_set->nodeTab[j]);
       rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
-      Data_Get_Struct(node, xmlNode, node_ptr);
+      Noko_Node_Get_Struct(node, xmlNode, node_ptr);
       node_set->nodeTab[j] = node_ptr ;
     }
   }
