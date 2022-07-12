@@ -16,11 +16,6 @@ test -e /etc/os-release && cat /etc/os-release
 
 set -u -x
 
-if [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
-  # TODO remove after ruby-maven 3.3.13 or later is shipped
-  # see https://github.com/jruby/jruby/issues/6904
-  gem install misc/ruby-maven-*.gem --no-document
-fi
 bundle
 
 bundle exec rake set-version-to-timestamp
