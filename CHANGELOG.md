@@ -53,6 +53,13 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
 
 
+## 1.13.7 / 2022-07-12
+
+### Fixed
+
+`XML::Node` objects, when compacted, update their internal struct's reference to the Ruby object wrapper. Previously, with GC compaction enabled, a segmentation fault was possible after compaction was triggered. [[#2578](https://github.com/sparklemotion/nokogiri/issues/2578)] (Thanks, [@eightbitraptor](https://github.com/eightbitraptor)!)
+
+
 ## 1.13.6 / 2022-05-08
 
 ### Security
