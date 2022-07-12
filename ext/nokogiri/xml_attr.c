@@ -16,7 +16,7 @@ set_value(VALUE self, VALUE content)
   xmlChar *value;
   xmlNode *cur;
 
-  Data_Get_Struct(self, xmlAttr, attr);
+  Noko_Node_Get_Struct(self, xmlAttr, attr);
 
   if (attr->children) {
     xmlFreeNodeList(attr->children);
@@ -68,7 +68,7 @@ new (int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eArgError, "parameter must be a Nokogiri::XML::Document");
   }
 
-  Data_Get_Struct(document, xmlDoc, xml_doc);
+  Noko_Node_Get_Struct(document, xmlDoc, xml_doc);
 
   node = xmlNewDocProp(
            xml_doc,

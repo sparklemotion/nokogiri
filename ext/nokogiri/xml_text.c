@@ -20,7 +20,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &string, &document, &rest);
 
-  Data_Get_Struct(document, xmlDoc, doc);
+  Noko_Node_Get_Struct(document, xmlDoc, doc);
 
   node = xmlNewText((xmlChar *)StringValueCStr(string));
   node->doc = doc->doc;

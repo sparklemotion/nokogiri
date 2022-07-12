@@ -25,7 +25,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &doc, &content, &rest);
 
-  Data_Get_Struct(doc, xmlDoc, xml_doc);
+  Noko_Node_Get_Struct(doc, xmlDoc, xml_doc);
 
   if (!NIL_P(content)) {
     content_str = (xmlChar *)StringValuePtr(content);
