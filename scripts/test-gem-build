@@ -22,8 +22,7 @@ if [[ "${BUILD_NATIVE_GEM}" == "java" ]] ; then
   gem install misc/ruby-maven-*.gem --no-document
 fi
 bundle
-bundle list
-bundle list --paths
+
 bundle exec rake set-version-to-timestamp
 
 if [[ "${BUILD_NATIVE_GEM}" == "ruby" ]] ; then

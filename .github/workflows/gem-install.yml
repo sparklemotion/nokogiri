@@ -16,11 +16,25 @@ on:
       - '*'
 
 jobs:
+  rcd_image_version:
+    runs-on: ubuntu-latest
+    outputs:
+      rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1"
+          bundler-cache: true
+      - id: rcd_image_version
+        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "::set-output name=rcd_image_version::#{RakeCompilerDock::IMAGE_VERSION}"'
+
   cruby-package:
+    needs: ["rcd_image_version"]
     name: "cruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:1.2.2"
+      image: "larskanis/rake-compiler-dock-mri-x86_64-linux:${{needs.rcd_image_version.outputs.rcd_image_version}}"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -127,6 +141,7 @@ jobs:
           nokogiri -v
 
   cruby-native-package:
+    needs: ["rcd_image_version"]
     name: "cruby-native-package"
     strategy:
       fail-fast: false
@@ -152,7 +167,7 @@ jobs:
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:1.2.2 \
+            larskanis/rake-compiler-dock-mri-${{matrix.plat}}:${{needs.rcd_image_version.outputs.rcd_image_version}} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
       - uses: actions/upload-artifact@v2
         with:
@@ -324,10 +339,11 @@ jobs:
           nokogiri -v
 
   jruby-package:
+    needs: ["rcd_image_version"]
     name: "jruby-package"
     runs-on: ubuntu-latest
     container:
-      image: "larskanis/rake-compiler-dock-jruby:1.2.2"
+      image: "larskanis/rake-compiler-dock-jruby:${{needs.rcd_image_version.outputs.rcd_image_version}}"
     steps:
       - uses: actions/checkout@v2
         with:
