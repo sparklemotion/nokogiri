@@ -336,22 +336,22 @@ Gem::Specification.new do |spec|
   end
   spec.add_runtime_dependency("racc", "~> 1.4")
 
-  spec.add_development_dependency("bundler", "~> 2.2")
-  spec.add_development_dependency("hoe-markdown", "~> 1.4")
-  spec.add_development_dependency("minitest", "~> 5.15")
-  spec.add_development_dependency("minitest-reporters", "~> 1.4")
-  spec.add_development_dependency("rake", "~> 13.0")
+  spec.add_development_dependency("bundler", "~> 2.3")
+  spec.add_development_dependency("hoe-markdown", "~> 1.4.0")
+  spec.add_development_dependency("minitest", "~> 5.16.2")
+  spec.add_development_dependency("minitest-reporters", "~> 1.5.0")
+  spec.add_development_dependency("rake", "~> 13.0.6")
   spec.add_development_dependency("rake-compiler", "= 1.2.0")
   spec.add_development_dependency("rake-compiler-dock", "= 1.2.2")
-  spec.add_development_dependency("rdoc", "~> 6.3")
+  spec.add_development_dependency("rdoc", "~> 6.4.0")
   spec.add_development_dependency("rexical", "~> 1.0.7")
   spec.add_development_dependency("rubocop", "~> 1.30.1")
-  spec.add_development_dependency("rubocop-minitest", "~> 0.17")
-  spec.add_development_dependency("rubocop-performance", "~> 1.12")
-  spec.add_development_dependency("rubocop-rake", "~> 0.6")
+  spec.add_development_dependency("rubocop-minitest", "~> 0.20.1")
+  spec.add_development_dependency("rubocop-performance", "~> 1.14.2")
+  spec.add_development_dependency("rubocop-rake", "~> 0.6.0")
   spec.add_development_dependency("rubocop-shopify", "= 2.5.0") # TODO: loosen this after dropping support for Ruby 2.6
-  spec.add_development_dependency("ruby_memcheck", "~> 1.0")
-  spec.add_development_dependency("simplecov", "~> 0.21")
+  spec.add_development_dependency("ruby_memcheck", "~> 1.0.2")
+  spec.add_development_dependency("simplecov", "~> 0.21.2")
 
   spec.extensions << "ext/nokogiri/extconf.rb"
 end

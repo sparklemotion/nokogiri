@@ -8,6 +8,18 @@ on:
 # reference: https://github.com/marketplace/actions/build-and-push-docker-images
 jobs:
   build_images:
+    strategy:
+      fail-fast: false
+      matrix:
+        tag:
+          - alpine
+          - mri-2.6
+          - mri-2.7
+          - mri-3.0
+          - mri-3.1
+          - truffle-nightly
+          - ubuntu
+          - ubuntu32
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,59 +35,10 @@ jobs:
           registry: ghcr.io
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
-      - name: alpine
+      - name: ${{matrix.tag}}
         uses: docker/build-push-action@v2
         with:
           context: "."
           push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:alpine
-          file: oci-images/nokogiri-test/alpine.dockerfile
-      - name: mri-2.6
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.6
-          file: oci-images/nokogiri-test/mri-2.6.dockerfile
-      - name: mri-2.7
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:mri-2.7
-          file: oci-images/nokogiri-test/mri-2.7.dockerfile
-      - name: mri-3.0
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:mri-3.0
-          file: oci-images/nokogiri-test/mri-3.0.dockerfile
-      - name: mri-3.1
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
-          file: oci-images/nokogiri-test/mri-3.1.dockerfile
-      - name: truffle-nightly
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
-          file: oci-images/nokogiri-test/truffle-nightly.dockerfile
-      - name: ubuntu
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:ubuntu
-          file: oci-images/nokogiri-test/ubuntu.dockerfile
-      - name: ubuntu32
-        uses: docker/build-push-action@v2
-        with:
-          context: "."
-          push: true
-          tags: ghcr.io/sparklemotion/nokogiri-test:ubuntu32
-          file: oci-images/nokogiri-test/ubuntu32.dockerfile
+          tags: ghcr.io/sparklemotion/nokogiri-test:${{matrix.tag}}
+          file: oci-images/nokogiri-test/${{matrix.tag}}.dockerfile
