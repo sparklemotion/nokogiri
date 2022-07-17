@@ -227,20 +227,6 @@ module Nokogiri
   #
   # Since v1.12.0
   module HTML5
-    # HTML uses the XHTML namespace.
-    HTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
-    MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML"
-    SVG_NAMESPACE = "http://www.w3.org/2000/svg"
-    XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
-    XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
-    XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/"
-
-    VOID_ELEMENTS = ["area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr",
-                     "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr",]
-
-    UNESCAPED_TEXT_ELEMENTS = ["style", "script", "xmp", "iframe", "noembed", "noframes",
-                               "plaintext", "noscript",]
-
     class << self
       # Parse an HTML 5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
       def parse(string, url = nil, encoding = nil, **options, &block)
@@ -290,80 +276,6 @@ module Nokogiri
           string = reencode(string)
         end
         string
-      end
-
-      # :nodoc:
-      def serialize_node_internal(current_node, io, encoding, options)
-        case current_node.type
-        when XML::Node::ELEMENT_NODE
-          ns = current_node.namespace
-          ns_uri = ns.nil? ? nil : ns.href
-          # XXX(sfc): attach namespaces to all nodes, even html?
-          tagname = if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
-            current_node.name
-          else
-            "#{ns.prefix}:#{current_node.name}"
-          end
-          io << "<" << tagname
-          current_node.attribute_nodes.each do |attr|
-            attr_ns = attr.namespace
-            if attr_ns.nil?
-              attr_name = attr.name
-            else
-              ns_uri = attr_ns.href
-              attr_name = if ns_uri == XML_NAMESPACE
-                "xml:" + attr.name.sub(/^[^:]*:/, "")
-              elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, "") == "xmlns"
-                "xmlns"
-              elsif ns_uri == XMLNS_NAMESPACE
-                "xmlns:" + attr.name.sub(/^[^:]*:/, "")
-              elsif ns_uri == XLINK_NAMESPACE
-                "xlink:" + attr.name.sub(/^[^:]*:/, "")
-              else
-                "#{attr_ns.prefix}:#{attr.name}"
-              end
-            end
-            io << " " << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
-          end
-          io << ">"
-          unless VOID_ELEMENTS.include?(current_node.name)
-            io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
-            current_node.children.each do |child|
-              # XXX(sfc): Templates handled specially?
-              serialize_node_internal(child, io, encoding, options)
-            end
-            io << "</" << tagname << ">"
-          end
-        when XML::Node::TEXT_NODE
-          parent = current_node.parent
-          io << if parent.element? && UNESCAPED_TEXT_ELEMENTS.include?(parent.name)
-            current_node.content
-          else
-            escape_text(current_node.content, encoding, false)
-          end
-        when XML::Node::CDATA_SECTION_NODE
-          io << "<![CDATA[" << current_node.content << "]]>"
-        when XML::Node::COMMENT_NODE
-          io << "<!--" << current_node.content << "-->"
-        when XML::Node::PI_NODE
-          io << "<?" << current_node.content << ">"
-        when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
-          io << "<!DOCTYPE " << current_node.name << ">"
-        when XML::Node::HTML_DOCUMENT_NODE, XML::Node::DOCUMENT_FRAG_NODE
-          current_node.children.each do |child|
-            serialize_node_internal(child, io, encoding, options)
-          end
-        else
-          raise "Unexpected node '#{current_node.name}' of type #{current_node.type}"
-        end
-      end
-
-      # :nodoc:
-      def prepend_newline?(node)
-        return false unless ["pre", "textarea", "listing"].include?(node.name) && !node.children.empty?
-
-        first_child = node.children[0]
-        first_child.text? && first_child.content.start_with?("\n")
       end
 
       private
@@ -469,18 +381,6 @@ module Nokogiri
         end
 
         body.encode(Encoding::UTF_8)
-      end
-
-      def escape_text(text, encoding, attribute_mode)
-        text = if attribute_mode
-          text.gsub(/[&\u00a0"]/,
-            "&" => "&amp;", "\u00a0" => "&nbsp;", '"' => "&quot;")
-        else
-          text.gsub(/[&\u00a0<>]/,
-            "&" => "&amp;", "\u00a0" => "&nbsp;", "<" => "&lt;", ">" => "&gt;")
-        end
-        # Not part of the standard
-        text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
       end
     end
   end

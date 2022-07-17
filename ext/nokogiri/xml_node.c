@@ -1,5 +1,7 @@
 #include <nokogiri.h>
 
+#include <stdbool.h>
+
 // :stopdoc:
 
 VALUE cNokogiriXmlNode ;
@@ -1724,6 +1726,269 @@ native_write_to(
   return io;
 }
 
+
+static inline void
+output_partial_string(VALUE out, char const *str, size_t length)
+{
+  if (length) {
+    rb_enc_str_buf_cat(out, str, (long)length, rb_utf8_encoding());
+  }
+}
+
+static inline void
+output_char(VALUE out, char ch)
+{
+  output_partial_string(out, &ch, 1);
+}
+
+static inline void
+output_string(VALUE out, char const *str)
+{
+  output_partial_string(out, str, strlen(str));
+}
+
+static inline void
+output_tagname(VALUE out, xmlNodePtr elem)
+{
+  // Elements in the HTML, MathML, and SVG namespaces do not use a namespace
+  // prefix in the HTML syntax.
+  char const *name = (char const *)elem->name;
+  xmlNsPtr ns = elem->ns;
+  if (ns && ns->href && ns->prefix
+      && strcmp((char const *)ns->href, "http://www.w3.org/1999/xhtml")
+      && strcmp((char const *)ns->href, "http://www.w3.org/1998/Math/MathML")
+      && strcmp((char const *)ns->href, "http://www.w3.org/2000/svg")) {
+    output_string(out, (char const *)elem->ns->prefix);
+    output_char(out, ':');
+    char const *colon = strchr(name, ':');
+    if (colon) {
+      name = colon + 1;
+    }
+  }
+  output_string(out, name);
+}
+
+static inline void
+output_attr_name(VALUE out, xmlAttrPtr attr)
+{
+  xmlNsPtr ns = attr->ns;
+  char const *name = (char const *)attr->name;
+  if (ns && ns->href) {
+    char const *uri = (char const *)ns->href;
+    char const *localname = strchr(name, ':');
+    if (localname) {
+      ++localname;
+    } else {
+      localname = name;
+    }
+
+    if (!strcmp(uri, "http://www.w3.org/XML/1998/namespace")) {
+      output_string(out, "xml:");
+      name = localname;
+    } else if (!strcmp(uri, "http://www.w3.org/2000/xmlns/")) {
+      // xmlns:xmlns -> xmlns
+      // xmlns:foo -> xmlns:foo
+      if (strcmp(localname, "xmlns")) {
+        output_string(out, "xmlns:");
+      }
+      name = localname;
+    } else if (!strcmp(uri, "http://www.w3.org/1999/xlink")) {
+      output_string(out, "xlink:");
+      name = localname;
+    } else if (ns->prefix) {
+      output_string(out, (char const *)ns->prefix);
+      output_char(out, ':');
+      name = localname;
+    }
+  }
+  output_string(out, name);
+}
+
+static void
+output_escaped_string(VALUE out, xmlChar const *start, bool attr)
+{
+  xmlChar const *next = start;
+  int ch;
+
+  while ((ch = *next) != 0) {
+    char const *replacement = NULL;
+    size_t replaced_bytes = 1;
+    if (ch == '&') {
+      replacement = "&amp;";
+    } else if (ch == 0xC2 && next[1] == 0xA0) {
+      // U+00A0 NO-BREAK SPACE has the UTF-8 encoding C2 A0.
+      replacement = "&nbsp;";
+      replaced_bytes = 2;
+    } else if (attr && ch == '"') {
+      replacement = "&quot;";
+    } else if (!attr && ch == '<') {
+      replacement = "&lt;";
+    } else if (!attr && ch == '>') {
+      replacement = "&gt;";
+    } else {
+      ++next;
+      continue;
+    }
+    output_partial_string(out, (char const *)start, next - start);
+    output_string(out, replacement);
+    next += replaced_bytes;
+    start = next;
+  }
+  output_partial_string(out, (char const *)start, next - start);
+}
+
+static bool
+should_prepend_newline(xmlNodePtr node)
+{
+  char const *name = (char const *)node->name;
+  xmlNodePtr child = node->children;
+
+  if (!name || !child || (strcmp(name, "pre") && strcmp(name, "textarea") && strcmp(name, "listing"))) {
+    return false;
+  }
+
+  return child->type == XML_TEXT_NODE && child->content && child->content[0] == '\n';
+}
+
+static VALUE
+rb_prepend_newline(VALUE self)
+{
+  xmlNodePtr node;
+  Noko_Node_Get_Struct(self, xmlNode, node);
+  return should_prepend_newline(node) ? Qtrue : Qfalse;
+}
+
+static bool
+is_one_of(xmlNodePtr node, char const *const *tagnames, size_t num_tagnames)
+{
+  char const *name = (char const *)node->name;
+  if (name == NULL) { // fragments don't have a name
+    return false;
+  }
+  for (size_t idx = 0; idx < num_tagnames; ++idx) {
+    if (!strcmp(name, tagnames[idx])) {
+      return true;
+    }
+  }
+  return false;
+
+}
+
+static void
+output_node(
+  VALUE out,
+  xmlNodePtr node,
+  bool preserve_newline
+)
+{
+  static char const *const VOID_ELEMENTS[] = {
+    "area", "base", "basefont", "bgsound", "br", "col", "embed", "frame", "hr",
+    "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr",
+  };
+
+  static char const *const UNESCAPED_TEXT_ELEMENTS[] = {
+    "style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript",
+  };
+
+  switch (node->type) {
+    case XML_ELEMENT_NODE:
+      // Serialize the start tag.
+      output_char(out, '<');
+      output_tagname(out, node);
+
+      // Add attributes.
+      for (xmlAttrPtr attr = node->properties; attr; attr = attr->next) {
+        output_char(out, ' ');
+        output_attr_name(out, attr);
+        if (attr->children) {
+          output_string(out, "=\"");
+          xmlChar *value = xmlNodeListGetString(attr->doc, attr->children, 1);
+          output_escaped_string(out, value, true);
+          xmlFree(value);
+          output_char(out, '"');
+        } else {
+          // Output name=""
+          output_string(out, "=\"\"");
+        }
+      }
+      output_char(out, '>');
+
+      // Add children and end tag if element is not void.
+      if (!is_one_of(node, VOID_ELEMENTS, sizeof VOID_ELEMENTS / sizeof VOID_ELEMENTS[0])) {
+        if (preserve_newline && should_prepend_newline(node)) {
+          output_char(out, '\n');
+        }
+        for (xmlNodePtr child = node->children; child; child = child->next) {
+          output_node(out, child, preserve_newline);
+        }
+        output_string(out, "</");
+        output_tagname(out, node);
+        output_char(out, '>');
+      }
+      break;
+
+    case XML_TEXT_NODE:
+      if (node->parent
+          && is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
+                       sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])) {
+        output_string(out, (char const *)node->content);
+      } else {
+        output_escaped_string(out, node->content, false);
+      }
+      break;
+
+    case XML_CDATA_SECTION_NODE:
+      output_string(out, "<![CDATA[");
+      output_string(out, (char const *)node->content);
+      output_string(out, "]]>");
+      break;
+
+    case XML_COMMENT_NODE:
+      output_string(out, "<!--");
+      output_string(out, (char const *)node->content);
+      output_string(out, "-->");
+      break;
+
+    case XML_PI_NODE:
+      output_string(out, "<?");
+      output_string(out, (char const *)node->content);
+      output_char(out, '>');
+      break;
+
+    case XML_DOCUMENT_TYPE_NODE:
+    case XML_DTD_NODE:
+      output_string(out, "<!DOCTYPE ");
+      output_string(out, (char const *)node->name);
+      output_string(out, ">");
+      break;
+
+    case XML_DOCUMENT_NODE:
+    case XML_DOCUMENT_FRAG_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      for (xmlNodePtr child = node->children; child; child = child->next) {
+        output_node(out, child, preserve_newline);
+      }
+      break;
+
+    default:
+      rb_raise(rb_eRuntimeError, "Unsupported document node (%d); this is a bug in Nokogiri", node->type);
+      break;
+  }
+}
+
+static VALUE
+html_standard_serialize(
+  VALUE self,
+  VALUE preserve_newline
+)
+{
+  xmlNodePtr node;
+  Noko_Node_Get_Struct(self, xmlNode, node);
+  VALUE output = rb_str_buf_new(4096);
+  output_node(output, node, RTEST(preserve_newline));
+  return output;
+}
+
 /*
  * :call-seq:
  *   line() → Integer
@@ -2155,6 +2420,8 @@ noko_init_xml_node()
   rb_define_private_method(cNokogiriXmlNode, "get", get, 1);
   rb_define_private_method(cNokogiriXmlNode, "in_context", in_context, 2);
   rb_define_private_method(cNokogiriXmlNode, "native_write_to", native_write_to, 4);
+  rb_define_private_method(cNokogiriXmlNode, "prepend_newline?", rb_prepend_newline, 0);
+  rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 1);
   rb_define_private_method(cNokogiriXmlNode, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(cNokogiriXmlNode, "replace_node", replace, 1);
   rb_define_private_method(cNokogiriXmlNode, "set", set, 2);
