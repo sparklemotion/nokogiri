@@ -504,4 +504,10 @@ class TestHtml5Serialize < Nokogiri::TestCase
       assert_equal test_data[3].gsub("%void", tag), test_data[1].call(tag).serialize
     end
   end
+
+  def test_serializing_html5_fragment
+    fragment = Nokogiri::HTML5.fragment("<div>hello</div>goodbye")
+    refute(fragment.send(:prepend_newline?))
+    assert_equal("<div>hello</div>goodbye", fragment.to_html)
+  end
 end if Nokogiri.uses_gumbo?

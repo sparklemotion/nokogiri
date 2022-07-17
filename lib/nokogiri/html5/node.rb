@@ -28,7 +28,7 @@ module Nokogiri
       def inner_html(options = {})
         return super(options) unless document.is_a?(HTML5::Document)
 
-        result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? +"\n" : +""
+        result = options[:preserve_newline] && prepend_newline? ? +"\n" : +""
         result << children.map { |child| child.to_html(options) }.join
         result
       end
@@ -56,11 +56,9 @@ module Nokogiri
           native_write_to(io, encoding, indent_string, config_options)
         else
           # Serialize including the current node.
+          html = html_standard_serialize(options[:preserve_newline] || false)
           encoding ||= document.encoding || Encoding::UTF_8
-          internal_ops = {
-            preserve_newline: options[:preserve_newline] || false,
-          }
-          HTML5.serialize_node_internal(self, io, encoding, internal_ops)
+          io << html.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
         end
       end
 
