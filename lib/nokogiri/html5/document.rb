@@ -112,9 +112,20 @@ module Nokogiri
         @url = nil
       end
 
-      # Parse a HTML5 document fragment from +tags+, returning a HTML5::DocumentFragment.
-      def fragment(tags = nil)
-        DocumentFragment.new(self, tags, nil)
+      # :call-seq:
+      #   fragment() → Nokogiri::HTML5::DocumentFragment
+      #   fragment(markup) → Nokogiri::HTML5::DocumentFragment
+      #
+      # Parse a HTML5 document fragment from +markup+, returning a Nokogiri::HTML5::DocumentFragment.
+      #
+      # [Properties]
+      # - +markup+ (String) The HTML5 markup fragment to be parsed
+      #
+      # [Returns]
+      #   Nokogiri::HTML5::DocumentFragment. This object's children will be empty if `markup` is not passed, is empty, or is `nil`.
+      #
+      def fragment(markup = nil)
+        DocumentFragment.new(self, markup)
       end
 
       def to_xml(options = {}, &block) # :nodoc:
