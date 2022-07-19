@@ -45,6 +45,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Improved
 
+* Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
 * `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. XML_C14N_1_0 or XML_C14N_1_1. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
 * Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
