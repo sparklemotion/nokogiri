@@ -194,6 +194,20 @@ class TestHtml5API < Nokogiri::TestCase
   end
 
   describe Nokogiri::HTML5::Document do
+    describe "#fragment" do
+      it "parses text nodes in a `body` context" do
+        doc = Nokogiri.HTML5("x")
+        frag = doc.fragment("z")
+        assert_equal("z", frag.to_s)
+      end
+
+      it "drops tags that are not appropriate in a `body` context" do
+        doc = Nokogiri.HTML5("x")
+        frag = doc.fragment("<head></head>")
+        assert_empty(frag.children)
+      end
+    end
+
     describe "subclassing" do
       let(:klass) do
         Class.new(Nokogiri::HTML5::Document) do
