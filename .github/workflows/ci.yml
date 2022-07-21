@@ -282,12 +282,12 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - uses: vmactions/freebsd-vm@v0.1.5
+      - uses: vmactions/freebsd-vm@v0.2.0
         with:
           usesh: true
           prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt
