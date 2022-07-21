@@ -151,7 +151,11 @@ namespaces(VALUE self)
 /*
   :call-seq: attribute_nodes() → Array<Nokogiri::XML::Attr>
 
-  Get the attributes of the current node as an Array of Attr
+  Get the attributes of the current node as an Array of XML:Attr
+
+  ⚠ This method is deprecated and unsafe to use. It will be removed in a future version of Nokogiri.
+
+  See related: #attribute_hash, #attributes
  */
 static VALUE
 rb_xml_reader_attribute_nodes(VALUE rb_reader)
@@ -160,6 +164,10 @@ rb_xml_reader_attribute_nodes(VALUE rb_reader)
   xmlNodePtr c_node;
   VALUE attr_nodes;
   int j;
+
+  // TODO: deprecated, remove in Nokogiri v1.15, see https://github.com/sparklemotion/nokogiri/issues/2598
+  // After removal, we can also remove all the "node_has_a_document" special handling from xml_node.c
+  NOKO_WARN_DEPRECATION("Reader#attribute_nodes is deprecated and will be removed in a future version of Nokogiri. Please use Reader#attribute_hash instead.");
 
   Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
 

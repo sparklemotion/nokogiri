@@ -141,6 +141,7 @@ public class XmlReader extends RubyObject
   public IRubyObject
   attribute_nodes(ThreadContext context)
   {
+    context.runtime.getWarnings().warn("Reader#attribute_nodes is deprecated and will be removed in a future version of Nokogiri. Please use Reader#attribute_hash instead.");
     return currentNode().getAttributesNodes();
   }
 
