@@ -228,21 +228,59 @@ module Nokogiri
           reader.map(&:attributes?))
       end
 
-      def test_attributes
-        reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
-        <x xmlns:tenderlove='http://tenderlovemaking.com/'
-           xmlns='http://mothership.connection.com/'
-           >
-          <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
-        </x>
-        eoxml
+      def test_reader_attributes
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
         assert_empty(reader.attributes)
         assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
                         "xmlns" => "http://mothership.connection.com/", },
-                      {}, { "awesome" => "true" }, {}, { "awesome" => "true" }, {},
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      { "awesome" => "true" },
+                      {},
                       { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
                         "xmlns" => "http://mothership.connection.com/", },],
           reader.map(&:attributes))
+      end
+
+      def test_reader_attributes_hash
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
+        assert_empty(reader.attribute_hash)
+        assert_equal([{},
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      {},],
+          reader.map(&:attribute_hash))
+      end
+
+      def test_reader_namespaces
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
+        assert_empty(reader.namespaces)
+        assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },
+                      {},
+                      {},
+                      {},
+                      {},
+                      {},
+                      { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },],
+          reader.map(&:namespaces))
       end
 
       def test_attribute_roundtrip
