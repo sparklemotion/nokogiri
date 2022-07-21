@@ -87,12 +87,7 @@ module Nokogiri
       #
       # [Returns] (Hash<String, String>) Attribute names and values
       def attributes
-        attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
-          hash[node.name] = node.to_s
-        end
-        ns = namespaces
-        attrs_hash.merge!(ns) if ns
-        attrs_hash
+        attribute_hash.merge(namespaces)
       end
 
       ###

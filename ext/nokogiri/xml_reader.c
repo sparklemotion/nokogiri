@@ -31,6 +31,7 @@ has_attributes(xmlTextReaderPtr reader)
   return (0);
 }
 
+// TODO: merge this function into the `namespaces` method implementation
 static void
 Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 {
@@ -179,6 +180,47 @@ rb_xml_reader_attribute_nodes(VALUE rb_reader)
   }
 
   return attr_nodes;
+}
+
+/*
+  :call-seq: attribute_hash() → Hash<String ⇒ String>
+
+  Get the attributes of the current node as a Hash of names and values.
+
+  See related: #attributes and #namespaces
+ */
+static VALUE
+rb_xml_reader_attribute_hash(VALUE rb_reader)
+{
+  VALUE rb_attributes = rb_hash_new();
+  xmlTextReaderPtr c_reader;
+  xmlNodePtr c_node;
+  xmlAttrPtr c_property;
+
+  Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
+
+  if (!has_attributes(c_reader)) {
+    return rb_attributes;
+  }
+
+  c_node = xmlTextReaderExpand(c_reader);
+  c_property = c_node->properties;
+  while (c_property != NULL) {
+    VALUE rb_name = NOKOGIRI_STR_NEW2(c_property->name);
+    VALUE rb_value = Qnil;
+    xmlChar *c_value = xmlNodeGetContent((xmlNode *)c_property);
+
+    if (c_value) {
+      rb_value = NOKOGIRI_STR_NEW2(c_value);
+      xmlFree(c_value);
+    }
+
+    rb_hash_aset(rb_attributes, rb_name, rb_value);
+
+    c_property = c_property->next;
+  }
+
+  return rb_attributes;
 }
 
 /*
@@ -696,6 +738,7 @@ noko_init_xml_reader()
   rb_define_method(cNokogiriXmlReader, "attribute_at", attribute_at, 1);
   rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
   rb_define_method(cNokogiriXmlReader, "attribute_nodes", rb_xml_reader_attribute_nodes, 0);
+  rb_define_method(cNokogiriXmlReader, "attribute_hash", rb_xml_reader_attribute_hash, 0);
   rb_define_method(cNokogiriXmlReader, "attributes?", attributes_eh, 0);
   rb_define_method(cNokogiriXmlReader, "base_uri", rb_xml_reader_base_uri, 0);
   rb_define_method(cNokogiriXmlReader, "default?", default_eh, 0);
