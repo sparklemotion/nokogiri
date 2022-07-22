@@ -228,21 +228,59 @@ module Nokogiri
           reader.map(&:attributes?))
       end
 
-      def test_attributes
-        reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
-        <x xmlns:tenderlove='http://tenderlovemaking.com/'
-           xmlns='http://mothership.connection.com/'
-           >
-          <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
-        </x>
-        eoxml
+      def test_reader_attributes
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
         assert_empty(reader.attributes)
         assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
                         "xmlns" => "http://mothership.connection.com/", },
-                      {}, { "awesome" => "true" }, {}, { "awesome" => "true" }, {},
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      { "awesome" => "true" },
+                      {},
                       { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
                         "xmlns" => "http://mothership.connection.com/", },],
           reader.map(&:attributes))
+      end
+
+      def test_reader_attributes_hash
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
+        assert_empty(reader.attribute_hash)
+        assert_equal([{},
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      { "awesome" => "true" },
+                      {},
+                      {},],
+          reader.map(&:attribute_hash))
+      end
+
+      def test_reader_namespaces
+        reader = Nokogiri::XML::Reader.from_memory(<<~XML)
+          <x xmlns:tenderlove='http://tenderlovemaking.com/' xmlns='http://mothership.connection.com/'>
+            <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+          </x>
+        XML
+        assert_empty(reader.namespaces)
+        assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },
+                      {},
+                      {},
+                      {},
+                      {},
+                      {},
+                      { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+                        "xmlns" => "http://mothership.connection.com/", },],
+          reader.map(&:namespaces))
       end
 
       def test_attribute_roundtrip
@@ -434,7 +472,9 @@ module Nokogiri
 
           reader = Nokogiri::XML::Reader.from_memory(xml)
           reader.each do |element|
-            attribute_nodes += element.attribute_nodes
+            assert_output(nil, /Reader#attribute_nodes is deprecated/) do
+              attribute_nodes += element.attribute_nodes
+            end
           end
         end
 
@@ -451,7 +491,9 @@ module Nokogiri
         eoxml
         attr_ns = []
         while reader.read
-          if reader.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+          next unless reader.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+
+          assert_output(nil, /Reader#attribute_nodes is deprecated/) do
             reader.attribute_nodes.each { |attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
           end
         end
@@ -555,14 +597,17 @@ module Nokogiri
       end
 
       def test_large_document_smoke_test
-        #  simply run on a large document to verify that there no GC issues
-        xml = []
-        xml << "<elements>"
-        10000.times { |j| xml << "<element id=\"#{j}\"/>" }
-        xml << "</elements>"
-        xml = xml.join("\n")
+        skip_unless_libxml2("valgrind tests should only run with libxml2")
 
-        Nokogiri::XML::Reader.from_memory(xml).each(&:attributes)
+        refute_valgrind_errors do
+          xml = []
+          xml << "<elements>"
+          10000.times { |j| xml << "<element id=\"#{j}\"/>" }
+          xml << "</elements>"
+          xml = xml.join("\n")
+
+          Nokogiri::XML::Reader.from_memory(xml).each(&:attributes)
+        end
       end
 
       def test_correct_outer_xml_inclusion

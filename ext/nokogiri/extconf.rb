@@ -973,6 +973,7 @@ have_func("xmlRelaxNGSetValidStructuredErrors") # introduced in libxml 2.6.21
 have_func("xmlSchemaSetValidStructuredErrors") # introduced in libxml 2.6.23
 have_func("xmlSchemaSetParserStructuredErrors") # introduced in libxml 2.6.23
 have_func("rb_gc_location") # introduced in Ruby 2.7
+have_func("rb_category_warning") # introduced in Ruby 3.0
 
 other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k, v| [k, v].join(":") }.join(",")
 append_cppflags(%[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\\"#{other_library_versions_string}\\\""])

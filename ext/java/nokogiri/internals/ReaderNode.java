@@ -112,9 +112,10 @@ public abstract class ReaderNode
   getAttributes(ThreadContext context)
   {
     final Ruby runtime = context.runtime;
-    if (attributeList == null) { return runtime.getNil(); }
     RubyHash hash = RubyHash.newHash(runtime);
+    if (attributeList == null) { return hash; }
     for (int i = 0; i < attributeList.length; i++) {
+      if (isNamespace(attributeList.names.get(i))) { continue; }
       IRubyObject k = stringOrBlank(runtime, attributeList.names.get(i));
       IRubyObject v = stringOrBlank(runtime, attributeList.values.get(i));
       hash.fastASetCheckString(runtime, k, v); // hash.op_aset(context, k, v)
@@ -150,8 +151,8 @@ public abstract class ReaderNode
   getNamespaces(ThreadContext context)
   {
     final Ruby runtime = context.runtime;
-    if (namespaces == null) { return runtime.getNil(); }
     RubyHash hash = RubyHash.newHash(runtime);
+    if (namespaces == null) { return hash; }
     for (Map.Entry<String, String> entry : namespaces.entrySet()) {
       IRubyObject k = stringOrBlank(runtime, entry.getKey());
       IRubyObject v = stringOrBlank(runtime, entry.getValue());
