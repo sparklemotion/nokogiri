@@ -83,16 +83,14 @@ module Nokogiri
       end
       private :initialize
 
-      # Get the attributes of the current node as a Hash
+      # Get the attributes and namespaces of the current node as a Hash.
       #
-      # [Returns] (Hash<String, String>) Attribute names and values
+      # This is the union of Reader#attribute_hash and Reader#namespaces
+      #
+      # [Returns]
+      #   (Hash<String, String>) Attribute names and values, and namespace prefixes and hrefs.
       def attributes
-        attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
-          hash[node.name] = node.to_s
-        end
-        ns = namespaces
-        attrs_hash.merge!(ns) if ns
-        attrs_hash
+        attribute_hash.merge(namespaces)
       end
 
       ###

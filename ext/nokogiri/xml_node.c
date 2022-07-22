@@ -1806,7 +1806,7 @@ rb_xml_node_new(int argc, VALUE *argv, VALUE klass)
   }
   if (!rb_obj_is_kind_of(rb_document_node, cNokogiriXmlDocument)) {
     // TODO: deprecate allowing Node
-    rb_warn("Passing a Node as the second parameter to Node.new is deprecated. Please pass a Document instead, or prefer an alternative constructor like Node#add_child. This will become an error in a future release of Nokogiri.");
+    NOKO_WARN_DEPRECATION("Passing a Node as the second parameter to Node.new is deprecated. Please pass a Document instead, or prefer an alternative constructor like Node#add_child. This will become an error in a future release of Nokogiri.");
   }
   Noko_Node_Get_Struct(rb_document_node, xmlNode, c_document_node);
 
