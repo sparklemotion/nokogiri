@@ -55,6 +55,23 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
 
 
+## 1.13.8 / 2022-07-23
+
+### Deprecated
+
+- `XML::Reader#attribute_nodes` is deprecated due to incompatibility between libxml2's `xmlReader` memory semantics and Ruby's garbage collector. Although this method continues to exist for backwards compatibility, it is unsafe to call and may segfault. This method will be removed in a future version of Nokogiri, and callers should use `#attribute_hash` instead. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598)]
+
+
+### Improvements
+
+- `XML::Reader#attribute_hash` is a new method to safely retrieve the attributes of a node from `XML::Reader`. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
+
+
+### Fixed
+
+- [CRuby] Calling `XML::Reader#attributes` is now safe to call. In Nokogiri <= 1.13.7 this method may segfault. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
+
+
 ## 1.13.7 / 2022-07-12
 
 ### Fixed
