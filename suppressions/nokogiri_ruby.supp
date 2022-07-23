@@ -197,8 +197,14 @@
   fun:noko_xml_node_wrap
 }
 {
-  triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
+  garbage collection - internal bookkeeping - see https://github.com/Shopify/ruby_memcheck/issues/6
+  # https://github.com/sparklemotion/nokogiri/runs/7474777076?check_suite_focus=true
+  # https://github.com/sparklemotion/nokogiri/runs/7457816991?check_suite_focus=true
+  # https://github.com/sparklemotion/nokogiri/runs/7282476570?check_suite_focus=true
+  # https://github.com/sparklemotion/nokogiri/runs/7310948711?check_suite_focus=true
+  # https://github.com/sparklemotion/nokogiri/runs/7287062715?check_suite_focus=true
   #
+  # triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
   # 52,104 (4,008 direct, 48,096 indirect) bytes in 1 blocks are definitely lost in loss record 38,831 of 38,877
   #   malloc (vg_replace_malloc.c:307)
   #   stack_chunk_alloc (gc.c:5917)
@@ -212,6 +218,67 @@
   #   gc_marks (gc.c:8151)
   #   gc_start (gc.c:8967)
   #
+  # or
+  #
+  # 52,104 (4,008 direct, 48,096 indirect) bytes in 1 blocks are definitely lost in loss record 38,778 of 38,821
+  #   malloc (vg_replace_malloc.c:307)
+  #   stack_chunk_alloc (gc.c:5917)
+  #   push_mark_stack_chunk (gc.c:5980)
+  #   push_mark_stack (gc.c:6038)
+  #   gc_grey (gc.c:6665)
+  #   gc_mark (gc.c:6747)
+  #   gc_mark_children (gc.c:6938)
+  #   gc_mark_stacked_objects (gc.c:7071)
+  #   gc_mark_stacked_objects_incremental (gc.c:7105)
+  #   gc_marks_rest (gc.c:8091)
+  #   gc_rest (gc.c:8988)
+  #   gc_rest (gc.c:8976)
+  #   garbage_collect (gc.c:8847)
+  #   garbage_collect_with_gvl (gc.c:9225)
+  #   objspace_malloc_increase_body (gc.c:11298)
+  #   objspace_malloc_increase_body (gc.c:11276)
+  #   objspace_malloc_fixup (gc.c:11376)
+  #   objspace_xmalloc0 (gc.c:11447)
+  #  *xmlSAX2TextNode (SAX2.c:1840)
+  #  *xmlSAX2Text (SAX2.c:2617)
+  #  *xmlParseContentInternal (parser.c:9929)
+  #  *xmlParseElement (parser.c:9987)
+  #  *xmlParseDocument (parser.c:10824)
+  #  *xmlDoRead (parser.c:15171)
+  #  *read_memory (xml_document.c:331)
+  #
+  # or
+  #
+  # 52,104 (4,008 direct, 48,096 indirect) bytes in 1 blocks are definitely lost in loss record 39,265 of 39,317
+  #   malloc (vg_replace_malloc.c:307)
+  #   stack_chunk_alloc (gc.c:5917)
+  #   push_mark_stack_chunk (gc.c:5980)
+  #   push_mark_stack (gc.c:6038)
+  #   gc_grey (gc.c:6665)
+  #   gc_mark (gc.c:6747)
+  #   gc_mark_children (gc.c:6938)
+  #   gc_mark_stacked_objects (gc.c:7071)
+  #   gc_mark_stacked_objects_incremental (gc.c:7105)
+  #   gc_marks_rest (gc.c:8091)
+  #   gc_rest (gc.c:8988)
+  #   gc_rest (gc.c:8976)
+  #   garbage_collect (gc.c:8847)
+  #   garbage_collect_with_gvl (gc.c:9225)
+  #   objspace_malloc_increase_body (gc.c:11298)
+  #   objspace_malloc_increase_body (gc.c:11276)
+  #   objspace_malloc_fixup (gc.c:11376)
+  #   objspace_xmalloc0 (gc.c:11447)
+  #  *xmlNewNodeEatName (tree.c:2303)
+  #  *xmlNewDocNodeEatName (tree.c:2378)
+  #  *xmlSAX2StartElementNs (SAX2.c:2256)
+  #  *xmlParseStartTag2 (parser.c:9662)
+  #  *xmlParseElementStart (parser.c:10047)
+  #  *xmlParseContentInternal (parser.c:9912)
+  #  *xmlParseElement (parser.c:9987)
+  #  *xmlParseDocument (parser.c:10824)
+  #  *xmlDoRead (parser.c:15171)
+  #  *read_memory (xml_document.c:331)
+  #
   Memcheck:Leak
   fun:malloc
   fun:stack_chunk_alloc
@@ -219,5 +286,4 @@
   fun:push_mark_stack
   fun:gc_grey
   ...
-  fun:gc_start
 }
