@@ -245,15 +245,15 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
   end
 
   def test_default_max_depth_parse
+    depth = Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH + 1
     assert_raises(ArgumentError) do
-      depth = Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH + 1
       Nokogiri::HTML5("<!DOCTYPE html><html><body>" + "<div>" * (depth - 2))
     end
   end
 
   def test_default_max_depth_fragment
+    depth = Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH + 1
     assert_raises(ArgumentError) do
-      depth = Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH + 1
       Nokogiri::HTML5.fragment("<div>" * depth)
     end
   end
