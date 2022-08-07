@@ -83,6 +83,7 @@ jobs:
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
+          bundler: latest
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -107,6 +108,7 @@ jobs:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
+          bundler: latest
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -125,6 +127,7 @@ jobs:
         with:
           ruby-version: "jruby-head"
           bundler-cache: true
+          bundler: latest
       - run: bundle exec rake compile
       - run: bundle exec rake test
 

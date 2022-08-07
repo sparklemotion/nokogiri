@@ -26,6 +26,7 @@ jobs:
         with:
           ruby-version: "3.1"
           bundler-cache: true
+          bundler: latest
       - id: rcd_image_version
         run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "::set-output name=rcd_image_version::#{RakeCompilerDock::IMAGE_VERSION}"'
 
