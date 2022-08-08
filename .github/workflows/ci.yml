@@ -49,6 +49,7 @@ jobs:
         with:
           ruby-version: "3.0" # OK for now, until ruby 3.1 CI is stable
           bundler-cache: true
+          bundler: latest
       - run: bundle exec rake gumbo:test
 
   basic:
@@ -219,6 +220,7 @@ jobs:
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
+          bundler: latest
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -248,6 +250,7 @@ jobs:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
+          bundler: latest
       - uses: actions/cache@v2
         if: matrix.sys == 'disable'
         with:
@@ -271,6 +274,7 @@ jobs:
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
+          bundler: latest
       - run: bundle exec rake compile
       - run: bundle exec rake test
       - run: bundle exec rake test:bench

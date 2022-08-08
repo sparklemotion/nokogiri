@@ -321,7 +321,10 @@ Gem::Specification.new do |spec|
   spec.rdoc_options = ["--main", "README.md"]
 
   if java_p
-    spec.add_development_dependency("jar-dependencies", "~> 0.4.1")
+    # loosen after jruby fixes https://github.com/jruby/jruby/issues/7262
+    # also see https://github.com/mkristian/jar-dependencies/commit/006fb254
+    spec.add_development_dependency("jar-dependencies", "= 0.4.1")
+
     spec.require_paths << "lib/nokogiri/jruby" # where we install the jars, see the :vendor_jars rake task
     spec.requirements << "jar isorelax, isorelax, 20030108" # https://search.maven.org/artifact/isorelax/isorelax
     spec.requirements << "jar org.nokogiri, nekodtd, 0.1.11.noko1"

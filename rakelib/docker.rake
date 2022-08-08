@@ -65,6 +65,7 @@ module DockerHelper
                 with:
                   ruby-version: "3.1"
                   bundler-cache: true
+                  bundler: latest
               - uses: docker/setup-buildx-action@v1
               - uses: docker/login-action@v1
                 with:
