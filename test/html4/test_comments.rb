@@ -173,18 +173,8 @@ module Nokogiri
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?("<=2.9.13") && !upstream_xmlsoft?
-          it "ignores up to the next '>'" do # NON-COMPLIANT
-            assert_equal 2, body.children.length
-            assert_equal body.children[0], subject
-            assert_equal 1, subject.children.length
-            assert_predicate subject.children[0], :text?
-            assert_equal "inner content", subject.children[0].content
-            assert_predicate body.children[1], :text?
-            assert_equal "-->hello", body.children[1].content
-          end
-        elsif Nokogiri.uses_libxml?
-          it "parses as pcdata" do # NON-COMPLIANT
+        if Nokogiri.uses_libxml?("=2.9.14")
+          it "parses as PCDATA" do # NON-COMPLIANT
             assert_equal 1, body.children.length
             assert_equal subject, body.children.first
 
@@ -203,6 +193,16 @@ module Nokogiri
               assert_equal("-->hello", child.content)
             end
           end
+        elsif Nokogiri.uses_libxml? # before or after 2.9.14
+          it "ignores up to the next '>'" do # NON-COMPLIANT
+            assert_equal 2, body.children.length
+            assert_equal body.children[0], subject
+            assert_equal 1, subject.children.length
+            assert_predicate subject.children[0], :text?
+            assert_equal "inner content", subject.children[0].content
+            assert_predicate body.children[1], :text?
+            assert_equal "-->hello", body.children[1].content
+          end
         end
 
         if Nokogiri.jruby?
@@ -213,6 +213,47 @@ module Nokogiri
             assert_equal 1, subject.children.length
             assert_predicate subject.children[0], :text?
             assert_equal "hello", subject.children[0].content
+          end
+        end
+      end
+
+      # conditional HTML comments, variation of the above
+      # https://gitlab.gnome.org/GNOME/libxml2/-/issues/380
+      describe "conditional HTML comments" do
+        let(:html) { "<html><body><div id=under-test><![if foo]><div id=do-i-exist>inner content</div><![endif]></div></body></html>" }
+
+        let(:doc) { Nokogiri::HTML4(html) }
+        let(:body) { doc.at_css("body") }
+        let(:subject) { doc.at_css("div#under-test") }
+
+        if Nokogiri.uses_libxml?("=2.9.14")
+          it "parses the <! tags as PCDATA" do
+            assert_equal(1, body.children.length)
+            assert_equal(subject, body.children.first)
+
+            assert_equal(3, subject.children.length)
+            subject.children[0].tap do |child|
+              assert_predicate(child, :text?)
+              assert_equal("<![if foo]>", child.content)
+            end
+            subject.children[1].tap do |child|
+              assert_predicate(child, :element?)
+              assert_equal("div", child.name)
+              assert_equal("do-i-exist", child["id"])
+            end
+            subject.children[2].tap do |child|
+              assert_predicate(child, :text?)
+              assert_equal("<![endif]>", child.content)
+            end
+          end
+        else # libxml before or after 2.9.14, or jruby
+          it "drops the <! tags" do
+            assert_equal(1, body.children.length)
+            assert_equal(subject, body.children.first)
+
+            assert_equal(1, subject.children.length)
+            assert_equal("div", subject.children.first.name)
+            assert_equal("do-i-exist", subject.children.first["id"])
           end
         end
       end
