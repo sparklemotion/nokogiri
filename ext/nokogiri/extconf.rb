@@ -838,6 +838,11 @@ else
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
+    if windows?
+      cflags = concat_flags(cflags, "-ULIBXSLT_STATIC", "-DIN_LIBXSLT")
+      cflags = concat_flags(cflags, "-ULIBEXSLT_STATIC", "-DIN_LIBEXSLT")
+    end
+
     recipe.configure_options << if source_dir
       "--config-cache"
     else
