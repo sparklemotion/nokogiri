@@ -747,7 +747,7 @@ module Nokogiri
           doc = Nokogiri::HTML4::Document.parse(html)
           expected = if Nokogiri.jruby?
             [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::PI_NODE]
-          elsif Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch") || upstream_xmlsoft?
+          elsif Nokogiri.uses_libxml?(">= 2.10.0")
             [Nokogiri::XML::Node::COMMENT_NODE]
           else
             []
