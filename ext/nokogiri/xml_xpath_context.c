@@ -373,7 +373,10 @@ new (VALUE klass, VALUE nodeobj)
 
   Noko_Node_Get_Struct(nodeobj, xmlNode, node);
 
+#if LIBXML_VERSION < 21000
+  /* deprecated in 40483d0 */
   xmlXPathInit();
+#endif
 
   ctx = xmlXPathNewContext(node->doc);
   ctx->node = node;
