@@ -838,6 +838,11 @@ else
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
+    if windows?
+      cflags = concat_flags(cflags, "-ULIBXSLT_STATIC", "-DIN_LIBXSLT")
+      cflags = concat_flags(cflags, "-ULIBEXSLT_STATIC", "-DIN_LIBEXSLT")
+    end
+
     recipe.configure_options << if source_dir
       "--config-cache"
     else
@@ -859,9 +864,13 @@ else
   $libs = $libs.shellsplit.tap do |libs|
     [libxml2_recipe, libxslt_recipe].each do |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
-      File.join(recipe.path, "bin", "#{libname}-config").tap do |config|
+      config_basename = "#{libname}-config"
+      File.join(recipe.path, "bin", config_basename).tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
-        $CPPFLAGS = %x(sh #{config} --cflags).strip << " " << $CPPFLAGS
+        cflags = %x(sh #{config} --cflags).strip
+        message("#{config_basename} cflags: #{cflags}\n")
+        $CPPFLAGS = concat_flags(cflags, $CPPFLAGS) # prepend
+
         %x(sh #{config} --libs).strip.shellsplit.each do |arg|
           case arg
           when /\A-L(.+)\z/
@@ -894,6 +903,9 @@ else
         # xslt-config does not have a flag to emit options including
         # -lexslt, so add it manually.
         libs.unshift("-lexslt")
+
+        # see https://gitlab.gnome.org/GNOME/libxslt/-/issues/73 in libxslt 1.1.36
+        append_cppflags("-DLIBXSLT_STATIC -DLIBEXSLT_STATIC") if windows?
       end
     end
   end.shelljoin
