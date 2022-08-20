@@ -859,9 +859,13 @@ else
   $libs = $libs.shellsplit.tap do |libs|
     [libxml2_recipe, libxslt_recipe].each do |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
-      File.join(recipe.path, "bin", "#{libname}-config").tap do |config|
+      config_basename = "#{libname}-config"
+      File.join(recipe.path, "bin", config_basename).tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
-        $CPPFLAGS = %x(sh #{config} --cflags).strip << " " << $CPPFLAGS
+        cflags = %x(sh #{config} --cflags).strip
+        message("#{config_basename} cflags: #{cflags}\n")
+        $CPPFLAGS = concat_flags(cflags, $CPPFLAGS) # prepend
+
         %x(sh #{config} --libs).strip.shellsplit.each do |arg|
           case arg
           when /\A-L(.+)\z/
