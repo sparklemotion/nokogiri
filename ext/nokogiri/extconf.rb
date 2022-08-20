@@ -900,6 +900,9 @@ else
         # xslt-config does not have a flag to emit options including
         # -lexslt, so add it manually.
         libs.unshift("-lexslt")
+
+        # see https://gitlab.gnome.org/GNOME/libxslt/-/issues/73 in libxslt 1.1.36
+        append_cppflags("-DLIBXSLT_STATIC -DLIBEXSLT_STATIC") if windows?
       end
     end
   end.shelljoin
