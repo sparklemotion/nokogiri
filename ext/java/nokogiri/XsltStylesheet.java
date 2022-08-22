@@ -23,9 +23,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.xml.serializer.SerializationHandler;
-import org.apache.xml.serializer.Serializer;
-import org.apache.xml.serializer.SerializerFactory;
+/* xalan */
+import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+import com.sun.org.apache.xml.internal.serializer.Serializer;
+import com.sun.org.apache.xml.internal.serializer.SerializerFactory;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;

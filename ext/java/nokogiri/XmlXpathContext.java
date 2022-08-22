@@ -6,12 +6,14 @@ import java.util.regex.Pattern;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.xml.dtm.DTM;
-import org.apache.xpath.XPath;
-import org.apache.xpath.XPathContext;
-import org.apache.xpath.jaxp.JAXPPrefixResolver;
-import org.apache.xpath.jaxp.JAXPVariableStack;
-import org.apache.xpath.objects.XObject;
+/* xalan */
+import com.sun.org.apache.xml.internal.dtm.DTM;
+import com.sun.org.apache.xpath.internal.XPath;
+import com.sun.org.apache.xpath.internal.XPathContext;
+import com.sun.org.apache.xpath.internal.jaxp.JAXPPrefixResolver;
+import com.sun.org.apache.xpath.internal.jaxp.JAXPVariableStack;
+import com.sun.org.apache.xpath.internal.objects.XObject;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -43,7 +45,7 @@ public class XmlXpathContext extends RubyObject
 
   static
   {
-    final String DTMManager = "org.apache.xml.dtm.DTMManager";
+    final String DTMManager = "com.sun.org.apache.xml.internal.dtm.DTMManager";
     if (SafePropertyAccessor.getProperty(DTMManager) == null) {
       try { // use patched "org.apache.xml.dtm.ref.DTMManagerDefault"
         System.setProperty(DTMManager, nokogiri.internals.XalanDTMManagerPatch.class.getName());
@@ -270,7 +272,7 @@ public class XmlXpathContext extends RubyObject
     return false;
   }
 
-  private static final class JAXPExtensionsProvider extends org.apache.xpath.jaxp.JAXPExtensionsProvider
+  private static final class JAXPExtensionsProvider extends com.sun.org.apache.xpath.internal.jaxp.JAXPExtensionsProvider
   {
 
     final NokogiriXPathFunctionResolver resolver;

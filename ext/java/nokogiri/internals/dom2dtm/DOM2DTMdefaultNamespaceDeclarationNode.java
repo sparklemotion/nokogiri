@@ -24,7 +24,8 @@
 
 package nokogiri.internals.dom2dtm;
 
-import org.apache.xml.dtm.DTMException;
+/* xalan */
+import com.sun.org.apache.xml.internal.dtm.DTMException;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;

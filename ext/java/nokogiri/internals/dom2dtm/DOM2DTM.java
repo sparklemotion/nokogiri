@@ -20,22 +20,25 @@ package nokogiri.internals.dom2dtm;
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.dom.DOMSource;
 
-import org.apache.xml.dtm.DTM;
-import org.apache.xml.dtm.DTMManager;
-import org.apache.xml.dtm.DTMWSFilter;
-import org.apache.xml.dtm.ref.DTMDefaultBaseIterators;
-import org.apache.xml.dtm.ref.DTMManagerDefault;
-import org.apache.xml.dtm.ref.ExpandedNameTable;
-import org.apache.xml.dtm.ref.IncrementalSAXSource;
-import org.apache.xml.res.XMLErrorResources;
-import org.apache.xml.res.XMLMessages;
-import org.apache.xml.utils.FastStringBuffer;
-import org.apache.xml.utils.QName;
-import org.apache.xml.utils.StringBufferPool;
-import org.apache.xml.utils.TreeWalker;
-import org.apache.xml.utils.XMLCharacterRecognizer;
-import org.apache.xml.utils.XMLString;
-import org.apache.xml.utils.XMLStringFactory;
+/* xalan */
+import com.sun.org.apache.xml.internal.dtm.DTM;
+import com.sun.org.apache.xml.internal.dtm.DTMManager;
+import com.sun.org.apache.xml.internal.dtm.DTMWSFilter;
+import com.sun.org.apache.xml.internal.dtm.ref.DTMDefaultBaseIterators;
+import com.sun.org.apache.xml.internal.dtm.ref.DTMManagerDefault;
+import com.sun.org.apache.xml.internal.dtm.ref.ExpandedNameTable;
+import com.sun.org.apache.xml.internal.dtm.ref.IncrementalSAXSource;
+import com.sun.org.apache.xml.internal.res.XMLErrorResources;
+import com.sun.org.apache.xml.internal.res.XMLMessages;
+import com.sun.org.apache.xml.internal.utils.FastStringBuffer;
+import com.sun.org.apache.xml.internal.utils.QName;
+import com.sun.org.apache.xml.internal.utils.StringBufferPool;
+import com.sun.org.apache.xml.internal.utils.TreeWalker;
+import com.sun.org.apache.xml.internal.utils.XMLCharacterRecognizer;
+import com.sun.org.apache.xml.internal.utils.XMLString;
+import com.sun.org.apache.xml.internal.utils.XMLStringFactory;
+import com.sun.org.apache.xml.internal.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -1637,8 +1640,8 @@ public class DOM2DTM extends DTMDefaultBaseIterators
       case Node.CDATA_SECTION_NODE :
       case Node.ATTRIBUTE_NODE :
         String str = node.getNodeValue();
-        if (ch instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler) {
-          ((org.apache.xml.dtm.ref.dom2dtm.DOM2DTM.CharacterNodeHandler)ch).characters(node);
+        if (ch instanceof CharacterNodeHandler) {
+          ((CharacterNodeHandler)ch).characters(node);
         } else {
           ch.characters(str.toCharArray(), 0, str.length());
         }

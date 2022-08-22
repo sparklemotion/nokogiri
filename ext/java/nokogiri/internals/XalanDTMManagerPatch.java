@@ -21,18 +21,21 @@ package nokogiri.internals;
 
 import javax.xml.transform.dom.DOMSource;
 
-import org.apache.xml.dtm.DTM;
+/* xalan */
+import com.sun.org.apache.xml.internal.dtm.DTM;
 import nokogiri.internals.dom2dtm.DOM2DTM;
 import nokogiri.internals.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode;
-import org.apache.xml.dtm.DTMWSFilter;
-import org.apache.xml.res.XMLErrorResources;
-import org.apache.xml.res.XMLMessages;
+import com.sun.org.apache.xml.internal.dtm.DTMWSFilter;
+import com.sun.org.apache.xml.internal.res.XMLErrorResources;
+import com.sun.org.apache.xml.internal.res.XMLMessages;
+import com.sun.org.apache.xml.internal.dtm.ref.DTMNodeProxy;
+
 import org.w3c.dom.Node;
 
 /**
  * @author kares
  */
-public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManagerDefault
+public final class XalanDTMManagerPatch extends com.sun.org.apache.xml.internal.dtm.ref.DTMManagerDefault
 {
 
   /**
@@ -52,8 +55,8 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
     //    throw new IllegalArgumentException(XMLMessages.createXMLMessage(XMLErrorResources.ER_NODE_NON_NULL, null));
     assert node != null;
 
-    if (node instanceof org.apache.xml.dtm.ref.DTMNodeProxy) {
-      return ((org.apache.xml.dtm.ref.DTMNodeProxy) node).getDTMNodeNumber();
+    if (node instanceof DTMNodeProxy) {
+      return ((DTMNodeProxy) node).getDTMNodeNumber();
     }
 
     // Find the DOM2DTMs wrapped around this Document (if any)
@@ -116,7 +119,7 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
 
     int handle;
 
-    if (node instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode
+    if (node instanceof com.sun.org.apache.xml.internal.dtm.ref.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode
         || node instanceof DOM2DTMdefaultNamespaceDeclarationNode) {
       // Can't return the same node since it's unique to a specific DTM,
       // but can return the equivalent node -- find the corresponding
