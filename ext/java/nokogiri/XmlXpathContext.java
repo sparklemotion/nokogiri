@@ -254,7 +254,7 @@ public class XmlXpathContext extends RubyObject
   newXPathContext(final NokogiriXPathFunctionResolver functionResolver)
   {
     if (functionResolver == null) { return new XPathContext(false); }
-    return new XPathContext(new JAXPExtensionsProvider(functionResolver), false);
+    return new XPathContext(new JAXPExtensionsProvider(functionResolver));
   }
 
   private boolean
@@ -279,7 +279,7 @@ public class XmlXpathContext extends RubyObject
 
     JAXPExtensionsProvider(NokogiriXPathFunctionResolver resolver)
     {
-      super(resolver, false);
+      super(resolver);
       this.resolver = resolver;
     }
 
