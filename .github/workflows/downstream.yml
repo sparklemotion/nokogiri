@@ -45,6 +45,9 @@ jobs:
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
+          - url: https://github.com/asciidoctor/asciidoctor
+            name: asciidoctor
+            command: "bundle exec rake test"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
