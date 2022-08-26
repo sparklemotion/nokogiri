@@ -351,12 +351,14 @@ public class XmlNodeSet extends RubyObject implements NodeList
     if (indexOrRange instanceof RubyFixnum) {
       return slice(context, ((RubyFixnum) indexOrRange).getIntValue());
     }
-
-    int[] begLen = new int[2];
-    rangeBeginLength(context, indexOrRange, nodes.length, begLen);
-    int min = begLen[0];
-    int max = begLen[1];
-    return subseq(context, min, max - min);
+    if (indexOrRange instanceof RubyRange) {
+      int[] begLen = new int[2];
+      rangeBeginLength(context, indexOrRange, nodes.length, begLen);
+      int min = begLen[0];
+      int max = begLen[1];
+      return subseq(context, min, max - min);
+    }
+    throw context.runtime.newTypeError("index must be an Integer or a Range");
   }
 
   IRubyObject
