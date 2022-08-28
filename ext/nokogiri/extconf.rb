@@ -615,6 +615,9 @@ $LIBS = concat_flags($LIBS, ENV["LIBS"])
 # errors/warnings. see #2302
 append_cflags(["-std=c99", "-Wno-declaration-after-statement"])
 
+# gumbo html5 serialization is slower with O3, let's make sure we use O2
+append_cflags("-O2")
+
 # always include debugging information
 append_cflags("-g")
 
@@ -956,7 +959,7 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
     end
 
     def compile
-      cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
+      cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g")
 
       env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
       if config_cross_build?
