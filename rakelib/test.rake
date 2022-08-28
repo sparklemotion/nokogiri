@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 require "rake/testtask"
-require "ruby_memcheck"
+
+begin
+  require "ruby_memcheck"
+rescue LoadError => e
+  warn("WARNING: ruby_memcheck is not available in this environment: #{e}")
+end
 
 #
 #  much of this was ripped out of hoe-debugging
@@ -16,10 +21,12 @@ class ValgrindTestTask < Rake::TestTask
                       "--error-exitcode=#{ERROR_EXITCODE}",
                       "--gen-suppressions=all",]
 
-  RubyMemcheck.config(
-    binary_name: "nokogiri",
-    valgrind_generate_suppressions: true,
-  )
+  if defined?(RubyMemcheck)
+    RubyMemcheck.config(
+      binary_name: "nokogiri",
+      valgrind_generate_suppressions: true,
+    )
+  end
 
   def ruby(*args, **options, &block)
     valgrind_options = check_for_suppression_file(VALGRIND_OPTIONS)
@@ -116,7 +123,9 @@ namespace "test" do
     nokogiri_test_case_configuration(t)
   end
 
-  RubyMemcheck::TestTask.new("memcheck") do |t|
-    nokogiri_test_case_configuration(t)
+  if defined?(RubyMemcheck)
+    RubyMemcheck::TestTask.new("memcheck") do |t|
+      nokogiri_test_case_configuration(t)
+    end
   end
 end

@@ -44,6 +44,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [CRuby] `HTML5::Document#fragment` now always uses `body` as the parsing context. Previously, fragments were parsed in the context of the associated document's root node, which allowed for inconsistent parsing. [[#2553](https://github.com/sparklemotion/nokogiri/issues/2553)]
 * [CRuby] `Nokogiri::HTML5::Document#url` now correctly returns the URL passed to the constructor method. Previously it always returned `nil`. [[#2583](https://github.com/sparklemotion/nokogiri/issues/2583)]
 * [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https://github.com/sparklemotion/nokogiri/issues/1247)]
+* [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
 
 
 ### Improved

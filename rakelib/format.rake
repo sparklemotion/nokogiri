@@ -73,7 +73,7 @@ namespace "format" do
   end
 
   desc "Format Nokogiri's Ruby code"
-  task "ruby" => "rubocop:check:auto_correct"
+  task "ruby" => "rubocop:check:autocorrect"
 
   desc "Regenerate tables of contents in some files"
   task "toc" do

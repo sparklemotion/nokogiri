@@ -706,6 +706,13 @@ module Nokogiri
             assert_equal([employees[1], employees[2], employees[3]], employees[1..3].to_a)
             assert_equal([employees[0], employees[1], employees[2], employees[3]], employees[0..3].to_a)
           end
+
+          it "raises a TypeError if param is not an integer or range" do
+            employees = xml.search("//employee")
+            assert_raises(TypeError) do
+              employees["foo"]
+            end
+          end
         end
 
         describe "#& intersection" do
