@@ -190,6 +190,12 @@ module Nokogiri
           end
         end
 
+        it :test_parse_io_does_not_override_encoding do
+          parser = XML::SAX::Parser.new(Doc.new, "UTF-8")
+          parser.parse_io(StringIO.new("<root/>"), "ASCII")
+          assert_equal "UTF-8", parser.encoding
+        end
+
         it :test_parse_with_memory_argument do
           parser.parse(File.read(XML_FILE))
           refute_empty(parser.document.cdata_blocks)

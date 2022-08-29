@@ -88,9 +88,8 @@ module Nokogiri
 
         ###
         # Parse given +io+
-        def parse_io(io, encoding = "ASCII")
-          @encoding = check_encoding(encoding)
-          ctx = ParserContext.io(io, ENCODINGS[@encoding])
+        def parse_io(io, encoding = @encoding)
+          ctx = ParserContext.io(io, ENCODINGS[check_encoding(encoding)])
           yield ctx if block_given?
           ctx.parse_with(self)
         end
