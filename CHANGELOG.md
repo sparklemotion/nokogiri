@@ -26,7 +26,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to [v2.10.2](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.10.2)
-* [CRuby] Vendored libxslt is updated to [v1.1.36](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.36).
+* [CRuby] Vendored libxslt is updated to [v1.1.37](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.37).
 * [CRuby] Vendored libiconv is updated to [v1.17](https://savannah.gnu.org/forum/forum.php?forum_id=10175)
 * [JRuby] HTML parsing is now provided `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously was a fork of `org.cyberneko.html:nekohtml`)
 * [JRuby] Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
