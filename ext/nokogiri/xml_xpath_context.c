@@ -6,6 +6,8 @@ VALUE cNokogiriXmlXpathContext;
  * these constants have matching declarations in
  * ext/java/nokogiri/internals/NokogiriNamespaceContext.java
  */
+static const xmlChar *NOKOGIRI_PREFIX = (const xmlChar *)"nokogiri";
+static const xmlChar *NOKOGIRI_URI = (const xmlChar *)"http://www.nokogiri.org/default_ns/ruby/extensions_functions";
 static const xmlChar *NOKOGIRI_BUILTIN_PREFIX = (const xmlChar *)"nokogiri-builtin";
 static const xmlChar *NOKOGIRI_BUILTIN_URI = (const xmlChar *)"https://www.nokogiri.org/default_ns/ruby/builtins";
 
@@ -382,6 +384,7 @@ new (VALUE klass, VALUE nodeobj)
   ctx = xmlXPathNewContext(node->doc);
   ctx->node = node;
 
+  xmlXPathRegisterNs(ctx, NOKOGIRI_PREFIX, NOKOGIRI_URI);
   xmlXPathRegisterNs(ctx, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
   xmlXPathRegisterFuncNS(ctx, (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
                          xpath_builtin_css_class);

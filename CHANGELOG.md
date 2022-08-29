@@ -36,6 +36,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 ### Added
 
 * [CRuby] The HTML5 parser handles the [new `search` element](https://github.com/whatwg/html/pull/7320). [#2566](https://github.com/sparklemotion/nokogiri/issues/2566)
+* [CRuby] Invocation of custom XPath or CSS handler functions may now use the `nokogiri` namespace prefix. Historically, the JRuby implementation _required_ this namespace but the CRuby implementation did not support it. It's recommended that all XPath and CSS queries use the `nokogiri` namespace going forward. Invocation without the namespace is planned for deprecation in v1.15.0 and removal in a future release. [[#2147](https://github.com/sparklemotion/nokogiri/issues/2147)]
 
 
 ### Fixed

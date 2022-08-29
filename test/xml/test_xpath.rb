@@ -156,6 +156,16 @@ module Nokogiri
         end
       end
 
+      def test_search_with_xpath_query_using_namespaced_custom_function
+        # Note that invocation with namespaces was not historically supported in CRuby.
+        # see https://github.com/sparklemotion/nokogiri/issues/2147 for more context.
+        set = @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
+        refute_empty(set)
+        set.each do |node|
+          assert_equal("Yes", node["domestic"])
+        end
+      end
+
       def test_pass_self_to_function
         set = if Nokogiri.uses_libxml?
           @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
