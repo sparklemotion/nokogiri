@@ -40,6 +40,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Fixed
 
+* `SAX::Parser`'s `encoding` attribute will not be clobbered when an alternative encoding is passed into `SAX::Parser#parse_io`. [[#1942](https://github.com/sparklemotion/nokogiri/issues/1942)] (Thanks, [@kp666](https://github.com/kp666)!)
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
 * [CRuby] The HTML5 parser now correctly handles text at the end of `form` elements.
 * [CRuby] `HTML5::Document#fragment` now always uses `body` as the parsing context. Previously, fragments were parsed in the context of the associated document's root node, which allowed for inconsistent parsing. [[#2553](https://github.com/sparklemotion/nokogiri/issues/2553)]
