@@ -40,7 +40,6 @@ public class NokogiriService implements BasicLibraryService
   populateNokogiriClassCahce(Ruby ruby)
   {
     Map<String, RubyClass> nokogiriClassCache = new HashMap<String, RubyClass>();
-    nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
     nokogiriClassCache.put("Nokogiri::HTML4::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::Document"));
     nokogiriClassCache.put("Nokogiri::HTML4::ElementDescription",
                            (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::ElementDescription"));
@@ -86,7 +85,6 @@ public class NokogiriService implements BasicLibraryService
     RubyModule htmlSaxModule = htmlModule.defineModuleUnder("SAX");
     RubyModule xsltModule = nokogiri.defineModuleUnder("XSLT");
 
-    createNokogiriModule(ruby, nokogiri);
     createSyntaxErrors(ruby, nokogiri, xmlModule);
     RubyClass xmlNode = createXmlModule(ruby, xmlModule);
     createHtmlModule(ruby, htmlModule);
@@ -94,13 +92,6 @@ public class NokogiriService implements BasicLibraryService
     createSaxModule(ruby, xmlSaxModule, htmlSaxModule);
     createXsltModule(ruby, xsltModule);
     nokogiri.setInternalVariable("cache", populateNokogiriClassCahce(ruby));
-  }
-
-  private void
-  createNokogiriModule(Ruby ruby, RubyModule nokogiri)
-  {
-    RubyClass encHandler = nokogiri.defineClassUnder("EncodingHandler", ruby.getObject(), ENCODING_HANDLER_ALLOCATOR);
-    encHandler.defineAnnotatedMethods(EncodingHandler.class);
   }
 
   private void
@@ -238,13 +229,6 @@ public class NokogiriService implements BasicLibraryService
     stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
     xsltModule.defineAnnotatedMethod(XsltStylesheet.class, "register");
   }
-
-  private static ObjectAllocator ENCODING_HANDLER_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new EncodingHandler(runtime, klazz, "");
-    }
-  };
 
   public static final ObjectAllocator HTML_DOCUMENT_ALLOCATOR = new ObjectAllocator()
   {

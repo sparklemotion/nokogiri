@@ -62,6 +62,11 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
 
 
+### Deprecated
+
+* `Nokogiri.install_default_aliases` is deprecated in favor of `Nokogiri::EncodingHandler.install_default_aliases`. This is part of a private API and is probably not called by anybody, but we'll go through a deprecation cycle before removal anyway. [[#2643](https://github.com/sparklemotion/nokogiri/issues/2643), [#2446](https://github.com/sparklemotion/nokogiri/issues/2446)]
+
+
 ## 1.13.8 / 2022-07-23
 
 ### Deprecated
