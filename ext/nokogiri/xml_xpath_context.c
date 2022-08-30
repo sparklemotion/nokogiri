@@ -320,6 +320,13 @@ handler_lookup(void *data, const xmlChar *c_name, const xmlChar *c_ns_uri)
 {
   VALUE rb_handler = (VALUE)data;
   if (rb_respond_to(rb_handler, rb_intern((const char *)c_name))) {
+    if (c_ns_uri == NULL) {
+      NOKO_WARN_DEPRECATION(
+        "A custom XPath or CSS handler function named '%s' is being invoked without a namespace."
+        " Please update your query to reference this function as 'nokogiri:%s'."
+        " Invoking custom handler functions without a namespace is deprecated and support will be removed in a future release of Nokogiri.",
+        c_name, c_name);
+    }
     return method_caller;
   }
 

@@ -121,6 +121,24 @@ module Nokogiri
         refute_nil(doc.at_css("img[width=200]"))
       end
 
+      def test_xpath_with_nonnamespaced_custom_function_is_deprecated_but_works
+        skip_unless_libxml2("only deprecated in CRuby")
+
+        result = nil
+        assert_output("", /Invoking custom handler functions without a namespace is deprecated/) do
+          result = @xml.xpath("anint()", @handler)
+        end
+        assert_equal(1230456, result)
+      end
+
+      def test_xpath_with_namespaced_custom_function_is_not_deprecated
+        result = nil
+        assert_silent do
+          result = @xml.xpath("nokogiri:anint()", @handler)
+        end
+        assert_equal(1230456, result)
+      end
+
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         refute_empty(set)
