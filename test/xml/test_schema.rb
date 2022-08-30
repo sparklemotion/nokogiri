@@ -196,6 +196,15 @@ module Nokogiri
         assert_raises(ArgumentError) { @xsd.validate(string) }
       end
 
+      def test_validate_empty_document
+        doc = Nokogiri::XML("")
+        assert(errors = @xsd.validate(doc))
+
+        pending_if("https://github.com/sparklemotion/nokogiri/issues/783", Nokogiri.jruby?) do
+          assert_equal(1, errors.length)
+        end
+      end
+
       def test_valid?
         valid_doc = Nokogiri::XML(File.read(PO_XML_FILE))
 
