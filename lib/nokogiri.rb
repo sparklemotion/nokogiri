@@ -86,17 +86,10 @@ module Nokogiri
 
     # :nodoc:
     def install_default_aliases
-      # Make sure to support some popular encoding aliases not known by
-      # all iconv implementations.
-      {
-        "Windows-31J" => "CP932",	# Windows-31J is the IANA registered name of CP932.
-      }.each do |alias_name, name|
-        EncodingHandler.alias(name, alias_name) if EncodingHandler[alias_name].nil?
-      end
+      warn("Nokogiri.install_default_aliases is deprecated and will be removed in a future version of Nokogiri. Please call Nokogiri::EncodingHandler.install_default_aliases instead.")
+      Nokogiri::EncodingHandler.install_default_aliases
     end
   end
-
-  Nokogiri.install_default_aliases
 end
 
 ###
@@ -122,5 +115,6 @@ require_relative "nokogiri/html"
 require_relative "nokogiri/decorators/slop"
 require_relative "nokogiri/css"
 require_relative "nokogiri/html4/builder"
+require_relative "nokogiri/encoding_handler"
 
 require_relative "nokogiri/html5" if Nokogiri.uses_gumbo?

@@ -45,9 +45,9 @@ rb_xml_encoding_handler_s_delete(VALUE klass, VALUE name)
 
 
 /*
- * call-seq: Nokogiri::EncodingHandler.alias(from, to)
+ * call-seq: Nokogiri::EncodingHandler.alias(real_name, alias_name)
  *
- * Alias encoding handler with name +from+ to name +to+
+ * Alias encoding handler with name +real_name+ to name +alias_name+
  */
 static VALUE
 rb_xml_encoding_handler_s_alias(VALUE klass, VALUE from, VALUE to)
