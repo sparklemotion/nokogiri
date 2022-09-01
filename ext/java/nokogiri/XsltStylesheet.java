@@ -179,13 +179,12 @@ public class XsltStylesheet extends RubyObject
 
   @JRubyMethod
   public IRubyObject
-  serialize(ThreadContext context, IRubyObject doc) throws IOException, TransformerException
+  serialize(ThreadContext context, IRubyObject doc) throws IOException
   {
     XmlDocument xmlDoc = (XmlDocument) doc;
-    Transformer transformer = this.sheet.newTransformer();
     ByteArrayOutputStream writer = new ByteArrayOutputStream();
 
-    Serializer serializer = SerializerFactory.getSerializer(transformer.getOutputProperties());
+    Serializer serializer = SerializerFactory.getSerializer(this.sheet.getOutputProperties());
     serializer.setOutputStream(writer);
     ((SerializationHandler) serializer).serialize(xmlDoc.getNode());
     return context.getRuntime().newString(writer.toString());
