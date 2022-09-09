@@ -23,8 +23,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.xalan.transformer.TransformerImpl;
 import org.apache.xml.serializer.SerializationHandler;
+import org.apache.xml.serializer.Serializer;
+import org.apache.xml.serializer.SerializerFactory;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -177,14 +179,14 @@ public class XsltStylesheet extends RubyObject
 
   @JRubyMethod
   public IRubyObject
-  serialize(ThreadContext context, IRubyObject doc) throws IOException, TransformerException
+  serialize(ThreadContext context, IRubyObject doc) throws IOException
   {
     XmlDocument xmlDoc = (XmlDocument) doc;
-    TransformerImpl transformer = (TransformerImpl) this.sheet.newTransformer();
     ByteArrayOutputStream writer = new ByteArrayOutputStream();
-    StreamResult streamResult = new StreamResult(writer);
-    SerializationHandler serializationHandler = transformer.createSerializationHandler(streamResult);
-    serializationHandler.serialize(xmlDoc.getNode());
+
+    Serializer serializer = SerializerFactory.getSerializer(this.sheet.getOutputProperties());
+    serializer.setOutputStream(writer);
+    ((SerializationHandler) serializer).serialize(xmlDoc.getNode());
     return context.getRuntime().newString(writer.toString());
   }
 
