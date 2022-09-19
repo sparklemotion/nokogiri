@@ -15,19 +15,6 @@ module Nokogiri
           assert_equal("hello", Nokogiri::HTML4::DocumentFragment.parse(s).to_html)
         end
 
-        def test_inspect_encoding
-          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
-          f = Nokogiri::HTML4::DocumentFragment.parse(fragment)
-          assert_equal("こんにちは！", f.content)
-        end
-
-        def test_html_parse_encoding
-          fragment = "<div>こんにちは！</div>".encode("EUC-JP")
-          f = Nokogiri::HTML4.fragment(fragment)
-          assert_equal("EUC-JP", f.document.encoding)
-          assert_equal("こんにちは！", f.content)
-        end
-
         def test_unlink_empty_document
           frag = Nokogiri::HTML4::DocumentFragment.parse("").unlink # must_not_raise
           assert_nil(frag.parent)
@@ -36,20 +23,6 @@ module Nokogiri
         def test_colons_are_not_removed
           doc = Nokogiri::HTML4::DocumentFragment.parse("<span>3:30pm</span>")
           assert_match(/3:30/, doc.to_s)
-        end
-
-        def test_parse_encoding
-          fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML4::DocumentFragment.parse(fragment, "ISO-8859-1")
-          assert_equal("ISO-8859-1", f.document.encoding)
-          assert_equal("hello world", f.content)
-        end
-
-        def test_html_parse_with_encoding
-          fragment = "<div>hello world</div>"
-          f = Nokogiri::HTML4.fragment(fragment, "ISO-8859-1")
-          assert_equal("ISO-8859-1", f.document.encoding)
-          assert_equal("hello world", f.content)
         end
 
         def test_parse_in_context
@@ -74,14 +47,6 @@ module Nokogiri
           fragment = Nokogiri::HTML4.fragment(html)
           li = fragment.at("li")
           assert(li.matches?("li"))
-        end
-
-        def test_fun_encoding
-          string = %(<body>こんにちは</body>)
-          html = Nokogiri::HTML4::DocumentFragment.parse(
-            string
-          ).to_html(encoding: "UTF-8")
-          assert_equal(string, html)
         end
 
         def test_new
@@ -304,6 +269,62 @@ module Nokogiri
           original = Nokogiri::HTML4::DocumentFragment.parse("<div><p>hello</p></div>")
           duplicate = original.dup
           assert_instance_of(Nokogiri::HTML4::DocumentFragment, duplicate)
+        end
+
+        describe "encoding" do
+          describe "#fragment" do
+            it "parses an encoded string" do
+              input = "<div>こんにちは！</div>".encode("EUC-JP")
+              fragment = Nokogiri::HTML4.fragment(input)
+              assert_equal("EUC-JP", fragment.document.encoding)
+              assert_equal("こんにちは！", fragment.content)
+            end
+
+            it "returns a string matching the passed encoding" do
+              input = "<div>hello world</div>"
+
+              fragment = Nokogiri::HTML4.fragment(input, "ISO-8859-1")
+              assert_equal("ISO-8859-1", fragment.document.encoding)
+              assert_equal("hello world", fragment.content)
+            end
+          end
+
+          describe "#parse" do
+            it "parses an encoded string" do
+              input = "<div>こんにちは！</div>".encode("EUC-JP")
+
+              fragment = Nokogiri::HTML4::DocumentFragment.parse(input)
+              assert_equal("EUC-JP", fragment.document.encoding)
+              assert_equal("こんにちは！", fragment.content)
+            end
+
+            it "returns a string matching the passed encoding" do
+              input = "<div>hello world</div>"
+
+              fragment = Nokogiri::HTML4::DocumentFragment.parse(input, "ISO-8859-1")
+              assert_equal("ISO-8859-1", fragment.document.encoding)
+              assert_equal("hello world", fragment.content)
+            end
+
+            it "respects encoding for empty strings" do
+              fragment = Nokogiri::HTML::DocumentFragment.parse("", "UTF-8")
+              assert_equal "UTF-8", fragment.to_html.encoding.to_s
+
+              fragment = Nokogiri::HTML::DocumentFragment.parse("", "US-ASCII")
+              assert_equal "US-ASCII", fragment.to_html.encoding.to_s
+
+              fragment = Nokogiri::HTML::DocumentFragment.parse("", "ISO-8859-1")
+              assert_equal "ISO-8859-1", fragment.to_html.encoding.to_s
+            end
+          end
+
+          describe "#to_html" do
+            it "serializes empty strings with the passed encoding" do
+              fragment = Nokogiri::HTML::DocumentFragment.parse("", "UTF-8")
+              assert_equal "ISO-8859-1", fragment.to_html(encoding: "ISO-8859-1").encoding.to_s
+              assert_equal "US-ASCII", fragment.to_html(encoding: "US-ASCII").encoding.to_s
+            end
+          end
         end
 
         describe "parse options" do
