@@ -280,7 +280,12 @@ module Nokogiri
           options[:save_with] ||= Node::SaveOptions::DEFAULT_HTML
           args.insert(0, options)
         end
-        map { |x| x.to_html(*args) }.join
+        if empty?
+          encoding = (args.first.is_a?(Hash) ? args.first[:encoding] : nil) || document.encoding
+          "".encode(encoding)
+        else
+          map { |x| x.to_html(*args) }.join
+        end
       end
 
       ###
