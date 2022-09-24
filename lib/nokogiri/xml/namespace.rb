@@ -6,6 +6,11 @@ module Nokogiri
       include Nokogiri::XML::PP::Node
       attr_reader :document
 
+      # Returns true if this is a Namespace
+      def namespace?
+        true
+      end
+
       private
 
       def inspect_attributes

@@ -6,17 +6,16 @@ module Nokogiri
     # A NodeSet contains a list of Nokogiri::XML::Node objects.  Typically
     # a NodeSet is return as a result of searching a Document via
     # Nokogiri::XML::Searchable#css or Nokogiri::XML::Searchable#xpath
-    class NodeSet
+    class NodeSet < ::Array
       include Nokogiri::XML::Searchable
-      include Enumerable
 
       # The Document this NodeSet is associated with
       attr_accessor :document
 
-      alias_method :clone, :dup
-
       # Create a NodeSet with +document+ defaulting to +list+
+      # TODO: test that it can only contain Node and Namespace objects
       def initialize(document, list = [])
+        super()
         @document = document
         document.decorate(self)
         list.each { |x| self << x }
@@ -24,52 +23,27 @@ module Nokogiri
       end
 
       ###
-      # Get the first element of the NodeSet.
-      def first(n = nil)
-        return self[0] unless n
-
-        list = []
-        [n, length].min.times { |i| list << self[i] }
-        list
-      end
-
-      ###
-      # Get the last element of the NodeSet.
-      def last
-        self[-1]
-      end
-
-      ###
-      # Is this NodeSet empty?
-      def empty?
-        length == 0
-      end
-
-      ###
-      # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
-      def index(node = nil)
-        if node
-          warn("given block not used") if block_given?
-          each_with_index { |member, j| return j if member == node }
-        elsif block_given?
-          each_with_index { |member, j| return j if yield(member) }
-        end
-        nil
-      end
-
-      ###
       # Insert +datum+ before the first Node in this NodeSet
+      # TODO: this method only makes sense in the context of siblings
       def before(datum)
         first.before(datum)
       end
 
       ###
       # Insert +datum+ after the last Node in this NodeSet
+      # TODO: this method only makes sense in the context of siblings
       def after(datum)
         last.after(datum)
       end
 
-      alias_method :<<, :push
+      #  call-seq:
+      #    unlink
+      #
+      # Unlink this NodeSet and all Node objects it contains from their current context.
+      def unlink
+        reject(&:namespace?).each(&:unlink)
+        self
+      end
       alias_method :remove, :unlink
 
       ###
@@ -126,6 +100,7 @@ module Nokogiri
 
       ###
       # Filter this list for nodes that match +expr+
+      # TODO: make comp with Enumerable#filter
       def filter(expr)
         find_all { |node| node.matches?(expr) }
       end
@@ -226,17 +201,6 @@ module Nokogiri
       alias_method :remove_attribute, :remove_attr
 
       ###
-      # Iterate over each node, yielding  to +block+
-      def each
-        return to_enum unless block_given?
-
-        0.upto(length - 1) do |x|
-          yield self[x]
-        end
-        self
-      end
-
-      ###
       # Get the inner text of all contained Node objects
       #
       # Note: This joins the text of all Node objects in the NodeSet:
@@ -300,41 +264,6 @@ module Nokogiri
         map { |x| x.to_xml(*args) }.join
       end
 
-      alias_method :size, :length
-      alias_method :to_ary, :to_a
-
-      ###
-      # Removes the last element from set and returns it, or +nil+ if
-      # the set is empty
-      def pop
-        return nil if length == 0
-
-        delete(last)
-      end
-
-      ###
-      # Returns the first element of the NodeSet and removes it.  Returns
-      # +nil+ if the set is empty.
-      def shift
-        return nil if length == 0
-
-        delete(first)
-      end
-
-      ###
-      # Equality -- Two NodeSets are equal if the contain the same number
-      # of elements and if each element is equal to the corresponding
-      # element in the other NodeSet
-      def ==(other)
-        return false unless other.is_a?(Nokogiri::XML::NodeSet)
-        return false unless length == other.length
-
-        each_with_index do |node, i|
-          return false unless node == other[i]
-        end
-        true
-      end
-
       ###
       # Returns a new NodeSet containing all the children of all the nodes in
       # the NodeSet
@@ -350,20 +279,40 @@ module Nokogiri
       # Returns a new NodeSet containing all the nodes in the NodeSet
       # in reverse order
       def reverse
-        node_set = NodeSet.new(document)
-        (length - 1).downto(0) do |x|
-          node_set.push(self[x])
-        end
-        node_set
+        NodeSet.new(document, super)
       end
 
-      ###
-      # Return a nicely formated string representation
-      def inspect
-        "[#{map(&:inspect).join(", ")}]"
+      # TODO: document
+      def difference(*args)
+        NodeSet.new(document, super)
       end
+      alias_method :-, :difference
 
-      alias_method :+, :|
+      # TODO: document
+      # TODO: can raise TypeError (was formerly ArgumentError)
+      def union(other)
+        NodeSet.new(document, super)
+      end
+      alias_method :+, :union
+      alias_method :|, :union
+
+      # TODO: document
+      def intersection(*args)
+        NodeSet.new(document, super)
+      end
+      alias_method :&, :intersection
+
+      # TODO: document
+      def slice(*args)
+        result = super
+        Array === result ? NodeSet.new(document, result) : result
+      end
+      alias_method :[], :slice
+
+      # TODO: document
+      def dup
+        NodeSet.new(document, super)
+      end
 
       IMPLIED_XPATH_CONTEXTS = [".//", "self::"].freeze # :nodoc:
     end
