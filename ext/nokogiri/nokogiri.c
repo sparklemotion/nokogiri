@@ -47,6 +47,7 @@ void noko_init_html_entity_lookup(void);
 void noko_init_html_sax_parser_context(void);
 void noko_init_html_sax_push_parser(void);
 void noko_init_gumbo(void);
+void noko_init_xmlsec(void);
 void noko_init_test_global_handlers(void);
 
 static ID id_read, id_write, id_external_encoding;
@@ -250,6 +251,7 @@ Init_nokogiri()
   noko_init_xml_document();
   noko_init_html_document();
   noko_init_gumbo();
+  noko_init_xmlsec();
 
   noko_init_test_global_handlers();
 

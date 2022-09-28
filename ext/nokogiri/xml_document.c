@@ -271,9 +271,16 @@ read_io(VALUE klass,
   VALUE error_list      = rb_ary_new();
   VALUE document;
   xmlDocPtr doc;
+  int parse_options_int = (int)NUM2INT(rb_funcall(options, rb_intern("to_i"), 0));
+  xmlExternalEntityLoader old_loader = 0;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+
+  if (parse_options_int & XML_PARSE_NONET) {
+    old_loader = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(Nokogiri_xmlSecNoXxeExternalEntityLoader);
+  }
 
   doc = xmlReadIO(
           (xmlInputReadCallback)noko_io_read,
@@ -281,8 +288,13 @@ read_io(VALUE klass,
           (void *)io,
           c_url,
           c_enc,
-          (int)NUM2INT(options)
+          parse_options_int
         );
+
+  if (old_loader) {
+    xmlSetExternalEntityLoader(old_loader);
+  }
+
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (doc == NULL) {
@@ -325,10 +337,23 @@ read_memory(VALUE klass,
   VALUE error_list      = rb_ary_new();
   VALUE document;
   xmlDocPtr doc;
+  int parse_options_int = (int)NUM2INT(rb_funcall(options, rb_intern("to_i"), 0));
+  xmlExternalEntityLoader old_loader = 0;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-  doc = xmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
+
+  if (parse_options_int & XML_PARSE_NONET) {
+    old_loader = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(Nokogiri_xmlSecNoXxeExternalEntityLoader);
+  }
+
+  doc = xmlReadMemory(c_buffer, len, c_url, c_enc, parse_options_int);
+
+  if (old_loader) {
+    xmlSetExternalEntityLoader(old_loader);
+  }
+
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (doc == NULL) {
