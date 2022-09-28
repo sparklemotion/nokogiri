@@ -1278,6 +1278,7 @@ module Nokogiri
       #   end
       #
       def serialize(*args, &block)
+        # TODO: deprecate non-hash options, see 46c68ed 2009-06-20 for context
         options = if args.first.is_a?(Hash)
           args.shift
         else
