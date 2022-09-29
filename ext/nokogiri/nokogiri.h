@@ -226,6 +226,7 @@ void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr c
     const char *function_name) ;
 
 xmlParserInputPtr Nokogiri_xmlSecNoXxeExternalEntityLoader(const char *URL, const char *ID, xmlParserCtxtPtr ctxt);
+void noko_xmlsec_reset_entity_loader(void);
 
 static inline
 nokogiriSAXTuplePtr

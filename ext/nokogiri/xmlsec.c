@@ -55,6 +55,11 @@ Nokogiri_xmlSecNoXxeExternalEntityLoader(
 }
 
 
+void noko_xmlsec_reset_entity_loader(void)
+{
+  xmlSetExternalEntityLoader(xmlSecDefaultExternalEntityLoader);
+}
+
 void
 noko_init_xmlsec()
 {
