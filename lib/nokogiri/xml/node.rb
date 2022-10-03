@@ -137,9 +137,12 @@ module Nokogiri
 
       ###
       # Add +node_or_tags+ as a child of this Node.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
+      # a DocumentFragment, NodeSet, or String).
       #
       # Also see related method +<<+.
       def add_child(node_or_tags)
@@ -154,9 +157,12 @@ module Nokogiri
 
       ###
       # Add +node_or_tags+ as the first child of this Node.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
+      # a DocumentFragment, NodeSet, or String).
       #
       # Also see related method +add_child+.
       def prepend_child(node_or_tags)
@@ -183,7 +189,9 @@ module Nokogiri
 
       ###
       # Add +node_or_tags+ as a child of this Node.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
       #
       # Returns self, to support chaining of calls (e.g., root << child1 << child2)
       #
@@ -195,9 +203,12 @@ module Nokogiri
 
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
+      # a DocumentFragment, NodeSet, or String).
       #
       # Also see related method +before+.
       def add_previous_sibling(node_or_tags)
@@ -209,9 +220,12 @@ module Nokogiri
 
       ###
       # Insert +node_or_tags+ after this Node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
+      # a DocumentFragment, NodeSet, or String).
       #
       # Also see related method +after+.
       def add_next_sibling(node_or_tags)
@@ -223,7 +237,9 @@ module Nokogiri
 
       ####
       # Insert +node_or_tags+ before this node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
       #
       # Returns self, to support chaining of calls.
       #
@@ -235,7 +251,9 @@ module Nokogiri
 
       ####
       # Insert +node_or_tags+ after this node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a String
+      # containing markup.
       #
       # Returns self, to support chaining of calls.
       #
@@ -246,8 +264,18 @@ module Nokogiri
       end
 
       ####
-      # Set the inner html for this Node to +node_or_tags+
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # Set the content for this Node to +node_or_tags+.
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a String
+      # containing markup.
+      #
+      # ⚠ Please note that despite the name, this method will *not* always parse a String argument
+      # as HTML. A String argument will be parsed with the +DocumentFragment+ parser related to this
+      # node's document.
+      #
+      # For example, if the document is an HTML4::Document then the string will be parsed as HTML4
+      # using HTML4::DocumentFragment; but if the document is an XML::Document then it will
+      # parse the string as XML using XML::DocumentFragment.
       #
       # Also see related method +children=+
       def inner_html=(node_or_tags)
@@ -255,8 +283,10 @@ module Nokogiri
       end
 
       ####
-      # Set the inner html for this Node +node_or_tags+
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # Set the content for this Node +node_or_tags+
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a String
+      # containing markup.
       #
       # Also see related method +inner_html=+
       def children=(node_or_tags)
@@ -271,9 +301,12 @@ module Nokogiri
 
       ####
       # Replace this Node with +node_or_tags+.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
+      # a DocumentFragment, NodeSet, or String).
       #
       # Also see related method +swap+.
       def replace(node_or_tags)
@@ -303,7 +336,9 @@ module Nokogiri
 
       ####
       # Swap this Node for +node_or_tags+
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
+      # Containing markup.
       #
       # Returns self, to support chaining of calls.
       #
@@ -314,7 +349,8 @@ module Nokogiri
       end
 
       ####
-      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not interpreted as markup.
+      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not
+      # interpreted as markup.
       def content=(string)
         self.native_content = encode_special_chars(string.to_s)
       end
