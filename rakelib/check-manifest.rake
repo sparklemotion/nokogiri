@@ -5,7 +5,9 @@
 # replacement for Hoe's task of the same name
 
 desc "Perform a sanity check on the gemspec file list"
-task :check_manifest do
+task :check_manifest, [:verbose] do |_, args|
+  verbose = args[:verbose]
+
   raw_gemspec = Bundler.load_gemspec("nokogiri.gemspec")
 
   ignore_directories = %w{
@@ -14,12 +16,10 @@ task :check_manifest do
     .git
     .github
     .vagrant
-    .yardoc
     coverage
-    doc
     gems
+    html
     misc
-    nokogumbo-import
     oci-images
     patches
     pkg
@@ -38,7 +38,6 @@ task :check_manifest do
     .editorconfig
     .gitignore
     .gitmodules
-    .yardopts
     .rubocop.yml
     .rubocop_todo.yml
     CHANGELOG.md
@@ -48,16 +47,28 @@ task :check_manifest do
     ROADMAP.md
     Rakefile
     SECURITY.md
-    STANDARD_RESPONSES.md
     Vagrantfile
     [a-z]*.{log,out}
     [0-9]*
     appveyor.yml
     gumbo-parser/test/*
+    gumbo-parser/gperf-filter.sed
     lib/nokogiri/**/nokogiri.{jar,so}
     lib/nokogiri/nokogiri.{jar,so}
     nokogiri.gemspec
   ]
+
+  if verbose
+    ignore_directories.each do |glob|
+      matches = Dir.glob(glob).select { |filename| File.directory?(filename) }
+      STDERR.puts "NOTE: ignored directory glob '#{glob}' has zero matches" if matches.empty?
+    end
+
+    ignore_files.each do |glob|
+      matches = Dir.glob(glob).select { |filename| File.file?(filename) }
+      STDERR.puts "NOTE: ignored file glob '#{glob}' has zero matches" if matches.empty?
+    end
+  end
 
   intended_directories = Dir.children(".")
     .select { |filename| File.directory?(filename) }
