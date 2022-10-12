@@ -6,6 +6,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * 1,3,5" # At 08:00 on Monday, Wednesday, and Friday # https://crontab.guru/#0_8_*_*_1,3,5
+  push:
+    branches:
+      - "*truffle*"
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - "*truffle*"
 
 jobs:
   truffleruby-head:
