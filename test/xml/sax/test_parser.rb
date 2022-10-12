@@ -484,7 +484,11 @@ module Nokogiri
           XML
           parser.parse(xml)
           refute_empty(parser.document.warnings)
-          assert_match(/URI .* is not absolute/, parser.document.warnings.first)
+          if truffleruby_system_libraries?
+            assert_equal("warning_func: %s", parser.document.warnings.first)
+          else
+            assert_match(/URI .* is not absolute/, parser.document.warnings.first)
+          end
         end
       end
     end

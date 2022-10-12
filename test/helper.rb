@@ -119,6 +119,10 @@ module Nokogiri
     def skip_unless_jruby(msg = "this test should only run with jruby")
       skip(msg) unless Nokogiri.jruby?
     end
+
+    def truffleruby_system_libraries?
+      RUBY_ENGINE == "truffleruby" && !Nokogiri::PACKAGED_LIBRARIES
+    end
   end
 
   class TestBenchmark < Minitest::BenchSpec
