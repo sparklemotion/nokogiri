@@ -41,5 +41,3 @@ jobs:
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- ${{matrix.flags}}
       - run: bundle exec rake test
-        env:
-          NOKOGIRI_TEST_GC_LEVEL: normal # otherwise it takes very long

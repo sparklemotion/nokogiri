@@ -155,8 +155,12 @@ module Nokogiri
         "compact"
       elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
         "verify"
+      elsif RUBY_ENGINE == "truffleruby"
+        "normal"
+      elsif defined?(GC.compact)
+        "compact"
       else
-        defined?(GC.compact) ? "compact" : "major"
+        "major"
       end
       if ["compact", "verify"].include?(@@gc_level)
         # the only way of detecting an unsupported platform is actually
