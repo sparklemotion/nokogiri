@@ -203,10 +203,16 @@ warning_func(void *ctx, const char *msg, ...)
   VALUE doc = rb_iv_get(self, "@document");
   VALUE rb_message;
 
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  /* It is not currently possible to pass var args from native
+     functions to sulong, so we work around the issue here. */
+  rb_message = rb_sprintf("warning_func: %s", msg);
+#else
   va_list args;
   va_start(args, msg);
   rb_message = rb_vsprintf(msg, args);
   va_end(args);
+#endif
 
   rb_funcall(doc, id_warning, 1, rb_message);
 }
@@ -219,10 +225,16 @@ error_func(void *ctx, const char *msg, ...)
   VALUE doc = rb_iv_get(self, "@document");
   VALUE rb_message;
 
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  /* It is not currently possible to pass var args from native
+     functions to sulong, so we work around the issue here. */
+  rb_message = rb_sprintf("error_func: %s", msg);
+#else
   va_list args;
   va_start(args, msg);
   rb_message = rb_vsprintf(msg, args);
   va_end(args);
+#endif
 
   rb_funcall(doc, id_error, 1, rb_message);
 }

@@ -26,10 +26,16 @@ xslt_generic_error_handler(void *ctx, const char *msg, ...)
 {
   VALUE message;
 
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  /* It is not currently possible to pass var args from native
+     functions to sulong, so we work around the issue here. */
+  message = rb_sprintf("xslt_generic_error_handler: %s", msg);
+#else
   va_list args;
   va_start(args, msg);
   message = rb_vsprintf(msg, args);
   va_end(args);
+#endif
 
   rb_str_concat((VALUE)ctx, message);
 }

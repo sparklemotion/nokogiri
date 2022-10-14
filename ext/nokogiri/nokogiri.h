@@ -99,6 +99,9 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #  endif
 #endif
 
+#if defined(TRUFFLERUBY) && !defined(NOKOGIRI_PACKAGED_LIBRARIES)
+#  define TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+#endif
 
 NOKOPUBVAR VALUE mNokogiri ;
 NOKOPUBVAR VALUE mNokogiriGumbo ;

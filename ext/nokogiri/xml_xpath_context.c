@@ -298,10 +298,16 @@ xpath_generic_exception_handler(void *ctx, const char *msg, ...)
 {
   VALUE rb_message;
 
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  /* It is not currently possible to pass var args from native
+     functions to sulong, so we work around the issue here. */
+  rb_message = rb_sprintf("xpath_generic_exception_handler: %s", msg);
+#else
   va_list args;
   va_start(args, msg);
   rb_message = rb_vsprintf(msg, args);
   va_end(args);
+#endif
 
   rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_message));
 }
@@ -336,7 +342,12 @@ evaluate(int argc, VALUE *argv, VALUE self)
   }
 
   xmlResetLastError();
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  VALUE errors = rb_ary_new();
+  xmlSetStructuredErrorFunc(errors, Nokogiri_error_array_pusher);
+#else
   xmlSetStructuredErrorFunc(NULL, Nokogiri_error_raise);
+#endif
 
   /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
   /* when there is a non existent function. */
@@ -345,6 +356,12 @@ evaluate(int argc, VALUE *argv, VALUE self)
   xpath = xmlXPathEvalExpression(query, ctx);
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+
+#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
+  if (RARRAY_LEN(errors) > 0) {
+    rb_exc_raise(rb_ary_entry(errors, 0));
+  }
+#endif
 
   if (xpath == NULL) {
     xmlErrorPtr error = xmlGetLastError();
