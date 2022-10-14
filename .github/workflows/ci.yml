@@ -279,6 +279,30 @@ jobs:
       - run: bundle exec rake test
       - run: bundle exec rake test:bench
 
+  truffleruby-head:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        flags:
+          - "--disable-system-libraries --disable-static"
+          - "--disable-system-libraries --enable-static"
+          - "--enable-system-libraries"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- ${{matrix.flags}}
+      - run: bundle exec rake test
+
   bsd:
     continue-on-error: true # we're seeing VMs hang and fail the whole workflow
     needs: ["basic"]
