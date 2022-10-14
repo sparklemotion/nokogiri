@@ -292,11 +292,14 @@ lookup(void *ctx,
 }
 
 PRINTFLIKE_DECL(2, 3)
-NORETURN_DECL
 static void
-xpath_generic_exception_handler(void *ctx, const char *msg, ...)
+xpath_generic_exception_pusher(void *ctx, const char *msg, ...)
 {
+  VALUE list = (VALUE)ctx;
   VALUE rb_message;
+  VALUE rb_exception;
+
+  Check_Type(list, T_ARRAY);
 
 #ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
   /* It is not currently possible to pass var args from native
@@ -309,7 +312,8 @@ xpath_generic_exception_handler(void *ctx, const char *msg, ...)
   va_end(args);
 #endif
 
-  rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_message));
+  rb_exception = rb_exc_new_str(cNokogiriXmlXpathSyntaxError, rb_message);
+  rb_ary_push(list, rb_exception);
 }
 
 /*
@@ -342,13 +346,11 @@ evaluate(int argc, VALUE *argv, VALUE self)
     xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
   }
 
-  xmlSetStructuredErrorFunc((void*)errors, Nokogiri_error_array_pusher);
-
-  /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
-  /* when there is a non existent function. */
-  xmlSetGenericErrorFunc(NULL, xpath_generic_exception_handler);
+  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  xmlSetGenericErrorFunc((void *)errors, xpath_generic_exception_pusher);
 
   xpath = xmlXPathEvalExpression(query, ctx);
+
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 

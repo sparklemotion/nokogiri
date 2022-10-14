@@ -498,13 +498,7 @@ module Nokogiri
         end
 
         def test_non_existent_function
-          # TODO: we should not be raising different types on the different engines. this happens
-          # because xpath_generic_exception_handler raises directly (and see #1610 for the dangers
-          # of that). we should either squash that exception (and rely on the structured errors) or
-          # we should create a SyntaxError from it and append it to the same errors array.
-          e_class = Nokogiri.uses_libxml? ? RuntimeError : Nokogiri::XML::XPath::SyntaxError
-
-          e = assert_raises(e_class) do
+          e = assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             xml.xpath("//name[foo()]")
           end
           assert_match(/function.*not found|Could not find function/, e.to_s)
