@@ -437,7 +437,12 @@ module Nokogiri
           parser = Nokogiri::XML::SAX::Parser.new(handler)
           parser.parse(xml)
 
-          assert_predicate(handler.errors, :empty?)
+          if Nokogiri.uses_libxml?(">=2.10.3")
+            # CVE-2022-40303 https://gitlab.gnome.org/GNOME/libxml2/-/commit/c846986
+            assert_match(/CData section too big/, handler.errors.first)
+          else
+            assert_predicate(handler.errors, :empty?)
+          end
         end
 
         it "does not resolve entities by default" do
