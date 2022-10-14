@@ -326,6 +326,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xpath;
   xmlChar *query;
+  VALUE errors = rb_ary_new();
 
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
@@ -341,13 +342,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
     xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
   }
 
-  xmlResetLastError();
-#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
-  VALUE errors = rb_ary_new();
-  xmlSetStructuredErrorFunc(errors, Nokogiri_error_array_pusher);
-#else
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_raise);
-#endif
+  xmlSetStructuredErrorFunc((void*)errors, Nokogiri_error_array_pusher);
 
   /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
   /* when there is a non existent function. */
@@ -357,15 +352,8 @@ evaluate(int argc, VALUE *argv, VALUE self)
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
-#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
-  if (RARRAY_LEN(errors) > 0) {
-    rb_exc_raise(rb_ary_entry(errors, 0));
-  }
-#endif
-
   if (xpath == NULL) {
-    xmlErrorPtr error = xmlGetLastError();
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+    rb_exc_raise(rb_ary_entry(errors, 0));
   }
 
   retval = xpath2ruby(xpath, ctx);
