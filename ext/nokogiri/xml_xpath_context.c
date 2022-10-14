@@ -12,7 +12,7 @@ static const xmlChar *NOKOGIRI_BUILTIN_PREFIX = (const xmlChar *)"nokogiri-built
 static const xmlChar *NOKOGIRI_BUILTIN_URI = (const xmlChar *)"https://www.nokogiri.org/default_ns/ruby/builtins";
 
 static void
-deallocate(xmlXPathContextPtr ctx)
+xml_xpath_context_deallocate(xmlXPathContextPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);
   xmlXPathFreeContext(ctx);
@@ -115,7 +115,7 @@ xpath_builtin_local_name_is(xmlXPathParserContextPtr ctxt, int nargs)
  * Register the namespace with +prefix+ and +uri+.
  */
 static VALUE
-register_ns(VALUE self, VALUE prefix, VALUE uri)
+rb_xml_xpath_context_register_ns(VALUE self, VALUE prefix, VALUE uri)
 {
   xmlXPathContextPtr ctx;
   Data_Get_Struct(self, xmlXPathContext, ctx);
@@ -134,7 +134,7 @@ register_ns(VALUE self, VALUE prefix, VALUE uri)
  * Register the variable +name+ with +value+.
  */
 static VALUE
-register_variable(VALUE self, VALUE name, VALUE value)
+rb_xml_xpath_context_register_variable(VALUE self, VALUE name, VALUE value)
 {
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xmlValue;
@@ -156,28 +156,28 @@ register_variable(VALUE self, VALUE name, VALUE value)
  *  returns Qundef if no conversion was possible.
  */
 static VALUE
-xpath2ruby(xmlXPathObjectPtr xobj, xmlXPathContextPtr xctx)
+xpath2ruby(xmlXPathObjectPtr c_xpath_object, xmlXPathContextPtr ctx)
 {
-  VALUE retval;
+  VALUE rb_retval;
 
-  assert(xctx->doc);
-  assert(DOC_RUBY_OBJECT_TEST(xctx->doc));
+  assert(ctx->doc);
+  assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
 
-  switch (xobj->type) {
+  switch (c_xpath_object->type) {
     case XPATH_STRING:
-      retval = NOKOGIRI_STR_NEW2(xobj->stringval);
-      xmlFree(xobj->stringval);
-      return retval;
+      rb_retval = NOKOGIRI_STR_NEW2(c_xpath_object->stringval);
+      xmlFree(c_xpath_object->stringval);
+      return rb_retval;
 
     case XPATH_NODESET:
-      return noko_xml_node_set_wrap(xobj->nodesetval,
-                                    DOC_RUBY_OBJECT(xctx->doc));
+      return noko_xml_node_set_wrap(c_xpath_object->nodesetval,
+                                    DOC_RUBY_OBJECT(ctx->doc));
 
     case XPATH_NUMBER:
-      return rb_float_new(xobj->floatval);
+      return rb_float_new(c_xpath_object->floatval);
 
     case XPATH_BOOLEAN:
-      return (xobj->boolval == 1) ? Qtrue : Qfalse;
+      return (c_xpath_object->boolval == 1) ? Qtrue : Qfalse;
 
     default:
       return Qundef;
@@ -185,52 +185,51 @@ xpath2ruby(xmlXPathObjectPtr xobj, xmlXPathContextPtr xctx)
 }
 
 void
-Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
-    const char *function_name)
+Nokogiri_marshal_xpath_funcall_and_return_values(
+  xmlXPathParserContextPtr ctx,
+  int argc,
+  VALUE rb_xpath_handler,
+  const char *method_name
+)
 {
-  VALUE result, doc;
+  VALUE rb_retval;
   VALUE *argv;
-  VALUE node_set = Qnil;
-  xmlNodeSetPtr xml_node_set = NULL;
-  xmlXPathObjectPtr obj;
+  VALUE rb_node_set = Qnil;
+  xmlNodeSetPtr c_node_set = NULL;
+  xmlXPathObjectPtr c_xpath_object;
 
   assert(ctx->context->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
 
-  argv = (VALUE *)ruby_xcalloc((size_t)nargs, sizeof(VALUE));
-  for (int j = 0 ; j < nargs ; ++j) {
+  argv = (VALUE *)ruby_xcalloc((size_t)argc, sizeof(VALUE));
+  for (int j = 0 ; j < argc ; ++j) {
     rb_gc_register_address(&argv[j]);
   }
 
-  doc = DOC_RUBY_OBJECT(ctx->context->doc);
-
-  for (int j = nargs - 1 ; j >= 0 ; --j) {
-    obj = valuePop(ctx);
-    argv[j] = xpath2ruby(obj, ctx->context);
+  for (int j = argc - 1 ; j >= 0 ; --j) {
+    c_xpath_object = valuePop(ctx);
+    argv[j] = xpath2ruby(c_xpath_object, ctx->context);
     if (argv[j] == Qundef) {
-      argv[j] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
+      argv[j] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(c_xpath_object));
     }
-    xmlXPathFreeNodeSetList(obj);
+    xmlXPathFreeNodeSetList(c_xpath_object);
   }
 
-  result = rb_funcall2(handler, rb_intern((const char *)function_name), nargs, argv);
+  rb_retval = rb_funcall2(rb_xpath_handler, rb_intern((const char *)method_name), argc, argv);
 
-  for (int j = 0 ; j < nargs ; ++j) {
+  for (int j = 0 ; j < argc ; ++j) {
     rb_gc_unregister_address(&argv[j]);
   }
   ruby_xfree(argv);
 
-  switch (TYPE(result)) {
+  switch (TYPE(rb_retval)) {
     case T_FLOAT:
     case T_BIGNUM:
     case T_FIXNUM:
-      xmlXPathReturnNumber(ctx, NUM2DBL(result));
+      xmlXPathReturnNumber(ctx, NUM2DBL(rb_retval));
       break;
     case T_STRING:
-      xmlXPathReturnString(
-        ctx,
-        xmlCharStrdup(StringValueCStr(result))
-      );
+      xmlXPathReturnString(ctx, xmlCharStrdup(StringValueCStr(rb_retval)));
       break;
     case T_TRUE:
       xmlXPathReturnTrue(ctx);
@@ -241,19 +240,17 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
     case T_NIL:
       break;
     case T_ARRAY: {
-      VALUE args[2];
-      args[0] = doc;
-      args[1] = result;
-      node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+      VALUE construct_args[2] = { DOC_RUBY_OBJECT(ctx->context->doc), rb_retval };
+      rb_node_set = rb_class_new_instance(2, construct_args, cNokogiriXmlNodeSet);
+      Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, c_node_set));
     }
     break;
     case T_DATA:
-      if (rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
-        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
+      if (rb_obj_is_kind_of(rb_retval, cNokogiriXmlNodeSet)) {
+        Data_Get_Struct(rb_retval, xmlNodeSet, c_node_set);
         /* Copy the node set, otherwise it will get GC'd. */
-        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, c_node_set));
         break;
       }
     default:
@@ -262,46 +259,47 @@ Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, i
 }
 
 static void
-ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
+method_caller(xmlXPathParserContextPtr ctx, int argc)
 {
-  VALUE handler = Qnil;
-  const char *function = NULL ;
+  VALUE rb_xpath_handler = Qnil;
+  const char *method_name = NULL ;
 
   assert(ctx);
   assert(ctx->context);
   assert(ctx->context->userData);
   assert(ctx->context->function);
 
-  handler = (VALUE)(ctx->context->userData);
-  function = (const char *)(ctx->context->function);
+  rb_xpath_handler = (VALUE)(ctx->context->userData);
+  method_name = (const char *)(ctx->context->function);
 
-  Nokogiri_marshal_xpath_funcall_and_return_values(ctx, nargs, handler, function);
+  Nokogiri_marshal_xpath_funcall_and_return_values(ctx, argc, rb_xpath_handler, method_name);
 }
 
 static xmlXPathFunction
-lookup(void *ctx,
-       const xmlChar *name,
-       const xmlChar *ns_uri)
+handler_lookup(void *ctx, const xmlChar *c_name, const xmlChar *c_ns_uri)
 {
-  VALUE xpath_handler = (VALUE)ctx;
-  if (rb_respond_to(xpath_handler, rb_intern((const char *)name))) {
-    return ruby_funcall;
+  VALUE rb_xpath_handler = (VALUE)ctx;
+  if (rb_respond_to(rb_xpath_handler, rb_intern((const char *)c_name))) {
+    return method_caller;
   }
 
   return NULL;
 }
 
 PRINTFLIKE_DECL(2, 3)
-NORETURN_DECL
 static void
-xpath_generic_exception_handler(void *ctx, const char *msg, ...)
+generic_exception_pusher(void *ctx, const char *msg, ...)
 {
+  VALUE rb_errors = (VALUE)ctx;
   VALUE rb_message;
+  VALUE rb_exception;
+
+  Check_Type(rb_errors, T_ARRAY);
 
 #ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
   /* It is not currently possible to pass var args from native
      functions to sulong, so we work around the issue here. */
-  rb_message = rb_sprintf("xpath_generic_exception_handler: %s", msg);
+  rb_message = rb_sprintf("generic_exception_pusher: %s", msg);
 #else
   va_list args;
   va_start(args, msg);
@@ -309,7 +307,8 @@ xpath_generic_exception_handler(void *ctx, const char *msg, ...)
   va_end(args);
 #endif
 
-  rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_message));
+  rb_exception = rb_exc_new_str(cNokogiriXmlXpathSyntaxError, rb_message);
+  rb_ary_push(rb_errors, rb_exception);
 }
 
 /*
@@ -319,13 +318,14 @@ xpath_generic_exception_handler(void *ctx, const char *msg, ...)
  * Evaluate the +search_path+ returning an XML::XPath object.
  */
 static VALUE
-evaluate(int argc, VALUE *argv, VALUE self)
+rb_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE self)
 {
   VALUE search_path, xpath_handler;
   VALUE retval = Qnil;
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xpath;
   xmlChar *query;
+  VALUE errors = rb_ary_new();
 
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
@@ -338,34 +338,19 @@ evaluate(int argc, VALUE *argv, VALUE self)
   if (Qnil != xpath_handler) {
     /* FIXME: not sure if this is the correct place to shove private data. */
     ctx->userData = (void *)xpath_handler;
-    xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
+    xmlXPathRegisterFuncLookup(ctx, handler_lookup, (void *)xpath_handler);
   }
 
-  xmlResetLastError();
-#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
-  VALUE errors = rb_ary_new();
-  xmlSetStructuredErrorFunc(errors, Nokogiri_error_array_pusher);
-#else
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_raise);
-#endif
-
-  /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
-  /* when there is a non existent function. */
-  xmlSetGenericErrorFunc(NULL, xpath_generic_exception_handler);
+  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  xmlSetGenericErrorFunc((void *)errors, generic_exception_pusher);
 
   xpath = xmlXPathEvalExpression(query, ctx);
+
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
-#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
-  if (RARRAY_LEN(errors) > 0) {
-    rb_exc_raise(rb_ary_entry(errors, 0));
-  }
-#endif
-
   if (xpath == NULL) {
-    xmlErrorPtr error = xmlGetLastError();
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+    rb_exc_raise(rb_ary_entry(errors, 0));
   }
 
   retval = xpath2ruby(xpath, ctx);
@@ -385,7 +370,7 @@ evaluate(int argc, VALUE *argv, VALUE self)
  * Create a new XPathContext with +node+ as the reference point.
  */
 static VALUE
-new (VALUE klass, VALUE nodeobj)
+rb_xml_xpath_context_new(VALUE klass, VALUE nodeobj)
 {
   xmlNodePtr node;
   xmlXPathContextPtr ctx;
@@ -408,7 +393,7 @@ new (VALUE klass, VALUE nodeobj)
   xmlXPathRegisterFuncNS(ctx, (const xmlChar *)"local-name-is", NOKOGIRI_BUILTIN_URI,
                          xpath_builtin_local_name_is);
 
-  self = Data_Wrap_Struct(klass, 0, deallocate, ctx);
+  self = Data_Wrap_Struct(klass, 0, xml_xpath_context_deallocate, ctx);
   return self;
 }
 
@@ -422,9 +407,9 @@ noko_init_xml_xpath_context(void)
 
   rb_undef_alloc_func(cNokogiriXmlXpathContext);
 
-  rb_define_singleton_method(cNokogiriXmlXpathContext, "new", new, 1);
+  rb_define_singleton_method(cNokogiriXmlXpathContext, "new", rb_xml_xpath_context_new, 1);
 
-  rb_define_method(cNokogiriXmlXpathContext, "evaluate", evaluate, -1);
-  rb_define_method(cNokogiriXmlXpathContext, "register_variable", register_variable, 2);
-  rb_define_method(cNokogiriXmlXpathContext, "register_ns", register_ns, 2);
+  rb_define_method(cNokogiriXmlXpathContext, "evaluate", rb_xml_xpath_context_evaluate, -1);
+  rb_define_method(cNokogiriXmlXpathContext, "register_variable", rb_xml_xpath_context_register_variable, 2);
+  rb_define_method(cNokogiriXmlXpathContext, "register_ns", rb_xml_xpath_context_register_ns, 2);
 }

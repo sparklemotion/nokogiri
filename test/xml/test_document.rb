@@ -498,10 +498,7 @@ module Nokogiri
         end
 
         def test_non_existent_function
-          # TODO: we should not be raising different types on the different engines
-          e_class = Nokogiri.uses_libxml? ? RuntimeError : Nokogiri::XML::XPath::SyntaxError
-
-          e = assert_raises(e_class) do
+          e = assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             xml.xpath("//name[foo()]")
           end
           assert_match(/function.*not found|Could not find function/, e.to_s)
