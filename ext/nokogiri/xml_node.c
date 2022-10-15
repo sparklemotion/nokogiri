@@ -9,16 +9,7 @@ static ID id_decorate, id_decorate_bang;
 
 typedef xmlNodePtr(*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 
-#ifdef DEBUG
-static void
-_xml_node_dealloc(xmlNodePtr x)
-{
-  NOKOGIRI_DEBUG_START(x)
-  NOKOGIRI_DEBUG_END(x)
-}
-#else
-#  define _xml_node_dealloc 0
-#endif
+#define _xml_node_dealloc 0
 
 static void
 _xml_node_mark(xmlNodePtr node)

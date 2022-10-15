@@ -1,12 +1,5 @@
 # frozen_string_literal: true
 
-desc "Set environment variables to build and/or test with debug options"
-task :debug do
-  ENV["NOKOGIRI_DEBUG"] = "true"
-  ENV["CFLAGS"] ||= ""
-  ENV["CFLAGS"] += " -DDEBUG"
-end
-
 task :java_debug do # rubocop:disable Rake/Desc
   ENV["JRUBY_OPTS"] = "#{ENV["JRUBY_OPTS"]} --debug --dev"
   if ENV["JAVA_DEBUG"]

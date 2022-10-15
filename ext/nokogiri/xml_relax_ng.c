@@ -5,9 +5,7 @@ VALUE cNokogiriXmlRelaxNG;
 static void
 dealloc(xmlRelaxNGPtr schema)
 {
-  NOKOGIRI_DEBUG_START(schema);
   xmlRelaxNGFree(schema);
-  NOKOGIRI_DEBUG_END(schema);
 }
 
 /*

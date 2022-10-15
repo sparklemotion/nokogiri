@@ -5,12 +5,10 @@ VALUE cNokogiriXmlSaxPushParser ;
 static void
 deallocate(xmlParserCtxtPtr ctx)
 {
-  NOKOGIRI_DEBUG_START(ctx);
   if (ctx != NULL) {
     NOKOGIRI_SAX_TUPLE_DESTROY(ctx->userData);
     xmlFreeParserCtxt(ctx);
   }
-  NOKOGIRI_DEBUG_END(ctx);
 }
 
 static VALUE

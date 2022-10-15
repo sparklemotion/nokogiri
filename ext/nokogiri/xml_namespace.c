@@ -31,7 +31,6 @@ dealloc_namespace(xmlNsPtr ns)
    * this deallocator is only used for namespace nodes that are part of an xpath
    * node set. see noko_xml_namespace_wrap().
    */
-  NOKOGIRI_DEBUG_START(ns) ;
   if (ns->href) {
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(ns->href));
   }
@@ -39,7 +38,6 @@ dealloc_namespace(xmlNsPtr ns)
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(ns->prefix));
   }
   xmlFree(ns);
-  NOKOGIRI_DEBUG_END(ns) ;
 }
 
 

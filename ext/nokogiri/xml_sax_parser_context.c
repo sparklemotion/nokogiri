@@ -7,13 +7,8 @@ static ID id_read;
 static void
 deallocate(xmlParserCtxtPtr ctxt)
 {
-  NOKOGIRI_DEBUG_START(ctxt);
-
   ctxt->sax = NULL;
-
   xmlFreeParserCtxt(ctxt);
-
-  NOKOGIRI_DEBUG_END(ctxt);
 }
 
 /*

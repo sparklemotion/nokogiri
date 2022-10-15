@@ -65,8 +65,6 @@ dealloc(xmlDocPtr doc)
 {
   st_table *node_hash;
 
-  NOKOGIRI_DEBUG_START(doc);
-
   node_hash  = DOC_UNLINKED_NODE_HASH(doc);
 
   st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
@@ -84,8 +82,6 @@ dealloc(xmlDocPtr doc)
   }
 
   xmlFreeDoc(doc);
-
-  NOKOGIRI_DEBUG_END(doc);
 }
 
 static void
