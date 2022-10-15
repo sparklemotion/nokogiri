@@ -22,25 +22,21 @@ module Nokogiri
         describe "two dashes" do
           let(:html) { "<html><body><div id=under-test><!--></div><div id=also-here></div></body></html>" }
 
-          if Nokogiri.uses_libxml?
-            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
-              it "behaves as if the comment is closed correctly" do # COMPLIANT
-                assert_equal 1, subject.children.length
-                assert_predicate subject.children.first, :comment?
-                assert_equal "", subject.children.first.content
-                assert other_div
-              end
-            else
-              it "behaves as if the comment is unterminated and doesn't exist" do # NON-COMPLIANT
-                assert_equal 0, subject.children.length
-                assert_equal 1, doc.errors.length
-                assert_match(/Comment not terminated/, doc.errors.first.to_s)
-                refute other_div
-              end
+          if Nokogiri.uses_libxml?(">= 2.10.0")
+            it "behaves as if the comment is closed correctly" do # COMPLIANT
+              assert_equal 1, subject.children.length
+              assert_predicate subject.children.first, :comment?
+              assert_equal "", subject.children.first.content
+              assert other_div
             end
-          end
-
-          if Nokogiri.jruby?
+          elsif Nokogiri.uses_libxml?
+            it "behaves as if the comment is unterminated and doesn't exist" do # NON-COMPLIANT
+              assert_equal 0, subject.children.length
+              assert_equal 1, doc.errors.length
+              assert_match(/Comment not terminated/, doc.errors.first.to_s)
+              refute other_div
+            end
+          elsif Nokogiri.jruby?
             it "behaves as if the comment is closed correctly" do # COMPLIANT
               assert_equal 1, subject.children.length
               assert_predicate subject.children.first, :comment?
@@ -53,25 +49,21 @@ module Nokogiri
         describe "three dashes" do
           let(:html) { "<html><body><div id=under-test><!---></div><div id=also-here></div></body></html>" }
 
-          if Nokogiri.uses_libxml?
-            if Nokogiri.libxml2_patches.include?("0008-htmlParseComment-handle-abruptly-closed-comments.patch")
-              it "behaves as if the comment is closed correctly" do # COMPLIANT
-                assert_equal 1, subject.children.length
-                assert_predicate subject.children.first, :comment?
-                assert_equal "", subject.children.first.content
-                assert other_div
-              end
-            else
-              it "behaves as if the comment is unterminated and doesn't exist" do # NON-COMPLIANT
-                assert_equal 0, subject.children.length
-                assert_equal 1, doc.errors.length
-                assert_match(/Comment not terminated/, doc.errors.first.to_s)
-                refute other_div
-              end
+          if Nokogiri.uses_libxml?(">= 2.10.0")
+            it "behaves as if the comment is closed correctly" do # COMPLIANT
+              assert_equal 1, subject.children.length
+              assert_predicate subject.children.first, :comment?
+              assert_equal "", subject.children.first.content
+              assert other_div
             end
-          end
-
-          if Nokogiri.jruby?
+          elsif Nokogiri.uses_libxml?
+            it "behaves as if the comment is unterminated and doesn't exist" do # NON-COMPLIANT
+              assert_equal 0, subject.children.length
+              assert_equal 1, doc.errors.length
+              assert_match(/Comment not terminated/, doc.errors.first.to_s)
+              refute other_div
+            end
+          elsif Nokogiri.jruby?
             it "behaves as if the comment is closed correctly" do # COMPLIANT
               assert_equal 1, subject.children.length
               assert_predicate subject.children.first, :comment?
@@ -110,9 +102,7 @@ module Nokogiri
             assert_equal 1, doc.errors.length
             assert_match(/Comment not terminated/, doc.errors.first.to_s)
           end
-        end
-
-        if Nokogiri.jruby?
+        elsif Nokogiri.jruby?
           it "behaves as if the comment is closed immediately before the end of the input stream" do # COMPLIANT
             assert_equal 1, subject.children.length
             assert_predicate subject.children.first, :comment?
@@ -133,7 +123,7 @@ module Nokogiri
         let(:subject) { doc.at_css("div#under-test") }
         let(:inner_div) { doc.at_css("div#do-i-exist") }
 
-        if Nokogiri::VersionInfo.instance.libxml2_using_packaged? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?(">=2.9.11"))
+        if Nokogiri::VersionInfo.instance.libxml2_using_packaged? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?(">= 2.9.11"))
           it "behaves as if the comment is normally closed" do # COMPLIANT
             assert_equal 3, subject.children.length
             assert_predicate subject.children[0], :comment?
@@ -145,9 +135,7 @@ module Nokogiri
             assert_equal 1, doc.errors.length
             assert_match(/Comment incorrectly closed/, doc.errors.first.to_s)
           end
-        end
-
-        if Nokogiri.jruby? || (Nokogiri::VersionInfo.instance.libxml2_using_system? && Nokogiri.uses_libxml?("<2.9.11"))
+        else # jruby, or libxml2 system lib less than 2.9.11
           it "behaves as if the comment encompasses the inner div" do # NON-COMPLIANT
             assert_equal 1, subject.children.length
             assert_predicate subject.children.first, :comment?
@@ -173,18 +161,8 @@ module Nokogiri
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?("<=2.9.13")
-          it "ignores up to the next '>'" do # NON-COMPLIANT
-            assert_equal 2, body.children.length
-            assert_equal body.children[0], subject
-            assert_equal 1, subject.children.length
-            assert_predicate subject.children[0], :text?
-            assert_equal "inner content", subject.children[0].content
-            assert_predicate body.children[1], :text?
-            assert_equal "-->hello", body.children[1].content
-          end
-        elsif Nokogiri.uses_libxml?
-          it "parses as pcdata" do # NON-COMPLIANT
+        if Nokogiri.uses_libxml?("= 2.9.14")
+          it "parses as PCDATA" do # NON-COMPLIANT
             assert_equal 1, body.children.length
             assert_equal subject, body.children.first
 
@@ -203,9 +181,17 @@ module Nokogiri
               assert_equal("-->hello", child.content)
             end
           end
-        end
-
-        if Nokogiri.jruby?
+        elsif Nokogiri.uses_libxml? # before or after 2.9.14
+          it "ignores up to the next '>'" do # NON-COMPLIANT
+            assert_equal 2, body.children.length
+            assert_equal body.children[0], subject
+            assert_equal 1, subject.children.length
+            assert_predicate subject.children[0], :text?
+            assert_equal "inner content", subject.children[0].content
+            assert_predicate body.children[1], :text?
+            assert_equal "-->hello", body.children[1].content
+          end
+        elsif Nokogiri.jruby?
           it "ignores up to the next '-->'" do # NON-COMPLIANT
             assert_equal 1, body.children.length
             assert_equal subject, body.children.first
@@ -213,6 +199,47 @@ module Nokogiri
             assert_equal 1, subject.children.length
             assert_predicate subject.children[0], :text?
             assert_equal "hello", subject.children[0].content
+          end
+        end
+      end
+
+      # conditional HTML comments, variation of the above
+      # https://gitlab.gnome.org/GNOME/libxml2/-/issues/380
+      describe "conditional HTML comments" do
+        let(:html) { "<html><body><div id=under-test><![if foo]><div id=do-i-exist>inner content</div><![endif]></div></body></html>" }
+
+        let(:doc) { Nokogiri::HTML4(html) }
+        let(:body) { doc.at_css("body") }
+        let(:subject) { doc.at_css("div#under-test") }
+
+        if Nokogiri.uses_libxml?("= 2.9.14")
+          it "parses the <! tags as PCDATA" do
+            assert_equal(1, body.children.length)
+            assert_equal(subject, body.children.first)
+
+            assert_equal(3, subject.children.length)
+            subject.children[0].tap do |child|
+              assert_predicate(child, :text?)
+              assert_equal("<![if foo]>", child.content)
+            end
+            subject.children[1].tap do |child|
+              assert_predicate(child, :element?)
+              assert_equal("div", child.name)
+              assert_equal("do-i-exist", child["id"])
+            end
+            subject.children[2].tap do |child|
+              assert_predicate(child, :text?)
+              assert_equal("<![endif]>", child.content)
+            end
+          end
+        else # libxml before or after 2.9.14, or jruby
+          it "drops the <! tags" do
+            assert_equal(1, body.children.length)
+            assert_equal(subject, body.children.first)
+
+            assert_equal(1, subject.children.length)
+            assert_equal("div", subject.children.first.name)
+            assert_equal("do-i-exist", subject.children.first["id"])
           end
         end
       end
