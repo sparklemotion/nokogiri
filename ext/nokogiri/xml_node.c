@@ -9,11 +9,11 @@ static ID id_decorate, id_decorate_bang;
 
 typedef xmlNodePtr(*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 
-#define _xml_node_dealloc 0
-
 static void
-_xml_node_mark(xmlNodePtr node)
+_xml_node_mark(void *ptr)
 {
+  xmlNodePtr node = ptr;
+
   if (!DOC_RUBY_OBJECT_TEST(node->doc)) {
     return;
   }
@@ -30,24 +30,21 @@ _xml_node_mark(xmlNodePtr node)
 
 #ifdef HAVE_RB_GC_LOCATION
 static void
-_xml_node_update_references(xmlNodePtr node)
+_xml_node_update_references(void *ptr)
 {
+  xmlNodePtr node = ptr;
+
   if (node->_private) {
     node->_private = (void *)rb_gc_location((VALUE)node->_private);
   }
 }
+#else
+#  define _xml_node_update_references 0
 #endif
-
-typedef void (*gc_callback_t)(void *);
 
 static const rb_data_type_t nokogiri_node_type = {
   "Nokogiri/XMLNode",
-  {
-    (gc_callback_t)_xml_node_mark, (gc_callback_t)_xml_node_dealloc, 0,
-#ifdef HAVE_RB_GC_LOCATION
-    (gc_callback_t)_xml_node_update_references
-#endif
-  },
+  {_xml_node_mark, 0, 0, _xml_node_update_references},
   0, 0,
 #ifdef RUBY_TYPED_FREE_IMMEDIATELY
   RUBY_TYPED_FREE_IMMEDIATELY,
