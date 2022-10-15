@@ -25,12 +25,14 @@
 VALUE cNokogiriXmlNamespace ;
 
 static void
-dealloc_namespace(xmlNsPtr ns)
+_xml_namespace_dealloc(void *ptr)
 {
   /*
    * this deallocator is only used for namespace nodes that are part of an xpath
    * node set. see noko_xml_namespace_wrap().
    */
+  xmlNsPtr ns = ptr;
+
   if (ns->href) {
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(ns->href));
   }
@@ -40,6 +42,36 @@ dealloc_namespace(xmlNsPtr ns)
   xmlFree(ns);
 }
 
+#ifdef HAVE_RB_GC_LOCATION
+static void
+_xml_namespace_update_references(void *ptr)
+{
+  xmlNsPtr ns = ptr;
+  if (ns->_private) {
+    ns->_private = (void *)rb_gc_location((VALUE)ns->_private);
+  }
+}
+#else
+#  define _xml_namespace_update_references 0
+#endif
+
+static const rb_data_type_t nokogiri_xml_namespace_type_with_dealloc = {
+  "Nokogiri/XMLNamespace/WithDealloc",
+  {0, _xml_namespace_dealloc, 0, _xml_namespace_update_references},
+  0, 0,
+#ifdef RUBY_TYPED_FREE_IMMEDIATELY
+  RUBY_TYPED_FREE_IMMEDIATELY,
+#endif
+};
+
+static const rb_data_type_t nokogiri_xml_namespace_type_without_dealloc = {
+  "Nokogiri/XMLNamespace/WithoutDealloc",
+  {0, 0, 0, _xml_namespace_update_references},
+  0, 0,
+#ifdef RUBY_TYPED_FREE_IMMEDIATELY
+  RUBY_TYPED_FREE_IMMEDIATELY,
+#endif
+};
 
 /*
  * call-seq:
@@ -52,7 +84,7 @@ prefix(VALUE self)
 {
   xmlNsPtr ns;
 
-  Data_Get_Struct(self, xmlNs, ns);
+  Noko_Namespace_Get_Struct(self, xmlNs, ns);
   if (!ns->prefix) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->prefix);
@@ -69,7 +101,7 @@ href(VALUE self)
 {
   xmlNsPtr ns;
 
-  Data_Get_Struct(self, xmlNs, ns);
+  Noko_Namespace_Get_Struct(self, xmlNs, ns);
   if (!ns->href) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(ns->href);
@@ -85,14 +117,18 @@ noko_xml_namespace_wrap(xmlNsPtr c_namespace, xmlDocPtr c_document)
   }
 
   if (c_document) {
-    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, c_namespace);
+    rb_namespace = TypedData_Wrap_Struct(cNokogiriXmlNamespace,
+                                         &nokogiri_xml_namespace_type_without_dealloc,
+                                         c_namespace);
 
     if (DOC_RUBY_OBJECT_TEST(c_document)) {
       rb_iv_set(rb_namespace, "@document", DOC_RUBY_OBJECT(c_document));
       rb_ary_push(DOC_NODE_CACHE(c_document), rb_namespace);
     }
   } else {
-    rb_namespace = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, c_namespace);
+    rb_namespace = TypedData_Wrap_Struct(cNokogiriXmlNamespace,
+                                         &nokogiri_xml_namespace_type_with_dealloc,
+                                         c_namespace);
   }
 
   c_namespace->_private = (void *)rb_namespace;
