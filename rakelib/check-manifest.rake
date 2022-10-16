@@ -61,12 +61,12 @@ task :check_manifest, [:verbose] do |_, args|
   if verbose
     ignore_directories.each do |glob|
       matches = Dir.glob(glob).select { |filename| File.directory?(filename) }
-      STDERR.puts "NOTE: ignored directory glob '#{glob}' has zero matches" if matches.empty?
+      $stderr.puts "NOTE: ignored directory glob '#{glob}' has zero matches" if matches.empty?
     end
 
     ignore_files.each do |glob|
       matches = Dir.glob(glob).select { |filename| File.file?(filename) }
-      STDERR.puts "NOTE: ignored file glob '#{glob}' has zero matches" if matches.empty?
+      $stderr.puts "NOTE: ignored file glob '#{glob}' has zero matches" if matches.empty?
     end
   end
 
