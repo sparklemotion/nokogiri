@@ -100,7 +100,11 @@ recursively_remove_namespaces_from_node(xmlNodePtr node)
        (node->type == XML_XINCLUDE_START) ||
        (node->type == XML_XINCLUDE_END)) &&
       node->nsDef) {
-    xmlFreeNsList(node->nsDef);
+    xmlNsPtr curr = node->nsDef;
+    while (curr) {
+      noko_xml_document_pin_namespace(curr, node->doc);
+      curr = curr->next;
+    }
     node->nsDef = NULL;
   }
 
