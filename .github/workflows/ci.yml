@@ -62,6 +62,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
+    env:
+      NOKOGIRI_TEST_GC_LEVEL: normal # for fast feedback
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
         with:
@@ -326,6 +328,7 @@ jobs:
             bundle exec rake test
 
   memcheck:
+    needs: ["basic"]
     strategy:
       fail-fast: false
       matrix:
