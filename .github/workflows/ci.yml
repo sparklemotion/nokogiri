@@ -23,7 +23,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -42,7 +42,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
@@ -84,10 +84,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -108,10 +108,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -169,10 +169,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -194,10 +194,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -215,7 +215,7 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
@@ -223,7 +223,7 @@ jobs:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -244,7 +244,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
@@ -253,7 +253,7 @@ jobs:
           mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -269,7 +269,7 @@ jobs:
         ruby: ["jruby-9.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
@@ -294,10 +294,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -314,10 +314,10 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: vmactions/freebsd-vm@v0.2.0
+      - uses: vmactions/freebsd-vm@v0
         with:
           usesh: true
           prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt
@@ -338,10 +338,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports

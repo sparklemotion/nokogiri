@@ -15,7 +15,7 @@ jobs:
     env:
       CI_UPSTREAM_XMLSOFT: t
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Setup libxml2
@@ -42,7 +42,7 @@ jobs:
     env:
       CI_UPSTREAM_XMLSOFT: t
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Setup libxml2
@@ -74,7 +74,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
@@ -84,7 +84,7 @@ jobs:
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -100,7 +100,7 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
@@ -109,7 +109,7 @@ jobs:
           apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -120,7 +120,7 @@ jobs:
   jruby-head:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
@@ -136,10 +136,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ports
           key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}

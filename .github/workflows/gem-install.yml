@@ -23,7 +23,7 @@ jobs:
     outputs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.1"
@@ -39,15 +39,15 @@ jobs:
     container:
       image: "larskanis/rake-compiler-dock-mri-x86_64-linux:${{needs.rcd_image_version.outputs.rcd_image_version}}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: cruby-gem
           path: gems
@@ -62,14 +62,14 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1", "head"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-gem
           path: gems
@@ -83,13 +83,13 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.1"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-gem
           path: gems
@@ -103,14 +103,14 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "3.0"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-gem
           path: gems
@@ -127,14 +127,14 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "3.1"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-gem
           path: gems
@@ -161,10 +161,10 @@ jobs:
           - "x86_64-linux"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -172,7 +172,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             larskanis/rake-compiler-dock-mri-${{matrix.plat}}:${{needs.rcd_image_version.outputs.rcd_image_version}} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
@@ -186,10 +186,10 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x86-linux-gem
           path: gems
@@ -208,10 +208,10 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-aarch64-linux-gem
           path: gems
@@ -230,10 +230,10 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-arm-linux-gem
           path: gems
@@ -252,13 +252,13 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x86_64-linux-gem
           path: gems
@@ -272,10 +272,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x86_64-linux-gem
           path: gems
@@ -289,13 +289,13 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x86_64-darwin-gem
           path: gems
@@ -312,7 +312,7 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x64-mingw32-gem
           path: gems
@@ -332,7 +332,7 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: cruby-x64-mingw-ucrt-gem
           path: gems
@@ -348,11 +348,11 @@ jobs:
     container:
       image: "larskanis/rake-compiler-dock-jruby:${{needs.rcd_image_version.outputs.rcd_image_version}}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: jruby-gem
           path: gems
@@ -366,13 +366,13 @@ jobs:
         ruby: ["jruby-9.3", "jruby-head"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: jruby-gem
           path: gems
