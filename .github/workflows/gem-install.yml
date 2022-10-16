@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
@@ -106,7 +106,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "3.0"
           mingw: "libxml2 libxslt"
@@ -130,7 +130,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "3.1"
           mingw: "libxml2 libxslt"
@@ -309,7 +309,7 @@ jobs:
         ruby: ["2.6", "2.7", "3.0"]
     runs-on: windows-latest
     steps:
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v3
@@ -329,7 +329,7 @@ jobs:
         ruby: ["3.1"]
     runs-on: windows-2022
     steps:
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v3
