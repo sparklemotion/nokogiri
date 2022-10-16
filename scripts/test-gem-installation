@@ -115,7 +115,7 @@ describe gemspec.full_name do
         it "has ldflags pointing to the shared object file" do
           ldflags = Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]
           if ::RUBY_PLATFORM.match?(/mingw|mswin/)
-            if gemspec.platform.cpu
+            if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
               assert_includes(ldflags, "-L#{File.join(nokogiri_lib_dir, ruby_maj_min)}")
             else
               assert_includes(ldflags, "-L#{nokogiri_lib_dir}")

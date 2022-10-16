@@ -20,6 +20,16 @@ if Gem::Requirement.new(">= 3.2.0").satisfied_by?(Gem::Version.new(RUBY_VERSION)
   exit 0
 end
 
+nokogumbo_version = if /\d+\.\d+\.\d+/.match?(ARGV[0])
+  ARGV[0]
+end
+
+NOKOGUMBO_WINDOWS_CONSTRAINT = ">= 2.0.5"
+if Gem.win_platform? && !Gem::Requirement.new(NOKOGUMBO_WINDOWS_CONSTRAINT).satisfied_by?(Gem::Version.new(nokogumbo_version))
+  puts "Skip: Nokogumbo must be #{NOKOGUMBO_WINDOWS_CONSTRAINT} on Windows"
+  exit 0
+end
+
 # this line needs to come before the bundler bit, to assert that we're running against an
 # already-installed version (and not some other version that bundler/inline might install if it came
 # first)
@@ -27,10 +37,6 @@ gemspec = Gem::Specification.find_all_by_name("nokogiri").sort_by(&:version).las
 raise "could not find installed gem" unless gemspec
 
 require "bundler/inline"
-
-nokogumbo_version = if /\d+\.\d+\.\d+/.match?(ARGV[0])
-  ARGV[0]
-end
 
 gemfile(true) do
   source "https://rubygems.org"
