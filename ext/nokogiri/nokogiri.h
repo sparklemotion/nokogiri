@@ -75,14 +75,6 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
 #define RBSTR_OR_QNIL(_str) (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
-#ifdef DEBUG
-#  define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
-#  define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
-#else
-#  define NOKOGIRI_DEBUG_START(p)
-#  define NOKOGIRI_DEBUG_END(p)
-#endif
-
 #ifndef NORETURN_DECL
 #  if defined(__GNUC__)
 #    define NORETURN_DECL __attribute__ ((noreturn))
@@ -181,6 +173,7 @@ int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 
 #define Noko_Node_Get_Struct(obj,type,sval) ((sval) = (type*)DATA_PTR(obj))
+#define Noko_Namespace_Get_Struct(obj,type,sval) ((sval) = (type*)DATA_PTR(obj))
 
 VALUE noko_xml_node_wrap(VALUE klass, xmlNodePtr node) ;
 VALUE noko_xml_node_wrap_node_set_result(xmlNodePtr node, VALUE node_set) ;

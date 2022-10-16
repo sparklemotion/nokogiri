@@ -5,9 +5,7 @@ VALUE cNokogiriXmlReader;
 static void
 dealloc(xmlTextReaderPtr reader)
 {
-  NOKOGIRI_DEBUG_START(reader);
   xmlFreeTextReader(reader);
-  NOKOGIRI_DEBUG_END(reader);
 }
 
 static int

@@ -12,11 +12,7 @@ static void
 dealloc(nokogiriXsltStylesheetTuple *wrapper)
 {
   xsltStylesheetPtr doc = wrapper->ss;
-
-  NOKOGIRI_DEBUG_START(doc);
-  xsltFreeStylesheet(doc); /* commented out for now. */
-  NOKOGIRI_DEBUG_END(doc);
-
+  xsltFreeStylesheet(doc);
   ruby_xfree(wrapper);
 }
 

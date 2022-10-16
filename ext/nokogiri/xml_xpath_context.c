@@ -14,9 +14,7 @@ static const xmlChar *NOKOGIRI_BUILTIN_URI = (const xmlChar *)"https://www.nokog
 static void
 xml_xpath_context_deallocate(xmlXPathContextPtr ctx)
 {
-  NOKOGIRI_DEBUG_START(ctx);
   xmlXPathFreeContext(ctx);
-  NOKOGIRI_DEBUG_END(ctx);
 }
 
 /* find a CSS class in an HTML element's `class` attribute */

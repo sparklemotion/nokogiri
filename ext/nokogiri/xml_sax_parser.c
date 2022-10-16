@@ -268,9 +268,7 @@ processing_instruction(void *ctx, const xmlChar *name, const xmlChar *content)
 static void
 deallocate(xmlSAXHandlerPtr handler)
 {
-  NOKOGIRI_DEBUG_START(handler);
   ruby_xfree(handler);
-  NOKOGIRI_DEBUG_END(handler);
 }
 
 static VALUE

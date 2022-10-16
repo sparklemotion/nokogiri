@@ -88,13 +88,11 @@ deallocate(xmlNodeSetPtr node_set)
    * For reasons outlined in xml_namespace.c, here we reproduce xmlXPathFreeNodeSet() except for the
    * offending call to xmlXPathNodeSetFreeNs().
    */
-  NOKOGIRI_DEBUG_START(node_set) ;
   if (node_set->nodeTab != NULL) {
     xmlFree(node_set->nodeTab);
   }
 
   xmlFree(node_set);
-  NOKOGIRI_DEBUG_END(node_set) ;
 }
 
 
