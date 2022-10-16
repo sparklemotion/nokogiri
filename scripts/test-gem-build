@@ -30,6 +30,8 @@ else
   bundle exec rake gem:${BUILD_NATIVE_GEM}:builder
 fi
 
+chmod -v 664 ports/archives/* || true
+
 ./scripts/test-gem-file-contents pkg/nokogiri*.gem
 
 mkdir -p ${OUTPUT_DIR}

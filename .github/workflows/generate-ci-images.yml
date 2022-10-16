@@ -22,7 +22,7 @@ jobs:
           - ubuntu32
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
@@ -30,14 +30,14 @@ jobs:
           ruby-version: "3.1"
           bundler-cache: true
           bundler: latest
-      - uses: docker/setup-buildx-action@v1
-      - uses: docker/login-action@v1
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
       - name: ${{matrix.tag}}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: "."
           push: true
