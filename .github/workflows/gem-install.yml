@@ -32,9 +32,9 @@ jobs:
       - id: rcd_image_version
         run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "::set-output name=rcd_image_version::#{RakeCompilerDock::IMAGE_VERSION}"'
 
-  cruby-package:
+  generic-package:
     needs: ["rcd_image_version"]
-    name: "cruby-package"
+    name: "generic-package"
     runs-on: ubuntu-latest
     container:
       image: "larskanis/rake-compiler-dock-mri-x86_64-linux:${{needs.rcd_image_version.outputs.rcd_image_version}}"
@@ -49,12 +49,12 @@ jobs:
       - run: ./scripts/test-gem-build gems ruby
       - uses: actions/upload-artifact@v3
         with:
-          name: cruby-gem
+          name: generic-gem
           path: gems
           retention-days: 1
 
-  cruby-linux-install:
-    needs: ["cruby-package"]
+  generic-linux-install:
+    needs: ["generic-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -71,12 +71,12 @@ jobs:
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v3
         with:
-          name: cruby-gem
+          name: generic-gem
           path: gems
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
-  cruby-osx-install:
-    needs: ["cruby-package"]
+  generic-darwin-install:
+    needs: ["generic-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -91,12 +91,12 @@ jobs:
           ruby-version: "3.1"
       - uses: actions/download-artifact@v3
         with:
-          name: cruby-gem
+          name: generic-gem
           path: gems
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
-  cruby-windows-install:
-    needs: ["cruby-package"]
+  generic-windows-install:
+    needs: ["generic-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -112,15 +112,15 @@ jobs:
           mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v3
         with:
-          name: cruby-gem
+          name: generic-gem
           path: gems
       - run: |
           gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
           gem list -d nokogiri
           nokogiri -v
 
-  cruby-windows-install-ucrt:
-    needs: ["cruby-package"]
+  generic-windows-install-ucrt:
+    needs: ["generic-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -136,16 +136,16 @@ jobs:
           mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v3
         with:
-          name: cruby-gem
+          name: generic-gem
           path: gems
       - run: |
           gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
           gem list -d nokogiri
           nokogiri -v
 
-  cruby-native-package:
+  cruby-package:
     needs: ["rcd_image_version"]
-    name: "cruby-native-package"
+    name: "cruby-package"
     strategy:
       fail-fast: false
       matrix:
@@ -179,7 +179,7 @@ jobs:
           retention-days: 1
 
   cruby-x86-linux-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -201,7 +201,7 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-aarch64-linux-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -223,7 +223,7 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-arm-linux-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -245,7 +245,7 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-x86_64-linux-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -265,7 +265,7 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-x86_64-musl-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
@@ -282,7 +282,7 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-x86_64-darwin-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -302,7 +302,7 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-x64-mingw32-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
@@ -322,7 +322,7 @@ jobs:
           nokogiri -v
 
   cruby-x64-mingw-ucrt-install:
-    needs: ["cruby-native-package"]
+    needs: ["cruby-package"]
     strategy:
       fail-fast: false
       matrix:
