@@ -1353,7 +1353,7 @@ set_namespace(VALUE self, VALUE namespace)
   Noko_Node_Get_Struct(self, xmlNode, node);
 
   if (!NIL_P(namespace)) {
-    Data_Get_Struct(namespace, xmlNs, ns);
+    Noko_Namespace_Get_Struct(namespace, xmlNs, ns);
   }
 
   xmlSetNs(node, ns);

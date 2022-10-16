@@ -191,6 +191,47 @@ class TestMemoryLeak < Nokogiri::TestCase
       end
     end
 
+    def test_document_remove_namespaces_with_ruby_objects
+      xml = <<~XML
+        <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
+          <a:foo>hello from a</a:foo>
+          <b:foo>hello from b</b:foo>
+          <container xmlns:c="http://c.flavorjon.es/">
+            <c:foo c:attr='attr-value'>hello from c</c:foo>
+          </container>
+        </root>
+      XML
+
+      20.times do
+        10_000.times do
+          doc = Nokogiri::XML::Document.parse(xml)
+          doc.namespaces.each(&:inspect)
+          doc.remove_namespaces!
+        end
+        puts MemInfo.rss
+      end
+    end
+
+    def test_document_remove_namespaces_without_ruby_objects
+      xml = <<~XML
+        <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
+          <a:foo>hello from a</a:foo>
+          <b:foo>hello from b</b:foo>
+          <container xmlns:c="http://c.flavorjon.es/">
+            <c:foo c:attr='attr-value'>hello from c</c:foo>
+          </container>
+        </root>
+      XML
+
+      20.times do
+        20_000.times do
+          doc = Nokogiri::XML::Document.parse(xml)
+          doc.remove_namespaces!
+        end
+        puts MemInfo.rss
+      end
+    end
+
     def test_leaking_dtd_nodes_after_internal_subset_removal
       # see https://github.com/sparklemotion/nokogiri/issues/1784
       100_000.times do |i|
