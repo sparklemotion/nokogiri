@@ -39,5 +39,27 @@ describe "compaction" do
 
       doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
     end
+
+    it "remove_namespaces!" do
+      skip unless GC.respond_to?(:verify_compaction_references)
+
+      doc = Nokogiri::XML(<<~XML)
+        <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
+          <a:foo>hello from a</a:foo>
+          <b:foo>hello from b</b:foo>
+          <container xmlns:c="http://c.flavorjon.es/">
+            <c:foo c:attr='attr-value'>hello from c</c:foo>
+          </container>
+        </root>
+      XML
+
+      namespaces = doc.root.namespaces
+      namespaces.each(&:inspect)
+      doc.remove_namespaces!
+
+      GC.verify_compaction_references(double_heap: true, toward: :empty)
+
+      namespaces.each(&:inspect)
+    end
   end
 end
