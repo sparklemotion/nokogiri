@@ -25,8 +25,6 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated to [v2.10.2](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.10.2)
-* [CRuby] Vendored libxslt is updated to [v1.1.37](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.37).
 * [CRuby] Vendored libiconv is updated to [v1.17](https://savannah.gnu.org/forum/forum.php?forum_id=10175)
 * [JRuby] HTML parsing is now provided `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously was a fork of `org.cyberneko.html:nekohtml`)
 * [JRuby] Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
@@ -66,6 +64,27 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 ### Deprecated
 
 * `Nokogiri.install_default_aliases` is deprecated in favor of `Nokogiri::EncodingHandler.install_default_aliases`. This is part of a private API and is probably not called by anybody, but we'll go through a deprecation cycle before removal anyway. [[#2643](https://github.com/sparklemotion/nokogiri/issues/2643), [#2446](https://github.com/sparklemotion/nokogiri/issues/2446)]
+
+
+## 1.13.9 / 2022-10-18
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address [CVE-2022-2309](https://nvd.nist.gov/vuln/detail/CVE-2022-2309), [CVE-2022-40304](https://nvd.nist.gov/vuln/detail/CVE-2022-40304), and [CVE-2022-40303](https://nvd.nist.gov/vuln/detail/CVE-2022-40303). See [GHSA-2qc6-mcvw-92cw](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-2qc6-mcvw-92cw) for more information.
+* [CRuby] Vendored zlib is updated to address [CVE-2022-37434](https://ubuntu.com/security/CVE-2022-37434). Nokogiri was not affected by this vulnerability, but this version of zlib was being flagged up by some vulnerability scanners, see [#2626](https://github.com/sparklemotion/nokogiri/issues/2626) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.10.3](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.10.3) from v2.9.14.
+* [CRuby] Vendored libxslt is updated to [v1.1.37](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.37) from v1.1.35.
+* [CRuby] Vendored zlib is updated from 1.2.12 to 1.2.13. (See [LICENSE-DEPENDENCIES.md](https://github.com/sparklemotion/nokogiri/blob/v1.13.x/LICENSE-DEPENDENCIES.md#platform-releases) for details on which packages redistribute this library.)
+
+
+### Fixed
+
+* [CRuby] `Nokogiri::XML::Namespace` objects, when compacted, update their internal struct's reference to the Ruby object wrapper. Previously, with GC compaction enabled, a segmentation fault was possible after compaction was triggered. [[#2658](https://github.com/sparklemotion/nokogiri/issues/2658)] (Thanks, [@eightbitraptor](https://github.com/eightbitraptor) and [@peterzhu2118](https://github.com/peterzhu2118)!)
+* [CRuby] `Document#remove_namespaces!` now defers freeing the underlying `xmlNs` struct until the `Document` is GCed. Previously, maintaining a reference to a `Namespace` object that was removed in this way could lead to a segfault. [[#2658](https://github.com/sparklemotion/nokogiri/issues/2658)]
 
 
 ## 1.13.8 / 2022-07-23
