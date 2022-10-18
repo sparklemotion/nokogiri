@@ -9,12 +9,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Security
 
 * [CRuby] Vendored libxml2 is updated to address [CVE-2022-2309](https://nvd.nist.gov/vuln/detail/CVE-2022-2309), [CVE-2022-40304](https://nvd.nist.gov/vuln/detail/CVE-2022-40304), and [CVE-2022-40303](https://nvd.nist.gov/vuln/detail/CVE-2022-40303). See [GHSA-2qc6-mcvw-92cw](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-2qc6-mcvw-92cw) for more information.
+* [CRuby] Vendored zlib is updated to address [CVE-2022-37434](https://ubuntu.com/security/CVE-2022-37434). Nokogiri was not affected by this vulnerability, but this version of zlib was being flagged up by some vulnerability scanners, see [#2626](https://github.com/sparklemotion/nokogiri/issues/2626) for more information.
 
 
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to [v2.10.3](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.10.3) from v2.9.14.
 * [CRuby] Vendored libxslt is updated to [v1.1.37](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.37) from v1.1.35.
+* [CRuby] Vendored zlib is updated from 1.2.12 to 1.2.13. (See [LICENSE-DEPENDENCIES.md](https://github.com/sparklemotion/nokogiri/blob/v1.13.x/LICENSE-DEPENDENCIES.md#platform-releases) for details on which packages redistribute this library.)
 
 
 ### Fixed
