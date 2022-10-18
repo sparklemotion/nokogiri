@@ -375,7 +375,7 @@ jobs:
           bundler-cache: true
           bundler: latest
       - id: rcd_image_version
-        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "::set-output name=rcd_image_version::#{RakeCompilerDock::IMAGE_VERSION}"'
+        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "rcd_image_version=#{RakeCompilerDock::IMAGE_VERSION}"' >> $GITHUB_OUTPUT
 
   generic-package:
     needs: ["rcd_image_version"]
