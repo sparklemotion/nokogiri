@@ -712,9 +712,17 @@ else
       else
         class << recipe
           def configure
-            cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
-            execute("configure",
-              ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix])
+            env = {}
+            env["CFLAGS"] = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
+            env["CHOST"] = host
+            execute("configure", ["./configure", "--static", configure_prefix], { env: env })
+            if darwin?
+              # needed as of zlib 1.2.13
+              Dir.chdir(work_path) do
+                makefile = File.read("Makefile").gsub(/^AR=.*$/, "AR=#{host}-libtool")
+                File.open("Makefile", "w") { |m| m.write(makefile) }
+              end
+            end
           end
         end
       end

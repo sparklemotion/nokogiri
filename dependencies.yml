@@ -9,8 +9,8 @@ libxslt:
   # sha-256 hash provided in https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.37.sha256sum
 
 zlib:
-  version: "1.2.12"
-  sha256: "91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"
+  version: "1.2.13"
+  sha256: "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30"
   # SHA-256 hash provided on http://zlib.net/
 
 libiconv:
