@@ -13,9 +13,6 @@
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
 
-# make sure we do one final major before the process exits (for valgrind)
-at_exit { GC.start(full_mark: true) } unless ::RUBY_PLATFORM == "java"
-
 require "simplecov"
 SimpleCov.start do
   add_filter "/test/"
