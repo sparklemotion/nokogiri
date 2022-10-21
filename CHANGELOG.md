@@ -37,6 +37,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
 * [CRuby] Update node GC lifecycle to avoid a potential memory leak with fragments in libxml 2.13.0 caused by changes in `xmlAddChild`. [#3156] @flavorjones
 * [CRuby] libgumbo correctly prints nonstandard element names in error messages. [#3219] @stevecheckoway
+* [JRuby] Fixed some bugs in how `Node#attributes` handles attributes with namespaces. [#2677, #2679] @flavorjones
 
 
 ### Changed
