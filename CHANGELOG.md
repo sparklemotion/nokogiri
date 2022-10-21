@@ -33,7 +33,6 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Added
 
-* [CRuby] The HTML5 parser handles the [new `search` element](https://github.com/whatwg/html/pull/7320). [#2566](https://github.com/sparklemotion/nokogiri/issues/2566)
 * [CRuby] Invocation of custom XPath or CSS handler functions may now use the `nokogiri` namespace prefix. Historically, the JRuby implementation _required_ this namespace but the CRuby implementation did not support it. It's recommended that all XPath and CSS queries use the `nokogiri` namespace going forward. Invocation without the namespace is planned for deprecation in v1.15.0 and removal in a future release. [[#2147](https://github.com/sparklemotion/nokogiri/issues/2147)]
 
 
@@ -51,6 +50,9 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Improved
 
+* HTML5 spec changes:
+ - [Add the <search> element by domenic · whatwg/html](https://github.com/whatwg/html/pull/7320)
+ - [Remove parse error for <template><tr></tr> </template> by zcorpan · whatwg/html](https://github.com/whatwg/html/pull/8271)
 * Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
 * Parsing of HTML5 documents is ~90% faster thanks to additional compiler optimizations being applied. [[#2639](https://github.com/sparklemotion/nokogiri/issues/2639)]
 * `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. XML_C14N_1_0 or XML_C14N_1_1. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.

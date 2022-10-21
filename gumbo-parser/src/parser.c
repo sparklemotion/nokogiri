@@ -3437,7 +3437,7 @@ static void handle_in_table(GumboParser* parser, GumboToken* token) {
      || token->type == GUMBO_TOKEN_WHITESPACE
      || token->type == GUMBO_TOKEN_NULL)
     && node_tag_in_set(get_current_node(parser), &(const TagSet) {
-      TAG(TABLE), TAG(TBODY), TAG(TFOOT), TAG(THEAD), TAG(TR)
+      TAG(TABLE), TAG(TBODY), TAG(TEMPLATE), TAG(TFOOT), TAG(THEAD), TAG(TR)
     })
   ) {
     // The "pending table character tokens" list described in the spec is
