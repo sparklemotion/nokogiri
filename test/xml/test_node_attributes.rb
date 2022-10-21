@@ -5,19 +5,71 @@ require "helper"
 module Nokogiri
   module XML
     class TestNodeAttributes < Nokogiri::TestCase
-      def test_attribute_with_ns
-        doc = Nokogiri::XML(<<-eoxml)
-          <root xmlns:tlm='http://tenderlovemaking.com/'>
-            <node tlm:foo='bar' foo='baz' />
-          </root>
-        eoxml
+      let(:simple_xml_with_namespaces) { <<~XML }
+        <root xmlns:tlm='http://tenderlovemaking.com/'>
+          <node tlm:foo='bar' foo='baz' />
+          <next tlm:foo='baz' />
+        </root>
+      XML
 
-        node = doc.at("node")
+      describe "#attribute" do
+        it "returns an attribute that matches the local name" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("next")
+          refute_nil(attr = node.attribute("foo"))
 
-        assert_equal(
-          "bar",
-          node.attribute_with_ns("foo", "http://tenderlovemaking.com/").value,
-        )
+          # NOTE: that we don't make any claim over _which_ attribute should be returned.
+          # this situation is ambiguous and we make no guarantees.
+          assert_equal("foo", attr.name)
+        end
+
+        it "does not return an attribute that matches the full name" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("next")
+          assert_nil(node.attribute("tlm:foo"))
+        end
+      end
+
+      describe "#attribute_with_ns" do
+        it "returns the attribute that matches the name and namespace" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("node")
+
+          refute_nil(attr = node.attribute_with_ns("foo", "http://tenderlovemaking.com/"))
+          assert_equal("bar", attr.value)
+        end
+
+        it "returns the attribute that matches the name and nil namespace" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("node")
+
+          refute_nil(attr = node.attribute_with_ns("foo", nil))
+          assert_equal("baz", attr.value)
+        end
+
+        it "does not return a attribute that matches name but not namespace" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("node")
+
+          assert_nil(node.attribute_with_ns("foo", "http://nokogiri.org/"))
+        end
+
+        it "does not return a attribute that matches namespace but not name" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("node")
+
+          assert_nil(node.attribute_with_ns("not-present", "http://tenderlovemaking.com/"))
+        end
+      end
+
+      describe "#set_attribute" do
+        it "round trips" do
+          doc = Nokogiri.XML(simple_xml_with_namespaces)
+          node = doc.at_css("node")
+          node["xxx"] = "yyy"
+          refute_nil(node.attribute("xxx"))
+          assert_equal("yyy", node.attribute("xxx").value)
+        end
       end
 
       def test_prefixed_attributes
@@ -84,13 +136,8 @@ module Nokogiri
       end
 
       def test_namespace_key?
-        doc = Nokogiri::XML(<<-eoxml)
-          <root xmlns:tlm='http://tenderlovemaking.com/'>
-            <node tlm:foo='bar' foo='baz' />
-          </root>
-        eoxml
-
-        node = doc.at("node")
+        doc = Nokogiri.XML(simple_xml_with_namespaces)
+        node = doc.at_css("node")
 
         assert(node.namespaced_key?("foo", "http://tenderlovemaking.com/"))
         assert(node.namespaced_key?("foo", nil))
