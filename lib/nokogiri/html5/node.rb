@@ -58,7 +58,7 @@ module Nokogiri
           # Serialize including the current node.
           html = html_standard_serialize(options[:preserve_newline] || false)
           encoding ||= document.encoding || Encoding::UTF_8
-          io << html.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
+          io << html.encode(encoding, fallback: lambda { |c| "&#x#{c.ord.to_s(16)};" })
         end
       end
 

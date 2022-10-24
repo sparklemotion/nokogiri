@@ -900,7 +900,7 @@ else
       end
 
       patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(" ")
-      append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\\"#{patches_string}\\\""])
+      append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\"#{patches_string}\\""])
 
       case libname
       when "xml2"
@@ -996,7 +996,7 @@ have_func("rb_gc_location") # introduced in Ruby 2.7
 have_func("rb_category_warning") # introduced in Ruby 3.0
 
 other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k, v| [k, v].join(":") }.join(",")
-append_cppflags(%[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\\"#{other_library_versions_string}\\\""])
+append_cppflags(%[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\"#{other_library_versions_string}\\""])
 
 unless config_system_libraries?
   if cross_build_p
