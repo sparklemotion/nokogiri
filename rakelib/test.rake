@@ -56,8 +56,8 @@ class ValgrindTestTask < Rake::TestTask
   def matching_suppression_files
     matching_files = []
     version_matches.each do |version_string|
-      matching_files += Dir[File.join(DEFAULT_DIRECTORY_NAME, "nokogiri_#{version_string}.supp")]
-      matching_files += Dir[File.join(DEFAULT_DIRECTORY_NAME, "nokogiri_#{version_string}_*.supp")]
+      matching_files += Dir[File.join(DEFAULT_DIRECTORY_NAME, "#{version_string}.supp")]
+      matching_files += Dir[File.join(DEFAULT_DIRECTORY_NAME, "#{version_string}_*.supp")]
     end
     matching_files
   end
