@@ -23,7 +23,7 @@ group :development do
   # tests
   gem "minitest", "= 5.16.3"
   gem "minitest-reporters", "= 1.5.0"
-  gem "ruby_memcheck", "= 1.0.3" unless ::RUBY_PLATFORM == "java"
+  gem "ruby_memcheck", "1.2.0" unless ::RUBY_PLATFORM == "java"
   gem "simplecov", "= 0.21.2"
 
   # rubocop
