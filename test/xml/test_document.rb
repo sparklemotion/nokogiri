@@ -81,7 +81,7 @@ module Nokogiri
         end
 
         def test_document_with_initial_space
-          doc = Nokogiri::XML(" <?xml version='1.0' encoding='utf-8' ?><first \>")
+          doc = Nokogiri::XML(" <?xml version='1.0' encoding='utf-8' ?><first >")
           assert_equal(2, doc.children.size)
         end
 

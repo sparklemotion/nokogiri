@@ -89,7 +89,7 @@ EOF
         io.write(pipeline_prelude)
 
         Dir.glob(File.join(IMAGE_DIR, "*.dockerfile")).sort.each do |dockerfile|
-          image_tag = Regexp.new("(.*)\.dockerfile").match(File.basename(dockerfile))[1]
+          image_tag = Regexp.new("(.*)\\.dockerfile").match(File.basename(dockerfile))[1]
           template_params = {
             job_name: image_tag,
             image_name: "#{IMAGE_NAME}:#{image_tag}",
