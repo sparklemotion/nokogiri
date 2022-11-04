@@ -234,7 +234,7 @@ module Nokogiri
     #
     # == Document Types
     #
-    # To create a document type (DTD), access use the Builder#doc method to get
+    # To create a document type (DTD), use the Builder#doc method to get
     # the current context document.  Then call Node#create_internal_subset to
     # create the DTD node.
     #
