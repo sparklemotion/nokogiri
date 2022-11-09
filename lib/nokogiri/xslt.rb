@@ -47,7 +47,7 @@ module Nokogiri
       # [Returns] Array of string parameters, with quotes correctly escaped for use with XSLT::Stylesheet.transform
       #
       def quote_params(params)
-        params.flatten.each_slice(2).each_with_object([]) do |kv, quoted_params|
+        params.flatten.each_slice(2).with_object([]) do |kv, quoted_params|
           key, value = kv.map(&:to_s)
           value = if /'/.match?(value)
             "concat('#{value.gsub(/'/, %q{', "'", '})}')"
