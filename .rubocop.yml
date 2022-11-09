@@ -18,3 +18,5 @@ Naming/MethodName:
 Naming/FileName:
   Exclude:
     - rakelib/**
+Minitest/EmptyLineBeforeAssertionMethods:
+  Enabled: false
