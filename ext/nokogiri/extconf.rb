@@ -628,7 +628,10 @@ append_cflags("-Winline")
 append_cflags("-Wmissing-noreturn")
 
 # handle clang variations, see #1101
-append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if darwin?
+if darwin?
+  append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
+  append_cflags("-Wno-unknown-warning-option")
+end
 
 # these tend to be noisy, but on occasion useful during development
 # append_cflags(["-Wcast-qual", "-Wwrite-strings"])
