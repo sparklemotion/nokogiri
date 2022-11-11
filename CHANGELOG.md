@@ -46,6 +46,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [CRuby] `Nokogiri::HTML5::Document#url` now correctly returns the URL passed to the constructor method. Previously it always returned `nil`. [[#2583](https://github.com/sparklemotion/nokogiri/issues/2583)]
 * [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https://github.com/sparklemotion/nokogiri/issues/1247)]
 * [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
+* [CRuby+OSX] Compiling from source on MacOS will use the clang option `-Wno-unknown-warning-option` to avoid errors when Ruby injects options that clang doesn't know about. [[#2689](https://github.com/sparklemotion/nokogiri/issues/2689)]
 
 
 ### Improved
