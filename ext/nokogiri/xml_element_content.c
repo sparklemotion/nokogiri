@@ -31,7 +31,7 @@ get_type(VALUE self)
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  return INT2NUM((long)elem->type);
+  return INT2NUM(elem->type);
 }
 
 /*
@@ -79,7 +79,7 @@ get_occur(VALUE self)
   xmlElementContentPtr elem;
   Data_Get_Struct(self, xmlElementContent, elem);
 
-  return INT2NUM((long)elem->ocur);
+  return INT2NUM(elem->ocur);
 }
 
 /*

@@ -146,7 +146,7 @@ rb_html_document_type(VALUE self)
 {
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM((long)doc->type);
+  return INT2NUM(doc->type);
 }
 
 void

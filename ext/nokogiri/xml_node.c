@@ -799,7 +799,7 @@ rb_xml_node_pointer_id(VALUE self)
   xmlNodePtr node;
   Noko_Node_Get_Struct(self, xmlNode, node);
 
-  return INT2NUM((long)(node));
+  return rb_uint2inum((uintptr_t)(node));
 }
 
 /*
@@ -1499,7 +1499,7 @@ node_type(VALUE self)
 {
   xmlNodePtr node;
   Noko_Node_Get_Struct(self, xmlNode, node);
-  return INT2NUM((long)node->type);
+  return INT2NUM(node->type);
 }
 
 /*
@@ -2010,7 +2010,7 @@ rb_xml_node_line(VALUE rb_node)
   xmlNodePtr c_node;
   Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
-  return INT2NUM(xmlGetLineNo(c_node));
+  return LONG2NUM(xmlGetLineNo(c_node));
 }
 
 /*
@@ -2113,7 +2113,7 @@ compare(VALUE self, VALUE _other)
   Noko_Node_Get_Struct(self, xmlNode, node);
   Noko_Node_Get_Struct(_other, xmlNode, other);
 
-  return INT2NUM((long)xmlXPathCmpNodes(other, node));
+  return INT2NUM(xmlXPathCmpNodes(other, node));
 }
 
 

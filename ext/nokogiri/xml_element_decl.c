@@ -15,7 +15,7 @@ element_type(VALUE self)
 {
   xmlElementPtr node;
   Noko_Node_Get_Struct(self, xmlElement, node);
-  return INT2NUM((long)node->etype);
+  return INT2NUM(node->etype);
 }
 
 /*

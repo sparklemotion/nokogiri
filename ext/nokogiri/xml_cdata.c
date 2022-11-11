@@ -29,7 +29,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   if (!NIL_P(content)) {
     content_str = (xmlChar *)StringValuePtr(content);
-    content_str_len = RSTRING_LEN(content);
+    content_str_len = RSTRING_LENINT(content);
   }
 
   node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);

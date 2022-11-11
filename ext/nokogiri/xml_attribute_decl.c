@@ -13,7 +13,7 @@ attribute_type(VALUE self)
 {
   xmlAttributePtr node;
   Noko_Node_Get_Struct(self, xmlAttribute, node);
-  return INT2NUM((long)node->atype);
+  return INT2NUM(node->atype);
 }
 
 /*
