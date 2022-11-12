@@ -504,6 +504,7 @@ error:
     if (RSTRING_LEN(tag_name) == 14
         && !st_strcasecmp(ctx_tag, "annotation-xml")) {
       VALUE enc = rb_funcall(ctx, rb_intern_const("[]"),
+                             1,
                              rb_utf8_str_new_static("encoding", 8));
       if (RTEST(enc)) {
         Check_Type(enc, T_STRING);
