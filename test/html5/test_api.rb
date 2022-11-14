@@ -187,6 +187,26 @@ class TestHtml5API < Nokogiri::TestCase
     assert_empty(frag.children)
   end
 
+  def test_fragment_with_annotation_xml_context
+    # An annotation-xml element with an encoding of text/html or application/xhtml+xml
+    # is an HTML integration point so its children are not in the MathML namespace.
+    # Other encodings are not HTML integration points so children are in the MathML namespace.
+    doc = Nokogiri.HTML5("<!DOCTYPE html><math><annotation-xml encoding='MathML-Presentation' /></math>")
+    a_xml = doc.xpath("//math:annotation-xml")[0]
+    frag = a_xml.fragment("<mi>x</mi>")
+    mi = frag.children[0]
+    assert_equal("mi", mi.name)
+    refute_nil(mi.namespace)
+    assert_equal("math", mi.namespace.prefix)
+
+    doc = Nokogiri.HTML5("<!DOCTYPE html><math><annotation-xml encoding='text/html' /></math>")
+    a_xml = doc.xpath("//math:annotation-xml")[0]
+    frag = a_xml.fragment("<mi>x</mi>")
+    mi = frag.children[0]
+    assert_equal("mi", mi.name)
+    assert_nil(mi.namespace)
+  end
+
   def test_html_eh
     doc = Nokogiri.HTML5("<html><body><div></div></body></html>")
     assert_predicate(doc, :html?)
