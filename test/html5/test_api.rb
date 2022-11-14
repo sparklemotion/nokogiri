@@ -213,6 +213,29 @@ class TestHtml5API < Nokogiri::TestCase
     refute_predicate(doc, :xml?)
   end
 
+  def test_node_wrap
+    doc = Nokogiri.HTML5("<html><body><div></div></body></html>")
+    div = doc.at_css("div")
+    div.wrap("<section></section>")
+
+    assert_equal("section", div.parent.name)
+    assert_equal("body", div.parent.parent.name)
+  end
+
+  def test_node_wrap_uses_parent_node_as_parsing_context_node
+    doc = Nokogiri.HTML5("<html><body><select><option></option></select></body></html>")
+    el = doc.at_css("option")
+
+    # fails to parse because `div` is not valid in the context of a `select` element
+    exception = assert_raises(RuntimeError) { el.wrap("<div></div>") }
+    assert_match(/Failed to parse .* in the context of a 'select' element/, exception.message)
+
+    # parses because `optgroup` is valid in the context of a `select` element
+    el.wrap("<optgroup></optgroup>")
+    assert_equal("optgroup", el.parent.name)
+    assert_equal("select", el.parent.parent.name)
+  end
+
   describe Nokogiri::HTML5::Document do
     describe "#fragment" do
       it "parses text nodes in a `body` context" do

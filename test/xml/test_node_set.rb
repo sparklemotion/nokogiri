@@ -540,17 +540,45 @@ module Nokogiri
 
         describe "#wrap" do
           it "wraps each node within a reified copy of the tag passed" do
-            employees = (xml / "//employee").wrap("<wrapper/>")
-            assert_equal("wrapper", employees[0].parent.name)
-            assert_equal("employee", xml.search("//wrapper").first.children[0].name)
+            employees = xml.css("employee")
+            rval = employees.wrap("<wrapper/>")
+            wrappers = xml.css("wrapper")
+
+            assert_equal(rval, employees)
+            assert_equal(employees.length, wrappers.length)
+            employees.each do |employee|
+              assert_equal("wrapper", employee.parent.name)
+            end
+            wrappers.each do |wrapper|
+              assert_equal("staff", wrapper.parent.name)
+              assert_equal(1, wrapper.children.length)
+              assert_equal("employee", wrapper.children.first.name)
+            end
+          end
+
+          it "wraps each node within a dup of the Node argument" do
+            employees = xml.css("employee")
+            rval = employees.wrap(xml.create_element("wrapper"))
+            wrappers = xml.css("wrapper")
+
+            assert_equal(rval, employees)
+            assert_equal(employees.length, wrappers.length)
+            employees.each do |employee|
+              assert_equal("wrapper", employee.parent.name)
+            end
+            wrappers.each do |wrapper|
+              assert_equal("staff", wrapper.parent.name)
+              assert_equal(1, wrapper.children.length)
+              assert_equal("employee", wrapper.children.first.name)
+            end
           end
 
           it "handles various node types and handles recursive reparenting" do
-            xml = "<root><foo>contents</foo></root>"
-            doc = Nokogiri::XML(xml)
+            doc = Nokogiri::XML("<root><foo>contents</foo></root>")
             nodes = doc.at_css("root").xpath(".//* | .//*/text()") # foo and "contents"
             nodes.wrap("<wrapper/>")
             wrappers = doc.css("wrapper")
+
             assert_equal("root", wrappers.first.parent.name)
             assert_equal("foo", wrappers.first.children.first.name)
             assert_equal("foo", wrappers.last.parent.name)
@@ -565,7 +593,7 @@ module Nokogiri
                 <employee>goodbye</employee>
               </employees>
             EOXML
-            employees = frag.xpath(".//employee")
+            employees = frag.css("employee")
             employees.wrap("<wrapper/>")
             assert_equal("wrapper", employees[0].parent.name)
             assert_equal("employee", frag.at(".//wrapper").children.first.name)
