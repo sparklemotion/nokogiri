@@ -17,8 +17,15 @@ class TestHtml5Encoding < Nokogiri::TestCase
       assert_equal("<span>Señor</span>", doc.at("span").to_xml)
     end
 
-    def test_charset_encoding
+    def test_meta_charset_encoding
       utf8 = (+"<meta charset='utf-8'><span>Se\xC3\xB1or</span>")
+        .force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(utf8)
+      assert_equal("<span>Señor</span>", doc.at("span").to_xml)
+    end
+
+    def test_META_CHARSET_encoding
+      utf8 = (+"<META CHARSET='utf-8'><SPAN>Se\xC3\xB1or</SPAN>")
         .force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(utf8)
       assert_equal("<span>Señor</span>", doc.at("span").to_xml)
