@@ -1,6 +1,8 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
+#include <ruby/defines.h> // https://github.com/sparklemotion/nokogiri/issues/2696
+
 #ifdef _MSC_VER
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
@@ -22,7 +24,6 @@
 #  define NOKOPUBFUN
 #  define NOKOPUBVAR extern
 #endif
-
 
 #include <stdlib.h>
 #include <string.h>
