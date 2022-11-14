@@ -363,7 +363,7 @@ module Nokogiri
           # look for a charset in a meta tag in the first 1024 bytes
           unless encoding
             data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
-            data.scan(/<meta.*?>/m).each do |meta|
+            data.scan(/<meta.*?>/im).each do |meta|
               encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
             end
           end
