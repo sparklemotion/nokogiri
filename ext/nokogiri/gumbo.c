@@ -281,12 +281,12 @@ add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
       rb_iv_set(syntax_error, "@file", url);
-      rb_iv_set(syntax_error, "@line", INT2NUM(position.line));
+      rb_iv_set(syntax_error, "@line", SIZET2NUM(position.line));
       rb_iv_set(syntax_error, "@str1", str1);
       rb_iv_set(syntax_error, "@str2", Qnil);
       rb_iv_set(syntax_error, "@str3", Qnil);
       rb_iv_set(syntax_error, "@int1", INT2NUM(0));
-      rb_iv_set(syntax_error, "@column", INT2NUM(position.column));
+      rb_iv_set(syntax_error, "@column", SIZET2NUM(position.column));
       rb_ary_push(rerrors, syntax_error);
     }
     rb_iv_set(rdoc, "@errors", rerrors);

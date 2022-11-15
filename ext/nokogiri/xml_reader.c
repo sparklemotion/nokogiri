@@ -300,7 +300,7 @@ attribute_count(VALUE self)
   count = xmlTextReaderAttributeCount(reader);
   if (count == -1) { return Qnil; }
 
-  return INT2NUM((long)count);
+  return INT2NUM(count);
 }
 
 /*
@@ -319,7 +319,7 @@ depth(VALUE self)
   depth = xmlTextReaderDepth(reader);
   if (depth == -1) { return Qnil; }
 
-  return INT2NUM((long)depth);
+  return INT2NUM(depth);
 }
 
 /*
@@ -492,7 +492,7 @@ state(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  return INT2NUM((long)xmlTextReaderReadState(reader));
+  return INT2NUM(xmlTextReaderReadState(reader));
 }
 
 /*
@@ -506,7 +506,7 @@ node_type(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  return INT2NUM((long)xmlTextReaderNodeType(reader));
+  return INT2NUM(xmlTextReaderNodeType(reader));
 }
 
 /*

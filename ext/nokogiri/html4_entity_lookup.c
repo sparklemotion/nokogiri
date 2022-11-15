@@ -20,7 +20,7 @@ get(VALUE _, VALUE rb_entity_name)
     return Qnil;
   }
 
-  rb_constructor_args[0] = INT2NUM((long)c_entity_desc->value);
+  rb_constructor_args[0] = UINT2NUM(c_entity_desc->value);
   rb_constructor_args[1] = NOKOGIRI_STR_NEW2(c_entity_desc->name);
   rb_constructor_args[2] = NOKOGIRI_STR_NEW2(c_entity_desc->desc);
 
