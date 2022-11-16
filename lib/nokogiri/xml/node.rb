@@ -176,14 +176,71 @@ module Nokogiri
         end
       end
 
-      ###
-      # Add html around this node
+      # :call-seq:
+      #   wrap(markup) -> self
+      #   wrap(node) -> self
       #
-      # Returns self
-      def wrap(html)
-        new_parent = document.parse(html).first
-        add_next_sibling(new_parent)
+      # Wrap this Node with the node parsed from +markup+ or a dup of the +node+.
+      #
+      # [Parameters]
+      # - *markup* (String)
+      #   Markup that is parsed and used as the wrapper. This node's parent, if it exists, is used
+      #   as the context node for parsing; otherwise the associated document is used. If the parsed
+      #   fragment has multiple roots, the first root node is used as the wrapper.
+      # - *node* (Nokogiri::XML::Node)
+      #   An element that is `#dup`ed and used as the wrapper.
+      #
+      # [Returns] +self+, to support chaining.
+      #
+      # Also see NodeSet#wrap
+      #
+      # *Example* with a +String+ argument:
+      #
+      #   doc = Nokogiri::HTML5(<<~HTML)
+      #     <html><body>
+      #       <a>asdf</a>
+      #     </body></html>
+      #   HTML
+      #   doc.at_css("a").wrap("<div></div>")
+      #   doc.to_html
+      #   # => <html><head></head><body>
+      #   #      <div><a>asdf</a></div>
+      #   #    </body></html>
+      #
+      # *Example* with a +Node+ argument:
+      #
+      #   doc = Nokogiri::HTML5(<<~HTML)
+      #     <html><body>
+      #       <a>asdf</a>
+      #     </body></html>
+      #   HTML
+      #   doc.at_css("a").wrap(doc.create_element("div"))
+      #   doc.to_html
+      #   # <html><head></head><body>
+      #   #   <div><a>asdf</a></div>
+      #   # </body></html>
+      #
+      def wrap(node_or_tags)
+        case node_or_tags
+        when String
+          context_node = parent || document
+          new_parent = context_node.coerce(node_or_tags).first
+          if new_parent.nil?
+            raise "Failed to parse '#{node_or_tags}' in the context of a '#{context_node.name}' element"
+          end
+        when XML::Node
+          new_parent = node_or_tags.dup
+        else
+          raise ArgumentError, "Requires a String or Node argument, and cannot accept a #{node_or_tags.class}"
+        end
+
+        if parent
+          add_next_sibling(new_parent)
+        else
+          new_parent.unlink
+        end
         new_parent.add_child(self)
+
         self
       end
 
@@ -193,7 +250,7 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
       # containing markup.
       #
-      # Returns self, to support chaining of calls (e.g., root << child1 << child2)
+      # Returns +self+, to support chaining of calls (e.g., root << child1 << child2)
       #
       # Also see related method +add_child+.
       def <<(node_or_tags)
@@ -241,7 +298,7 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
       # containing markup.
       #
-      # Returns self, to support chaining of calls.
+      # Returns +self+, to support chaining of calls.
       #
       # Also see related method +add_previous_sibling+.
       def before(node_or_tags)
@@ -255,7 +312,7 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a String
       # containing markup.
       #
-      # Returns self, to support chaining of calls.
+      # Returns +self+, to support chaining of calls.
       #
       # Also see related method +add_next_sibling+.
       def after(node_or_tags)

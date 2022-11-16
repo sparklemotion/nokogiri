@@ -1297,13 +1297,65 @@ module Nokogiri
           end
         end
 
-        def test_wrap
-          xml = '<root><thing><div class="title">important thing</div></thing></root>'
-          doc = Nokogiri::XML(xml)
-          thing = doc.at_css("thing")
-          thing.wrap("<wrapper/>")
-          assert_equal("wrapper", thing.parent.name)
-          assert_equal("thing", doc.at_css("wrapper").children.first.name)
+        describe "#wrap" do
+          let(:xml) { "<root><thing><div>important thing</div></thing></root>" }
+          let(:doc) { Nokogiri::XML(xml) }
+
+          describe "string markup argument" do
+            it "parses and wraps" do
+              thing = doc.at_css("thing")
+              rval = thing.wrap("<wrapper/>")
+              wrapper = doc.at_css("wrapper")
+
+              assert_equal(rval, thing)
+              assert_equal(wrapper, thing.parent)
+              assert_equal("root", wrapper.parent.name)
+              assert_equal(1, wrapper.children.length)
+              assert_equal("thing", wrapper.children.first.name)
+            end
+
+            it "wraps unparented nodes" do
+              thing = doc.create_element("thing")
+              thing.wrap("<wrapper/>")
+
+              assert_equal("wrapper", thing.parent.name)
+              assert_nil(thing.parent.parent)
+            end
+          end
+
+          describe "Node argument" do
+            it "wraps using a dup of the node" do
+              thing = doc.at_css("thing")
+              wrapper_template = doc.create_element("wrapper")
+              rval = thing.wrap(wrapper_template)
+              wrapper = doc.at_css("wrapper")
+
+              assert_equal(rval, thing)
+              refute_equal(wrapper, wrapper_template)
+              assert_equal(wrapper, thing.parent)
+              assert_equal("root", wrapper.parent.name)
+              assert_equal(1, wrapper.children.length)
+              assert_equal("thing", wrapper.children.first.name)
+            end
+
+            it "wraps unparented nodes" do
+              thing = doc.create_element("thing")
+              wrapper_template = doc.create_element("wrapper")
+              thing.wrap(wrapper_template)
+
+              refute_equal(wrapper_template, thing.parent)
+              assert_equal("wrapper", thing.parent.name)
+              assert_nil(thing.parent.parent)
+            end
+          end
+
+          it "raises an ArgumentError on other types" do
+            thing = doc.at_css("thing")
+
+            assert_raises(ArgumentError) do
+              thing.wrap(1)
+            end
+          end
         end
 
         describe "#line" do

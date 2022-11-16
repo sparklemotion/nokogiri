@@ -33,6 +33,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Added
 
+* `Node#wrap` and `NodeSet#wrap` now also accept a `Node` type argument, which will be `dup`ed for each wrapper. For cases where many nodes are being wrapped, creating a `Node` once using `Document#create_element` and passing that `Node` multiple times is significantly faster than re-parsing markup on each call. [[#2657](https://github.com/sparklemotion/nokogiri/issues/2657)]
 * [CRuby] Invocation of custom XPath or CSS handler functions may now use the `nokogiri` namespace prefix. Historically, the JRuby implementation _required_ this namespace but the CRuby implementation did not support it. It's recommended that all XPath and CSS queries use the `nokogiri` namespace going forward. Invocation without the namespace is planned for deprecation in v1.15.0 and removal in a future release. [[#2147](https://github.com/sparklemotion/nokogiri/issues/2147)]
 
 
@@ -40,6 +41,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 * `SAX::Parser`'s `encoding` attribute will not be clobbered when an alternative encoding is passed into `SAX::Parser#parse_io`. [[#1942](https://github.com/sparklemotion/nokogiri/issues/1942)] (Thanks, [@kp666](https://github.com/kp666)!)
 * Serialized `HTML4::DocumentFragment` will now be properly encoded. Previously this empty string was encoded as `US-ASCII`. [[#2649](https://github.com/sparklemotion/nokogiri/issues/2649)]
+* `Node#wrap` now uses the parent as the context node for parsing wrapper markup, falling back to the document for unparented nodes. Previously the document was always used.
 * [CRuby] UTF-16-encoded documents longer than ~4000 code points now serialize properly. Previously the serialized document was corrupted when it exceeded the length of libxml2's internal string buffer. [[#752](https://github.com/sparklemotion/nokogiri/issues/752)]
 * [CRuby] The HTML5 parser now correctly handles text at the end of `form` elements.
 * [CRuby] `HTML5::Document#fragment` now always uses `body` as the parsing context. Previously, fragments were parsed in the context of the associated document's root node, which allowed for inconsistent parsing. [[#2553](https://github.com/sparklemotion/nokogiri/issues/2553)]

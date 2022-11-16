@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Nokogiri
@@ -260,10 +261,73 @@ module Nokogiri
         collect { |j| j.inner_html(*args) }.join("")
       end
 
-      ###
-      # Wrap this NodeSet with +html+
-      def wrap(html)
-        map { |node| node.wrap(html) }
+      # :call-seq:
+      #   wrap(markup) -> self
+      #   wrap(node) -> self
+      #
+      # Wrap each member of this NodeSet with the node parsed from +markup+ or a dup of the +node+.
+      #
+      # [Parameters]
+      # - *markup* (String)
+      #   Markup that is parsed, once per member of the NodeSet, and used as the wrapper. Each
+      #   node's parent, if it exists, is used as the context node for parsing; otherwise the
+      #   associated document is used. If the parsed fragment has multiple roots, the first root
+      #   node is used as the wrapper.
+      # - *node* (Nokogiri::XML::Node)
+      #   An element that is `#dup`ed and used as the wrapper.
+      #
+      # [Returns] +self+, to support chaining.
+      #
+      # ⚠ Note that if a +String+ is passed, the markup will be parsed <b>once per node</b> in the
+      # NodeSet. You can avoid this overhead in cases where you know exactly the wrapper you wish to
+      # use by passing a +Node+ instead.
+      #
+      # Also see Node#wrap
+      #
+      # *Example* with a +String+ argument:
+      #
+      #   doc = Nokogiri::HTML5(<<~HTML)
+      #     <html><body>
+      #       <a>a</a>
+      #       <a>b</a>
+      #       <a>c</a>
+      #       <a>d</a>
+      #     </body></html>
+      #   HTML
+      #   doc.css("a").wrap("<div></div>")
+      #   doc.to_html
+      #   # => <html><head></head><body>
+      #   #      <div><a>a</a></div>
+      #   #      <div><a>b</a></div>
+      #   #      <div><a>c</a></div>
+      #   #      <div><a>d</a></div>
+      #   #    </body></html>
+      #
+      # *Example* with a +Node+ argument
+      #
+      # 💡 Note that this is faster than the equivalent call passing a +String+ because it avoids
+      # having to reparse the wrapper markup for each node.
+      #
+      #   doc = Nokogiri::HTML5(<<~HTML)
+      #     <html><body>
+      #       <a>a</a>
+      #       <a>b</a>
+      #       <a>c</a>
+      #       <a>d</a>
+      #     </body></html>
+      #   HTML
+      #   doc.css("a").wrap(doc.create_element("div"))
+      #   doc.to_html
+      #   # => <html><head></head><body>
+      #   #      <div><a>a</a></div>
+      #   #      <div><a>b</a></div>
+      #   #      <div><a>c</a></div>
+      #   #      <div><a>d</a></div>
+      #   #    </body></html>
+      #
+      def wrap(node_or_tags)
+        map { |node| node.wrap(node_or_tags) }
+        self
       end
 
       ###
