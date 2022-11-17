@@ -66,6 +66,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
 * Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
 * Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
+* Empty CSS selectors now raise a clearer `Nokogiri::CSS::SyntaxError` message, "empty CSS selector". Previously the exception raised from the bowels of `racc` was "unexpected '$' after ''". [[#2700](https://github.com/sparklemotion/nokogiri/issues/2700)]
 
 
 ### Deprecated

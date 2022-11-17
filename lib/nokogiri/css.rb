@@ -40,9 +40,15 @@ module Nokogiri
       # 💡 Note that translated queries are cached for performance concerns.
       #
       def xpath_for(selector, options = {})
+        raise TypeError, "no implicit conversion of #{selector.inspect} to String" unless selector.respond_to?(:to_str)
+
+        selector = selector.to_str
+        raise Nokogiri::CSS::SyntaxError, "empty CSS selector" if selector.empty?
+
         prefix = options.fetch(:prefix, Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX)
         visitor = options.fetch(:visitor) { Nokogiri::CSS::XPathVisitor.new }
         ns = options.fetch(:ns, {})
+
         Parser.new(ns).xpath_for(selector, prefix, visitor)
       end
     end
