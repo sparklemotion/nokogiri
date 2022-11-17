@@ -459,10 +459,8 @@ jobs:
         with:
           name: generic-gem
           path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
-          gem list -d nokogiri
-          nokogiri -v
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+        shell: bash
 
   generic-windows-install-ucrt:
     needs: ["generic-package"]
@@ -483,10 +481,8 @@ jobs:
         with:
           name: generic-gem
           path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
-          gem list -d nokogiri
-          nokogiri -v
+      - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
+        shell: bash
 
   cruby-package:
     needs: ["rcd_image_version"]
@@ -654,6 +650,9 @@ jobs:
         ruby: ["2.6", "2.7", "3.0"]
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
@@ -661,10 +660,8 @@ jobs:
         with:
           name: cruby-x64-mingw32-gem
           path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem
-          gem list -d nokogiri
-          nokogiri -v
+      - run: ./scripts/test-gem-install gems
+        shell: bash
 
   cruby-x64-mingw-ucrt-install:
     needs: ["cruby-package"]
@@ -674,6 +671,9 @@ jobs:
         ruby: ["3.1"]
     runs-on: windows-2022
     steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "${{matrix.ruby}}"
@@ -681,10 +681,8 @@ jobs:
         with:
           name: cruby-x64-mingw-ucrt-gem
           path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem
-          gem list -d nokogiri
-          nokogiri -v
+      - run: ./scripts/test-gem-install gems
+        shell: bash
 
   jruby-package:
     needs: ["rcd_image_version"]
