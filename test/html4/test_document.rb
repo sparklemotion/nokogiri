@@ -772,7 +772,7 @@ module Nokogiri
               doc = Nokogiri::HTML4.parse(input)
               body = doc.at_xpath("//body")
 
-              if Nokogiri.uses_libxml?("= 2.9.13") && !upstream_xmlsoft?
+              if Nokogiri.uses_libxml?("= 2.9.13")
                 # <body><div>this <div>second element</div></div></body>
                 assert_equal(1, body.children.length)
                 body.children.first.tap do |div|
