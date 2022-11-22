@@ -66,6 +66,11 @@ module Nokogiri
               #  assert that this attribute's serialization is unaffected.
               #
               assert_equal %{examp<!--" unsafeattr=unsafevalue()>-->le.com}, attributes.first.value
+            elsif Nokogiri.uses_libxml?(">= 2.11.0")
+              #
+              #  as of upstream 76d6b0d768d4e60a2d2844d in v2.11.0 (dev), quotes are no longer escaped.
+              #
+              assert_equal %{examp<!--"%20unsafeattr=unsafevalue()>-->le.com}, attributes.first.value
             else
               #
               #  let's match the behavior in libxml < 2.9.2.

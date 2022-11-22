@@ -133,14 +133,6 @@ module Nokogiri
     @@test_count = 0 # rubocop:disable Style/ClassVars
     @@gc_level = nil # rubocop:disable Style/ClassVars
 
-    def self.upstream_xmlsoft?
-      ENV["CI_UPSTREAM_XMLSOFT"] || Nokogiri::LIBXML_LOADED_VERSION.include?("-GIT")
-    end
-
-    def upstream_xmlsoft?
-      self.class.upstream_xmlsoft?
-    end
-
     def initialize_nokogiri_test_gc_level
       return if Nokogiri.jruby?
       return if @@gc_level
