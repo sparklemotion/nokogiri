@@ -415,6 +415,50 @@ module Nokogiri
         Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML
       end
 
+      #
+      #  :call-seq: deconstruct_keys(array_of_names) → Hash
+      #
+      #  Returns a hash describing the Document, to use in pattern matching.
+      #
+      #  Valid keys and their values:
+      #  - +root+ → (Node, nil) The root node of the Document, or +nil+ if the document is empty.
+      #
+      #  In the future, other keys may allow accessing things like doctype and processing
+      #  instructions. If you have a use case and would like this functionality, please let us know
+      #  by opening an issue or a discussion on the github project.
+      #
+      #  ⚡ This is an experimental feature, available since v1.14.0
+      #
+      #  *Example*
+      #
+      #    doc = Nokogiri::XML.parse(<<~XML)
+      #      <?xml version="1.0"?>
+      #      <root>
+      #        <child>
+      #      </root>
+      #    XML
+      #
+      #    doc.deconstruct_keys([:root])
+      #    # => {:root=>
+      #    #      #(Element:0x35c {
+      #    #        name = "root",
+      #    #        children = [
+      #    #          #(Text "\n" + "  "),
+      #    #          #(Element:0x370 { name = "child", children = [ #(Text "\n")] }),
+      #    #          #(Text "\n")]
+      #    #        })}
+      #
+      #  *Example* of an empty document
+      #
+      #    doc = Nokogiri::XML::Document.new
+      #
+      #    doc.deconstruct_keys([:root])
+      #    # => {:root=>nil}
+      #
+      def deconstruct_keys(keys)
+        { root: root }
+      end
+
       private
 
       IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:

@@ -74,10 +74,26 @@ static const rb_data_type_t nokogiri_xml_namespace_type_without_dealloc = {
 };
 
 /*
- * call-seq:
- *  prefix
+ *  :call-seq:
+ *    prefix() → String or nil
  *
- * Get the prefix for this namespace.  Returns +nil+ if there is no prefix.
+ *  Return the prefix for this Namespace, or +nil+ if there is no prefix (e.g., default namespace).
+ *
+ *  *Example*
+ *
+ *    doc = Nokogiri::XML.parse(<<~XML)
+ *      <?xml version="1.0"?>
+ *      <root xmlns="http://nokogiri.org/ns/default" xmlns:noko="http://nokogiri.org/ns/noko">
+ *        <child1 foo="abc" noko:bar="def"/>
+ *        <noko:child2 foo="qwe" noko:bar="rty"/>
+ *      </root>
+ *    XML
+ *
+ *    doc.root.elements.first.namespace.prefix
+ *    # => nil
+ *
+ *    doc.root.elements.last.namespace.prefix
+ *    # => "noko"
  */
 static VALUE
 prefix(VALUE self)
@@ -91,10 +107,26 @@ prefix(VALUE self)
 }
 
 /*
- * call-seq:
- *  href
+ *  :call-seq:
+ *    href() → String
  *
- * Get the href for this namespace
+ *  Returns the URI reference for this Namespace.
+ *
+ *  *Example*
+ *
+ *    doc = Nokogiri::XML.parse(<<~XML)
+ *      <?xml version="1.0"?>
+ *      <root xmlns="http://nokogiri.org/ns/default" xmlns:noko="http://nokogiri.org/ns/noko">
+ *        <child1 foo="abc" noko:bar="def"/>
+ *        <noko:child2 foo="qwe" noko:bar="rty"/>
+ *      </root>
+ *    XML
+ *
+ *    doc.root.elements.first.namespace.href
+ *    # => "http://nokogiri.org/ns/default"
+ *
+ *    doc.root.elements.last.namespace.href
+ *    # => "http://nokogiri.org/ns/noko"
  */
 static VALUE
 href(VALUE self)
