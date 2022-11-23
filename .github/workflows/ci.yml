@@ -650,7 +650,7 @@ jobs:
         ruby: ["2.6", "2.7", "3.0"]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
@@ -671,7 +671,7 @@ jobs:
         ruby: ["3.1"]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
