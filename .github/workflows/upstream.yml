@@ -9,27 +9,44 @@ on:
 
 jobs:
   xmlsoft-head:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ["ubuntu", "windows", "macos"]
+    runs-on: ${{matrix.plat}}-latest
+    env:
+      NOKOGIRI_TEST_GC_LEVEL: normal
     steps:
+      - name: configure git crlf
+        if: matrix.plat == 'windows'
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
       - uses: actions/checkout@v3
         with:
           submodules: true
+      - uses: ruby/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "3.1"
+          apt-get: "autogen libtool shtool"
+          brew: "automake autogen libtool shtool"
+          bundler-cache: true
+          bundler: latest
       - name: Setup libxml2
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
           cd libxml2
           env NOCONFIGURE=t ./autogen.sh
+        shell: bash
       - name: Setup libxslt
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
           cd libxslt
           env NOCONFIGURE=t ./autogen.sh
-      - name: "Run bundle install"
-        run: "bundle install --local || bundle install"
+        shell: bash
       - name: "Compile against libxml2 and libxslt source directories"
         run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+        shell: bash
       - run: "bundle exec rake test"
 
   xmlsoft-head-valgrind:
@@ -131,6 +148,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+    env:
+      NOKOGIRI_TEST_GC_LEVEL: normal
     steps:
       - uses: actions/checkout@v3
         with:
