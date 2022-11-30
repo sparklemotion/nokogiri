@@ -60,9 +60,27 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
 
   def run_test
     if @test[:context]
-      ctx = @test[:context].join(":")
-      doc = Nokogiri::HTML5::Document.new
-      doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 10)
+      # this is a fragment test
+      if @test_context_node
+        # run the test using a context Element
+        if @test[:context].length > 1
+          # the test is in a foreign context
+          doc = Nokogiri::HTML5::Document.parse("<!DOCTYPE html><math></math><svg></svg>")
+          foreign_el = doc.at_css(@test[:context].first)
+          context_node_name = @test[:context].last
+          context_node = foreign_el.add_child("<#{context_node_name}></#{context_node_name}>").first
+        else
+          # the test is not in a foreign context
+          doc = Nokogiri::HTML5::Document.new
+          context_node = doc.create_element(@test[:context].first)
+        end
+        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], context_node, max_errors: @test[:errors].length + 10)
+      else
+        # run the test using a tag name
+        ctx = @test[:context].join(":")
+        doc = Nokogiri::HTML5::Document.new
+        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 10)
+      end
     else
       doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 10)
     end
@@ -288,11 +306,18 @@ module Html5libTestCaseParser
         tests.each_with_index do |test, index|
           next if test[:script] == :on
 
-          define_method "test_#{index}".to_sym do
+          define_method "test_#{index}" do
             @test = test
             @index = index
             run_test
           end
+
+          define_method "test_#{index}__with_node" do
+            @test = test
+            @index = index
+            @test_context_node = true
+            run_test
+          end if test[:context]
         end
       end
       Object.const_set(test_name, klass)
