@@ -72,10 +72,13 @@ void gumbo_string_buffer_append_codepoint (
     prefix = 0xf0;
   }
   maybe_resize_string_buffer(num_bytes + 1, output);
-  output->data[output->length++] = prefix | (c >> (num_bytes * 6));
+  size_t length = output->length;
+  char* data = output->data;
+  data[length++] = prefix | (c >> (num_bytes * 6));
   for (int i = num_bytes - 1; i >= 0; --i) {
-    output->data[output->length++] = 0x80 | (0x3f & (c >> (i * 6)));
+    data[length++] = 0x80 | (0x3f & (c >> (i * 6)));
   }
+  output->length = length;
 }
 
 void gumbo_string_buffer_append_string (
