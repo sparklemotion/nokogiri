@@ -361,6 +361,7 @@ parse_continue(VALUE parse_args)
   build_tree(doc, (xmlNodePtr)doc, output->document);
   VALUE rdoc = noko_xml_document_wrap(args->klass, doc);
   rb_iv_set(rdoc, "@url", args->url_or_frag);
+  rb_iv_set(rdoc, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
   args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
