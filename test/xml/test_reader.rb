@@ -681,6 +681,62 @@ module Nokogiri
         reader.read # el
         assert_nil(reader.attribute("other"))
       end
+
+      def test_broken_markup_attribute_hash
+        xml = <<~XML
+          <root><foo bar="asdf" xmlns:quux="qwer">
+        XML
+        reader = Nokogiri::XML::Reader(xml)
+        reader.read # root
+        reader.read # foo
+
+        assert_equal("foo", reader.name)
+        assert_equal(0, reader.errors.length)
+
+        if Nokogiri.jruby?
+          assert_equal({ "bar" => "asdf" }, reader.attribute_hash)
+
+          reader.read # text
+
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            reader.read
+          end
+        else
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            reader.attribute_hash
+          end
+        end
+
+        assert_equal(1, reader.errors.length)
+      end
+
+      def test_broken_markup_namespaces
+        xml = <<~XML
+          <root><foo bar="asdf" xmlns:quux="qwer">
+        XML
+        reader = Nokogiri::XML::Reader(xml)
+        reader.read # root
+        reader.read # foo
+
+        assert_equal("foo", reader.name)
+        assert_equal(0, reader.errors.length)
+
+        if Nokogiri.jruby?
+          assert_equal({ "xmlns:quux" => "qwer" }, reader.namespaces)
+
+          reader.read # text
+
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            reader.read
+          end
+        else
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            reader.namespaces
+          end
+        end
+
+        assert_equal(1, reader.errors.length)
+      end
     end
   end
 end

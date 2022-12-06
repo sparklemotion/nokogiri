@@ -124,26 +124,37 @@ attributes_eh(VALUE self)
  * Get a hash of namespaces for this Node
  */
 static VALUE
-namespaces(VALUE self)
+rb_xml_reader_namespaces(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
-  xmlNodePtr ptr;
-  VALUE attr ;
+  VALUE rb_namespaces = rb_hash_new() ;
+  xmlTextReaderPtr c_reader;
+  xmlNodePtr c_node;
+  VALUE rb_errors;
 
-  Data_Get_Struct(self, xmlTextReader, reader);
+  Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
 
-  attr = rb_hash_new() ;
-
-  if (! has_attributes(reader)) {
-    return attr ;
+  if (! has_attributes(c_reader)) {
+    return rb_namespaces ;
   }
 
-  ptr = xmlTextReaderExpand(reader);
-  if (ptr == NULL) { return Qnil; }
+  rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
 
-  Nokogiri_xml_node_namespaces(ptr, attr);
+  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
+  c_node = xmlTextReaderExpand(c_reader);
+  xmlSetStructuredErrorFunc(NULL, NULL);
 
-  return attr ;
+  if (c_node == NULL) {
+    if (RARRAY_LEN(rb_errors) > 0) {
+      VALUE rb_error = rb_ary_entry(rb_errors, 0);
+      VALUE exception_message = rb_funcall(rb_error, rb_intern("to_s"), 0);
+      rb_exc_raise(rb_class_new_instance(1, &exception_message, cNokogiriXmlSyntaxError));
+    }
+    return Qnil;
+  }
+
+  Nokogiri_xml_node_namespaces(c_node, rb_namespaces);
+
+  return rb_namespaces ;
 }
 
 /*
@@ -202,6 +213,7 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
   xmlTextReaderPtr c_reader;
   xmlNodePtr c_node;
   xmlAttrPtr c_property;
+  VALUE rb_errors;
 
   Data_Get_Struct(rb_reader, xmlTextReader, c_reader);
 
@@ -209,7 +221,21 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
     return rb_attributes;
   }
 
+  rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+
+  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
   c_node = xmlTextReaderExpand(c_reader);
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  if (c_node == NULL) {
+    if (RARRAY_LEN(rb_errors) > 0) {
+      VALUE rb_error = rb_ary_entry(rb_errors, 0);
+      VALUE exception_message = rb_funcall(rb_error, rb_intern("to_s"), 0);
+      rb_exc_raise(rb_class_new_instance(1, &exception_message, cNokogiriXmlSyntaxError));
+    }
+    return Qnil;
+  }
+
   c_property = c_node->properties;
   while (c_property != NULL) {
     VALUE rb_name = NOKOGIRI_STR_NEW2(c_property->name);
@@ -756,7 +782,7 @@ noko_init_xml_reader()
   rb_define_method(cNokogiriXmlReader, "local_name", local_name, 0);
   rb_define_method(cNokogiriXmlReader, "name", name, 0);
   rb_define_method(cNokogiriXmlReader, "namespace_uri", namespace_uri, 0);
-  rb_define_method(cNokogiriXmlReader, "namespaces", namespaces, 0);
+  rb_define_method(cNokogiriXmlReader, "namespaces", rb_xml_reader_namespaces, 0);
   rb_define_method(cNokogiriXmlReader, "node_type", node_type, 0);
   rb_define_method(cNokogiriXmlReader, "outer_xml", outer_xml, 0);
   rb_define_method(cNokogiriXmlReader, "prefix", prefix, 0);
