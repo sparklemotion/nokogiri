@@ -212,6 +212,10 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
   }
 
   c_node = xmlTextReaderExpand(c_reader);
+  if (c_node == NULL) {
+    return Qnil;
+  }
+
   c_property = c_node->properties;
   while (c_property != NULL) {
     VALUE rb_name = NOKOGIRI_STR_NEW2(c_property->name);

@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Improvements
+
+* [CRuby] `XML::Reader#attribute_hash` now returns `nil` on parse errors. This restores the behavior of `#attributes` from v1.13.7 and earlier. [[#2715](https://github.com/sparklemotion/nokogiri/issues/2715)]
+
+
 ## 1.13.9 / 2022-10-18
 
 ### Security
