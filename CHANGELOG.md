@@ -10,17 +10,17 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 #### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)
 
-This version of Nokogiri ships official native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM64 Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
+This version of Nokogiri ships _official_ native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM64 Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
 
 
 #### Faster, more reliable installation: Native Gem for `arm-linux` (aka `linux/arm/v7`)
 
-This version of Nokogiri ships experimental native gem support for the `arm-linux` platform. Please note that glibc >= 2.29 is required for arm-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
+This version of Nokogiri ships _experimental_ native gem support for the `arm-linux` platform. Please note that glibc >= 2.29 is required for arm-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
 
 
 #### Experimental pattern matching support
 
-This version introduces an experimental pattern matching API for `XML::Attr`, `XML::Document`, `XML::DocumentFragment`, `XML::Namespace`, `XML::Node`, and `XML::NodeSet` (and their subclasses).
+This version introduces an _experimental_ pattern matching API for `XML::Attr`, `XML::Document`, `XML::DocumentFragment`, `XML::Namespace`, `XML::Node`, and `XML::NodeSet` (and their subclasses).
 
 Some documentation on what can be matched:
 
@@ -41,10 +41,15 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Dependencies
 
-* [CRuby] Vendored libiconv is updated to [v1.17](https://savannah.gnu.org/forum/forum.php?forum_id=10175)
-* [JRuby] HTML parsing is now provided `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously was a fork of `org.cyberneko.html:nekohtml`)
-* [JRuby] Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
-* [JRuby] New dependency on `net.sf.saxon:Saxon-HE:9.6.0-4` (via `nu.validator:jing:20200702VNU`).
+#### CRuby
+
+* Vendored libiconv is updated to [v1.17](https://savannah.gnu.org/forum/forum.php?forum_id=10175)
+
+#### JRuby
+
+* HTML parsing is now provided by `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously Nokogiri used a fork of `org.cyberneko.html:nekohtml`)
+* Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
+* New dependency on `net.sf.saxon:Saxon-HE:9.6.0-4` (via `nu.validator:jing:20200702VNU`).
 
 
 ### Added
@@ -64,19 +69,19 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [CRuby] `Nokogiri::HTML5::Document#url` now correctly returns the URL passed to the constructor method. Previously it always returned `nil`. [[#2583](https://github.com/sparklemotion/nokogiri/issues/2583)]
 * [CRuby] `HTML5` encoding detection is now case-insensitive with respect to `meta` tag charset declaration. [[#2693](https://github.com/sparklemotion/nokogiri/issues/2693)]
 * [CRuby] `HTML5` fragment parsing in context of an annotation-xml node now works. Previously this rarely-used path invoked rb_funcall with incorrect parameters, resulting in an exception, a fatal error, or potentially a segfault. [[#2692](https://github.com/sparklemotion/nokogiri/issues/2692)]
-* [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https://github.com/sparklemotion/nokogiri/issues/1247)]
+* [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https:<//github.com/sparklemotion/nokogiri/issues/1247)]
 * [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
 * [CRuby+OSX] Compiling from source on MacOS will use the clang option `-Wno-unknown-warning-option` to avoid errors when Ruby injects options that clang doesn't know about. [[#2689](https://github.com/sparklemotion/nokogiri/issues/2689)]
 
 
 ### Improved
 
-* HTML5 spec changes:
+* HTML5 parser update to reflect changes to the living specification:
  - [Add the <search> element by domenic · whatwg/html](https://github.com/whatwg/html/pull/7320)
  - [Remove parse error for <template><tr></tr> </template> by zcorpan · whatwg/html](https://github.com/whatwg/html/pull/8271)
 * Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
 * Parsing of HTML5 documents is ~90% faster thanks to additional compiler optimizations being applied. [[#2639](https://github.com/sparklemotion/nokogiri/issues/2639)]
-* `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. XML_C14N_1_0 or XML_C14N_1_1. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
+* `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. `XML_C14N_1_0` or `XML_C14N_1_1`. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
 * Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
 * Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
