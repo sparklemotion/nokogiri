@@ -91,6 +91,18 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * `Nokogiri.install_default_aliases` is deprecated in favor of `Nokogiri::EncodingHandler.install_default_aliases`. This is part of a private API and is probably not called by anybody, but we'll go through a deprecation cycle before removal anyway. [[#2643](https://github.com/sparklemotion/nokogiri/issues/2643), [#2446](https://github.com/sparklemotion/nokogiri/issues/2446)]
 
 
+## 1.13.10 / 2022-12-07
+
+### Security
+
+* [CRuby] Address CVE-2022-23476, unchecked return value from `xmlTextReaderExpand`. See [GHSA-qv4q-mr5r-qprj](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-qv4q-mr5r-qprj) for more information.
+
+
+### Improvements
+
+* [CRuby] `XML::Reader#attribute_hash` now returns `nil` on parse errors. This restores the behavior of `#attributes` from v1.13.7 and earlier. [[#2715](https://github.com/sparklemotion/nokogiri/issues/2715)]
+
+
 ## 1.13.9 / 2022-10-18
 
 ### Security
