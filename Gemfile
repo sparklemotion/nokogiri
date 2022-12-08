@@ -15,7 +15,7 @@ group :development do
 
   # documentation
   gem "hoe-markdown", "= 1.4.0"
-  gem "rdoc", "= 6.4.0"
+  gem "rdoc", "6.5.0"
   gem "psych", "~> 4.0" # psych 5 isn't building in places yet https://github.com/ruby/setup-ruby/issues/409
 
   # parser generator
