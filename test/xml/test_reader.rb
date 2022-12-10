@@ -684,7 +684,7 @@ module Nokogiri
 
       def test_broken_markup_attribute_hash
         xml = <<~XML
-          <root><foo bar="asdf" xmlns:quux="qwer">
+          <root><foo bar="asdf" xmlns:quux="qwer">#{"x" * 1024}
         XML
         reader = Nokogiri::XML::Reader(xml)
         reader.read # root
@@ -696,15 +696,18 @@ module Nokogiri
         if Nokogiri.jruby?
           assert_equal({ "bar" => "asdf" }, reader.attribute_hash)
 
-          reader.read # text
+          reader.read # text (xxxxx)
+          reader.read # text (newline)
 
-          assert_raises(Nokogiri::XML::SyntaxError) do
+          e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.read
           end
+          assert_includes(e.message, "XML document structures must start and end")
         else
-          assert_raises(Nokogiri::XML::SyntaxError) do
+          e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.attribute_hash
           end
+          assert_includes(e.message, "FATAL: Extra content at the end of the document")
         end
 
         assert_equal(1, reader.errors.length)
@@ -712,7 +715,7 @@ module Nokogiri
 
       def test_broken_markup_namespaces
         xml = <<~XML
-          <root><foo bar="asdf" xmlns:quux="qwer">
+          <root><foo bar="asdf" xmlns:quux="qwer">#{"x" * 1024}
         XML
         reader = Nokogiri::XML::Reader(xml)
         reader.read # root
@@ -724,15 +727,18 @@ module Nokogiri
         if Nokogiri.jruby?
           assert_equal({ "xmlns:quux" => "qwer" }, reader.namespaces)
 
-          reader.read # text
+          reader.read # text (xxxxx)
+          reader.read # text (newline)
 
-          assert_raises(Nokogiri::XML::SyntaxError) do
+          e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.read
           end
+          assert_includes(e.message, "XML document structures must start and end")
         else
-          assert_raises(Nokogiri::XML::SyntaxError) do
+          e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.namespaces
           end
+          assert_includes(e.message, "FATAL: Extra content at the end of the document")
         end
 
         assert_equal(1, reader.errors.length)

@@ -6,6 +6,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 8 * * 1,3,5" # At 08:00 on Monday, Wednesday, and Friday # https://crontab.guru/#0_8_*_*_1,3,5
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - '*'
+    paths:
+      - .github/workflows/upstream.yml # this file
 
 jobs:
   xmlsoft-head:
@@ -94,7 +100,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # warning that 22.04 binary has dwarf5 debug info that valgrind can't read
     steps:
       - uses: actions/checkout@v3
         with:
