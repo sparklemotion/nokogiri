@@ -1,11 +1,11 @@
 FROM ghcr.io/flavorjones/truffleruby:<%= version %>
 
-<%= File.read "debian-prelude.step" %>
+<%= include_file "debian-prelude.step" %>
 
-<%= File.read "debian-valgrind.step" %>
+<%= include_file "debian-valgrind.step" %>
 
-<%= File.read "debian-libxml-et-al.step" %>
+<%= include_file "debian-libxml-et-al.step" %>
 
-<%= File.read "update-bundler.step" %>
+<%= include_file "update-bundler.step" %>
 
-<%= File.read "bundle-install.step" %>
+<%= include_file "bundle-install.step" %>

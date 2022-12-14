@@ -1,12 +1,12 @@
 FROM i386/ubuntu:focal
 
-<%= File.read "debian-prelude.step" %>
+<%= include_file "debian-prelude.step" %>
 
-<%= File.read "debian-libxml-et-al.step" %>
+<%= include_file "debian-libxml-et-al.step" %>
 
-<%= File.read "debian-ruby.step" %>
+<%= include_file "debian-ruby.step" %>
 
-<%= File.read "bundle-install.step" %>
+<%= include_file "bundle-install.step" %>
 
 # for libxml2 canonicalization
 ENV LANG=C.UTF-8

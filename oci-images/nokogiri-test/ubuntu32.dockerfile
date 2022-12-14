@@ -1,5 +1,6 @@
 FROM i386/ubuntu:focal
 
+# include_file debian-prelude.step
 # -*- dockerfile -*-
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -8,16 +9,19 @@ RUN apt-get upgrade -y
 RUN apt-get install -y apt-utils
 
 
+# include_file debian-libxml-et-al.step
 # -*- dockerfile -*-
 
 RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
 
 
+# include_file debian-ruby.step
 # -*- dockerfile -*-
 
 RUN apt-get install -y ruby ruby-dev bundler
 
 
+# include_file bundle-install.step
 # -*- dockerfile -*-
 
 COPY Gemfile nokogiri/
