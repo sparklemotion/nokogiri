@@ -20,7 +20,7 @@ module Nokogiri
       end
 
       def check_namespace(e)
-        e.namespace.nil? ? nil : e.namespace.href
+        e.namespace&.href
       end
 
       def test_namespace_ns

@@ -200,7 +200,7 @@ def nix?
 end
 
 def truffle?
-  ::RUBY_ENGINE == "truffleruby"
+  RUBY_ENGINE == "truffleruby"
 end
 
 def concat_flags(*args)

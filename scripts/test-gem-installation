@@ -44,7 +44,7 @@ Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
 puts "Testing #{gemspec.full_name} installed in #{gemspec.base_dir}"
 describe gemspec.full_name do
-  let(:ruby_maj_min) { Gem::Version.new(::RUBY_VERSION).segments[0..1].join(".") }
+  let(:ruby_maj_min) { Gem::Version.new(RUBY_VERSION).segments[0..1].join(".") }
   let(:nokogiri_lib_dir) { File.join(gemspec.gem_dir, "lib/nokogiri") }
   let(:nokogiri_ext_dir) { File.join(gemspec.gem_dir, "ext/nokogiri") }
   let(:nokogiri_include_dir) { File.join(nokogiri_ext_dir, "include") }
@@ -114,7 +114,7 @@ describe gemspec.full_name do
 
         it "has ldflags pointing to the shared object file" do
           ldflags = Nokogiri::VERSION_INFO["nokogiri"]["ldflags"]
-          if ::RUBY_PLATFORM.match?(/mingw|mswin/)
+          if RUBY_PLATFORM.match?(/mingw|mswin/)
             if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
               assert_includes(ldflags, "-L#{File.join(nokogiri_lib_dir, ruby_maj_min)}")
             else

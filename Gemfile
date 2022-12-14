@@ -24,12 +24,12 @@ group :development do
   # tests
   gem "minitest", "= 5.16.3"
   gem "minitest-reporters", "= 1.5.0"
-  gem "ruby_memcheck", "1.2.0" unless ::RUBY_PLATFORM == "java"
+  gem "ruby_memcheck", "1.2.0" unless RUBY_PLATFORM == "java"
   gem "simplecov", "= 0.21.2"
 
   # rubocop
   if Gem::Requirement.new("~> 3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
-    gem "rubocop", "1.39.0"
+    gem "rubocop", "1.40.0"
     gem "rubocop-minitest", "0.25.0"
     gem "rubocop-performance", "1.15.1"
     gem "rubocop-rake", "= 0.6.0"

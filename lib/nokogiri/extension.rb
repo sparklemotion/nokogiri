@@ -3,7 +3,7 @@
 # load the C or Java extension
 begin
   # native precompiled gems package shared libraries in <gem_dir>/lib/nokogiri/<ruby_version>
-  ::RUBY_VERSION =~ /(\d+\.\d+)/
+  RUBY_VERSION =~ /(\d+\.\d+)/
   require_relative "#{Regexp.last_match(1)}/nokogiri"
 rescue LoadError => e
   if /GLIBC/.match?(e.message)

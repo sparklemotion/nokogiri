@@ -202,7 +202,7 @@ module Nokogiri
       #
       def attr(key, value = nil, &block)
         unless key.is_a?(Hash) || (key && (value || block))
-          return first ? first.attribute(key) : nil
+          return first&.attribute(key)
         end
 
         hash = key.is_a?(Hash) ? key : { key => value }
