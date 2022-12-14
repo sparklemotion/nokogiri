@@ -56,17 +56,16 @@ jobs:
         with:
           path: ports
           key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+      - run: gem install bundler -v ">= 2.3.22" # for "add --path"
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile
-      - run: |
-          git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
-          cd ${{matrix.name}}
-          if grep nokogiri Gemfile ; then
-            sed -i 's/\(.*nokogiri.*\)/\1, path: ".."/' Gemfile
-          else
-            echo "gem 'nokogiri', path: '..'" >> Gemfile
-          fi
-          if egrep "add_development_dependency.*\bbundler\b" *gemspec ; then
+      - run: git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
+      - name: ${{matrix.name}} test suite
+        working-directory: ${{matrix.name}}
+        run: |
+          bundle remove nokogiri || true
+          bundle add nokogiri --path=".."
+          if grep "add_development_dependency.*\bbundler\b" *gemspec ; then
             sed -i 's/.*add_development_dependency.*\bbundler\b.*//' *gemspec
           fi
           bundle install --local || bundle install
