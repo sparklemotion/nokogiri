@@ -13,6 +13,7 @@ RUN apt-get install -y apt-utils
 # -*- dockerfile -*-
 
 RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
+RUN apt-get install -y libyaml-dev # for psych 5
 
 
 # include_file debian-ruby.step
