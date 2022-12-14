@@ -100,6 +100,10 @@ EOF
       end
     end
 
+    def include_file(filename)
+      "# include_file #{filename}\n" + File.read(filename)
+    end
+
     def generate_dockerfiles
       require "erb"
       DockerHelper.docker_files_each do |template, dockerfile_path, version, _|

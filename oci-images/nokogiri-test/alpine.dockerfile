@@ -10,6 +10,7 @@ RUN apk add valgrind
 # libxml-et-al
 RUN apk add libxml2-dev libxslt-dev pkgconfig
 
+# include_file bundle-install.step
 # -*- dockerfile -*-
 
 COPY Gemfile nokogiri/

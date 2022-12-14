@@ -1,5 +1,6 @@
 FROM ruby:3.1
 
+# include_file debian-prelude.step
 # -*- dockerfile -*-
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -8,21 +9,26 @@ RUN apt-get upgrade -y
 RUN apt-get install -y apt-utils
 
 
+# include_file debian-valgrind.step
 # -*- dockerfile -*-
 
 RUN apt-get install -y valgrind
 
 
+# include_file debian-libxml-et-al.step
 # -*- dockerfile -*-
 
 RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
+RUN apt-get install -y libyaml-dev # for psych 5
 
 
+# include_file update-bundler.step
 # -*- dockerfile -*-
 
 RUN gem install bundler
 
 
+# include_file bundle-install.step
 # -*- dockerfile -*-
 
 COPY Gemfile nokogiri/
