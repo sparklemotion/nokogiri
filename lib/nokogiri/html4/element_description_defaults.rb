@@ -25,43 +25,37 @@ module Nokogiri
 
       unless method_defined?(:implied_start_tag?)
         def implied_start_tag?
-          d = default_desc
-          d ? d.startTag : nil
+          default_desc&.startTag
         end
       end
 
       unless method_defined?(:implied_end_tag?)
         def implied_end_tag?
-          d = default_desc
-          d ? d.endTag : nil
+          default_desc&.endTag
         end
       end
 
       unless method_defined?(:save_end_tag?)
         def save_end_tag?
-          d = default_desc
-          d ? d.saveEndTag : nil
+          default_desc&.saveEndTag
         end
       end
 
       unless method_defined?(:deprecated?)
         def deprecated?
-          d = default_desc
-          d ? d.depr : nil
+          default_desc&.depr
         end
       end
 
       unless method_defined?(:description)
         def description
-          d = default_desc
-          d ? d.desc : nil
+          default_desc&.desc
         end
       end
 
       unless method_defined?(:default_sub_element)
         def default_sub_element
-          d = default_desc
-          d ? d.defaultsubelt : nil
+          default_desc&.defaultsubelt
         end
       end
 
