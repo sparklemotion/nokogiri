@@ -168,7 +168,6 @@ CrossRuby = Struct.new(:version, :platform) do
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
       ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver < "2.6.0"
       end
     when AARCH_LINUX_PLATFORM_REGEX
       [
@@ -177,7 +176,6 @@ CrossRuby = Struct.new(:version, :platform) do
         "libdl.so.2", # on old dists only - now in libc
         "ld-linux-aarch64.so.1",
       ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver < "2.6.0"
       end
     when DARWIN_PLATFORM_REGEX
       [

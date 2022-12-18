@@ -8,6 +8,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notable Changes
 
+#### Ruby
+
+This release ends support for Ruby 2.6, for which [upstream support ended 2022-04-12](https://www.ruby-lang.org/en/downloads/branches/).
+
+
 #### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)
 
 This version of Nokogiri ships _official_ native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM64 Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
