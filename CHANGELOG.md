@@ -10,7 +10,10 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 #### Ruby
 
-This release ends support for Ruby 2.6, for which [upstream support ended 2022-04-12](https://www.ruby-lang.org/en/downloads/branches/).
+This release ends support for:
+
+* Ruby 2.6, for which [upstream support ended 2022-04-12](https://www.ruby-lang.org/en/downloads/branches/).
+* JRuby 9.3, which is not fully compatible with Ruby 2.7+
 
 
 #### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)

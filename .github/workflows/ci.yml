@@ -272,7 +272,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.3"]
+        ruby: ["jruby-9.4"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -706,7 +706,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.3", "jruby-head"]
+        ruby: ["jruby-9.4"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
