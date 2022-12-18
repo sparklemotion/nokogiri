@@ -10,7 +10,7 @@ group :development do
   gem "rake", "= 13.0.6"
 
   # building extensions
-  gem "rake-compiler", "= 1.2.0"
+  gem "rake-compiler", "= 1.2.1"
   gem "rake-compiler-dock", "= 1.2.2"
 
   # documentation
