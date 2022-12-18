@@ -8,7 +8,7 @@ module DockerHelper
   IMAGE_DIR = "oci-images/nokogiri-test"
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
-    mri: ["2.7", "3.0", "3.1"],
+    mri: ["2.7", "3.0", "3.1", "3.2"],
     truffle: ["nightly"],
   }
 

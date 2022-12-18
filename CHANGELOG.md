@@ -10,6 +10,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 #### Ruby
 
+This release introduces native gem support for Ruby 3.2.
+
 This release ends support for:
 
 * Ruby 2.6, for which [upstream support ended 2022-04-12](https://www.ruby-lang.org/en/downloads/branches/).
