@@ -40,9 +40,9 @@ module Nokogiri
 
       # Convert to_type
       def to_type
-        [@type] + @value.map do |n|
+        [@type] + @value.filter_map do |n|
           n.to_type if n.respond_to?(:to_type)
-        end.compact
+        end
       end
 
       # Convert to array

@@ -51,7 +51,7 @@ module Nokogiri
       def serialize(options = {}, &block) # :nodoc:
         # Bypass XML::Document.serialize which doesn't support options even
         # though XML::Node.serialize does!
-        XML::Node.instance_method(:serialize).bind(self).call(options, &block)
+        XML::Node.instance_method(:serialize).bind_call(self, options, &block)
       end
 
       # Parse a document fragment from +tags+, returning a Nodeset.

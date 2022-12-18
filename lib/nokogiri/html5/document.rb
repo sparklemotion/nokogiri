@@ -151,7 +151,7 @@ module Nokogiri
       def to_xml(options = {}, &block) # :nodoc:
         # Bypass XML::Document#to_xml which doesn't add
         # XML::Node::SaveOptions::AS_XML like XML::Node#to_xml does.
-        XML::Node.instance_method(:to_xml).bind(self).call(options, &block)
+        XML::Node.instance_method(:to_xml).bind_call(self, options, &block)
       end
 
       # :call-seq:

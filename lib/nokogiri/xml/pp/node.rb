@@ -23,9 +23,9 @@ module Nokogiri
           nice_name = self.class.name.split("::").last
           pp.group(2, "#(#{nice_name}:#{format("0x%x", object_id)} {", "})") do
             pp.breakable
-            attrs = inspect_attributes.map do |t|
+            attrs = inspect_attributes.filter_map do |t|
               [t, send(t)] if respond_to?(t)
-            end.compact.find_all do |x|
+            end.find_all do |x|
               if x.last
                 if COLLECTIONS.include?(x.first)
                   !x.last.empty?
