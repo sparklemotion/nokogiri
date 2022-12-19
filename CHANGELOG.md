@@ -18,25 +18,20 @@ This version of Nokogiri ships _official_ native gem support for the `aarch64-li
 This version of Nokogiri ships _experimental_ native gem support for the `arm-linux` platform. Please note that glibc >= 2.29 is required for arm-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
 
 
-#### Experimental pattern matching support
+#### Pattern matching
 
 This version introduces an _experimental_ pattern matching API for `XML::Attr`, `XML::Document`, `XML::DocumentFragment`, `XML::Namespace`, `XML::Node`, and `XML::NodeSet` (and their subclasses).
 
 Some documentation on what can be matched:
 
-- [`XML::Attr#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Attr.html?h=deconstruct#method-i-deconstruct_keys)
-- [`XML::Document#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Document.html?h=deconstruct#method-i-deconstruct_keys)
-- [`XML::Namespace#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Namespace.html?h=deconstruct+namespace#method-i-deconstruct_keys)
-- [`XML::Node#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Node.html?h=deconstruct#method-i-deconstruct_keys)
-- [`XML::DocumentFragment#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/DocumentFragment.html?h=deconstruct#method-i-deconstruct)
-- [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
+* [`XML::Attr#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Attr.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::Document#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Document.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::Namespace#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Namespace.html?h=deconstruct+namespace#method-i-deconstruct_keys)
+* [`XML::Node#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Node.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::DocumentFragment#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/DocumentFragment.html?h=deconstruct#method-i-deconstruct)
+* [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
 
 We welcome feedback on this API at [#2360](https://github.com/sparklemotion/nokogiri/issues/2360).
-
-
-#### Maven-managed JRuby dependencies
-
-This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
 
 
 ### Dependencies
@@ -47,6 +42,7 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 #### JRuby
 
+* This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/jar-dependencies) to manage most of the vendored Java dependencies. `nokogiri -v` now outputs maven metadata for all Java dependencies, and `Nokogiri::VERSION_INFO` also contains this metadata. [[#2432](https://github.com/sparklemotion/nokogiri/issues/2432)]
 * HTML parsing is now provided by `net.sourceforge.htmlunit:neko-htmlunit:2.61.0` (previously Nokogiri used a fork of `org.cyberneko.html:nekohtml`)
 * Vendored Jing is updated from `com.thaiopensource:jing:20091111` to `nu.validator:jing:20200702VNU`.
 * New dependency on `net.sf.saxon:Saxon-HE:9.6.0-4` (via `nu.validator:jing:20200702VNU`).
@@ -56,6 +52,35 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 * `Node#wrap` and `NodeSet#wrap` now also accept a `Node` type argument, which will be `dup`ed for each wrapper. For cases where many nodes are being wrapped, creating a `Node` once using `Document#create_element` and passing that `Node` multiple times is significantly faster than re-parsing markup on each call. [[#2657](https://github.com/sparklemotion/nokogiri/issues/2657)]
 * [CRuby] Invocation of custom XPath or CSS handler functions may now use the `nokogiri` namespace prefix. Historically, the JRuby implementation _required_ this namespace but the CRuby implementation did not support it. It's recommended that all XPath and CSS queries use the `nokogiri` namespace going forward. Invocation without the namespace is planned for deprecation in v1.15.0 and removal in a future release. [[#2147](https://github.com/sparklemotion/nokogiri/issues/2147)]
+
+
+### Improved
+
+#### Functional
+
+* HTML5 parser update to reflect changes to the living specification:
+  * [Add the &lt;search&gt; element by domenic · whatwg/html](https://github.com/whatwg/html/pull/7320)
+  * [Remove parse error for &lt;template&gt;&lt;tr&gt;&lt;/tr&gt; &lt;/template&gt; by zcorpan · whatwg/html](https://github.com/whatwg/html/pull/8271)
+
+#### Performance
+
+* Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
+* Parsing of HTML5 documents is ~90% faster thanks to additional compiler optimizations being applied. [[#2639](https://github.com/sparklemotion/nokogiri/issues/2639)]
+* Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
+* Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
+
+#### Error handling
+
+* `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. `XML_C14N_1_0` or `XML_C14N_1_1`. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
+* Empty CSS selectors now raise a clearer `Nokogiri::CSS::SyntaxError` message, "empty CSS selector". Previously the exception raised from the bowels of `racc` was "unexpected '$' after ''". [[#2700](https://github.com/sparklemotion/nokogiri/issues/2700)]
+* [CRuby] `XML::Reader` parsing errors encountered during `Reader#attribute_hash` and `Reader#namespaces` now raise an `XML::SyntaxError`. Previously these methods would return `nil` and users would generally experience `NoMethodErrors` from elsewhere in the code.
+
+#### Installation
+
+* Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
+* Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
+* Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
+* [CRuby+OSX] Compiling from source on MacOS will use the clang option `-Wno-unknown-warning-option` to avoid errors when Ruby injects options that clang doesn't know about. [[#2689](https://github.com/sparklemotion/nokogiri/issues/2689)]
 
 
 ### Fixed
@@ -71,24 +96,6 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 * [CRuby] `HTML5` fragment parsing in context of an annotation-xml node now works. Previously this rarely-used path invoked rb_funcall with incorrect parameters, resulting in an exception, a fatal error, or potentially a segfault. [[#2692](https://github.com/sparklemotion/nokogiri/issues/2692)]
 * [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https:<//github.com/sparklemotion/nokogiri/issues/1247)]
 * [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
-* [CRuby+OSX] Compiling from source on MacOS will use the clang option `-Wno-unknown-warning-option` to avoid errors when Ruby injects options that clang doesn't know about. [[#2689](https://github.com/sparklemotion/nokogiri/issues/2689)]
-
-
-### Improved
-
-* HTML5 parser update to reflect changes to the living specification:
- - [Add the <search> element by domenic · whatwg/html](https://github.com/whatwg/html/pull/7320)
- - [Remove parse error for <template><tr></tr> </template> by zcorpan · whatwg/html](https://github.com/whatwg/html/pull/8271)
-* Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
-* Parsing of HTML5 documents is ~90% faster thanks to additional compiler optimizations being applied. [[#2639](https://github.com/sparklemotion/nokogiri/issues/2639)]
-* `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. `XML_C14N_1_0` or `XML_C14N_1_1`. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
-* Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
-* Avoid compile-time conflict with system-installed `gumbo.h` on OpenBSD. [[#2464](https://github.com/sparklemotion/nokogiri/issues/2464)]
-* Remove calls to `vasprintf` in favor of platform-independent `rb_vsprintf`
-* Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
-* Installation from source on systems missing libiconv will once again generate a helpful error message (broken since v1.11.0). [[#2505](https://github.com/sparklemotion/nokogiri/issues/2505)]
-* Empty CSS selectors now raise a clearer `Nokogiri::CSS::SyntaxError` message, "empty CSS selector". Previously the exception raised from the bowels of `racc` was "unexpected '$' after ''". [[#2700](https://github.com/sparklemotion/nokogiri/issues/2700)]
-* [CRuby] `XML::Reader` parsing errors encountered during `Reader#attribute_hash` and `Reader#namespaces` now raise an `XML::SyntaxError`. Previously these methods would return `nil` and users would generally experience `NoMethodErrors` from elsewhere in the code.
 
 
 ### Deprecated
@@ -133,17 +140,17 @@ This version of Nokogiri uses [`jar-dependencies`](https://github.com/mkristian/
 
 ### Deprecated
 
-- `XML::Reader#attribute_nodes` is deprecated due to incompatibility between libxml2's `xmlReader` memory semantics and Ruby's garbage collector. Although this method continues to exist for backwards compatibility, it is unsafe to call and may segfault. This method will be removed in a future version of Nokogiri, and callers should use `#attribute_hash` instead. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598)]
+* `XML::Reader#attribute_nodes` is deprecated due to incompatibility between libxml2's `xmlReader` memory semantics and Ruby's garbage collector. Although this method continues to exist for backwards compatibility, it is unsafe to call and may segfault. This method will be removed in a future version of Nokogiri, and callers should use `#attribute_hash` instead. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598)]
 
 
 ### Improvements
 
-- `XML::Reader#attribute_hash` is a new method to safely retrieve the attributes of a node from `XML::Reader`. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
+* `XML::Reader#attribute_hash` is a new method to safely retrieve the attributes of a node from `XML::Reader`. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
 
 
 ### Fixed
 
-- [CRuby] Calling `XML::Reader#attributes` is now safe to call. In Nokogiri <= 1.13.7 this method may segfault. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
+* [CRuby] Calling `XML::Reader#attributes` is now safe to call. In Nokogiri <= 1.13.7 this method may segfault. [[#2598](https://github.com/sparklemotion/nokogiri/issues/2598), [#2599](https://github.com/sparklemotion/nokogiri/issues/2599)]
 
 
 ## 1.13.7 / 2022-07-12
@@ -477,12 +484,12 @@ We work around this by configuring libxml2 in this situation to use its default 
 
 [CRuby] Vendored libxml2 upgraded to v2.9.12 which addresses:
 
-- [CVE-2019-20388](https://security.archlinux.org/CVE-2019-20388)
-- [CVE-2020-24977](https://security.archlinux.org/CVE-2020-24977)
-- [CVE-2021-3517](https://security.archlinux.org/CVE-2021-3517)
-- [CVE-2021-3518](https://security.archlinux.org/CVE-2021-3518)
-- [CVE-2021-3537](https://security.archlinux.org/CVE-2021-3537)
-- [CVE-2021-3541](https://security.archlinux.org/CVE-2021-3541)
+* [CVE-2019-20388](https://security.archlinux.org/CVE-2019-20388)
+* [CVE-2020-24977](https://security.archlinux.org/CVE-2020-24977)
+* [CVE-2021-3517](https://security.archlinux.org/CVE-2021-3517)
+* [CVE-2021-3518](https://security.archlinux.org/CVE-2021-3518)
+* [CVE-2021-3537](https://security.archlinux.org/CVE-2021-3537)
+* [CVE-2021-3541](https://security.archlinux.org/CVE-2021-3541)
 
 Note that two additional CVEs were addressed upstream but are not relevant to this release. [CVE-2021-3516](https://security.archlinux.org/CVE-2021-3516) via `xmllint` is not present in Nokogiri, and [CVE-2020-7595](https://security.archlinux.org/CVE-2020-7595) has been patched in Nokogiri since v1.10.8 (see [#1992](https://github.com/sparklemotion/nokogiri/issues/1992)).
 
@@ -544,8 +551,8 @@ Please see [nokogiri/GHSA-7rrm-v45f-jp64 ](https://github.com/sparklemotion/noko
 
 We've been shipping native Windows gems since 2009, but starting in v1.11.0 we are also shipping native gems for these platforms:
 
-- Linux: `x86-linux` and `x86_64-linux` -- including musl platforms like alpine
-- OSX/Darwin: `x86_64-darwin` and `arm64-darwin`
+* Linux: `x86-linux` and `x86_64-linux` -- including musl platforms like alpine
+* OSX/Darwin: `x86_64-darwin` and `arm64-darwin`
 
 We'd appreciate your thoughts and feedback on this work at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
 
