@@ -388,6 +388,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
+      - run: git config --global --add safe.directory /__w/nokogiri/nokogiri # shrug
       - uses: actions/cache@v3
         with:
           path: ports/archives
