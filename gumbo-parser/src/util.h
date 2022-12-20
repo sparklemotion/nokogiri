@@ -21,7 +21,11 @@ void* gumbo_realloc(void* ptr, size_t size) RETURNS_NONNULL;
 void gumbo_free(void* ptr);
 
 // Debug wrapper for printf
+#ifdef GUMBO_DEBUG
 void gumbo_debug(const char* format, ...) PRINTF(1);
+#else
+static inline void PRINTF(1) gumbo_debug(const char* UNUSED_ARG(format), ...) {};
+#endif
 
 #ifdef __cplusplus
 }

@@ -63,6 +63,4 @@ void gumbo_debug(const char* format, ...) {
   va_end(args);
   fflush(stdout);
 }
-#else
-void gumbo_debug(const char* UNUSED_ARG(format), ...) {}
 #endif
