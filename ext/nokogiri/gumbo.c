@@ -518,8 +518,11 @@ error:
   // Quirks mode.
   VALUE doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
   VALUE dtd = rb_funcall(doc, internal_subset, 0);
-  if (NIL_P(dtd)) {
+  VALUE doc_quirks_mode = rb_iv_get(doc, "@quirks_mode");
+  if (NIL_P(ctx) || NIL_P(doc_quirks_mode)) {
     quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS;
+  } else if (NIL_P(dtd)) {
+    quirks_mode = GUMBO_DOCTYPE_QUIRKS;
   } else {
     VALUE dtd_name = rb_funcall(dtd, name, 0);
     VALUE pubid = rb_funcall(dtd, rb_intern_const("external_id"), 0);
@@ -566,6 +569,7 @@ fragment_continue(VALUE parse_args)
   args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
+  rb_iv_set(doc_fragment, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
   add_errors(output, doc_fragment, args->input, rb_utf8_str_new_static("#fragment", 9));
   return Qnil;
 }

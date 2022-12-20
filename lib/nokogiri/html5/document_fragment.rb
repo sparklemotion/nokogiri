@@ -28,6 +28,13 @@ module Nokogiri
       attr_accessor :document
       attr_accessor :errors
 
+      # Get the parser's quirks mode value. See HTML5::QuirksMode.
+      #
+      # This method returns `nil` if the parser was not invoked (e.g., `Nokogiri::HTML5::DocumentFragment.new(doc)`).
+      #
+      # Since v1.14.0
+      attr_reader :quirks_mode
+
       # Create a document fragment.
       def initialize(doc, tags = nil, ctx = nil, options = {})
         self.document = doc
