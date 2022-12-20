@@ -455,6 +455,11 @@ jobs:
         with:
           ruby-version: "3.0"
           mingw: "libxml2 libxslt"
+      - uses: actions/cache@v3
+        if: matrix.sys == 'disable'
+        with:
+          path: ports
+          key: ports-${{runner.os}}-msvcrt-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - uses: actions/download-artifact@v3
         with:
           name: generic-gem
@@ -477,6 +482,11 @@ jobs:
         with:
           ruby-version: "3.1"
           mingw: "libxml2 libxslt"
+      - uses: actions/cache@v3
+        if: matrix.sys == 'disable'
+        with:
+          path: ports
+          key: ports-${{runner.os}}-ucrt-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - uses: actions/download-artifact@v3
         with:
           name: generic-gem
