@@ -67,13 +67,13 @@ We welcome feedback on this API at [#2360](https://github.com/sparklemotion/noko
 * Serialization of HTML5 documents and fragments has been re-implemented and is ~10x faster than previous versions. [[#2596](https://github.com/sparklemotion/nokogiri/issues/2596), [#2569](https://github.com/sparklemotion/nokogiri/issues/2569)]
 * Parsing of HTML5 documents is ~90% faster thanks to additional compiler optimizations being applied. [[#2639](https://github.com/sparklemotion/nokogiri/issues/2639)]
 * Compare `Encoding` objects rather than compare their names. This is a slight performance improvement and is future-proof. [[#2454](https://github.com/sparklemotion/nokogiri/issues/2454)] (Thanks, [@casperisfine](https://github.com/casperisfine)!)
-* Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
 
 #### Error handling
 
 * `Document#canonicalize` now raises an exception if `inclusive_namespaces` is non-nil and the mode is inclusive, i.e. `XML_C14N_1_0` or `XML_C14N_1_1`. `inclusive_namespaces` can only be passed with exclusive modes, and previously this silently failed.
 * Empty CSS selectors now raise a clearer `Nokogiri::CSS::SyntaxError` message, "empty CSS selector". Previously the exception raised from the bowels of `racc` was "unexpected '$' after ''". [[#2700](https://github.com/sparklemotion/nokogiri/issues/2700)]
 * [CRuby] `XML::Reader` parsing errors encountered during `Reader#attribute_hash` and `Reader#namespaces` now raise an `XML::SyntaxError`. Previously these methods would return `nil` and users would generally experience `NoMethodErrors` from elsewhere in the code.
+* Prefer `ruby_xmalloc` to `malloc` within the C extension. [[#2480](https://github.com/sparklemotion/nokogiri/issues/2480)] (Thanks, [@Garfield96](https://github.com/Garfield96)!)
 
 #### Installation
 
