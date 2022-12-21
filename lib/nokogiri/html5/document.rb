@@ -21,6 +21,18 @@ require_relative "../html4/document"
 
 module Nokogiri
   module HTML5
+    # Enum for the HTML5 parser quirks mode values. Values returned by HTML5::Document#quirks_mode
+    #
+    # See https://dom.spec.whatwg.org/#concept-document-quirks for more information on HTML5 quirks
+    # mode.
+    #
+    # Since v1.14.0
+    module QuirksMode
+      NO_QUIRKS = 0 # The document was parsed in "no-quirks" mode
+      QUIRKS = 1 # The document was parsed in "quirks" mode
+      LIMITED_QUIRKS = 2 # The document was parsed in "limited-quirks" mode
+    end
+
     # Since v1.12.0
     #
     # 💡 HTML5 functionality is not available when running JRuby.
@@ -28,6 +40,13 @@ module Nokogiri
       # Get the url name for this document, as passed into Document.parse, Document.read_io, or
       # Document.read_memory
       attr_reader :url
+
+      # Get the parser's quirks mode value. See HTML5::QuirksMode.
+      #
+      # This method returns `nil` if the parser was not invoked (e.g., `Nokogiri::HTML5::Document.new`).
+      #
+      # Since v1.14.0
+      attr_reader :quirks_mode
 
       class << self
         # :call-seq:
@@ -110,6 +129,7 @@ module Nokogiri
       def initialize(*args) # :nodoc:
         super
         @url = nil
+        @quirks_mode = nil
       end
 
       # :call-seq:

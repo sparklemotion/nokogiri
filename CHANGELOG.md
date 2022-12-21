@@ -52,6 +52,7 @@ We welcome feedback on this API at [#2360](https://github.com/sparklemotion/noko
 
 * `Node#wrap` and `NodeSet#wrap` now also accept a `Node` type argument, which will be `dup`ed for each wrapper. For cases where many nodes are being wrapped, creating a `Node` once using `Document#create_element` and passing that `Node` multiple times is significantly faster than re-parsing markup on each call. [[#2657](https://github.com/sparklemotion/nokogiri/issues/2657)]
 * [CRuby] Invocation of custom XPath or CSS handler functions may now use the `nokogiri` namespace prefix. Historically, the JRuby implementation _required_ this namespace but the CRuby implementation did not support it. It's recommended that all XPath and CSS queries use the `nokogiri` namespace going forward. Invocation without the namespace is planned for deprecation in v1.15.0 and removal in a future release. [[#2147](https://github.com/sparklemotion/nokogiri/issues/2147)]
+* `HTML5::Document#quirks_mode` and `HTML5::DocumentFragment#quirks_mode` expose the quirks mode used by the parser.
 
 
 ### Improved
@@ -94,6 +95,7 @@ We welcome feedback on this API at [#2360](https://github.com/sparklemotion/noko
 * [CRuby] `Nokogiri::HTML5::Document#url` now correctly returns the URL passed to the constructor method. Previously it always returned `nil`. [[#2583](https://github.com/sparklemotion/nokogiri/issues/2583)]
 * [CRuby] `HTML5` encoding detection is now case-insensitive with respect to `meta` tag charset declaration. [[#2693](https://github.com/sparklemotion/nokogiri/issues/2693)]
 * [CRuby] `HTML5` fragment parsing in context of an annotation-xml node now works. Previously this rarely-used path invoked rb_funcall with incorrect parameters, resulting in an exception, a fatal error, or potentially a segfault. [[#2692](https://github.com/sparklemotion/nokogiri/issues/2692)]
+* [CRuby] `HTML5` quirks mode during fragment parsing more closely matches document parsing. [[#2646](https://github.com/sparklemotion/nokogiri/issues/2646)]
 * [JRuby] Fixed a bug with adding the same namespace to multiple nodes via `#add_namespace_definition`. [[#1247](https:<//github.com/sparklemotion/nokogiri/issues/1247)]
 * [JRuby] `NodeSet#[]` now raises a TypeError if passed an invalid parameter type. [[#2211](https://github.com/sparklemotion/nokogiri/issues/2211)]
 
