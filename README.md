@@ -40,10 +40,6 @@ Some guiding principles Nokogiri tries to follow:
 
 All official documentation is posted at https://nokogiri.org (the source for which is at https://github.com/sparklemotion/nokogiri.org/, and we welcome contributions).
 
-Consider subscribing to [Tidelift][tidelift] which provides license assurances and timely security notifications for your open source dependencies, including Nokogiri. [Tidelift][tidelift] subscriptions also help the Nokogiri maintainers fund our [automated testing](https://ci.nokogiri.org) which in turn allows us to ship releases, bugfixes, and security updates more often.
-
-  [tidelift]: https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme
-
 ### Reading
 
 Your first stops for learning more about Nokogiri should be:
@@ -100,6 +96,15 @@ We bump `Major.Minor.Patch` versions following this guidance:
 - Bugfixes.
 - Security updates.
 - Updating packaged libraries for security-related reasons.
+
+
+### Sponsorship
+
+You can help sponsor the maintainers of this software through one of these organizations:
+
+- [github.com/sponsors/flavorjones](https://github.com/sponsors/flavorjones)
+- [opencollective.com/nokogiri](https://opencollective.com/nokogiri)
+- [tidelift.com/subscription/pkg/rubygems-nokogiri](https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme)
 
 
 ## Installation
