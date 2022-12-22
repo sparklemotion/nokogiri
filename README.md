@@ -2,7 +2,7 @@
 
 # Nokogiri
 
-Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby. It provides a sensible, easy-to-understand API for [reading](https://nokogiri.org/tutorials/parsing_an_html_xml_document.html), writing, [modifying](https://nokogiri.org/tutorials/modifying_an_html_xml_document.html), and [querying](https://nokogiri.org/tutorials/searching_a_xml_html_document.html) documents. It is fast and standards-compliant by relying on native parsers like libxml2 (CRuby) and xerces (JRuby).
+Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby. It provides a sensible, easy-to-understand API for [reading](https://nokogiri.org/tutorials/parsing_an_html_xml_document.html), writing, [modifying](https://nokogiri.org/tutorials/modifying_an_html_xml_document.html), and [querying](https://nokogiri.org/tutorials/searching_a_xml_html_document.html) documents. It is fast and standards-compliant by relying on native parsers like libxml2, libgumbo, and xerces.
 
 ## Guiding Principles
 

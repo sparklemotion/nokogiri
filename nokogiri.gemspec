@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.description = <<~EOF
     Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby. It provides a
     sensible, easy-to-understand API for reading, writing, modifying, and querying documents. It is
-    fast and standards-compliant by relying on native parsers like libxml2 (C) and xerces (Java).
+    fast and standards-compliant by relying on native parsers like libxml2, libgumbo, or xerces.
   EOF
 
   spec.authors = [
