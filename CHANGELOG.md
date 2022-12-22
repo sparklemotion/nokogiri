@@ -6,7 +6,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## 1.14.0 / unreleased
 
-### Notes
+### Notable Changes
 
 #### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)
 
@@ -103,6 +103,27 @@ We welcome feedback on this API at [#2360](https://github.com/sparklemotion/noko
 ### Deprecated
 
 * `Nokogiri.install_default_aliases` is deprecated in favor of `Nokogiri::EncodingHandler.install_default_aliases`. This is part of a private API and is probably not called by anybody, but we'll go through a deprecation cycle before removal anyway. [[#2643](https://github.com/sparklemotion/nokogiri/issues/2643), [#2446](https://github.com/sparklemotion/nokogiri/issues/2446)]
+
+
+### Thank you!
+
+The following people and organizations were kind enough to sponsor [@flavorjones](https://github.com/flavorjones) or the Nokogiri project during the development of v1.14.0:
+
+* Götz Görisch [@GoetzGoerisch](https://github.com/GoetzGoerisch)
+* Airbnb [@airbnb](https://github.com/airbnb)
+* Kyohei Nanba [@kyo-nanba](https://github.com/kyo-nanba)
+* Maxime Gauthier [@biximilien](https://github.com/biximilien)
+* [@renuo](https://github.com/renuo)
+* [@dbootyfvrt](https://github.com/dbootyfvrt)
+* YOSHIDA Katsuhiko [@kyoshidajp](https://github.com/kyoshidajp)
+* Homebrew [@Homebrew](https://github.com/Homebrew)
+* David Vrensk [@dvrensk](https://github.com/dvrensk)
+* Alex Daragiu [@daragiu](https://github.com/daragiu)
+* Github [@github](https://github.com/github)
+* Julian Joseph [@Julian88Tex](https://github.com/Julian88Tex)
+* Charles Simon-Meunier [@csimonmeunier](https://github.com/csimonmeunier)
+* Ben Slaughter [@benSlaughter](https://github.com/benSlaughter)
+* Garen Torikian [@gjtorikian](https://github.com/gjtorikian)
 
 
 ## 1.13.10 / 2022-12-07
