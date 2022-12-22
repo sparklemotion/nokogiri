@@ -211,6 +211,16 @@ def local_have_library(lib, func = nil, headers = nil)
   have_library(lib, func, headers) || have_library("lib#{lib}", func, headers)
 end
 
+def zlib_source(version_string)
+  # As of 2022-12, I'm starting to see failed downloads often enough from zlib.net that I want to
+  # change the default to github.
+  if ENV["NOKOGIRI_USE_CANONICAL_ZLIB_SOURCE"]
+    "https://zlib.net/fossils/zlib-#{version_string}.tar.gz"
+  else
+    "https://github.com/madler/zlib/releases/download/v#{version_string}/zlib-#{version_string}.tar.gz"
+  end
+end
+
 def gnome_source
   # As of 2022-02-20, some mirrors have expired SSL certificates. I'm able to retrieve from my home,
   # but whatever host is resolved on the github actions workers see an expired cert.
@@ -686,7 +696,7 @@ else
   if cross_build_p || windows?
     zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
       recipe.files = [{
-        url: "https://zlib.net/fossils/#{recipe.name}-#{recipe.version}.tar.gz",
+        url: zlib_source(recipe.version),
         sha256: dependencies["zlib"]["sha256"],
       }]
       if windows?
