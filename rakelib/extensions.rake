@@ -326,7 +326,7 @@ namespace "gem" do
     task plat do
       ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-snapshot:#{plat}"
       RakeCompilerDock.sh(<<~EOT, platform: plat, verbose: true)
-        rvm use 3.1.0 &&
+        ruby -v &&
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
