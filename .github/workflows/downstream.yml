@@ -45,6 +45,10 @@ jobs:
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
+          - url: https://github.com/instructure/nokogiri-xmlsec-instructure
+            name: nokogiri-xmlsec-instructure
+            precommand: "apt install -y libxmlsec1-dev"
+            command: "bundle exec rake compile rspec"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
@@ -56,6 +60,8 @@ jobs:
         with:
           path: ports
           key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+      - if: matrix.precommand
+        run: ${{matrix.precommand}}
       - run: gem install bundler -v ">= 2.3.22" # for "add --path"
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile
