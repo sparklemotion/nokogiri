@@ -8,6 +8,16 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notable Changes
 
+#### Ruby
+
+This release introduces native gem support for Ruby 3.2. (Also see "Technical note" under "Changed" below.)
+
+This release ends support for:
+
+* Ruby 2.6, for which [upstream support ended 2022-04-12](https://www.ruby-lang.org/en/downloads/branches/).
+* JRuby 9.3, which is not fully compatible with Ruby 2.7+
+
+
 #### Faster, more reliable installation: Native Gem for `aarch64-linux` (aka `linux/arm64/v8`)
 
 This version of Nokogiri ships _official_ native gem support for the `aarch64-linux` platform, which should support AWS Graviton and other ARM64 Linux platforms. Please note that glibc >= 2.29 is required for aarch64-linux systems, see [Supported Platforms](https://nokogiri.org/#supported-platforms) for more information.
@@ -103,6 +113,11 @@ We welcome feedback on this API at [#2360](https://github.com/sparklemotion/noko
 ### Deprecated
 
 * `Nokogiri.install_default_aliases` is deprecated in favor of `Nokogiri::EncodingHandler.install_default_aliases`. This is part of a private API and is probably not called by anybody, but we'll go through a deprecation cycle before removal anyway. [[#2643](https://github.com/sparklemotion/nokogiri/issues/2643), [#2446](https://github.com/sparklemotion/nokogiri/issues/2446)]
+
+
+### Changed
+
+* [CRuby+OSX] Technical note: On MacOS Ruby 3.2, the symbols from libxml2 and libxslt are no longer exported. Ruby 3.2 adopted new features from the Darwin toolchain that make it challenging to continue to support this rarely-used binary API. A future minor release of Nokogiri may remove these symbols (and others) entirely. Feedback from downstream gem maintainers is welcome at [#2746](https://github.com/sparklemotion/nokogiri/issues/2746), where you'll also be able to read deeper context on this decision.
 
 
 ### Thank you!

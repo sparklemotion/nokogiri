@@ -111,8 +111,8 @@ You can help sponsor the maintainers of this software through one of these organ
 
 Requirements:
 
-- Ruby >= 2.6
-- JRuby >= 9.3.0.0
+- Ruby >= 2.7
+- JRuby >= 9.4.0.0
 
 
 ### Native Gems: Faster, more reliable installation
@@ -129,7 +129,7 @@ Nokogiri ships pre-compiled, "native" gems for the following platforms:
   - Note that musl platforms like Alpine **are** supported
 - Darwin/MacOS: `x86_64-darwin` and `arm64-darwin`
 - Windows: `x86-mingw32`, `x64-mingw32`, and `x64-mingw-ucrt`
-- Java: any platform running JRuby 9.3 or higher
+- Java: any platform running JRuby 9.4 or higher
 
 To determine whether your system supports one of these gems, look at the output of `bundle platform` or `ruby -e 'puts Gem::Platform.local.to_s'`.
 

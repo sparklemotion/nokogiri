@@ -168,7 +168,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
       ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver < "2.6.0"
+        dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
     when AARCH_LINUX_PLATFORM_REGEX
       [
@@ -177,7 +177,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "libdl.so.2", # on old dists only - now in libc
         "ld-linux-aarch64.so.1",
       ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver < "2.6.0"
+        dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
     when DARWIN_PLATFORM_REGEX
       [
@@ -191,7 +191,9 @@ CrossRuby = Struct.new(:version, :platform) do
         "libdl.so.2",
         "libc.so.6",
         "ld-linux-armhf.so.3",
-      ]
+      ].tap do |dlls|
+        dlls << "libpthread.so.0" if ver >= "3.2.0"
+      end
     else
       raise "CrossRuby.allowed_dlls: unmatched platform: #{platform}"
     end
@@ -209,12 +211,12 @@ CrossRuby = Struct.new(:version, :platform) do
   end
 end
 
-CROSS_RUBIES = File.read(".cross_rubies").split("\n").map do |line|
+CROSS_RUBIES = File.read(".cross_rubies").split("\n").filter_map do |line|
   case line
   when /\A([^#]+):([^#]+)/
     CrossRuby.new(Regexp.last_match(1), Regexp.last_match(2))
   end
-end.compact
+end
 
 ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
@@ -322,8 +324,9 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
+      ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-snapshot:#{plat}"
       RakeCompilerDock.sh(<<~EOT, platform: plat, verbose: true)
-        rvm use 3.1.0 &&
+        ruby -v &&
         gem install bundler --no-document &&
         bundle &&
         bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
@@ -342,6 +345,7 @@ namespace "gem" do
 
   desc "build a jruby gem"
   task "jruby" do
+    ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-snapshot:jruby"
     RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby", verbose: true)
       gem install bundler --no-document &&
       bundle &&

@@ -1,4 +1,4 @@
-FROM ruby:2.6
+FROM ruby:3.2
 
 # include_file debian-prelude.step
 # -*- dockerfile -*-

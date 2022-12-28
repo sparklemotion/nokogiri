@@ -1198,9 +1198,9 @@ module Nokogiri
 
       # Get the path to this node as a CSS expression
       def css_path
-        path.split(%r{/}).map do |part|
+        path.split(%r{/}).filter_map do |part|
           part.empty? ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
-        end.compact.join(" > ")
+        end.join(" > ")
       end
 
       ###

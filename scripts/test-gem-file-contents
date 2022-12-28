@@ -74,12 +74,12 @@ describe File.basename(gemfile) do
   let(:cross_rubies_path) { File.join(File.dirname(__FILE__), "..", ".cross_rubies") }
 
   let(:platform_supported_ruby_versions) do
-    File.read(cross_rubies_path).split("\n").map do |line|
+    File.read(cross_rubies_path).split("\n").filter_map do |line|
       ver, plat = line.split(":")
       next if plat != gemspec.platform.to_s
 
       ver.split(".").take(2).join(".") # ugh
-    end.compact.uniq.sort
+    end.uniq.sort
   end
 
   let(:all_supported_ruby_versions) do

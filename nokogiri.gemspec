@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
 
   spec.license = "MIT"
 
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 2.7.0"
 
   spec.homepage = "https://nokogiri.org"
   spec.metadata = {
