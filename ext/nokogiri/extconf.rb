@@ -619,7 +619,7 @@ do_help if arg_config("--help")
 do_clean if arg_config("--clean")
 
 if openbsd? && !config_system_libraries?
-  if %x(#{ENV["CC"] || "/usr/bin/cc"} -v 2>&1) !~ /clang/
+  unless %x(#{ENV["CC"] || "/usr/bin/cc"} -v 2>&1).include?("clang")
     (ENV["CC"] ||= find_executable("egcc")) ||
       abort("Please install gcc 4.9+ from ports using `pkg_add -v gcc`")
   end
