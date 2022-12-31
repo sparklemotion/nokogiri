@@ -139,6 +139,8 @@ The following people and organizations were kind enough to sponsor [@flavorjones
 * Charles Simon-Meunier [@csimonmeunier](https://github.com/csimonmeunier)
 * Ben Slaughter [@benSlaughter](https://github.com/benSlaughter)
 * Garen Torikian [@gjtorikian](https://github.com/gjtorikian)
+* Frank Groeneveld [@frenkel](https://github.com/frenkel)
+* Hiroshi SHIBATA [@hsbt](https://github.com/hsbt)
 
 
 ## 1.13.10 / 2022-12-07
