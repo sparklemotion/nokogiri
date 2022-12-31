@@ -45,10 +45,10 @@ jobs:
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
-          - url: https://github.com/instructure/nokogiri-xmlsec-instructure
-            name: nokogiri-xmlsec-instructure
-            precommand: "apt install -y libxmlsec1-dev"
-            command: "bundle exec rake compile rspec"
+          # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
+          #   name: nokogiri-xmlsec-instructure
+          #   precommand: "apt install -y libxmlsec1-dev"
+          #   command: "bundle exec rake compile rspec"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
