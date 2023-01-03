@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 require "helper"
@@ -24,17 +25,32 @@ module Nokogiri
           <!-- Comment 3 -->
         eoxml
 
+        expected = <<~EOF.strip
+          <?xml-stylesheet href="doc.xsl"
+             type="text/xsl"   ?>
+          <doc>Hello, world!</doc>
+          <?pi-without-data?>
+        EOF
         c14n = doc.canonicalize
-        refute_match(/version=/, c14n)
-        assert_match(/Hello, world/, c14n)
-        refute_match(/Comment/, c14n)
-        c14n = doc.canonicalize(nil, nil, true)
-        assert_match(/Comment/, c14n)
+        assert_equal(expected, c14n)
         c14n = doc.canonicalize(nil, nil, false)
-        refute_match(/Comment/, c14n)
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <?xml-stylesheet href="doc.xsl"
+             type="text/xsl"   ?>
+          <doc>Hello, world!<!-- Comment 1 --></doc>
+          <?pi-without-data?>
+          <!-- Comment 2 -->
+          <!-- Comment 3 -->
+        EOF
+        c14n = doc.canonicalize(nil, nil, true)
+        assert_equal(expected, c14n)
       end
 
       def test_exclude_block_params
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -43,20 +59,15 @@ module Nokogiri
           list << [node, parent]
           true
         end
-        if Nokogiri.jruby?
-          assert_equal(
-            ["a", "document", "document", nil, "b", "a"],
-            list.flatten.map { |x| x ? x.name : x }
-          )
-        else
-          assert_equal(
-            ["a", "document", "document", nil, "b", "a", "a", "document"],
-            list.flatten.map { |x| x ? x.name : x }
-          )
-        end
+        assert_equal(
+          ["a", "document", "document", nil, "b", "a", "a", "document"],
+          list.flatten.map { |x| x ? x.name : x }
+        )
       end
 
       def test_exclude_block_true
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -67,6 +78,8 @@ module Nokogiri
       end
 
       def test_exclude_block_false
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -76,7 +89,26 @@ module Nokogiri
         assert_equal("", c14n)
       end
 
+      def test_exclude_block_conditional
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
+        xml = "<root><a></a><b></b><c></c><d></d></root>"
+        doc = Nokogiri.XML(xml)
+
+        c14n = doc.canonicalize do |node, _parent|
+          node.name == "root" || node.name == "a" || node.name == "c"
+        end
+        assert_equal("<root><a></a><c></c></root>", c14n)
+
+        c14n = doc.canonicalize do |node, _parent|
+          node.name == "a" || node.name == "c"
+        end
+        assert_equal("<a></a><c></c>", c14n)
+      end
+
       def test_exclude_block_nil
+        skip("canonicalize block not supported on jruby, see #2547") if Nokogiri.jruby?
+
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
 
@@ -206,6 +238,21 @@ module Nokogiri
         assert_raises(TypeError) { doc.canonicalize(:wrong_type) }
         assert_raises(TypeError) { doc.canonicalize(nil, :wrong_type) }
         doc.canonicalize(nil, nil, :wrong_type)
+      end
+
+      def test_multibyte_unicode
+        # https://github.com/sparklemotion/nokogiri/issues/2410
+        doc = Nokogiri.XML(%{<foo>𡏅</foo>}, nil, "EUC-JP")
+
+        # I do not understand what's going on here
+        expected = if Nokogiri.jruby?
+          %{<foo>𡏅</foo>}
+        else
+          %{<foo>陝</foo>}
+        end
+
+        result = doc.canonicalize
+        assert_equal(expected, result)
       end
     end
   end
