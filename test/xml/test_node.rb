@@ -679,6 +679,14 @@ module Nokogiri
           end
         end
 
+        def test_write_to_file_without_encoding
+          Tempfile.create do |io|
+            xml.write_to(io)
+            io.rewind
+            assert_equal(xml.to_xml, io.read)
+          end
+        end
+
         def test_serialize_with_block
           called = false
           conf = nil
