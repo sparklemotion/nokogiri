@@ -4,6 +4,7 @@ This doc is intended to be a short introduction on how to modify and maintain No
 
 If you're looking for guidance on filing a bug report or getting support, please visit the ["Getting Help" tutorial](http://www.nokogiri.org/tutorials/getting_help.html) at the [nokogiri.org](http://nokogiri.org) site.
 
+
 ## Contents
 
 <!-- regenerate TOC with `rake format:toc` -->
@@ -11,6 +12,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 <!-- toc -->
 
 - [Introduction](#introduction)
+- [Code of Conduct](#code-of-conduct)
 - [Some guiding principles of the project](#some-guiding-principles-of-the-project)
 - [Where to start getting involved](#where-to-start-getting-involved)
 - [Submitting Pull Requests](#submitting-pull-requests)
@@ -24,7 +26,6 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
 - [Making a release](#making-a-release)
-- [Code of Conduct](#code-of-conduct)
 
 <!-- tocstop -->
 
@@ -33,6 +34,14 @@ If you're looking for guidance on filing a bug report or getting support, please
 Hello there! I'm super excited that you're interested in contributing to Nokogiri. Welcome!
 
 This document is intended only to provide a brief introduction on how to contribute to Nokogiri. It's not a complete specification of everything you need to know, so if you want to know more, I encourage you to reach out to the maintainers via email, twitter, or a new Github issue. We'd love to get to know you a bit better!
+
+
+## Code of Conduct
+
+Our full Code of Conduct is in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+For best results, be kind. Remember that Nokogiri maintainers are volunteers, and treat them with respect. Do not act entitled to service. Do not be rude. Do not use judgmental or foul language.
+
 
 ## Some guiding principles of the project
 
@@ -49,7 +58,6 @@ Nokogiri supports both CRuby and JRuby, and has native code specific to each (th
 - Whenever possible, avoid writing tests that are platform-specific (but if you do, use `skip` to provide an explanation).
 
 Notably, despite all parsers being standards-compliant, there are behavioral inconsistencies between the parsers used in the CRuby and JRuby implementations, and Nokogiri does not and should not attempt to remove these inconsistencies. Instead, we surface these differences in the test suite when they are important/semantic; or we intentionally write tests to depend only on the important/semantic bits (omitting whitespace from regex matchers on results, for example).
-
 
 Nokogiri is widely used in the Ruby ecosystem, and so extra care should be taken to avoid introducing breaking changes. Please read our [Semantic Versioning Policy](https://nokogiri.org/index.html#semantic-versioning-policy) to understand what we consider to be a breaking change.
 
@@ -89,13 +97,14 @@ Patch releases should be made by cherry-picking commits from `main` onto the rel
 
 ``` sh
 git clone --recurse-submodules https://github.com/sparklemotion/nokogiri
+cd nokogiri
 bundle install
 ```
 
 
 ### Advanced
 
-Please install the latest or previous version of CRuby (e.g., 3.1 or 3.0 as of 2022-01), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
+Please install the latest or previous version of CRuby (e.g., 3.2 or 3.1 as of 2023-01), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
 
 Please install a system version of libxml2/libxslt (see [Installing Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries) for details) so that you can test against both the packaged libraries and your system libraries.
 
@@ -113,6 +122,12 @@ Note that `rake test` does not compile the native extension, and this is intenti
 
 ``` sh
 bundle exec rake compile test
+```
+
+To run a focused test, use MiniTest's `TESTOPTS`:
+
+``` sh
+bundle exec rake compile test TESTOPTS="-n/test_last_element_child/"
 ```
 
 
@@ -186,7 +201,11 @@ NOKOGIRI_TEST_GC_LEVEL=stress bundle exec rake compile test
 
 If you want to build Nokogiri against a modified version of libxml2, clone libxml2 to `../libxml2` and then run `scripts/compile-against-libxml2-source`.
 
-That script also takes an optional command to run with the proper environment variables set to use the local libxml2 library, which can be useful when trying to `git bisect` against libxml2.
+That script also takes an optional command to run with the proper environment variables set to use the local libxml2 library, which can be useful when trying to `git bisect` against libxml2. So, for example:
+
+``` sh
+scripts/compile-against-libxml2-source bundle exec rake test
+```
 
 
 ### gumbo HTML5 parser
@@ -236,7 +255,7 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
 
 ### Code
 
-I don't feel very strongly about code style, but this project follows [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code the project uses the `astyle` configuration laid out in `/rakelib/format.rake`.
+I don't feel very strongly about code style, but this project follows [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code the project uses the `astyle` configuration laid out in `./rakelib/format.rake`.
 
 You can auto-format the C, Java, and Ruby code with `rake format`.
 
@@ -267,12 +286,19 @@ The `ci.yml` pipeline includes jobs to:
     - once on valgrind (to look for memory bugs)
 - run the test suite looking for new memory leaks (using ruby_memcheck)
 - run on JRuby
+- run on TruffleRuby
 - run on a Musl (Alpine) system:
     - against system libraries
     - with valgrind using packaged libraries
 - run with libxml-ruby loaded (because this can interact with libxml2 in conflicting ways)
     - against system libraries
     - with valgrind using packaged libraries
+- build a "ruby" platform gem
+    - install and test on linux, macos, and windows
+- build native gems
+    - install and test against all supported versions of CRuby
+    - install and test on a variety of linux, macos, and windows systems
+- build a jruby gem, install and test it
 
 The `upstream.yml` pipeline includes jobs to:
 
@@ -281,16 +307,7 @@ The `upstream.yml` pipeline includes jobs to:
 - run against JRuby head
 - run html5lib-tests from that project's `origin/master`
 
-The `gem-install.yml` pipeline includes jobs to:
-
-- build a "ruby" platform gem
-    - install and test on linux, macos, and windows
-- build native gems
-    - install and test against all supported versions of CRuby
-    - install and test on a variety of linux, macos, and windows systems
-- build a jruby gem, install and test it
-
-The `truffle.yml` pipeline tests TruffleRuby nightlies with a few different compile-time flags. TruffleRuby support is still experimental due to Sulong limitations, and the test suite is exceedingly slow when run by TR, so this pipeline doesn't run on pushes or pull requests. Instead, it runs periodically on a timer to give us some signal without slowing down developer feedback loops.
+The `downstream.yml` pipeline includes jobs to run notable downstream dependents against Nokogiri `main`.
 
 The `generate-ci-images.yml` pipeline builds some containers used by the other pipelines once a week. This is primarily an optimization to make sure system packages (like `libxml2-dev` and `valgrind`) are already installed. See `oci-images/nokogiri-test/` for details on what's in these containers.
 
@@ -304,9 +321,9 @@ We use suppressions primarily to quiet known small memory leaks or quirks of cer
 
 ### Benchmark / Performance tests
 
-A separate suite, `test:bench`, can be run to ensure a few performance expectations. As of 2022-02 this suite is small, but we can grow it over time.
+A separate suite, `test:bench`, can be run to ensure a few performance expectations. As of 2022-02 this suite is small, but we can grow it over time. These tests are run in CI on CRuby and JRuby.
 
-These tests should use `Nokogiri::TestBenchmark` as the base class, and be in a file matching the glob `test/**/bench_*.rb`. They'll be run in CI on CRuby and JRuby.
+These tests should use `Nokogiri::TestBenchmark` as the base class, and be in a file matching the glob `test/**/bench_*.rb`.
 
 
 ### Helpful hints when writing new CI jobs
@@ -321,6 +338,8 @@ These tests should use `Nokogiri::TestBenchmark` as the base class, and be in a 
 As a prerequisite please make sure you have `docker` correctly installed, to build native (precompiled) gems.
 
 Run `scripts/build-gems` which will package gems for all supported platforms, and run some basic sanity tests on those packages using `scripts/test-gem-set`, `scripts/test-gem-file-contents`, and `scripts/test-gem-installation`.
+
+See [Making a release](#making-a-release) below for the checklist.
 
 
 ## Other utilities
@@ -349,10 +368,10 @@ To modify or add a dependency, a few things needs to be in sync:
 
 A quick summary of what this looks like for you, the developer:
 
-- edit the `requirements` in the gemspec
-- run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
-- run `bundle exec rake check_manifest` and if necessary update the gemspec `files`
-- make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
+1. edit the `requirements` in the gemspec
+2. run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
+3. run `bundle exec rake check_manifest` and if necessary update the gemspec `files`
+4. make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
 
 
 ## Rake tasks
@@ -376,14 +395,3 @@ A quick checklist:
   - [ ] submit a PR to https://github.com/rubysec/ruby-advisory-db
 - [ ] update nokogiri.org
 - [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
-
-
-## Code of Conduct
-
-Our full Code of Conduct is in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
-
-For best results, be nice. Remember that Nokogiri maintainers are volunteers, and treat them with respect.
-
-Do not act entitled to service. Do not be rude. Do not use judgmental or foul language.
-
-The maintainers reserve the right to delete issues or comments that are rude, or that contain foul language, and will permanently block users who violate the code.
