@@ -324,7 +324,7 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
-      ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-snapshot:#{plat}"
+      ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-image:snapshot-mri-#{plat}"
       RakeCompilerDock.sh(<<~EOT, platform: plat, verbose: true)
         ruby -v &&
         gem install bundler --no-document &&
@@ -345,7 +345,7 @@ namespace "gem" do
 
   desc "build a jruby gem"
   task "jruby" do
-    ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-snapshot:jruby"
+    ENV["RCD_IMAGE"] = "ghcr.io/rake-compiler/rake-compiler-dock-image:snapshot-jruby"
     RakeCompilerDock.sh(<<~EOF, rubyvm: "jruby", platform: "jruby", verbose: true)
       gem install bundler --no-document &&
       bundle &&
