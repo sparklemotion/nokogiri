@@ -16,16 +16,16 @@ module Nokogiri
           Nokogiri::XML::Node => '"foo", doc',
           Nokogiri::XML::Text => '"foo", doc',
         }.each do |klass, constructor|
-          class_eval %{
+          class_eval <<~RUBY, __FILE__, __LINE__ + 1
             def test_subclass_#{klass.name.gsub("::", "_")}
               doc = Nokogiri::XML::Document.new
               klass = Class.new(#{klass.name})
               node = klass.new(#{constructor})
               assert_instance_of klass, node
             end
-          }
+          RUBY
 
-          class_eval <<-eocode, __FILE__, __LINE__ + 1
+          class_eval <<~RUBY, __FILE__, __LINE__ + 1
             def test_subclass_initialize_#{klass.name.gsub("::", "_")}
               doc = Nokogiri::XML::Document.new
               klass = Class.new(#{klass.name}) do
@@ -38,7 +38,7 @@ module Nokogiri
               node = klass.new(#{constructor}, 1)
               assert_equal [#{constructor}, 1], node.initialized_with
             end
-          eocode
+          RUBY
         end
       end
     end

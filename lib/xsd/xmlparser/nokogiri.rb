@@ -95,7 +95,9 @@ module XSD
       end
 
       ["xmldecl", "start_document", "end_document", "comment"].each do |name|
-        class_eval %{ def #{name}(*args); end }
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
+          def #{name}(*args); end
+        RUBY
       end
 
       add_factory(self)

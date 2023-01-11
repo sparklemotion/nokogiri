@@ -49,7 +49,7 @@ module Nokogiri
         end
 
         constants.each do |constant|
-          class_eval %{
+          class_eval <<~RUBY, __FILE__, __LINE__ + 1
             def #{constant.downcase}
               @options |= #{constant}
               self
@@ -58,7 +58,7 @@ module Nokogiri
             def #{constant.downcase}?
               #{constant} & @options == #{constant}
             end
-          }
+          RUBY
         end
 
         alias_method :to_i, :options
