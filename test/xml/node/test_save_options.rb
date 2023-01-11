@@ -7,14 +7,14 @@ module Nokogiri
     class Node
       class TestSaveOptions < Nokogiri::TestCase
         SaveOptions.constants.each do |constant|
-          class_eval <<-EOEVAL
+          class_eval <<~RUBY, __FILE__, __LINE__ + 1
             def test_predicate_#{constant.downcase}
               options = SaveOptions.new(SaveOptions::#{constant})
               assert options.#{constant.downcase}?
 
               assert SaveOptions.new.#{constant.downcase}.#{constant.downcase}?
             end
-          EOEVAL
+          RUBY
         end
 
         def test_default_xml_save_options

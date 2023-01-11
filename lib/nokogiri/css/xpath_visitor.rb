@@ -230,11 +230,11 @@ module Nokogiri
         "descendant_selector" => "//",
         "child_selector" => "/",
       }.each do |k, v|
-        class_eval %{
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
           def visit_#{k} node
             "\#{node.value.first.accept(self) if node.value.first}#{v}\#{node.value.last.accept(self)}"
           end
-        }
+        RUBY
       end
 
       def visit_conditional_selector(node)

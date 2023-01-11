@@ -18,14 +18,14 @@ module Nokogiri
       ParseOptions.constants.each do |constant|
         next if constant == "STRICT"
 
-        class_eval %{
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
           def test_predicate_#{constant.downcase}
             options = ParseOptions.new(ParseOptions::#{constant})
             assert options.#{constant.downcase}?
 
             assert ParseOptions.new.#{constant.downcase}.#{constant.downcase}?
           end
-        }
+        RUBY
       end
 
       def test_strict_noent

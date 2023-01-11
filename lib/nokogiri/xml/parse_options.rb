@@ -169,7 +169,7 @@ module Nokogiri
       constants.each do |constant|
         next if constant.to_sym == :STRICT
 
-        class_eval %{
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
           def #{constant.downcase}
             @options |= #{constant}
             self
@@ -183,7 +183,7 @@ module Nokogiri
           def #{constant.downcase}?
             #{constant} & @options == #{constant}
           end
-        }
+        RUBY
       end
 
       def strict
