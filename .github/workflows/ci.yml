@@ -382,8 +382,7 @@ jobs:
     name: "generic-package"
     runs-on: ubuntu-latest
     container:
-      # image: "larskanis/rake-compiler-dock-mri-x86_64-linux:${{needs.rcd_image_version.outputs.rcd_image_version}}"
-      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:snapshot-mri-x86_64-linux"
+      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -515,8 +514,7 @@ jobs:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - env:
-          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:snapshot-mri-${{matrix.plat}}"
-          # DOCKER_IMAGE: "larskanis/rake-compiler-dock-mri-${{matrix.plat}}:${{needs.rcd_image_version.outputs.rcd_image_version}}"
+          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-${{matrix.plat}}"
         run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
@@ -697,8 +695,7 @@ jobs:
     name: "jruby-package"
     runs-on: ubuntu-latest
     container:
-      # image: "larskanis/rake-compiler-dock-jruby:${{needs.rcd_image_version.outputs.rcd_image_version}}"
-      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:snapshot-jruby"
+      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby"
     steps:
       - uses: actions/checkout@v3
         with:
