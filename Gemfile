@@ -11,7 +11,7 @@ group :development do
 
   # building extensions
   gem "rake-compiler", "= 1.2.1"
-  gem "rake-compiler-dock", "= 1.2.2"
+  gem "rake-compiler-dock", "= 1.3.0"
 
   # documentation
   gem "hoe-markdown", "= 1.4.0"
