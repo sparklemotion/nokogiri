@@ -17,7 +17,7 @@ module Nokogiri
 
       def test_new
         assert(schema = Nokogiri::XML::RelaxNG.new(
-          File.read(ADDRESS_SCHEMA_FILE)
+          File.read(ADDRESS_SCHEMA_FILE),
         ))
         assert_instance_of(Nokogiri::XML::RelaxNG, schema)
       end

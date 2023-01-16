@@ -97,3 +97,5 @@ task :check_manifest, [:verbose] do |_, args|
     extra_files.sort.each { |f| puts "+ #{f}" }
   end
 end
+
+# rubocop:enable Style/WordArray

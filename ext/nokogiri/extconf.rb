@@ -1080,3 +1080,5 @@ if config_clean?
     EOF
   end
 end
+
+# rubocop:enable Style/GlobalVars

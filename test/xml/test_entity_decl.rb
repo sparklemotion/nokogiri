@@ -116,7 +116,7 @@ module Nokogiri
       def test_inspect
         assert_equal(
           "#<#{@entity_decl.class.name}:#{format("0x%x", @entity_decl.object_id)} #{@entity_decl.to_s.inspect}>",
-          @entity_decl.inspect
+          @entity_decl.inspect,
         )
       end
     end

@@ -46,12 +46,12 @@ module Nokogiri
         if Nokogiri.jruby?
           assert_equal(
             ["a", "document", "document", nil, "b", "a"],
-            list.flatten.map { |x| x ? x.name : x }
+            list.flatten.map { |x| x ? x.name : x },
           )
         else
           assert_equal(
             ["a", "document", "document", nil, "b", "a", "a", "document"],
-            list.flatten.map { |x| x ? x.name : x }
+            list.flatten.map { |x| x ? x.name : x },
           )
         end
       end

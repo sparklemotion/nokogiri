@@ -11,7 +11,7 @@ module Nokogiri
         @reader = Nokogiri::XML::Reader(
           File.read(XML_FILE),
           XML_FILE,
-          "UTF-8"
+          "UTF-8",
         )
       end
 

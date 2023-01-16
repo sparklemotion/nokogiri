@@ -141,7 +141,7 @@ module Nokogiri
         assert(result.doc.namespace_inheritance)
         assert(
           result.doc.at_xpath("//soapenv:Header", "soapenv" => "http://schemas.xmlsoap.org/soap/envelope/"),
-          "header element should have a namespace"
+          "header element should have a namespace",
         )
       end
 
@@ -155,7 +155,7 @@ module Nokogiri
         refute(result.doc.namespace_inheritance)
         assert(
           result.doc.at_xpath("//Header"),
-          "header element should not have a namespace"
+          "header element should not have a namespace",
         )
       end
 
@@ -196,7 +196,7 @@ module Nokogiri
           xml.doc.create_internal_subset(
             "html",
             "-//W3C//DTD HTML 4.01 Transitional//EN",
-            "http://www.w3.org/TR/html4/loose.dtd"
+            "http://www.w3.org/TR/html4/loose.dtd",
           )
           xml.root do
             xml.foo

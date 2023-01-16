@@ -12,7 +12,7 @@ class TestNokogiri < Nokogiri::TestCase
         [:CONDITIONAL_SELECTOR,
          [:ELEMENT_NAME],
          [:PSEUDO_CLASS,
-          [:FUNCTION],],]
+          [:FUNCTION],],],
       )
       assert_equal(1, matches.length)
       assert_equal(ast, matches.first)
@@ -25,7 +25,7 @@ class TestNokogiri < Nokogiri::TestCase
          [:ELEMENT_NAME],
          [:PSEUDO_CLASS,
           [:FUNCTION],],],
-        ast.to_type
+        ast.to_type,
       )
     end
 
@@ -36,7 +36,7 @@ class TestNokogiri < Nokogiri::TestCase
          [:ELEMENT_NAME, ["a"]],
          [:PSEUDO_CLASS,
           [:FUNCTION, ["nth-child("], ["2"]],],],
-        asts.first.to_a
+        asts.first.to_a,
       )
     end
 
@@ -49,7 +49,7 @@ class TestNokogiri < Nokogiri::TestCase
           [:ATTRIB_NAME, ["class"]],
           [:includes],
           ["bar"],],],
-        ast.to_a
+        ast.to_a,
       )
     end
 
@@ -57,7 +57,7 @@ class TestNokogiri < Nokogiri::TestCase
       ast = parser.parse("a/@href").first
       assert_equal(
         [:CHILD_SELECTOR, [:ELEMENT_NAME, ["a"]], [:ATTRIB_NAME, ["href"]]],
-        ast.to_a
+        ast.to_a,
       )
     end
 

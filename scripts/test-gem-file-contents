@@ -51,7 +51,7 @@ gemspec = Dir.mktmpdir do |dir|
 
     YAML.safe_load(
       %x(gunzip -c metadata.gz),
-      permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol]
+      permitted_classes: [Gem::Specification, Gem::Version, Gem::Dependency, Gem::Requirement, Time, Symbol],
     )
   end
 end
@@ -286,7 +286,7 @@ describe File.basename(gemfile) do
         assert_equal(
           1,
           actual_jars.count { |j| File.fnmatch?("lib/nokogiri/jruby/**/#{name}-*.jar", j) },
-          "expected to contain '#{name}-*.jar'"
+          "expected to contain '#{name}-*.jar'",
         )
       end
     end

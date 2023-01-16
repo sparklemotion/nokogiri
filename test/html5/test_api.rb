@@ -280,7 +280,7 @@ class TestHtml5API < Nokogiri::TestCase
           doc = klass.new("http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN")
           assert_equal(
             ["http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN"],
-            doc.initialized_with
+            doc.initialized_with,
           )
         end
       end

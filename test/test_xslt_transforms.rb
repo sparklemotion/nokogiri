@@ -209,7 +209,7 @@ module Nokogiri
         if Nokogiri::VersionInfo.instance.libxslt_has_datetime?
           assert_match(
             /\d{4}-\d\d-\d\d([-|+]\d\d:\d\d)?/,
-            result_doc.at("/root/date").content
+            result_doc.at("/root/date").content,
           )
         end
         result_doc.xpath("/root/params/*").each do |p|
@@ -352,12 +352,12 @@ module Nokogiri
         if truffleruby_system_libraries?
           assert_equal(
             "xslt_generic_error_handler: xmlXPathCompOpEval: function %s not found\nxslt_generic_error_handler: %s",
-            exception.message
+            exception.message,
           )
         else
           assert_match(
             /xmlXPathCompOpEval: function decimal not found|java.lang.NoSuchMethodException.*decimal/,
-            exception.message
+            exception.message,
           )
         end
       end

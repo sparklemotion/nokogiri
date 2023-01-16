@@ -333,7 +333,7 @@ module Nokogiri
           temp_html_file.open
           assert_equal(
             Nokogiri::HTML4.parse(File.read(HTML_FILE)).xpath("//div/a").length,
-            Nokogiri::HTML4.parse(temp_html_file).xpath("//div/a").length
+            Nokogiri::HTML4.parse(temp_html_file).xpath("//div/a").length,
           )
         end
 
@@ -437,7 +437,7 @@ module Nokogiri
           assert_equal("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", html.internal_subset.system_id)
           assert_equal(
             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">",
-            html.to_s[0, 97]
+            html.to_s[0, 97],
           )
         end
 
@@ -865,7 +865,7 @@ module Nokogiri
               doc = klass.new("http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN")
               assert_equal(
                 ["http://www.w3.org/TR/REC-html40/loose.dtd", "-//W3C//DTD HTML 4.0 Transitional//EN"],
-                doc.initialized_with
+                doc.initialized_with,
               )
             end
           end

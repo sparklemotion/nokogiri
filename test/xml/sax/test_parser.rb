@@ -161,7 +161,7 @@ module Nokogiri
           EOF
           assert_equal(
             ["root", "foo:f", "bar"],
-            parser.document.start_elements.map(&:first)
+            parser.document.start_elements.map(&:first),
           )
         end
 
@@ -337,7 +337,7 @@ module Nokogiri
           EOF
           assert_equal(
             [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
-            parser.document.start_elements
+            parser.document.start_elements,
           )
         end
 
@@ -348,7 +348,7 @@ module Nokogiri
           EOF
           assert_equal(
             [["xml-stylesheet", 'href="a.xsl" type="text/xsl"']],
-            parser.document.processing_instructions
+            parser.document.processing_instructions,
           )
         end
 
@@ -393,7 +393,7 @@ module Nokogiri
 
           assert_equal(
             [["Root", []], ["Data", []], ["Item", []], ["Data", []], ["Item", []]],
-            parser.document.start_elements
+            parser.document.start_elements,
           )
         end
 

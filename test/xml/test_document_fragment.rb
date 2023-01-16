@@ -111,7 +111,7 @@ module Nokogiri
 
         def test_fragment_children_search
           fragment = Nokogiri::XML::Document.new.fragment(
-            '<div><p id="content">hi</p></div>'
+            '<div><p id="content">hi</p></div>',
           )
           expected = fragment.children.xpath(".//p")
           assert_equal(1, expected.length)
