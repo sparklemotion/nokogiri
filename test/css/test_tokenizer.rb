@@ -31,7 +31,7 @@ module Nokogiri
         @scanner.scan("a:has(b)")
         assert_tokens(
           [[:IDENT, "a"], [":", ":"], [:HAS, "has("], [:IDENT, "b"], [:RPAREN, ")"]],
-          @scanner
+          @scanner,
         )
       end
 

@@ -421,7 +421,7 @@ module Nokogiri
                       "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -443,7 +443,7 @@ module Nokogiri
                       "xmlns:foo" => "http://flavorjon.es/",
                       "xmlns:baz" => "http://tenderlovemaking.com/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -469,7 +469,7 @@ module Nokogiri
                       "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -490,7 +490,7 @@ module Nokogiri
                       "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -511,7 +511,7 @@ module Nokogiri
                       "xmlns" => "http://flavorjon.es/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -533,7 +533,7 @@ module Nokogiri
                       "xmlns:foo" => "http://flavorjon.es/",
                       "xmlns:baz" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces
+                    reparented.namespaces,
                   )
                 end
               end
@@ -558,7 +558,7 @@ module Nokogiri
                     "xmlns:foo" => "http://flavorjon.es/",
                     "xmlns:baz" => "http://tenderlovemaking.com/",
                   },
-                  reparented.namespaces
+                  reparented.namespaces,
                 )
               end
             end

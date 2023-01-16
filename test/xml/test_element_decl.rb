@@ -27,7 +27,7 @@ module Nokogiri
         e = @elements.first
         assert_equal(
           "#<#{e.class.name}:#{format("0x%x", e.object_id)} #{e.to_s.inspect}>",
-          e.inspect
+          e.inspect,
         )
       end
 

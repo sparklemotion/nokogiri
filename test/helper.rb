@@ -126,18 +126,18 @@ module Nokogiri
     extend TestBase
   end
 
+  # rubocop:disable Style/ClassVars
   class TestCase < MiniTest::Spec
     include TestBase
 
     COMPACT_EVERY = 20
-    @@test_count = 0 # rubocop:disable Style/ClassVars
-    @@gc_level = nil # rubocop:disable Style/ClassVars
+    @@test_count = 0
+    @@gc_level = nil
 
     def initialize_nokogiri_test_gc_level
       return if Nokogiri.jruby?
       return if @@gc_level
 
-      # rubocop:disable Style/ClassVars
       @@gc_level = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
         ENV["NOKOGIRI_TEST_GC_LEVEL"]
       elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
@@ -151,6 +151,7 @@ module Nokogiri
       else
         "major"
       end
+
       if ["compact", "verify"].include?(@@gc_level)
         # the only way of detecting an unsupported platform is actually
         # trying GC compaction
@@ -167,7 +168,7 @@ module Nokogiri
     def setup
       initialize_nokogiri_test_gc_level
 
-      @@test_count += 1 # rubocop:disable Style/ClassVars
+      @@test_count += 1
       if Nokogiri.uses_libxml?
         @fake_error_handler_called = false
         Nokogiri::Test.__foreign_error_handler do
@@ -278,6 +279,7 @@ module Nokogiri
       pending(msg, &block)
     end
   end
+  # rubocop:enable Style/ClassVars
 
   module SAX
     class TestCase < Nokogiri::TestCase

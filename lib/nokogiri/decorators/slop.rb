@@ -25,7 +25,7 @@ module Nokogiri
         else
           CSS::Parser.without_cache do
             list = xpath(
-              *CSS.xpath_for("#{name}#{args.first}", prefix: XPATH_PREFIX)
+              *CSS.xpath_for("#{name}#{args.first}", prefix: XPATH_PREFIX),
             )
           end
         end
