@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -241,22 +240,4 @@ public abstract class ParserContext extends RubyObject
           return source;
       }
   } */
-
-  public static abstract class ParserTask<T extends ParserContext> implements Callable<T>
-  {
-
-    protected final ThreadContext context; // TODO does not seem like a good idea!?
-    protected final IRubyObject handler;
-    protected final T parser;
-
-    protected
-    ParserTask(ThreadContext context, IRubyObject handler, T parser)
-    {
-      this.context = context;
-      this.handler = handler;
-      this.parser = parser;
-    }
-
-  }
-
 }

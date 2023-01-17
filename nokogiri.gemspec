@@ -111,6 +111,7 @@ Gem::Specification.new do |spec|
     "ext/java/nokogiri/internals/ParserContext.java",
     "ext/java/nokogiri/internals/ReaderNode.java",
     "ext/java/nokogiri/internals/SaveContextVisitor.java",
+    "ext/java/nokogiri/internals/SaxParserContext.java",
     "ext/java/nokogiri/internals/SchemaErrorHandler.java",
     "ext/java/nokogiri/internals/XalanDTMManagerPatch.java",
     "ext/java/nokogiri/internals/XmlDeclHandler.java",

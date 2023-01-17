@@ -4,6 +4,7 @@ import nokogiri.internals.ClosedStreamException;
 import nokogiri.internals.NokogiriBlockingQueueInputStream;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.ParserContext;
+import nokogiri.internals.SaxParserContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -146,7 +147,7 @@ public class Html4SaxPushParser extends RubyObject
       stream = new NokogiriBlockingQueueInputStream();
 
       assert saxParser != null : "saxParser null";
-      parserTask = new ParserTask(context, saxParser, stream);
+      parserTask = new ParserTask(context, saxParser, parse(context.runtime, stream), stream);
       futureTask = new FutureTask<Html4SaxParserContext>((Callable) parserTask);
       executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         @Override
@@ -192,22 +193,12 @@ public class Html4SaxPushParser extends RubyObject
     return Html4SaxParserContext.parse_stream(runtime, klazz, stream);
   }
 
-  static class ParserTask extends XmlSaxPushParser.ParserTask /* <Html4SaxPushParser> */
+  static class ParserTask extends SaxParserContext.ParserTask<Html4SaxParserContext>
   {
-
     private
-    ParserTask(ThreadContext context, IRubyObject handler, InputStream stream)
+    ParserTask(ThreadContext context, IRubyObject handler, Html4SaxParserContext parser, InputStream stream)
     {
-      super(context, handler, parse(context.runtime, stream), stream);
+      super(context, handler, parser, stream);
     }
-
-    @Override
-    public Html4SaxParserContext
-    call() throws Exception
-    {
-      return (Html4SaxParserContext) super.call();
-    }
-
   }
-
 }

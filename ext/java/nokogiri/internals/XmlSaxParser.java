@@ -12,7 +12,6 @@ import org.apache.xerces.xni.XNIException;
  */
 public class XmlSaxParser extends SAXParser
 {
-
   protected XmlDeclHandler xmlDeclHandler = null;
 
   public
