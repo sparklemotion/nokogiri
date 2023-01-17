@@ -258,16 +258,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/html5/document_fragment.rb",
     "lib/nokogiri/html5/node.rb",
     "lib/nokogiri/jruby/dependencies.rb",
-    "lib/nokogiri/jruby/isorelax/isorelax/20030108/isorelax-20030108.jar",
-    "lib/nokogiri/jruby/net/sf/saxon/Saxon-HE/9.6.0-4/Saxon-HE-9.6.0-4.jar",
-    "lib/nokogiri/jruby/net/sourceforge/htmlunit/neko-htmlunit/2.63.0/neko-htmlunit-2.63.0.jar",
     "lib/nokogiri/jruby/nokogiri_jars.rb",
-    "lib/nokogiri/jruby/nu/validator/jing/20200702VNU/jing-20200702VNU.jar",
-    "lib/nokogiri/jruby/org/nokogiri/nekodtd/0.1.11.noko1/nekodtd-0.1.11.noko1.jar",
-    "lib/nokogiri/jruby/xalan/serializer/2.7.2/serializer-2.7.2.jar",
-    "lib/nokogiri/jruby/xalan/xalan/2.7.2/xalan-2.7.2.jar",
-    "lib/nokogiri/jruby/xerces/xercesImpl/2.12.2/xercesImpl-2.12.2.jar",
-    "lib/nokogiri/jruby/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar",
     "lib/nokogiri/syntax_error.rb",
     "lib/nokogiri/version.rb",
     "lib/nokogiri/version/constant.rb",
@@ -313,6 +304,19 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/xslt/stylesheet.rb",
     "lib/xsd/xmlparser/nokogiri.rb",
   ]
+
+  spec.files += Dir.glob([
+    "lib/nokogiri/jruby/isorelax/isorelax/*/isorelax-*.jar",
+    "lib/nokogiri/jruby/net/sf/saxon/Saxon-HE/*/Saxon-HE-*.jar",
+    "lib/nokogiri/jruby/net/sourceforge/htmlunit/neko-htmlunit/*/neko-htmlunit-*.jar",
+    "lib/nokogiri/jruby/nu/validator/jing/*/jing-*.jar",
+    "lib/nokogiri/jruby/org/nokogiri/nekodtd/*/nekodtd-*.jar",
+    "lib/nokogiri/jruby/xalan/serializer/*/serializer-*.jar",
+    "lib/nokogiri/jruby/xalan/xalan/*/xalan-*.jar",
+    "lib/nokogiri/jruby/xerces/xercesImpl/*/xercesImpl-*.jar",
+    "lib/nokogiri/jruby/xml-apis/xml-apis/*/xml-apis-*.jar",
+  ])
+
   spec.bindir = "bin"
   spec.executables = spec.files.grep(/^bin/) { |f| File.basename(f) }
 
