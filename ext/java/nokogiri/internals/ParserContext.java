@@ -217,20 +217,4 @@ public abstract class ParserContext extends RubyObject
       noXIncNode = test(options, NOXINCNODE);
     }
   }
-
-  /*
-  public static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
-      InputSource source;
-      public NokogiriXInlcudeEntityResolver(InputSource source) {
-          this.source = source;
-      }
-
-      @Override
-      public InputSource resolveEntity(String publicId, String systemId)
-              throws SAXException, IOException {
-          if (systemId != null) source.setSystemId(systemId);
-          if (publicId != null) source.setPublicId(publicId);
-          return source;
-      }
-  } */
 }

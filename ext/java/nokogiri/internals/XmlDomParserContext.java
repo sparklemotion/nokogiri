@@ -1,24 +1,15 @@
 package nokogiri.internals;
 
-import nokogiri.XmlDocument;
-import nokogiri.XmlDtd;
-import nokogiri.XmlSyntaxError;
 import org.apache.xerces.parsers.DOMParser;
-import org.jruby.*;
-import org.jruby.exceptions.RaiseException;
-import org.jruby.runtime.Helpers;
+
+import org.jruby.Ruby;
+import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static nokogiri.internals.NokogiriHelpers.isBlank;
+import nokogiri.XmlDocument;
 
 /**
  * Parser class for XML DOM processing. This class actually parses XML document
@@ -45,9 +36,6 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
   protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
   private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
-  protected NokogiriErrorHandler errorHandler;
-  protected IRubyObject ruby_encoding;
-
   public
   XmlDomParserContext(Ruby runtime, IRubyObject options)
   {
@@ -57,15 +45,7 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
   public
   XmlDomParserContext(Ruby runtime, IRubyObject parserOptions, IRubyObject encoding)
   {
-    super(runtime, parserOptions);
-    java_encoding = NokogiriHelpers.getValidEncodingOrNull(encoding);
-    ruby_encoding = encoding;
-
-    if (options.recover) {
-      errorHandler = new NokogiriNonStrictErrorHandler(runtime, options.noError, options.noWarning);
-    } else {
-      errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
-    }
+    super(runtime, parserOptions, encoding);
 
     initParser(runtime);
   }
@@ -137,114 +117,13 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
     }
   }
 
-  public void
-  addErrorsIfNecessary(ThreadContext context, XmlDocument doc)
-  {
-    doc.setInstanceVariable("@errors", mapErrors(context, errorHandler));
-  }
-
-
-  public static RubyArray<?>
-  mapErrors(ThreadContext context, NokogiriErrorHandler errorHandler)
-  {
-    final Ruby runtime = context.runtime;
-    final List<RubyException> errors = errorHandler.getErrors();
-    final IRubyObject[] errorsAry = new IRubyObject[errors.size()];
-    for (int i = 0; i < errors.size(); i++) {
-      errorsAry[i] = errors.get(i);
-    }
-    return runtime.newArrayNoCopy(errorsAry);
-  }
-
-  public XmlDocument
-  getDocumentWithErrorsOrRaiseException(ThreadContext context, RubyClass klazz, Exception ex)
-  {
-    if (options.recover) {
-      XmlDocument xmlDocument = getInterruptedOrNewXmlDocument(context, klazz);
-      this.addErrorsIfNecessary(context, xmlDocument);
-      XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
-      xmlSyntaxError.setException(ex);
-      ((RubyArray) xmlDocument.getInstanceVariable("@errors")).append(xmlSyntaxError);
-      return xmlDocument;
-    } else {
-      XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
-      xmlSyntaxError.setException(ex);
-      throw xmlSyntaxError.toThrowable();
-    }
-  }
-
-  private XmlDocument
-  getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klass)
-  {
-    Document document = parser.getDocument();
-    XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, document);
-    xmlDocument.setEncoding(ruby_encoding);
-    return xmlDocument;
-  }
-
-  /**
-   * This method is broken out so that HtmlDomParserContext can
-   * override it.
-   */
-  protected XmlDocument
-  wrapDocument(ThreadContext context, RubyClass klass, Document doc)
-  {
-    XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, doc);
-    Helpers.invoke(context, xmlDocument, "initialize");
-    xmlDocument.setEncoding(ruby_encoding);
-
-    if (options.dtdLoad) {
-      IRubyObject dtd = XmlDtd.newFromExternalSubset(context.runtime, doc);
-      if (!dtd.isNil()) {
-        doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, (XmlDtd) dtd, null);
-      }
-    }
-    return xmlDocument;
-  }
-
   /**
    * Must call setInputSource() before this method.
    */
+  @Override
   public XmlDocument
   parse(ThreadContext context, RubyClass klass, IRubyObject url)
   {
-    XmlDocument xmlDoc;
-    try {
-      parser.parse(getInputSource());
-    } catch (NullPointerException ex) {
-      // FIXME: this is really a hack to fix #838. Xerces will throw a NullPointerException
-      // if we tried to parse '<? ?>'. We should submit a patch to Xerces.
-    } catch (SAXException e) {
-      return getDocumentWithErrorsOrRaiseException(context, klass, e);
-    } catch (IOException e) {
-      return getDocumentWithErrorsOrRaiseException(context, klass, e);
-    }
-
-    if (options.noBlanks) {
-      List<Node> emptyNodes = new ArrayList<Node>();
-      findEmptyTexts(parser.getDocument(), emptyNodes);
-      if (emptyNodes.size() > 0) {
-        for (Node node : emptyNodes) {
-          node.getParentNode().removeChild(node);
-        }
-      }
-    }
-    xmlDoc = wrapDocument(context, klass, parser.getDocument());
-    xmlDoc.setUrl(url);
-    addErrorsIfNecessary(context, xmlDoc);
-    return xmlDoc;
-  }
-
-  private static void
-  findEmptyTexts(Node node, List<Node> emptyNodes)
-  {
-    if (node.getNodeType() == Node.TEXT_NODE && isBlank(node.getTextContent())) {
-      emptyNodes.add(node);
-    } else {
-      NodeList children = node.getChildNodes();
-      for (int i = 0; i < children.getLength(); i++) {
-        findEmptyTexts(children.item(i), emptyNodes);
-      }
-    }
+    return super.parse(context, klass, url);
   }
 }
