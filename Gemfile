@@ -40,5 +40,4 @@ end
 # Then re-run `bundle install`.
 group :rdoc do
   gem "rdoc", "6.5.0"
-  gem "psych", "~> 5.0" # psych 5 isn't building in places yet https://github.com/ruby/setup-ruby/issues/409
 end
