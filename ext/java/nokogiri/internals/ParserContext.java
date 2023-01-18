@@ -35,13 +35,6 @@ public abstract class ParserContext extends RubyObject
   protected String java_encoding;
 
   public
-  ParserContext(Ruby runtime)
-  {
-    // default to class 'Object' because this class isn't exposed to Ruby
-    super(runtime, runtime.getObject());
-  }
-
-  public
   ParserContext(Ruby runtime, RubyClass klass)
   {
     super(runtime, klass);

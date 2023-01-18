@@ -28,7 +28,7 @@ import static nokogiri.internals.NokogiriHelpers.isBlank;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class XmlDomParserContext extends ParserContext
+public class XmlDomParserContext extends DomParserContext<DOMParser>
 {
   private static final long serialVersionUID = 1L;
 
@@ -53,11 +53,11 @@ public class XmlDomParserContext extends ParserContext
   public
   XmlDomParserContext(Ruby runtime, IRubyObject options)
   {
-    this(runtime, runtime.getNil(), options);
+    this(runtime, options, runtime.getNil());
   }
 
   public
-  XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options)
+  XmlDomParserContext(Ruby runtime, IRubyObject options, IRubyObject encoding)
   {
     super(runtime);
     this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
