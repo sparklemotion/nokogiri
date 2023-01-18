@@ -45,8 +45,6 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
   protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
   private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
-  protected ParserContext.Options options;
-  protected DOMParser parser;
   protected NokogiriErrorHandler errorHandler;
   protected IRubyObject ruby_encoding;
 
@@ -57,24 +55,19 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
   }
 
   public
-  XmlDomParserContext(Ruby runtime, IRubyObject options, IRubyObject encoding)
+  XmlDomParserContext(Ruby runtime, IRubyObject parserOptions, IRubyObject encoding)
   {
-    super(runtime);
-    this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
+    super(runtime, parserOptions);
     java_encoding = NokogiriHelpers.getValidEncodingOrNull(encoding);
     ruby_encoding = encoding;
-    initErrorHandler(runtime);
-    initParser(runtime);
-  }
 
-  protected void
-  initErrorHandler(Ruby runtime)
-  {
     if (options.recover) {
       errorHandler = new NokogiriNonStrictErrorHandler(runtime, options.noError, options.noWarning);
     } else {
       errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
     }
+
+    initParser(runtime);
   }
 
   protected void
@@ -217,27 +210,16 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
   {
     XmlDocument xmlDoc;
     try {
-      Document doc = do_parse();
-      xmlDoc = wrapDocument(context, klass, doc);
-      xmlDoc.setUrl(url);
-      addErrorsIfNecessary(context, xmlDoc);
-      return xmlDoc;
+      parser.parse(getInputSource());
+    } catch (NullPointerException ex) {
+      // FIXME: this is really a hack to fix #838. Xerces will throw a NullPointerException
+      // if we tried to parse '<? ?>'. We should submit a patch to Xerces.
     } catch (SAXException e) {
       return getDocumentWithErrorsOrRaiseException(context, klass, e);
     } catch (IOException e) {
       return getDocumentWithErrorsOrRaiseException(context, klass, e);
     }
-  }
 
-  protected Document
-  do_parse() throws SAXException, IOException
-  {
-    try {
-      parser.parse(getInputSource());
-    } catch (NullPointerException ex) {
-      // FIXME: this is really a hack to fix #838. Xerces will throw a NullPointerException
-      // if we tried to parse '<? ?>'. We should submit a patch to Xerces.
-    }
     if (options.noBlanks) {
       List<Node> emptyNodes = new ArrayList<Node>();
       findEmptyTexts(parser.getDocument(), emptyNodes);
@@ -247,7 +229,10 @@ public class XmlDomParserContext extends DomParserContext<DOMParser>
         }
       }
     }
-    return parser.getDocument();
+    xmlDoc = wrapDocument(context, klass, parser.getDocument());
+    xmlDoc.setUrl(url);
+    addErrorsIfNecessary(context, xmlDoc);
+    return xmlDoc;
   }
 
   private static void
