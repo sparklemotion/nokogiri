@@ -537,7 +537,7 @@ static GumboInsertionMode get_current_template_insertion_mode (
   if (modes->length == 0) {
     return GUMBO_INSERTION_MODE_INITIAL;
   }
-  return (GumboInsertionMode) modes->data[(modes->length - 1)];
+  return (GumboInsertionMode)(intptr_t) modes->data[(modes->length - 1)];
 }
 
 // Returns true if the specified token is either a start or end tag
