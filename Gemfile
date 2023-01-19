@@ -15,8 +15,6 @@ group :development do
 
   # documentation
   gem "hoe-markdown", "= 1.4.0"
-  gem "rdoc", "6.5.0"
-  gem "psych", "~> 5.0" # psych 5 isn't building in places yet https://github.com/ruby/setup-ruby/issues/409
 
   # parser generator
   gem "rexical", "= 1.0.7"
@@ -35,4 +33,11 @@ group :development do
     gem "rubocop-rake", "= 0.6.0"
     gem "rubocop-shopify", "2.10.1"
   end
+end
+
+# If Psych doesn't build, you can disable this group locally by running
+# `bundle config set --local without rdoc`
+# Then re-run `bundle install`.
+group :rdoc do
+  gem "rdoc", "6.5.0"
 end
