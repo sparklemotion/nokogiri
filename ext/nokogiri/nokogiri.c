@@ -112,8 +112,13 @@ noko_io_write(void *io, char *c_buffer, int c_buffer_len)
 {
   VALUE rb_args[2], rb_n_bytes_written;
   VALUE rb_io = (VALUE)io;
-  VALUE rb_enc = rb_funcall(rb_io, id_external_encoding, 0);
-  rb_encoding *io_encoding = RB_NIL_P(rb_enc) ? rb_ascii8bit_encoding() : rb_to_encoding(rb_enc);
+  VALUE rb_enc = Qnil;
+  rb_encoding *io_encoding;
+
+  if (rb_respond_to(rb_io, id_external_encoding)) {
+    rb_enc = rb_funcall(rb_io, id_external_encoding, 0);
+  }
+  io_encoding = RB_NIL_P(rb_enc) ? rb_ascii8bit_encoding() : rb_to_encoding(rb_enc);
 
   rb_args[0] = rb_io;
   rb_args[1] = rb_enc_str_new(c_buffer, (long)c_buffer_len, io_encoding);

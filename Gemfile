@@ -24,6 +24,7 @@ group :development do
   gem "minitest-reporters", "= 1.5.0"
   gem "ruby_memcheck", "1.2.0" unless RUBY_PLATFORM == "java"
   gem "simplecov", "= 0.21.2"
+  gem "rubyzip", "~> 2.3.2"
 
   # rubocop
   if Gem::Requirement.new("~> 3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))

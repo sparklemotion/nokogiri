@@ -87,6 +87,41 @@ module Nokogiri
           assert_equal(Encoding::UTF_16, output.encoding)
           assert_equal(utf16_document.bytesize, output.bytesize)
         end
+
+        describe "pseudo-IO" do
+          it "serializes correctly with Zip::OutputStream objects" do
+            # https://github.com/sparklemotion/nokogiri/issues/2773
+            require "zip"
+
+            xml = <<~XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <bar>A</bar>
+              </root>
+            XML
+
+            Dir.mktmpdir do |tmpdir|
+              zipfile_path = File.join(tmpdir, "test.zip")
+
+              Zip::OutputStream.open(zipfile_path) do |io|
+                io.put_next_entry("test-utf8.xml")
+                Nokogiri::XML(xml).write_to(io, encoding: "UTF-8")
+              end
+
+              Zip::InputStream.open(zipfile_path) do |io|
+                entry = io.get_next_entry
+                assert_equal("test-utf8.xml", entry.name)
+                output = io.read
+
+                # no final newline on jruby. descriptive, not prescriptive.
+                expected_length = Nokogiri.jruby? ? xml.bytesize - 1 : xml.bytesize
+
+                assert_equal(Encoding::UTF_8, output.encoding)
+                assert_equal(expected_length, output.bytesize)
+              end
+            end
+          end
+        end
       end
     end
   end
