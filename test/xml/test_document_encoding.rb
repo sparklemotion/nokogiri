@@ -31,17 +31,19 @@ module Nokogiri
         end
 
         it "encodes the URL as UTF-8" do
-          assert_equal("UTF-8", shift_jis_document.url.encoding.name)
+          assert_equal(Encoding::UTF_8, shift_jis_document.url.encoding)
         end
 
         it "encodes the encoding name as UTF-8" do
-          assert_equal("UTF-8", shift_jis_document.encoding.encoding.name)
+          assert_equal(Encoding::UTF_8, shift_jis_document.encoding.encoding)
         end
 
         it "encodes the library versions as UTF-8" do
           skip_unless_libxml2
-          assert_equal("UTF-8", Nokogiri::LIBXML_COMPILED_VERSION.encoding.name)
-          assert_equal("UTF-8", Nokogiri::LIBXSLT_COMPILED_VERSION.encoding.name)
+
+          assert_equal(Encoding::UTF_8, Nokogiri::LIBXML_COMPILED_VERSION.encoding)
+          assert_equal(Encoding::UTF_8, Nokogiri::LIBXSLT_COMPILED_VERSION.encoding)
+        end
         end
 
         it "serializes UTF-16 correctly across libxml2 buffer flushes" do
