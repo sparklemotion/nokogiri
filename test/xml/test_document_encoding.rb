@@ -8,6 +8,17 @@ module Nokogiri
       describe "Nokogiri::XML::Document encoding" do
         let(:shift_jis_document) { Nokogiri::XML(File.read(SHIFT_JIS_XML), SHIFT_JIS_XML) }
         let(:ascii_document) { Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) }
+        let(:utf16_document) do
+          # the document needs to be large enough to trigger a libxml2 buffer flush. the buffer size
+          # is determined by MINLEN in xmlIO.c, which is hardcoded to 4000 code points.
+          size = 8000
+          <<~XML.encode(Encoding::UTF_16)
+            <?xml version="1.0" encoding="UTF-16"?>
+            <root>
+              <bar>#{"A" * size}</bar>
+            </root>
+          XML
+        end
 
         describe "#encoding" do
           it "describes the document's encoding correctly" do
@@ -44,25 +55,37 @@ module Nokogiri
           assert_equal(Encoding::UTF_8, Nokogiri::LIBXML_COMPILED_VERSION.encoding)
           assert_equal(Encoding::UTF_8, Nokogiri::LIBXSLT_COMPILED_VERSION.encoding)
         end
+
+        it "parses and serializes UTF-16 correctly" do
+          xml = <<~XML.encode(Encoding::UTF_16)
+            <?xml version="1.0" encoding="UTF-16"?>
+            <root><bar>A</bar></root>
+          XML
+          output = Nokogiri::XML(xml).to_xml
+          output_doc = Nokogiri::XML(output)
+
+          # these are descriptive, not prescriptive. the difference is whitespace. this may change
+          # as implementations change. the intention is to verify that they're _roughly_ the right
+          # length, they're not zero or half-width or double-width.
+          expected_bytesize = Nokogiri.jruby? ? 132 : 142
+
+          assert_equal(Encoding::UTF_16, output.encoding)
+          assert_equal("UTF-16", output_doc.encoding)
+          assert_equal(expected_bytesize, output.bytesize)
+          output_doc.at_xpath("/root/bar/text()").tap do |node|
+            assert(node, "unexpected DOM structure in #{output.inspect}")
+            assert_equal("A", node.content)
+          end
         end
 
         it "serializes UTF-16 correctly across libxml2 buffer flushes" do
           # https://github.com/sparklemotion/nokogiri/issues/752
           skip_unless_libxml2
 
-          # the document needs to be large enough to trigger a libxml2 buffer flush. the buffer size
-          # is determined by MINLEN in xmlIO.c, which is hardcoded to 4000 code points.
-          size = 8000
-          input = String.new(<<~XML, encoding: "UTF-16")
-            <?xml version="1.0" encoding="UTF-16"?>
-            <root>
-              <bar>#{"A" * size}</bar>
-            </root>
-          XML
-          expected_length = (input.bytesize * 2) + 2 # double character width, add BOM bytes 0xFEFF
+          output = Nokogiri::XML(utf16_document).to_xml
 
-          output = Nokogiri::XML(input).to_xml
-          assert_equal(expected_length, output.bytesize)
+          assert_equal(Encoding::UTF_16, output.encoding)
+          assert_equal(utf16_document.bytesize, output.bytesize)
         end
       end
     end
