@@ -348,7 +348,7 @@ registr(VALUE self, VALUE uri, VALUE obj)
 }
 
 void
-noko_init_xslt_stylesheet()
+noko_init_xslt_stylesheet(void)
 {
   rb_define_singleton_method(mNokogiriXslt, "register", registr, 2);
   rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());

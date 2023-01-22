@@ -190,7 +190,7 @@ external_id(VALUE self)
 }
 
 void
-noko_init_xml_dtd()
+noko_init_xml_dtd(void)
 {
   assert(cNokogiriXmlNode);
   /*

@@ -48,7 +48,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_comment()
+noko_init_xml_comment(void)
 {
   assert(cNokogiriXmlCharacterData);
   /*

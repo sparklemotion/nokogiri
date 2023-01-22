@@ -294,7 +294,7 @@ allocate(VALUE klass)
 }
 
 void
-noko_init_xml_sax_parser()
+noko_init_xml_sax_parser(void)
 {
   cNokogiriXmlSaxParser = rb_define_class_under(mNokogiriXmlSax, "Parser", rb_cObject);
 

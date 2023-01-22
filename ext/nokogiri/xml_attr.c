@@ -89,7 +89,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_attr()
+noko_init_xml_attr(void)
 {
   assert(cNokogiriXmlNode);
   /*

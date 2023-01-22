@@ -75,7 +75,7 @@ Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 }
 
 void
-noko_init_xml_syntax_error()
+noko_init_xml_syntax_error(void)
 {
   assert(cNokogiriSyntaxError);
   /*

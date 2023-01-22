@@ -664,7 +664,7 @@ noko_xml_document_pin_namespace(xmlNsPtr ns, xmlDocPtr doc)
 
 
 void
-noko_init_xml_document()
+noko_init_xml_document(void)
 {
   assert(cNokogiriXmlNode);
   /*

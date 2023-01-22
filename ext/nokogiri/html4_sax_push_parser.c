@@ -85,7 +85,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
 }
 
 void
-noko_init_html_sax_push_parser()
+noko_init_html_sax_push_parser(void)
 {
   assert(cNokogiriXmlSaxPushParser);
   cNokogiriHtml4SaxPushParser = rb_define_class_under(mNokogiriHtml4Sax, "PushParser", cNokogiriXmlSaxPushParser);

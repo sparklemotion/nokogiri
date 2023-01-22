@@ -150,7 +150,7 @@ set_replace_entities(VALUE self, VALUE value)
 }
 
 void
-noko_init_xml_sax_push_parser()
+noko_init_xml_sax_push_parser(void)
 {
   cNokogiriXmlSaxPushParser = rb_define_class_under(mNokogiriXmlSax, "PushParser", rb_cObject);
 

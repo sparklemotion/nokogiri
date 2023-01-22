@@ -270,7 +270,7 @@ get_description(VALUE klass, VALUE tag_name)
 }
 
 void
-noko_init_html_element_description()
+noko_init_html_element_description(void)
 {
   cNokogiriHtml4ElementDescription = rb_define_class_under(mNokogiriHtml4, "ElementDescription", rb_cObject);
 

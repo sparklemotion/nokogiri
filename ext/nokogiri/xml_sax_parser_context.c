@@ -261,7 +261,7 @@ get_recovery(VALUE self)
 }
 
 void
-noko_init_xml_sax_parser_context()
+noko_init_xml_sax_parser_context(void)
 {
   cNokogiriXmlSaxParserContext = rb_define_class_under(mNokogiriXmlSax, "ParserContext", rb_cObject);
 

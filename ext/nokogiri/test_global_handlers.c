@@ -32,7 +32,7 @@ rb_foreign_error_handler(VALUE klass)
  *  Do NOT use this outside of the Nokogiri test suite.
  */
 void
-noko_init_test_global_handlers()
+noko_init_test_global_handlers(void)
 {
   VALUE mNokogiriTest = rb_define_module_under(mNokogiri, "Test");
 

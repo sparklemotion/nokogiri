@@ -89,7 +89,7 @@ rb_xml_encoding_handler_name(VALUE self)
 
 
 void
-noko_init_xml_encoding_handler()
+noko_init_xml_encoding_handler(void)
 {
   cNokogiriEncodingHandler = rb_define_class_under(mNokogiri, "EncodingHandler", rb_cObject);
 

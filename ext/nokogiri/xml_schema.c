@@ -268,7 +268,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_schema()
+noko_init_xml_schema(void)
 {
   cNokogiriXmlSchema = rb_define_class_under(mNokogiriXml, "Schema", rb_cObject);
 

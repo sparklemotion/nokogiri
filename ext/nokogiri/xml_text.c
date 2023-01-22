@@ -36,7 +36,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_text()
+noko_init_xml_text(void)
 {
   assert(cNokogiriXmlCharacterData);
   /*

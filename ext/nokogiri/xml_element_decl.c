@@ -56,7 +56,7 @@ prefix(VALUE self)
 }
 
 void
-noko_init_xml_element_decl()
+noko_init_xml_element_decl(void)
 {
   assert(cNokogiriXmlNode);
   cNokogiriXmlElementDecl = rb_define_class_under(mNokogiriXml, "ElementDecl", cNokogiriXmlNode);

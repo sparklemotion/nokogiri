@@ -112,7 +112,7 @@ noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element)
 }
 
 void
-noko_init_xml_element_content()
+noko_init_xml_element_content(void)
 {
   cNokogiriXmlElementContent = rb_define_class_under(mNokogiriXml, "ElementContent", rb_cObject);
 

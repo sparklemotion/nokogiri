@@ -171,7 +171,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_relax_ng()
+noko_init_xml_relax_ng(void)
 {
   assert(cNokogiriXmlSchema);
   cNokogiriXmlRelaxNG = rb_define_class_under(mNokogiriXml, "RelaxNG", cNokogiriXmlSchema);

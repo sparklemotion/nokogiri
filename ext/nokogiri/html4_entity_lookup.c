@@ -29,7 +29,7 @@ get(VALUE _, VALUE rb_entity_name)
 }
 
 void
-noko_init_html_entity_lookup()
+noko_init_html_entity_lookup(void)
 {
   cNokogiriHtml4EntityLookup = rb_define_class_under(mNokogiriHtml4, "EntityLookup", rb_cObject);
 

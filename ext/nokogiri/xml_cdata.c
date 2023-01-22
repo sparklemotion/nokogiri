@@ -45,7 +45,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_cdata()
+noko_init_xml_cdata(void)
 {
   assert(cNokogiriXmlText);
   /*

@@ -2357,7 +2357,7 @@ noko_xml_node_attrs(xmlNodePtr c_node)
 }
 
 void
-noko_init_xml_node()
+noko_init_xml_node(void)
 {
   cNokogiriXmlNode = rb_define_class_under(mNokogiriXml, "Node", rb_cObject);
 

@@ -133,7 +133,7 @@ noko_io_close(void *io)
 
 
 void
-Init_nokogiri()
+Init_nokogiri(void)
 {
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");

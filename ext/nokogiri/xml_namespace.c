@@ -175,7 +175,7 @@ noko_xml_namespace_wrap_xpath_copy(xmlNsPtr c_namespace)
 }
 
 void
-noko_init_xml_namespace()
+noko_init_xml_namespace(void)
 {
   cNokogiriXmlNamespace = rb_define_class_under(mNokogiriXml, "Namespace", rb_cObject);
 
