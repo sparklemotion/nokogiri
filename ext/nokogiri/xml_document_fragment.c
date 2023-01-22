@@ -32,7 +32,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_document_fragment()
+noko_init_xml_document_fragment(void)
 {
   assert(cNokogiriXmlNode);
   /*

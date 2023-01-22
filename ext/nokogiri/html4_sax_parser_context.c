@@ -101,7 +101,7 @@ parse_with(VALUE self, VALUE sax_handler)
 }
 
 void
-noko_init_html_sax_parser_context()
+noko_init_html_sax_parser_context(void)
 {
   assert(cNokogiriXmlSaxParserContext);
   cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext",

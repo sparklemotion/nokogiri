@@ -576,7 +576,7 @@ fragment_continue(VALUE parse_args)
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void
-noko_init_gumbo()
+noko_init_gumbo(void)
 {
   // Class constants.
   cNokogiriHtml5Document = rb_define_class_under(mNokogiriHtml5, "Document", cNokogiriHtml4Document);

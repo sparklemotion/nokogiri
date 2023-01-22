@@ -41,7 +41,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_processing_instruction()
+noko_init_xml_processing_instruction(void)
 {
   assert(cNokogiriXmlNode);
   /*

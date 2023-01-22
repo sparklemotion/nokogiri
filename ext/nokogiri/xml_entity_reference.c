@@ -38,7 +38,7 @@ new (int argc, VALUE *argv, VALUE klass)
 }
 
 void
-noko_init_xml_entity_reference()
+noko_init_xml_entity_reference(void)
 {
   assert(cNokogiriXmlNode);
   /*

@@ -59,7 +59,7 @@ enumeration(VALUE self)
 }
 
 void
-noko_init_xml_attribute_decl()
+noko_init_xml_attribute_decl(void)
 {
   assert(cNokogiriXmlNode);
   cNokogiriXmlAttributeDecl = rb_define_class_under(mNokogiriXml, "AttributeDecl", cNokogiriXmlNode);

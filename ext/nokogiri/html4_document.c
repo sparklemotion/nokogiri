@@ -150,7 +150,7 @@ rb_html_document_type(VALUE self)
 }
 
 void
-noko_init_html_document()
+noko_init_html_document(void)
 {
   assert(cNokogiriXmlDocument);
   cNokogiriHtml4Document = rb_define_class_under(mNokogiriHtml4, "Document", cNokogiriXmlDocument);

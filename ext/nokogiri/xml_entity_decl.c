@@ -86,7 +86,7 @@ system_id(VALUE self)
 }
 
 void
-noko_init_xml_entity_decl()
+noko_init_xml_entity_decl(void)
 {
   assert(cNokogiriXmlNode);
   cNokogiriXmlEntityDecl = rb_define_class_under(mNokogiriXml, "EntityDecl", cNokogiriXmlNode);

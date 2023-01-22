@@ -752,7 +752,7 @@ rb_xml_reader_encoding(VALUE rb_reader)
 }
 
 void
-noko_init_xml_reader()
+noko_init_xml_reader(void)
 {
   /*
    * The Reader parser allows you to effectively pull parse an XML document.
