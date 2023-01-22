@@ -1,6 +1,6 @@
 ---
 name: "Bug Report"
-about: "Open an issue to help us improve"
+about: "Open an issue to help us improve!"
 title: "[bug]"
 labels: "state/needs-triage"
 assignees: ""
