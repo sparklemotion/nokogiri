@@ -644,12 +644,22 @@ public class XmlNode extends RubyObject
 
   @JRubyMethod(name = {"attribute", "attr"})
   public IRubyObject
-  attribute(ThreadContext context, IRubyObject name)
+  attribute(ThreadContext context, IRubyObject rbName)
   {
-    NamedNodeMap attrs = this.node.getAttributes();
-    Node attr = attrs.getNamedItem(rubyStringToString(name));
-    if (attr == null) { return context.nil; }
-    return getCachedNodeOrCreate(context.runtime, attr);
+    NamedNodeMap attributes = this.node.getAttributes();
+    String name = rubyStringToString(rbName);
+
+    for (int j = 0 ; j < attributes.getLength() ; j++) {
+      Node attribute = attributes.item(j);
+      String localName = attribute.getLocalName();
+      if (localName == null) {
+        continue;
+      }
+      if (localName.equals(name)) {
+        return getCachedNodeOrCreate(context.runtime, attribute);
+      }
+    }
+    return context.nil;
   }
 
   @JRubyMethod
