@@ -4,13 +4,12 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## 1.14.1 / unreleased
+## 1.14.1 / 2023-01-30
 
 ### Fixed
 
 * Serializing documents now works again with pseudo-IO objects that don't support IO's encoding API (like rubyzip's `Zip::OutputStream`). This was a regression in v1.14.0 due to the fix for [#752](https://github.com/sparklemotion/nokogiri/issues/752) in [#2434](https://github.com/sparklemotion/nokogiri/issues/2434), and was not completely fixed by [#2753](https://github.com/sparklemotion/nokogiri/issues/2753). [[#2773](https://github.com/sparklemotion/nokogiri/issues/2773)]
-
-2e260f53e6b84b8f9c1b115b0ded85eebc8155d7
+* [CRuby] Address compiler warnings about `void*` casting and old-style C function definitions.
 
 
 ## 1.14.0 / 2023-01-12
