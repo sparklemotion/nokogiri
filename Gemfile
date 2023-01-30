@@ -32,7 +32,7 @@ group :development do
     gem "rubocop-minitest", "0.27.0"
     gem "rubocop-performance", "1.15.2"
     gem "rubocop-rake", "= 0.6.0"
-    gem "rubocop-shopify", "2.10.1"
+    gem "rubocop-shopify", "2.11.1"
   end
 end
 
