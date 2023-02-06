@@ -223,7 +223,7 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 require "rake_compiler_dock"
 
 def java?
-  /java/.match?(RUBY_PLATFORM)
+  RUBY_PLATFORM.include?("java")
 end
 
 def add_file_to_gem(relative_source_path)
@@ -265,7 +265,7 @@ def verify_dll(dll, cross_ruby)
     nm = %x(#{["env", "LANG=C", cross_ruby.tool("nm"), "-D", dll].shelljoin})
 
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
-    raise "export function Init_nokogiri not in dll #{dll}" unless / T Init_nokogiri/.match?(nm)
+    raise "export function Init_nokogiri not in dll #{dll}" unless nm.include?(" T Init_nokogiri")
 
     # Verify that the DLL dependencies are all allowed.
     actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
