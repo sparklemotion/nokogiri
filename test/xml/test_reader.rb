@@ -100,16 +100,20 @@ module Nokogiri
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader.from_io(io)
         refute_predicate(reader, :default?)
-        assert_equal([false, false, false, false, false, false, false],
-          reader.map(&:default?))
+        assert_equal(
+          [false, false, false, false, false, false, false],
+          reader.map(&:default?),
+        )
       end
 
       def test_io
         io = File.open(SNUGGLES_FILE)
         reader = Nokogiri::XML::Reader(io)
         refute_predicate(reader, :default?)
-        assert_equal([false, false, false, false, false, false, false],
-          reader.map(&:default?))
+        assert_equal(
+          [false, false, false, false, false, false, false],
+          reader.map(&:default?),
+        )
       end
 
       def test_string_io
@@ -120,8 +124,10 @@ module Nokogiri
         eoxml
         reader = Nokogiri::XML::Reader(io)
         refute_predicate(reader, :default?)
-        assert_equal([false, false, false, false, false, false, false],
-          reader.map(&:default?))
+        assert_equal(
+          [false, false, false, false, false, false, false],
+          reader.map(&:default?),
+        )
       end
 
       class ReallyBadIO
@@ -170,8 +176,10 @@ module Nokogiri
         </x>
         eoxml
         refute_predicate(reader, :default?)
-        assert_equal([false, false, false, false, false, false, false],
-          reader.map(&:default?))
+        assert_equal(
+          [false, false, false, false, false, false, false],
+          reader.map(&:default?),
+        )
       end
 
       def test_value?
@@ -181,8 +189,10 @@ module Nokogiri
         </x>
         eoxml
         refute_predicate(reader, :value?)
-        assert_equal([false, true, false, true, false, true, false],
-          reader.map(&:value?))
+        assert_equal(
+          [false, true, false, true, false, true, false],
+          reader.map(&:value?),
+        )
       end
 
       def test_read_error_document
@@ -224,8 +234,10 @@ module Nokogiri
         </x>
         eoxml
         refute_predicate(reader, :attributes?)
-        assert_equal([true, false, true, false, true, false, true],
-          reader.map(&:attributes?))
+        assert_equal(
+          [true, false, true, false, true, false, true],
+          reader.map(&:attributes?),
+        )
       end
 
       def test_reader_attributes
@@ -235,16 +247,24 @@ module Nokogiri
           </x>
         XML
         assert_empty(reader.attributes)
-        assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
-                        "xmlns" => "http://mothership.connection.com/", },
-                      {},
-                      { "awesome" => "true" },
-                      {},
-                      { "awesome" => "true" },
-                      {},
-                      { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
-                        "xmlns" => "http://mothership.connection.com/", },],
-          reader.map(&:attributes))
+        assert_equal(
+          [
+            {
+              "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+              "xmlns" => "http://mothership.connection.com/",
+            },
+            {},
+            { "awesome" => "true" },
+            {},
+            { "awesome" => "true" },
+            {},
+            {
+              "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+              "xmlns" => "http://mothership.connection.com/",
+            },
+          ],
+          reader.map(&:attributes),
+        )
       end
 
       def test_reader_attributes_hash
@@ -254,14 +274,18 @@ module Nokogiri
           </x>
         XML
         assert_empty(reader.attribute_hash)
-        assert_equal([{},
-                      {},
-                      { "awesome" => "true" },
-                      {},
-                      { "awesome" => "true" },
-                      {},
-                      {},],
-          reader.map(&:attribute_hash))
+        assert_equal(
+          [
+            {},
+            {},
+            { "awesome" => "true" },
+            {},
+            { "awesome" => "true" },
+            {},
+            {},
+          ],
+          reader.map(&:attribute_hash),
+        )
       end
 
       def test_reader_namespaces
@@ -271,16 +295,24 @@ module Nokogiri
           </x>
         XML
         assert_empty(reader.namespaces)
-        assert_equal([{ "xmlns:tenderlove" => "http://tenderlovemaking.com/",
-                        "xmlns" => "http://mothership.connection.com/", },
-                      {},
-                      {},
-                      {},
-                      {},
-                      {},
-                      { "xmlns:tenderlove" => "http://tenderlovemaking.com/",
-                        "xmlns" => "http://mothership.connection.com/", },],
-          reader.map(&:namespaces))
+        assert_equal(
+          [
+            {
+              "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+              "xmlns" => "http://mothership.connection.com/",
+            },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {
+              "xmlns:tenderlove" => "http://tenderlovemaking.com/",
+              "xmlns" => "http://mothership.connection.com/",
+            },
+          ],
+          reader.map(&:namespaces),
+        )
       end
 
       def test_attribute_roundtrip
@@ -306,8 +338,10 @@ module Nokogiri
         eoxml
         assert_nil(reader.attribute_at(nil))
         assert_nil(reader.attribute_at(0))
-        assert_equal(["http://tenderlovemaking.com/", nil, "true", nil, "true", nil, "http://tenderlovemaking.com/"],
-          reader.map { |x| x.attribute_at(0) })
+        assert_equal(
+          ["http://tenderlovemaking.com/", nil, "true", nil, "true", nil, "http://tenderlovemaking.com/"],
+          reader.map { |x| x.attribute_at(0) },
+        )
       end
 
       def test_attribute
@@ -318,8 +352,10 @@ module Nokogiri
         eoxml
         assert_nil(reader.attribute(nil))
         assert_nil(reader.attribute("awesome"))
-        assert_equal([nil, nil, "true", nil, "true", nil, nil],
-          reader.map { |x| x.attribute("awesome") })
+        assert_equal(
+          [nil, nil, "true", nil, "true", nil, nil],
+          reader.map { |x| x.attribute("awesome") },
+        )
       end
 
       def test_attribute_length
@@ -371,8 +407,10 @@ module Nokogiri
         </awesome>
         eoxml
         assert_nil(reader.lang)
-        assert_equal([nil, nil, "en", "en", "en", nil, "ja", "ja", "ja", nil, nil],
-          reader.map(&:lang))
+        assert_equal(
+          [nil, nil, "en", "en", "en", nil, "ja", "ja", "ja", nil, nil],
+          reader.map(&:lang),
+        )
       end
 
       def test_value
@@ -382,8 +420,10 @@ module Nokogiri
         </x>
         eoxml
         assert_nil(reader.value)
-        assert_equal([nil, "\n          ", nil, "snuggles!", nil, "\n        ", nil],
-          reader.map(&:value))
+        assert_equal(
+          [nil, "\n          ", nil, "snuggles!", nil, "\n        ", nil],
+          reader.map(&:value),
+        )
       end
 
       def test_prefix
@@ -393,8 +433,10 @@ module Nokogiri
         </x>
         eoxml
         assert_nil(reader.prefix)
-        assert_equal([nil, nil, "edi", nil, "edi", nil, nil],
-          reader.map(&:prefix))
+        assert_equal(
+          [nil, nil, "edi", nil, "edi", nil, nil],
+          reader.map(&:prefix),
+        )
       end
 
       def test_node_type
@@ -448,14 +490,18 @@ module Nokogiri
         </x>
         eoxml
         assert_nil(reader.namespace_uri)
-        assert_equal([nil,
-                      nil,
-                      "http://ecommerce.example.org/schema",
-                      nil,
-                      "http://ecommerce.example.org/schema",
-                      nil,
-                      nil,],
-          reader.map(&:namespace_uri))
+        assert_equal(
+          [
+            nil,
+            nil,
+            "http://ecommerce.example.org/schema",
+            nil,
+            "http://ecommerce.example.org/schema",
+            nil,
+            nil,
+          ],
+          reader.map(&:namespace_uri),
+        )
       end
 
       def test_reader_node_attributes_keep_a_reference_to_the_reader
@@ -497,10 +543,14 @@ module Nokogiri
             reader.attribute_nodes.each { |attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
           end
         end
-        assert_equal(["commons",
-                      "edi",
-                      nil,],
-          attr_ns)
+        assert_equal(
+          [
+            "commons",
+            "edi",
+            nil,
+          ],
+          attr_ns,
+        )
       end
 
       def test_local_name
@@ -510,8 +560,10 @@ module Nokogiri
         </x>
         eoxml
         assert_nil(reader.local_name)
-        assert_equal(["x", "#text", "foo", "#text", "foo", "#text", "x"],
-          reader.map(&:local_name))
+        assert_equal(
+          ["x", "#text", "foo", "#text", "foo", "#text", "x"],
+          reader.map(&:local_name),
+        )
       end
 
       def test_name
@@ -521,8 +573,10 @@ module Nokogiri
         </x>
         eoxml
         assert_nil(reader.name)
-        assert_equal(["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"],
-          reader.map(&:name))
+        assert_equal(
+          ["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"],
+          reader.map(&:name),
+        )
       end
 
       def test_base_uri
@@ -537,20 +591,24 @@ module Nokogiri
         eoxml
 
         assert_nil(reader.base_uri)
-        assert_equal(["http://base.example.org/base/",
-                      "http://base.example.org/base/",
-                      "http://base.example.org/base/",
-                      "http://base.example.org/base/",
-                      "http://other.example.org/",
-                      "http://base.example.org/base/",
-                      "http://base.example.org/base/relative",
-                      "http://base.example.org/base/relative",
-                      "http://base.example.org/base/relative",
-                      "http://base.example.org/base/relative",
-                      "http://base.example.org/base/relative",
-                      "http://base.example.org/base/",
-                      "http://base.example.org/base/",],
-          reader.map(&:base_uri))
+        assert_equal(
+          [
+            "http://base.example.org/base/",
+            "http://base.example.org/base/",
+            "http://base.example.org/base/",
+            "http://base.example.org/base/",
+            "http://other.example.org/",
+            "http://base.example.org/base/",
+            "http://base.example.org/base/relative",
+            "http://base.example.org/base/relative",
+            "http://base.example.org/base/relative",
+            "http://base.example.org/base/relative",
+            "http://base.example.org/base/relative",
+            "http://base.example.org/base/",
+            "http://base.example.org/base/",
+          ],
+          reader.map(&:base_uri),
+        )
       end
 
       def test_xlink_href_without_base_uri

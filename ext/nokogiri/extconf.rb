@@ -695,14 +695,34 @@ append_cppflags(' "-Idummypath"') if windows?
 
 if config_system_libraries?
   message "Building nokogiri using system libraries.\n"
-  ensure_package_configuration(opt: "zlib", pc: "zlib", lib: "z",
-    headers: "zlib.h", func: "gzdopen")
-  ensure_package_configuration(opt: "xml2", pc: "libxml-2.0", lib: "xml2",
-    headers: "libxml/parser.h", func: "xmlParseDoc")
-  ensure_package_configuration(opt: "xslt", pc: "libxslt", lib: "xslt",
-    headers: "libxslt/xslt.h", func: "xsltParseStylesheetDoc")
-  ensure_package_configuration(opt: "exslt", pc: "libexslt", lib: "exslt",
-    headers: "libexslt/exslt.h", func: "exsltFuncRegister")
+  ensure_package_configuration(
+    opt: "zlib",
+    pc: "zlib",
+    lib: "z",
+    headers: "zlib.h",
+    func: "gzdopen",
+  )
+  ensure_package_configuration(
+    opt: "xml2",
+    pc: "libxml-2.0",
+    lib: "xml2",
+    headers: "libxml/parser.h",
+    func: "xmlParseDoc",
+  )
+  ensure_package_configuration(
+    opt: "xslt",
+    pc: "libxslt",
+    lib: "xslt",
+    headers: "libxslt/xslt.h",
+    func: "xsltParseStylesheetDoc",
+  )
+  ensure_package_configuration(
+    opt: "exslt",
+    pc: "libexslt",
+    lib: "exslt",
+    headers: "libexslt/exslt.h",
+    func: "exsltFuncRegister",
+  )
 
   have_libxml_headers?(REQUIRED_LIBXML_VERSION) ||
     abort("ERROR: libxml2 version #{REQUIRED_LIBXML_VERSION} or later is required!")
@@ -785,8 +805,12 @@ else
     end
 
     unless nix?
-      libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"]["version"], static_p,
-        cross_build_p) do |recipe|
+      libiconv_recipe = process_recipe(
+        "libiconv",
+        dependencies["libiconv"]["version"],
+        static_p,
+        cross_build_p,
+      ) do |recipe|
         recipe.files = [{
           url: "https://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["libiconv"]["sha256"],
@@ -824,15 +848,25 @@ else
   if zlib_recipe
     append_cppflags("-I#{zlib_recipe.path}/include")
     $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH
-    ensure_package_configuration(opt: "zlib", pc: "zlib", lib: "z",
-      headers: "zlib.h", func: "gzdopen")
+    ensure_package_configuration(
+      opt: "zlib",
+      pc: "zlib",
+      lib: "z",
+      headers: "zlib.h",
+      func: "gzdopen",
+    )
   end
 
   if libiconv_recipe
     append_cppflags("-I#{libiconv_recipe.path}/include")
     $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH
-    ensure_package_configuration(opt: "iconv", pc: "iconv", lib: "iconv",
-      headers: "iconv.h", func: "iconv_open")
+    ensure_package_configuration(
+      opt: "iconv",
+      pc: "iconv",
+      lib: "iconv",
+      headers: "iconv.h",
+      func: "iconv_open",
+    )
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
@@ -1057,12 +1091,16 @@ unless config_system_libraries?
   if cross_build_p
     # When precompiling native gems, copy packaged libraries' headers to ext/nokogiri/include
     # These are packaged up by the cross-compiling callback in the ExtensionTask
-    copy_packaged_libraries_headers(to_path: File.join(PACKAGE_ROOT_DIR, "ext/nokogiri/include"),
-      from_recipes: [libxml2_recipe, libxslt_recipe])
+    copy_packaged_libraries_headers(
+      to_path: File.join(PACKAGE_ROOT_DIR, "ext/nokogiri/include"),
+      from_recipes: [libxml2_recipe, libxslt_recipe],
+    )
   else
     # When compiling during installation, install packaged libraries' header files into ext/nokogiri/include
-    copy_packaged_libraries_headers(to_path: "include",
-      from_recipes: [libxml2_recipe, libxslt_recipe])
+    copy_packaged_libraries_headers(
+      to_path: "include",
+      from_recipes: [libxml2_recipe, libxslt_recipe],
+    )
     $INSTALLFILES << ["include/**/*.h", "$(rubylibdir)"]
   end
 end

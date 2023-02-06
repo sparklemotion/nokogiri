@@ -14,8 +14,10 @@ module Nokogiri
 
         node = doc.at("node")
 
-        assert_equal("bar",
-          node.attribute_with_ns("foo", "http://tenderlovemaking.com/").value)
+        assert_equal(
+          "bar",
+          node.attribute_with_ns("foo", "http://tenderlovemaking.com/").value,
+        )
       end
 
       def test_prefixed_attributes

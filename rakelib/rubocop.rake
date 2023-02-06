@@ -7,8 +7,16 @@ begin
     class << self
       def common_options(task)
         task.patterns += [
-          "Gemfile", "Rakefile", "nokogiri.gemspec",
-          "bin", "ext", "lib", "oci-images", "rakelib", "scripts", "test",
+          "Gemfile",
+          "Rakefile",
+          "nokogiri.gemspec",
+          "bin",
+          "ext",
+          "lib",
+          "oci-images",
+          "rakelib",
+          "scripts",
+          "test",
         ]
       end
 

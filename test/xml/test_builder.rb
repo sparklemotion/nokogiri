@@ -174,8 +174,10 @@ module Nokogiri
             end
           end
         end
-        assert(result.doc.at_xpath("//emer:validateLocation", { "emer" => "http://dashcs.com/api/v1/emergency" }),
-          "expected validateLocation node to have a namespace")
+        assert(
+          result.doc.at_xpath("//emer:validateLocation", { "emer" => "http://dashcs.com/api/v1/emergency" }),
+          "expected validateLocation node to have a namespace",
+        )
         assert(result.doc.at_xpath("//location"), "expected location node to not have a namespace")
       end
 
@@ -202,8 +204,10 @@ module Nokogiri
             xml.foo
           end
         end
-        assert_match(%r{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">},
-          builder.to_xml)
+        assert_match(
+          %r{<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">},
+          builder.to_xml,
+        )
       end
 
       def test_specify_namespace_nested
@@ -359,8 +363,10 @@ module Nokogiri
             cdata("hello world")
           end
         end
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-          builder.to_xml.delete("\n"))
+        assert_equal(
+          "<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.delete("\n"),
+        )
       end
 
       def test_comment
@@ -378,8 +384,10 @@ module Nokogiri
         builder.root do
           cdata(string)
         end
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
-          builder.to_xml.delete("\n"))
+        assert_equal(
+          "<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.delete("\n"),
+        )
       end
 
       def test_builder_can_inherit_parent_namespace

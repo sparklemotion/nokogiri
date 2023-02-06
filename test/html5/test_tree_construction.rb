@@ -32,8 +32,11 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
         end
         assert_equal(attr[:value], value)
       end
-      assert_equal(node[:children].length, ng_node.children.length,
-        "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
+      assert_equal(
+        node[:children].length,
+        ng_node.children.length,
+        "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}",
+      )
     when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
       # We preserve the CDATA in the tree, but the tests represent it as text.
       assert_equal(:text, node[:type])
@@ -46,8 +49,11 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
       assert_equal(node[:children].length, ng_node.children.length)
     when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
       assert_equal(:fragment, node[:type])
-      assert_equal(node[:children].length, ng_node.children.length,
-        "Fragment node has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}")
+      assert_equal(
+        node[:children].length,
+        ng_node.children.length,
+        "Fragment node has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}",
+      )
     when Nokogiri::XML::Node::DTD_NODE
       assert_equal(:doctype, node[:type])
       assert_equal(node[:name], ng_node.name)

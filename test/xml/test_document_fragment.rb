@@ -152,8 +152,11 @@ module Nokogiri
             [:search, "./*[@id = 'content']"],
           ].each do |method, query|
             result = frag.send(method, query)
-            assert_equal(expected, result,
-              "fragment search with :#{method} using '#{query}' expected '#{expected}' got '#{result}'")
+            assert_equal(
+              expected,
+              result,
+              "fragment search with :#{method} using '#{query}' expected '#{expected}' got '#{result}'",
+            )
           end
         end
 

@@ -45,11 +45,19 @@ module Nokogiri
         # Expect an HTML indicator to appear within the first 512
         # characters of a document. (<?xml ?> + <?xml-stylesheet ?>
         # shouldn't be that long)
-        Nokogiri.HTML4(string, url, encoding,
-          options || XML::ParseOptions::DEFAULT_HTML)
+        Nokogiri.HTML4(
+          string,
+          url,
+          encoding,
+          options || XML::ParseOptions::DEFAULT_HTML,
+        )
       else
-        Nokogiri.XML(string, url, encoding,
-          options || XML::ParseOptions::DEFAULT_XML)
+        Nokogiri.XML(
+          string,
+          url,
+          encoding,
+          options || XML::ParseOptions::DEFAULT_XML,
+        )
       end.tap do |doc|
         yield doc if block_given?
       end

@@ -248,8 +248,11 @@ module Nokogiri
       #  * :basic_auth => [username, password]
       def get(uri, options = {})
         # TODO: deprecate
-        warn("Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
-          uplevel: 1, category: :deprecated)
+        warn(
+          "Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
+          uplevel: 1,
+          category: :deprecated,
+        )
         get_impl(uri, options)
       end
 

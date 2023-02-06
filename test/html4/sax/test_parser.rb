@@ -64,8 +64,10 @@ module Nokogiri
           <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
           Информация
           HTML
-          assert_equal("Информация",
-            @parser.document.data.join.strip)
+          assert_equal(
+            "Информация",
+            @parser.document.data.join.strip,
+          )
         end
 
         def test_parse_document
@@ -81,11 +83,15 @@ module Nokogiri
           # "http://cyberneko.org/html/properties/names/elems" => "lower"
           # "http://cyberneko.org/html/properties/names/attrs" => "lower"
           if Nokogiri.uses_libxml?
-            assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
-              @parser.document.start_elements)
+            assert_equal(
+              [["html", []], ["body", []], ["p", []], ["p", []]],
+              @parser.document.start_elements,
+            )
           else
-            assert_equal([["html", []], ["head", []], ["body", []], ["p", []], ["p", []]],
-              @parser.document.start_elements)
+            assert_equal(
+              [["html", []], ["head", []], ["body", []], ["p", []], ["p", []]],
+              @parser.document.start_elements,
+            )
           end
         end
 
@@ -116,20 +122,23 @@ module Nokogiri
             ["noshade", nil]
           end
 
-          assert_equal([
-            ["html", []],
-            ["head", []],
-            ["title", []],
-            ["body", []],
-            ["img", [
-              ["src", "face.jpg"],
-              ["title", "daddy & me"],
-            ],],
-            ["hr", [
-              noshade_value,
-              ["size", "2"],
-            ],],
-          ], @parser.document.start_elements)
+          assert_equal(
+            [
+              ["html", []],
+              ["head", []],
+              ["title", []],
+              ["body", []],
+              ["img", [
+                ["src", "face.jpg"],
+                ["title", "daddy & me"],
+              ],],
+              ["hr", [
+                noshade_value,
+                ["size", "2"],
+              ],],
+            ],
+            @parser.document.start_elements,
+          )
         end
 
         HTML_WITH_BR_TAG = <<-EOF
