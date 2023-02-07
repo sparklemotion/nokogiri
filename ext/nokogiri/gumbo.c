@@ -37,6 +37,8 @@ VALUE cNokogiriHtml5Document;
 static ID internal_subset;
 static ID parent;
 
+#define GUMBO_ARENA_SIZE (10 * 1024 * 1024)
+
 /* Backwards compatibility to Ruby 2.1.0 */
 #if RUBY_API_VERSION_CODE < 20200
 #define ONIG_ESCAPE_UCHAR_COLLISION 1
@@ -313,6 +315,7 @@ parse_cleanup(VALUE parse_args)
   if (args->doc != NULL) {
     xmlFreeDoc(args->doc);
   }
+  gumbo_arena_free_all();
   return Qnil;
 }
 
@@ -328,6 +331,8 @@ parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors
   options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
   options.max_tree_depth = NUM2INT(max_depth);
+
+  gumbo_arena_init(GUMBO_ARENA_SIZE);
 
   GumboOutput *output = perform_parse(&options, input);
   ParseArgs args = {
@@ -546,6 +551,8 @@ error:
   options.fragment_encoding = encoding;
   options.quirks_mode = quirks_mode;
   options.fragment_context_has_form_ancestor = form;
+
+  gumbo_arena_init(GUMBO_ARENA_SIZE);
 
   GumboOutput *output = perform_parse(&options, tags);
   ParseArgs args = {

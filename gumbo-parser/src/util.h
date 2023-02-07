@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include "macros.h"
 
+#define GUMBO_USE_ARENA 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif

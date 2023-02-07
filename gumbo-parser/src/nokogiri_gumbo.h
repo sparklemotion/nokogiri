@@ -938,6 +938,8 @@ void gumbo_print_caret_diagnostic (
 );
 
 void gumbo_free(void* ptr);
+void gumbo_arena_init(size_t backing_buffer_length);
+void gumbo_arena_free_all(void);
 
 #ifdef __cplusplus
 }
