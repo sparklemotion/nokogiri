@@ -753,8 +753,10 @@ module Nokogiri
         def test_ancestors
           address = xml.xpath("//address").first
           assert_equal(3, address.ancestors.length)
-          assert_equal(["employee", "staff", "document"],
-            address.ancestors.map(&:name))
+          assert_equal(
+            ["employee", "staff", "document"],
+            address.ancestors.map(&:name),
+          )
         end
 
         def test_read_only?
@@ -1072,32 +1074,57 @@ module Nokogiri
           XML
 
           namespaces = xml.namespaces # Document#namespace
-          assert_equal({ "xmlns" => "http://quux.com/",
-                         "xmlns:a" => "http://foo.com/",
-                         "xmlns:b" => "http://bar.com/", }, namespaces)
+          assert_equal(
+            {
+              "xmlns" => "http://quux.com/",
+              "xmlns:a" => "http://foo.com/",
+              "xmlns:b" => "http://bar.com/",
+            },
+            namespaces,
+          )
 
           namespaces = xml.root.namespaces
-          assert_equal({ "xmlns" => "http://quux.com/",
-                         "xmlns:a" => "http://foo.com/",
-                         "xmlns:b" => "http://bar.com/", }, namespaces)
+          assert_equal(
+            {
+              "xmlns" => "http://quux.com/",
+              "xmlns:a" => "http://foo.com/",
+              "xmlns:b" => "http://bar.com/",
+            },
+            namespaces,
+          )
 
           namespaces = xml.at_xpath("//xmlns:y").namespaces
-          assert_equal({ "xmlns" => "http://quux.com/",
-                         "xmlns:a" => "http://foo.com/",
-                         "xmlns:b" => "http://bar.com/",
-                         "xmlns:c" => "http://bazz.com/", }, namespaces)
+          assert_equal(
+            {
+              "xmlns" => "http://quux.com/",
+              "xmlns:a" => "http://foo.com/",
+              "xmlns:b" => "http://bar.com/",
+              "xmlns:c" => "http://bazz.com/",
+            },
+            namespaces,
+          )
 
           namespaces = xml.at_xpath("//xmlns:z").namespaces
-          assert_equal({ "xmlns" => "http://quux.com/",
-                         "xmlns:a" => "http://foo.com/",
-                         "xmlns:b" => "http://bar.com/",
-                         "xmlns:c" => "http://bazz.com/", }, namespaces)
+          assert_equal(
+            {
+              "xmlns" => "http://quux.com/",
+              "xmlns:a" => "http://foo.com/",
+              "xmlns:b" => "http://bar.com/",
+              "xmlns:c" => "http://bazz.com/",
+            },
+            namespaces,
+          )
 
           namespaces = xml.at_xpath("//xmlns:a").namespaces
-          assert_equal({ "xmlns" => "http://quux.com/",
-                         "xmlns:a" => "http://foo.com/",
-                         "xmlns:b" => "http://bar.com/",
-                         "xmlns:c" => "http://newc.com/", }, namespaces)
+          assert_equal(
+            {
+              "xmlns" => "http://quux.com/",
+              "xmlns:a" => "http://foo.com/",
+              "xmlns:b" => "http://bar.com/",
+              "xmlns:c" => "http://newc.com/",
+            },
+            namespaces,
+          )
         end
 
         def test_namespace

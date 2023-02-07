@@ -108,10 +108,16 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
     end
 
     def assert_result_rows(intarray, result, word = "row")
-      assert_equal(intarray.size, result.size,
-        "unexpected number of rows returned: '#{result.inner_text}'")
-      assert_equal(intarray.map { |j| "#{word}#{j}" }.join(" "), result.inner_text.strip,
-        result.inner_text)
+      assert_equal(
+        intarray.size,
+        result.size,
+        "unexpected number of rows returned: '#{result.inner_text}'",
+      )
+      assert_equal(
+        intarray.map { |j| "#{word}#{j}" }.join(" "),
+        result.inner_text.strip,
+        result.inner_text,
+      )
     end
 
     doctypes = [Nokogiri::XML::Document, Nokogiri::HTML4::Document]

@@ -24,8 +24,10 @@ describe Nokogiri::HTML4::SAX::PushParser do
       <html><head><body><p id="asdfasdf">
     HTML
 
-    assert_equal([["html", []], ["head", []], ["body", []], ["p", [["id", "asdfasdf"]]]],
-      parser.document.start_elements)
+    assert_equal(
+      [["html", []], ["head", []], ["body", []], ["p", [["id", "asdfasdf"]]]],
+      parser.document.start_elements,
+    )
 
     parser << (<<~HTML)
       <!-- This is a comment -->

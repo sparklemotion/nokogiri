@@ -185,19 +185,28 @@ module Nokogiri
               end.new
               custom_employees = set.send(method, query, callback_handler)
 
-              assert_equal(xml.xpath("//employee"), custom_employees,
-                "using #{method} with custom selector '#{query}'")
+              assert_equal(
+                xml.xpath("//employee"),
+                custom_employees,
+                "using #{method} with custom selector '#{query}'",
+              )
             end
           end
 
           it "with variable bindings" do
             set = xml.xpath("//staff")
 
-            assert_equal(4, set.xpath("//address[@domestic=$value]", nil, value: "Yes").length,
-              "using #xpath with variable binding")
+            assert_equal(
+              4,
+              set.xpath("//address[@domestic=$value]", nil, value: "Yes").length,
+              "using #xpath with variable binding",
+            )
 
-            assert_equal(4, set.search("//address[@domestic=$value]", nil, value: "Yes").length,
-              "using #search with variable binding")
+            assert_equal(
+              4,
+              set.search("//address[@domestic=$value]", nil, value: "Yes").length,
+              "using #search with variable binding",
+            )
           end
 
           it "context search returns itself" do
@@ -600,11 +609,15 @@ module Nokogiri
           end
 
           it "preserves document structure" do
-            assert_equal("employeeId",
-              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
+            assert_equal(
+              "employeeId",
+              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name,
+            )
             xml.xpath("//employeeId[text()='EMP0001']").wrap("<wrapper/>")
-            assert_equal("wrapper",
-              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name)
+            assert_equal(
+              "wrapper",
+              xml.at_xpath("//employee").children.detect { |j| !j.text? }.name,
+            )
           end
         end
 
@@ -821,8 +834,10 @@ module Nokogiri
           employees = xml.search("//employee")
           inspected = employees.inspect
 
-          assert_equal("[#{employees.map(&:inspect).join(", ")}]",
-            inspected)
+          assert_equal(
+            "[#{employees.map(&:inspect).join(", ")}]",
+            inspected,
+          )
         end
 
         it "should_not_splode_when_accessing_namespace_declarations_in_a_node_set" do

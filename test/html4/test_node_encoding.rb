@@ -25,8 +25,10 @@ module Nokogiri
           skip("libxml2 without iconv does not pass this test")
         end
 
-        assert_equal(@html.encoding.downcase,
-          @html.serialize.encoding.name.downcase)
+        assert_equal(
+          @html.encoding.downcase,
+          @html.serialize.encoding.name.downcase,
+        )
 
         @doc = Nokogiri::HTML4(@html.serialize)
         assert_equal(@html.serialize, @doc.serialize)

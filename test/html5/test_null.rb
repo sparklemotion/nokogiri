@@ -83,8 +83,10 @@ class TestHtml5Null < Nokogiri::TestCase
 
   def test_doctype_name_states
     # There are two missing here for double quoted PUBLIC and SYSTEM values.
-    doc = Nokogiri::HTML5.parse("<!DOCTYPE \u0000\u0000 PUBLIC '\u0000' '\u0000' \u0000>",
-      max_errors: 10)
+    doc = Nokogiri::HTML5.parse(
+      "<!DOCTYPE \u0000\u0000 PUBLIC '\u0000' '\u0000' \u0000>",
+      max_errors: 10,
+    )
     # 12.2.5.54 Before DOCTYPE name state: unexpected-null-character parse
     # error
     # 12.2.5.55 DOCTYPE name state: unexpected-null-character parse error

@@ -38,8 +38,10 @@ module Nokogiri
             h1("america")
           end
         end
-        assert_equal('<div id="awesome"><h1>america</h1></div>',
-          builder.doc.root.to_html.delete("\n").gsub(/>\s*</, "><"))
+        assert_equal(
+          '<div id="awesome"><h1>america</h1></div>',
+          builder.doc.root.to_html.delete("\n").gsub(/>\s*</, "><"),
+        )
       end
 
       def test_href_with_attributes
@@ -49,8 +51,10 @@ module Nokogiri
             a("King Khan & The Shrines", href: uri)
           end
         end
-        assert_equal("http://tenderlovemaking.com/",
-          built.doc.at("a")[:href])
+        assert_equal(
+          "http://tenderlovemaking.com/",
+          built.doc.at("a")[:href],
+        )
       end
 
       def test_tag_nesting
@@ -99,16 +103,20 @@ module Nokogiri
             text("<awesome>")
           end
         end
-        assert_equal('<div class="rad" id="thing">&lt;awesome&gt;</div>',
-          builder.doc.root.to_html.chomp)
+        assert_equal(
+          '<div class="rad" id="thing">&lt;awesome&gt;</div>',
+          builder.doc.root.to_html.chomp,
+        )
       end
 
       def test_builder_adds_attributes
         builder = Nokogiri::HTML4::Builder.new do
           div.rad.thing!("tender div")
         end
-        assert_equal('<div class="rad" id="thing">tender div</div>',
-          builder.doc.root.to_html.chomp)
+        assert_equal(
+          '<div class="rad" id="thing">tender div</div>',
+          builder.doc.root.to_html.chomp,
+        )
       end
 
       def test_bold_tag
@@ -126,8 +134,10 @@ module Nokogiri
             end
           end
         end
-        assert_equal("<html><body><b>bold tag</b></body></html>",
-          builder.doc.root.to_html.chomp.gsub(/>\s*</, "><"))
+        assert_equal(
+          "<html><body><b>bold tag</b></body></html>",
+          builder.doc.root.to_html.chomp.gsub(/>\s*</, "><"),
+        )
       end
 
       def test_instance_eval_with_delegation_to_block_context

@@ -243,8 +243,11 @@ module Nokogiri
           doctype: document.xpath_doctype,
         )
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
-          CSS.xpath_for(rule.to_s, { prefix: implied_xpath_context, ns: ns,
-                                     visitor: visitor, })
+          CSS.xpath_for(rule.to_s, {
+            prefix: implied_xpath_context,
+            ns: ns,
+            visitor: visitor,
+          })
         end.join(" | ")
       end
 

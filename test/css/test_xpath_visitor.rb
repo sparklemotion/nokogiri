@@ -66,18 +66,30 @@ class TestNokogiri < Nokogiri::TestCase
       end
 
       it ". class" do
-        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-          parser.parse(".awesome"))
-        assert_xpath("//foo[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-          parser.parse("foo.awesome"))
-        assert_xpath("//foo//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-          parser.parse("foo .awesome"))
-        assert_xpath("//foo//*[contains(concat(' ',normalize-space(@class),' '),' awe.some ')]",
-          parser.parse("foo .awe\\.some"))
-        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' a ') and contains(concat(' ',normalize-space(@class),' '),' b ')]",
-          parser.parse(".a.b"))
-        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' pastoral ')]",
-          parser.parse("*.pastoral"))
+        assert_xpath(
+          "//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+          parser.parse(".awesome"),
+        )
+        assert_xpath(
+          "//foo[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+          parser.parse("foo.awesome"),
+        )
+        assert_xpath(
+          "//foo//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+          parser.parse("foo .awesome"),
+        )
+        assert_xpath(
+          "//foo//*[contains(concat(' ',normalize-space(@class),' '),' awe.some ')]",
+          parser.parse("foo .awe\\.some"),
+        )
+        assert_xpath(
+          "//*[contains(concat(' ',normalize-space(@class),' '),' a ') and contains(concat(' ',normalize-space(@class),' '),' b ')]",
+          parser.parse(".a.b"),
+        )
+        assert_xpath(
+          "//*[contains(concat(' ',normalize-space(@class),' '),' pastoral ')]",
+          parser.parse("*.pastoral"),
+        )
       end
 
       it "# id" do
@@ -128,25 +140,41 @@ class TestNokogiri < Nokogiri::TestCase
         end
 
         it "|=" do
-          assert_xpath("//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
-            parser.parse("a[@class|='bar']"))
-          assert_xpath("//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
-            parser.parse("a[@class |= 'bar']"))
-          assert_xpath("//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
-            parser.parse("a[id|='Boing']"))
+          assert_xpath(
+            "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+            parser.parse("a[@class|='bar']"),
+          )
+          assert_xpath(
+            "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+            parser.parse("a[@class |= 'bar']"),
+          )
+          assert_xpath(
+            "//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
+            parser.parse("a[id|='Boing']"),
+          )
         end
 
         it "~=" do
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
-            parser.parse("a[@class~='bar']"))
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
-            parser.parse("a[@class ~= 'bar']"))
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
-            parser.parse("a[@class~=bar]"))
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
-            parser.parse("a[@class~=\"bar\"]"))
-          assert_xpath("//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
-            parser.parse("a[data-words~=\"bar\"]"))
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+            parser.parse("a[@class~='bar']"),
+          )
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+            parser.parse("a[@class ~= 'bar']"),
+          )
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+            parser.parse("a[@class~=bar]"),
+          )
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+            parser.parse("a[@class~=\"bar\"]"),
+          )
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
+            parser.parse("a[data-words~=\"bar\"]"),
+          )
         end
 
         it "^=" do
@@ -155,10 +183,14 @@ class TestNokogiri < Nokogiri::TestCase
         end
 
         it "$=" do
-          assert_xpath("//a[substring(@id,string-length(@id)-string-length('Boing')+1,string-length('Boing'))='Boing']",
-            parser.parse("a[id$='Boing']"))
-          assert_xpath("//a[substring(@id,string-length(@id)-string-length('Boing')+1,string-length('Boing'))='Boing']",
-            parser.parse("a[id $= 'Boing']"))
+          assert_xpath(
+            "//a[substring(@id,string-length(@id)-string-length('Boing')+1,string-length('Boing'))='Boing']",
+            parser.parse("a[id$='Boing']"),
+          )
+          assert_xpath(
+            "//a[substring(@id,string-length(@id)-string-length('Boing')+1,string-length('Boing'))='Boing']",
+            parser.parse("a[id $= 'Boing']"),
+          )
         end
 
         it "*=" do
@@ -177,28 +209,36 @@ class TestNokogiri < Nokogiri::TestCase
       it ":first-of-type" do
         assert_xpath("//a[position()=1]", parser.parse("a:first-of-type()"))
         assert_xpath("//a[position()=1]", parser.parse("a:first-of-type")) # no parens
-        assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=1]",
-          parser.parse("a.b:first-of-type")) # no parens
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=1]",
+          parser.parse("a.b:first-of-type"),
+        ) # no parens
       end
 
       it ":nth-of-type" do
         assert_xpath("//a[position()=99]", parser.parse("a:nth-of-type(99)"))
-        assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=99]",
-          parser.parse("a.b:nth-of-type(99)"))
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=99]",
+          parser.parse("a.b:nth-of-type(99)"),
+        )
       end
 
       it ":last-of-type" do
         assert_xpath("//a[position()=last()]", parser.parse("a:last-of-type()"))
         assert_xpath("//a[position()=last()]", parser.parse("a:last-of-type")) # no parens
-        assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()]",
-          parser.parse("a.b:last-of-type")) # no parens
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()]",
+          parser.parse("a.b:last-of-type"),
+        ) # no parens
       end
 
       it ":nth-last-of-type" do
         assert_xpath("//a[position()=last()]", parser.parse("a:nth-last-of-type(1)"))
         assert_xpath("//a[position()=last()-98]", parser.parse("a:nth-last-of-type(99)"))
-        assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()-98]",
-          parser.parse("a.b:nth-last-of-type(99)"))
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()-98]",
+          parser.parse("a.b:nth-last-of-type(99)"),
+        )
       end
 
       it ":nth and friends (non-standard)" do
@@ -232,8 +272,10 @@ class TestNokogiri < Nokogiri::TestCase
       end
 
       it ":only-child" do
-        assert_xpath("//a[count(preceding-sibling::*)=0 and count(following-sibling::*)=0]",
-          parser.parse("a:only-child"))
+        assert_xpath(
+          "//a[count(preceding-sibling::*)=0 and count(following-sibling::*)=0]",
+          parser.parse("a:only-child"),
+        )
       end
 
       it ":only-of-type" do
@@ -268,24 +310,36 @@ class TestNokogiri < Nokogiri::TestCase
 
       it ":not()" do
         assert_xpath("//ol/*[not(self::li)]", parser.parse("ol > *:not(li)"))
-        assert_xpath("//*[@id='p' and not(contains(concat(' ',normalize-space(@class),' '),' a '))]",
-          parser.parse("#p:not(.a)"))
-        assert_xpath("//p[contains(concat(' ',normalize-space(@class),' '),' a ') and not(contains(concat(' ',normalize-space(@class),' '),' b '))]",
-          parser.parse("p.a:not(.b)"))
-        assert_xpath("//p[@a='foo' and not(contains(concat(' ',normalize-space(@class),' '),' b '))]",
-          parser.parse("p[a='foo']:not(.b)"))
+        assert_xpath(
+          "//*[@id='p' and not(contains(concat(' ',normalize-space(@class),' '),' a '))]",
+          parser.parse("#p:not(.a)"),
+        )
+        assert_xpath(
+          "//p[contains(concat(' ',normalize-space(@class),' '),' a ') and not(contains(concat(' ',normalize-space(@class),' '),' b '))]",
+          parser.parse("p.a:not(.b)"),
+        )
+        assert_xpath(
+          "//p[@a='foo' and not(contains(concat(' ',normalize-space(@class),' '),' b '))]",
+          parser.parse("p[a='foo']:not(.b)"),
+        )
       end
 
       it "chained :not()" do
-        assert_xpath("//p[not(contains(concat(' ',normalize-space(@class),' '),' a ')) and not(contains(concat(' ',normalize-space(@class),' '),' b ')) and not(contains(concat(' ',normalize-space(@class),' '),' c '))]",
-          parser.parse("p:not(.a):not(.b):not(.c)"))
+        assert_xpath(
+          "//p[not(contains(concat(' ',normalize-space(@class),' '),' a ')) and not(contains(concat(' ',normalize-space(@class),' '),' b ')) and not(contains(concat(' ',normalize-space(@class),' '),' c '))]",
+          parser.parse("p:not(.a):not(.b):not(.c)"),
+        )
       end
 
       it "combinations of :not() and nth-and-friends" do
-        assert_xpath("//ol/*[not(count(following-sibling::*)=0)]",
-          parser.parse("ol > *:not(:last-child)"))
-        assert_xpath("//ol/*[not(count(preceding-sibling::*)=0 and count(following-sibling::*)=0)]",
-          parser.parse("ol > *:not(:only-child)"))
+        assert_xpath(
+          "//ol/*[not(count(following-sibling::*)=0)]",
+          parser.parse("ol > *:not(:last-child)"),
+        )
+        assert_xpath(
+          "//ol/*[not(count(preceding-sibling::*)=0 and count(following-sibling::*)=0)]",
+          parser.parse("ol > *:not(:only-child)"),
+        )
       end
 
       it "miscellaneous pseudo-classes are converted into xpath function calls" do
@@ -428,10 +482,14 @@ class TestNokogiri < Nokogiri::TestCase
     end
 
     it "handles pseudo-class with class selector" do
-      assert_xpath("//a[active(.) and contains(concat(' ',normalize-space(@class),' '),' foo ')]",
-        parser.parse("a:active.foo"))
-      assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' foo ') and active(.)]",
-        parser.parse("a.foo:active"))
+      assert_xpath(
+        "//a[active(.) and contains(concat(' ',normalize-space(@class),' '),' foo ')]",
+        parser.parse("a:active.foo"),
+      )
+      assert_xpath(
+        "//a[contains(concat(' ',normalize-space(@class),' '),' foo ') and active(.)]",
+        parser.parse("a.foo:active"),
+      )
     end
 
     it "handles pseudo-class with an id selector" do
@@ -459,31 +517,53 @@ class TestNokogiri < Nokogiri::TestCase
       end
 
       it ". class" do
-        assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
-          parser.parse(".awesome"))
-        assert_xpath("//foo[nokogiri-builtin:css-class(@class,'awesome')]",
-          parser.parse("foo.awesome"))
-        assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awesome')]",
-          parser.parse("foo .awesome"))
-        assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awe.some')]",
-          parser.parse("foo .awe\\.some"))
-        assert_xpath("//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
-          parser.parse(".a.b"))
+        assert_xpath(
+          "//*[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse(".awesome"),
+        )
+        assert_xpath(
+          "//foo[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse("foo.awesome"),
+        )
+        assert_xpath(
+          "//foo//*[nokogiri-builtin:css-class(@class,'awesome')]",
+          parser.parse("foo .awesome"),
+        )
+        assert_xpath(
+          "//foo//*[nokogiri-builtin:css-class(@class,'awe.some')]",
+          parser.parse("foo .awe\\.some"),
+        )
+        assert_xpath(
+          "//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
+          parser.parse(".a.b"),
+        )
       end
 
       it "~=" do
-        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-          parser.parse("a[@class~='bar']"))
-        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-          parser.parse("a[@class ~= 'bar']"))
-        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-          parser.parse("a[@class~=bar]"))
-        assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-          parser.parse("a[@class~=\"bar\"]"))
-        assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
-          parser.parse("a[data-words~=\"bar\"]"))
-        assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
-          parser.parse("a[@data-words~=\"bar\"]"))
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~='bar']"),
+        )
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class ~= 'bar']"),
+        )
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~=bar]"),
+        )
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@class,'bar')]",
+          parser.parse("a[@class~=\"bar\"]"),
+        )
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+          parser.parse("a[data-words~=\"bar\"]"),
+        )
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+          parser.parse("a[@data-words~=\"bar\"]"),
+        )
       end
 
       describe "XPathVisitorAlwaysUseBuiltins" do
@@ -494,8 +574,10 @@ class TestNokogiri < Nokogiri::TestCase
           assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
           assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
 
-          assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
-            parser.parse(".awesome"))
+          assert_xpath(
+            "//*[nokogiri-builtin:css-class(@class,'awesome')]",
+            parser.parse(".awesome"),
+          )
         end
       end
     end
@@ -549,21 +631,29 @@ class TestNokogiri < Nokogiri::TestCase
       #
       it ". class" do
         if Nokogiri.uses_libxml?
-          assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
-            parser.parse(".awesome"))
+          assert_xpath(
+            "//*[nokogiri-builtin:css-class(@class,'awesome')]",
+            parser.parse(".awesome"),
+          )
         else
-          assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-            parser.parse(".awesome"))
+          assert_xpath(
+            "//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+            parser.parse(".awesome"),
+          )
         end
       end
 
       it "~=" do
         if Nokogiri.uses_libxml?
-          assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
-            parser.parse("a[@class~='bar']"))
+          assert_xpath(
+            "//a[nokogiri-builtin:css-class(@class,'bar')]",
+            parser.parse("a[@class~='bar']"),
+          )
         else
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
-            parser.parse("a[@class~='bar']"))
+          assert_xpath(
+            "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+            parser.parse("a[@class~='bar']"),
+          )
         end
       end
 
@@ -576,11 +666,15 @@ class TestNokogiri < Nokogiri::TestCase
           assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
 
           if Nokogiri.uses_libxml?
-            assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
-              parser.parse(".awesome"))
+            assert_xpath(
+              "//*[nokogiri-builtin:css-class(@class,'awesome')]",
+              parser.parse(".awesome"),
+            )
           else
-            assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-              parser.parse(".awesome"))
+            assert_xpath(
+              "//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+              parser.parse(".awesome"),
+            )
           end
         end
       end

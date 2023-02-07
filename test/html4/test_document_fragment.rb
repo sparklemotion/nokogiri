@@ -180,15 +180,19 @@ module Nokogiri
         def test_fragment_script_tag_with_cdata
           doc = Nokogiri::HTML4::Document.new
           fragment = doc.fragment("<script>var foo = 'bar';</script>")
-          assert_equal("<script>var foo = 'bar';</script>",
-            fragment.to_s)
+          assert_equal(
+            "<script>var foo = 'bar';</script>",
+            fragment.to_s,
+          )
         end
 
         def test_fragment_with_comment
           doc = Nokogiri::HTML4::Document.new
           fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
-          assert_equal("<p>hello<!-- your ad here --></p>",
-            fragment.to_s)
+          assert_equal(
+            "<p>hello<!-- your ad here --></p>",
+            fragment.to_s,
+          )
         end
 
         def test_element_children_counts
@@ -219,9 +223,12 @@ module Nokogiri
           doc = Nokogiri::HTML4::Document.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
-          assert(frag.errors.any? do |err|
-                   err.to_s.include?("Tag hello invalid")
-                 end, "errors should be on the context node's document")
+          assert(
+            frag.errors.any? do |err|
+              err.to_s.include?("Tag hello invalid")
+            end,
+            "errors should be on the context node's document",
+          )
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
@@ -230,12 +237,18 @@ module Nokogiri
 
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
-          assert(frag.errors.any? do |err|
-                   err.to_s.include?("Tag hello invalid")
-                 end, "errors should be on the context node's document")
-          assert(frag.errors.none? do |err|
-                   err.to_s.include?("jimmy")
-                 end, "errors should not include pre-existing document errors")
+          assert(
+            frag.errors.any? do |err|
+              err.to_s.include?("Tag hello invalid")
+            end,
+            "errors should be on the context node's document",
+          )
+          assert(
+            frag.errors.none? do |err|
+              err.to_s.include?("jimmy")
+            end,
+            "errors should not include pre-existing document errors",
+          )
         end
 
         def test_capturing_nonparse_errors_during_fragment_clone

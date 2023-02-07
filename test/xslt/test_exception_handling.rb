@@ -30,8 +30,11 @@ module Nokogiri
           xsl.transform(xml)
         end
 
-        assert_match(/Can't have more than one root/, e.to_s,
-          "The exception message does not contain the expected information")
+        assert_match(
+          /Can't have more than one root/,
+          e.to_s,
+          "The exception message does not contain the expected information",
+        )
       end
     end
   end

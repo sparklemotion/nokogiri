@@ -144,8 +144,10 @@ module Nokogiri
               </foo>
             </xml>
           eoxml
-          assert_equal({ "xmlns" => "hello", "xmlns:foo" => "world" },
-            doc.collect_namespaces)
+          assert_equal(
+            { "xmlns" => "hello", "xmlns:foo" => "world" },
+            doc.collect_namespaces,
+          )
         end
 
         def test_subclass_initialize_modify # testing a segv
@@ -688,8 +690,10 @@ module Nokogiri
           doc = Nokogiri::XML.parse(Pathname.new(XML_ATOM_FILE))
 
           # an arbitrary assertion on the structure of the document
-          assert_equal(20, doc.xpath("/xmlns:feed/xmlns:entry/xmlns:author",
-            "xmlns" => "http://www.w3.org/2005/Atom").length)
+          assert_equal(20, doc.xpath(
+            "/xmlns:feed/xmlns:entry/xmlns:author",
+            "xmlns" => "http://www.w3.org/2005/Atom",
+          ).length)
           assert_equal(XML_ATOM_FILE, doc.url)
         end
 

@@ -201,8 +201,10 @@ module Nokogiri
           p3: 'x"x"x',
           p4: '"xxx"',
         }
-        result_doc = Nokogiri::XML.parse(style.apply_to(doc,
-          Nokogiri::XSLT.quote_params(params)))
+        result_doc = Nokogiri::XML.parse(style.apply_to(
+          doc,
+          Nokogiri::XSLT.quote_params(params),
+        ))
 
         assert_equal("func-result", result_doc.at("/root/function").content)
         assert_equal(3, result_doc.at("/root/max").content.to_i)
@@ -216,8 +218,10 @@ module Nokogiri
           assert_equal(p.content, params[p.name.intern])
         end
         check_params(result_doc, params)
-        result_doc = Nokogiri::XML.parse(style.apply_to(doc,
-          Nokogiri::XSLT.quote_params(params.to_a.flatten)))
+        result_doc = Nokogiri::XML.parse(style.apply_to(
+          doc,
+          Nokogiri::XSLT.quote_params(params.to_a.flatten),
+        ))
         check_params(result_doc, params)
       end
 

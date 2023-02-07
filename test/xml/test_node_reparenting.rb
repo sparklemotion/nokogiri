@@ -386,8 +386,11 @@ module Nokogiri
 
                 inserted = dest_node.add_child(source_node)
 
-                assert_equal("attrval", inserted.attribute_with_ns("attr", "ns2")&.value,
-                  "inserted node attribute should be namespaced")
+                assert_equal(
+                  "attrval",
+                  inserted.attribute_with_ns("attr", "ns2")&.value,
+                  "inserted node attribute should be namespaced",
+                )
               end
             end
           end

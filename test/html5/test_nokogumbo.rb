@@ -141,8 +141,10 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     html = '<label><input checked type="checkbox" disabled name="cheese"> Cheese</label>'
 
     doc = Nokogiri::HTML5(html, max_attributes: 4)
-    assert_equal({ "checked" => "", "type" => "checkbox", "disabled" => "", "name" => "cheese" },
-      attributes(doc.at_css("input")))
+    assert_equal(
+      { "checked" => "", "type" => "checkbox", "disabled" => "", "name" => "cheese" },
+      attributes(doc.at_css("input")),
+    )
 
     assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 3) }
     assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 2) }

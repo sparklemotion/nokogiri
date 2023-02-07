@@ -87,7 +87,8 @@ class TestHtml5API < Nokogiri::TestCase
     span = doc.at("/html/body/span")
     serialized = span.inner_html(encoding: "US-ASCII")
     assert_match(/^(?:&#(?:\d+|x\h+);)*$/, serialized)
-    assert_equal("ฉันไม่พูดภาษาไทย".each_char.map(&:ord),
+    assert_equal(
+      "ฉันไม่พูดภาษาไทย".each_char.map(&:ord),
       serialized.scan(/&#(\d+|x\h+);/).map do |s|
         s = s.first
         if s.start_with?("x")
@@ -95,7 +96,8 @@ class TestHtml5API < Nokogiri::TestCase
         else
           s.to_i
         end
-      end)
+      end,
+    )
 
     doc2 = Nokogiri::HTML5(doc.serialize(encoding: "Big5"))
     html2 = doc2.serialize(encoding: "UTF-8")

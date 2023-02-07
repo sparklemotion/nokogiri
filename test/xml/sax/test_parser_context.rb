@@ -46,8 +46,10 @@ module Nokogiri
             sax_handler.context = ctx
           end
 
-          assert_equal([["hello", 1], ["inter", 4], ["net", 5]],
-            sax_handler.lines)
+          assert_equal(
+            [["hello", 1], ["inter", 4], ["net", 5]],
+            sax_handler.lines,
+          )
         end
 
         def test_column_numbers
@@ -58,8 +60,10 @@ module Nokogiri
             sax_handler.context = ctx
           end
 
-          assert_equal([["hello", 7], ["inter", 7], ["net", 9]],
-            sax_handler.columns)
+          assert_equal(
+            [["hello", 7], ["inter", 7], ["net", 9]],
+            sax_handler.columns,
+          )
         end
 
         def test_replace_entities

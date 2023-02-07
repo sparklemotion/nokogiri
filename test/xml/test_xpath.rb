@@ -382,12 +382,14 @@ module Nokogiri
       def test_custom_xpath_with_bullshit_arguments
         xml = "<foo> </foo>"
         doc = Nokogiri::XML.parse(xml)
-        foo = doc.xpath("//foo[bool_function(bar/baz)]",
+        foo = doc.xpath(
+          "//foo[bool_function(bar/baz)]",
           Class.new do
             def bool_function(value)
               true
             end
-          end.new)
+          end.new,
+        )
         assert_equal(foo, doc.xpath("//foo"))
       end
 
