@@ -8,7 +8,7 @@ rescue LoadError
 end
 
 Gem::Specification.new do |spec|
-  java_p = /java/.match?(RUBY_PLATFORM)
+  java_p = RUBY_PLATFORM.include?("java")
 
   spec.name = "nokogiri"
   spec.version = defined?(Nokogiri::VERSION) ? Nokogiri::VERSION : "0.0.0"

@@ -1023,7 +1023,7 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
 
       env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
       if config_cross_build?
-        if /darwin/.match?(host)
+        if host.include?("darwin")
           env["AR"] = "#{host}-libtool"
           env["ARFLAGS"] = "-o"
         else

@@ -6,7 +6,7 @@ begin
   RUBY_VERSION =~ /(\d+\.\d+)/
   require_relative "#{Regexp.last_match(1)}/nokogiri"
 rescue LoadError => e
-  if /GLIBC/.match?(e.message)
+  if e.message.include?("GLIBC")
     warn(<<~EOM)
 
       ERROR: It looks like you're trying to use Nokogiri as a precompiled native gem on a system
