@@ -40,12 +40,13 @@ void gumbo_character_token_buffer_append (
   assert(token->type == GUMBO_TOKEN_WHITESPACE
          || token->type == GUMBO_TOKEN_CHARACTER);
   if (buffer->length == buffer->capacity) {
+    size_t prev_bytes = sizeof(*buffer->data) * buffer->capacity;
     if (buffer->capacity == 0)
       buffer->capacity = 10;
     else
       buffer->capacity *= 2;
     size_t bytes = sizeof(*buffer->data) * buffer->capacity;
-    buffer->data = gumbo_realloc(buffer->data, bytes);
+    buffer->data = gumbo_realloc(buffer->data, prev_bytes, bytes);
   }
   size_t index = buffer->length++;
   buffer->data[index].position = token->position;

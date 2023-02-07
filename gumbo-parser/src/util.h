@@ -17,7 +17,7 @@ extern "C" {
 char* gumbo_strdup(const char* str) XMALLOC NONNULL_ARGS;
 
 void* gumbo_alloc(size_t size) XMALLOC;
-void* gumbo_realloc(void* ptr, size_t size) RETURNS_NONNULL;
+void* gumbo_realloc(void* prev_ptr, size_t prev_size, size_t size) RETURNS_NONNULL;
 
 // Debug wrapper for printf
 #ifdef GUMBO_DEBUG

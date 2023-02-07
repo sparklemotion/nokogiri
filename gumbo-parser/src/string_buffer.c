@@ -27,12 +27,13 @@ static void maybe_resize_string_buffer (
   GumboStringBuffer* buffer
 ) {
   size_t new_length = buffer->length + additional_chars;
+  size_t prev_capacity = buffer->capacity;
   size_t new_capacity = buffer->capacity;
   while (new_capacity < new_length) {
     new_capacity *= 2;
   }
   if (new_capacity != buffer->capacity) {
-    buffer->data = gumbo_realloc(buffer->data, new_capacity);
+    buffer->data = gumbo_realloc(buffer->data, prev_capacity, new_capacity);
     buffer->capacity = new_capacity;
   }
 }
