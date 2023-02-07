@@ -273,7 +273,7 @@ add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
       char *msg;
       size_t size = gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
       VALUE err_str = rb_utf8_str_new(msg, size);
-      free(msg);
+      gumbo_free(msg);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
       const char *error_code = gumbo_error_code(err);
       VALUE str1 = error_code ? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;

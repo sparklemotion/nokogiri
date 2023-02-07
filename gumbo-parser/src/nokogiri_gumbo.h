@@ -937,6 +937,8 @@ void gumbo_print_caret_diagnostic (
   size_t source_length
 );
 
+void gumbo_free(void* ptr);
+
 #ifdef __cplusplus
 }
 #endif
