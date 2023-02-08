@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.14.next / unreleased
+
+### Fixed
+
+* Calling `NodeSet#to_html` on an empty node set no longer raises an encoding-related exception. This bug was introduced in v1.14.0 while fixing [#2649](https://github.com/sparklemotion/nokogiri/issues/2649). [[#2784](https://github.com/sparklemotion/nokogiri/issues/2784)]
+
+
 ## 1.14.1 / 2023-01-30
 
 ### Fixed
