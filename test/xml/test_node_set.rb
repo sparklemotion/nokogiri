@@ -976,6 +976,12 @@ module Nokogiri
             assert_equal(doc2, node_set[1].document)
           end
         end
+
+        describe "empty sets" do
+          it "#to_html returns an empty string" do
+            assert_equal("", NodeSet.new(xml, []).to_html)
+          end
+        end
       end
     end
   end

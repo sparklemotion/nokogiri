@@ -345,8 +345,9 @@ module Nokogiri
           args.insert(0, options)
         end
         if empty?
-          encoding = (args.first.is_a?(Hash) ? args.first[:encoding] : nil) || document.encoding
-          "".encode(encoding)
+          encoding = (args.first.is_a?(Hash) ? args.first[:encoding] : nil)
+          encoding ||= document.encoding
+          encoding.nil? ? "" : "".encode(encoding)
         else
           map { |x| x.to_html(*args) }.join
         end
