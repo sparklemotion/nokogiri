@@ -372,7 +372,7 @@ def try_link_iconv(using = nil)
       preserving_globals do
         yield if block_given?
 
-        try_link(<<~'SRC', opt)
+        try_link(<<~SRC, opt)
           #include <stdlib.h>
           #include <iconv.h>
           int main(void)

@@ -253,7 +253,7 @@ module Nokogiri
 
         def test_pp
           out = StringIO.new((+""))
-          ::PP.pp(xml, out)
+          ::PP.pp(xml, out) # rubocop:disable Lint/Debugger
           assert_operator(out.string.length, :>, 0)
         end
 
