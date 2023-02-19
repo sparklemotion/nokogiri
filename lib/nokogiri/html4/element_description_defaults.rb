@@ -2024,19 +2024,14 @@ module Nokogiri
       ].each do |descriptor|
         name = descriptor[0]
 
-        begin
-          d = Desc.new(*descriptor)
+        d = Desc.new(*descriptor)
 
-          # flatten all the attribute lists (Ruby1.9, *[a,b,c] can be
-          # used to flatten a literal list, but not in Ruby1.8).
-          d[:subelts] = d[:subelts].flatten
-          d[:attrs_opt] = d[:attrs_opt].flatten
-          d[:attrs_depr] = d[:attrs_depr].flatten
-          d[:attrs_req] = d[:attrs_req].flatten
-        rescue => e
-          p(name)
-          raise e
-        end
+        # flatten all the attribute lists (Ruby1.9, *[a,b,c] can be
+        # used to flatten a literal list, but not in Ruby1.8).
+        d[:subelts] = d[:subelts].flatten
+        d[:attrs_opt] = d[:attrs_opt].flatten
+        d[:attrs_depr] = d[:attrs_depr].flatten
+        d[:attrs_req] = d[:attrs_req].flatten
 
         DefaultDescriptions[name] = d
       end
