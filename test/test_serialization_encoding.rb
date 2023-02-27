@@ -64,18 +64,26 @@ class TestSerializationEncoding < Nokogiri::TestCase
               assert_equal(expected_default_encoding, doc.to_xml.encoding)
               assert_equal(Encoding::UTF_8, doc.to_xml(encoding: "UTF-8").encoding)
               assert_equal(Encoding::Shift_JIS, doc.to_xml(encoding: "SHIFT_JIS").encoding)
+              assert_equal(Encoding::UTF_8, doc.to_xml(encoding: Encoding::UTF_8).encoding)
+              assert_equal(Encoding::Shift_JIS, doc.to_xml(encoding: Encoding::Shift_JIS).encoding)
 
               assert_equal(expected_default_encoding, doc.to_xhtml.encoding)
               assert_equal(Encoding::UTF_8, doc.to_xhtml(encoding: "UTF-8").encoding)
               assert_equal(Encoding::Shift_JIS, doc.to_xhtml(encoding: "SHIFT_JIS").encoding)
+              assert_equal(Encoding::UTF_8, doc.to_xhtml(encoding: Encoding::UTF_8).encoding)
+              assert_equal(Encoding::Shift_JIS, doc.to_xhtml(encoding: Encoding::Shift_JIS).encoding)
 
               assert_equal(expected_default_encoding, doc.to_html.encoding)
               assert_equal(Encoding::UTF_8, doc.to_html(encoding: "UTF-8").encoding)
               assert_equal(Encoding::Shift_JIS, doc.to_html(encoding: "SHIFT_JIS").encoding)
+              assert_equal(Encoding::UTF_8, doc.to_html(encoding: Encoding::UTF_8).encoding)
+              assert_equal(Encoding::Shift_JIS, doc.to_html(encoding: Encoding::Shift_JIS).encoding)
 
               assert_equal(expected_default_encoding, doc.serialize.encoding)
               assert_equal(Encoding::UTF_8, doc.serialize(encoding: "UTF-8").encoding)
               assert_equal(Encoding::Shift_JIS, doc.serialize(encoding: "SHIFT_JIS").encoding)
+              assert_equal(Encoding::UTF_8, doc.serialize(encoding: Encoding::UTF_8).encoding)
+              assert_equal(Encoding::Shift_JIS, doc.serialize(encoding: Encoding::Shift_JIS).encoding)
 
               assert_equal(
                 doc.serialize.bytes,
@@ -88,6 +96,14 @@ class TestSerializationEncoding < Nokogiri::TestCase
               assert_equal(
                 doc.serialize(encoding: "SHIFT_JIS").bytes,
                 round_trip_through_file { |io| doc.write_to(io, encoding: "SHIFT_JIS") }.bytes,
+              )
+              assert_equal(
+                doc.serialize(encoding: "UTF-8").bytes,
+                round_trip_through_file { |io| doc.write_to(io, encoding: Encoding::UTF_8) }.bytes,
+              )
+              assert_equal(
+                doc.serialize(encoding: "Shift_JIS").bytes,
+                round_trip_through_file { |io| doc.write_to(io, encoding: Encoding::Shift_JIS) }.bytes,
               )
             end
           end

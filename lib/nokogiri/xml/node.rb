@@ -1365,6 +1365,8 @@ module Nokogiri
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
+        encoding = encoding.is_a?(Encoding) ? encoding.name : encoding
+
         native_write_to(io, encoding, indentation, config.options)
       end
 
