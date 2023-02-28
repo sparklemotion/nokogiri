@@ -16,6 +16,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Improved
 
+* `Nokogiri::XML::Node::SaveOptions#inspect` now shows the names of the options set in the bitmask, similar to `ParseOptions`. [[#2767](https://github.com/sparklemotion/nokogiri/issues/2767)]
+
+
 ### Deprecated
 
 ### Performance
