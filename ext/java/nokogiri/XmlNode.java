@@ -1342,12 +1342,21 @@ public class XmlNode extends RubyObject
     IRubyObject io = args[0];
     IRubyObject encoding = args[1];
     IRubyObject indentString = args[2];
-    IRubyObject options = args[3];
+    IRubyObject options_rb = args[3];
+    int options = RubyFixnum.fix2int(options_rb);
 
     String encString = rubyStringToString(encoding);
 
+    // similar to behavior of libxml2's xmlSaveTree function
+    if ((options & SaveContextVisitor.AS_XML) == 0 &&
+        (options & SaveContextVisitor.AS_XHTML) == 0 &&
+        (options & SaveContextVisitor.AS_HTML) == 0 &&
+        isHtmlDoc(context)) {
+      options |= SaveContextVisitor.DEFAULT_HTML;
+    }
+
     SaveContextVisitor visitor =
-      new SaveContextVisitor(RubyFixnum.fix2int(options), rubyStringToString(indentString), encString, isHtmlDoc(context),
+      new SaveContextVisitor(options, rubyStringToString(indentString), encString, isHtmlDoc(context),
                              isFragment(), 0);
     accept(context, visitor);
 

@@ -74,6 +74,7 @@ public class SaveContextVisitor
   public static final int AS_XML = 32;
   public static final int AS_HTML = 64;
   public static final int AS_BUILDER = 128;
+  public static final int DEFAULT_HTML = NO_DECL | NO_EMPTY | AS_HTML;
 
   public static final int CANONICAL = 1;
   public static final int INCL_NS = 2;
