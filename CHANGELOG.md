@@ -14,7 +14,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
+* [JRuby] Serializing an HTML4 document with `#write_to` and specifying no save options will properly emit an HTML document anyway, like libxml2 does. Previously JRuby emitted XML in this situation.
+
+
 ### Improved
+
+* `Nokogiri::XML::Node::SaveOptions#inspect` now shows the names of the options set in the bitmask, similar to `ParseOptions`. [[#2767](https://github.com/sparklemotion/nokogiri/issues/2767)]
+
 
 ### Deprecated
 

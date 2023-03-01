@@ -62,6 +62,14 @@ module Nokogiri
         end
 
         alias_method :to_i, :options
+
+        def inspect
+          options = []
+          self.class.constants.each do |k|
+            options << k.downcase if send(:"#{k.downcase}?")
+          end
+          super.sub(/>$/, " " + options.join(", ") + ">")
+        end
       end
     end
   end
