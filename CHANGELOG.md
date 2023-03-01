@@ -15,6 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Fixed
 
 * [JRuby] Serializing an HTML4 document with `#write_to` and specifying no save options will properly emit an HTML document anyway, like libxml2 does. Previously JRuby emitted XML in this situation.
+* [JRuby] Serializing with `#write_to` will fall back to the document encoding when no encoding is specified, like libxml2 does. Previously JRuby emitted UTF-8 in this situation.
 
 
 ### Improved

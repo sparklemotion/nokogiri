@@ -1347,7 +1347,7 @@ module Nokogiri
       #
       def write_to(io, *options)
         options = options.first.is_a?(Hash) ? options.shift : {}
-        encoding = options[:encoding] || options[0]
+        encoding = options[:encoding] || options[0] || document.encoding
         if Nokogiri.jruby?
           save_options = options[:save_with] || options[1]
           indent_times = options[:indent] || 0
