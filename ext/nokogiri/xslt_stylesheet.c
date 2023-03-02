@@ -3,14 +3,16 @@
 VALUE cNokogiriXsltStylesheet ;
 
 static void
-mark(nokogiriXsltStylesheetTuple *wrapper)
+mark(void *data)
 {
+  nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
   rb_gc_mark(wrapper->func_instances);
 }
 
 static void
-dealloc(nokogiriXsltStylesheetTuple *wrapper)
+dealloc(void *data)
 {
+  nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
   xsltStylesheetPtr doc = wrapper->ss;
   xsltFreeStylesheet(doc);
   ruby_xfree(wrapper);
@@ -36,14 +38,27 @@ xslt_generic_error_handler(void *ctx, const char *msg, ...)
   rb_str_concat((VALUE)ctx, message);
 }
 
+static const rb_data_type_t xslt_stylesheet_type = {
+  .wrap_struct_name = "Nokogiri::XSLT::Stylesheet",
+  .function = {
+    .dmark = mark,
+    .dfree = dealloc,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE
 Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
 {
   VALUE self;
   nokogiriXsltStylesheetTuple *wrapper;
 
-  self = Data_Make_Struct(cNokogiriXsltStylesheet, nokogiriXsltStylesheetTuple,
-                          mark, dealloc, wrapper);
+  self = TypedData_Make_Struct(
+           cNokogiriXsltStylesheet,
+           nokogiriXsltStylesheetTuple,
+           &xslt_stylesheet_type,
+           wrapper
+         );
 
   ss->_private = (void *)self;
   wrapper->ss = ss;
@@ -100,7 +115,7 @@ serialize(VALUE self, VALUE xmlobj)
   VALUE rval ;
 
   Data_Get_Struct(xmlobj, xmlDoc, xml);
-  Data_Get_Struct(self, nokogiriXsltStylesheetTuple, wrapper);
+  TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &xslt_stylesheet_type, wrapper);
   xsltSaveResultToString(&doc_ptr, &doc_len, xml, wrapper->ss);
   rval = NOKOGIRI_STR_NEW(doc_ptr, doc_len);
   xmlFree(doc_ptr);
@@ -246,7 +261,7 @@ transform(int argc, VALUE *argv, VALUE self)
   Check_Type(paramobj, T_ARRAY);
 
   Data_Get_Struct(xmldoc, xmlDoc, xml);
-  Data_Get_Struct(self, nokogiriXsltStylesheetTuple, wrapper);
+  TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &xslt_stylesheet_type, wrapper);
 
   param_len = RARRAY_LEN(paramobj);
   params = ruby_xcalloc((size_t)param_len + 1, sizeof(char *));
@@ -310,8 +325,8 @@ initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
                             (unsigned char *)StringValueCStr(method_name), uri, method_caller);
   }
 
-  Data_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
-                  wrapper);
+  TypedData_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
+                       &xslt_stylesheet_type, wrapper);
   inst = rb_class_new_instance(0, NULL, obj);
   rb_ary_push(wrapper->func_instances, inst);
 
@@ -324,8 +339,8 @@ shutdownFunc(xsltTransformContextPtr ctxt,
 {
   nokogiriXsltStylesheetTuple *wrapper;
 
-  Data_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
-                  wrapper);
+  TypedData_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
+                       &xslt_stylesheet_type, wrapper);
 
   rb_ary_clear(wrapper->func_instances);
 }
