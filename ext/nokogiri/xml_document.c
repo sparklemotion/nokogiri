@@ -86,11 +86,34 @@ dealloc(void *data)
   xmlFreeDoc(doc);
 }
 
+static size_t
+memsize_node(const xmlNodePtr node)
+{
+  xmlNodePtr child;
+  size_t memsize = 0;
+  for (child = node->children; child; child = child->next) {
+    /* This should count the properties too. */
+    memsize += sizeof(xmlNode) + memsize_node(child);
+  }
+  return memsize;
+}
+
+static size_t
+memsize(const void *data)
+{
+  xmlDocPtr doc = (const xmlDocPtr)data;
+  size_t memsize = sizeof(xmlDoc);
+  /* This may not account for all memory use */
+  memsize += memsize_node((xmlNodePtr)doc);
+  return memsize;
+}
+
 const rb_data_type_t noko_xml_document_data_type = {
     .wrap_struct_name = "Nokogiri::XML::Document",
     .function = {
         .dmark = mark,
         .dfree = dealloc,
+        .dsize = memsize,
     },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY
 };
