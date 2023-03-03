@@ -89,10 +89,18 @@ dealloc(void *data)
 static size_t
 memsize_node(const xmlNodePtr node)
 {
+  /* note we don't count namespace definitions, just going for a good-enough number here */
   xmlNodePtr child;
   size_t memsize = 0;
+
+  memsize += xmlStrlen(node->name);
+  for (child = (xmlNodePtr)node->properties; child; child = child->next) {
+    memsize += sizeof(xmlAttr) + memsize_node(child);
+  }
+  if (node->type == XML_TEXT_NODE) {
+    memsize += xmlStrlen(node->content);
+  }
   for (child = node->children; child; child = child->next) {
-    /* This should count the properties too. */
     memsize += sizeof(xmlNode) + memsize_node(child);
   }
   return memsize;
