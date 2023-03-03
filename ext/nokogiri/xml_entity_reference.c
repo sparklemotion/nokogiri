@@ -20,7 +20,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &document, &name, &rest);
 
-  Data_Get_Struct(document, xmlDoc, xml_doc);
+  TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, xml_doc);
 
   node = xmlNewReference(
            xml_doc,
