@@ -18,6 +18,15 @@ dealloc(void *data)
   ruby_xfree(wrapper);
 }
 
+static const rb_data_type_t xslt_stylesheet_type = {
+  .wrap_struct_name = "Nokogiri::XSLT::Stylesheet",
+  .function = {
+    .dmark = mark,
+    .dfree = dealloc,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 PRINTFLIKE_DECL(2, 3)
 static void
 xslt_generic_error_handler(void *ctx, const char *msg, ...)
@@ -37,15 +46,6 @@ xslt_generic_error_handler(void *ctx, const char *msg, ...)
 
   rb_str_concat((VALUE)ctx, message);
 }
-
-static const rb_data_type_t xslt_stylesheet_type = {
-  .wrap_struct_name = "Nokogiri::XSLT::Stylesheet",
-  .function = {
-    .dmark = mark,
-    .dfree = dealloc,
-  },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
 
 VALUE
 Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
@@ -106,7 +106,7 @@ parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
  * Serialize +document+ to an xml string.
  */
 static VALUE
-serialize(VALUE self, VALUE xmlobj)
+rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
 {
   xmlDocPtr xml ;
   nokogiriXsltStylesheetTuple *wrapper;
@@ -115,7 +115,12 @@ serialize(VALUE self, VALUE xmlobj)
   VALUE rval ;
 
   Data_Get_Struct(xmlobj, xmlDoc, xml);
-  TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &xslt_stylesheet_type, wrapper);
+  TypedData_Get_Struct(
+    self,
+    nokogiriXsltStylesheetTuple,
+    &xslt_stylesheet_type,
+    wrapper
+  );
   xsltSaveResultToString(&doc_ptr, &doc_len, xml, wrapper->ss);
   rval = NOKOGIRI_STR_NEW(doc_ptr, doc_len);
   xmlFree(doc_ptr);
@@ -236,7 +241,7 @@ serialize(VALUE self, VALUE xmlobj)
  * See: Nokogiri::XSLT.quote_params
  */
 static VALUE
-transform(int argc, VALUE *argv, VALUE self)
+rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 {
   VALUE xmldoc, paramobj, errstr, exception ;
   xmlDocPtr xml ;
@@ -305,7 +310,12 @@ method_caller(xmlXPathParserContextPtr ctxt, int nargs)
   handler = (VALUE)xsltGetExtData(transform, functionURI);
   function_name = (const char *)(ctxt->context->function);
 
-  Nokogiri_marshal_xpath_funcall_and_return_values(ctxt, nargs, handler, (const char *)function_name);
+  Nokogiri_marshal_xpath_funcall_and_return_values(
+    ctxt,
+    nargs,
+    handler,
+    (const char *)function_name
+  );
 }
 
 static void *
@@ -321,12 +331,20 @@ initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
 
   for (i = 0; i < RARRAY_LEN(methods); i++) {
     VALUE method_name = rb_obj_as_string(rb_ary_entry(methods, i));
-    xsltRegisterExtFunction(ctxt,
-                            (unsigned char *)StringValueCStr(method_name), uri, method_caller);
+    xsltRegisterExtFunction(
+      ctxt,
+      (unsigned char *)StringValueCStr(method_name),
+      uri,
+      method_caller
+    );
   }
 
-  TypedData_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
-                       &xslt_stylesheet_type, wrapper);
+  TypedData_Get_Struct(
+    (VALUE)ctxt->style->_private,
+    nokogiriXsltStylesheetTuple,
+    &xslt_stylesheet_type,
+    wrapper
+  );
   inst = rb_class_new_instance(0, NULL, obj);
   rb_ary_push(wrapper->func_instances, inst);
 
@@ -339,8 +357,12 @@ shutdownFunc(xsltTransformContextPtr ctxt,
 {
   nokogiriXsltStylesheetTuple *wrapper;
 
-  TypedData_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
-                       &xslt_stylesheet_type, wrapper);
+  TypedData_Get_Struct(
+    (VALUE)ctxt->style->_private,
+    nokogiriXsltStylesheetTuple,
+    &xslt_stylesheet_type,
+    wrapper
+  );
 
   rb_ary_clear(wrapper->func_instances);
 }
@@ -352,20 +374,26 @@ shutdownFunc(xsltTransformContextPtr ctxt,
  *  Register a class that implements custom XSLT transformation functions.
  */
 static VALUE
-registr(VALUE self, VALUE uri, VALUE obj)
+rb_xslt_stylesheet_s_register(VALUE self, VALUE uri, VALUE obj)
 {
   VALUE modules = rb_iv_get(self, "@modules");
-  if (NIL_P(modules)) { rb_raise(rb_eRuntimeError, "wtf! @modules isn't set"); }
+  if (NIL_P(modules)) {
+    rb_raise(rb_eRuntimeError, "internal error: @modules not set");
+  }
 
   rb_hash_aset(modules, uri, obj);
-  xsltRegisterExtModule((unsigned char *)StringValueCStr(uri), initFunc, shutdownFunc);
+  xsltRegisterExtModule(
+    (unsigned char *)StringValueCStr(uri),
+    initFunc,
+    shutdownFunc
+  );
   return self;
 }
 
 void
 noko_init_xslt_stylesheet(void)
 {
-  rb_define_singleton_method(mNokogiriXslt, "register", registr, 2);
+  rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_stylesheet_s_register, 2);
   rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
@@ -373,6 +401,6 @@ noko_init_xslt_stylesheet(void)
   rb_undef_alloc_func(cNokogiriXsltStylesheet);
 
   rb_define_singleton_method(cNokogiriXsltStylesheet, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
-  rb_define_method(cNokogiriXsltStylesheet, "serialize", serialize, 1);
-  rb_define_method(cNokogiriXsltStylesheet, "transform", transform, -1);
+  rb_define_method(cNokogiriXsltStylesheet, "serialize", rb_xslt_stylesheet_serialize, 1);
+  rb_define_method(cNokogiriXsltStylesheet, "transform", rb_xslt_stylesheet_transform, -1);
 }
