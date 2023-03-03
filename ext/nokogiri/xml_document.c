@@ -109,13 +109,12 @@ memsize(const void *data)
 }
 
 const rb_data_type_t noko_xml_document_data_type = {
-    .wrap_struct_name = "Nokogiri::XML::Document",
-    .function = {
-        .dmark = mark,
-        .dfree = dealloc,
-        .dsize = memsize,
-    },
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .wrap_struct_name = "Nokogiri::XML::Document",
+  .function = {
+    .dmark = mark,
+    .dfree = dealloc,
+    .dsize = memsize,
+  }
 };
 
 static void
