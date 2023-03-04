@@ -315,6 +315,7 @@ module Html5libTestCaseParser
           define_method "test_#{index}" do
             @test = test
             @index = index
+            @test_context_node = false
             run_test
           end
 
