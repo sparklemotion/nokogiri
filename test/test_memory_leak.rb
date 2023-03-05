@@ -272,6 +272,47 @@ class TestMemoryLeak < Nokogiri::TestCase
     end
   end # if NOKOGIRI_GC
 
+  def test_object_space_memsize_of
+    require "objspace"
+    skip("memsize_of not defined") unless ObjectSpace.respond_to?(:memsize_of)
+
+    base_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
+      <root>
+        <child>asdf</child>
+      </root>
+    XML
+
+    more_children_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
+      <root>
+        <child>asdf</child>
+        <child>asdf</child>
+        <child>asdf</child>
+      </root>
+    XML
+    assert(more_children_size > base_size, "adding children should increase memsize")
+
+    attributes_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
+      <root>
+        <child a="b" c="d">asdf</child>
+      </root>
+    XML
+    assert(attributes_size > base_size, "adding attributes should increase memsize")
+
+    string_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
+      <root>
+        <child>asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf</child>
+      </root>
+    XML
+    assert(string_size > base_size, "longer strings should increase memsize")
+
+    bigger_name_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
+      <root>
+        <superduperamazingchild>asdf</superduperamazingchild>
+      </root>
+    XML
+    assert(bigger_name_size > base_size, "longer tags should increase memsize")
+  end
+
   module MemInfo
     # from https://stackoverflow.com/questions/7220896/get-current-ruby-process-memory-usage
     # this is only going to work on linux

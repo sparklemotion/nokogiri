@@ -30,7 +30,7 @@ new (int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eArgError, "first argument must be a XML::Document or XML::Node");
   }
 
-  Data_Get_Struct(document, xmlDoc, xml_doc);
+  TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, xml_doc);
 
   node = xmlNewDocComment(
            xml_doc,

@@ -51,8 +51,9 @@ remove_private(xmlNodePtr node)
 }
 
 static void
-mark(xmlDocPtr doc)
+mark(void *data)
 {
+  xmlDocPtr doc = (xmlDocPtr)data;
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)doc->_private;
   if (tuple) {
     rb_gc_mark(tuple->doc);
@@ -61,8 +62,9 @@ mark(xmlDocPtr doc)
 }
 
 static void
-dealloc(xmlDocPtr doc)
+dealloc(void *data)
 {
+  xmlDocPtr doc = (xmlDocPtr)data;
   st_table *node_hash;
 
   node_hash  = DOC_UNLINKED_NODE_HASH(doc);
@@ -83,6 +85,45 @@ dealloc(xmlDocPtr doc)
 
   xmlFreeDoc(doc);
 }
+
+static size_t
+memsize_node(const xmlNodePtr node)
+{
+  /* note we don't count namespace definitions, just going for a good-enough number here */
+  xmlNodePtr child;
+  size_t memsize = 0;
+
+  memsize += xmlStrlen(node->name);
+  for (child = (xmlNodePtr)node->properties; child; child = child->next) {
+    memsize += sizeof(xmlAttr) + memsize_node(child);
+  }
+  if (node->type == XML_TEXT_NODE) {
+    memsize += xmlStrlen(node->content);
+  }
+  for (child = node->children; child; child = child->next) {
+    memsize += sizeof(xmlNode) + memsize_node(child);
+  }
+  return memsize;
+}
+
+static size_t
+memsize(const void *data)
+{
+  xmlDocPtr doc = (const xmlDocPtr)data;
+  size_t memsize = sizeof(xmlDoc);
+  /* This may not account for all memory use */
+  memsize += memsize_node((xmlNodePtr)doc);
+  return memsize;
+}
+
+const rb_data_type_t noko_xml_document_data_type = {
+  .wrap_struct_name = "Nokogiri::XML::Document",
+  .function = {
+    .dmark = mark,
+    .dfree = dealloc,
+    .dsize = memsize,
+  }
+};
 
 static void
 recursively_remove_namespaces_from_node(xmlNodePtr node)
@@ -127,7 +168,7 @@ static VALUE
 url(VALUE self)
 {
   xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   if (doc->URL) { return NOKOGIRI_STR_NEW2(doc->URL); }
 
@@ -146,7 +187,7 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
   xmlDocPtr c_document;
   xmlNodePtr c_new_root = NULL, c_current_root;
 
-  Data_Get_Struct(self, xmlDoc, c_document);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_document);
 
   c_current_root = xmlDocGetRootElement(c_document);
   if (c_current_root) {
@@ -190,7 +231,7 @@ rb_xml_document_root(VALUE self)
   xmlDocPtr c_document;
   xmlNodePtr c_root;
 
-  Data_Get_Struct(self, xmlDoc, c_document);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_document);
 
   c_root = xmlDocGetRootElement(c_document);
   if (!c_root) {
@@ -210,7 +251,7 @@ static VALUE
 set_encoding(VALUE self, VALUE encoding)
 {
   xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   if (doc->encoding) {
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(doc->encoding));
@@ -231,7 +272,7 @@ static VALUE
 encoding(VALUE self)
 {
   xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   if (!doc->encoding) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->encoding);
@@ -247,7 +288,7 @@ static VALUE
 version(VALUE self)
 {
   xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   if (!doc->version) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->version);
@@ -369,7 +410,7 @@ duplicate_document(int argc, VALUE *argv, VALUE self)
     level = INT2NUM((long)1);
   }
 
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   dup = xmlCopyDoc(doc, (int)NUM2INT(level));
 
@@ -443,7 +484,7 @@ static VALUE
 remove_namespaces_bang(VALUE self)
 {
   xmlDocPtr doc ;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   recursively_remove_namespaces_from_node((xmlNodePtr)doc);
   return self;
@@ -471,7 +512,7 @@ create_entity(int argc, VALUE *argv, VALUE self)
   xmlEntityPtr ptr;
   xmlDocPtr doc ;
 
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
 
   rb_scan_args(argc, argv, "14", &name, &type, &external_id, &system_id,
                &content);
@@ -559,7 +600,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     }
   }
 
-  Data_Get_Struct(self, xmlDoc, c_doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_doc);
 
   rb_cStringIO = rb_const_get_at(rb_cObject, rb_intern("StringIO"));
   rb_io = rb_class_new_instance(0, 0, rb_cStringIO);
@@ -607,7 +648,7 @@ noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr c_document, int arg
     klass = cNokogiriXmlDocument;
   }
 
-  rb_document = Data_Wrap_Struct(klass, mark, dealloc, c_document);
+  rb_document = TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, c_document);
 
   tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
   tuple->doc = rb_document;

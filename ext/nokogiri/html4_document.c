@@ -145,7 +145,7 @@ static VALUE
 rb_html_document_type(VALUE self)
 {
   htmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
+  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
   return INT2NUM(doc->type);
 }
 
