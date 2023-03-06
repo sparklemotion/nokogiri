@@ -3,10 +3,19 @@
 VALUE cNokogiriXmlRelaxNG;
 
 static void
-dealloc(xmlRelaxNGPtr schema)
+xml_relax_ng_deallocate(void *data)
 {
+  xmlRelaxNGPtr schema = data;
   xmlRelaxNGFree(schema);
 }
+
+static const rb_data_type_t xml_relax_ng_type = {
+  .wrap_struct_name = "Nokogiri::XML::RelaxNG",
+  .function = {
+    .dfree = xml_relax_ng_deallocate,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 /*
  * call-seq:
@@ -22,7 +31,7 @@ validate_document(VALUE self, VALUE document)
   VALUE errors;
   xmlRelaxNGValidCtxtPtr valid_ctxt;
 
-  Data_Get_Struct(self, xmlRelaxNG, schema);
+  TypedData_Get_Struct(self, xmlRelaxNG, &xml_relax_ng_type, schema);
   TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, doc);
 
   errors = rb_ary_new();
@@ -100,7 +109,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
     return Qnil;
   }
 
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = TypedData_Wrap_Struct(klass, &xml_relax_ng_type, schema);
   rb_iv_set(rb_schema, "@errors", errors);
   rb_iv_set(rb_schema, "@parse_options", parse_options);
 
@@ -163,7 +172,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
     return Qnil;
   }
 
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = TypedData_Wrap_Struct(klass, &xml_relax_ng_type, schema);
   rb_iv_set(rb_schema, "@errors", errors);
   rb_iv_set(rb_schema, "@parse_options", parse_options);
 
