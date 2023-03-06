@@ -2,13 +2,21 @@
 
 VALUE cNokogiriEncodingHandler;
 
-
 static void
-_xml_encoding_handler_dealloc(xmlCharEncodingHandlerPtr c_handler)
+xml_encoding_handler_dealloc(void *data)
 {
   /* make sure iconv handlers are cleaned up and freed */
+  xmlCharEncodingHandlerPtr c_handler = data;
   xmlCharEncCloseFunc(c_handler);
 }
+
+static const rb_data_type_t xml_encoding_handler_type = {
+  .wrap_struct_name = "Nokogiri::EncodingHandler",
+  .function = {
+    .dfree = xml_encoding_handler_dealloc,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 
 /*
@@ -23,7 +31,7 @@ rb_xml_encoding_handler_s_get(VALUE klass, VALUE key)
 
   handler = xmlFindCharEncodingHandler(StringValueCStr(key));
   if (handler) {
-    return Data_Wrap_Struct(klass, NULL, _xml_encoding_handler_dealloc, handler);
+    return TypedData_Wrap_Struct(klass, &xml_encoding_handler_type, handler);
   }
 
   return Qnil;
@@ -82,7 +90,7 @@ rb_xml_encoding_handler_name(VALUE self)
 {
   xmlCharEncodingHandlerPtr handler;
 
-  Data_Get_Struct(self, xmlCharEncodingHandler, handler);
+  TypedData_Get_Struct(self, xmlCharEncodingHandler, &xml_encoding_handler_type, handler);
 
   return NOKOGIRI_STR_NEW2(handler->name);
 }
