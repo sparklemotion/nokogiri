@@ -2,6 +2,10 @@
 
 VALUE cNokogiriXmlElementContent;
 
+const rb_data_type_t element_content_data_type = {
+  .wrap_struct_name = "Nokogiri::XML::ElementContent",
+};
+
 /*
  * call-seq:
  *  name
@@ -12,7 +16,7 @@ static VALUE
 get_name(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->name) { return Qnil; }
   return NOKOGIRI_STR_NEW2(elem->name);
@@ -29,7 +33,7 @@ static VALUE
 get_type(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   return INT2NUM(elem->type);
 }
@@ -44,7 +48,7 @@ static VALUE
 get_c1(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->c1) { return Qnil; }
   return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c1);
@@ -60,7 +64,7 @@ static VALUE
 get_c2(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->c2) { return Qnil; }
   return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c2);
@@ -77,7 +81,7 @@ static VALUE
 get_occur(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   return INT2NUM(elem->ocur);
 }
@@ -92,7 +96,7 @@ static VALUE
 get_prefix(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->prefix) { return Qnil; }
 
@@ -102,7 +106,7 @@ get_prefix(VALUE self)
 VALUE
 noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element)
 {
-  VALUE elem = Data_Wrap_Struct(cNokogiriXmlElementContent, 0, 0, element);
+  VALUE elem = TypedData_Wrap_Struct(cNokogiriXmlElementContent, &element_content_data_type, element);
 
   /* Setting the document is necessary so that this does not get GC'd until */
   /* the document is GC'd */
