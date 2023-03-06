@@ -13,8 +13,10 @@ module Nokogiri
         doc.create_entity(name, *args)
       end
 
-      def inspect
-        "#<#{self.class.name}:#{format("0x%x", object_id)} #{to_s.inspect}>"
+      private
+
+      def inspect_attributes
+        [:to_s]
       end
     end
   end
