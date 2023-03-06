@@ -3,10 +3,19 @@
 VALUE cNokogiriXmlRelaxNG;
 
 static void
-dealloc(xmlRelaxNGPtr schema)
+xml_relax_ng_deallocate(void *data)
 {
+  xmlRelaxNGPtr schema = data;
   xmlRelaxNGFree(schema);
 }
+
+static const rb_data_type_t xml_relax_ng_type = {
+  .wrap_struct_name = "Nokogiri::XML::RelaxNG",
+  .function = {
+    .dfree = xml_relax_ng_deallocate,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 /*
  * call-seq:
@@ -22,7 +31,7 @@ validate_document(VALUE self, VALUE document)
   VALUE errors;
   xmlRelaxNGValidCtxtPtr valid_ctxt;
 
-  Data_Get_Struct(self, xmlRelaxNG, schema);
+  TypedData_Get_Struct(self, xmlRelaxNG, &xml_relax_ng_type, schema);
   TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, doc);
 
   errors = rb_ary_new();
@@ -49,47 +58,41 @@ validate_document(VALUE self, VALUE document)
   return errors;
 }
 
-/*
- * call-seq:
- *  read_memory(string)
- *
- * Create a new RelaxNG from the contents of +string+
- */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE klass)
+xml_relax_ng_parse_schema(
+  VALUE klass,
+  xmlRelaxNGParserCtxtPtr c_parser_context,
+  VALUE rb_parse_options
+)
 {
-  VALUE content;
-  VALUE parse_options;
-  xmlRelaxNGParserCtxtPtr ctx;
-  xmlRelaxNGPtr schema;
-  VALUE errors;
+  VALUE rb_errors;
   VALUE rb_schema;
-  int scanned_args = 0;
+  xmlRelaxNGPtr c_schema;
 
-  scanned_args = rb_scan_args(argc, argv, "11", &content, &parse_options);
-  if (scanned_args == 1) {
-    parse_options = rb_const_get_at(rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
+  if (NIL_P(rb_parse_options)) {
+    rb_parse_options = rb_const_get_at(
+      rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")),
+      rb_intern("DEFAULT_SCHEMA")
+    );
   }
 
-  ctx = xmlRelaxNGNewMemParserCtxt((const char *)StringValuePtr(content), (int)RSTRING_LEN(content));
-
-  errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  rb_errors = rb_ary_new();
+  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
 
 #ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
   xmlRelaxNGSetParserStructuredErrors(
-    ctx,
+    c_parser_context,
     Nokogiri_error_array_pusher,
-    (void *)errors
+    (void *)rb_errors
   );
 #endif
 
-  schema = xmlRelaxNGParse(ctx);
+  c_schema = xmlRelaxNGParse(c_parser_context);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
-  xmlRelaxNGFreeParserCtxt(ctx);
+  xmlRelaxNGFreeParserCtxt(c_parser_context);
 
-  if (NULL == schema) {
+  if (NULL == c_schema) {
     xmlErrorPtr error = xmlGetLastError();
     if (error) {
       Nokogiri_error_raise(NULL, error);
@@ -100,11 +103,34 @@ read_memory(int argc, VALUE *argv, VALUE klass)
     return Qnil;
   }
 
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
-  rb_iv_set(rb_schema, "@errors", errors);
-  rb_iv_set(rb_schema, "@parse_options", parse_options);
+  rb_schema = TypedData_Wrap_Struct(klass, &xml_relax_ng_type, c_schema);
+  rb_iv_set(rb_schema, "@errors", rb_errors);
+  rb_iv_set(rb_schema, "@parse_options", rb_parse_options);
 
   return rb_schema;
+}
+
+/*
+ * call-seq:
+ *  read_memory(string)
+ *
+ * Create a new RelaxNG from the contents of +string+
+ */
+static VALUE
+read_memory(int argc, VALUE *argv, VALUE klass)
+{
+  VALUE rb_content;
+  VALUE rb_parse_options;
+  xmlRelaxNGParserCtxtPtr c_parser_context;
+
+  rb_scan_args(argc, argv, "11", &rb_content, &rb_parse_options);
+
+  c_parser_context = xmlRelaxNGNewMemParserCtxt(
+    (const char *)StringValuePtr(rb_content),
+    (int)RSTRING_LEN(rb_content)
+  );
+
+  return xml_relax_ng_parse_schema(klass, c_parser_context, rb_parse_options);
 }
 
 /*
@@ -116,58 +142,19 @@ read_memory(int argc, VALUE *argv, VALUE klass)
 static VALUE
 from_document(int argc, VALUE *argv, VALUE klass)
 {
-  VALUE document;
-  VALUE parse_options;
-  xmlDocPtr doc;
-  xmlRelaxNGParserCtxtPtr ctx;
-  xmlRelaxNGPtr schema;
-  VALUE errors;
-  VALUE rb_schema;
-  int scanned_args = 0;
+  VALUE rb_document;
+  VALUE rb_parse_options;
+  xmlDocPtr c_document;
+  xmlRelaxNGParserCtxtPtr c_parser_context;
 
-  scanned_args = rb_scan_args(argc, argv, "11", &document, &parse_options);
+  rb_scan_args(argc, argv, "11", &rb_document, &rb_parse_options);
 
-  TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, doc);
-  doc = doc->doc; /* In case someone passes us a node. ugh. */
+  TypedData_Get_Struct(rb_document, xmlDoc, &noko_xml_document_data_type, c_document);
+  c_document = c_document->doc; /* In case someone passes us a node. ugh. */
 
-  if (scanned_args == 1) {
-    parse_options = rb_const_get_at(rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")), rb_intern("DEFAULT_SCHEMA"));
-  }
+  c_parser_context = xmlRelaxNGNewDocParserCtxt(c_document);
 
-  ctx = xmlRelaxNGNewDocParserCtxt(doc);
-
-  errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
-
-#ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
-  xmlRelaxNGSetParserStructuredErrors(
-    ctx,
-    Nokogiri_error_array_pusher,
-    (void *)errors
-  );
-#endif
-
-  schema = xmlRelaxNGParse(ctx);
-
-  xmlSetStructuredErrorFunc(NULL, NULL);
-  xmlRelaxNGFreeParserCtxt(ctx);
-
-  if (NULL == schema) {
-    xmlErrorPtr error = xmlGetLastError();
-    if (error) {
-      Nokogiri_error_raise(NULL, error);
-    } else {
-      rb_raise(rb_eRuntimeError, "Could not parse document");
-    }
-
-    return Qnil;
-  }
-
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
-  rb_iv_set(rb_schema, "@errors", errors);
-  rb_iv_set(rb_schema, "@parse_options", parse_options);
-
-  return rb_schema;
+  return xml_relax_ng_parse_schema(klass, c_parser_context, rb_parse_options);
 }
 
 void
