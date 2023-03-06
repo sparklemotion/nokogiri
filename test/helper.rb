@@ -4,10 +4,10 @@
 # Some environment variables that are used to configure the test suite:
 # - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
 # - NOKOGIRI_TEST_GC_LEVEL: (roughly in order of stress)
-#   - "normal" - normal GC functionality
+#   - "normal" - normal GC functionality (default)
 #   - "minor" - force a minor GC cycle after each test
-#   - "major" (default for Rubies without compaction) - force a major GC cycle after each test
-#   - "compact" (default for Rubies with compaction) - force a major GC after each test and GC compaction after every 20 tests
+#   - "major" - force a major GC cycle after each test
+#   - "compact" - force a major GC after each test and GC compaction after every 20 tests
 #   - "verify" - force a major GC after each test and verify references-after-compaction after every 20 tests
 #   - "stress" - run tests with GC.stress set to true
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
@@ -144,12 +144,8 @@ module Nokogiri
         "compact"
       elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
         "verify"
-      elsif RUBY_ENGINE == "truffleruby"
-        "normal"
-      elsif defined?(GC.compact)
-        "compact"
       else
-        "major"
+        "normal"
       end
 
       if ["compact", "verify"].include?(@@gc_level)
