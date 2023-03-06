@@ -14,7 +14,7 @@ describe "compaction" do
       doc.root.children.each(&:inspect)
 
       # compact the heap and try to get the node wrappers to move
-      GC.verify_compaction_references(double_heap: true, toward: :empty)
+      gc_verify_compaction_references
 
       # access the node wrappers and make sure they didn't move
       doc.root.children.each(&:inspect)
@@ -35,7 +35,7 @@ describe "compaction" do
 
       doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
 
-      GC.verify_compaction_references(double_heap: true, toward: :empty)
+      gc_verify_compaction_references
 
       doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
     end
@@ -57,7 +57,7 @@ describe "compaction" do
       namespaces.each(&:inspect)
       doc.remove_namespaces!
 
-      GC.verify_compaction_references(double_heap: true, toward: :empty)
+      gc_verify_compaction_references
 
       namespaces.each(&:inspect)
     end
