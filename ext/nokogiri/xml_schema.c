@@ -3,10 +3,19 @@
 VALUE cNokogiriXmlSchema;
 
 static void
-dealloc(xmlSchemaPtr schema)
+xml_schema_deallocate(void *data)
 {
+  xmlSchemaPtr schema = data;
   xmlSchemaFree(schema);
 }
+
+static const rb_data_type_t xml_schema_type = {
+  .wrap_struct_name = "Nokogiri::XML::Schema",
+  .function = {
+    .dfree = xml_schema_deallocate,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 /*
  * call-seq:
@@ -22,7 +31,7 @@ validate_document(VALUE self, VALUE document)
   xmlSchemaValidCtxtPtr valid_ctxt;
   VALUE errors;
 
-  Data_Get_Struct(self, xmlSchema, schema);
+  TypedData_Get_Struct(self, xmlSchema, &xml_schema_type, schema);
   Noko_Node_Get_Struct(document, xmlDoc, doc);
 
   errors = rb_ary_new();
@@ -63,7 +72,7 @@ validate_file(VALUE self, VALUE rb_filename)
   const char *filename ;
   VALUE errors;
 
-  Data_Get_Struct(self, xmlSchema, schema);
+  TypedData_Get_Struct(self, xmlSchema, &xml_schema_type, schema);
   filename = (const char *)StringValueCStr(rb_filename) ;
 
   errors = rb_ary_new();
@@ -153,7 +162,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
     return Qnil;
   }
 
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = TypedData_Wrap_Struct(klass, &xml_schema_type, schema);
   rb_iv_set(rb_schema, "@errors", errors);
   rb_iv_set(rb_schema, "@parse_options", parse_options);
 
@@ -258,7 +267,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
     return Qnil;
   }
 
-  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = TypedData_Wrap_Struct(klass, &xml_schema_type, schema);
   rb_iv_set(rb_schema, "@errors", errors);
   rb_iv_set(rb_schema, "@parse_options", parse_options);
 
