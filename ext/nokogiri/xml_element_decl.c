@@ -6,7 +6,7 @@ static ID id_document;
 
 /*
  * call-seq:
- *  element_type
+ *   element_type → Integer
  *
  * The element_type
  */
@@ -20,9 +20,9 @@ element_type(VALUE self)
 
 /*
  * call-seq:
- *  content
+ *   content → Nokogiri::XML::ElementContent
  *
- * The allowed content for this ElementDecl
+ * [Returns] The root of this element declaration's content tree.
  */
 static VALUE
 content(VALUE self)
@@ -40,9 +40,9 @@ content(VALUE self)
 
 /*
  * call-seq:
- *  prefix
+ *   prefix → String
  *
- * The namespace prefix for this ElementDecl
+ * [Returns] The namespace +prefix+ for this element declaration.
  */
 static VALUE
 prefix(VALUE self)
