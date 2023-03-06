@@ -170,7 +170,7 @@ bundle exec rake compile test:memcheck
 ```
 
 
-Note that by default the test suite will run a major GC after each test completes. This has shown to be useful for localizing some classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
+Note that by you can run the test suite with a variety of GC behaviors. For example, running a major after each test completes has, on occasion, been useful for localizing some classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
 
 ``` sh
 # see failure messages immediately
