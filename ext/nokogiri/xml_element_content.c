@@ -2,17 +2,21 @@
 
 VALUE cNokogiriXmlElementContent;
 
+const rb_data_type_t element_content_data_type = {
+  .wrap_struct_name = "Nokogiri::XML::ElementContent",
+};
+
 /*
  * call-seq:
- *  name
+ *   name → String
  *
- * Get the require element +name+
+ * [Returns] The content element's +name+
  */
 static VALUE
 get_name(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->name) { return Qnil; }
   return NOKOGIRI_STR_NEW2(elem->name);
@@ -20,47 +24,40 @@ get_name(VALUE self)
 
 /*
  * call-seq:
- *  type
+ *   type → Integer
  *
- * Get the element content +type+.  Possible values are PCDATA, ELEMENT, SEQ,
- * or OR.
+ * [Returns] The content element's +type+. Possible values are +PCDATA+, +ELEMENT+, +SEQ+, or +OR+.
  */
 static VALUE
 get_type(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   return INT2NUM(elem->type);
 }
 
 /*
- * call-seq:
- *  c1
- *
  * Get the first child.
  */
 static VALUE
 get_c1(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->c1) { return Qnil; }
   return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c1);
 }
 
 /*
- * call-seq:
- *  c2
- *
- * Get the first child.
+ * Get the second child.
  */
 static VALUE
 get_c2(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->c2) { return Qnil; }
   return noko_xml_element_content_wrap(rb_iv_get(self, "@document"), elem->c2);
@@ -68,45 +65,50 @@ get_c2(VALUE self)
 
 /*
  * call-seq:
- *  occur
+ *   occur → Integer
  *
- * Get the element content +occur+ flag.  Possible values are ONCE, OPT, MULT
- * or PLUS.
+ * [Returns] The content element's +occur+ flag. Possible values are +ONCE+, +OPT+, +MULT+ or +PLUS+.
  */
 static VALUE
 get_occur(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   return INT2NUM(elem->ocur);
 }
 
 /*
  * call-seq:
- *  prefix
+ *   prefix → String
  *
- * Get the element content namespace +prefix+.
+ * [Returns] The content element's namespace +prefix+.
  */
 static VALUE
 get_prefix(VALUE self)
 {
   xmlElementContentPtr elem;
-  Data_Get_Struct(self, xmlElementContent, elem);
+  TypedData_Get_Struct(self, xmlElementContent, &element_content_data_type, elem);
 
   if (!elem->prefix) { return Qnil; }
 
   return NOKOGIRI_STR_NEW2(elem->prefix);
 }
 
+/*
+ *  create a Nokogiri::XML::ElementContent object around an +element+.
+ */
 VALUE
-noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element)
+noko_xml_element_content_wrap(VALUE rb_document, xmlElementContentPtr c_element_content)
 {
-  VALUE elem = Data_Wrap_Struct(cNokogiriXmlElementContent, 0, 0, element);
+  VALUE elem = TypedData_Wrap_Struct(
+    cNokogiriXmlElementContent,
+    &element_content_data_type,
+    c_element_content
+  );
 
-  /* Setting the document is necessary so that this does not get GC'd until */
-  /* the document is GC'd */
-  rb_iv_set(elem, "@document", doc);
+  /* keep a handle on the document for GC marking */
+  rb_iv_set(elem, "@document", rb_document);
 
   return elem;
 }

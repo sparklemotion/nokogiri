@@ -11,8 +11,8 @@ module Nokogiri
     #   ]>
     #   </root>
     #
-    # ElementContent represents the tree inside the <!ELEMENT> tag shown above
-    # that lists the possible content for the div1 tag.
+    # ElementContent represents the binary tree inside the <!ELEMENT> tag shown above that lists the
+    # possible content for the div1 tag.
     class ElementContent
       # Possible definitions of type
       PCDATA  = 1

@@ -17,7 +17,7 @@ module Nokogiri
           <root/>
         eoxml
         @elements = @xml.internal_subset.children.find_all do |x|
-          x.type == 15
+          x.type == Nokogiri::XML::Node::ELEMENT_DECL
         end
         @tree = @elements[1].content
       end
