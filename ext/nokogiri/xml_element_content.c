@@ -102,10 +102,10 @@ VALUE
 noko_xml_element_content_wrap(VALUE rb_document, xmlElementContentPtr c_element_content)
 {
   VALUE elem = TypedData_Wrap_Struct(
-    cNokogiriXmlElementContent,
-    &element_content_data_type,
-    c_element_content
-  );
+                 cNokogiriXmlElementContent,
+                 &element_content_data_type,
+                 c_element_content
+               );
 
   /* keep a handle on the document for GC marking */
   rb_iv_set(elem, "@document", rb_document);
