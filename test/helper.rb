@@ -202,7 +202,7 @@ module Nokogiri
         when "verify"
           if @@test_count % COMPACT_EVERY == 0
             # https://alanwu.space/post/check-compaction/
-            GC.verify_compaction_references(double_heap: true, toward: :empty)
+            gc_verify_compaction_references
           end
           GC.start(full_mark: true)
         when "stress"
@@ -215,6 +215,14 @@ module Nokogiri
       end
 
       super
+    end
+
+    def gc_verify_compaction_references
+      if Gem::Requirement.new(">= 3.2.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
+        GC.verify_compaction_references(expand_heap: true, toward: :empty)
+      else
+        GC.verify_compaction_references(double_heap: true, toward: :empty)
+      end
     end
 
     def stress_memory_while(&block)
