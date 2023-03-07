@@ -71,9 +71,9 @@ xml_relax_ng_parse_schema(
 
   if (NIL_P(rb_parse_options)) {
     rb_parse_options = rb_const_get_at(
-      rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")),
-      rb_intern("DEFAULT_SCHEMA")
-    );
+                         rb_const_get_at(mNokogiriXml, rb_intern("ParseOptions")),
+                         rb_intern("DEFAULT_SCHEMA")
+                       );
   }
 
   rb_errors = rb_ary_new();
@@ -126,9 +126,9 @@ read_memory(int argc, VALUE *argv, VALUE klass)
   rb_scan_args(argc, argv, "11", &rb_content, &rb_parse_options);
 
   c_parser_context = xmlRelaxNGNewMemParserCtxt(
-    (const char *)StringValuePtr(rb_content),
-    (int)RSTRING_LEN(rb_content)
-  );
+                       (const char *)StringValuePtr(rb_content),
+                       (int)RSTRING_LEN(rb_content)
+                     );
 
   return xml_relax_ng_parse_schema(klass, c_parser_context, rb_parse_options);
 }
