@@ -188,6 +188,7 @@ VALUE noko_xml_namespace_wrap_xpath_copy(xmlNsPtr node);
 VALUE noko_xml_element_content_wrap(VALUE doc, xmlElementContentPtr element);
 
 VALUE noko_xml_node_set_wrap(xmlNodeSetPtr node_set, VALUE document) ;
+xmlNodeSetPtr noko_xml_node_set_unwrap(VALUE rb_node_set) ;
 
 VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
 VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
