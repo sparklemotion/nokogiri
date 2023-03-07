@@ -144,8 +144,7 @@ rb_html_document_s_read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE r
 static VALUE
 rb_html_document_type(VALUE self)
 {
-  htmlDocPtr doc;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  htmlDocPtr doc = noko_xml_document_unwrap(self);
   return INT2NUM(doc->type);
 }
 

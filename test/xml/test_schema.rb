@@ -88,7 +88,11 @@ module Nokogiri
       def test_schema_from_document_node
         doc = Nokogiri::XML(File.open(PO_SCHEMA_FILE))
         assert(doc)
-        xsd = Nokogiri::XML::Schema.from_document(doc.root)
+        xsd = nil
+
+        assert_output(nil, /Passing a Node as the first parameter to Schema.from_document is deprecated/) do
+          xsd = Nokogiri::XML::Schema.from_document(doc.root)
+        end
         assert_instance_of(Nokogiri::XML::Schema, xsd)
       end
 

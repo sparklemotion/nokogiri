@@ -32,7 +32,7 @@ validate_document(VALUE self, VALUE document)
   xmlRelaxNGValidCtxtPtr valid_ctxt;
 
   TypedData_Get_Struct(self, xmlRelaxNG, &xml_relax_ng_type, schema);
-  TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, doc);
+  doc = noko_xml_document_unwrap(document);
 
   errors = rb_ary_new();
 
@@ -149,7 +149,7 @@ from_document(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_parse_options);
 
-  TypedData_Get_Struct(rb_document, xmlDoc, &noko_xml_document_data_type, c_document);
+  c_document = noko_xml_document_unwrap(rb_document);
   c_document = c_document->doc; /* In case someone passes us a node. ugh. */
 
   c_parser_context = xmlRelaxNGNewDocParserCtxt(c_document);

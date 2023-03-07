@@ -984,7 +984,7 @@ duplicate_node(int argc, VALUE *argv, VALUE self)
   if (n_args < 2) {
     new_parent_doc = node->doc;
   } else {
-    TypedData_Get_Struct(r_new_parent_doc, xmlDoc, &noko_xml_document_data_type, new_parent_doc);
+    new_parent_doc = noko_xml_document_unwrap(r_new_parent_doc);
   }
 
   dup = xmlDocCopyNode(node, new_parent_doc, level);

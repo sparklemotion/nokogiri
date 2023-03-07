@@ -45,6 +45,12 @@ public class XmlCdata extends XmlText
     }
     IRubyObject doc = args[0];
     content = args[1];
+
+    if (!(doc instanceof XmlDocument)) {
+      // TODO: deprecate allowing Node
+      context.runtime.getWarnings().warn("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
+    }
+
     Document document = ((XmlNode) doc).getOwnerDocument();
     Node node = document.createCDATASection(rubyStringToString(content));
     setNode(context.runtime, node);

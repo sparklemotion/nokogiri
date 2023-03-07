@@ -25,14 +25,22 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &doc, &content, &rest);
 
-  Noko_Node_Get_Struct(doc, xmlDoc, xml_doc);
+  if (rb_obj_is_kind_of(doc, cNokogiriXmlDocument)) {
+    xml_doc = noko_xml_document_unwrap(doc);
+  } else {
+    xmlNodePtr deprecated_node_type_arg;
+    // TODO: deprecate allowing Node
+    NOKO_WARN_DEPRECATION("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
+    Noko_Node_Get_Struct(doc, xmlNode, deprecated_node_type_arg);
+    xml_doc = deprecated_node_type_arg->doc;
+  }
 
   if (!NIL_P(content)) {
     content_str = (xmlChar *)StringValuePtr(content);
     content_str_len = RSTRING_LENINT(content);
   }
 
-  node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);
+  node = xmlNewCDataBlock(xml_doc, content_str, content_str_len);
 
   noko_xml_document_pin_node(node);
 

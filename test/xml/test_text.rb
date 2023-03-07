@@ -31,8 +31,12 @@ module Nokogiri
       def test_new_without_document
         doc = Document.new
         node = Nokogiri::XML::Element.new("foo", doc)
+        new_node = nil
 
-        assert(Text.new("hello world", node))
+        assert_output(nil, /Passing a Node as the second parameter to Text.new is deprecated/) do
+          new_node = Text.new("hello world", node)
+        end
+        assert(new_node)
       end
 
       def test_content=

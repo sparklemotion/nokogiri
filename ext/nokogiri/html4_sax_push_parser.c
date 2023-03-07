@@ -54,7 +54,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
   htmlParserCtxtPtr ctx;
   xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 
-  TypedData_Get_Struct(_xml_sax, xmlSAXHandler, &noko_sax_handler_type, sax);
+  sax = noko_sax_handler_unwrap(_xml_sax);
 
   if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 

@@ -166,9 +166,6 @@ typedef struct _nokogiriXsltStylesheetTuple {
   VALUE func_instances;
 } nokogiriXsltStylesheetTuple;
 
-extern const rb_data_type_t noko_xml_document_data_type;
-extern const rb_data_type_t noko_sax_handler_type;
-
 void noko_xml_document_pin_node(xmlNodePtr);
 void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
 
@@ -193,8 +190,11 @@ xmlNodeSetPtr noko_xml_node_set_unwrap(VALUE rb_node_set) ;
 
 VALUE noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr doc, int argc, VALUE *argv);
 VALUE noko_xml_document_wrap(VALUE klass, xmlDocPtr doc);
+xmlDocPtr noko_xml_document_unwrap(VALUE rb_document);
 NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
     xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
+
+xmlSAXHandlerPtr noko_sax_handler_unwrap(VALUE rb_sax_handler);
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)

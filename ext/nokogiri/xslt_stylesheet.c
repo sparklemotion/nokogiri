@@ -79,7 +79,8 @@ parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
   xmlDocPtr xml, xml_cpy;
   VALUE errstr, exception;
   xsltStylesheetPtr ss ;
-  TypedData_Get_Struct(xmldocobj, xmlDoc, &noko_xml_document_data_type, xml);
+
+  xml = noko_xml_document_unwrap(xmldocobj);
 
   errstr = rb_str_new(0, 0);
   xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
@@ -114,12 +115,7 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
   int doc_len ;
   VALUE rval ;
 
-  TypedData_Get_Struct(
-    xmlobj,
-    xmlDoc,
-    &noko_xml_document_data_type,
-    xml
-  );
+  xml = noko_xml_document_unwrap(xmlobj);
   TypedData_Get_Struct(
     self,
     nokogiriXsltStylesheetTuple,
@@ -270,7 +266,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
   Check_Type(paramobj, T_ARRAY);
 
-  TypedData_Get_Struct(xmldoc, xmlDoc, &noko_xml_document_data_type, xml);
+  xml = noko_xml_document_unwrap(xmldoc);
   TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &xslt_stylesheet_type, wrapper);
 
   param_len = RARRAY_LEN(paramobj);

@@ -21,7 +21,9 @@ module Nokogiri
         node = CDATA.new(@xml, "foo")
         assert_equal("foo", node.content)
 
-        node = CDATA.new(@xml.root, "foo")
+        assert_output(nil, /Passing a Node as the first parameter to CDATA\.new is deprecated/) do
+          node = CDATA.new(@xml.root, "foo")
+        end
         assert_equal("foo", node.content)
       end
 
