@@ -167,6 +167,7 @@ typedef struct _nokogiriXsltStylesheetTuple {
 } nokogiriXsltStylesheetTuple;
 
 extern const rb_data_type_t noko_xml_document_data_type;
+extern const rb_data_type_t noko_sax_handler_type;
 
 void noko_xml_document_pin_node(xmlNodePtr);
 void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
