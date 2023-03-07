@@ -1269,11 +1269,11 @@ module Nokogiri
       #
       # These two statements are equivalent:
       #
-      #  node.serialize(:encoding => 'UTF-8', :save_with => FORMAT | AS_XML)
+      #   node.serialize(encoding: 'UTF-8', save_with: FORMAT | AS_XML)
       #
       # or
       #
-      #   node.serialize(:encoding => 'UTF-8') do |config|
+      #   node.serialize(encoding: 'UTF-8') do |config|
       #     config.format.as_xml
       #   end
       #
@@ -1310,7 +1310,7 @@ module Nokogiri
       ###
       # Serialize this Node to XML using +options+
       #
-      #   doc.to_xml(:indent => 5, :encoding => 'UTF-8')
+      #   doc.to_xml(indent: 5, encoding: 'UTF-8')
       #
       # See Node#write_to for a list of +options+
       def to_xml(options = {})
@@ -1321,7 +1321,7 @@ module Nokogiri
       ###
       # Serialize this Node to XHTML using +options+
       #
-      #   doc.to_xhtml(:indent => 5, :encoding => 'UTF-8')
+      #   doc.to_xhtml(indent: 5, encoding: 'UTF-8')
       #
       # See Node#write_to for a list of +options+
       def to_xhtml(options = {})
@@ -1329,25 +1329,32 @@ module Nokogiri
       end
 
       ###
-      # Write Node to +io+ with +options+. +options+ modify the output of
-      # this method.  Valid options are:
+      # :call-seq:
+      #   write_to(io, *options)
       #
-      # * +:encoding+ for changing the encoding
-      # * +:indent_text+ the indentation text, defaults to one space
-      # * +:indent+ the number of +:indent_text+ to use, defaults to 2
-      # * +:save_with+ a combination of SaveOptions constants.
+      # Serialize this node or document to +io+.
+      #
+      # [Parameters]
+      # - +io+ (IO) An IO-like object to which the serialized content will be written.
+      # - +options+ (Hash) See below
+      #
+      # [Options]
+      # * +:encoding+ (String or Encoding) specify the encoding of the output (defaults to document encoding)
+      # * +:indent_text+ (String) the indentation text (defaults to <code>" "</code>)
+      # * +:indent+ (Integer) the number of +:indent_text+ to use (defaults to +2+)
+      # * +:save_with+ (Integer) a combination of SaveOptions constants
       #
       # To save with UTF-8 indented twice:
       #
-      #   node.write_to(io, :encoding => 'UTF-8', :indent => 2)
+      #   node.write_to(io, encoding: 'UTF-8', indent: 2)
       #
       # To save indented with two dashes:
       #
-      #   node.write_to(io, :indent_text => '-', :indent => 2)
+      #   node.write_to(io, indent_text: '-', indent: 2)
       #
       def write_to(io, *options)
         options = options.first.is_a?(Hash) ? options.shift : {}
-        encoding = options[:encoding] || options[0]
+        encoding = options[:encoding] || options[0] || document.encoding
         if Nokogiri.jruby?
           save_options = options[:save_with] || options[1]
           indent_times = options[:indent] || 0
@@ -1364,6 +1371,8 @@ module Nokogiri
 
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
+
+        encoding = encoding.is_a?(Encoding) ? encoding.name : encoding
 
         native_write_to(io, encoding, indentation, config.options)
       end

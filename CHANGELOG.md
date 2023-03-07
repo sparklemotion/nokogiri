@@ -10,11 +10,15 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Added
 
+* Serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` now accept `Encoding` objects specifying the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)
+
+
 ### Changed
 
 ### Fixed
 
 * [JRuby] Serializing an HTML4 document with `#write_to` and specifying no save options will properly emit an HTML document anyway, like libxml2 does. Previously JRuby emitted XML in this situation.
+* [JRuby] Serializing with `#write_to` will fall back to the document encoding when no encoding is specified, like libxml2 does. Previously JRuby emitted UTF-8 in this situation.
 
 
 ### Improved
