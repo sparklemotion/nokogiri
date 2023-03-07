@@ -63,7 +63,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   const char *filename = NULL;
   xmlParserCtxtPtr ctx;
 
-  Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
+  TypedData_Get_Struct(_xml_sax, xmlSAXHandler, &noko_sax_handler_type, sax);
 
   if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 

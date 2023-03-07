@@ -265,16 +265,27 @@ processing_instruction(void *ctx, const xmlChar *name, const xmlChar *content)
             );
 }
 
-static void
-deallocate(xmlSAXHandlerPtr handler)
+static size_t
+memsize(const void *data)
 {
-  ruby_xfree(handler);
+  return sizeof(xmlSAXHandler);
 }
+
+/* Used by Nokogiri::XML::SAX::Parser and Nokogiri::HTML::SAX::Parser */
+const rb_data_type_t noko_sax_handler_type = {
+  .wrap_struct_name = "Nokogiri::SAXHandler",
+  .function = {
+    .dfree = RUBY_TYPED_DEFAULT_FREE,
+    .dsize = memsize
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED
+};
 
 static VALUE
 allocate(VALUE klass)
 {
-  xmlSAXHandlerPtr handler = ruby_xcalloc((size_t)1, sizeof(xmlSAXHandler));
+  xmlSAXHandlerPtr handler;
+  VALUE self = TypedData_Make_Struct(klass, xmlSAXHandler, &noko_sax_handler_type, handler);
 
   handler->startDocument = start_document;
   handler->endDocument = end_document;
@@ -290,7 +301,7 @@ allocate(VALUE klass)
   handler->processingInstruction = processing_instruction;
   handler->initialized = XML_SAX2_MAGIC;
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, handler);
+  return self;
 }
 
 void

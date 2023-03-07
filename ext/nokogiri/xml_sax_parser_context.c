@@ -117,7 +117,7 @@ parse_with(VALUE self, VALUE sax_handler)
   }
 
   Data_Get_Struct(self, xmlParserCtxt, ctxt);
-  Data_Get_Struct(sax_handler, xmlSAXHandler, sax);
+  TypedData_Get_Struct(sax_handler, xmlSAXHandler, &noko_sax_handler_type, sax);
 
   /* Free the sax handler since we'll assign our own */
   if (ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler) {
