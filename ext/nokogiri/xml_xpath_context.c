@@ -277,13 +277,13 @@ Nokogiri_marshal_xpath_funcall_and_return_values(
     case T_ARRAY: {
       VALUE construct_args[2] = { DOC_RUBY_OBJECT(ctxt->context->doc), rb_retval };
       rb_node_set = rb_class_new_instance(2, construct_args, cNokogiriXmlNodeSet);
-      Data_Get_Struct(rb_node_set, xmlNodeSet, c_node_set);
+      c_node_set = noko_xml_node_set_unwrap(rb_node_set);
       xmlXPathReturnNodeSet(ctxt, xmlXPathNodeSetMerge(NULL, c_node_set));
     }
     break;
     case T_DATA:
       if (rb_obj_is_kind_of(rb_retval, cNokogiriXmlNodeSet)) {
-        Data_Get_Struct(rb_retval, xmlNodeSet, c_node_set);
+        c_node_set = noko_xml_node_set_unwrap(rb_retval);
         /* Copy the node set, otherwise it will get GC'd. */
         xmlXPathReturnNodeSet(ctxt, xmlXPathNodeSetMerge(NULL, c_node_set));
         break;
