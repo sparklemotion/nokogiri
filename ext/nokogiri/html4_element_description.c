@@ -1,5 +1,14 @@
 #include <nokogiri.h>
 
+static const rb_data_type_t html4_element_description_type = {
+  .wrap_struct_name = "Nokogiri::HTML4::ElementDescription",
+  .function = {
+    .dmark = NULL,
+    .dfree = NULL,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED
+};
+
 VALUE cNokogiriHtml4ElementDescription ;
 
 /*
@@ -15,7 +24,7 @@ required_attributes(VALUE self)
   VALUE list;
   int i;
 
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   list = rb_ary_new();
 
@@ -41,7 +50,7 @@ deprecated_attributes(VALUE self)
   VALUE list;
   int i;
 
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   list = rb_ary_new();
 
@@ -67,7 +76,7 @@ optional_attributes(VALUE self)
   VALUE list;
   int i;
 
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   list = rb_ary_new();
 
@@ -90,7 +99,7 @@ static VALUE
 default_sub_element(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->defaultsubelt) {
     return NOKOGIRI_STR_NEW2(description->defaultsubelt);
@@ -112,7 +121,7 @@ sub_elements(VALUE self)
   VALUE list;
   int i;
 
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   list = rb_ary_new();
 
@@ -135,7 +144,7 @@ static VALUE
 description(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   return NOKOGIRI_STR_NEW2(description->desc);
 }
@@ -150,7 +159,7 @@ static VALUE
 inline_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->isinline) { return Qtrue; }
   return Qfalse;
@@ -166,7 +175,7 @@ static VALUE
 deprecated_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->depr) { return Qtrue; }
   return Qfalse;
@@ -182,7 +191,7 @@ static VALUE
 empty_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->empty) { return Qtrue; }
   return Qfalse;
@@ -198,7 +207,7 @@ static VALUE
 save_end_tag_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->saveEndTag) { return Qtrue; }
   return Qfalse;
@@ -214,7 +223,7 @@ static VALUE
 implied_end_tag_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->endTag) { return Qtrue; }
   return Qfalse;
@@ -230,7 +239,7 @@ static VALUE
 implied_start_tag_eh(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (description->startTag) { return Qtrue; }
   return Qfalse;
@@ -246,7 +255,7 @@ static VALUE
 name(VALUE self)
 {
   const htmlElemDesc *description;
-  Data_Get_Struct(self, htmlElemDesc, description);
+  TypedData_Get_Struct(self, htmlElemDesc, &html4_element_description_type, description);
 
   if (NULL == description->name) { return Qnil; }
   return NOKOGIRI_STR_NEW2(description->name);
@@ -266,7 +275,7 @@ get_description(VALUE klass, VALUE tag_name)
                                     );
 
   if (NULL == description) { return Qnil; }
-  return Data_Wrap_Struct(klass, 0, 0, DISCARD_CONST_QUAL(void *, description));
+  return TypedData_Wrap_Struct(klass, &html4_element_description_type, DISCARD_CONST_QUAL(void *, description));
 }
 
 void
