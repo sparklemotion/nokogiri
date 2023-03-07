@@ -15,7 +15,7 @@ static const rb_data_type_t xml_encoding_handler_type = {
   .function = {
     .dfree = xml_encoding_handler_dealloc,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 

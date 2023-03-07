@@ -122,7 +122,8 @@ const rb_data_type_t noko_xml_document_data_type = {
     .dmark = mark,
     .dfree = dealloc,
     .dsize = memsize,
-  }
+  },
+  // .flags = RUBY_TYPED_FREE_IMMEDIATELY, // TODO see https://github.com/sparklemotion/nokogiri/issues/2822
 };
 
 static void

@@ -14,7 +14,7 @@ static const rb_data_type_t xml_relax_ng_type = {
   .function = {
     .dfree = xml_relax_ng_deallocate,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 /*
