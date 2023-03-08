@@ -10,7 +10,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Added
 
-* Serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` now accept `Encoding` objects specifying the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)
+* `Encoding` objects may now be passed to serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` to specify the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)
 
 
 ### Changed
@@ -25,6 +25,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * `Nokogiri::XML::Node::SaveOptions#inspect` now shows the names of the options set in the bitmask, similar to `ParseOptions`. [[#2767](https://github.com/sparklemotion/nokogiri/issues/2767)]
 * `#inspect` and pretty-printing are improved for `AttributeDecl`, `ElementContent`, `ElementDecl`, and `EntityDecl`.
+* [CRuby] The C extension now uses Ruby's [TypedData API](https://docs.ruby-lang.org/en/3.0/extension_rdoc.html#label-Encapsulate+C+Data+into+a+Ruby+Object) for managing all the libxml2 structs. Write barriers may improve GC performance in some extreme cases. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
+* [CRuby] `ObjectSpace.memsize_of` reports a pretty good guess of memory usage when called on `Nokogiri::XML::Document` objects. [[#2807](https://github.com/sparklemotion/nokogiri/issues/2807)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
+* Documentation for `Nokogiri::XSLT` now has usage examples including custom function handlers.
 
 
 ### Deprecated
