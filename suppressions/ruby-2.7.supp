@@ -74,3 +74,60 @@
    # fun:vm_call_cfunc_with_frame
    # fun:vm_call_cfunc
 }
+{
+   https://github.com/sparklemotion/nokogiri/actions/runs/4368293547/jobs/7640738309#step:7:4616
+   Memcheck:Addr4
+   fun:rb_gc_location
+   fun:rb_gc_location
+   fun:transient_heap_block_update_refs
+   fun:transient_heap_blocks_update_refs
+   fun:rb_transient_heap_update_references
+   fun:gc_update_references
+   fun:gc_compact_after_gc
+   fun:gc_compact
+   fun:gc_verify_compaction_references
+   ...
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:invoke_bmethod
+   # fun:invoke_iseq_block_from_c
+   # fun:invoke_block_from_c_proc
+   # fun:rb_vm_invoke_bmethod
+   # fun:vm_call_bmethod_body
+   # fun:vm_call_bmethod
+   # fun:vm_call_opt_send
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_each
+   # fun:rb_ary_each
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:vm_yield
+   # fun:rb_yield_0
+   # fun:rb_yield_1
+   # fun:rb_yield
+   # fun:rb_ary_collect
+   # fun:vm_call_cfunc_with_frame
+   # fun:vm_call_cfunc
+   # fun:vm_sendish
+   # fun:vm_exec_core
+   # fun:rb_vm_exec
+   # fun:rb_proc_call
+   # fun:exec_end_procs_chain
+   # fun:rb_ec_exec_end_proc
+   # fun:rb_ec_teardown
+   # fun:rb_ec_cleanup
+   # fun:ruby_run_node
+   # fun:main
+}
