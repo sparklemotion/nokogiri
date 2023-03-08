@@ -196,6 +196,8 @@ NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
 
 xmlSAXHandlerPtr noko_sax_handler_unwrap(VALUE rb_sax_handler);
 
+xmlParserCtxtPtr noko_xml_sax_push_parser_unwrap(VALUE rb_parser);
+
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
 #define DOC_UNLINKED_NODE_HASH(x) (((nokogiriTuplePtr)(x->_private))->unlinkedNodes)

@@ -17,7 +17,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   int status = 0;
   libxmlStructuredErrorHandlerState handler_state;
 
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   if (Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
