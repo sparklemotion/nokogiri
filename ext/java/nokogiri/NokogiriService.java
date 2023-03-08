@@ -227,7 +227,6 @@ public class NokogiriService implements BasicLibraryService
   {
     RubyClass stylesheet = xsltModule.defineClassUnder("Stylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
     stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
-    xsltModule.defineAnnotatedMethod(XsltStylesheet.class, "register");
   }
 
   public static final ObjectAllocator HTML_DOCUMENT_ALLOCATOR = new ObjectAllocator()
