@@ -5,11 +5,39 @@ VALUE cNokogiriXmlSaxParserContext ;
 static ID id_read;
 
 static void
-deallocate(xmlParserCtxtPtr ctxt)
+xml_sax_parser_context_free(void *data)
 {
+  xmlParserCtxtPtr ctxt = data;
   ctxt->sax = NULL;
   xmlFreeParserCtxt(ctxt);
 }
+
+/*
+ *  note that htmlParserCtxtPtr == xmlParserCtxtPtr and xmlFreeParserCtxt() == htmlFreeParserCtxt()
+ *  so we use this type for both XML::SAX::ParserContext and HTML::SAX::ParserContext
+ */
+static const rb_data_type_t xml_sax_parser_context_type = {
+  .wrap_struct_name = "Nokogiri::XML::SAX::ParserContext",
+  .function = {
+    .dfree = xml_sax_parser_context_free,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
+};
+
+xmlParserCtxtPtr
+noko_xml_sax_parser_context_unwrap(VALUE rb_context)
+{
+  xmlParserCtxtPtr c_context;
+  TypedData_Get_Struct(rb_context, xmlParserCtxt, &xml_sax_parser_context_type, c_context);
+  return c_context;
+}
+
+VALUE
+noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
+{
+  return TypedData_Wrap_Struct(klass, &xml_sax_parser_context_type, c_context);
+}
+
 
 /*
  * call-seq:
@@ -36,7 +64,7 @@ parse_io(VALUE klass, VALUE io, VALUE encoding)
     ctxt->sax = NULL;
   }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+  return noko_xml_sax_parser_context_wrap(klass, ctxt);
 }
 
 /*
@@ -49,7 +77,7 @@ static VALUE
 parse_file(VALUE klass, VALUE filename)
 {
   xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValueCStr(filename));
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+  return noko_xml_sax_parser_context_wrap(klass, ctxt);
 }
 
 /*
@@ -76,7 +104,7 @@ parse_memory(VALUE klass, VALUE data)
     ctxt->sax = NULL;
   }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+  return noko_xml_sax_parser_context_wrap(klass, ctxt);
 }
 
 static VALUE
@@ -116,7 +144,7 @@ parse_with(VALUE self, VALUE sax_handler)
     rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
   }
 
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  ctxt = noko_xml_sax_parser_context_unwrap(self);
   sax = noko_sax_handler_unwrap(sax_handler);
 
   /* Free the sax handler since we'll assign our own */
@@ -144,8 +172,7 @@ parse_with(VALUE self, VALUE sax_handler)
 static VALUE
 set_replace_entities(VALUE self, VALUE value)
 {
-  xmlParserCtxtPtr ctxt;
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
   if (Qfalse == value) {
     ctxt->replaceEntities = 0;
@@ -166,8 +193,7 @@ set_replace_entities(VALUE self, VALUE value)
 static VALUE
 get_replace_entities(VALUE self)
 {
-  xmlParserCtxtPtr ctxt;
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
   if (0 == ctxt->replaceEntities) {
     return Qfalse;
@@ -184,10 +210,8 @@ get_replace_entities(VALUE self)
 static VALUE
 line(VALUE self)
 {
-  xmlParserCtxtPtr ctxt;
   xmlParserInputPtr io;
-
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
   io = ctxt->input;
   if (io) {
@@ -205,10 +229,8 @@ line(VALUE self)
 static VALUE
 column(VALUE self)
 {
-  xmlParserCtxtPtr ctxt;
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
   xmlParserInputPtr io;
-
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
 
   io = ctxt->input;
   if (io) {
@@ -228,8 +250,7 @@ column(VALUE self)
 static VALUE
 set_recovery(VALUE self, VALUE value)
 {
-  xmlParserCtxtPtr ctxt;
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
   if (value == Qfalse) {
     ctxt->recovery = 0;
@@ -250,8 +271,7 @@ set_recovery(VALUE self, VALUE value)
 static VALUE
 get_recovery(VALUE self)
 {
-  xmlParserCtxtPtr ctxt;
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+  xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
   if (ctxt->recovery == 0) {
     return Qfalse;
