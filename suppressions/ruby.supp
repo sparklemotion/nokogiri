@@ -110,14 +110,14 @@
 {
   TODO
   # 128 bytes in 1 blocks are definitely lost in loss record 26,649 of 37,883
-  # *registr (xslt_stylesheet.c:246)
+  # *rb_xslt_stylesheet_s_register (xslt_stylesheet.c:385)
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
   ...
   fun:ar_alloc_table
   fun:rb_hash_aset
-  fun:registr
+  fun:rb_xslt_stylesheet_s_register
 }
 {
   TODO
