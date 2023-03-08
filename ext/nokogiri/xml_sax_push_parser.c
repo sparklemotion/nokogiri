@@ -3,18 +3,35 @@
 VALUE cNokogiriXmlSaxPushParser ;
 
 static void
-deallocate(xmlParserCtxtPtr ctx)
+xml_sax_push_parser_free(void *data)
 {
+  xmlParserCtxtPtr ctx = data;
   if (ctx != NULL) {
     NOKOGIRI_SAX_TUPLE_DESTROY(ctx->userData);
     xmlFreeParserCtxt(ctx);
   }
 }
 
+static const rb_data_type_t xml_sax_push_parser_type = {
+  .wrap_struct_name = "Nokogiri::XML::SAX::PushParser",
+  .function = {
+    .dfree = xml_sax_push_parser_free,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
+};
+
 static VALUE
 allocate(VALUE klass)
 {
-  return Data_Wrap_Struct(klass, NULL, deallocate, NULL);
+  return TypedData_Wrap_Struct(klass, &xml_sax_push_parser_type, NULL);
+}
+
+xmlParserCtxtPtr
+noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
+{
+  xmlParserCtxtPtr c_parser;
+  TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_sax_push_parser_type, c_parser);
+  return c_parser;
 }
 
 /*
@@ -31,7 +48,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   int size            = 0;
 
 
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   if (Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
@@ -89,7 +106,8 @@ static VALUE
 get_options(VALUE self)
 {
   xmlParserCtxtPtr ctx;
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   return INT2NUM(ctx->options);
 }
@@ -98,7 +116,8 @@ static VALUE
 set_options(VALUE self, VALUE options)
 {
   xmlParserCtxtPtr ctx;
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   if (xmlCtxtUseOptions(ctx, (int)NUM2INT(options)) != 0) {
     rb_raise(rb_eRuntimeError, "Cannot set XML parser context options");
@@ -118,7 +137,8 @@ static VALUE
 get_replace_entities(VALUE self)
 {
   xmlParserCtxtPtr ctx;
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   if (0 == ctx->replaceEntities) {
     return Qfalse;
@@ -138,7 +158,8 @@ static VALUE
 set_replace_entities(VALUE self, VALUE value)
 {
   xmlParserCtxtPtr ctx;
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  ctx = noko_xml_sax_push_parser_unwrap(self);
 
   if (Qfalse == value) {
     ctx->replaceEntities = 0;
