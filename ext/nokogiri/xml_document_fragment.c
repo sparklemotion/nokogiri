@@ -19,7 +19,7 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "1*", &document, &rest);
 
-  TypedData_Get_Struct(document, xmlDoc, &noko_xml_document_data_type, xml_doc);
+  xml_doc = noko_xml_document_unwrap(document);
 
   node = xmlNewDocFragment(xml_doc->doc);
 

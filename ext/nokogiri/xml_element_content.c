@@ -2,8 +2,9 @@
 
 VALUE cNokogiriXmlElementContent;
 
-const rb_data_type_t element_content_data_type = {
+static const rb_data_type_t element_content_data_type = {
   .wrap_struct_name = "Nokogiri::XML::ElementContent",
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 /*

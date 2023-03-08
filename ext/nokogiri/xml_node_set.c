@@ -81,7 +81,7 @@ static const rb_data_type_t xml_node_set_type = {
     .dmark = xml_node_set_mark,
     .dfree = xml_node_set_deallocate,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 static void

@@ -2,11 +2,7 @@
 
 static const rb_data_type_t html4_element_description_type = {
   .wrap_struct_name = "Nokogiri::HTML4::ElementDescription",
-  .function = {
-    .dmark = NULL,
-    .dfree = NULL,
-  },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 VALUE cNokogiriHtml4ElementDescription ;

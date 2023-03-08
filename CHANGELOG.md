@@ -29,6 +29,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Deprecated
 
+* Passing a `Nokogiri::XML::Node` as the first parameter to `CDATA.new` is deprecated and will generate a warning. This parameter should be a kind of `Nokogiri::XML::Document`. This will become an error in a future version of Nokogiri.
+* Passing a `Nokogiri::XML::Node` as the first parameter to `Schema.from_document` is deprecated and will generate a warning. This parameter should be a kind of `Nokogiri::XML::Document`. This will become an error in a future version of Nokogiri.
+* Passing a `Nokogiri::XML::Node` as the second parameter to `Text.new` is deprecated and will generate a warning. This parameter should be a kind of `Nokogiri::XML::Document`. This will become an error in a future version of Nokogiri.
+
+
 ### Performance
 
 ### Security

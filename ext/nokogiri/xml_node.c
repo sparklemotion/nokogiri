@@ -43,12 +43,12 @@ _xml_node_update_references(void *ptr)
 #endif
 
 static const rb_data_type_t nokogiri_node_type = {
-  "Nokogiri/XMLNode",
-  {_xml_node_mark, 0, 0, _xml_node_update_references},
-  0, 0,
-#ifdef RUBY_TYPED_FREE_IMMEDIATELY
-  RUBY_TYPED_FREE_IMMEDIATELY,
-#endif
+  .wrap_struct_name = "Nokogiri::XML::Node",
+  .function = {
+    .dmark = _xml_node_mark,
+    .dcompact = _xml_node_update_references,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 static void
@@ -984,7 +984,7 @@ duplicate_node(int argc, VALUE *argv, VALUE self)
   if (n_args < 2) {
     new_parent_doc = node->doc;
   } else {
-    TypedData_Get_Struct(r_new_parent_doc, xmlDoc, &noko_xml_document_data_type, new_parent_doc);
+    new_parent_doc = noko_xml_document_unwrap(r_new_parent_doc);
   }
 
   dup = xmlDocCopyNode(node, new_parent_doc, level);

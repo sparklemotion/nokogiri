@@ -23,7 +23,7 @@ static const rb_data_type_t xml_xpath_context_type = {
   .function = {
     .dfree = xml_xpath_context_deallocate,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 /* find a CSS class in an HTML element's `class` attribute */

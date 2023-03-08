@@ -20,10 +20,18 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &string, &document, &rest);
 
-  Noko_Node_Get_Struct(document, xmlDoc, doc);
+  if (rb_obj_is_kind_of(document, cNokogiriXmlDocument)) {
+    doc = noko_xml_document_unwrap(document);
+  } else {
+    xmlNodePtr deprecated_node_type_arg;
+    // TODO: deprecate allowing Node
+    NOKO_WARN_DEPRECATION("Passing a Node as the second parameter to Text.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
+    Noko_Node_Get_Struct(document, xmlNode, deprecated_node_type_arg);
+    doc = deprecated_node_type_arg->doc;
+  }
 
   node = xmlNewText((xmlChar *)StringValueCStr(string));
-  node->doc = doc->doc;
+  node->doc = doc;
 
   noko_xml_document_pin_node(node);
 

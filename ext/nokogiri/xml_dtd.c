@@ -139,7 +139,7 @@ validate(VALUE self, VALUE document)
   VALUE error_list;
 
   Noko_Node_Get_Struct(self, xmlDtd, dtd);
-  Noko_Node_Get_Struct(document, xmlDoc, doc);
+  doc = noko_xml_document_unwrap(document);
   error_list = rb_ary_new();
 
   ctxt = xmlNewValidCtxt();

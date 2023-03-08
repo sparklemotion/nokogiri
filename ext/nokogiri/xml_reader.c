@@ -14,7 +14,7 @@ static const rb_data_type_t xml_reader_type = {
   .function = {
     .dfree = xml_reader_deallocate,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 static int

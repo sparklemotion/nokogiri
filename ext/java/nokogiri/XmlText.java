@@ -53,6 +53,11 @@ public class XmlText extends XmlNode
     content = args[0];
     IRubyObject xNode = args[1];
 
+    if (!(xNode instanceof XmlDocument)) {
+      // TODO: deprecate allowing Node
+      context.runtime.getWarnings().warn("Passing a Node as the second parameter to Text.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
+    }
+
     Document document = asXmlNode(context, xNode).getOwnerDocument();
     // text node content should not be encoded when it is created by Text node.
     // while content should be encoded when it is created by Element node.

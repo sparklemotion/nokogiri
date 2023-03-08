@@ -68,7 +68,7 @@ new (int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eArgError, "parameter must be a Nokogiri::XML::Document");
   }
 
-  Noko_Node_Get_Struct(document, xmlDoc, xml_doc);
+  xml_doc = noko_xml_document_unwrap(document);
 
   node = xmlNewDocProp(
            xml_doc,

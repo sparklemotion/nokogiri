@@ -116,13 +116,14 @@ memsize(const void *data)
   return memsize;
 }
 
-const rb_data_type_t noko_xml_document_data_type = {
+static const rb_data_type_t noko_xml_document_data_type = {
   .wrap_struct_name = "Nokogiri::XML::Document",
   .function = {
     .dmark = mark,
     .dfree = dealloc,
     .dsize = memsize,
-  }
+  },
+  // .flags = RUBY_TYPED_FREE_IMMEDIATELY, // TODO see https://github.com/sparklemotion/nokogiri/issues/2822
 };
 
 static void
@@ -167,8 +168,7 @@ recursively_remove_namespaces_from_node(xmlNodePtr node)
 static VALUE
 url(VALUE self)
 {
-  xmlDocPtr doc;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  xmlDocPtr doc = noko_xml_document_unwrap(self);
 
   if (doc->URL) { return NOKOGIRI_STR_NEW2(doc->URL); }
 
@@ -187,7 +187,7 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
   xmlDocPtr c_document;
   xmlNodePtr c_new_root = NULL, c_current_root;
 
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_document);
+  c_document = noko_xml_document_unwrap(self);
 
   c_current_root = xmlDocGetRootElement(c_document);
   if (c_current_root) {
@@ -231,7 +231,7 @@ rb_xml_document_root(VALUE self)
   xmlDocPtr c_document;
   xmlNodePtr c_root;
 
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_document);
+  c_document = noko_xml_document_unwrap(self);
 
   c_root = xmlDocGetRootElement(c_document);
   if (!c_root) {
@@ -250,8 +250,7 @@ rb_xml_document_root(VALUE self)
 static VALUE
 set_encoding(VALUE self, VALUE encoding)
 {
-  xmlDocPtr doc;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  xmlDocPtr doc = noko_xml_document_unwrap(self);
 
   if (doc->encoding) {
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(doc->encoding));
@@ -271,8 +270,7 @@ set_encoding(VALUE self, VALUE encoding)
 static VALUE
 encoding(VALUE self)
 {
-  xmlDocPtr doc;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  xmlDocPtr doc = noko_xml_document_unwrap(self);
 
   if (!doc->encoding) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->encoding);
@@ -287,8 +285,7 @@ encoding(VALUE self)
 static VALUE
 version(VALUE self)
 {
-  xmlDocPtr doc;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  xmlDocPtr doc = noko_xml_document_unwrap(self);
 
   if (!doc->version) { return Qnil; }
   return NOKOGIRI_STR_NEW2(doc->version);
@@ -410,7 +407,7 @@ duplicate_document(int argc, VALUE *argv, VALUE self)
     level = INT2NUM((long)1);
   }
 
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  doc = noko_xml_document_unwrap(self);
 
   dup = xmlCopyDoc(doc, (int)NUM2INT(level));
 
@@ -483,8 +480,7 @@ new (int argc, VALUE *argv, VALUE klass)
 static VALUE
 remove_namespaces_bang(VALUE self)
 {
-  xmlDocPtr doc ;
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  xmlDocPtr doc = noko_xml_document_unwrap(self);
 
   recursively_remove_namespaces_from_node((xmlNodePtr)doc);
   return self;
@@ -512,7 +508,7 @@ create_entity(int argc, VALUE *argv, VALUE self)
   xmlEntityPtr ptr;
   xmlDocPtr doc ;
 
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, doc);
+  doc = noko_xml_document_unwrap(self);
 
   rb_scan_args(argc, argv, "14", &name, &type, &external_id, &system_id,
                &content);
@@ -600,7 +596,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     }
   }
 
-  TypedData_Get_Struct(self, xmlDoc, &noko_xml_document_data_type, c_doc);
+  c_doc = noko_xml_document_unwrap(self);
 
   rb_cStringIO = rb_const_get_at(rb_cObject, rb_intern("StringIO"));
   rb_io = rb_class_new_instance(0, 0, rb_cStringIO);
@@ -681,6 +677,13 @@ noko_xml_document_wrap(VALUE klass, xmlDocPtr doc)
   return noko_xml_document_wrap_with_init_args(klass, doc, 0, NULL);
 }
 
+xmlDocPtr
+noko_xml_document_unwrap(VALUE rb_document)
+{
+  xmlDocPtr c_document;
+  TypedData_Get_Struct(rb_document, xmlDoc, &noko_xml_document_data_type, c_document);
+  return c_document;
+}
 
 void
 noko_xml_document_pin_node(xmlNodePtr node)

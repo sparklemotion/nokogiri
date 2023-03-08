@@ -272,7 +272,7 @@ memsize(const void *data)
 }
 
 /* Used by Nokogiri::XML::SAX::Parser and Nokogiri::HTML::SAX::Parser */
-const rb_data_type_t noko_sax_handler_type = {
+static const rb_data_type_t noko_sax_handler_type = {
   .wrap_struct_name = "Nokogiri::SAXHandler",
   .function = {
     .dfree = RUBY_TYPED_DEFAULT_FREE,
@@ -302,6 +302,14 @@ allocate(VALUE klass)
   handler->initialized = XML_SAX2_MAGIC;
 
   return self;
+}
+
+xmlSAXHandlerPtr
+noko_sax_handler_unwrap(VALUE rb_sax_handler)
+{
+  xmlSAXHandlerPtr c_sax_handler;
+  TypedData_Get_Struct(rb_sax_handler, xmlSAXHandler, &noko_sax_handler_type, c_sax_handler);
+  return c_sax_handler;
 }
 
 void

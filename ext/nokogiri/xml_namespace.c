@@ -56,21 +56,20 @@ _xml_namespace_update_references(void *ptr)
 #endif
 
 static const rb_data_type_t nokogiri_xml_namespace_type_with_dealloc = {
-  "Nokogiri/XMLNamespace/WithDealloc",
-  {0, _xml_namespace_dealloc, 0, _xml_namespace_update_references},
-  0, 0,
-#ifdef RUBY_TYPED_FREE_IMMEDIATELY
-  RUBY_TYPED_FREE_IMMEDIATELY,
-#endif
+  .wrap_struct_name = "Nokogiri::XML::Namespace#with_dealloc",
+  .function = {
+    .dfree = _xml_namespace_dealloc,
+    .dcompact = _xml_namespace_update_references,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 static const rb_data_type_t nokogiri_xml_namespace_type_without_dealloc = {
-  "Nokogiri/XMLNamespace/WithoutDealloc",
-  {0, 0, 0, _xml_namespace_update_references},
-  0, 0,
-#ifdef RUBY_TYPED_FREE_IMMEDIATELY
-  RUBY_TYPED_FREE_IMMEDIATELY,
-#endif
+  .wrap_struct_name = "Nokogiri::XML::Namespace#without_dealloc",
+  .function = {
+    .dcompact = _xml_namespace_update_references,
+  },
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
 /*
