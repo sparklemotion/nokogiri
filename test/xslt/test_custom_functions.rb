@@ -25,7 +25,14 @@ module Nokogiri
         EOXML
       end
 
-      def test_function
+      def test_global_function_jruby_not_impl
+        skip_unless_jruby("only testing not-impl on java")
+        assert_raises(NotImplementedError) do
+          XSLT.register("http://e.org/functions", Class.new)
+        end
+      end
+
+      def test_global_function
         skip_unless_libxml2("java version doesn't support this feature")
         foo = Class.new do
           def capitalize(nodes)
@@ -52,30 +59,21 @@ module Nokogiri
             </xsl:template>
           </xsl:stylesheet>
         EOXSL
+
         result = xsl.transform(@xml)
         assert_match(/FOO/, result.css("title").first.text)
       end
 
       def test_function_arguments
         skip_unless_libxml2("java version doesn't support this feature")
+
         foo = Class.new do
-          include MiniTest::Assertions
-          # Minitest 5 uses `self.assertions` in `assert()` which is not
-          # defined in the Minitest::Assertions module :-(
-          attr_writer :assertions
-
-          def assertions
-            @assertions ||= 0
-          end
-
           def multiarg(*args)
-            assert_equal(["abc", "xyz"], args)
-            args.first
+            args.join("-")
           end
 
           def numericarg(arg)
-            assert_equal(42, arg)
-            arg
+            arg * 2
           end
         end
 
@@ -92,7 +90,11 @@ module Nokogiri
           </xsl:stylesheet>
         EOXSL
 
-        xsl.transform(@xml)
+        result = xsl.transform(@xml)
+        assert_match(
+          /^(abc-xyz84)+$/,
+          result.children.first.content,
+        )
       end
 
       def test_function_XSLT

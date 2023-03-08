@@ -368,14 +368,9 @@ shutdownFunc(xsltTransformContextPtr ctxt,
   rb_ary_clear(wrapper->func_instances);
 }
 
-/*
- *  call-seq:
- *    register(uri, custom_handler_class)
- *
- *  Register a class that implements custom XSLT transformation functions.
- */
+/* docstring is in lib/nokogiri/xslt.rb */
 static VALUE
-rb_xslt_stylesheet_s_register(VALUE self, VALUE uri, VALUE obj)
+rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
 {
   VALUE modules = rb_iv_get(self, "@modules");
   if (NIL_P(modules)) {
@@ -394,7 +389,7 @@ rb_xslt_stylesheet_s_register(VALUE self, VALUE uri, VALUE obj)
 void
 noko_init_xslt_stylesheet(void)
 {
-  rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_stylesheet_s_register, 2);
+  rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_s_register, 2);
   rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);

@@ -345,17 +345,4 @@ public class XsltStylesheet extends RubyObject
     if (arg instanceof XmlDocument) { return; }
     throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
   }
-
-  @JRubyMethod(name = {"registr", "register"}, meta = true)
-  public static IRubyObject
-  register(ThreadContext context, IRubyObject cls, IRubyObject uri, IRubyObject receiver)
-  {
-    throw context.getRuntime().newNotImplementedError("Nokogiri::XSLT.register method is not implemented");
-    /* When API conflict is solved, this method should be below:
-    // ThreadContext is used while executing xslt extension function
-    registry.put("context", context);
-    registry.put("receiver", receiver);
-    return context.getRuntime().getNil();
-    */
-  }
 }
