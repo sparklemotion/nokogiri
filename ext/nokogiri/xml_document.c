@@ -685,6 +685,33 @@ noko_xml_document_unwrap(VALUE rb_document)
   return c_document;
 }
 
+/* Schema creation will remove and deallocate "blank" nodes.
+ * If those blank nodes have been exposed to Ruby, they could get freed
+ * out from under the VALUE pointer.  This function checks to see if any of
+ * those nodes have been exposed to Ruby, and if so we should raise an exception.
+ */
+int
+noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document)
+{
+  VALUE cache = DOC_NODE_CACHE(c_document);
+
+  if (NIL_P(cache)) {
+    return 0;
+  }
+
+  for (long jnode = 0; jnode < RARRAY_LEN(cache); jnode++) {
+    xmlNodePtr node;
+    VALUE element = rb_ary_entry(cache, jnode);
+
+    Noko_Node_Get_Struct(element, xmlNode, node);
+    if (xmlIsBlankNode(node)) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 void
 noko_xml_document_pin_node(xmlNodePtr node)
 {

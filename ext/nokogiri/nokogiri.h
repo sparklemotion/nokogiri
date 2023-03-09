@@ -168,6 +168,7 @@ typedef struct _nokogiriXsltStylesheetTuple {
 
 void noko_xml_document_pin_node(xmlNodePtr);
 void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
+int noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document);
 
 int noko_io_read(void *ctx, char *buffer, int len);
 int noko_io_write(void *ctx, char *buffer, int len);

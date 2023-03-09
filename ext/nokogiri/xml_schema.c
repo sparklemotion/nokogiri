@@ -191,32 +191,6 @@ read_memory(int argc, VALUE *argv, VALUE klass)
   return xml_schema_parse_schema(klass, c_parser_context, rb_parse_options);
 }
 
-/* Schema creation will remove and deallocate "blank" nodes.
- * If those blank nodes have been exposed to Ruby, they could get freed
- * out from under the VALUE pointer.  This function checks to see if any of
- * those nodes have been exposed to Ruby, and if so we should raise an exception.
- */
-static int
-has_blank_nodes_p(VALUE cache)
-{
-  long i;
-
-  if (NIL_P(cache)) {
-    return 0;
-  }
-
-  for (i = 0; i < RARRAY_LEN(cache); i++) {
-    xmlNodePtr node;
-    VALUE element = rb_ary_entry(cache, i);
-    Noko_Node_Get_Struct(element, xmlNode, node);
-    if (xmlIsBlankNode(node)) {
-      return 1;
-    }
-  }
-
-  return 0;
-}
-
 /*
  * call-seq:
  *   from_document(document) → Nokogiri::XML::Schema
@@ -233,8 +207,10 @@ from_document(int argc, VALUE *argv, VALUE klass)
 {
   VALUE rb_document;
   VALUE rb_parse_options;
+  VALUE rb_schema;
   xmlDocPtr c_document;
   xmlSchemaParserCtxtPtr c_parser_context;
+  int defensive_copy_p = 0;
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_parse_options);
 
@@ -248,16 +224,21 @@ from_document(int argc, VALUE *argv, VALUE klass)
     c_document = deprecated_node_type_arg->doc;
   }
 
-  if (has_blank_nodes_p(DOC_NODE_CACHE(c_document))) {
-    rb_raise(
-      rb_eArgError,
-      "Creating a schema from a document that has blank nodes exposed to Ruby is dangerous"
-    );
+  if (noko_xml_document_has_wrapped_blank_nodes_p(c_document)) {
+    // see https://github.com/sparklemotion/nokogiri/pull/2001
+    c_document = xmlCopyDoc(c_document, 1);
+    defensive_copy_p = 1;
   }
 
   c_parser_context = xmlSchemaNewDocParserCtxt(c_document);
+  rb_schema = xml_schema_parse_schema(klass, c_parser_context, rb_parse_options);
 
-  return xml_schema_parse_schema(klass, c_parser_context, rb_parse_options);
+  if (defensive_copy_p) {
+    xmlFreeDoc(c_document);
+    c_document = NULL;
+  }
+
+  return rb_schema;
 }
 
 void

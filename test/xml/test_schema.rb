@@ -10,15 +10,18 @@ module Nokogiri
         assert(@xsd = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE)))
       end
 
-      def test_issue_1985_segv_on_schema_parse
+      def test_issue_1985_schema_parse_modifying_underlying_document
         skip_unless_libxml2("Pure Java version doesn't have this bug")
 
-        # This is a test for a workaround for a bug in LibXML2.  The upstream
-        # bug is here: https://gitlab.gnome.org/GNOME/libxml2/issues/148
-        # Schema creation can result in dangling pointers.  If no nodes have
-        # been exposed, then it should be fine to create a schema.  If nodes
-        # have been exposed to Ruby, then we need to make sure they won't be
-        # freed out from under us.
+        # This is a test for a workaround for a bug in LibXML2:
+        #
+        #   https://gitlab.gnome.org/GNOME/libxml2/issues/148
+        #
+        # Schema creation can modify the original document -- removal of blank text nodes -- which
+        # results in dangling pointers.
+        #
+        # If no nodes have been exposed, then it should be fine to create a schema. If nodes have
+        # been exposed to Ruby, then we need to make sure they won't be freed out from under us.
         doc = <<~EOF
           <?xml version="1.0" encoding="UTF-8" ?>
           <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -32,12 +35,10 @@ module Nokogiri
 
         # This is not OK, nodes have been exposed to Ruby
         xsd_doc = Nokogiri::XML(doc)
-        xsd_doc.root.children.find(&:blank?) # Finds a node
+        child = xsd_doc.root.children.find(&:blank?) # Find a blank node that would be freed without the fix
 
-        ex = assert_raises(ArgumentError) do
-          Nokogiri::XML::Schema.from_document(xsd_doc)
-        end
-        assert_match(/blank nodes/, ex.message)
+        Nokogiri::XML::Schema.from_document(xsd_doc)
+        assert(child.to_s) # This will raise a valgrind error if the node was freed
       end
 
       def test_schema_read_memory
