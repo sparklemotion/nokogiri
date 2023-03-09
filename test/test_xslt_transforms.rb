@@ -366,6 +366,60 @@ module Nokogiri
         end
       end
 
+      describe "https://github.com/sparklemotion/nokogiri/issues/2800" do
+        let(:doc) do
+          Nokogiri::XML::Document.parse(<<~XML)
+            <catalog>
+              <entry><title>abc</title></entry>
+              <entry><title>   </title></entry>
+              <entry><title>xyz</title></entry>
+            </catalog>
+          XML
+        end
+
+        let(:stylesheet) do
+          Nokogiri::XSLT.parse(<<~XSL)
+            <?xml version="1.0" encoding="UTF-8"?>
+            <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+              <xsl:strip-space elements="title" />
+              <xsl:template match="/">
+                <xsl:for-each select="catalog/entry">[<xsl:value-of select="title" />]</xsl:for-each>
+              </xsl:template>
+            </xsl:stylesheet>
+          XSL
+        end
+
+        it "should modify the original doc if no wrapped blank text nodes would be removed" do
+          # this is the default libxslt behavior
+          skip_unless_libxml2("libxslt bug is not present in JRuby")
+
+          result = stylesheet.transform(doc)
+
+          assert_includes(result.to_s, "[abc][][xyz]", "xsl:strip-space should work")
+          doc.at_css("entry:nth-child(2)").tap do |entry|
+            assert_equal(1, entry.children.length)
+            assert_equal("", entry.children.first.content, "original doc should be modified")
+          end
+        end
+
+        it "should not modify the original doc if wrapped blank text nodes would be removed" do
+          skip_unless_libxml2("libxslt bug is not present in JRuby")
+
+          # wrap the blank text node
+          assert(child = doc.css("title").children.find(&:blank?))
+
+          result = stylesheet.transform(doc)
+
+          assert(child.to_s) # raise a valgrind error if the fix isn't working
+
+          assert_includes(result.to_s, "[abc][][xyz]", "xsl:strip-space should work")
+          doc.at_css("entry:nth-child(2)").tap do |entry|
+            assert_equal(1, entry.children.length)
+            assert_equal("   ", entry.children.first.content, "original doc is unmodified")
+          end
+        end
+      end
+
       describe "DEFAULT_XSLT parse options" do
         it "is the union of DEFAULT_XML and libxslt's XSLT_PARSE_OPTIONS" do
           xslt_parse_options = Nokogiri::XML::ParseOptions.new.noent.dtdload.dtdattr.nocdata

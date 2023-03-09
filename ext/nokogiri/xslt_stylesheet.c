@@ -251,6 +251,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   const char **params ;
   long param_len, j ;
   int parse_error_occurred ;
+  int defensive_copy_p = 0;
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_param);
   if (NIL_P(rb_param)) { rb_param = rb_ary_new2(0L) ; }
@@ -278,12 +279,26 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   }
   params[param_len] = 0 ;
 
+  xsltTransformContextPtr c_transform_context = xsltNewTransformContext(wrapper->ss, c_document);
+  if (xsltNeedElemSpaceHandling(c_transform_context) &&
+      noko_xml_document_has_wrapped_blank_nodes_p(c_document)) {
+    // see https://github.com/sparklemotion/nokogiri/issues/2800
+    c_document = xmlCopyDoc(c_document, 1);
+    defensive_copy_p = 1;
+  }
+  xsltFreeTransformContext(c_transform_context);
+
   rb_error_str = rb_str_new(0, 0);
   xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
   c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
+
   ruby_xfree(params);
+  if (defensive_copy_p) {
+    xmlFreeDoc(c_document);
+    c_document = NULL;
+  }
 
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
