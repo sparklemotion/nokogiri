@@ -244,58 +244,57 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
 static VALUE
 rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 {
-  VALUE xmldoc, paramobj, errstr, exception ;
-  xmlDocPtr xml ;
-  xmlDocPtr result ;
+  VALUE rb_document, rb_param, rb_error_str;
+  xmlDocPtr c_document ;
+  xmlDocPtr c_result_document ;
   nokogiriXsltStylesheetTuple *wrapper;
   const char **params ;
   long param_len, j ;
   int parse_error_occurred ;
 
-  rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
-  if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0L) ; }
-  if (!rb_obj_is_kind_of(xmldoc, cNokogiriXmlDocument)) {
+  rb_scan_args(argc, argv, "11", &rb_document, &rb_param);
+  if (NIL_P(rb_param)) { rb_param = rb_ary_new2(0L) ; }
+  if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlDocument)) {
     rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::Document");
   }
 
   /* handle hashes as arguments. */
-  if (T_HASH == TYPE(paramobj)) {
-    paramobj = rb_funcall(paramobj, rb_intern("to_a"), 0);
-    paramobj = rb_funcall(paramobj, rb_intern("flatten"), 0);
+  if (T_HASH == TYPE(rb_param)) {
+    rb_param = rb_funcall(rb_param, rb_intern("to_a"), 0);
+    rb_param = rb_funcall(rb_param, rb_intern("flatten"), 0);
   }
 
-  Check_Type(paramobj, T_ARRAY);
+  Check_Type(rb_param, T_ARRAY);
 
-  xml = noko_xml_document_unwrap(xmldoc);
+  c_document = noko_xml_document_unwrap(rb_document);
   TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &xslt_stylesheet_type, wrapper);
 
-  param_len = RARRAY_LEN(paramobj);
+  param_len = RARRAY_LEN(rb_param);
   params = ruby_xcalloc((size_t)param_len + 1, sizeof(char *));
   for (j = 0 ; j < param_len ; j++) {
-    VALUE entry = rb_ary_entry(paramobj, j);
+    VALUE entry = rb_ary_entry(rb_param, j);
     const char *ptr = StringValueCStr(entry);
     params[j] = ptr;
   }
   params[param_len] = 0 ;
 
-  errstr = rb_str_new(0, 0);
-  xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
-  xmlSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
+  rb_error_str = rb_str_new(0, 0);
+  xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
+  xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
-  result = xsltApplyStylesheet(wrapper->ss, xml, params);
+  c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
   ruby_xfree(params);
 
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
-  parse_error_occurred = (Qfalse == rb_funcall(errstr, rb_intern("empty?"), 0));
+  parse_error_occurred = (Qfalse == rb_funcall(rb_error_str, rb_intern("empty?"), 0));
 
   if (parse_error_occurred) {
-    exception = rb_exc_new3(rb_eRuntimeError, errstr);
-    rb_exc_raise(exception);
+    rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_error_str));
   }
 
-  return noko_xml_document_wrap((VALUE)0, result) ;
+  return noko_xml_document_wrap((VALUE)0, c_result_document) ;
 }
 
 static void

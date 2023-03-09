@@ -51,6 +51,7 @@
 #include <libxslt/xsltconfig.h>
 #include <libxslt/xsltutils.h>
 #include <libxslt/transform.h>
+#include <libxslt/imports.h>
 #include <libxslt/xsltInternals.h>
 
 #include <libexslt/exslt.h>
