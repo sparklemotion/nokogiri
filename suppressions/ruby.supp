@@ -148,26 +148,3 @@
   fun:xmlXPathEval
   fun:evaluate
 }
-{
-  triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
-  #
-  # 39,848 bytes in 1 blocks are definitely lost in loss record 38,618 of 38,681
-  #   realloc (vg_replace_malloc.c:834)
-  #   objspace_xrealloc.constprop.0 (gc.c:11516)
-  #   ary_heap_realloc (array.c:381)
-  #   ary_resize_capa (array.c:461)
-  #   ary_double_capa (array.c:507)
-  #   ary_ensure_room_for_push (array.c:654)
-  #   rb_ary_push (array.c:1311)
-  #  *noko_xml_node_wrap (xml_node.c:2075)
-  #  *noko_xml_node_attrs (xml_node.c:2094)
-  #
-  Memcheck:Leak
-  fun:realloc
-  fun:objspace_xrealloc*
-  fun:ary_heap_realloc
-  ...
-  fun:ary_ensure_room_for_push
-  fun:rb_ary_push
-  fun:noko_xml_node_wrap
-}
