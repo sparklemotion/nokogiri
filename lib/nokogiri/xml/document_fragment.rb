@@ -16,7 +16,7 @@ module Nokogiri
       #  If +ctx+ is present, it is used as a context node for the
       #  subtree created, e.g., namespaces will be resolved relative
       #  to +ctx+.
-      def initialize(document, tags = nil, ctx = nil, options = ParseOptions::DEFAULT_XML)
+      def initialize(document, tags = nil, ctx = nil, options = ParseOptions::DEFAULT_XML) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options

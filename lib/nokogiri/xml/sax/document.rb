@@ -100,7 +100,7 @@ module Nokogiri
         # +prefix+ is the namespace prefix for the element
         # +uri+ is the associated namespace URI
         # +ns+ is a hash of namespace prefix:urls associated with the element
-        def start_element_namespace(name, attrs = [], prefix = nil, uri = nil, ns = [])
+        def start_element_namespace(name, attrs = [], prefix = nil, uri = nil, ns = []) # rubocop:disable Metrics/ParameterLists
           ###
           # Deal with SAX v1 interface
           name = [prefix, name].compact.join(":")

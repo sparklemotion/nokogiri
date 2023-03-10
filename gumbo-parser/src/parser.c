@@ -2678,6 +2678,7 @@ static void handle_in_head(GumboParser* parser, GumboToken* token) {
 static void handle_in_head_noscript(GumboParser* parser, GumboToken* token) {
   if (token->type == GUMBO_TOKEN_DOCTYPE) {
     parser_add_parse_error(parser, token);
+    ignore_token(parser);
     return;
   }
   if (tag_is(token, kStartTag, GUMBO_TAG_HTML)) {

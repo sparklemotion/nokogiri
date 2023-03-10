@@ -19,29 +19,19 @@
    ...
 }
 {
-  TODO TestHtml5TreeConstructionNoscript01#test_0
+  Nokogiri::XSLT has a class instance variable that we add to and doesn't seem to get cleaned up
+  # 128 bytes in 1 blocks are definitely lost in loss record 25,942 of 37,738
+  #   malloc (vg_replace_malloc.c:381)
+  #   objspace_xmalloc0 (gc.c:12295)
+  #   ar_alloc_table (hash.c:683)
+  #   rb_hash_aset (hash.c:2966)
+  #  *rb_xslt_s_register (xslt_stylesheet.c:380)
+  #   vm_call_cfunc_with_frame (vm_insnhelper.c:3252)
   Memcheck:Leak
   fun:malloc
-  fun:gumbo_alloc
-  fun:gumbo_strdup
-  fun:handle_markup_declaration_open_state
-  fun:gumbo_lex
-  fun:gumbo_parse_with_options
-  fun:perform_parse
-  fun:parse
-}
-{
-  TODO TestHtml5TreeConstructionNoscript01#test_0
-  Memcheck:Leak
-  fun:malloc
-  fun:gumbo_alloc
-  fun:gumbo_string_buffer_to_string
-  fun:finish_temporary_buffer
-  fun:handle_doctype_name_state
-  fun:gumbo_lex
-  fun:gumbo_parse_with_options
-  fun:perform_parse
-  fun:parse
+  ...
+  fun:rb_hash_aset
+  fun:rb_xslt_s_register
 }
 {
   TODO xpath syntax errors raise and don't allow xmlXpathEval to clean up, see #2096 for related work
@@ -109,18 +99,6 @@
 }
 {
   TODO
-  # 128 bytes in 1 blocks are definitely lost in loss record 26,649 of 37,883
-  # *rb_xslt_s_register (xslt_stylesheet.c:373)
-  Memcheck:Leak
-  fun:malloc
-  fun:objspace_xmalloc0
-  ...
-  fun:ar_alloc_table
-  fun:rb_hash_aset
-  fun:rb_xslt_s_register
-}
-{
-  TODO
   # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 28,980 of 37,883
   # *xmlNewNodeEatName (tree.c:2299)
   # *xmlNewDocNodeEatName (tree.c:2374)
@@ -172,27 +150,4 @@
   fun:xmlXPathRunEval
   fun:xmlXPathEval
   fun:evaluate
-}
-{
-  triggered by compaction stress test - https://github.com/sparklemotion/nokogiri/pull/2579
-  #
-  # 39,848 bytes in 1 blocks are definitely lost in loss record 38,618 of 38,681
-  #   realloc (vg_replace_malloc.c:834)
-  #   objspace_xrealloc.constprop.0 (gc.c:11516)
-  #   ary_heap_realloc (array.c:381)
-  #   ary_resize_capa (array.c:461)
-  #   ary_double_capa (array.c:507)
-  #   ary_ensure_room_for_push (array.c:654)
-  #   rb_ary_push (array.c:1311)
-  #  *noko_xml_node_wrap (xml_node.c:2075)
-  #  *noko_xml_node_attrs (xml_node.c:2094)
-  #
-  Memcheck:Leak
-  fun:realloc
-  fun:objspace_xrealloc*
-  fun:ary_heap_realloc
-  ...
-  fun:ary_ensure_room_for_push
-  fun:rb_ary_push
-  fun:noko_xml_node_wrap
 }
