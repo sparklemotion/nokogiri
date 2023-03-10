@@ -36,7 +36,7 @@ module Nokogiri
       attr_reader :quirks_mode
 
       # Create a document fragment.
-      def initialize(doc, tags = nil, ctx = nil, options = {})
+      def initialize(doc, tags = nil, ctx = nil, options = {}) # rubocop:disable Lint/MissingSuper
         self.document = doc
         self.errors = []
         return self unless tags

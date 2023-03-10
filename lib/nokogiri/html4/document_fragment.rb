@@ -24,7 +24,7 @@ module Nokogiri
         new(doc, tags, nil, options, &block)
       end
 
-      def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML)
+      def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
