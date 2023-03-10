@@ -19,6 +19,21 @@
    ...
 }
 {
+  Nokogiri::XSLT has a class instance variable that we add to and doesn't seem to get cleaned up
+  # 128 bytes in 1 blocks are definitely lost in loss record 25,942 of 37,738
+  #   malloc (vg_replace_malloc.c:381)
+  #   objspace_xmalloc0 (gc.c:12295)
+  #   ar_alloc_table (hash.c:683)
+  #   rb_hash_aset (hash.c:2966)
+  #  *rb_xslt_s_register (xslt_stylesheet.c:380)
+  #   vm_call_cfunc_with_frame (vm_insnhelper.c:3252)
+  Memcheck:Leak
+  fun:malloc
+  ...
+  fun:rb_hash_aset
+  fun:rb_xslt_s_register
+}
+{
   TODO xpath syntax errors raise and don't allow xmlXpathEval to clean up, see #2096 for related work
   Memcheck:Leak
   fun:malloc
@@ -81,18 +96,6 @@
   ...
   fun:xmlXPathEval
   fun:evaluate
-}
-{
-  TODO
-  # 128 bytes in 1 blocks are definitely lost in loss record 26,649 of 37,883
-  # *rb_xslt_s_register (xslt_stylesheet.c:373)
-  Memcheck:Leak
-  fun:malloc
-  fun:objspace_xmalloc0
-  ...
-  fun:ar_alloc_table
-  fun:rb_hash_aset
-  fun:rb_xslt_s_register
 }
 {
   TODO
