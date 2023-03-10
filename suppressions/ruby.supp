@@ -19,52 +19,6 @@
    ...
 }
 {
-  TODO TestHtml5TreeConstructionNoscript01#test_0
-  # 1 bytes in 1 blocks are definitely lost in loss record 884 of 37,420
-  #   malloc (vg_replace_malloc.c:381)
-  #  *gumbo_alloc (util.c:25)
-  #  *gumbo_strdup (util.c:51)
-  #  *handle_markup_declaration_open_state (tokenizer.c:2079)
-  #  *gumbo_lex (tokenizer.c:3413)
-  #  *gumbo_parse_with_options (parser.c:4752)
-  #  *perform_parse (gumbo.c:94)
-  #  *parse (gumbo.c:332)
-  #   call_cfunc_6 (vm_insnhelper.c:2976)
-  Memcheck:Leak
-  fun:malloc
-  fun:gumbo_alloc
-  fun:gumbo_strdup
-  fun:handle_markup_declaration_open_state
-  fun:gumbo_lex
-  fun:gumbo_parse_with_options
-  fun:perform_parse
-  fun:parse
-}
-{
-  TODO TestHtml5TreeConstructionNoscript01#test_0
-  # 5 bytes in 1 blocks are definitely lost in loss record 1,170 of 37,420
-  #   malloc (vg_replace_malloc.c:381)
-  #  *gumbo_alloc (util.c:25)
-  #  *gumbo_string_buffer_to_string (string_buffer.c:91)
-  #  *finish_temporary_buffer (tokenizer.c:357)
-  #  *handle_doctype_name_state (tokenizer.c:2446)
-  #  *gumbo_lex (tokenizer.c:3413)
-  #  *gumbo_parse_with_options (parser.c:4752)
-  #  *perform_parse (gumbo.c:94)
-  #  *parse (gumbo.c:332)
-  #   call_cfunc_6 (vm_insnhelper.c:2976)
-  Memcheck:Leak
-  fun:malloc
-  fun:gumbo_alloc
-  fun:gumbo_string_buffer_to_string
-  fun:finish_temporary_buffer
-  fun:handle_doctype_name_state
-  fun:gumbo_lex
-  fun:gumbo_parse_with_options
-  fun:perform_parse
-  fun:parse
-}
-{
   TODO xpath syntax errors raise and don't allow xmlXpathEval to clean up, see #2096 for related work
   Memcheck:Leak
   fun:malloc
