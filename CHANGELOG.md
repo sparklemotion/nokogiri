@@ -15,10 +15,12 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Changed
 
+* [CRuby] `Schema.from_document` now makes a defensive copy of the document if it has blank text nodes with Ruby objects instantiated for them. This prevents unsafe behavior in libxml2 from causing a segfault. There is a small performance cost, but we think this has the virtue of being "what the user meant" since modifying the original is surprising behavior for most users. Previously this was addressed in v1.10.9 by raising an exception.
+
+
 ### Fixed
 
-* [JRuby] Serializing an HTML4 document with `#write_to` and specifying no save options will properly emit an HTML document anyway, like libxml2 does. Previously JRuby emitted XML in this situation.
-* [JRuby] Serializing with `#write_to` will fall back to the document encoding when no encoding is specified, like libxml2 does. Previously JRuby emitted UTF-8 in this situation.
+* [CRuby] `XSLT.transform` now makes a defensive copy of the document if it has blank text nodes with Ruby objects instantiated for them _and_ the template uses `xsl:strip-spaces`. This prevents unsafe behavior in libxslt from causing a segfault. There is a small performance cost, but we think this has the virtue of being "what the user meant" since modifying the original is surprising behavior for most users. Previously this would allow unsafe memory access and potentially segfault. [[#2800](https://github.com/sparklemotion/nokogiri/issues/2800)]
 
 
 ### Improved
