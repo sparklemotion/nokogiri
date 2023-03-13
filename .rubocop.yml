@@ -15,21 +15,25 @@ AllCops:
     - 'test/_test_pattern_matching.rb' # until TargetRubyVersion >= 3.0
   TargetRubyVersion: "2.7"
 
-Naming/MethodName:
+Metrics/BlockNesting:
+  Exclude:
+    - ext/nokogiri/extconf.rb
+    - scripts/**
+    - test/html5/test_tree_construction.rb
+
+Metrics/CollectionLiteralLength:
+  Exclude:
+    - nokogiri.gemspec
+
+Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 
 Naming/FileName:
   Exclude:
     - rakelib/**
 
-Minitest/EmptyLineBeforeAssertionMethods:
+Naming/MethodName:
   Enabled: false
-
-Metrics/BlockNesting:
-  Exclude:
-    - ext/nokogiri/extconf.rb
-    - scripts/**
-    - test/html5/test_tree_construction.rb
 
 Performance/CollectionLiteralInLoop:
   Exclude:
