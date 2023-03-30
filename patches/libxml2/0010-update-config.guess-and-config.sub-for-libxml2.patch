@@ -1,0 +1,224 @@
+From 27578ad4e4960beb30bfef38bfc23ec2ab9d7ee1 Mon Sep 17 00:00:00 2001
+From: Wenlong Zhang <zhangwenlong@loongson.cn>
+Date: Tue, 14 Mar 2023 01:38:58 +0000
+Subject: [PATCH] update config.guess and config.sub for libxml2
+
+curl -sL -o config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+curl -sL -o config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+---
+ config.guess | 46 +++++++++++++++++++++++++++++++++-------------
+ config.sub   | 35 ++++++++++++++++++++++++++---------
+ 2 files changed, 59 insertions(+), 22 deletions(-)
+
+diff --git a/config.guess b/config.guess
+index 7f76b62..69188da 100755
+--- a/config.guess
++++ b/config.guess
+@@ -1,10 +1,10 @@
+ #! /bin/sh
+ # Attempt to guess a canonical system name.
+-#   Copyright 1992-2022 Free Software Foundation, Inc.
++#   Copyright 1992-2023 Free Software Foundation, Inc.
+ 
+ # shellcheck disable=SC2006,SC2268 # see below for rationale
+ 
+-timestamp='2022-01-09'
++timestamp='2023-01-01'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -60,7 +60,7 @@ version="\
+ GNU config.guess ($timestamp)
+ 
+ Originally written by Per Bothner.
+-Copyright 1992-2022 Free Software Foundation, Inc.
++Copyright 1992-2023 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -966,6 +966,12 @@ EOF
+ 	GNU_REL=`echo "$UNAME_RELEASE" | sed -e 's/[-(].*//'`
+ 	GUESS=$UNAME_MACHINE-unknown-$GNU_SYS$GNU_REL-$LIBC
+ 	;;
++    x86_64:[Mm]anagarm:*:*|i?86:[Mm]anagarm:*:*)
++	GUESS="$UNAME_MACHINE-pc-managarm-mlibc"
++	;;
++    *:[Mm]anagarm:*:*)
++	GUESS="$UNAME_MACHINE-unknown-managarm-mlibc"
++	;;
+     *:Minix:*:*)
+ 	GUESS=$UNAME_MACHINE-unknown-minix
+ 	;;
+@@ -1036,7 +1042,7 @@ EOF
+     k1om:Linux:*:*)
+ 	GUESS=$UNAME_MACHINE-unknown-linux-$LIBC
+ 	;;
+-    loongarch32:Linux:*:* | loongarch64:Linux:*:* | loongarchx32:Linux:*:*)
++    loongarch32:Linux:*:* | loongarch64:Linux:*:*)
+ 	GUESS=$UNAME_MACHINE-unknown-linux-$LIBC
+ 	;;
+     m32r*:Linux:*:*)
+@@ -1151,16 +1157,27 @@ EOF
+ 	;;
+     x86_64:Linux:*:*)
+ 	set_cc_for_build
++	CPU=$UNAME_MACHINE
+ 	LIBCABI=$LIBC
+ 	if test "$CC_FOR_BUILD" != no_compiler_found; then
+-	    if (echo '#ifdef __ILP32__'; echo IS_X32; echo '#endif') | \
+-		(CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
+-		grep IS_X32 >/dev/null
+-	    then
+-		LIBCABI=${LIBC}x32
+-	    fi
++	    ABI=64
++	    sed 's/^	    //' << EOF > "$dummy.c"
++	    #ifdef __i386__
++	    ABI=x86
++	    #else
++	    #ifdef __ILP32__
++	    ABI=x32
++	    #endif
++	    #endif
++EOF
++	    cc_set_abi=`$CC_FOR_BUILD -E "$dummy.c" 2>/dev/null | grep '^ABI' | sed 's, ,,g'`
++	    eval "$cc_set_abi"
++	    case $ABI in
++		x86) CPU=i686 ;;
++		x32) LIBCABI=${LIBC}x32 ;;
++	    esac
+ 	fi
+-	GUESS=$UNAME_MACHINE-pc-linux-$LIBCABI
++	GUESS=$CPU-pc-linux-$LIBCABI
+ 	;;
+     xtensa*:Linux:*:*)
+ 	GUESS=$UNAME_MACHINE-unknown-linux-$LIBC
+@@ -1367,8 +1384,11 @@ EOF
+     BePC:Haiku:*:*)	# Haiku running on Intel PC compatible.
+ 	GUESS=i586-pc-haiku
+ 	;;
+-    x86_64:Haiku:*:*)
+-	GUESS=x86_64-unknown-haiku
++    ppc:Haiku:*:*)	# Haiku running on Apple PowerPC
++	GUESS=powerpc-apple-haiku
++	;;
++    *:Haiku:*:*)	# Haiku modern gcc (not bound by BeOS compat)
++	GUESS=$UNAME_MACHINE-unknown-haiku
+ 	;;
+     SX-4:SUPER-UX:*:*)
+ 	GUESS=sx4-nec-superux$UNAME_RELEASE
+diff --git a/config.sub b/config.sub
+index dba16e8..de4259e 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1,10 +1,10 @@
+ #! /bin/sh
+ # Configuration validation subroutine script.
+-#   Copyright 1992-2022 Free Software Foundation, Inc.
++#   Copyright 1992-2023 Free Software Foundation, Inc.
+ 
+ # shellcheck disable=SC2006,SC2268 # see below for rationale
+ 
+-timestamp='2022-01-03'
++timestamp='2023-01-21'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -76,7 +76,7 @@ Report bugs and patches to <config-patches@gnu.org>."
+ version="\
+ GNU config.sub ($timestamp)
+ 
+-Copyright 1992-2022 Free Software Foundation, Inc.
++Copyright 1992-2023 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -145,7 +145,7 @@ case $1 in
+ 			nto-qnx* | linux-* | uclinux-uclibc* \
+ 			| uclinux-gnu* | kfreebsd*-gnu* | knetbsd*-gnu* | netbsd*-gnu* \
+ 			| netbsd*-eabi* | kopensolaris*-gnu* | cloudabi*-eabi* \
+-			| storm-chaos* | os2-emx* | rtmk-nova*)
++			| storm-chaos* | os2-emx* | rtmk-nova* | managarm-*)
+ 				basic_machine=$field1
+ 				basic_os=$maybe_os
+ 				;;
+@@ -1075,7 +1075,7 @@ case $cpu-$vendor in
+ 	pentium-* | p5-* | k5-* | k6-* | nexgen-* | viac3-*)
+ 		cpu=i586
+ 		;;
+-	pentiumpro-* | p6-* | 6x86-* | athlon-* | athalon_*-*)
++	pentiumpro-* | p6-* | 6x86-* | athlon-* | athlon_*-*)
+ 		cpu=i686
+ 		;;
+ 	pentiumii-* | pentium2-* | pentiumiii-* | pentium3-*)
+@@ -1207,7 +1207,7 @@ case $cpu-$vendor in
+ 			| k1om \
+ 			| le32 | le64 \
+ 			| lm32 \
+-			| loongarch32 | loongarch64 | loongarchx32 \
++			| loongarch32 | loongarch64 \
+ 			| m32c | m32r | m32rle \
+ 			| m5200 | m68000 | m680[012346]0 | m68360 | m683?2 | m68k \
+ 			| m6811 | m68hc11 | m6812 | m68hc12 | m68hcs12x \
+@@ -1341,6 +1341,10 @@ EOF
+ 		kernel=linux
+ 		os=`echo "$basic_os" | sed -e 's|linux|gnu|'`
+ 		;;
++	managarm*)
++		kernel=managarm
++		os=`echo "$basic_os" | sed -e 's|managarm|mlibc|'`
++		;;
+ 	*)
+ 		kernel=
+ 		os=$basic_os
+@@ -1754,7 +1758,7 @@ case $os in
+ 	     | onefs* | tirtos* | phoenix* | fuchsia* | redox* | bme* \
+ 	     | midnightbsd* | amdhsa* | unleashed* | emscripten* | wasi* \
+ 	     | nsk* | powerunix* | genode* | zvmoe* | qnx* | emx* | zephyr* \
+-	     | fiwix* )
++	     | fiwix* | mlibc* )
+ 		;;
+ 	# This one is extra strict with allowed versions
+ 	sco3.2v2 | sco3.2v[4-9]* | sco5v6*)
+@@ -1762,6 +1766,9 @@ case $os in
+ 		;;
+ 	none)
+ 		;;
++	kernel* )
++		# Restricted further below
++		;;
+ 	*)
+ 		echo Invalid configuration \`"$1"\': OS \`"$os"\' not recognized 1>&2
+ 		exit 1
+@@ -1772,16 +1779,26 @@ esac
+ # (given a valid OS), if there is a kernel.
+ case $kernel-$os in
+ 	linux-gnu* | linux-dietlibc* | linux-android* | linux-newlib* \
+-		   | linux-musl* | linux-relibc* | linux-uclibc* )
++		   | linux-musl* | linux-relibc* | linux-uclibc* | linux-mlibc* )
+ 		;;
+ 	uclinux-uclibc* )
+ 		;;
+-	-dietlibc* | -newlib* | -musl* | -relibc* | -uclibc* )
++	managarm-mlibc* | managarm-kernel* )
++		;;
++	-dietlibc* | -newlib* | -musl* | -relibc* | -uclibc* | -mlibc* )
+ 		# These are just libc implementations, not actual OSes, and thus
+ 		# require a kernel.
+ 		echo "Invalid configuration \`$1': libc \`$os' needs explicit kernel." 1>&2
+ 		exit 1
+ 		;;
++	-kernel* )
++		echo "Invalid configuration \`$1': \`$os' needs explicit kernel." 1>&2
++		exit 1
++		;;
++	*-kernel* )
++		echo "Invalid configuration \`$1': \`$kernel' does not support \`$os'." 1>&2
++		exit 1
++		;;
+ 	kfreebsd*-gnu* | kopensolaris*-gnu*)
+ 		;;
+ 	vxworks-simlinux | vxworks-simwindows | vxworks-spe)
+-- 
+2.33.0
+
