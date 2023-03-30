@@ -24,6 +24,7 @@
 .classpath
 .project
 .settings
+.vscode
 build
 TAGS
 tags
