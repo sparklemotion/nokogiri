@@ -29,6 +29,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * `#inspect` and pretty-printing are improved for `AttributeDecl`, `ElementContent`, `ElementDecl`, and `EntityDecl`.
 * [CRuby] The C extension now uses Ruby's [TypedData API](https://docs.ruby-lang.org/en/3.0/extension_rdoc.html#label-Encapsulate+C+Data+into+a+Ruby+Object) for managing all the libxml2 structs. Write barriers may improve GC performance in some extreme cases. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
 * [CRuby] `ObjectSpace.memsize_of` reports a pretty good guess of memory usage when called on `Nokogiri::XML::Document` objects. [[#2807](https://github.com/sparklemotion/nokogiri/issues/2807)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
+* [CRuby] Users installing the "ruby" platform gem and compiling libxml2 and libxslt from source will now be using a modern `config.guess` and `config.sub` that supports new architectures like `loongarch64`. [[#2831](https://github.com/sparklemotion/nokogiri/issues/2831)] (Thanks, [@zhangwenlong8911](https://github.com/zhangwenlong8911)!)
 * Documentation for `Nokogiri::XSLT` now has usage examples including custom function handlers.
 
 
