@@ -199,12 +199,20 @@ NOKOGIRI_TEST_GC_LEVEL=stress bundle exec rake compile test
 
 ### libxml2 advanced usage
 
-If you want to build Nokogiri against a modified version of libxml2, clone libxml2 to `../libxml2` and then run `scripts/compile-against-libxml2-source`.
+If you want to build Nokogiri against a modified version of libxml2 or libxslt, clone them both into sibling directories (`../libxml2` and `../libxslt`) then run `scripts/compile-against-libxml2-source`.
 
-That script also takes an optional command to run with the proper environment variables set to use the local libxml2 library, which can be useful when trying to `git bisect` against libxml2. So, for example:
+That script also takes an optional command to run with the proper environment variables set to use the local libxml2 library, which can be useful when trying to `git bisect` against libxml2 or libxslt. So, for example:
 
 ``` sh
 scripts/compile-against-libxml2-source bundle exec rake test
+```
+
+An alternative, if you're not bisecting or hacking on libxml2 or libxslt, is:
+
+``` sh
+bundle exec rake compile -- \
+  --with-xslt-source-dir=$(pwd)/../libxslt \
+  --with-xml2-source-dir=$(pwd)/../libxml2
 ```
 
 

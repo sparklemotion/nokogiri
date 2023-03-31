@@ -1,12 +1,17 @@
 #! /usr/bin/env bash
-
+#
+#  Use this script to build libxml2 and libxslt from source, and then compile and link Nokogiri against them.
+#  Unless you're hacking on those libraries, consider using this command instead:
+#
+#    bundle exec rake compile -- \\
+#      --with-xslt-source-dir=$(pwd)/../libxslt \\
+#      --with-xml2-source-dir=$(pwd)/../libxml2
+#
 set -eu
 
 PREFIX="${HOME}/tmp/libxml2"
 rm -rf "${PREFIX}"
 mkdir -p "$PREFIX"
-
-pushd ../libxml2
 
 clean_p=0
 if [[ ${1:-} == "--clean" ]] ; then
@@ -14,31 +19,44 @@ if [[ ${1:-} == "--clean" ]] ; then
   shift
 fi
 
-if [[ $clean_p -gt 0 ]] ; then
+function clean_and_configure_libxml2 {
   make clean || true
 
   ./configure --prefix="${PREFIX}" --without-python --without-readline --with-c14n --with-debug --with-threads --with-iconv=yes --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g -std=c89 -D_XOPEN_SOURCE=700"
+}
+
+function clean_and_configure_libxslt {
+  make clean || true
+
+  ./configure --prefix="${PREFIX}" --without-python --with-debug --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g -std=c89 -D_XOPEN_SOURCE=700"
+}
+
+# libxml2
+pushd ../libxml2
+if [[ $clean_p -gt 0 ]] ; then
+  clean_and_configure_libxml2
 fi
-
 make install
+popd
 
+# libxslt
+pushd ../libxslt
+if [[ $clean_p -gt 0 ]] ; then
+  clean_and_configure_libxslt
+fi
+make install
 popd
 
 export LD_LIBRARY_PATH=${PREFIX}/lib
-export CFLAGS="-I${PREFIX}/include/libxml2"
-export LDFLAGS="-lxml2 -L${PREFIX}/lib"
-
-echo export LD_LIBRARY_PATH=${PREFIX}/lib
-echo export CFLAGS="-I${PREFIX}/include/libxml2"
-echo export LDFLAGS="-lxml2 -L${PREFIX}/lib"
+export CFLAGS="-I${PREFIX}/include/libxml2 -I${PREFIX}/include"
+export LDFLAGS="-lxml2 -lxslt -L${PREFIX}/lib"
 
 if [[ $clean_p -gt 0 ]] ; then
   bundle exec rake clean
 fi
 
-NOKOGIRI_USE_SYSTEM_LIBRARIES=t bundle exec rake compile
+bundle exec rake compile -- --enable-system-libraries
 
 if [[ ${1:-} != "" ]] ; then
   $*
 fi
-
