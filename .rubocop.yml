@@ -1,5 +1,6 @@
 require:
   - rubocop-minitest
+  - rubocop-packaging
   - rubocop-performance
   - rubocop-rake
 inherit_gem:
