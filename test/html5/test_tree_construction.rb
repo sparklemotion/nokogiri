@@ -30,7 +30,7 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
         else
           attributes[attr[:name]].value
         end
-        assert_equal(attr[:value], value)
+        assert_equal(attr[:value], value, "expected #{attr}[:value] to equal #{value.inspect}")
       end
       assert_equal(
         node[:children].length,
@@ -117,7 +117,12 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
     end
 
     # Test the errors.
-    assert_equal(@test[:errors].length, doc.errors.length, "Wrong number of errors for #{@test[:data]}")
+    errpayload = doc.errors.map(&:to_s).join("\n")
+    assert_equal(
+      @test[:errors].length,
+      doc.errors.length,
+      "Expected #{@test[:errors].length} errors for #{@test[:data]}, found:\n#{errpayload}",
+    )
 
     # The new, standardized tokenizer errors live in @test[:new_errors]. Let's
     # match each one to exactly one error in doc.errors. Unfortunately, the
