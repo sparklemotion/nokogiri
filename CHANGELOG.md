@@ -8,6 +8,22 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Notes
 
+#### Ability to opt into system `malloc` and `free`
+
+Since 2009, Nokogiri has configured libxml2 to use `ruby_xmalloc` et al for memory management. This has provided benefits for memory management, but comes with a performance penalty.
+
+Users can now opt into using system `malloc` for libxml2 memory management by setting an environment variable:
+
+``` sh
+# "default" here means "libxml2's default" which is system malloc
+NOKOGIRI_LIBXML_MEMORY_MANAGEMENT=default
+```
+
+Benchmarks show that this setting will significantly improve performance, but be aware that the tradeoff may involve poorer memory management including bloated heap sizes and/or OOM conditions.
+
+You can read more about this in the decision record at `adr/2023-04-libxml-memory-management.md`.
+
+
 ### Added
 
 * `Encoding` objects may now be passed to serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` to specify the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)

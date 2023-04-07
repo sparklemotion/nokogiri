@@ -110,9 +110,16 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ["2.7", "3.0", "3.1", "3.2"]
+        mem: ["ruby"]
+        include:
+          - sys: "disable"
+            ruby: "3.2"
+            mem: "default"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+    env:
+      NOKOGIRI_LIBXML_MEMORY_MANAGEMENT: ${{matrix.mem}}
     steps:
       - uses: actions/checkout@v3
         with:

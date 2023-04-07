@@ -137,6 +137,48 @@ noko_io_close(void *io)
 }
 
 
+#if defined(_WIN32) && !defined(NOKOGIRI_PACKAGED_LIBRARIES)
+#  define NOKOGIRI_WINDOWS_DLLS 1
+#else
+#  define NOKOGIRI_WINDOWS_DLLS 0
+#endif
+
+//
+//   |      dlls || true    | false   |
+//   | nlmm      ||         |         |
+//   |-----------++---------+---------|
+//   | NULL      || default | ruby    |
+//   | "random"  || default | ruby    |
+//   | "ruby"    || ruby    | ruby    |
+//   | "default" || default | default |
+//
+//   We choose *not* to use Ruby's memory management functions with windows DLLs because of this
+//   issue: https://github.com/sparklemotion/nokogiri/issues/2241
+//
+static void
+set_libxml_memory_management(void)
+{
+  const char *nlmm = getenv("NOKOGIRI_LIBXML_MEMORY_MANAGEMENT");
+  if (nlmm) {
+    if (strcmp(nlmm, "default") == 0) {
+      goto libxml_uses_default_memory_management;
+    } else if (strcmp(nlmm, "ruby") == 0) {
+      goto libxml_uses_ruby_memory_management;
+    }
+  }
+  if (NOKOGIRI_WINDOWS_DLLS) {
+libxml_uses_default_memory_management:
+    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("default"));
+    return;
+  } else {
+libxml_uses_ruby_memory_management:
+    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("ruby"));
+    xmlMemSetup((xmlFreeFunc)ruby_xfree, (xmlMallocFunc)ruby_xmalloc, (xmlReallocFunc)ruby_xrealloc, ruby_strdup);
+    return;
+  }
+}
+
+
 void
 Init_nokogiri(void)
 {
@@ -182,26 +224,7 @@ Init_nokogiri(void)
   rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
 #endif
 
-#if defined(_WIN32) && !defined(NOKOGIRI_PACKAGED_LIBRARIES)
-  /*
-   *  We choose *not* to do use Ruby's memory management functions with windows DLLs because of this
-   *  issue in libxml 2.9.12:
-   *
-   *    https://github.com/sparklemotion/nokogiri/issues/2241
-   *
-   *  If the atexit() issue gets fixed in a future version of libxml2, then we may be able to skip
-   *  this config only for the specific libxml2 versions 2.9.12.
-   *
-   *  Alternatively, now that Ruby has a generational GC, it might be OK to let libxml2 use its
-   *  default memory management functions (recall that this config was introduced to reduce memory
-   *  bloat and allow Ruby to GC more often); but we should *really* test with production workloads
-   *  before making that kind of a potentially-invasive change.
-   */
-  rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("default"));
-#else
-  rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("ruby"));
-  xmlMemSetup((xmlFreeFunc)ruby_xfree, (xmlMallocFunc)ruby_xmalloc, (xmlReallocFunc)ruby_xrealloc, ruby_strdup);
-#endif
+  set_libxml_memory_management();
 
   xmlInitParser();
   exsltRegisterAll();
