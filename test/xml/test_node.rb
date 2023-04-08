@@ -16,6 +16,11 @@ module Nokogiri
           assert_predicate(node, :element?, "node is an element")
         end
 
+        def test_first_element_child_with_no_match
+          doc = Nokogiri::XML::Document.parse("<root>asdf</root>")
+          assert_nil(doc.root.first_element_child)
+        end
+
         def test_element_children
           nodes = xml.root.element_children
           assert_equal(xml.root.first_element_child, nodes.first)
@@ -25,6 +30,11 @@ module Nokogiri
         def test_last_element_child
           nodes = xml.root.element_children
           assert_equal(nodes.last, xml.root.element_children.last)
+        end
+
+        def test_last_element_child_with_no_match
+          doc = Nokogiri::XML::Document.parse("<root>asdf</root>")
+          assert_nil(doc.root.last_element_child)
         end
 
         def test_bad_xpath

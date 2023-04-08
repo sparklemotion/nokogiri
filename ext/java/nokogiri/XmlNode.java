@@ -762,14 +762,14 @@ public class XmlNode extends RubyObject
     if (children.getLength() == 0) {
       return Collections.emptyList();
     }
-    ArrayList<Node> elements = firstOnly ? null : new ArrayList<Node>(children.getLength());
+    ArrayList<Node> elements = new ArrayList<Node>();
     for (int i = 0; i < children.getLength(); i++) {
       Node child = children.item(i);
       if (child.getNodeType() == Node.ELEMENT_NODE) {
-        if (firstOnly) {
-          return Collections.singletonList(child);
-        }
         elements.add(child);
+        if (firstOnly) {
+          return elements;
+        }
       }
     }
     return elements;
