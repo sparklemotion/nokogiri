@@ -1,6 +1,6 @@
 /* ANSI-C code produced by gperf version 3.1 */
 /* Command-line: gperf -m100 -n src/foreign_attrs.gperf  */
-/* Computed positions: -k'2,8' */
+/* Computed positions: -k'8-9' */
 /* Filtered by: gperf-filter.sed */
 
 #include "replacement.h"
@@ -29,9 +29,9 @@ hash (register const char *str, register size_t len)
       11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
       11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
       11, 11, 11, 11, 11, 11, 11, 11, 11,  2,
-      11, 10, 11,  9,  7,  6, 11, 11,  1,  0,
-      11,  5, 11, 11,  4, 11, 11, 11, 11, 11,
-      11,  3, 11, 11, 11, 11, 11, 11, 11, 11,
+      11,  1, 11, 10,  4,  4, 11, 11,  3, 11,
+      11,  5,  3, 11,  0, 11,  2, 11, 11, 11,
+      11,  2, 11, 11, 11, 11, 11, 11, 11, 11,
       11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
       11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
       11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
@@ -51,15 +51,14 @@ hash (register const char *str, register size_t len)
   switch (len)
     {
       default:
+        hval += asso_values[(unsigned char)str[8]];
+      /*FALLTHROUGH*/
+      case 8:
         hval += asso_values[(unsigned char)str[7]];
       /*FALLTHROUGH*/
       case 7:
       case 6:
       case 5:
-      case 4:
-      case 3:
-      case 2:
-        hval += asso_values[(unsigned char)str[1]];
         break;
     }
   return hval;
@@ -70,21 +69,21 @@ gumbo_get_foreign_attr_replacement (register const char *str, register size_t le
 {
   static const unsigned char lengthtable[] =
     {
-       5, 11,  9, 13, 10, 10, 10, 11, 10,  8,  8
+       5, 10, 13,  9, 13, 10, 11, 11, 10, 10,  8
     };
   static const ForeignAttrReplacement wordlist[] =
     {
       {"xmlns", "xmlns", GUMBO_ATTR_NAMESPACE_XMLNS},
-      {"xmlns:xlink", "xlink", GUMBO_ATTR_NAMESPACE_XMLNS},
+      {"xlink:href", "href", GUMBO_ATTR_NAMESPACE_XLINK},
+      {"xlink:arcrole", "arcrole", GUMBO_ATTR_NAMESPACE_XLINK},
       {"xml:space", "space", GUMBO_ATTR_NAMESPACE_XML},
       {"xlink:actuate", "actuate", GUMBO_ATTR_NAMESPACE_XLINK},
       {"xlink:type", "type", GUMBO_ATTR_NAMESPACE_XLINK},
-      {"xlink:href", "href", GUMBO_ATTR_NAMESPACE_XLINK},
-      {"xlink:role", "role", GUMBO_ATTR_NAMESPACE_XLINK},
       {"xlink:title", "title", GUMBO_ATTR_NAMESPACE_XLINK},
+      {"xmlns:xlink", "xlink", GUMBO_ATTR_NAMESPACE_XMLNS},
+      {"xlink:role", "role", GUMBO_ATTR_NAMESPACE_XLINK},
       {"xlink:show", "show", GUMBO_ATTR_NAMESPACE_XLINK},
-      {"xml:lang", "lang", GUMBO_ATTR_NAMESPACE_XML},
-      {"xml:base", "base", GUMBO_ATTR_NAMESPACE_XML}
+      {"xml:lang", "lang", GUMBO_ATTR_NAMESPACE_XML}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
