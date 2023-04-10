@@ -46,6 +46,8 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 * [CRuby] The C extension now uses Ruby's [TypedData API](https://docs.ruby-lang.org/en/3.0/extension_rdoc.html#label-Encapsulate+C+Data+into+a+Ruby+Object) for managing all the libxml2 structs. Write barriers may improve GC performance in some extreme cases. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
 * [CRuby] `ObjectSpace.memsize_of` reports a pretty good guess of memory usage when called on `Nokogiri::XML::Document` objects. [[#2807](https://github.com/sparklemotion/nokogiri/issues/2807)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
 * [CRuby] Users installing the "ruby" platform gem and compiling libxml2 and libxslt from source will now be using a modern `config.guess` and `config.sub` that supports new architectures like `loongarch64`. [[#2831](https://github.com/sparklemotion/nokogiri/issues/2831)] (Thanks, [@zhangwenlong8911](https://github.com/zhangwenlong8911)!)
+* [CRuby] HTML5 parser now adjusts the specified attributes, adding `xlink:arcrole` and removing `xml:base` [[#2841](https://github.com/sparklemotion/nokogiri/issues/2841), [#2842](https://github.com/sparklemotion/nokogiri/issues/2842)]
+* [JRuby] `Node#first_element_child` now returns `nil` if there are only non-element children. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808), [#2844](https://github.com/sparklemotion/nokogiri/issues/2844)]
 * Documentation for `Nokogiri::XSLT` now has usage examples including custom function handlers.
 
 
