@@ -56,7 +56,7 @@ module Nokogiri
       end
 
       def test_do_xinclude_accepts_block
-        non_default_options = Nokogiri::XML::ParseOptions::NOBLANKS | \
+        non_default_options = Nokogiri::XML::ParseOptions::NOBLANKS |
           Nokogiri::XML::ParseOptions::XINCLUDE
 
         @xml.do_xinclude(non_default_options) do |options|
