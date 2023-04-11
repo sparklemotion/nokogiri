@@ -1,8 +1,4 @@
-# [submodule "test/html5lib-tests"]
-# 	path = test/html5lib-tests
-# 	url = https://github.com/html5lib/html5lib-tests.git
-# 	branch = master
 [submodule "test/html5lib-tests"]
 	path = test/html5lib-tests
-	url = https://github.com/flavorjones/html5lib-tests.git
-	branch = flavorjones-fix-template-2023-04
+	url = https://github.com/html5lib/html5lib-tests.git
+	branch = master
