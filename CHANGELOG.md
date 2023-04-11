@@ -4,6 +4,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.14.3 / 2023-04-11
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address CVE-2023-29469, CVE-2023-28484, and one other security-related issue. See [GHSA-pxvg-2qj5-37jqGHSA-pxvg-2qj5-37jq](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-pxvg-2qj5-37jq) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.10.4](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.10.4) from v2.10.3.
+
+
 ## 1.14.2 / 2023-02-13
 
 ### Fixed
