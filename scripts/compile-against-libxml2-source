@@ -28,7 +28,7 @@ function clean_and_configure_libxml2 {
 function clean_and_configure_libxslt {
   make clean || true
 
-  ./configure --prefix="${PREFIX}" --without-python --with-debug --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g -std=c89 -D_XOPEN_SOURCE=700"
+  ./configure --prefix="${PREFIX}" --without-python --with-libxml-prefix=$PREFIX --with-debug --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g -std=c89 -D_XOPEN_SOURCE=700"
 }
 
 # libxml2
