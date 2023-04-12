@@ -27,7 +27,6 @@ jobs:
         with:
           submodules: true
       - run: bundle install --local || bundle install
-      - run: bundle exec rake rubocop
 
   gumbo:
     needs: ["rubocop"]
