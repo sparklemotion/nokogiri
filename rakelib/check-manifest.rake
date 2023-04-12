@@ -15,10 +15,14 @@ task :check_manifest, [:verbose] do |_, args|
     .DS_Store
     .git
     .github
+    .ruby-lsp
     .vagrant
+    .vscode
+    adr
     coverage
     gems
     html
+    issues
     misc
     oci-images
     patches
