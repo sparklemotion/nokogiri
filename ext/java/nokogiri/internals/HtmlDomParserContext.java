@@ -56,9 +56,7 @@ public class HtmlDomParserContext extends XmlDomParserContext
   initParser(Ruby runtime)
   {
     XMLParserConfiguration config = new HTMLConfiguration();
-    //XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
     XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
-    //XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
     XMLDocumentFilter[] filters = { elementValidityCheckFilter};
 
     config.setErrorHandler(this.errorHandler);
@@ -160,29 +158,6 @@ public class HtmlDomParserContext extends XmlDomParserContext
       }
     }
     return null;
-  }
-
-  /**
-   * Filter to strip out attributes that pertain to XML namespaces.
-   */
-  public static class RemoveNSAttrsFilter extends DefaultFilter
-  {
-    @Override
-    public void
-    startElement(QName element, XMLAttributes attrs,
-                 Augmentations augs) throws XNIException
-    {
-      int i;
-      for (i = 0; i < attrs.getLength(); ++i) {
-        if (isNamespace(attrs.getQName(i))) {
-          attrs.removeAttributeAt(i);
-          --i;
-        }
-      }
-
-      element.uri = null;
-      super.startElement(element, attrs, augs);
-    }
   }
 
   public static class ElementValidityCheckFilter extends DefaultFilter

@@ -79,14 +79,12 @@ public class XsltStylesheet extends RubyObject
   private void
   addParametersToTransformer(ThreadContext context, Transformer transf, IRubyObject parameters)
   {
-    Ruby runtime = context.getRuntime();
-
     if (parameters instanceof RubyHash) {
       setHashParameters(transf, (RubyHash)parameters);
     } else if (parameters instanceof RubyArray) {
-      setArrayParameters(transf, runtime, (RubyArray)parameters);
+      setArrayParameters(transf, context, (RubyArray)parameters);
     } else {
-      throw runtime.newTypeError("parameters should be given either Array or Hash");
+      throw context.getRuntime().newTypeError("parameters should be given either Array or Hash");
     }
   }
 
@@ -100,14 +98,14 @@ public class XsltStylesheet extends RubyObject
   }
 
   private void
-  setArrayParameters(Transformer transformer, Ruby runtime, RubyArray<?> params)
+  setArrayParameters(Transformer transformer, ThreadContext context, RubyArray<?> params)
   {
     int limit = params.getLength();
     if (limit % 2 == 1) { limit--; }
 
     for (int i = 0; i < limit; i += 2) {
-      String name = params.aref(runtime.newFixnum(i)).asJavaString();
-      String value = params.aref(runtime.newFixnum(i + 1)).asJavaString();
+      String name = params.aref(context, context.getRuntime().newFixnum(i)).asJavaString();
+      String value = params.aref(context, context.getRuntime().newFixnum(i + 1)).asJavaString();
       transformer.setParameter(name, unparseValue(value));
     }
   }
