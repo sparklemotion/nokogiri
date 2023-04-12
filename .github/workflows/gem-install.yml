@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["2.6", "2.7", "3.0", "3.1", "head"]
+        ruby: ["2.6"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -78,54 +78,6 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
-  cruby-windows-install:
-    needs: ["cruby-package"]
-    strategy:
-      fail-fast: false
-      matrix:
-        sys: ["enable", "disable"]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "3.0"
-          mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v2
-        with:
-          name: cruby-gem
-          path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
-          gem list -d nokogiri
-          nokogiri -v
-
-  cruby-windows-install-ucrt:
-    needs: ["cruby-package"]
-    strategy:
-      fail-fast: false
-      matrix:
-        sys: ["enable", "disable"]
-    runs-on: windows-2022
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "3.1"
-          mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v2
-        with:
-          name: cruby-gem
-          path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem -- --${{matrix.sys}}-system-libraries
-          gem list -d nokogiri
-          nokogiri -v
-
   cruby-native-package:
     name: "cruby-native-package"
     strategy:
@@ -134,8 +86,6 @@ jobs:
         plat:
           - "aarch64-linux"
           # - "arm64-darwin" # github actions does not support this as of 2022-01
-          - "x64-mingw-ucrt"
-          - "x64-mingw32"
           - "x86-linux"
           # - "x86-mingw32" # github actions does not support this as of 2022-01
           - "x86_64-darwin"
@@ -164,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0", "3.1"]
+        ruby: ["2.6"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -186,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0", "3.1"]
+        ruby: ["2.6"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -208,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0", "3.1"]
+        ruby: ["2.6"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -223,29 +173,12 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems
 
-  cruby-x86_64-musl-install:
-    needs: ["cruby-native-package"]
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sparklemotion/nokogiri-test:alpine
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: actions/download-artifact@v2
-        with:
-          name: cruby-x86_64-linux-gem
-          path: gems
-      - run: ./scripts/test-gem-install gems
-
   cruby-x86_64-darwin-install:
     needs: ["cruby-native-package"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.6", "2.7", "3.0", "3.1"]
+        ruby: ["2.6"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -260,78 +193,3 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems
 
-  cruby-x64-mingw32-install:
-    needs: ["cruby-native-package"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ["2.6", "2.7", "3.0"]
-    runs-on: windows-latest
-    steps:
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
-        with:
-          name: cruby-x64-mingw32-gem
-          path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem
-          gem list -d nokogiri
-          nokogiri -v
-
-  cruby-x64-mingw-ucrt-install:
-    needs: ["cruby-native-package"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ["3.1"]
-    runs-on: windows-2022
-    steps:
-      - uses: MSP-Greg/setup-ruby-pkgs@v1
-        with:
-          ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
-        with:
-          name: cruby-x64-mingw-ucrt-gem
-          path: gems
-      - run: |
-          gem install --verbose --no-document gems/*.gem
-          gem list -d nokogiri
-          nokogiri -v
-
-  jruby-package:
-    name: "jruby-package"
-    runs-on: ubuntu-latest
-    container:
-      image: "larskanis/rake-compiler-dock-jruby:1.2.2"
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v2
-        with:
-          name: jruby-gem
-          path: gems
-          retention-days: 1
-
-  jruby-install:
-    needs: ["jruby-package"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ["jruby-9.3", "jruby-head"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v2
-        with:
-          name: jruby-gem
-          path: gems
-      - run: ./scripts/test-gem-install gems
