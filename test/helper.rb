@@ -128,7 +128,7 @@ module Nokogiri
   end
 
   # rubocop:disable Style/ClassVars
-  class TestCase < MiniTest::Spec
+  class TestCase < Minitest::Spec
     include TestBase
 
     COMPACT_EVERY = 20
@@ -272,7 +272,7 @@ module Nokogiri
     def pending(msg)
       begin
         yield
-      rescue MiniTest::Assertion
+      rescue Minitest::Assertion
         skip("pending #{msg} [#{caller(2..2).first}]")
       end
       flunk("pending test unexpectedly passed: #{msg} [#{caller(1..1).first}]")

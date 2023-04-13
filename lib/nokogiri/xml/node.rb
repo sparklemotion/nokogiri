@@ -632,7 +632,7 @@ module Nokogiri
 
       ###
       # Iterate over each attribute name and value pair for this Node.
-      def each
+      def each(&blk)
         attribute_nodes.each do |node|
           yield [node.node_name, node.value]
         end

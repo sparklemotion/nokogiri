@@ -3,7 +3,7 @@
 require "helper"
 
 module Nokogiri
-  class TestCase
+  class TestNokogiri < Nokogiri::TestCase
     describe Nokogiri do
       def test_libxml_iconv
         skip_unless_libxml2("this constant is only set in the C extension when libxml2 is used")

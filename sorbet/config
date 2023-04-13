@@ -2,3 +2,6 @@
 .
 --ignore=tmp/
 --ignore=vendor/
+--ignore=rakelib/
+--ignore=ext/
+--ignore=script/

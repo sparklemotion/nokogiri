@@ -3,7 +3,7 @@
 require "helper"
 
 module Nokogiri
-  class TestCase
+  class TestXsltTransforms < Nokogiri::TestCase
     describe Nokogiri::XSLT::Stylesheet do
       def check_params(result_doc, params)
         result_doc.xpath("/root/params/*").each do |p|
