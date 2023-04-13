@@ -26,6 +26,10 @@ group :development do
   gem "simplecov", "= 0.21.2"
   gem "rubyzip", "~> 2.3.2"
 
+  # types
+  gem "sorbet"
+  gem "tapioca"
+
   # rubocop
   if Gem::Requirement.new("~> 3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
     gem "rubocop", "1.49.0"

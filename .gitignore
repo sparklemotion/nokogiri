@@ -41,3 +41,6 @@ tags
 # directories or files named after issues, and debugging
 /issues
 /*.log
+
+# gems
+bin/tapioca
