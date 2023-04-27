@@ -91,7 +91,7 @@ static void print_tag_stack (
   const GumboParserError* error,
   GumboStringBuffer* output
 ) {
-  print_message(output, "  Currently open tags: ");
+  print_message(output, " Currently open tags: ");
   for (unsigned int i = 0; i < error->tag_stack.length; ++i) {
     if (i) {
       print_message(output, ", ");
@@ -347,15 +347,19 @@ static void handle_parser_error (
       if (error->parser_state == GUMBO_INSERTION_MODE_INITIAL) {
         print_message(output, "You must provide a doctype");
       } else {
-        print_message(output, "Premature end of file");
+        print_message(output, "Premature end of file.");
         print_tag_stack(error, output);
       }
       return;
     case GUMBO_TOKEN_START_TAG:
-    case GUMBO_TOKEN_END_TAG:
-      print_message(output, "That tag isn't allowed here");
+      print_message(output, "Start tag '%s' isn't allowed here.",
+                    gumbo_normalized_tagname(error->input_tag));
       print_tag_stack(error, output);
-      // TODO(jdtang): Give more specific messaging.
+      return;
+    case GUMBO_TOKEN_END_TAG:
+      print_message(output, "Eng tag '%s' isn't allowed here.",
+                    gumbo_normalized_tagname(error->input_tag));
+      print_tag_stack(error, output);
       return;
   }
 }
