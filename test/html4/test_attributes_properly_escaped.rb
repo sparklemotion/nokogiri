@@ -22,7 +22,11 @@ module Nokogiri
         document = Nokogiri::HTML4::Document.new
         html = document.parse(original_html).to_s
 
-        assert_match(/!--%22&gt;&lt;test&gt;/, html)
+        if Nokogiri.uses_libxml?(">= 2.11.0")
+          assert_match(/!--"&gt;&lt;test&gt;/, html)
+        else
+          assert_match(/!--%22&gt;&lt;test&gt;/, html)
+        end
       end
 
       def test_libxml_escapes_server_side_includes_without_nested_quotes
