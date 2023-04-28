@@ -23,17 +23,21 @@ jobs:
         with:
           submodules: true
       - name: Setup libxml2
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
           cd libxml2
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: Setup libxslt
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
           cd libxslt
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: "Run bundle install"
         run: "bundle install --local || bundle install"
       - name: "Compile against libxml2 and libxslt source directories"
@@ -50,17 +54,21 @@ jobs:
         with:
           submodules: true
       - name: Setup libxml2
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
           cd libxml2
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: Setup libxslt
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
           cd libxslt
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: "Run bundle install"
         run: "bundle install --local || bundle install"
       - name: "Compile against libxml2 and libxslt source directories"
