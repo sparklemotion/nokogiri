@@ -133,7 +133,7 @@ module Nokogiri
           args += node.value[1..-1].map do |n|
             n.is_a?(Nokogiri::CSS::Node) ? n.accept(self) : n
           end
-          "#{node.value.first}#{args.join(",")})"
+          "nokogiri:#{node.value.first}#{args.join(",")})"
         end
       end
 
@@ -207,7 +207,7 @@ module Nokogiri
           when "parent" then "node()"
           when "root" then "not(parent::*)"
           else
-            node.value.first + "(.)"
+            "nokogiri:#{node.value.first}(.)"
           end
         end
       end
