@@ -343,27 +343,27 @@ class TestNokogiri < Nokogiri::TestCase
       end
 
       it "miscellaneous pseudo-classes are converted into xpath function calls" do
-        assert_xpath("//a[aaron(.)]", parser.parse("a:aaron"))
-        assert_xpath("//a[aaron(.)]", parser.parse("a:aaron()"))
-        assert_xpath("//a[aaron(.,12)]", parser.parse("a:aaron(12)"))
-        assert_xpath("//a[aaron(.,12,1)]", parser.parse("a:aaron(12, 1)"))
+        assert_xpath("//a[nokogiri:aaron(.)]", parser.parse("a:aaron"))
+        assert_xpath("//a[nokogiri:aaron(.)]", parser.parse("a:aaron()"))
+        assert_xpath("//a[nokogiri:aaron(.,12)]", parser.parse("a:aaron(12)"))
+        assert_xpath("//a[nokogiri:aaron(.,12,1)]", parser.parse("a:aaron(12, 1)"))
 
-        assert_xpath("//a[link(.)]", parser.parse("a:link"))
-        assert_xpath("//a[visited(.)]", parser.parse("a:visited"))
-        assert_xpath("//a[hover(.)]", parser.parse("a:hover"))
-        assert_xpath("//a[active(.)]", parser.parse("a:active"))
+        assert_xpath("//a[nokogiri:link(.)]", parser.parse("a:link"))
+        assert_xpath("//a[nokogiri:visited(.)]", parser.parse("a:visited"))
+        assert_xpath("//a[nokogiri:hover(.)]", parser.parse("a:hover"))
+        assert_xpath("//a[nokogiri:active(.)]", parser.parse("a:active"))
 
-        assert_xpath("//a[foo(.,@href)]", parser.parse("a:foo(@href)"))
-        assert_xpath("//a[foo(.,@href,@id)]", parser.parse("a:foo(@href, @id)"))
-        assert_xpath("//a[foo(.,@a,b)]", parser.parse("a:foo(@a, b)"))
-        assert_xpath("//a[foo(.,a,@b)]", parser.parse("a:foo(a, @b)"))
-        assert_xpath("//a[foo(.,a,10)]", parser.parse("a:foo(a, 10)"))
-        assert_xpath("//a[foo(.,42)]", parser.parse("a:foo(42)"))
-        assert_xpath("//a[foo(.,'bar')]", parser.parse("a:foo('bar')"))
+        assert_xpath("//a[nokogiri:foo(.,@href)]", parser.parse("a:foo(@href)"))
+        assert_xpath("//a[nokogiri:foo(.,@href,@id)]", parser.parse("a:foo(@href, @id)"))
+        assert_xpath("//a[nokogiri:foo(.,@a,b)]", parser.parse("a:foo(@a, b)"))
+        assert_xpath("//a[nokogiri:foo(.,a,@b)]", parser.parse("a:foo(a, @b)"))
+        assert_xpath("//a[nokogiri:foo(.,a,10)]", parser.parse("a:foo(a, 10)"))
+        assert_xpath("//a[nokogiri:foo(.,42)]", parser.parse("a:foo(42)"))
+        assert_xpath("//a[nokogiri:foo(.,'bar')]", parser.parse("a:foo('bar')"))
       end
 
       it "bare pseudo-class matches any ident" do
-        assert_xpath("//*[link(.)]", parser.parse(":link"))
+        assert_xpath("//*[nokogiri:link(.)]", parser.parse(":link"))
         assert_xpath("//*[not(@id='foo')]", parser.parse(":not(#foo)"))
         assert_xpath("//*[count(preceding-sibling::*)=0]", parser.parse(":first-child"))
       end
@@ -483,18 +483,18 @@ class TestNokogiri < Nokogiri::TestCase
 
     it "handles pseudo-class with class selector" do
       assert_xpath(
-        "//a[active(.) and contains(concat(' ',normalize-space(@class),' '),' foo ')]",
+        "//a[nokogiri:active(.) and contains(concat(' ',normalize-space(@class),' '),' foo ')]",
         parser.parse("a:active.foo"),
       )
       assert_xpath(
-        "//a[contains(concat(' ',normalize-space(@class),' '),' foo ') and active(.)]",
+        "//a[contains(concat(' ',normalize-space(@class),' '),' foo ') and nokogiri:active(.)]",
         parser.parse("a.foo:active"),
       )
     end
 
     it "handles pseudo-class with an id selector" do
-      assert_xpath("//a[@id='foo' and active(.)]", parser.parse("a#foo:active"))
-      assert_xpath("//a[active(.) and @id='foo']", parser.parse("a:active#foo"))
+      assert_xpath("//a[@id='foo' and nokogiri:active(.)]", parser.parse("a#foo:active"))
+      assert_xpath("//a[nokogiri:active(.) and @id='foo']", parser.parse("a:active#foo"))
     end
 
     it "handles function with pseudo-class" do

@@ -218,9 +218,9 @@ xmlParserCtxtPtr noko_xml_sax_parser_context_unwrap(VALUE rb_context);
 #define DISCARD_CONST_QUAL_XMLCHAR(v) DISCARD_CONST_QUAL(xmlChar *, v)
 
 #if HAVE_RB_CATEGORY_WARNING
-#  define NOKO_WARN_DEPRECATION(message) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, message)
+#  define NOKO_WARN_DEPRECATION(message...) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, message)
 #else
-#  define NOKO_WARN_DEPRECATION(message) rb_warning(message)
+#  define NOKO_WARN_DEPRECATION(message...) rb_warning(message)
 #endif
 
 void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);

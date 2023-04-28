@@ -121,6 +121,24 @@ module Nokogiri
         refute_nil(doc.at_css("img[width=200]"))
       end
 
+      def test_xpath_with_nonnamespaced_custom_function_is_deprecated_but_works
+        skip_unless_libxml2("only deprecated in CRuby")
+
+        result = nil
+        assert_output("", /Invoking custom handler functions without a namespace is deprecated/) do
+          result = @xml.xpath("anint()", @handler)
+        end
+        assert_equal(1230456, result)
+      end
+
+      def test_xpath_with_namespaced_custom_function_is_not_deprecated
+        result = nil
+        assert_silent do
+          result = @xml.xpath("nokogiri:anint()", @handler)
+        end
+        assert_equal(1230456, result)
+      end
+
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         refute_empty(set)
@@ -145,21 +163,7 @@ module Nokogiri
       end
 
       def test_search_with_xpath_query_uses_custom_selectors_with_arguments
-        set = if Nokogiri.uses_libxml?
-          @xml.search('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
-        else
-          @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
-        end
-        refute_empty(set)
-        set.each do |node|
-          assert_equal("Yes", node["domestic"])
-        end
-      end
-
-      def test_search_with_xpath_query_using_namespaced_custom_function
-        # Note that invocation with namespaces was not historically supported in CRuby.
-        # see https://github.com/sparklemotion/nokogiri/issues/2147 for more context.
-        set = @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
+        set = @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
@@ -167,11 +171,7 @@ module Nokogiri
       end
 
       def test_pass_self_to_function
-        set = if Nokogiri.uses_libxml?
-          @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
-        else
-          @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
-        end
+        set = @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
         refute_empty(set)
         set.each do |node|
           assert_equal("Yes", node["domestic"])
@@ -180,11 +180,7 @@ module Nokogiri
 
       def test_custom_xpath_function_gets_strings
         set = @xml.xpath("//employee")
-        if Nokogiri.uses_libxml?
-          @xml.xpath('//employee[thing("asdf")]', @handler)
-        else
-          @xml.xpath('//employee[nokogiri:thing("asdf")]', @handler)
-        end
+        @xml.xpath('//employee[nokogiri:thing("asdf")]', @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(["asdf"] * set.length, @handler.things)
       end
@@ -246,65 +242,41 @@ module Nokogiri
       end
 
       def test_custom_xpath_function_returns_string
-        result = if Nokogiri.uses_libxml?
-          @xml.xpath('thing("asdf")', @handler)
-        else
-          @xml.xpath('nokogiri:thing("asdf")', @handler)
-        end
+        result = @xml.xpath('nokogiri:thing("asdf")', @handler)
         assert_equal("asdf", result)
       end
 
       def test_custom_xpath_gets_true_booleans
         set = @xml.xpath("//employee")
-        if Nokogiri.uses_libxml?
-          @xml.xpath("//employee[thing(true())]", @handler)
-        else
-          @xml.xpath("//employee[nokogiri:thing(true())]", @handler)
-        end
+        @xml.xpath("//employee[nokogiri:thing(true())]", @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal([true] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_false_booleans
         set = @xml.xpath("//employee")
-        if Nokogiri.uses_libxml?
-          @xml.xpath("//employee[thing(false())]", @handler)
-        else
-          @xml.xpath("//employee[nokogiri:thing(false())]", @handler)
-        end
+        @xml.xpath("//employee[nokogiri:thing(false())]", @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal([false] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_numbers
         set = @xml.xpath("//employee")
-        if Nokogiri.uses_libxml?
-          @xml.xpath("//employee[thing(10)]", @handler)
-        else
-          @xml.xpath("//employee[nokogiri:thing(10)]", @handler)
-        end
+        @xml.xpath("//employee[nokogiri:thing(10)]", @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal([10] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_node_sets
         set = @xml.xpath("//employee/name")
-        if Nokogiri.uses_libxml?
-          @xml.xpath("//employee[thing(name)]", @handler)
-        else
-          @xml.xpath("//employee[nokogiri:thing(name)]", @handler)
-        end
+        @xml.xpath("//employee[nokogiri:thing(name)]", @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
 
       def test_custom_xpath_gets_node_sets_and_returns_array
         set = @xml.xpath("//employee/name")
-        if Nokogiri.uses_libxml?
-          @xml.xpath("//employee[returns_array(name)]", @handler)
-        else
-          @xml.xpath("//employee[nokogiri:returns_array(name)]", @handler)
-        end
+        @xml.xpath("//employee[nokogiri:returns_array(name)]", @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
@@ -317,7 +289,7 @@ module Nokogiri
 
         assert(@xml.xpath("//employee/name"))
 
-        @xml.xpath("//employee[saves_node_set(name)]", @handler)
+        @xml.xpath("//employee[nokogiri:saves_node_set(name)]", @handler)
         assert_equal(@xml, @handler.things.document)
         assert_respond_to(@handler.things, :awesome!)
       end
@@ -352,7 +324,7 @@ module Nokogiri
 
           # long list of long arguments, to apply GC pressure during
           # ruby_funcall argument marshalling
-          xpath = ["//tool[name_equals(.,'hammer'"]
+          xpath = ["//tool[nokogiri:name_equals(.,'hammer'"]
           500.times { xpath << "'unused argument #{"x" * 1000}'" }
           xpath << "'unused argument')]"
           xpath = xpath.join(",")
@@ -362,20 +334,12 @@ module Nokogiri
       end
 
       def test_custom_xpath_without_arguments
-        value = if Nokogiri.uses_libxml?
-          @xml.xpath("value()", @handler)
-        else
-          @xml.xpath("nokogiri:value()", @handler)
-        end
+        value = @xml.xpath("nokogiri:value()", @handler)
         assert_in_delta(123.456, value)
       end
 
       def test_custom_xpath_without_arguments_returning_int
-        value = if Nokogiri.uses_libxml?
-          @xml.xpath("anint()", @handler)
-        else
-          @xml.xpath("nokogiri:anint()", @handler)
-        end
+        value = @xml.xpath("nokogiri:anint()", @handler)
         assert_equal(1230456, value)
       end
 
@@ -383,7 +347,7 @@ module Nokogiri
         xml = "<foo> </foo>"
         doc = Nokogiri::XML.parse(xml)
         foo = doc.xpath(
-          "//foo[bool_function(bar/baz)]",
+          "//foo[nokogiri:bool_function(bar/baz)]",
           Class.new do
             def bool_function(value)
               true
@@ -593,21 +557,21 @@ module Nokogiri
 
         it "handles multiple handler function calls" do
           # test that jruby handles this case identically to C
-          result = @xml.xpath("//employee[thing(.)]/employeeId[another_thing(.)]", @handler)
+          result = @xml.xpath("//employee[nokogiri:thing(.)]/employeeId[nokogiri:another_thing(.)]", @handler)
           assert_equal(5, result.length)
           assert_equal(10, @handler.things.length)
         end
 
         it "doesn't get confused by an XPath function, flavor 1" do
           # test that it doesn't get confused by an XPath function
-          result = @xml.xpath("//employee[thing(.)]/employeeId[last()]", @handler)
+          result = @xml.xpath("//employee[nokogiri:thing(.)]/employeeId[last()]", @handler)
           assert_equal(5, result.length)
           assert_equal(5, @handler.things.length)
         end
 
         it "doesn't get confused by an XPath function, flavor 2" do
           # test that it doesn't get confused by an XPath function
-          result = @xml.xpath("//employee[last()]/employeeId[thing(.)]", @handler)
+          result = @xml.xpath("//employee[last()]/employeeId[nokogiri:thing(.)]", @handler)
           assert_equal(1, result.length)
           assert_equal(1, @handler.things.length)
         end

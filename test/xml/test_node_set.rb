@@ -173,8 +173,8 @@ module Nokogiri
             set = xml.xpath("//staff")
 
             [
-              [:xpath,  "//*[awesome(.)]"],
-              [:search, "//*[awesome(.)]"],
+              [:xpath,  "//*[nokogiri:awesome(.)]"],
+              [:search, "//*[nokogiri:awesome(.)]"],
               [:css,    "*:awesome"],
               [:search, "*:awesome"],
             ].each do |method, query|

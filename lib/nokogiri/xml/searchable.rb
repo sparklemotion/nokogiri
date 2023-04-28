@@ -36,16 +36,19 @@ module Nokogiri
       #   node.search('.//address[@domestic=$value]', nil, {:value => 'Yes'})
       #
       # 💡 Custom XPath functions and CSS pseudo-selectors may also be defined. To define custom
-      # functions create a class and implement the function you want to define. The first argument
-      # to the method will be the current matching NodeSet. Any other arguments are ones that you
-      # pass in. Note that this class may appear anywhere in the argument list. For example:
+      # functions create a class and implement the function you want to define, which will be in the
+      # `nokogiri` namespace in XPath queries.
+      #
+      # The first argument to the method will be the current matching NodeSet. Any other arguments
+      # are ones that you pass in. Note that this class may appear anywhere in the argument
+      # list. For example:
       #
       #   handler = Class.new {
       #     def regex node_set, regex
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
       #   }.new
-      #   node.search('.//title[regex(., "\w+")]', 'div.employee:regex("[0-9]+")', handler)
+      #   node.search('.//title[nokogiri:regex(., "\w+")]', 'div.employee:regex("[0-9]+")', handler)
       #
       # See Searchable#xpath and Searchable#css for further usage help.
       def search(*args)
@@ -160,16 +163,18 @@ module Nokogiri
       #   node.xpath('.//address[@domestic=$value]', nil, {:value => 'Yes'})
       #
       # 💡 Custom XPath functions may also be defined. To define custom functions create a class and
-      # implement the function you want to define. The first argument to the method will be the
-      # current matching NodeSet. Any other arguments are ones that you pass in. Note that this
-      # class may appear anywhere in the argument list. For example:
+      # implement the function you want to define, which will be in the `nokogiri` namespace.
+      #
+      # The first argument to the method will be the current matching NodeSet. Any other arguments
+      # are ones that you pass in. Note that this class may appear anywhere in the argument
+      # list. For example:
       #
       #   handler = Class.new {
       #     def regex(node_set, regex)
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
       #   }.new
-      #   node.xpath('.//title[regex(., "\w+")]', handler)
+      #   node.xpath('.//title[nokogiri:regex(., "\w+")]', handler)
       #
       def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
