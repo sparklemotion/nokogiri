@@ -126,6 +126,32 @@
   fun:read_memory
 }
 {
+  https://github.com/sparklemotion/nokogiri/actions/runs/4845701723/jobs/8634781681
+  # same as previous warning but on libxml 2.11, I think?
+  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 30,974 of 40,320
+  #   malloc (at /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+  #   objspace_xmalloc0 (gc.c:12258)
+  #   xmlNewDocNodeEatName (at /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.10)
+  #   xmlSAX2StartElementNs (at /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.10)
+  #   <unknown stack frame>
+  #   <unknown stack frame>
+  #   xmlParseContent (at /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.10)
+  #   xmlParseDocument (at /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.10)
+  #   xmlReadMemory (at /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.10)
+  #  *read_memory (xml_document.c:369)
+  Memcheck:Leak
+  fun:malloc
+  fun:objspace_xmalloc0
+  ...
+  fun:xmlNewDocNodeEatName
+  fun:xmlSAX2StartElementNs
+  ...
+  fun:xmlParseContent
+  fun:xmlParseDocument
+  fun:xmlReadMemory
+  fun:read_memory
+}
+{
   TODO
   # 1,464 (72 direct, 1,392 indirect) bytes in 1 blocks are definitely lost in loss record 35,525 of 37,883
   # *xmlXPathWrapNodeSet (xpath.c:4386)
