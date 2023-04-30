@@ -1,0 +1,3 @@
+# -*- dockerfile -*-
+
+RUN apt-get install -y git-core
