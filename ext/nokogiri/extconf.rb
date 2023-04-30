@@ -15,7 +15,7 @@ PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."
 REQUIRED_LIBXML_VERSION = "2.6.21"
 RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
-REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.0" # keep this version in sync with the one in the gemspec
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.2" # keep this version in sync with the one in the gemspec
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 # Keep track of what versions of what libraries we build against
