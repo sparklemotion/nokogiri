@@ -333,7 +333,7 @@ jobs:
       - uses: vmactions/freebsd-vm@v0
         with:
           usesh: true
-          prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt
+          prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git
           run: |
             gem install bundler
             bundle install --local || bundle install

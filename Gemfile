@@ -22,9 +22,9 @@ group :development do
   # tests
   gem "minitest", "5.18.0"
   gem "minitest-reporters", "1.6.0"
-  gem "ruby_memcheck", "1.3.1" unless RUBY_PLATFORM == "java"
-  gem "simplecov", "= 0.21.2"
+  gem "ruby_memcheck", git: "https://github.com/flavorjones/ruby_memcheck", ref: "flavorjones-nokogiri-huge-parse-option"
   gem "rubyzip", "~> 2.3.2"
+  gem "simplecov", "= 0.21.2"
 
   # rubocop
   if Gem::Requirement.new("~> 3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))

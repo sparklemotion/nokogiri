@@ -9,6 +9,12 @@ RUN apt-get upgrade -y
 RUN apt-get install -y apt-utils
 
 
+# include_file debian-git.step
+# -*- dockerfile -*-
+
+RUN apt-get install -y git-core
+
+
 # include_file debian-libxml-et-al.step
 # -*- dockerfile -*-
 
