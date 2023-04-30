@@ -61,7 +61,6 @@ jobs:
       - run: "bundle exec rake test"
 
   xmlsoft-head-valgrind:
-    needs: ["xmlsoft-head"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
@@ -90,6 +89,7 @@ jobs:
       - name: "Compile against libxml2 and libxslt source directories"
         run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
       - run: "bundle exec rake test:valgrind"
+      - run: "bundle exec rake test:memcheck"
 
   ruby-head:
     strategy:
@@ -123,7 +123,6 @@ jobs:
       - run: bundle exec rake test
 
   ruby-head-valgrind:
-    needs: ["ruby-head"]
     strategy:
       fail-fast: false
       matrix:
@@ -146,6 +145,7 @@ jobs:
           key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
+      - run: bundle exec rake test:memcheck
 
   jruby-head:
     runs-on: ubuntu-latest
