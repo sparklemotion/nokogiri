@@ -192,6 +192,10 @@ Init_nokogiri(void)
   mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
   mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
 
+  set_libxml_memory_management(); /* must be before any function calls that might invoke xmlInitParser() */
+  xmlInitParser();
+  exsltRegisterAll();
+
   rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
 
@@ -223,11 +227,6 @@ Init_nokogiri(void)
 #ifdef NOKOGIRI_OTHER_LIBRARY_VERSIONS
   rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
 #endif
-
-  set_libxml_memory_management();
-
-  xmlInitParser();
-  exsltRegisterAll();
 
   if (xsltExtModuleFunctionLookup((const xmlChar *)"date-time", EXSLT_DATE_NAMESPACE)) {
     rb_const_set(mNokogiri, rb_intern("LIBXSLT_DATETIME_ENABLED"), Qtrue);
