@@ -15,33 +15,52 @@ on:
 
 jobs:
   xmlsoft-head:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+    strategy:
+      fail-fast: false
+      matrix:
+        plat: ["ubuntu", "windows", "macos"]
+    runs-on: ${{matrix.plat}}-latest
     steps:
+      - name: configure git crlf
+        if: matrix.plat == 'windows'
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
       - uses: actions/checkout@v3
         with:
           submodules: true
+      - uses: ruby/setup-ruby-pkgs@v1
+        with:
+          ruby-version: "3.2"
+          apt-get: "autogen libtool shtool"
+          brew: "automake autogen libtool shtool"
+          mingw: "autotools"
+          bundler-cache: true
+          bundler: latest
       - name: Setup libxml2
+        env:
+          NOCONFIGURE: t
+        shell: bash
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
           cd libxml2
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: Setup libxslt
+        env:
+          NOCONFIGURE: t
+        shell: bash
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
           cd libxslt
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
-      - name: "Run bundle install"
-        run: "bundle install --local || bundle install"
+          ./autogen.sh
       - name: "Compile against libxml2 and libxslt source directories"
+        shell: bash
         run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
       - run: "bundle exec rake test"
 
   xmlsoft-head-valgrind:
-    needs: ["xmlsoft-head"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
@@ -50,22 +69,27 @@ jobs:
         with:
           submodules: true
       - name: Setup libxml2
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
           cd libxml2
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: Setup libxslt
+        env:
+          NOCONFIGURE: t
         run: |
           git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
           cd libxslt
           git log -n1
-          env NOCONFIGURE=t ./autogen.sh
+          ./autogen.sh
       - name: "Run bundle install"
         run: "bundle install --local || bundle install"
       - name: "Compile against libxml2 and libxslt source directories"
         run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
       - run: "bundle exec rake test:valgrind"
+      - run: "bundle exec rake test:memcheck"
 
   ruby-head:
     strategy:
@@ -99,7 +123,6 @@ jobs:
       - run: bundle exec rake test
 
   ruby-head-valgrind:
-    needs: ["ruby-head"]
     strategy:
       fail-fast: false
       matrix:
@@ -122,6 +145,7 @@ jobs:
           key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
+      - run: bundle exec rake test:memcheck
 
   jruby-head:
     runs-on: ubuntu-latest
