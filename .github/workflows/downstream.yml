@@ -45,6 +45,9 @@ jobs:
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
+          - url: https://github.com/SAML-Toolkits/ruby-saml
+            name: ruby-saml
+            command: "bundle exec rake test"
           # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
           #   name: nokogiri-xmlsec-instructure
           #   precommand: "apt install -y libxmlsec1-dev"
