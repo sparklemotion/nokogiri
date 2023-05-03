@@ -3964,6 +3964,18 @@ static void handle_in_select(GumboParser* parser, GumboToken* token) {
     insert_element_from_token(parser, token);
     return;
   }
+  if (tag_is(token, kStartTag, GUMBO_TAG_HR)) {
+    if (node_html_tag_is(get_current_node(parser), GUMBO_TAG_OPTION)) {
+      pop_current_node(parser);
+    }
+    if (node_html_tag_is(get_current_node(parser), GUMBO_TAG_OPTGROUP)) {
+      pop_current_node(parser);
+    }
+    insert_element_from_token(parser, token);
+    pop_current_node(parser);
+    acknowledge_self_closing_tag(parser);
+    return;
+  }
   if (tag_is(token, kEndTag, GUMBO_TAG_OPTGROUP)) {
     GumboVector* open_elements = &parser->_parser_state->_open_elements;
     if (
