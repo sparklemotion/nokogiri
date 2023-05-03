@@ -35,7 +35,12 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
       assert_equal(
         node[:children].length,
         ng_node.children.length,
-        "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)} in #{@test[:data]}",
+        [
+          "Element <#{node[:tag]}> has wrong number of children #{ng_node.children.map(&:name)}",
+          "   Input: #{@test[:data]}",
+          "Expected: #{@test[:raw].join("\n          ")}",
+          "  Parsed: #{ng_node.to_html}",
+        ].join("\n"),
       )
     when Nokogiri::XML::Node::TEXT_NODE, Nokogiri::XML::Node::CDATA_SECTION_NODE
       # We preserve the CDATA in the tree, but the tests represent it as text.
@@ -205,8 +210,11 @@ module Html5libTestCaseParser
       children: [],
     }
     open_nodes = [document]
+    test[:raw] = []
     while index < lines.length
       raise(BadHtml5libFormat, "Expected '| ' but got #{lines[index]}") unless /^\| ( *)([^ ].*$)/ =~ lines[index]
+
+      test[:raw] << lines[index]
 
       depth = $LAST_MATCH_INFO[1].length
       if depth.odd?
