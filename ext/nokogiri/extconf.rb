@@ -229,7 +229,7 @@ def gnome_source
   if ENV["NOKOGIRI_USE_CANONICAL_GNOME_SOURCE"]
     "https://download.gnome.org"
   else
-    "https://mirror.csclub.uwaterloo.ca/gnome" # old reliable
+    "https://muug.ca/mirror/gnome" # old reliable
   end
 end
 
