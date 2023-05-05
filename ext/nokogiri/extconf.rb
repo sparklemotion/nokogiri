@@ -882,7 +882,12 @@ else
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxml2", "*.patch")].sort
     end
 
+    cppflags = concat_flags(ENV["CPPFLAGS"])
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+
+    if cross_build_p
+      cppflags = concat_flags(cppflags, "-DNOKOGIRI_PRECOMPILED_LIBRARIES")
+    end
 
     if zlib_recipe
       recipe.configure_options << "--with-zlib=#{zlib_recipe.path}"
@@ -914,6 +919,7 @@ else
       "--with-c14n",
       "--with-debug",
       "--with-threads",
+      "CPPFLAGS=#{cppflags}",
       "CFLAGS=#{cflags}",
     ]
   end
