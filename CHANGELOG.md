@@ -26,12 +26,13 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 
 ### Dependencies
 
-[CRuby] Vendored libxml2 is updated to v2.11.3 from v2.10.4. Please see the multiple release notes:
-
-- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.0
-- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.1
-- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.2
-- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.3
+* [CRuby] Vendored libxml2 is updated to v2.11.3 from v2.10.4. For details please see:
+  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.0
+  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.1
+  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.2
+  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.3
+* [CRuby] Vendored libxslt is updated to v1.1.38 from v1.1.37. For details please see:
+  * https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.38
 
 
 ### Added
