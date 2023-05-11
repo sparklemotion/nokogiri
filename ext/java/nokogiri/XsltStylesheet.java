@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -184,9 +185,15 @@ public class XsltStylesheet extends RubyObject
     XmlDocument xmlDoc = (XmlDocument) doc;
     ByteArrayOutputStream writer = new ByteArrayOutputStream();
 
-    Serializer serializer = SerializerFactory.getSerializer(this.sheet.getOutputProperties());
+    java.util.Properties props = this.sheet.getOutputProperties();
+    if (props.getProperty(OutputKeys.METHOD) == null) {
+      props.setProperty(OutputKeys.METHOD, org.apache.xml.serializer.Method.UNKNOWN);
+    }
+
+    Serializer serializer = SerializerFactory.getSerializer(props);
     serializer.setOutputStream(writer);
     ((SerializationHandler) serializer).serialize(xmlDoc.getNode());
+
     return context.getRuntime().newString(writer.toString());
   }
 

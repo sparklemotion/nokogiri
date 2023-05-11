@@ -312,6 +312,10 @@ module Nokogiri
         #  note that here the XPath 2.0 feature is `decimal`.
         #  this test case is taken from the example provided in the original issue.
         #
+        #  also: xalan 2.7.3 seems to understand the XPath 2.0 expression
+        #
+        skip_unless_libxml2("testing a crash that only happened with libxml2")
+
         xml = <<~EOXML
           <?xml version="1.0" encoding="UTF-8"?>
           <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
@@ -356,7 +360,7 @@ module Nokogiri
           )
         else
           assert_match(
-            /xmlXPathCompOpEval: function decimal not found|java.lang.NoSuchMethodException.*decimal/,
+            /xmlXPathCompOpEval: function decimal not found/,
             exception.message,
           )
         end
