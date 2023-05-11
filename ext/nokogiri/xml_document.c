@@ -74,14 +74,23 @@ dealloc(void *data)
 
   ruby_xfree(doc->_private);
 
-  /* When both Nokogiri and libxml-ruby are loaded, make sure that all nodes
-   * have their _private pointers cleared. This is to avoid libxml-ruby's
-   * xmlDeregisterNode callback from accessing VALUE pointers from ruby's GC
-   * free context, which can result in segfaults.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations" // xmlDeregisterNodeDefault is deprecated as of libxml2 2.11.0
+  /*
+   * libxml-ruby < 3.0.0 uses xmlDeregisterNodeDefault. If the user is using one of those older
+   * versions, the registered callback from libxml-ruby will access the _private pointers set by
+   * nokogiri, which will result in segfaults.
+   *
+   * To avoid this, we need to clear the _private pointers from all nodes in this document tree
+   * before that callback gets invoked.
+   *
+   * libxml-ruby 3.0.0 was released in 2017-02, so at some point we can probably safely remove this
+   * safeguard (though probably pairing with a runtime check on the libxml-ruby version).
    */
   if (xmlDeregisterNodeDefaultValue) {
     remove_private((xmlNodePtr)doc);
   }
+#pragma GCC diagnostic pop
 
   xmlFreeDoc(doc);
 }

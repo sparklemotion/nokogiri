@@ -77,6 +77,12 @@ static VALUE
 parse_file(VALUE klass, VALUE filename)
 {
   xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValueCStr(filename));
+
+  if (ctxt->sax) {
+    xmlFree(ctxt->sax);
+    ctxt->sax = NULL;
+  }
+
   return noko_xml_sax_parser_context_wrap(klass, ctxt);
 }
 
@@ -146,11 +152,6 @@ parse_with(VALUE self, VALUE sax_handler)
 
   ctxt = noko_xml_sax_parser_context_unwrap(self);
   sax = noko_sax_handler_unwrap(sax_handler);
-
-  /* Free the sax handler since we'll assign our own */
-  if (ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler) {
-    xmlFree(ctxt->sax);
-  }
 
   ctxt->sax = sax;
   ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);

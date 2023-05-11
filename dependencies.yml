@@ -1,12 +1,12 @@
 libxml2:
-  version: "2.10.4"
-  sha256: "ed0c91c5845008f1936739e4eee2035531c1c94742c6541f44ee66d885948d45"
-  # sha-256 hash provided in https://download.gnome.org/sources/libxml2/2.10/libxml2-2.10.4.sha256sum
+  version: "2.11.3"
+  sha256: "f1acae1664bda006cd81bfc238238217043d586d06659d5c0e3d1bcebe040870"
+  # sha-256 hash provided in https://download.gnome.org/sources/libxml2/2.11/libxml2-2.11.3.sha256sum
 
 libxslt:
-  version: "1.1.37"
-  sha256: "3a4b27dc8027ccd6146725950336f1ec520928f320f144eb5fa7990ae6123ab4"
-  # sha-256 hash provided in https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.37.sha256sum
+  version: "1.1.38"
+  sha256: "1f32450425819a09acaff2ab7a5a7f8a2ec7956e505d7beeb45e843d0e1ecab1"
+  # sha-256 hash provided in https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.38.sha256sum
 
 zlib:
   version: "1.2.13"

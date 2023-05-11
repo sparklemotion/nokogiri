@@ -24,6 +24,16 @@ Benchmarks show that this setting will significantly improve performance, but be
 You can read more about this in the decision record at `adr/2023-04-libxml-memory-management.md`.
 
 
+### Dependencies
+
+[CRuby] Vendored libxml2 is updated to v2.11.3 from v2.10.4. Please see the multiple release notes:
+
+- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.0
+- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.1
+- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.2
+- https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.3
+
+
 ### Added
 
 * `Encoding` objects may now be passed to serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` to specify the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)
