@@ -66,6 +66,17 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 ### Security
 
 
+## 1.14.4 / 2023-05-11
+
+### Dependencies
+
+* [JRuby] Vendored Xalan-J is updated to [v2.7.3](https://xalan.apache.org/xalan-j/readme.html). This is the first Xalan release in nine years, and it was done to address [CVE-2022-34169](https://github.com/advisories/GHSA-9339-86wc-4qgf).
+
+  The Nokogiri maintainers wish to stress that Nokogiri users were not vulnerable to this CVE, as we explained in [GHSA-qwq9-89rg-ww72](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-qwq9-89rg-ww72), and so upgrading is really at the discretion of users.
+
+  This release was cut primarily so that JRuby users of v1.14.x can avoid vulnerability scanner alerts on earlier versions of Xalan-J.
+
+
 ## 1.14.3 / 2023-04-11
 
 ### Security
