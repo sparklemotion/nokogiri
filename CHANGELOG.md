@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## 1.15.0 / unreleased
+## 1.15.0 / 2023-05-15
 
 ### Notes
 
@@ -21,7 +21,7 @@ NOKOGIRI_LIBXML_MEMORY_MANAGEMENT=default
 
 Benchmarks show that this setting will significantly improve performance, but be aware that the tradeoff may involve poorer memory management including bloated heap sizes and/or OOM conditions.
 
-You can read more about this in the decision record at `adr/2023-04-libxml-memory-management.md`.
+You can read more about this in the decision record at [`adr/2023-04-libxml-memory-management.md`](adr/2023-04-libxml-memory-management.md).
 
 
 ### Dependencies
@@ -38,6 +38,7 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 ### Added
 
 * `Encoding` objects may now be passed to serialization methods like `#to_xml`, `#to_html`, `#serialize`, and `#write_to` to specify the output encoding. Previously only encoding names (strings) were accepted. [[#2774](https://github.com/sparklemotion/nokogiri/issues/2774), [#2798](https://github.com/sparklemotion/nokogiri/issues/2798)] (Thanks, [@ellaklara](https://github.com/ellaklara)!)
+* [CRuby] Users may opt into using system `malloc` for libxml2 memory management. For more detail, see note above or [`adr/2023-04-libxml-memory-management.md`](adr/2023-04-libxml-memory-management.md).
 
 
 ### Changed
@@ -57,11 +58,11 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 * [CRuby] The C extension now uses Ruby's [TypedData API](https://docs.ruby-lang.org/en/3.0/extension_rdoc.html#label-Encapsulate+C+Data+into+a+Ruby+Object) for managing all the libxml2 structs. Write barriers may improve GC performance in some extreme cases. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
 * [CRuby] `ObjectSpace.memsize_of` reports a pretty good guess of memory usage when called on `Nokogiri::XML::Document` objects. [[#2807](https://github.com/sparklemotion/nokogiri/issues/2807)] (Thanks, [@etiennebarrie](https://github.com/etiennebarrie) and [@byroot](https://github.com/byroot)!)
 * [CRuby] Users installing the "ruby" platform gem and compiling libxml2 and libxslt from source will now be using a modern `config.guess` and `config.sub` that supports new architectures like `loongarch64`. [[#2831](https://github.com/sparklemotion/nokogiri/issues/2831)] (Thanks, [@zhangwenlong8911](https://github.com/zhangwenlong8911)!)
-* [JRuby] `Node#first_element_child` now returns `nil` if there are only non-element children. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808), [#2844](https://github.com/sparklemotion/nokogiri/issues/2844)]
-* Documentation for `Nokogiri::XSLT` now has usage examples including custom function handlers.
 * [CRuby] HTML5 parser:
   * adjusts the specified attributes, adding `xlink:arcrole` and removing `xml:base` [[#2841](https://github.com/sparklemotion/nokogiri/issues/2841), [#2842](https://github.com/sparklemotion/nokogiri/issues/2842)]
   * allows `<hr>` in `<select>` [[whatwg/html#3410](https://github.com/whatwg/html/issues/3410), [whatwg/html#9124](https://github.com/whatwg/html/pull/9124)]
+* [JRuby] `Node#first_element_child` now returns `nil` if there are only non-element children. Previously a null pointer exception was raised. [[#2808](https://github.com/sparklemotion/nokogiri/issues/2808), [#2844](https://github.com/sparklemotion/nokogiri/issues/2844)]
+* Documentation for `Nokogiri::XSLT` now has usage examples including custom function handlers.
 
 
 ### Deprecated
@@ -72,9 +73,28 @@ You can read more about this in the decision record at `adr/2023-04-libxml-memor
 * [CRuby] Calling a custom XPath function without the `nokogiri` namespace is deprecated and will generate a warning. Support for non-namespaced functions will be removed in a future version of Nokogiri. (Note that JRuby has never supported non-namespaced custom XPath functions.)
 
 
-### Performance
+### Thank you!
 
-### Security
+The following people and organizations were kind enough to sponsor @flavorjones or the Nokogiri project during the development of v1.15.0:
+
+* Götz Görisch (@GoetzGoerisch)
+* Airbnb (@airbnb)
+* Kyohei Nanba (@kyo-nanba)
+* Maxime Gauthier (@biximilien)
+* @renuo
+* @dbootyfvrt
+* YOSHIDA Katsuhiko (@kyoshidajp)
+* Homebrew (@Homebrew)
+* Hiroshi SHIBATA (@hsbt)
+* PuLLi (@the-pulli)
+* SiteLog GmbH (@sitelog-gmbh)
+* @zzak
+* Evil Martians (@evilmartians)
+* Ajaya Agrawalla (@ajaya)
+* Modern Treasury (@Modern-Treasury)
+* Danilo Lessa Bernardineli (@danlessa)
+
+We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
 
 
 ## 1.14.4 / 2023-05-11
