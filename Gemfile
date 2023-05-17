@@ -22,7 +22,7 @@ group :development do
   # tests
   gem "minitest", "5.18.0"
   gem "minitest-reporters", "1.6.0"
-  gem "ruby_memcheck", git: "https://github.com/flavorjones/ruby_memcheck", ref: "flavorjones-nokogiri-huge-parse-option"
+  gem "ruby_memcheck"
   gem "rubyzip", "~> 2.3.2"
   gem "simplecov", "= 0.21.2"
 
