@@ -4,6 +4,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.15.1 / 2023-05-19
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.11.4 from v2.11.3. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.4
+
+
+### Fixed
+
+* [CRuby] The libxml2 update fixes an encoding regression when push-parsing UTF-8 sequences. [[#2882](https://github.com/sparklemotion/nokogiri/issues/2882), upstream [issue](https://gitlab.gnome.org/GNOME/libxml2/-/issues/542) and [commit](https://gitlab.gnome.org/GNOME/libxml2/-/commit/e0f3016f71297314502a3620a301d7e064cbb612)]
+
+
 ## 1.15.0 / 2023-05-15
 
 ### Notes
@@ -75,26 +87,26 @@ You can read more about this in the decision record at [`adr/2023-04-libxml-memo
 
 ### Thank you!
 
-The following people and organizations were kind enough to sponsor @flavorjones or the Nokogiri project during the development of v1.15.0:
+The following people and organizations were kind enough to sponsor [@flavorjones](https://github.com/flavorjones) or the Nokogiri project during the development of v1.15.0:
 
-* Götz Görisch (@GoetzGoerisch)
-* Airbnb (@airbnb)
-* Kyohei Nanba (@kyo-nanba)
-* Maxime Gauthier (@biximilien)
-* @renuo
-* @dbootyfvrt
-* YOSHIDA Katsuhiko (@kyoshidajp)
-* Homebrew (@Homebrew)
-* Hiroshi SHIBATA (@hsbt)
-* PuLLi (@the-pulli)
-* SiteLog GmbH (@sitelog-gmbh)
-* @zzak
-* Evil Martians (@evilmartians)
-* Ajaya Agrawalla (@ajaya)
-* Modern Treasury (@Modern-Treasury)
-* Danilo Lessa Bernardineli (@danlessa)
+* Götz Görisch ([@GoetzGoerisch](https://github.com/GoetzGoerisch))
+* Airbnb ([@airbnb](https://github.com/airbnb))
+* Kyohei Nanba ([@kyo-nanba](https://github.com/kyo-nanba))
+* Maxime Gauthier ([@biximilien](https://github.com/biximilien))
+* [@renuo](https://github.com/renuo)
+* [@dbootyfvrt](https://github.com/dbootyfvrt)
+* YOSHIDA Katsuhiko ([@kyoshidajp](https://github.com/kyoshidajp))
+* Homebrew ([@Homebrew](https://github.com/Homebrew))
+* Hiroshi SHIBATA ([@hsbt](https://github.com/hsbt))
+* PuLLi ([@the-pulli](https://github.com/the-pulli))
+* SiteLog GmbH ([@sitelog-gmbh](https://github.com/sitelog-gmbh))
+* [@zzak](https://github.com/zzak)
+* Evil Martians ([@evilmartians](https://github.com/evilmartians))
+* Ajaya Agrawalla ([@ajaya](https://github.com/ajaya))
+* Modern Treasury ([@Modern-Treasury](https://github.com/Modern-Treasury))
+* Danilo Lessa Bernardineli ([@danlessa](https://github.com/danlessa))
 
-We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
+We'd also like to thank [@github](https://github.com/github) who donate a ton of compute time for our CI pipelines!
 
 
 ## 1.14.4 / 2023-05-11
