@@ -48,6 +48,9 @@ jobs:
           - url: https://github.com/SAML-Toolkits/ruby-saml
             name: ruby-saml
             command: "bundle exec rake test"
+          - url: https://github.com/sparklemotion/mechanize
+            name: mechanize
+            command: "bundle exec rake test"
           # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
           #   name: nokogiri-xmlsec-instructure
           #   precommand: "apt install -y libxmlsec1-dev"
