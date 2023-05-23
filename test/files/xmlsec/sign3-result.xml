@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Envelope xmlns="urn:envelope">
+  <Data>
+  Hello, World!
+  </Data>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+<SignedInfo>
+<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+<Reference>
+<Transforms>
+<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+</Transforms>
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<DigestValue>Gx8CGUsbi2qvBLd15VCmwELbDMND8F4vY3jPOc7/FJ0=</DigestValue>
+</Reference>
+</SignedInfo>
+<SignatureValue>TGJ9fCzjppp3LgG4fiBJx+0R34wRa7il9XKKZ+kkOAdKkcW0PIAYKmjn0Tn8krGd
+Gw6qtFFqjdohXfhkKmajXAFunEtd3J0kHFkf3obIwRB1qdsYmKXVFxUx3GqcIlph
+vt9v/9FC12JAxwAiJXHuY2xN5uo3xSDER4+tCCy3/AI=</SignatureValue>
+<KeyInfo>
+<X509Data>
+<X509Certificate>MIICLzCCAZgCCQCVuhhQ38rw0TANBgkqhkiG9w0BAQUFADBbMQswCQYDVQQGEwJV
+UzEQMA4GA1UECAwHR2VvcmdpYTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0cyBQ
+dHkgTHRkMRcwFQYDVQQDDA53d3cuZ29vZ2xlLmNvbTAgFw0xMzA1MjUxODQwMDRa
+GA8zMDEyMDkyNTE4NDAwNFowWzELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0dlb3Jn
+aWExITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEXMBUGA1UEAwwO
+d3d3Lmdvb2dsZS5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALE4oSql
+eymfHtzOeY86WyvfsjZmaz2XnIo9dzZsK71yMEKkgvXQnnYy9pK0NaYcG0B0hcii
+3fqGBiHMkZY2BOGWwCC/wOmJCzLq9q6caPWUs71Zko+h59LaqV93vzDmZaXYfFoQ
+gSVEWpEpCSo560x0mSuLnJYdQQzZ/L6xvxZ1AgMBAAEwDQYJKoZIhvcNAQEFBQAD
+gYEATyK/RlfpohUVimgFkycTF2hyusjctseXoZDCctgg/STMsL8iA0P9YB6k91GC
+kWpwevuiwarD1MfSUV6goPINFkIBvfK+5R9lpHaTqqs615z8T9R5VJgaLcFe3tWd
+7oq3V2q5Nl6MrZfXj2N07qe6/9zfdauxYO26vAEKCvIkbMo=
+</X509Certificate>
+</X509Data>
+</KeyInfo>
+</Signature></Envelope>

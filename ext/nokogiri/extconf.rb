@@ -723,6 +723,13 @@ if config_system_libraries?
     headers: "libexslt/exslt.h",
     func: "exsltFuncRegister",
   )
+  ensure_package_configuration(
+    opt: "xmlsec",
+    pc: "xmlsec1",
+    lib: "xmlsec1",
+    headers: "xmlsec/xmlsec.h",
+    func: "xmlSecInit",
+  )
 
   have_libxml_headers?(REQUIRED_LIBXML_VERSION) ||
     abort("ERROR: libxml2 version #{REQUIRED_LIBXML_VERSION} or later is required!")
@@ -963,12 +970,45 @@ else
     ]
   end
 
+  xmlsec1_recipe = process_recipe("xmlsec1", dependencies["xmlsec1"]["version"], static_p, cross_build_p) do |recipe|
+    source_dir = arg_config("--with-xmlsec1-source-dir")
+    if source_dir
+      recipe.source_directory = source_dir
+    else
+      recipe.files = [{
+        url: "https://www.aleksey.com/xmlsec/download/#{recipe.name}-#{recipe.version}.tar.gz",
+        sha256: dependencies["xmlsec1"]["sha256"],
+      }]
+    end
+
+    # Upstream has a missing EOF newline; dont' fail the build
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g", "-Wno-newline-eof")
+
+    if darwin? && !cross_build_p
+      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+    end
+
+    if windows?
+      cflags = concat_flags(cflags, "-UXMLSEC_STATIC", "-DXMLSEC_STATIC")
+    end
+
+    # Use openssl since ruby requires openssl
+    # TODO how to find the ruby's openssl/find things usefully on macos
+    recipe.configure_options += [
+      "--with-debug",
+      "--with-openssl",
+      "--with-nss=no",
+      "--enable-crypto-dl=no",
+      "CFLAGS=#{cflags}",
+    ]
+  end
+
   append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
   append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
 
   $libs = $libs.shellsplit.tap do |libs|
-    [libxml2_recipe, libxslt_recipe].each do |recipe|
-      libname = recipe.name[/\Alib(.+)\z/, 1]
+    [libxml2_recipe, libxslt_recipe, xmlsec1_recipe].each do |recipe|
+      libname = recipe.name[/\Alib(.+)\z/, 1] || recipe.name
       config_basename = "#{libname}-config"
       File.join(recipe.path, "bin", config_basename).tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
@@ -1029,6 +1069,7 @@ else
   ensure_func("xmlParseDoc", "libxml/parser.h")
   ensure_func("xsltParseStylesheetDoc", "libxslt/xslt.h")
   ensure_func("exsltFuncRegister", "libexslt/exslt.h")
+  ensure_func("xmlSecInit", "xmlsec/xmlsec.h")
 end
 
 libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
