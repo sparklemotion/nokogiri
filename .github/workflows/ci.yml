@@ -699,7 +699,6 @@ jobs:
 
   jruby-package:
     needs: ["rcd_image_version"]
-    name: "jruby-package"
     runs-on: ubuntu-latest
     container:
       image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby"
@@ -719,17 +718,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.4"]
+        jruby: ["9.4"]
+        jre: ["8", "11"]
+    name: "jruby-${{matrix.jruby}}-jre${{matrix.jre}}-install"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v3
         with:
           name: jruby-gem
           path: gems
-      - run: ./scripts/test-gem-install gems
+      - run: |
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            jruby:${{matrix.jruby}}-jre${{matrix.jre}} \
+            ./scripts/test-gem-install gems

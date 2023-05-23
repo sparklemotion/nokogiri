@@ -362,6 +362,12 @@ namespace "gem" do
 end
 
 if java?
+  # append to the existing "java" task defined by rake-compiler
+  task "java" do # rubocop:disable Rake/Desc
+    # if we're building the java gem, don't build the vanilla gem (see rakelib/package.rake)
+    Rake::Task["pkg/#{NOKOGIRI_SPEC.full_name}.gem"].clear
+  end
+
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", NOKOGIRI_SPEC.dup) do |ext|
     # Keep the extension C files because they have docstrings (and Java files don't)
