@@ -187,6 +187,95 @@ module Nokogiri
         assert_equal("Booyah", result_doc.at_css("h1").content)
       end
 
+      def test_default_security_options_read_file
+        options = Nokogiri::XSLT::Security::Config.new
+
+        if Nokogiri.jruby?
+          assert_raises(NotImplementedError) do
+            Nokogiri::XSLT.default_security_options = options
+          end
+        else
+          # Default is insecure
+          Nokogiri::XSLT.default_security_options = options
+          assert(Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)))
+
+          options.allow_read_file = false
+          Nokogiri::XSLT.default_security_options = options
+          assert_raises(RuntimeError) { Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)) }
+
+          options.allow_read_file = true
+          Nokogiri::XSLT.default_security_options = options
+          assert(Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)))
+        end
+      end
+
+      def test_default_security_options_roundtrip
+        options = Nokogiri::XSLT::Security::Config.new
+
+        if Nokogiri.jruby?
+          assert_raises(NotImplementedError) do
+            Nokogiri::XSLT.default_security_options
+          end
+        else
+          # Since the getter constructs the settings from the underlying C library
+          # this actually tells us if the settings are configured correctly
+          # Check all settings once per option to make sure fields are plumbed right
+          # at every stage
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          assert(configured_opts.allow_read_file)
+          assert(configured_opts.allow_write_file)
+          assert(configured_opts.allow_create_directory)
+          assert(configured_opts.allow_read_network)
+          assert(configured_opts.allow_write_network)
+
+          options.allow_read_file = false
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          refute(configured_opts.allow_read_file)
+          assert(configured_opts.allow_write_file)
+          assert(configured_opts.allow_create_directory)
+          assert(configured_opts.allow_read_network)
+          assert(configured_opts.allow_write_network)
+
+          options.allow_write_file = false
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          refute(configured_opts.allow_read_file)
+          refute(configured_opts.allow_write_file)
+          assert(configured_opts.allow_create_directory)
+          assert(configured_opts.allow_read_network)
+          assert(configured_opts.allow_write_network)
+
+          options.allow_create_directory = false
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          refute(configured_opts.allow_read_file)
+          refute(configured_opts.allow_write_file)
+          refute(configured_opts.allow_create_directory)
+          assert(configured_opts.allow_read_network)
+          assert(configured_opts.allow_write_network)
+
+          options.allow_read_network = false
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          refute(configured_opts.allow_read_file)
+          refute(configured_opts.allow_write_file)
+          refute(configured_opts.allow_create_directory)
+          refute(configured_opts.allow_read_network)
+          assert(configured_opts.allow_write_network)
+
+          options.allow_write_network = false
+          Nokogiri::XSLT.default_security_options = options
+          configured_opts = Nokogiri::XSLT.default_security_options
+          refute(configured_opts.allow_read_file)
+          refute(configured_opts.allow_write_file)
+          refute(configured_opts.allow_create_directory)
+          refute(configured_opts.allow_read_network)
+          refute(configured_opts.allow_write_network)
+        end
+      end
+
       def test_exslt
         # see http://yokolet.blogspot.com/2010/10/pure-java-nokogiri-xslt-extension.html")
         skip_unless_libxml2("cannot get it working on JRuby")

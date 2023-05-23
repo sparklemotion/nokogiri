@@ -1,6 +1,8 @@
 #include <nokogiri.h>
 
 VALUE cNokogiriXsltStylesheet ;
+VALUE mNokogiriXsltSecurity ;
+VALUE cNokogiriXsltSecurityConfig ;
 
 static void
 mark(void *data)
@@ -400,6 +402,50 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
   return self;
 }
 
+static void
+add_sec_option(xsltSecurityPrefsPtr xsltPrefs, int option, VALUE val)
+{
+  if (val == Qtrue) {
+    xsltSetSecurityPrefs(xsltPrefs, option, xsltSecurityAllow);
+  } else if (val == Qfalse) {
+    xsltSetSecurityPrefs(xsltPrefs, option, xsltSecurityForbid);
+  }
+}
+
+static VALUE
+rb_set_default_security_options(VALUE self, VALUE options)
+{
+  Check_Type(options, T_OBJECT);
+  xsltSecurityPrefsPtr oldDefaults = xsltGetDefaultSecurityPrefs();
+  xsltSecurityPrefsPtr xsltPrefs = xsltNewSecurityPrefs();
+  add_sec_option(xsltPrefs, XSLT_SECPREF_READ_FILE, rb_iv_get(options, "@allow_read_file"));
+  add_sec_option(xsltPrefs, XSLT_SECPREF_WRITE_FILE, rb_iv_get(options, "@allow_write_file"));
+  add_sec_option(xsltPrefs, XSLT_SECPREF_CREATE_DIRECTORY, rb_iv_get(options, "@allow_create_directory"));
+  add_sec_option(xsltPrefs, XSLT_SECPREF_READ_NETWORK, rb_iv_get(options, "@allow_read_network"));
+  add_sec_option(xsltPrefs, XSLT_SECPREF_WRITE_NETWORK, rb_iv_get(options, "@allow_write_network"));
+  xsltSetDefaultSecurityPrefs(xsltPrefs);
+  if(oldDefaults) {
+    xsltFreeSecurityPrefs(oldDefaults);
+  }
+  return Qnil;
+}
+
+static VALUE
+rb_get_default_security_options(VALUE self)
+{
+  VALUE prefs = rb_funcall(cNokogiriXsltSecurityConfig, rb_intern("new"), 0);
+  xsltSecurityPrefsPtr xsltPrefs = xsltGetDefaultSecurityPrefs();
+  if(xsltPrefs == NULL) {
+    return prefs;
+  }
+  rb_iv_set(prefs, "@allow_read_file", xsltGetSecurityPrefs(xsltPrefs, XSLT_SECPREF_READ_FILE) == xsltSecurityAllow ? Qtrue : Qfalse);
+  rb_iv_set(prefs, "@allow_write_file", xsltGetSecurityPrefs(xsltPrefs, XSLT_SECPREF_WRITE_FILE) == xsltSecurityAllow ? Qtrue : Qfalse);
+  rb_iv_set(prefs, "@allow_create_directory", xsltGetSecurityPrefs(xsltPrefs, XSLT_SECPREF_CREATE_DIRECTORY) == xsltSecurityAllow ? Qtrue : Qfalse);
+  rb_iv_set(prefs, "@allow_read_network", xsltGetSecurityPrefs(xsltPrefs, XSLT_SECPREF_READ_NETWORK) == xsltSecurityAllow ? Qtrue : Qfalse);
+  rb_iv_set(prefs, "@allow_write_network", xsltGetSecurityPrefs(xsltPrefs, XSLT_SECPREF_WRITE_NETWORK) == xsltSecurityAllow ? Qtrue : Qfalse);
+  return prefs;
+}
+
 void
 noko_init_xslt_stylesheet(void)
 {
@@ -407,10 +453,14 @@ noko_init_xslt_stylesheet(void)
   rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
+  mNokogiriXsltSecurity = rb_define_module_under(mNokogiriXslt, "Security");
+  cNokogiriXsltSecurityConfig = rb_define_class_under(mNokogiriXsltSecurity, "Config", rb_cObject);
 
   rb_undef_alloc_func(cNokogiriXsltStylesheet);
 
   rb_define_singleton_method(cNokogiriXsltStylesheet, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
+  rb_define_singleton_method(cNokogiriXsltStylesheet, "default_security_options", rb_get_default_security_options, 0);
+  rb_define_singleton_method(cNokogiriXsltStylesheet, "default_security_options=", rb_set_default_security_options, 1);
   rb_define_method(cNokogiriXsltStylesheet, "serialize", rb_xslt_stylesheet_serialize, 1);
   rb_define_method(cNokogiriXsltStylesheet, "transform", rb_xslt_stylesheet_transform, -1);
 }

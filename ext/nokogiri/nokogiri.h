@@ -50,6 +50,7 @@
 #include <libxslt/extensions.h>
 #include <libxslt/xsltconfig.h>
 #include <libxslt/xsltutils.h>
+#include <libxslt/security.h>
 #include <libxslt/transform.h>
 #include <libxslt/imports.h>
 #include <libxslt/xsltInternals.h>
