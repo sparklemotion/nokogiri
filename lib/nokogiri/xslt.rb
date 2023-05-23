@@ -101,7 +101,7 @@ module Nokogiri
       # Set the default security options used by libxslt
       # +options+ should be an object of type Nokogiri::XSLT::Security::Config
       def default_security_options=(options)
-        Stylesheet.default_security_options=(options)
+        Stylesheet.default_security_options = (options)
       end
 
       # :call-seq:
