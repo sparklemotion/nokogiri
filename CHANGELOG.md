@@ -4,6 +4,23 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.14.5 / 2023-05-24
+
+### Note
+
+To ensure that JRuby users on Java 8 can apply the security changes from v1.14.4, we're cutting this release on the v1.14.x branch. We don't expect to make any more v1.14.x releases.
+
+
+### Dependencies
+
+* [JRuby] Vendored org.nokogiri:nekodtd is updated to v0.1.11.noko2. This is functionally equivalent to v0.1.11.noko1 but restores support for Java 8.
+
+
+### Fixed
+
+* [JRuby] Java 8 support is restored, fixing a regression introduced in v1.14.0. [[#2887](https://github.com/sparklemotion/nokogiri/issues/2887)]
+
+
 ## 1.14.4 / 2023-05-11
 
 ### Dependencies
