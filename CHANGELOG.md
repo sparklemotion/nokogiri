@@ -4,6 +4,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.15.2 / 2023-05-24
+
+### Dependencies
+
+* [JRuby] Vendored org.nokogiri:nekodtd is updated to v0.1.11.noko2. This is functionally equivalent to v0.1.11.noko1 but restores support for Java 8.
+
+
+### Fixed
+
+* [JRuby] Java 8 support is restored, fixing a regression present in v1.14.0..v1.14.4 and v1.15.0..v1.15.1. [[#2887](https://github.com/sparklemotion/nokogiri/issues/2887)]
+
+
 ## 1.15.1 / 2023-05-19
 
 ### Dependencies
