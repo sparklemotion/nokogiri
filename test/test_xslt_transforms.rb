@@ -199,11 +199,15 @@ module Nokogiri
           Nokogiri::XSLT.default_security_options = options
           assert(Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)))
 
+          # libxslt/libxml2 makes some funny choices on Windows that lead to local paths
+          # being considered network paths (maybe due to the leading C:/)
           options.allow_read_file = false
+          options.allow_read_network = false
           Nokogiri::XSLT.default_security_options = options
           assert_raises(RuntimeError) { Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)) }
 
           options.allow_read_file = true
+          options.allow_read_network = true
           Nokogiri::XSLT.default_security_options = options
           assert(Nokogiri::XSLT(File.open(XSLT_INCLUDING_FILE)))
         end

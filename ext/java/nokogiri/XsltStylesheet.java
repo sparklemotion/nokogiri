@@ -351,16 +351,16 @@ public class XsltStylesheet extends RubyObject
     throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
   }
 
-  @JRubyMethod(meta = true, rest = true, name = "default_security_prefs")
+  @JRubyMethod(meta = true, rest = true, name = "default_security_options")
   public static IRubyObject
   get_default_security_options(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {
     // This method is not supported because the Java XML backend does not support the
     // security controls supported by the libxml backend
-    throw context.getRuntime().newNotImplementedError("Nokogiri::XSLT::Stylesheet.default_security_prefs method is not implemented");
+    throw context.getRuntime().newNotImplementedError("Nokogiri::XSLT::Stylesheet.default_security_options method is not implemented");
   }
 
-  @JRubyMethod(meta = true, rest = true, name = "default_security_prefs=")
+  @JRubyMethod(meta = true, rest = true, name = "default_security_options=")
   public static IRubyObject
   set_default_security_options(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {
