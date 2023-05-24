@@ -263,7 +263,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/jruby/net/sourceforge/htmlunit/neko-htmlunit/2.63.0/neko-htmlunit-2.63.0.jar",
     "lib/nokogiri/jruby/nokogiri_jars.rb",
     "lib/nokogiri/jruby/nu/validator/jing/20200702VNU/jing-20200702VNU.jar",
-    "lib/nokogiri/jruby/org/nokogiri/nekodtd/0.1.11.noko1/nekodtd-0.1.11.noko1.jar",
+    "lib/nokogiri/jruby/org/nokogiri/nekodtd/0.1.11.noko2/nekodtd-0.1.11.noko2.jar",
     "lib/nokogiri/jruby/xalan/serializer/2.7.3/serializer-2.7.3.jar",
     "lib/nokogiri/jruby/xalan/xalan/2.7.3/xalan-2.7.3.jar",
     "lib/nokogiri/jruby/xerces/xercesImpl/2.12.2/xercesImpl-2.12.2.jar",
@@ -327,7 +327,7 @@ Gem::Specification.new do |spec|
 
     spec.require_paths << "lib/nokogiri/jruby" # where we install the jars, see the :vendor_jars rake task
     spec.requirements << "jar isorelax, isorelax, 20030108" # https://search.maven.org/artifact/isorelax/isorelax
-    spec.requirements << "jar org.nokogiri, nekodtd, 0.1.11.noko1"
+    spec.requirements << "jar org.nokogiri, nekodtd, 0.1.11.noko2"
     spec.requirements << "jar net.sourceforge.htmlunit, neko-htmlunit, 2.63.0"
     spec.requirements << "jar nu.validator, jing, 20200702VNU" # https://search.maven.org/artifact/nu.validator/jing
     spec.requirements << "jar xalan, serializer, 2.7.3" # https://search.maven.org/artifact/xalan/serializer
