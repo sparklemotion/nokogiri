@@ -5,8 +5,14 @@ VALUE cNokogiriXmlReader;
 static void
 xml_reader_deallocate(void *data)
 {
+  // free the document separately because we _may_ have triggered preservation by calling
+  // xmlTextReaderCurrentDoc during a read_more.
   xmlTextReaderPtr reader = data;
+  xmlDocPtr doc = xmlTextReaderCurrentDoc(reader);
   xmlFreeTextReader(reader);
+  if (doc) {
+    xmlFreeDoc(doc);
+  }
 }
 
 static const rb_data_type_t xml_reader_type = {
@@ -515,6 +521,7 @@ read_more(VALUE self)
   xmlErrorConstPtr error;
   VALUE error_list;
   int ret;
+  xmlDocPtr c_document;
 
   TypedData_Get_Struct(self, xmlTextReader, &xml_reader_type, reader);
 
@@ -523,6 +530,16 @@ read_more(VALUE self)
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   ret = xmlTextReaderRead(reader);
   xmlSetStructuredErrorFunc(NULL, NULL);
+
+  c_document = xmlTextReaderCurrentDoc(reader);
+  if (c_document && c_document->encoding == NULL) {
+    VALUE constructor_encoding = rb_iv_get(self, "@encoding");
+    if (RTEST(constructor_encoding)) {
+      c_document->encoding = xmlStrdup(BAD_CAST StringValueCStr(constructor_encoding));
+    } else {
+      c_document->encoding = xmlStrdup(BAD_CAST "UTF-8");
+    }
+  }
 
   if (ret == 1) { return self; }
   if (ret == 0) { return Qnil; }
@@ -707,15 +724,18 @@ rb_xml_reader_encoding(VALUE rb_reader)
   const char *parser_encoding;
   VALUE constructor_encoding;
 
+  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_reader_type, c_reader);
+  parser_encoding = (const char *)xmlTextReaderConstEncoding(c_reader);
+  if (parser_encoding) {
+    return NOKOGIRI_STR_NEW2(parser_encoding);
+  }
+
   constructor_encoding = rb_iv_get(rb_reader, "@encoding");
   if (RTEST(constructor_encoding)) {
     return constructor_encoding;
   }
 
-  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_reader_type, c_reader);
-  parser_encoding = (const char *)xmlTextReaderConstEncoding(c_reader);
-  if (parser_encoding == NULL) { return Qnil; }
-  return NOKOGIRI_STR_NEW2(parser_encoding);
+  return Qnil;
 }
 
 void
