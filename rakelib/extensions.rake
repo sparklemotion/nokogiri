@@ -448,7 +448,7 @@ else
     ext.gem_spec.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
     ext.lib_dir = File.join(*["lib", "nokogiri", ENV["FAT_DIR"]].compact)
-    ext.config_options << ENV["EXTOPTS"]
+    ext.config_options << ENV["EXTOPTS"] if ENV["EXTOPTS"]
     ext.cross_compile  = true
     ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
     ext.cross_config_options << "--enable-cross-build"
