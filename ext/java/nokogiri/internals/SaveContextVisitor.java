@@ -807,17 +807,26 @@ public class SaveContextVisitor
     // no-op
   }
 
-  private boolean
-  isHtmlScript(Text text)
-  {
-    return htmlDoc && text.getParentNode().getNodeName().equals("script");
+  private boolean isHtmlScript(Text text) {
+    Node parentNode = text.getParentNode();
+    if (parentNode != null && parentNode.getNodeName().equals("script")) {
+      return htmlDoc;
+    } else {
+      System.out.println("getParentNode() returned null or parent node is not 'script'.");
+      return false;
+    }
   }
-
-  private boolean
-  isHtmlStyle(Text text)
-  {
-    return htmlDoc && text.getParentNode().getNodeName().equals("style");
+  
+  private boolean isHtmlStyle(Text text) {
+    Node parentNode = text.getParentNode();
+    if (parentNode != null && parentNode.getNodeName().equals("style")) {
+      return htmlDoc;
+    } else {
+      System.out.println("getParentNode() returned null or parent node is not 'style'.");
+      return false;
+    }
   }
+  
 
   public boolean
   enter(Text text)
