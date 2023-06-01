@@ -1342,6 +1342,11 @@ module Nokogiri
           end
         end
 
+        # issue 2559
+        def test_serialize_unparented_node
+          assert_equal("asdf", Nokogiri::HTML4::Document.parse("<div></div>").create_text_node("asdf").to_s)
+        end
+
         describe "#wrap" do
           let(:xml) { "<root><thing><div>important thing</div></thing></root>" }
           let(:doc) { Nokogiri::XML(xml) }
