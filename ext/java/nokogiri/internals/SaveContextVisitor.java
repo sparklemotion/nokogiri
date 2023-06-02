@@ -807,7 +807,9 @@ public class SaveContextVisitor
     // no-op
   }
 
-  private boolean isHtmlScript(Text text) {
+  private boolean
+  isHtmlScript(Text text)
+  {
     Node parentNode = text.getParentNode();
     if (parentNode != null && parentNode.getNodeName().equals("script")) {
       return htmlDoc;
@@ -816,8 +818,10 @@ public class SaveContextVisitor
       return false;
     }
   }
-  
-  private boolean isHtmlStyle(Text text) {
+
+  private boolean
+  isHtmlStyle(Text text)
+  {
     Node parentNode = text.getParentNode();
     if (parentNode != null && parentNode.getNodeName().equals("style")) {
       return htmlDoc;
@@ -826,7 +830,7 @@ public class SaveContextVisitor
       return false;
     }
   }
-  
+
 
   public boolean
   enter(Text text)
