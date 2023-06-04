@@ -807,28 +807,9 @@ public class SaveContextVisitor
     // no-op
   }
 
-  private boolean
-  isHtmlScript(Text text)
-  {
+  private boolean isCDATA(Text text) {
     Node parentNode = text.getParentNode();
-    if (parentNode != null && parentNode.getNodeName().equals("script")) {
-      return htmlDoc;
-    } else {
-      System.out.println("getParentNode() returned null or parent node is not 'script'.");
-      return false;
-    }
-  }
-
-  private boolean
-  isHtmlStyle(Text text)
-  {
-    Node parentNode = text.getParentNode();
-    if (parentNode != null && parentNode.getNodeName().equals("style")) {
-      return htmlDoc;
-    } else {
-      System.out.println("getParentNode() returned null or parent node is not 'style'.");
-      return false;
-    }
+    return htmlDoc && parentNode != null && (parentNode.getNodeName().equals("style") || parentNode.getNodeName().equals("script"));
   }
 
 
@@ -844,7 +825,7 @@ public class SaveContextVisitor
       }
     }
 
-    if (shouldEncode(text) && !isHtmlScript(text) && !isHtmlStyle(text)) {
+    if (shouldEncode(text) && !isCDATA(text)) {
       textContent = encodeJavaString(textContent);
     }
 
