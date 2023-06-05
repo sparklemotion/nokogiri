@@ -808,16 +808,13 @@ public class SaveContextVisitor
   }
 
   private boolean
-  isHtmlScript(Text text)
+  isCDATA(Text text)
   {
-    return htmlDoc && text.getParentNode().getNodeName().equals("script");
+    Node parentNode = text.getParentNode();
+    return htmlDoc && parentNode != null && (parentNode.getNodeName().equals("style")
+           || parentNode.getNodeName().equals("script"));
   }
 
-  private boolean
-  isHtmlStyle(Text text)
-  {
-    return htmlDoc && text.getParentNode().getNodeName().equals("style");
-  }
 
   public boolean
   enter(Text text)
@@ -831,7 +828,7 @@ public class SaveContextVisitor
       }
     }
 
-    if (shouldEncode(text) && !isHtmlScript(text) && !isHtmlStyle(text)) {
+    if (shouldEncode(text) && !isCDATA(text)) {
       textContent = encodeJavaString(textContent);
     }
 
