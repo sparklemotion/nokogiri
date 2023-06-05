@@ -807,9 +807,12 @@ public class SaveContextVisitor
     // no-op
   }
 
-  private boolean isCDATA(Text text) {
+  private boolean
+  isCDATA(Text text)
+  {
     Node parentNode = text.getParentNode();
-    return htmlDoc && parentNode != null && (parentNode.getNodeName().equals("style") || parentNode.getNodeName().equals("script"));
+    return htmlDoc && parentNode != null && (parentNode.getNodeName().equals("style")
+           || parentNode.getNodeName().equals("script"));
   }
 
 
