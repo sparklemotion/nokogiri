@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [JRuby] Fixed NPE when serializing an unparented HTML node. [[#2559](https://github.com/sparklemotion/nokogiri/issues/2559), [#2895](https://github.com/sparklemotion/nokogiri/issues/2895)] (Thanks, [@cbasguti](https://github.com/cbasguti)!)
+
+
 ## 1.15.2 / 2023-05-24
 
 ### Dependencies
