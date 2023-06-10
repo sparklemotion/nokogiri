@@ -185,7 +185,7 @@ public class XsltStylesheet extends RubyObject
 
     java.util.Properties props = this.sheet.getOutputProperties();
     if (props.getProperty(OutputKeys.METHOD) == null) {
-      props.setProperty(OutputKeys.METHOD, org.apache.xml.serializer.Method.UNKNOWN);
+      props.setProperty(OutputKeys.METHOD, "html");
     }
 
     Serializer serializer = SerializerFactory.getSerializer(props);
