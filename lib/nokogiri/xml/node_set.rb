@@ -372,7 +372,7 @@ module Nokogiri
       # Removes the last element from set and returns it, or +nil+ if
       # the set is empty
       def pop
-        return nil if length == 0
+        return if length == 0
 
         delete(last)
       end
@@ -381,7 +381,7 @@ module Nokogiri
       # Returns the first element of the NodeSet and removes it.  Returns
       # +nil+ if the set is empty.
       def shift
-        return nil if length == 0
+        return if length == 0
 
         delete(first)
       end

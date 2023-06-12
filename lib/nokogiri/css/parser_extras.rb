@@ -23,7 +23,7 @@ module Nokogiri
 
         # Get the css selector in +string+ from the cache
         def [](string)
-          return nil unless cache_on?
+          return unless cache_on?
 
           @mutex.synchronize { @cache[string] }
         end

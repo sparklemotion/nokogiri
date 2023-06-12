@@ -1165,7 +1165,7 @@ module Nokogiri
       # Fetch the Nokogiri::HTML4::ElementDescription for this node.  Returns
       # nil on XML documents and on unknown tags.
       def description
-        return nil if document.xml?
+        return if document.xml?
 
         Nokogiri::HTML4::ElementDescription[name]
       end
@@ -1254,8 +1254,8 @@ module Nokogiri
       # Compare two Node objects with respect to their Document.  Nodes from
       # different documents cannot be compared.
       def <=>(other)
-        return nil unless other.is_a?(Nokogiri::XML::Node)
-        return nil unless document == other.document
+        return unless other.is_a?(Nokogiri::XML::Node)
+        return unless document == other.document
 
         compare(other)
       end
