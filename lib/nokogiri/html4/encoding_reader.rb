@@ -94,7 +94,7 @@ module Nokogiri
         # no support for a call without len
 
         unless @firstchunk
-          (@firstchunk = @io.read(len)) || (return nil)
+          (@firstchunk = @io.read(len)) || return
 
           # This implementation expects that the first call from
           # htmlReadIO() is made with a length long enough (~1KB) to
