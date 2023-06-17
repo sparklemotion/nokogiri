@@ -3,7 +3,7 @@
 casual_file_task = Class.new(Rake::FileTask) do
   # to avoid re-running these tasks after a git checkout, let's give it a 1 second window before we re-run
   def needed?
-    out_of_date?(File.mtime(name) + 1) || @application.options.build_all
+    !File.exist?(name) || out_of_date?(File.mtime(name) + 1) || @application.options.build_all
   end
 end
 
