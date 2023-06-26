@@ -72,7 +72,7 @@ module Nokogiri
       end
 
       def test_parse_with_errors
-        xml = File.read(ADDRESS_SCHEMA_FILE).sub(/name="/, "name=")
+        xml = File.read(ADDRESS_SCHEMA_FILE).sub('name="', "name=")
         assert_raises(Nokogiri::XML::SyntaxError) do
           Nokogiri::XML::RelaxNG(xml)
         end
