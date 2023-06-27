@@ -98,7 +98,7 @@
   fun:evaluate
 }
 {
-  TODO
+  https://github.com/sparklemotion/nokogiri/actions/runs/5354163940/jobs/9710862134
   # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 28,980 of 37,883
   # *xmlNewNodeEatName (tree.c:2299)
   # *xmlNewDocNodeEatName (tree.c:2374)
@@ -117,7 +117,7 @@
   fun:xmlNewNodeEatName
   fun:xmlNewDocNodeEatName
   fun:xmlSAX2StartElementNs
-  fun:xmlParseStartTag2
+  fun:xmlParseStartTag*
   fun:xmlParseElementStart
   fun:xmlParseContentInternal
   fun:xmlParseElement
