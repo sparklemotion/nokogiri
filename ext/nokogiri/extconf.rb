@@ -443,7 +443,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
     # We use 'host' to set compiler prefix for cross-compiling. Prefer host_alias over host. And
     # prefer i686 (what external dev tools use) to i386 (what ruby's configure.ac emits).
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
-    recipe.host = recipe.host.gsub(/i386/, "i686")
+    recipe.host = recipe.host.gsub("i386", "i686")
 
     recipe.target = File.join(PACKAGE_ROOT_DIR, "ports") if cacheable_p
     recipe.configure_options << "--libdir=#{File.join(recipe.path, "lib")}"

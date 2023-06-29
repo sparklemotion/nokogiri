@@ -101,7 +101,7 @@ module Nokogiri
         params.flatten.each_slice(2).with_object([]) do |kv, quoted_params|
           key, value = kv.map(&:to_s)
           value = if value.include?("'")
-            "concat('#{value.gsub(/'/, %q{', "'", '})}')"
+            "concat('#{value.gsub("'", %q{', "'", '})}')"
           else
             "'#{value}'"
           end

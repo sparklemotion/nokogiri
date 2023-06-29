@@ -161,7 +161,7 @@ module Nokogiri
       end
 
       def test_parse_with_errors
-        xml = File.read(PO_SCHEMA_FILE).sub(/name="/, "name=")
+        xml = File.read(PO_SCHEMA_FILE).sub('name="', "name=")
         assert_raises(Nokogiri::XML::SyntaxError) do
           Nokogiri::XML::Schema(xml)
         end

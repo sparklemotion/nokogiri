@@ -198,7 +198,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
   # https://github.com/web-platform-tests/wpt/blob/master/html/syntax/serializing-html-fragments/serializing.html
   def serializing_test_data
     @serializing_test_data ||= begin
-      html = <<~EOF.gsub(/        /, "")
+      html = <<~EOF.gsub("        ", "")
         <!DOCTYPE html>
         <div id="test" style="display:none">
         <span></span>
