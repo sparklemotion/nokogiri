@@ -350,7 +350,7 @@ ok:
 
   xmlUnlinkNode(original_reparentee);
 
-  if (prf != xmlAddPrevSibling && prf != xmlAddNextSibling
+  if (prf != xmlAddPrevSibling && prf != xmlAddNextSibling && prf != xmlAddChild
       && reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {
     /*
      *  libxml merges text nodes in a right-to-left fashion, meaning that if
