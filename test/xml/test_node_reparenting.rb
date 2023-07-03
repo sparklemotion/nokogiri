@@ -673,7 +673,9 @@ module Nokogiri
             it "should not merge text nodes during the operation" do
               xml = Nokogiri::XML(%(<root>text node</root>))
               replacee = xml.root.children.first
+
               replacee.replace("new text node")
+
               assert_equal "new text node", xml.root.children.first.content
             end
           end
@@ -682,7 +684,9 @@ module Nokogiri
             doc = Nokogiri::XML(%{<parent><child>text})
             replacee = doc.at_css("child")
             replacer = doc.create_comment("<b>text</b>")
+
             replacee.replace(replacer)
+
             assert_equal 1, doc.root.children.length
             assert_equal replacer, doc.root.children.first
           end
@@ -691,9 +695,24 @@ module Nokogiri
             doc = Nokogiri::XML(%{<parent><child>text})
             replacee = doc.at_css("child")
             replacer = doc.create_cdata("<b>text</b>")
+
             replacee.replace(replacer)
+
             assert_equal 1, doc.root.children.length
             assert_equal replacer, doc.root.children.first
+          end
+
+          it "replacing a child should not dup sibling text nodes" do
+            # https://github.com/sparklemotion/nokogiri/issues/2916
+            xml = "<root><parent>asdf</parent>qwer</root>"
+            doc = Nokogiri::XML.parse(xml)
+            nodes = doc.root.children
+            parent = nodes.first
+            sibling = parent.next
+
+            parent.inner_html = "foo"
+
+            assert_same(sibling, parent.next)
           end
 
           describe "when a document has a default namespace" do
