@@ -25,6 +25,12 @@ rb_xml_cdata_s_new(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &rb_document, &rb_content, &rb_rest);
 
+  if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlNode)) {
+    rb_raise(rb_eTypeError,
+             "expected first parameter to be a Nokogiri::XML::Document, received %"PRIsVALUE,
+             rb_obj_class(rb_document));
+  }
+
   if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlDocument)) {
     xmlNodePtr deprecated_node_type_arg;
     // TODO: deprecate allowing Node

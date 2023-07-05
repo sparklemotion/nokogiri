@@ -46,6 +46,10 @@ public class XmlCdata extends XmlText
     IRubyObject rbDocument = args[0];
     content = args[1];
 
+    if (!(rbDocument instanceof XmlNode)) {
+      String msg = "expected first parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      throw context.runtime.newTypeError(msg);
+    }
     if (!(rbDocument instanceof XmlDocument)) {
       // TODO: deprecate allowing Node
       context.runtime.getWarnings().warn("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
