@@ -53,6 +53,10 @@ public class XmlText extends XmlNode
     content = args[0];
     IRubyObject rbDocument = args[1];
 
+    if (!(rbDocument instanceof XmlNode)) {
+      String msg = "expected second parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      throw context.runtime.newTypeError(msg);
+    }
     if (!(rbDocument instanceof XmlDocument)) {
       // TODO: deprecate allowing Node
       context.runtime.getWarnings().warn("Passing a Node as the second parameter to Text.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
