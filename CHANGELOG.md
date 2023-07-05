@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+...
+
+
+## 1.15.3 / 2023-07-05
+
 ### Fixed
 
 * Passing an object that is not a kind of `XML::Node` as the first parameter to `CDATA.new` now raises a `TypeError`. Previously this would result in either a segfault (CRuby) or a Java exception (JRuby). [[#2920](https://github.com/sparklemotion/nokogiri/issues/2920)]
