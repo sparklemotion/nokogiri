@@ -68,6 +68,13 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
         assert_instance_of(Nokogiri::XML::Schema, xsd)
       end
 
+      it ".from_document not accept anything other than Node or Document" do
+        assert_raises(TypeError) { Nokogiri::XML::Schema.from_document(1234) }
+        assert_raises(TypeError) { Nokogiri::XML::Schema.from_document("asdf") }
+        assert_raises(TypeError) { Nokogiri::XML::Schema.from_document({}) }
+        assert_raises(TypeError) { Nokogiri::XML::Schema.from_document(nil) }
+      end
+
       it "schema_validates_with_relative_paths" do
         xsd = File.join(ASSETS_DIR, "foo", "foo.xsd")
         xml = File.join(ASSETS_DIR, "valid_bar.xml")

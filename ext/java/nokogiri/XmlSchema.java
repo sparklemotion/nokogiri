@@ -149,6 +149,10 @@ public class XmlSchema extends RubyObject
       parseOptions = args[1];
     }
 
+    if (!(rbDocument instanceof XmlNode)) {
+      String msg = "expected parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      throw context.runtime.newTypeError(msg);
+    }
     if (!(rbDocument instanceof XmlDocument)) {
       // TODO: deprecate allowing Node
       context.runtime.getWarnings().warn("Passing a Node as the first parameter to Schema.from_document is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
