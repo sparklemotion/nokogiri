@@ -40,6 +40,13 @@ describe Nokogiri::XML::CDATA do
       assert_raises(TypeError) { Nokogiri::XML::CDATA.new(doc, 1.234) }
       assert_raises(TypeError) { Nokogiri::XML::CDATA.new(doc, {}) }
     end
+
+    it "does not accept anything other than Node or Document" do
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new(1234, "hello world") }
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new("asdf", "hello world") }.inspect
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new({}, "hello world") }
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new(nil, "hello world") }
+    end
   end
 
   it "supports #content and #content=" do
