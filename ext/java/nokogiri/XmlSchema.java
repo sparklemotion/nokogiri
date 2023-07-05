@@ -143,18 +143,22 @@ public class XmlSchema extends RubyObject
   public static IRubyObject
   from_document(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {
-    IRubyObject document = args[0];
+    IRubyObject rbDocument = args[0];
     IRubyObject parseOptions = null;
     if (args.length > 1) {
       parseOptions = args[1];
     }
 
-    if (!(document instanceof XmlDocument)) {
+    if (!(rbDocument instanceof XmlNode)) {
+      String msg = "expected parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      throw context.runtime.newTypeError(msg);
+    }
+    if (!(rbDocument instanceof XmlDocument)) {
       // TODO: deprecate allowing Node
       context.runtime.getWarnings().warn("Passing a Node as the first parameter to Schema.from_document is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
     }
 
-    XmlDocument doc = ((XmlDocument)((XmlNode) document).document(context));
+    XmlDocument doc = ((XmlDocument)((XmlNode) rbDocument).document(context));
 
     RubyArray<?> errors = (RubyArray) doc.getInstanceVariable("@errors");
     if (!errors.isEmpty()) {
