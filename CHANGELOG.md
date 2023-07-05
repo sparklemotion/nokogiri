@@ -8,6 +8,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
+* Passing an object that is not a kind of `XML::Node` as the first parameter to `CDATA.new` now raises a `TypeError`. Previously this would result in either a segfault (CRuby) or a Java exception (JRuby). [[#2920](https://github.com/sparklemotion/nokogiri/issues/2920)]
+* Passing an object that is not a kind of `XML::Node` as the first parameter to `Schema.from_document` now raises a `TypeError`. Previously this would result in either a segfault (CRuby) or a Java exception (JRuby). [[#2920](https://github.com/sparklemotion/nokogiri/issues/2920)]
+* [CRuby] Passing an object that is not a kind of `XML::Node` as the second parameter to `Text.new` now raises a `TypeError`. Previously this would result in a segfault. [[#2920](https://github.com/sparklemotion/nokogiri/issues/2920)]
 * [CRuby] Replacing a node's children via methods like `Node#inner_html=`, `#children=`, and `#replace` no longer defensively dups the node's next sibling if it is a Text node. This behavior was originally adopted to work around libxml2's memory management (see [#283](https://github.com/sparklemotion/nokogiri/issues/283) and [#595](https://github.com/sparklemotion/nokogiri/issues/595)) but should not have included operations involving `xmlAddChild()`. [[#2916](https://github.com/sparklemotion/nokogiri/issues/2916)]
 * [JRuby] Fixed NPE when serializing an unparented HTML node. [[#2559](https://github.com/sparklemotion/nokogiri/issues/2559), [#2895](https://github.com/sparklemotion/nokogiri/issues/2895)] (Thanks, [@cbasguti](https://github.com/cbasguti)!)
 
