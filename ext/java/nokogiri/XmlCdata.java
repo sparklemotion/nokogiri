@@ -43,15 +43,15 @@ public class XmlCdata extends XmlText
     if (args.length < 2) {
       throw getRuntime().newArgumentError(args.length, 2);
     }
-    IRubyObject doc = args[0];
+    IRubyObject rbDocument = args[0];
     content = args[1];
 
-    if (!(doc instanceof XmlDocument)) {
+    if (!(rbDocument instanceof XmlDocument)) {
       // TODO: deprecate allowing Node
       context.runtime.getWarnings().warn("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
     }
 
-    Document document = ((XmlNode) doc).getOwnerDocument();
+    Document document = ((XmlNode) rbDocument).getOwnerDocument();
     Node node = document.createCDATASection(rubyStringToString(content));
     setNode(context.runtime, node);
   }
