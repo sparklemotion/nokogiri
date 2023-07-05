@@ -2,57 +2,59 @@
 
 require "helper"
 
-module Nokogiri
-  module XML
-    class TestCDATA < Nokogiri::TestCase
-      def setup
-        super
-        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-      end
+describe Nokogiri::XML::CDATA do
+  describe ".new" do
+    it "acts like a constructor" do
+      doc = Nokogiri::XML::Document.new
+      node = Nokogiri::XML::CDATA.new(doc, "foo")
 
-      def test_cdata_node
-        name = @xml.xpath("//employee[2]/name").first
-        assert(cdata = name.children[1])
-        assert_predicate(cdata, :cdata?)
-        assert_equal("#cdata-section", cdata.name)
-      end
-
-      def test_new
-        node = CDATA.new(@xml, "foo")
-        assert_equal("foo", node.content)
-
-        assert_output(nil, /Passing a Node as the first parameter to CDATA\.new is deprecated/) do
-          node = CDATA.new(@xml.root, "foo")
-        end
-        assert_equal("foo", node.content)
-      end
-
-      def test_new_with_nil
-        node = CDATA.new(@xml, nil)
-        assert_nil(node.content)
-      end
-
-      def test_new_with_non_string
-        assert_raises(TypeError) do
-          CDATA.new(@xml, 1.234)
-        end
-      end
-
-      def test_lots_of_new_cdata
-        assert(100.times { CDATA.new(@xml, "asdfasdf") })
-      end
-
-      def test_content=
-        node = CDATA.new(@xml, "foo")
-        assert_equal("foo", node.content)
-
-        node.content = "& <foo> &amp;"
-        assert_equal("& <foo> &amp;", node.content)
-        assert_equal("<![CDATA[& <foo> &amp;]]>", node.to_xml)
-
-        node.content = "foo ]]> bar"
-        assert_equal("foo ]]> bar", node.content)
-      end
+      assert_instance_of(Nokogiri::XML::CDATA, node)
+      assert_equal("foo", node.content)
+      assert_same(doc, node.document)
+      assert_predicate(node, :cdata?)
+      assert_equal("#cdata-section", node.name)
     end
+
+    it "accepts a node as the first parameter but warns about it" do
+      doc = Nokogiri::XML::Document.new
+      related_node = Nokogiri::XML::Element.new("foo", doc)
+      node = nil
+
+      assert_output(nil, /Passing a Node as the first parameter to CDATA\.new is deprecated/) do
+        node = Nokogiri::XML::CDATA.new(related_node, "foo")
+      end
+      assert_instance_of(Nokogiri::XML::CDATA, node)
+      assert_equal("foo", node.content)
+      assert_same(doc, node.document)
+    end
+
+    it "has nil content when passed nil" do
+      node = Nokogiri::XML::CDATA.new(Nokogiri::XML::Document.new, nil)
+
+      assert_instance_of(Nokogiri::XML::CDATA, node)
+      assert_nil(node.content)
+    end
+
+    it "does not accept anything but a string" do
+      doc = Nokogiri::XML::Document.new
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new(doc, 1.234) }
+      assert_raises(TypeError) { Nokogiri::XML::CDATA.new(doc, {}) }
+    end
+  end
+
+  it "supports #content and #content=" do
+    doc = Nokogiri::XML::Document.new
+    node = Nokogiri::XML::CDATA.new(doc, "foo")
+
+    assert_equal("foo", node.content)
+
+    node.content = "& <foo> &amp;"
+
+    assert_equal("& <foo> &amp;", node.content)
+    assert_equal("<![CDATA[& <foo> &amp;]]>", node.to_xml)
+
+    node.content = "foo ]]> bar"
+
+    assert_equal("foo ]]> bar", node.content)
   end
 end
