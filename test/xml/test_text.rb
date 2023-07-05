@@ -27,6 +27,13 @@ describe Nokogiri::XML::Text do
       assert_equal("hello world", node.content)
       assert_same(doc, node.document)
     end
+
+    it "does not accept anything other than Node or Document" do
+      assert_raises(TypeError) { Nokogiri::XML::Text.new("hello world", 1234) }
+      assert_raises(TypeError) { Nokogiri::XML::Text.new("hello world", "asdf") }
+      assert_raises(TypeError) { Nokogiri::XML::Text.new("hello world", {}) }
+      assert_raises(TypeError) { Nokogiri::XML::Text.new("hello world", nil) }
+    end
   end
 
   it "has a valid css path" do
