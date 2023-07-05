@@ -214,6 +214,12 @@ rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_parse_options);
 
+  if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlNode)) {
+    rb_raise(rb_eTypeError,
+             "expected parameter to be a Nokogiri::XML::Document, received %"PRIsVALUE,
+             rb_obj_class(rb_document));
+  }
+
   if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlDocument)) {
     xmlNodePtr deprecated_node_type_arg;
     // TODO: deprecate allowing Node
