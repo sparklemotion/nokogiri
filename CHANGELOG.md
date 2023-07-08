@@ -6,7 +6,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-...
+* [CRuby] `ObjectSpace.memsize_of` is now safe to call on `Document`s with complex DTDs. In previous versions, this debugging method could result in a segfault. [[#2923](https://github.com/sparklemotion/nokogiri/issues/2923), [#2924](https://github.com/sparklemotion/nokogiri/issues/2924)]
 
 
 ## 1.15.3 / 2023-07-05
