@@ -313,6 +313,21 @@ class TestMemoryLeak < Nokogiri::TestCase
     assert(bigger_name_size > base_size, "longer tags should increase memsize")
   end
 
+  def test_object_space_memsize_with_dtd
+    # https://github.com/sparklemotion/nokogiri/issues/2923
+    require "objspace"
+    skip("memsize_of not defined") unless ObjectSpace.respond_to?(:memsize_of)
+
+    doc = Nokogiri::XML(<<~XML)
+      <?xml version="1.0"?>
+      <!DOCTYPE staff PUBLIC "staff.dtd" [
+        <!ATTLIST payment type CDATA "check">
+      ]>
+      <staff></staff>
+    XML
+    ObjectSpace.memsize_of(doc) # assert_does_not_crash
+  end
+
   module MemInfo
     # from https://stackoverflow.com/questions/7220896/get-current-ruby-process-memory-usage
     # this is only going to work on linux
