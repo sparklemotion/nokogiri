@@ -100,13 +100,14 @@ memsize_node(const xmlNodePtr node)
 {
   /* note we don't count namespace definitions, just going for a good-enough number here */
   xmlNodePtr child;
+  xmlAttrPtr property;
   size_t memsize = 0;
 
   memsize += xmlStrlen(node->name);
 
   if (node->type == XML_ELEMENT_NODE) {
-    for (child = (xmlNodePtr)node->properties; child; child = child->next) {
-      memsize += sizeof(xmlAttr) + memsize_node(child);
+    for (property = node->properties; property; property = property->next) {
+      memsize += sizeof(xmlAttr) + memsize_node((xmlNodePtr)property);
     }
   }
   if (node->type == XML_TEXT_NODE) {
