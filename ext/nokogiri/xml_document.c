@@ -51,17 +51,6 @@ remove_private(xmlNodePtr node)
 }
 
 static void
-mark(void *data)
-{
-  xmlDocPtr doc = (xmlDocPtr)data;
-  nokogiriTuplePtr tuple = (nokogiriTuplePtr)doc->_private;
-  if (tuple) {
-    rb_gc_mark(tuple->doc);
-    rb_gc_mark(tuple->node_cache);
-  }
-}
-
-static void
 dealloc(void *data)
 {
   xmlDocPtr doc = (xmlDocPtr)data;
@@ -132,7 +121,6 @@ memsize(const void *data)
 static const rb_data_type_t noko_xml_document_data_type = {
   .wrap_struct_name = "Nokogiri::XML::Document",
   .function = {
-    .dmark = mark,
     .dfree = dealloc,
     .dsize = memsize,
   },
