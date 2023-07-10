@@ -2174,6 +2174,8 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
   /* Twiddle global variable because of a bug in libxml2.
    * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
+   *
+   * TODO: this is fixed, and HTML_PARSE_NOIMPLIED is defined, in libxml2 2.7.7
    */
 #ifndef HTML_PARSE_NOIMPLIED
   htmlHandleOmittedElem(0);
