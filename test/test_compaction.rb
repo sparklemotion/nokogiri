@@ -3,9 +3,16 @@
 require "helper"
 
 describe "compaction" do
+  def skip_compaction_tests
+    # skip if compaction is not supported, or if we're running Ruby 2.7 on windows
+    # (because compaction is buggy on that platform)
+    !GC.respond_to?(:verify_compaction_references) ||
+      (RUBY_VERSION.start_with?("2.7") && Gem.win_platform?)
+  end
+
   describe Nokogiri::XML::Node do
     it "compacts safely" do # https://github.com/sparklemotion/nokogiri/pull/2579
-      skip unless GC.respond_to?(:verify_compaction_references)
+      skip if skip_compaction_tests
 
       big_doc = "<root>" + ("a".."zz").map { |x| "<#{x}>#{x}</#{x}>" }.join + "</root>"
       doc = Nokogiri.XML(big_doc)
@@ -23,7 +30,7 @@ describe "compaction" do
 
   describe Nokogiri::XML::Namespace do
     it "namespace_scopes" do
-      skip unless GC.respond_to?(:verify_compaction_references)
+      skip if skip_compaction_tests
 
       doc = Nokogiri::XML(<<~EOF)
         <root xmlns="http://example.com/root" xmlns:bar="http://example.com/bar">
@@ -41,7 +48,7 @@ describe "compaction" do
     end
 
     it "remove_namespaces!" do
-      skip unless GC.respond_to?(:verify_compaction_references)
+      skip if skip_compaction_tests
 
       doc = Nokogiri::XML(<<~XML)
         <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
