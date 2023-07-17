@@ -65,7 +65,7 @@ module Nokogiri
       end
 
       def test_builder_buried_decl_ns
-        assert_equal("ns:veg",  check_namespace(@doc.root.elements[3].elements[1]))
+        assert_equal("ns:veg", check_namespace(@doc.root.elements[3].elements[1]))
       end
 
       def test_builder_namespace_count
