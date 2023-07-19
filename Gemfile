@@ -17,7 +17,7 @@ group :development do
   gem "hoe-markdown", "= 1.4.0"
 
   # parser generator
-  gem "rexical", "= 1.0.7"
+  gem "oedipus_lex", "= 2.6.1"
 
   # tests
   gem "minitest", "5.18.1"
