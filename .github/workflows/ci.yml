@@ -42,8 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
-    env:
-      NOKOGIRI_TEST_GC_LEVEL: normal # for fast feedback
     steps:
       - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
         with:
@@ -75,6 +73,21 @@ jobs:
           bundler-cache: true
           bundler: latest
       - run: bundle exec rake gumbo:test
+
+  css:
+    name: "css parser"
+    needs: ["basic"]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sparklemotion/nokogiri-test:ubuntu
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake css:clean css:generate
+      - run: bundle exec rake compile -- --enable-system-libraries
+      - run: bundle exec rake test
 
   #
   #  SECTION run the test suite across a broad matrix of rubies, configs, and systems
