@@ -32,7 +32,7 @@ Here's an example of how you might structure such a script:
 require 'nokogiri'
 require 'minitest/autorun'
 
-class Test < MiniTest::Spec
+class Test < Minitest::Spec
   describe "Node#css" do
     it "should find a div using chained classes" do
       html = <<~HEREDOC
