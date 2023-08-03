@@ -124,7 +124,7 @@ Note that `rake test` does not compile the native extension, and this is intenti
 bundle exec rake compile test
 ```
 
-To run a focused test, use MiniTest's `TESTOPTS`:
+To run a focused test, use Minitest's `TESTOPTS`:
 
 ``` sh
 bundle exec rake compile test TESTOPTS="-n/test_last_element_child/"
