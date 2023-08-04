@@ -24,10 +24,7 @@ class ValgrindTestTask < Rake::TestTask
   ]
 
   if defined?(RubyMemcheck)
-    RubyMemcheck.config(
-      binary_name: "nokogiri",
-      valgrind_generate_suppressions: true,
-    )
+    RubyMemcheck.config(valgrind_generate_suppressions: true)
   end
 
   def ruby(*args, **options, &block)
