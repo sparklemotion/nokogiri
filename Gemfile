@@ -21,7 +21,7 @@ group :development do
 
   # tests
   gem "minitest", "5.19.0"
-  gem "minitest-reporters", "1.6.0"
+  gem "minitest-reporters", "1.6.1"
   gem "ruby_memcheck", "1.3.2"
   gem "rubyzip", "~> 2.3.2"
   gem "simplecov", "= 0.21.2"
