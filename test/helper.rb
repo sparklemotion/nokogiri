@@ -13,10 +13,12 @@
 # - NOKOGIRI_GC: read more in test/test_memory_leak.rb
 #
 
-require "simplecov"
-SimpleCov.start do
-  add_filter "/test/"
-  enable_coverage :branch
+unless ENV["RUBY_MEMCHECK_RUNNING"]
+  require "simplecov"
+  SimpleCov.start do
+    add_filter "/test/"
+    enable_coverage :branch
+  end
 end
 
 $VERBOSE = true
