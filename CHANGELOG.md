@@ -6,6 +6,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.11.5 from v2.11.4. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.5
+
+
+### Fixed
+
 * Fixed a typo in a HTML5 parser error message. [[#2927](https://github.com/sparklemotion/nokogiri/issues/2927)] (Thanks, [@anishathalye](https://github.com/anishathalye)!)
 * [CRuby] `ObjectSpace.memsize_of` is now safe to call on `Document`s with complex DTDs. In previous versions, this debugging method could result in a segfault. [[#2923](https://github.com/sparklemotion/nokogiri/issues/2923), [#2924](https://github.com/sparklemotion/nokogiri/issues/2924)]
 
