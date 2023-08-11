@@ -357,7 +357,7 @@ static void handle_parser_error (
       print_tag_stack(error, output);
       return;
     case GUMBO_TOKEN_END_TAG:
-      print_message(output, "Eng tag '%s' isn't allowed here.",
+      print_message(output, "End tag '%s' isn't allowed here.",
                     gumbo_normalized_tagname(error->input_tag));
       print_tag_stack(error, output);
       return;
