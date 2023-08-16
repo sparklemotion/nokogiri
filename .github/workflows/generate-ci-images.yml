@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "0 5 * * 3" # At 05:00 on Wednesday # https://crontab.guru/#0_5_*_*_3
 # reference: https://github.com/marketplace/actions/build-and-push-docker-images
+permissions:
+  contents: read
+
 jobs:
   build_images:
     strategy:

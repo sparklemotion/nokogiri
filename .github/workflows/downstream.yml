@@ -17,6 +17,9 @@ on:
     branches:
       - '*'
 
+permissions:
+  contents: read
+
 jobs:
   downstream:
     name: downstream-${{matrix.name}}
