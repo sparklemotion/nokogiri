@@ -255,7 +255,7 @@ def verify_dll(dll, cross_ruby)
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi.match?(dump)
 
     # Verify that the DLL dependencies are all allowed.
-    actual_imports = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+    actual_imports = dump.scan(/DLL Name: (.*)$/).map { |name| name.first.downcase }.uniq
     unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end

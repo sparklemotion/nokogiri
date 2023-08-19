@@ -193,11 +193,13 @@ module Nokogiri
         html = File.read(xml_document)
         @parser.parse(html)
         refute_nil @parser.document.errors
-        if truffleruby_system_libraries?
-          assert_equal ["error_func: %s"], @parser.document.errors.map(&:to_s).map(&:strip)
+        errors = @parser.document.errors.map { |e| e.to_s.strip }
+        expected = if truffleruby_system_libraries?
+          ["error_func: %s"]
         else
-          assert_equal ["Entity 'bar' not defined"], @parser.document.errors.map(&:to_s).map(&:strip)
+          ["Entity 'bar' not defined"]
         end
+        assert_equal(expected, errors)
       end
 
       test_relative_and_absolute_path :test_more_sax_entity_reference do
@@ -210,11 +212,13 @@ module Nokogiri
         ]
         @parser.parse(html)
         refute_nil @parser.document.errors
-        if truffleruby_system_libraries?
-          assert_equal ["error_func: %s"], @parser.document.errors.map(&:to_s).map(&:strip)
+        errors = @parser.document.errors.map { |e| e.to_s.strip }
+        expected = if truffleruby_system_libraries?
+          ["error_func: %s"]
         else
-          assert_equal ["Entity 'bar' not defined"], @parser.document.errors.map(&:to_s).map(&:strip)
+          ["Entity 'bar' not defined"]
         end
+        assert_equal(expected, errors)
       end
     end
 
