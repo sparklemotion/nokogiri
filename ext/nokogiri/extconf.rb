@@ -6,6 +6,7 @@ ENV["RC_ARCHS"] = "" if RUBY_PLATFORM.include?("darwin")
 
 require "mkmf"
 require "rbconfig"
+require "English"
 require "fileutils"
 require "shellwords"
 require "pathname"
@@ -584,34 +585,6 @@ def do_clean
   exit!(0)
 end
 
-# In ruby 3.2, symbol resolution changed on Darwin, to introduce the `-bundle_loader` flag to
-# resolve symbols against the ruby binary.
-#
-# This makes it challenging to build a single extension that works with both a ruby with
-# `--enable-shared` and one with `--disable-shared. To work around that, we choose to add
-# `-flat_namespace` to the link line (later in this file).
-#
-# The `-flat_namespace` line introduces its own behavior change, which is that (similar to on
-# Linux), any symbols in the extension that are exported may now be resolved by shared libraries
-# loaded by the Ruby process. Specifically, that means that libxml2 and libxslt, which are
-# statically linked into the nokogiri bundle, will resolve (at runtime) to a system libxml2 loaded
-# by Ruby on Darwin. And it appears that often Ruby on Darwin does indeed load the system libxml2,
-# and that messes with our assumptions about whether we're running with a patched libxml2 or a
-# vanilla libxml2.
-#
-# We choose to use `-load_hidden` in this case to prevent exporting those symbols from libxml2 and
-# libxslt, which ensures that they will be resolved to the static libraries in the bundle. In other
-# words, when we use `load_hidden`, what happens in the extension stays in the extension.
-#
-# See https://github.com/rake-compiler/rake-compiler-dock/issues/87 for more info.
-#
-# Anyway, this method is the logical bit to tell us when to turn on these workarounds.
-def needs_darwin_linker_hack
-  config_cross_build? &&
-    darwin? &&
-    Gem::Requirement.new("~> 3.2").satisfied_by?(Gem::Version.new(RbConfig::CONFIG["ruby_version"].split("+").first))
-end
-
 #
 #  main
 #
@@ -738,8 +711,72 @@ else
   cross_build_p = config_cross_build?
   message "Cross build is #{cross_build_p ? "enabled" : "disabled"}.\n"
 
-  if needs_darwin_linker_hack
-    append_ldflags("-Wl,-flat_namespace")
+  # This whole dance is to work around a somewhat annoying confluence of circumstances:
+  # 1. In modern xcode, dynamic linking is performed through chained fixups
+  #     a. chained fixups offer runtime performance and binary size improvements vs traditional
+  #        dynamic linking
+  # 2. xcode disables chained linkups when linking with `-undefined dynamic_lookup` (previous
+  #    versions of xcode had deprecation warnings instead)
+  #    a. xcode does this because chained fixups do not support lazily loaded, dynamic_lookup symbols
+  #    b. in the case of Ruby extensions, this is not actually useful for loading symbols
+  #       from Ruby itself because extensions are always loaded after all of `libruby` (static
+  #       or dynamic) is loaded into the current process
+  # 3. ruby upstream uses `-llibrubyX.Y` or `-bundle_loader '\$(BUILTRUBY)'` to allow extensions to
+  #    link against symbols from libruby without depending on `-undefined dynamic_lookup`
+  #    a. Ruby still currently defaults to including `-undefined dynamic_lookup` as a linker flag,
+  #       but they have communicated an intent to stop doing so, and building without that flag allows
+  #       a more optimized binary
+  # 4. Using these flags makes it impossible for a single binary extension to work with both static and
+  #    shared ruby because the ruby-provided symbols come from different places and the two-level namespace
+  #    resolver can't find the symbols e.g. in `librubyX.Y` when linking against a static ruby that has
+  #    them in the main binary instead.
+  # 5. This can be worked around with the `-flat_namespace` linker flag, but then we run into the problem
+  #    where any symbols in the extension that are exported may now be satisfied by shared libraries
+  #    loaded by the Ruby process. Specifically, that means that libxml2 and libxslt, which are
+  #    statically linked into the nokogiri bundle, can resolve (at runtime) to a system libxml2 loaded
+  #    by Ruby on Darwin. And it appears that often Ruby on Darwin does indeed load the system libxml2,
+  #    and that messes with our assumptions about whether we're running with a patched libxml2 or a
+  #    vanilla libxml2.
+  # 6. That problem cna be worked around by using `-load_hidden` in this case to prevent exporting those
+  #    symbols from libxml2 and libxslt, which ensures that they will be resolved to the static libraries
+  #    in the bundle. In other words, when we use `load_hidden`, what happens in the extension stays in
+  #    the extension.
+  # 7. Using `-load_hidden` makes it impossible to build c extensions that link against nokogiri because
+  #    most of the symbols such an extension would need to link against are now hidden.
+  #
+  # The alternative solution we have chosen here is to still remove the `-undefined dynamic_lookup` flag,
+  # but also remove the `-llibrubyX.Y` and `-bundle_loader '\$(BUILTRUBY)'` flags, and instead use `-U symbol`
+  # to pass all the symbols exported from the ruby binaries to the linker. When passed this way, the linker
+  # knows that those symbols are safe to be looked up dynamically (because as explained above we *know* with
+  # certainty they will be defined when the extension is loaded and not lazily loaded later).  This allows the
+  # linker to continue using its preferred chained fixup optimizations while also allowing the extension to
+  # continue to allow additional extensions to be built from it.
+  #
+  # Note: there is no clean way to tell the linker "use dynamic_lookup for all symbols from *this* library",
+  # so we have to generate the list of all possible symbols (using `nm` and pass each one as a separate `-U`
+  # flag. To avoid a really longer linker CLI invocation (and cluttered log files) we use a linker response file.)
+  if darwin?
+    # Enforce that we aren't accidentally depending on dynamic lookups outside the libruby exported symbols
+    $DLDFLAGS = ($DLDFLAGS.split(" ") - ["-Wl,-undefined,dynamic_lookup"]).join(" ")
+    # upstream ruby will set `-llrubyX.Y` or `-bundle_loader '\$(BUILTRUBY)'` depending on
+    # if this is a static or dynamic build. We want to override that behavior to ensure that
+    # the symbol is linked for dynamic_lookup, and if the static linker can find it at link
+    # time it will get pinned to that file instead.
+    # rake-compiler-dock also will add `-Wl,-flat_namespace` and we don't want that either
+    CONFIG["EXTDLDFLAGS"] = ""
+    # find symbols that may be on the binary or the dynamic library, using the
+    # actual current running ruby (not caring if the fake ruby is static of dynamic) to get
+    # the list of available symbols
+    symbol_file = if RbConfig::CONFIG["LIBRUBY"].end_with?(RbConfig::CONFIG["LIBEXT"])
+      "#{RbConfig::CONFIG["bindir"]}/#{RbConfig::CONFIG["RUBY_BASE_NAME"]}"
+    else
+      "#{RbConfig::CONFIG["libdir"]}/#{RbConfig::CONFIG["LIBRUBY"]}"
+    end
+    raw_symbols = %x(#{RbConfig::CONFIG["NM"]} -Ujg #{symbol_file}).split("\n")
+    abort("Failed getting ruby symbols") unless $CHILD_STATUS.success?
+
+    File.write("ruby-ld.sym", raw_symbols.map { |s| "-U #{s}" }.join("\n"))
+    append_ldflags("-Wl,@ruby-ld.sym")
   end
 
   require "yaml"
@@ -1013,13 +1050,12 @@ else
   end.shelljoin
 
   if static_p
-    static_archive_ld_flag = needs_darwin_linker_hack ? ["-load_hidden"] : []
     $libs = $libs.shellsplit.map do |arg|
       case arg
       when "-lxml2"
-        static_archive_ld_flag + [File.join(libxml2_recipe.path, "lib", libflag_to_filename(arg))]
+        [File.join(libxml2_recipe.path, "lib", libflag_to_filename(arg))]
       when "-lxslt", "-lexslt"
-        static_archive_ld_flag + [File.join(libxslt_recipe.path, "lib", libflag_to_filename(arg))]
+        [File.join(libxslt_recipe.path, "lib", libflag_to_filename(arg))]
       else
         arg
       end
