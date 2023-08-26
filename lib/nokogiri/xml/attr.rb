@@ -18,8 +18,6 @@ module Nokogiri
       #  - +value+ → (String) The value of the attribute.
       #  - +namespace+ → (Namespace, nil) The Namespace of the attribute, or +nil+ if there is no namespace.
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
-      #
       #  *Example*
       #
       #    doc = Nokogiri::XML.parse(<<~XML)
@@ -51,6 +49,8 @@ module Nokogiri
       #    #        prefix = "noko",
       #    #        href = "http://nokogiri.org/ns/noko"
       #    #        })}
+      #
+      #  Since v1.14.0
       #
       def deconstruct_keys(keys)
         { name: name, value: value, namespace: namespace }

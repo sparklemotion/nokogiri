@@ -435,7 +435,7 @@ module Nokogiri
       #
       #  Returns the members of this NodeSet as an array, to use in pattern matching.
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
+      #  Since v1.14.0
       #
       def deconstruct
         to_a

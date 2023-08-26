@@ -16,8 +16,6 @@ module Nokogiri
       #  - +prefix+ → (String, nil) The namespace's prefix, or +nil+ if there is no prefix (e.g., default namespace).
       #  - +href+ → (String) The namespace's URI
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
-      #
       #  *Example*
       #
       #    doc = Nokogiri::XML.parse(<<~XML)
@@ -43,6 +41,7 @@ module Nokogiri
       #    doc.root.elements.last.namespace.deconstruct_keys([:prefix, :href])
       #    # => {:prefix=>"noko", :href=>"http://nokogiri.org/ns/noko"}
       #
+      #  Since v1.14.0
       #
       def deconstruct_keys(keys)
         { prefix: prefix, href: href }
