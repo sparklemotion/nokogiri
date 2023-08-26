@@ -1430,8 +1430,6 @@ module Nokogiri
       #  - +content+ → (String) The contents of all the text nodes in this node's subtree. See #content.
       #  - +inner_html+ → (String) The inner markup for the children of this node. See #inner_html.
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
-      #
       #  *Example*
       #
       #    doc = Nokogiri::XML.parse(<<~XML)
@@ -1465,6 +1463,8 @@ module Nokogiri
       #    #           }),
       #    #         value = "def"
       #    #         })]}
+      #
+      #  Since v1.14.0
       #
       def deconstruct_keys(keys)
         requested_keys = DECONSTRUCT_KEYS & keys

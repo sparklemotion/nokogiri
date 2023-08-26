@@ -174,8 +174,7 @@ module Nokogiri
       # Since v1.12.4
       attr_accessor :namespace_inheritance
 
-      # :nodoc:
-      def initialize(*args) # rubocop:disable Lint/MissingSuper
+      def initialize(*args) # :nodoc: # rubocop:disable Lint/MissingSuper
         @errors     = []
         @decorators = nil
         @namespace_inheritance = false
@@ -427,8 +426,6 @@ module Nokogiri
       #  instructions. If you have a use case and would like this functionality, please let us know
       #  by opening an issue or a discussion on the github project.
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
-      #
       #  *Example*
       #
       #    doc = Nokogiri::XML.parse(<<~XML)
@@ -454,6 +451,8 @@ module Nokogiri
       #
       #    doc.deconstruct_keys([:root])
       #    # => {:root=>nil}
+      #
+      #  Since v1.14.0
       #
       def deconstruct_keys(keys)
         { root: root }

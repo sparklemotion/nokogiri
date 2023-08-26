@@ -154,8 +154,6 @@ module Nokogiri
       #  root elements, you should deconstruct the array returned by
       #  <tt>DocumentFragment#elements</tt>.
       #
-      #  ⚡ This is an experimental feature, available since v1.14.0
-      #
       #  *Example*
       #
       #    frag = Nokogiri::HTML5.fragment(<<~HTML)
@@ -186,6 +184,8 @@ module Nokogiri
       #    #       children = [ #(Text "shortcut")]
       #    #       }),
       #    #     #(Element:0x398 { name = "div", children = [ #(Text "End")] })]
+      #
+      #  Since v1.14.0
       #
       def deconstruct
         children.to_a

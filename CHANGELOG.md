@@ -4,6 +4,25 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Notable Changes
+
+#### Pattern matching
+
+This version marks _official support_ for the pattern matching API in `XML::Attr`, `XML::Document`, `XML::DocumentFragment`, `XML::Namespace`, `XML::Node`, and `XML::NodeSet` (and their subclasses), originally introduced as an experimental feature in v1.14.0.
+
+Documentation on what can be matched:
+
+* [`XML::Attr#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Attr.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::Document#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Document.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::Namespace#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Namespace.html?h=deconstruct+namespace#method-i-deconstruct_keys)
+* [`XML::Node#deconstruct_keys`](https://nokogiri.org/rdoc/Nokogiri/XML/Node.html?h=deconstruct#method-i-deconstruct_keys)
+* [`XML::DocumentFragment#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/DocumentFragment.html?h=deconstruct#method-i-deconstruct)
+* [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
+
+
+
 ## 1.15.4 / 2023-08-11
 
 ### Dependencies
