@@ -961,7 +961,7 @@ internal_subset(VALUE self)
  * - +new_parent_doc+
  *   The new node's parent Document. Defaults to the this node's document.
  *
- * [Returns] The new Nokgiri::XML::Node
+ * [Returns] The new Nokogiri::XML::Node
  */
 static VALUE
 duplicate_node(int argc, VALUE *argv, VALUE self)
