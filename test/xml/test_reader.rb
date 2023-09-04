@@ -765,7 +765,12 @@ module Nokogiri
           e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.attribute_hash
           end
-          assert_includes(e.message, "FATAL: Extra content at the end of the document")
+          expected = if Nokogiri.uses_libxml?(">= 2.12.0") # upstream commit 53050b1d
+            "FATAL: Premature end of data in tag foo line 1"
+          else
+            "FATAL: Extra content at the end of the document"
+          end
+          assert_includes(e.message, expected)
         end
 
         assert_equal(1, reader.errors.length)
@@ -796,7 +801,12 @@ module Nokogiri
           e = assert_raises(Nokogiri::XML::SyntaxError) do
             reader.namespaces
           end
-          assert_includes(e.message, "FATAL: Extra content at the end of the document")
+          expected = if Nokogiri.uses_libxml?(">= 2.12.0") # upstream commit 53050b1d
+            "FATAL: Premature end of data in tag foo line 1"
+          else
+            "FATAL: Extra content at the end of the document"
+          end
+          assert_includes(e.message, expected)
         end
 
         assert_equal(1, reader.errors.length)
