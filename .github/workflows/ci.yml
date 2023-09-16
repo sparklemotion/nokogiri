@@ -401,18 +401,20 @@ jobs:
     needs: ["rcd_image_version"]
     name: "generic-package"
     runs-on: ubuntu-latest
-    container:
-      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux"
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: git config --global --add safe.directory /__w/nokogiri/nokogiri # shrug
       - uses: actions/cache@v3
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: ./scripts/test-gem-build gems ruby
+      - env:
+          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux"
+        run: |
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            ${DOCKER_IMAGE} \
+            ./scripts/test-gem-build gems ruby
       - uses: actions/upload-artifact@v3
         with:
           name: generic-gem
