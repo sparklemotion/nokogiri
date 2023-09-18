@@ -14,7 +14,7 @@ jobs:
         tag: ["alpine", "mri-2.7", "mri-3.0", "mri-3.1", "mri-3.2", "truffle-nightly", "ubuntu", "ubuntu32"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1

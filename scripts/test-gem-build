@@ -16,6 +16,9 @@ test -e /etc/os-release && cat /etc/os-release
 
 set -u -x
 
+# avoid the pernicious "fatal: detected dubious ownership in repository" errors
+git config --global --add safe.directory $(realpath $(dirname $0)/..)
+
 bundle
 
 bundle exec rake set-version-to-timestamp
