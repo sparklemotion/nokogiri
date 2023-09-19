@@ -339,7 +339,7 @@ Gem::Specification.new do |spec|
     spec.requirements << "jar xerces, xercesImpl, 2.12.2" # https://search.maven.org/artifact/xerces/xercesImpl
     spec.requirements << "jar xml-apis, xml-apis, 1.4.01" # https://search.maven.org/artifact/xml-apis/xml-apis
   else
-    spec.add_runtime_dependency("mini_portile2", "~> 2.8.2") # keep version in sync with extconf.rb
+    spec.add_runtime_dependency("mini_portile2", "~> 2.8.5.rc2") # keep version in sync with extconf.rb
   end
   spec.add_runtime_dependency("racc", "~> 1.4")
 
