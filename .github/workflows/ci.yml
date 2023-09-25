@@ -43,7 +43,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@v4 # v1 because of https://github.com/actions/checkout/issues/334
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -156,7 +156,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@v4 # v1 because of https://github.com/actions/checkout/issues/334
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
@@ -174,7 +174,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@v4 # v1 because of https://github.com/actions/checkout/issues/334
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
