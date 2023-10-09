@@ -143,7 +143,7 @@ module Nokogiri
         def test_parse_error_list
           error_count = xml.errors.length
           xml.root.parse("<hello>")
-          assert(error_count < xml.errors.length, "errors should have increased")
+          assert_operator(error_count, :<, xml.errors.length, "errors should have increased")
         end
 
         def test_parse_error_on_fragment_with_empty_document

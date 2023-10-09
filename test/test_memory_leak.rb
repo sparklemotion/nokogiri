@@ -84,7 +84,7 @@ class TestMemoryLeak < Nokogiri::TestCase
       end
       2.times { GC.start }
       count_end = count_object_space_documents
-      assert((count_end - count_start) <= 2, "memory leak detected")
+      assert_operator((count_end - count_start), :<=, 2, "memory leak detected")
     rescue LoadError
       puts "\ndike is not installed, skipping memory leak test"
     end
@@ -289,28 +289,28 @@ class TestMemoryLeak < Nokogiri::TestCase
         <child>asdf</child>
       </root>
     XML
-    assert(more_children_size > base_size, "adding children should increase memsize")
+    assert_operator(more_children_size, :>, base_size, "adding children should increase memsize")
 
     attributes_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
       <root>
         <child a="b" c="d">asdf</child>
       </root>
     XML
-    assert(attributes_size > base_size, "adding attributes should increase memsize")
+    assert_operator(attributes_size, :>, base_size, "adding attributes should increase memsize")
 
     string_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
       <root>
         <child>asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf</child>
       </root>
     XML
-    assert(string_size > base_size, "longer strings should increase memsize")
+    assert_operator(string_size, :>, base_size, "longer strings should increase memsize")
 
     bigger_name_size = ObjectSpace.memsize_of(Nokogiri::XML(<<~XML))
       <root>
         <superduperamazingchild>asdf</superduperamazingchild>
       </root>
     XML
-    assert(bigger_name_size > base_size, "longer tags should increase memsize")
+    assert_operator(bigger_name_size, :>, base_size, "longer tags should increase memsize")
   end
 
   def test_object_space_memsize_with_dtd

@@ -685,7 +685,7 @@ module Nokogiri
 
         # issue #1821, #2110
         def test_parse_can_take_pathnames
-          assert(File.size(XML_ATOM_FILE) > 4096) # file must be big enough to trip the read callback more than once
+          assert_operator(File.size(XML_ATOM_FILE), :>, 4096) # file must be big enough to trip the read callback more than once
 
           doc = Nokogiri::XML.parse(Pathname.new(XML_ATOM_FILE))
 
