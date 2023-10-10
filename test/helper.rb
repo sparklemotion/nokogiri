@@ -23,15 +23,6 @@ end
 
 $VERBOSE = true
 
-require "minitest/autorun"
-require "minitest/benchmark"
-require "minitest/reporters"
-
-nokogiri_minitest_reporters_options = { color: true, slow_count: 10, detailed_skip: false }
-nokogiri_minitest_reporters_options[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
-puts "Minitest::Reporters options: #{nokogiri_minitest_reporters_options}"
-Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(nokogiri_minitest_reporters_options))
-
 require "fileutils"
 require "tempfile"
 require "pp"
@@ -55,6 +46,14 @@ end
 
 warn "#{__FILE__}:#{__LINE__}: version info:"
 warn Nokogiri::VERSION_INFO.to_yaml
+warn
+
+require "minitest/autorun"
+require "minitest/benchmark"
+if ENV["NCPU"]
+  require "minitest/parallel_fork"
+  warn "Running parallel tests with NCPU=#{ENV["NCPU"].inspect}"
+end
 
 module Nokogiri
   module TestBase
@@ -137,19 +136,25 @@ module Nokogiri
     @@test_count = 0
     @@gc_level = nil
 
+    class << self
+      def nokogiri_test_gc_level
+        if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
+          ENV["NOKOGIRI_TEST_GC_LEVEL"]
+        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
+          "compact"
+        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
+          "verify"
+        else
+          "normal"
+        end
+      end
+    end
+
     def initialize_nokogiri_test_gc_level
       return if Nokogiri.jruby?
       return if @@gc_level
 
-      @@gc_level = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
-        ENV["NOKOGIRI_TEST_GC_LEVEL"]
-      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
-        "compact"
-      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
-        "verify"
-      else
-        "normal"
-      end
+      @@gc_level = TestCase.nokogiri_test_gc_level
 
       if ["compact", "verify"].include?(@@gc_level)
         # the only way of detecting an unsupported platform is actually
@@ -161,7 +166,6 @@ module Nokogiri
           warn("#{__FILE__}:#{__LINE__}: GC compaction not suppport by platform")
         end
       end
-      warn("#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{@@gc_level}")
     end
 
     def setup
@@ -460,5 +464,7 @@ module Nokogiri
     end
   end
 end
+
+warn("NOKOGIRI_TEST_GC_LEVEL: #{Nokogiri::TestCase.nokogiri_test_gc_level}")
 
 Minitest::Spec.register_spec_type(//, Nokogiri::TestCase) # make TestCase the default

@@ -130,6 +130,14 @@ To run a focused test, use Minitest's `TESTOPTS`:
 bundle exec rake compile test TESTOPTS="-n/test_last_element_child/"
 ```
 
+To run the test suite in parallel, set the `NCPU` environment variable; and to compile in parallel, set the `MAKEFLAGS` environment variable (you may want to set these in something like your .bashrc):
+
+``` sh
+export NCPU=8
+export MAKEFLAGS=-j8
+bundle exec rake compile test
+```
+
 
 ### CRuby advanced usage
 
@@ -173,9 +181,6 @@ bundle exec rake compile test:memcheck
 Note that by you can run the test suite with a variety of GC behaviors. For example, running a major after each test completes has, on occasion, been useful for localizing some classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
 
 ``` sh
-# see failure messages immediately
-NOKOGIRI_TEST_FAIL_FAST=t bundle exec rake compile test
-
 # ordinary GC behavior
 NOKOGIRI_TEST_GC_LEVEL=normal bundle exec rake compile test
 
