@@ -80,14 +80,6 @@ module Nokogiri
     XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
     XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
 
-    def i_am_ruby_matching(gem_version_requirement_string)
-      Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
-    end
-
-    def i_am_in_a_systemd_container
-      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
-    end
-
     def i_am_running_in_valgrind
       # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
       ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
@@ -203,7 +195,6 @@ module Nokogiri
           end
         when "verify"
           if @@test_count % COMPACT_EVERY == 0
-            # https://alanwu.space/post/check-compaction/
             gc_verify_compaction_references
           end
           GC.start(full_mark: true)
@@ -220,6 +211,7 @@ module Nokogiri
     end
 
     def gc_verify_compaction_references
+      # https://alanwu.space/post/check-compaction/
       if Gem::Requirement.new(">= 3.2.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
         GC.verify_compaction_references(expand_heap: true, toward: :empty)
       else
@@ -266,14 +258,6 @@ module Nokogiri
       document.decorators(XML::NodeSet) << decorator_module
       document.decorate!
     end
-
-    def assert_not_send(send_ary, m = nil)
-      recv, msg, *args = send_ary
-      m = message(m) do
-        "Expected #{mu_pp(recv)}.#{msg}(*#{mu_pp(args)}) to return false"
-      end
-      refute(recv.__send__(msg, *args), m)
-    end unless method_defined?(:assert_not_send)
 
     def pending(msg)
       begin
