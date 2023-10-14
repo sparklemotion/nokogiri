@@ -23,15 +23,6 @@ end
 
 $VERBOSE = true
 
-require "minitest/autorun"
-require "minitest/benchmark"
-require "minitest/reporters"
-
-nokogiri_minitest_reporters_options = { color: true, slow_count: 10, detailed_skip: false }
-nokogiri_minitest_reporters_options[:fast_fail] = true if ENV["NOKOGIRI_TEST_FAIL_FAST"]
-puts "Minitest::Reporters options: #{nokogiri_minitest_reporters_options}"
-Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new(nokogiri_minitest_reporters_options))
-
 require "fileutils"
 require "tempfile"
 require "pp"
@@ -55,6 +46,14 @@ end
 
 warn "#{__FILE__}:#{__LINE__}: version info:"
 warn Nokogiri::VERSION_INFO.to_yaml
+warn
+
+require "minitest/autorun"
+require "minitest/benchmark"
+if ENV["NCPU"]
+  require "minitest/parallel_fork"
+  warn "Running parallel tests with NCPU=#{ENV["NCPU"].inspect}"
+end
 
 module Nokogiri
   module TestBase
@@ -80,14 +79,6 @@ module Nokogiri
     XML_ATOM_FILE        = File.join(ASSETS_DIR, "atom.xml")
     XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
     XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
-
-    def i_am_ruby_matching(gem_version_requirement_string)
-      Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
-    end
-
-    def i_am_in_a_systemd_container
-      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
-    end
 
     def i_am_running_in_valgrind
       # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
@@ -137,19 +128,25 @@ module Nokogiri
     @@test_count = 0
     @@gc_level = nil
 
+    class << self
+      def nokogiri_test_gc_level
+        if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
+          ENV["NOKOGIRI_TEST_GC_LEVEL"]
+        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
+          "compact"
+        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
+          "verify"
+        else
+          "normal"
+        end
+      end
+    end
+
     def initialize_nokogiri_test_gc_level
       return if Nokogiri.jruby?
       return if @@gc_level
 
-      @@gc_level = if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
-        ENV["NOKOGIRI_TEST_GC_LEVEL"]
-      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
-        "compact"
-      elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
-        "verify"
-      else
-        "normal"
-      end
+      @@gc_level = TestCase.nokogiri_test_gc_level
 
       if ["compact", "verify"].include?(@@gc_level)
         # the only way of detecting an unsupported platform is actually
@@ -161,7 +158,6 @@ module Nokogiri
           warn("#{__FILE__}:#{__LINE__}: GC compaction not suppport by platform")
         end
       end
-      warn("#{__FILE__}:#{__LINE__}: NOKOGIRI_TEST_GC_LEVEL: #{@@gc_level}")
     end
 
     def setup
@@ -199,7 +195,6 @@ module Nokogiri
           end
         when "verify"
           if @@test_count % COMPACT_EVERY == 0
-            # https://alanwu.space/post/check-compaction/
             gc_verify_compaction_references
           end
           GC.start(full_mark: true)
@@ -216,6 +211,7 @@ module Nokogiri
     end
 
     def gc_verify_compaction_references
+      # https://alanwu.space/post/check-compaction/
       if Gem::Requirement.new(">= 3.2.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
         GC.verify_compaction_references(expand_heap: true, toward: :empty)
       else
@@ -262,14 +258,6 @@ module Nokogiri
       document.decorators(XML::NodeSet) << decorator_module
       document.decorate!
     end
-
-    def assert_not_send(send_ary, m = nil)
-      recv, msg, *args = send_ary
-      m = message(m) do
-        "Expected #{mu_pp(recv)}.#{msg}(*#{mu_pp(args)}) to return false"
-      end
-      refute(recv.__send__(msg, *args), m)
-    end unless method_defined?(:assert_not_send)
 
     def pending(msg)
       begin
@@ -460,5 +448,7 @@ module Nokogiri
     end
   end
 end
+
+warn("NOKOGIRI_TEST_GC_LEVEL: #{Nokogiri::TestCase.nokogiri_test_gc_level}")
 
 Minitest::Spec.register_spec_type(//, Nokogiri::TestCase) # make TestCase the default
