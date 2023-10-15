@@ -22,7 +22,6 @@ group :development do
   # tests
   gem "minitest", "5.20.0"
   gem "minitest-parallel_fork", "1.3.1"
-  gem "minitest-reporters", "1.6.1"
   gem "ruby_memcheck", "2.2.0"
   gem "rubyzip", "~> 2.3.2"
   gem "simplecov", "= 0.21.2"
@@ -44,3 +43,5 @@ end
 group :rdoc do
   gem "rdoc", "6.5.0"
 end
+
+gem "psych", "!= 5.1.1", "!= 5.1.0" # https://github.com/ruby/psych/issues/655

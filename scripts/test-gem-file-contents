@@ -16,7 +16,6 @@ require "bundler/inline"
 gemfile do
   source "https://rubygems.org"
   gem "minitest"
-  gem "minitest-reporters"
 end
 
 require "yaml"
@@ -66,8 +65,6 @@ if ARGV.include?("-v")
 end
 
 require "minitest/autorun"
-require "minitest/reporters"
-Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
 puts "Testing '#{gemfile}' (#{gemspec.platform})"
 describe File.basename(gemfile) do

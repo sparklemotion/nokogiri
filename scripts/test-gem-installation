@@ -22,7 +22,6 @@ require "bundler/inline"
 gemfile do
   source "https://rubygems.org"
   gem "minitest"
-  gem "minitest-reporters"
   gem "nokogiri"
 end
 
@@ -39,8 +38,6 @@ if ARGV.include?("-v")
 end
 
 require "minitest/autorun"
-require "minitest/reporters"
-Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
 
 puts "Testing #{gemspec.full_name} installed in #{gemspec.base_dir}"
 describe gemspec.full_name do
