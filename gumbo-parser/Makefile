@@ -13,6 +13,17 @@ LDFLAGS := -pthread
 
 all: check
 
+fuzzing: fuzzer-normal fuzzer-asan fuzzer-ubsan
+
+fuzzer-normal:
+	cd fuzzer && ./build.sh && cd -
+
+fuzzer-asan:
+	cd fuzzer && SANITIZER=address ./build.sh && cd -
+
+fuzzer-ubsan:
+	cd fuzzer && SANITIZER=undefined ./build.sh && cd -
+
 # don't try to regenerate ragel or gperf files in CI, that should be a development-only action and
 # the generated files should be committed to SCM
 ifneq ($(CI),true)
@@ -81,6 +92,7 @@ coverage:
 
 clean:
 	$(RM) -r build
+	$(RM) -r fuzzer/build
 
 build/src/flags: | build/src
 	@echo 'old_CC := $(CC)' > $@
