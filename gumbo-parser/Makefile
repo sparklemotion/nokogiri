@@ -13,7 +13,7 @@ LDFLAGS := -pthread
 
 all: check
 
-fuzzing: fuzzer-normal fuzzer-asan fuzzer-ubsan
+fuzzing: fuzzer-normal fuzzer-asan fuzzer-ubsan fuzzer-msan
 
 fuzzer-normal:
 	cd fuzzer && ./build.sh && cd -
@@ -23,6 +23,9 @@ fuzzer-asan:
 
 fuzzer-ubsan:
 	cd fuzzer && SANITIZER=undefined ./build.sh && cd -
+
+fuzzer-msan:
+	cd fuzzer && SANITIZER=memory ./build.sh && cd -
 
 # don't try to regenerate ragel or gperf files in CI, that should be a development-only action and
 # the generated files should be committed to SCM

@@ -28,9 +28,14 @@ then
   export SANITIZER_OPTS="-fsanitize=address"
   export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.asan_cxx-x86_64.a | head -1)"
 fi
+if [ "$SANITIZER" = "memory" ]
+then
+  export SANITIZER_OPTS="-fsanitize=memory -fPIE -pie -Wno-unused-command-line-argument"
+  export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.msan_cxx-x86_64.a | head -1)"
+fi
 
-export CXXFLAGS="-O0 $CXXFLAGS $SANITIZER_OPTS"
-export CFLAGS="-O0 $CFLAGS $SANITIZER_OPTS"
+export CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
+export CFLAGS="-O3 $CFLAGS $SANITIZER_OPTS"
 cd ../src && make clean && make && cd -
 
 if [ -z "${SANITIZER}" ]
