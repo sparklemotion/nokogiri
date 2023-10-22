@@ -43,5 +43,3 @@ end
 group :rdoc do
   gem "rdoc", "6.5.0"
 end
-
-gem "psych", "!= 5.1.1", "!= 5.1.0" # https://github.com/ruby/psych/issues/655
