@@ -182,12 +182,18 @@ describe Nokogiri::XML::SAX::PushParser do
 
   it :test_broken_encoding do
     skip_unless_libxml2("ultra hard to fix for pure Java version")
+
     parser.options |= Nokogiri::XML::ParseOptions::RECOVER
     # This is ISO_8859-1:
     parser << "<?xml version='1.0' encoding='UTF-8'?><r>Gau\337</r>"
     parser.finish
+
     assert_operator(parser.document.errors.size, :>=, 1)
-    assert_equal "Gau\337", parser.document.data.join
+
+    # the interpretation of the byte may vary by libxml2 version in recovery mode
+    # see for example https://gitlab.gnome.org/GNOME/libxml2/-/issues/598
+    assert(parser.document.data.join.start_with?("Gau"))
+
     assert_equal [["r"]], parser.document.end_elements
   end
 
