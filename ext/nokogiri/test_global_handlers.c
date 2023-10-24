@@ -3,7 +3,7 @@
 static VALUE foreign_error_handler_block = Qnil;
 
 static void
-foreign_error_handler(void *user_data, xmlErrorPtr c_error)
+foreign_error_handler(void *user_data, xmlErrorConstPtr c_error)
 {
   rb_funcall(foreign_error_handler_block, rb_intern("call"), 0);
 }

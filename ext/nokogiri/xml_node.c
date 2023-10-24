@@ -2138,7 +2138,7 @@ process_xincludes(VALUE self, VALUE options)
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (rcode < 0) {
-    xmlErrorPtr error;
+    xmlErrorConstPtr error;
 
     error = xmlGetLastError();
     if (error) {

@@ -66,6 +66,9 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 
+#ifndef xmlErrorConstPtr
+#  define xmlErrorConstPtr const xmlError *
+#endif
 
 #include <ruby.h>
 #include <ruby/st.h>
@@ -227,9 +230,9 @@ void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *hand
 void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state, void *user_data,
     xmlStructuredErrorFunc handler);
 void Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
-VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error);
-void Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
-NORETURN_DECL void Nokogiri_error_raise(void *ctx, xmlErrorPtr error);
+VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorConstPtr error);
+void Nokogiri_error_array_pusher(void *ctx, xmlErrorConstPtr error);
+NORETURN_DECL void Nokogiri_error_raise(void *ctx, xmlErrorConstPtr error);
 void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name) ;
 

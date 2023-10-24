@@ -337,7 +337,7 @@ read_io(VALUE klass,
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (doc == NULL) {
-    xmlErrorPtr error;
+    xmlErrorConstPtr error;
 
     xmlFreeDoc(doc);
 
@@ -383,7 +383,7 @@ read_memory(VALUE klass,
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (doc == NULL) {
-    xmlErrorPtr error;
+    xmlErrorConstPtr error;
 
     xmlFreeDoc(doc);
 
@@ -537,7 +537,7 @@ create_entity(int argc, VALUE *argv, VALUE self)
         );
 
   if (NULL == ptr) {
-    xmlErrorPtr error = xmlGetLastError();
+    xmlErrorConstPtr error = xmlGetLastError();
     if (error) {
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     } else {

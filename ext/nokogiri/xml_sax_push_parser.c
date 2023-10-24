@@ -59,7 +59,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   if (xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
     if (!(ctx->options & XML_PARSE_RECOVER)) {
-      xmlErrorPtr e = xmlCtxtGetLastError(ctx);
+      xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
       Nokogiri_error_raise(NULL, e);
     }
   }

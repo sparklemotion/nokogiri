@@ -146,7 +146,7 @@ xml_schema_parse_schema(
   xmlSchemaFreeParserCtxt(c_parser_context);
 
   if (NULL == c_schema) {
-    xmlErrorPtr error = xmlGetLastError();
+    xmlErrorConstPtr error = xmlGetLastError();
     if (error) {
       Nokogiri_error_raise(NULL, error);
     } else {
