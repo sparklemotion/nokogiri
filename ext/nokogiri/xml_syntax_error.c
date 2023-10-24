@@ -26,7 +26,7 @@ Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handle
 }
 
 void
-Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error)
+Nokogiri_error_array_pusher(void *ctx, xmlErrorConstPtr error)
 {
   VALUE list = (VALUE)ctx;
   Check_Type(list, T_ARRAY);
@@ -34,13 +34,13 @@ Nokogiri_error_array_pusher(void *ctx, xmlErrorPtr error)
 }
 
 void
-Nokogiri_error_raise(void *ctx, xmlErrorPtr error)
+Nokogiri_error_raise(void *ctx, xmlErrorConstPtr error)
 {
   rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
 }
 
 VALUE
-Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
+Nokogiri_wrap_xml_syntax_error(xmlErrorConstPtr error)
 {
   VALUE msg, e, klass;
 

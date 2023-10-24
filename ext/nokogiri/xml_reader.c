@@ -554,7 +554,7 @@ static VALUE
 read_more(VALUE self)
 {
   xmlTextReaderPtr reader;
-  xmlErrorPtr error;
+  xmlErrorConstPtr error;
   VALUE error_list;
   int ret;
 
