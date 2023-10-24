@@ -32,7 +32,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   if ((status != 0) && !(ctx->options & XML_PARSE_RECOVER)) {
     // TODO: there appear to be no tests for this block
-    xmlErrorPtr e = xmlCtxtGetLastError(ctx);
+    xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
     Nokogiri_error_raise(NULL, e);
   }
 

@@ -93,7 +93,7 @@ xml_relax_ng_parse_schema(
   xmlRelaxNGFreeParserCtxt(c_parser_context);
 
   if (NULL == c_schema) {
-    xmlErrorPtr error = xmlGetLastError();
+    xmlErrorConstPtr error = xmlGetLastError();
     if (error) {
       Nokogiri_error_raise(NULL, error);
     } else {
