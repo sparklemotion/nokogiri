@@ -318,27 +318,31 @@ jobs:
       - run: bundle exec rake compile -- ${{matrix.flags}}
       - run: bundle exec rake test
 
-  bsd:
-    continue-on-error: true # we're seeing VMs hang and fail the whole workflow
-    needs: ["basic"]
-    strategy:
-      fail-fast: false
-      matrix:
-        sys: ["enable", "disable"]
-    runs-on: macos-12
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - uses: vmactions/freebsd-vm@v0
-        with:
-          usesh: true
-          prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git
-          run: |
-            gem install bundler
-            bundle install --local || bundle install
-            bundle exec rake compile -- --${{matrix.sys}}-system-libraries
-            bundle exec rake test
+  ## commented out because the BSD builds are hanging/failing so often
+  ## see these upstream issues:
+  ## - https://github.com/vmactions/freebsd-vm/issues/68
+  ## - https://github.com/vmactions/freebsd-vm/issues/74
+  # bsd:
+  #   continue-on-error: true # we're seeing VMs hang and fail the whole workflow
+  #   needs: ["basic"]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       sys: ["enable", "disable"]
+  #   runs-on: macos-12
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #     - uses: vmactions/freebsd-vm@v0
+  #       with:
+  #         usesh: true
+  #         prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git
+  #         run: |
+  #           gem install bundler
+  #           bundle install --local || bundle install
+  #           bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+  #           bundle exec rake test
 
   #
   #  SECTION let's look for memory leaks
