@@ -1511,7 +1511,7 @@ module Nokogiri
             if Nokogiri.uses_libxml?
               doc = Nokogiri::XML(xml, &:nobig_lines)
               node = doc.at_css("x")
-              assert_operator(node.line, :==, max_short_int)
+              assert_equal(node.line, max_short_int)
             end
 
             doc = Nokogiri::XML(xml)
