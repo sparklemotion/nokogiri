@@ -284,22 +284,22 @@ module Nokogiri
             assert(node_set_one = xml.xpath("//employee"))
             assert(node_set_two = xml.xpath("//employee"))
 
-            refute_operator(node_set_one.object_id, :==, node_set_two.object_id)
+            refute_equal(node_set_one.object_id, node_set_two.object_id)
             refute_same(node_set_one, node_set_two)
 
-            assert_operator(node_set_one, :==, node_set_two)
+            assert_operator(node_set_one, :==, node_set_two) # rubocop:disable Minitest/AssertEqual
           end
 
           it "handles comparison to a string" do
             node_set_one = xml.xpath("//employee")
-            refute_operator(node_set_one, :==, "asdfadsf")
+            refute_operator(node_set_one, :==, "asdfadsf") # rubocop:disable Minitest/RefuteEqual
           end
 
           it "returns false if same elements are out of order" do
             one = xml.xpath("//employee")
             two = xml.xpath("//employee")
             two.push(two.shift)
-            refute_operator(one, :==, two)
+            refute_operator(one, :==, two) # rubocop:disable Minitest/RefuteEqual
           end
 
           it "returns false if one is a subset of the other" do
@@ -307,8 +307,8 @@ module Nokogiri
             node_set_two = xml.xpath("//employee")
             node_set_two.delete(node_set_two.first)
 
-            refute_operator(node_set_one, :==, node_set_two)
-            refute_operator(node_set_two, :==, node_set_one)
+            refute_operator(node_set_one, :==, node_set_two) # rubocop:disable Minitest/RefuteEqual
+            refute_operator(node_set_two, :==, node_set_one) # rubocop:disable Minitest/RefuteEqual
           end
         end
 
