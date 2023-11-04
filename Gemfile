@@ -7,7 +7,7 @@ gemspec
 group :development do
   # bootstrapping
   gem "bundler", "~> 2.3"
-  gem "rake", "= 13.0.6"
+  gem "rake", "13.1.0"
 
   # building extensions
   gem "rake-compiler", "1.2.5"
