@@ -302,7 +302,7 @@ module Nokogiri
       end
 
       def read_a_and_positive_b(values)
-        op = values[2]
+        op = values[2].strip
         if op == "+"
           a = values[0].to_i
           b = values[3].to_i

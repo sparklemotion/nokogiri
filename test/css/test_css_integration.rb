@@ -194,6 +194,7 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
           assert_result_rows([5], subject.search("table//tr:nth-child(5)"))
           assert_result_rows([1, 3], subject.search("div/h1.c:nth-child(2)"), "header")
           assert_result_rows([3, 4], subject.search("div/i.b:nth-child(2n+1)"), "italic")
+          assert_result_rows([3, 4], subject.search("div/i.b:nth-child(2n + 1)"), "italic")
         end
 
         it "selects first_of_type" do
