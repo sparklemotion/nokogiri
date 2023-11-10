@@ -2,12 +2,12 @@ FROM ruby:alpine3.12
 
 # prelude
 RUN apk update
-RUN apk add bash build-base git
+RUN apk add bash build-base git perl
 
 # valgrind
 RUN apk add valgrind
 
 # libxml-et-al
-RUN apk add libxml2-dev libxslt-dev pkgconfig
+RUN apk add libxml2-dev libxslt-dev xmlsec-dev pkgconfig
 
 <%= include_file "bundle-install.step" %>
