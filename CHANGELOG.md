@@ -22,6 +22,10 @@ Documentation on what can be matched:
 * [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
 
 
+### Fixed
+
+* CSS `nth` pseudo-classes now handle spaces, e.g. `"2n + 1"`. [#3018] @fusion2004
+
 
 ## 1.15.4 / 2023-08-11
 
