@@ -226,6 +226,21 @@ module Nokogiri
           @scanner,
         )
 
+        @scanner.scan("x:nth-child(5n + 3)")
+        assert_tokens(
+          [
+            [:IDENT, "x"],
+            [":", ":"],
+            [:FUNCTION, "nth-child("],
+            [:NUMBER, "5"],
+            [:IDENT, "n"],
+            [:PLUS, " + "],
+            [:NUMBER, "3"],
+            [:RPAREN, ")"],
+          ],
+          @scanner,
+        )
+
         @scanner.scan("x:nth-child(-1n+3)")
         assert_tokens(
           [
