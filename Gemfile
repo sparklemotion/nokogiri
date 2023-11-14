@@ -21,7 +21,7 @@ group :development do
 
   # tests
   gem "minitest", "5.20.0"
-  gem "minitest-parallel_fork", "1.3.1"
+  gem "minitest-parallel_fork", "2.0.0"
   gem "ruby_memcheck", "2.2.1"
   gem "rubyzip", "~> 2.3.2"
   gem "simplecov", "= 0.21.2"
