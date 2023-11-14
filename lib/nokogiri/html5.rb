@@ -324,7 +324,7 @@ module Nokogiri
           doc.class.send(:attr_reader, :response)
           doc
         when Net::HTTPRedirection
-          response.value if limit <= 1
+          return response.value if limit <= 1
           location = URI.join(uri, response["location"])
           get_impl(location, options.merge(follow_limit: limit - 1))
         else
