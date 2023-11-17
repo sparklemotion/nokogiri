@@ -118,7 +118,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-${{matrix.plat}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-${{matrix.plat}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
@@ -142,7 +142,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-head-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-head-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
       - run: bundle exec rake test:memcheck
@@ -172,7 +172,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ports
-          key: ports-ubuntu-3.2-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-3.2-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - name: Update html5lib-tests
         run: |
           cd test/html5lib-tests

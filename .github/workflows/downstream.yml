@@ -78,7 +78,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ports
-          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - if: matrix.precommand
         run: ${{matrix.precommand}}
       - run: gem install bundler -v ">= 2.3.22" # for "add --path"
