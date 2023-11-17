@@ -884,6 +884,7 @@ else
 
     cppflags = concat_flags(ENV["CPPFLAGS"])
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+    libs = ""
 
     if cross_build_p
       cppflags = concat_flags(cppflags, "-DNOKOGIRI_PRECOMPILED_LIBRARIES")
@@ -913,6 +914,12 @@ else
       "--disable-dependency-tracking"
     end
 
+    # glibc 2.34 and later merged libpthread into libc, but we still need to know if it exists so we
+    # can link libxml2 against it.
+    if local_have_library("pthread", "pthread_key_delete")
+      libs = concat_flags(libs, "-lpthread")
+    end
+
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
@@ -921,6 +928,7 @@ else
       "--with-threads",
       "CPPFLAGS=#{cppflags}",
       "CFLAGS=#{cflags}",
+      "LIBS=#{libs}",
     ]
   end
 
