@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## 1.15.next / UNRELEASED
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.11.6 from v2.11.5. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.6
+* [CRuby] Vendored libxslt is updated to v1.1.39 from v1.1.38. For details please see https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.39
+
+
 ## 1.15.4 / 2023-08-11
 
 ### Dependencies
