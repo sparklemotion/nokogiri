@@ -97,7 +97,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -128,7 +128,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
@@ -189,7 +189,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
@@ -214,7 +214,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
@@ -365,7 +365,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:memcheck
