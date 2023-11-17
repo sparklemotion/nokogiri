@@ -27,40 +27,50 @@ jobs:
           - url: https://github.com/flavorjones/loofah
             name: loofah
             command: "bundle exec rake test"
+            ruby: "3.2"
           - url: https://github.com/rails/rails-html-sanitizer
             name: rails-html-sanitizer
             command: "bundle exec rake test"
+            ruby: "3.2"
           - url: https://github.com/rgrove/sanitize
             name: sanitize
             command: "bundle exec rake test"
+            ruby: "3.2"
           - url: https://github.com/ebeigarts/signer
             name: signer
             command: "bundle exec rake spec"
+            ruby: "3.2"
           - url: https://github.com/WinRb/Viewpoint
             name: viewpoint
             command: "bundle exec rspec spec"
+            ruby: "3.1"
           - url: https://github.com/rails/rails
             name: xmlmini
             command: "cd activesupport && bundle exec rake test TESTOPTS=-n/XmlMini/"
+            ruby: "3.2"
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
+            ruby: "3.2"
           - url: https://github.com/SAML-Toolkits/ruby-saml
             name: ruby-saml
             command: "bundle exec rake test MT_COMPAT=t"
+            ruby: "3.2"
           - url: https://github.com/sparklemotion/mechanize
             name: mechanize
             command: "bundle exec rake test"
+            ruby: "3.2"
           - url: https://github.com/stimulusreflex/stimulus_reflex
             name: stimulus_reflex
             command: "bundle exec rake test"
+            ruby: "3.2"
           # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
           #   name: nokogiri-xmlsec-instructure
           #   precommand: "apt install -y libxmlsec1-dev"
           #   command: "bundle exec rake compile rspec"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +78,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - if: matrix.precommand
         run: ${{matrix.precommand}}
       - run: gem install bundler -v ">= 2.3.22" # for "add --path"
