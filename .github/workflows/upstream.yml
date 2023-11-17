@@ -142,7 +142,7 @@ jobs:
         if: matrix.sys == 'disable'
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-head-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
       - run: bundle exec rake test:memcheck
@@ -164,7 +164,7 @@ jobs:
   html5lib-tests:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.2
     steps:
       - uses: actions/checkout@v3
         with:
@@ -172,7 +172,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ports
-          key: ports-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+          key: ports-ubuntu-3.2-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - name: Update html5lib-tests
         run: |
           cd test/html5lib-tests
