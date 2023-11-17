@@ -141,6 +141,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "ws2_32.dll",
         "user32.dll",
         "advapi32.dll",
+        "libwinpthread-1.dll",
         libruby_dll,
       ]
     when MINGWUCRT_PLATFORM_REGEX
@@ -160,6 +161,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "api-ms-win-crt-string-l1-1-0.dll",
         "api-ms-win-crt-time-l1-1-0.dll",
         "api-ms-win-crt-utility-l1-1-0.dll",
+        "libwinpthread-1.dll",
         libruby_dll,
       ]
     when X86_LINUX_PLATFORM_REGEX
@@ -167,18 +169,18 @@ CrossRuby = Struct.new(:version, :platform) do
         "libm.so.6",
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+        "libpthread.so.0", # on old dists only - now in libc
+        "ld-linux.so.2",
+        "ld-linux-x86-64.so.2",
+      ]
     when AARCH_LINUX_PLATFORM_REGEX
       [
         "libm.so.6",
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
+        "libpthread.so.0", # on old dists only - now in libc
         "ld-linux-aarch64.so.1",
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+      ]
     when DARWIN_PLATFORM_REGEX
       [
         "/usr/lib/libSystem.B.dylib",
@@ -188,12 +190,11 @@ CrossRuby = Struct.new(:version, :platform) do
     when ARM_LINUX_PLATFORM_REGEX
       [
         "libm.so.6",
-        "libdl.so.2",
         "libc.so.6",
+        "libdl.so.2", # on old dists only - now in libc
+        "libpthread.so.0", # on old dists only - now in libc
         "ld-linux-armhf.so.3",
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+      ]
     else
       raise "CrossRuby.allowed_dlls: unmatched platform: #{platform}"
     end
