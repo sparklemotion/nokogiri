@@ -22,12 +22,17 @@ Documentation on what can be matched:
 * [`XML::NodeSet#deconstruct`](https://nokogiri.org/rdoc/Nokogiri/XML/NodeSet.html?h=deconstruct#method-i-deconstruct)
 
 
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.12.0 from v2.11.6. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.0
+
+
 ### Fixed
 
 * CSS `nth` pseudo-classes now handle spaces, e.g. `"2n + 1"`. [#3018] @fusion2004
 
 
-## 1.15.next / UNRELEASED
+## 1.15.5 / 2023-11-17
 
 ### Dependencies
 
