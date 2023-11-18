@@ -919,6 +919,7 @@ else
       "--with-c14n",
       "--with-debug",
       "--with-threads",
+      "--without-tls", # see https://github.com/sparklemotion/nokogiri/issues/3031
       "CPPFLAGS=#{cppflags}",
       "CFLAGS=#{cflags}",
     ]
