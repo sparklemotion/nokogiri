@@ -27,6 +27,14 @@ Documentation on what can be matched:
 * CSS `nth` pseudo-classes now handle spaces, e.g. `"2n + 1"`. [#3018] @fusion2004
 
 
+## 1.15.next / UNRELEASED
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.11.6 from v2.11.5. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.6
+* [CRuby] Vendored libxslt is updated to v1.1.39 from v1.1.38. For details please see https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.39
+
+
 ## 1.15.4 / 2023-08-11
 
 ### Dependencies
