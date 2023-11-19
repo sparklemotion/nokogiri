@@ -13,9 +13,6 @@ group :development do
   gem "rake-compiler", "1.2.5"
   gem "rake-compiler-dock", "1.3.1"
 
-  # documentation
-  gem "hoe-markdown", "1.5.1"
-
   # parser generator
   gem "rexical", "= 1.0.7"
 
