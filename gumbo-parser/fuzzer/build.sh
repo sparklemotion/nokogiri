@@ -1,9 +1,13 @@
 export SANITIZER_OPTS=""
 export SANITIZER_LINK=""
 
+if [ -x "$(command -v llvm-config)" ]; then
+  export LLVM_CONFIG=$(which llvm-config)
+fi
+
 if [ -z "${LLVM_CONFIG}" ]
 then
-  echo '$LLVM_CONFIG has not been configured, expecting "export LLVM_CONFIG=/usr/bin/llvm-config-12" assuming clang-12 is installed, however any clang version works'
+  echo 'llvm-config could not be found and $LLVM_CONFIG has not been set, expecting "export LLVM_CONFIG=/usr/bin/llvm-config-12" assuming clang-12 is installed, however any clang version works'
   exit
 fi
 
@@ -12,8 +16,8 @@ then
   mkdir build
 fi
 
-export CC="$(llvm-config-12 --bindir)/clang"
-export CXX="$(llvm-config-12 --bindir)/clang++"
+export CC="$($LLVM_CONFIG --bindir)/clang"
+export CXX="$($LLVM_CONFIG --bindir)/clang++"
 export CXXFLAGS="-fsanitize=fuzzer-no-link"
 export CFLAGS="-fsanitize=fuzzer-no-link"
 export ENGINE_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.fuzzer-x86_64.a | head -1)"

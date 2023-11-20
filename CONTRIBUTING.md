@@ -26,6 +26,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
 - [Making a release](#making-a-release)
+- [Fuzzing your gumbo-parser changes](#fuzzing-your-changes)
 
 <!-- tocstop -->
 
@@ -382,7 +383,7 @@ To modify or add a dependency, a few things needs to be in sync:
 A quick summary of what this looks like for you, the developer:
 
 1. edit the `requirements` in the gemspec
-2. run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
+2. run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jrubfuzzing-your-changesy`
 3. run `bundle exec rake check_manifest` and if necessary update the gemspec `files`
 4. make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
 
@@ -408,3 +409,37 @@ A quick checklist:
   - [ ] submit a PR to https://github.com/rubysec/ruby-advisory-db
 - [ ] update nokogiri.org
 - [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
+
+## Fuzzing your gumbo-parser changes
+
+When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki). This can be done by navigating to the `nokogiri/gumbo-parser` directory and executing `make fuzzing` in order to build the `gumbo-parser` fuzzer. Once built, navigate to the `nokogiri/gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
+
+- parse_fuzzer (standard fuzzer with no sanitizer)
+- parse_fuzzer-address (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
+- parse_fuzzer-memory (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
+- parse_fuzzer-undefined (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
+
+If the fuzzer finds a "crash" (indicating that a bug has been found), the following output would be expected:
+
+```
+INFO: Seed: 1523017872
+INFO: Loaded 1 modules (16 guards): [0x744e60, 0x744ea0),
+INFO: -max_len is not provided, using 64
+INFO: A corpus is not provided, starting from an empty corpus
+#0    READ units: 1
+#1    INITED cov: 3 ft: 2 corp: 1/1b exec/s: 0 rss: 24Mb
+#3811 NEW    cov: 4 ft: 3 corp: 2/2b exec/s: 0 rss: 25Mb L: 1 MS: 5 ChangeBit-ChangeByte-ChangeBit-ShuffleBytes-ChangeByte-
+#3827 NEW    cov: 5 ft: 4 corp: 3/4b exec/s: 0 rss: 25Mb L: 2 MS: 1 CopyPart-
+#3963 NEW    cov: 6 ft: 5 corp: 4/6b exec/s: 0 rss: 25Mb L: 2 MS: 2 ShuffleBytes-ChangeBit-
+#4167 NEW    cov: 7 ft: 6 corp: 5/9b exec/s: 0 rss: 25Mb L: 3 MS: 1 InsertByte-
+==31511== ERROR: libFuzzer: deadly signal
+...
+artifact_prefix='./'; Test unit written to ./crash-b13e8756b13a00cf168300179061fb4b91fefbed
+```
+
+The above indicates that a crash has been identified and it can be reproduced by feeding the `crash-b13e8756b13a00cf168300179061fb4b91fefbed` file back into the binary used for fuzzing (e.g. parse-fuzzer) using the following command:
+
+```
+parse_fuzzer crash-b13e8756b13a00cf168300179061fb4b91fefbed
+```
+
