@@ -16,16 +16,16 @@ all: check
 fuzzing: fuzzer-normal fuzzer-asan fuzzer-ubsan fuzzer-msan
 
 fuzzer-normal:
-	cd fuzzer && ./build.sh && cd -
+	./fuzzer/build.sh
 
 fuzzer-asan:
-	cd fuzzer && SANITIZER=address ./build.sh && cd -
+	SANITIZER=address ./fuzzer/build.sh
 
 fuzzer-ubsan:
-	cd fuzzer && SANITIZER=undefined ./build.sh && cd -
+	SANITIZER=undefined ./fuzzer/build.sh
 
 fuzzer-msan:
-	cd fuzzer && SANITIZER=memory ./build.sh && cd -
+	SANITIZER=memory ./fuzzer/build.sh
 
 # don't try to regenerate ragel or gperf files in CI, that should be a development-only action and
 # the generated files should be committed to SCM
