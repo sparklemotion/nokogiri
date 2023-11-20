@@ -39,8 +39,8 @@ if [[ "${SANITIZER}" = "msan" ]] ; then
   SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.msan_cxx-x86_64.a | head -1)"
 fi
 
-CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
-CFLAGS="-O3 $CFLAGS $SANITIZER_OPTS"
+CXXFLAGS="-O3 -g $CXXFLAGS $SANITIZER_OPTS"
+CFLAGS="-O3 -g $CFLAGS $SANITIZER_OPTS"
 
 export CC CFLAGS CXX CXXFLAGS
 
