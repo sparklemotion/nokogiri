@@ -17,6 +17,7 @@ if [[ -z "${LLVM_CONFIG:-}" ]] ; then
 fi
 
 mkdir -p build
+srcdir=src-${SANITIZER}
 
 export CC="$($LLVM_CONFIG --bindir)/clang"
 export CXX="$($LLVM_CONFIG --bindir)/clang++"
@@ -39,10 +40,15 @@ fi
 
 export CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
 export CFLAGS="-O3 $CFLAGS $SANITIZER_OPTS"
-cd ../src && make clean && make && cd -
+
+rm -rf $srcdir
+cp -ar ../src $srcdir
+pushd $srcdir
+make
+popd
 
 if [[ -z "${SANITIZER:-}" ]] ; then
-  $CXX $CXXFLAGS -o build/parse_fuzzer parse_fuzzer.cc ../src/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
+  $CXX $CXXFLAGS -o build/parse_fuzzer parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
 else
-  $CXX $CXXFLAGS -o build/parse_fuzzer-$SANITIZER parse_fuzzer.cc ../src/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
+  $CXX $CXXFLAGS -o build/parse_fuzzer-$SANITIZER parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
 fi
