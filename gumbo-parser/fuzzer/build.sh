@@ -4,8 +4,8 @@ set -eu
 
 cd $(dirname $0)
 
-export SANITIZER_OPTS=""
-export SANITIZER_LINK=""
+SANITIZER_OPTS=""
+SANITIZER_LINK=""
 SANITIZER=${SANITIZER:-normal}
 
 if [[ -z "${LLVM_CONFIG:-}" ]] ; then
@@ -20,27 +20,29 @@ fi
 mkdir -p build
 srcdir=src-${SANITIZER}
 
-export CC="$($LLVM_CONFIG --bindir)/clang"
-export CXX="$($LLVM_CONFIG --bindir)/clang++"
-export CXXFLAGS="-fsanitize=fuzzer-no-link"
-export CFLAGS="-fsanitize=fuzzer-no-link"
-export ENGINE_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.fuzzer-x86_64.a | head -1)"
+CC="$($LLVM_CONFIG --bindir)/clang"
+CXX="$($LLVM_CONFIG --bindir)/clang++"
+CXXFLAGS="-fsanitize=fuzzer-no-link"
+CFLAGS="-fsanitize=fuzzer-no-link"
+ENGINE_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.fuzzer-x86_64.a | head -1)"
 
-  export SANITIZER_OPTS="-fsanitize=undefined"
-  export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.ubsan_standalone_cxx-x86_64.a | head -1)"
 if [[ "${SANITIZER}" = "ubsan" ]] ; then
+  SANITIZER_OPTS="-fsanitize=undefined"
+  SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.ubsan_standalone_cxx-x86_64.a | head -1)"
 fi
-  export SANITIZER_OPTS="-fsanitize=address"
-  export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.asan_cxx-x86_64.a | head -1)"
 if [[ "${SANITIZER}" = "asan" ]] ; then
+  SANITIZER_OPTS="-fsanitize=address"
+  SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.asan_cxx-x86_64.a | head -1)"
 fi
-  export SANITIZER_OPTS="-fsanitize=memory -fPIE -pie -Wno-unused-command-line-argument"
-  export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.msan_cxx-x86_64.a | head -1)"
 if [[ "${SANITIZER}" = "msan" ]] ; then
+  SANITIZER_OPTS="-fsanitize=memory -fPIE -pie -Wno-unused-command-line-argument"
+  SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.msan_cxx-x86_64.a | head -1)"
 fi
 
-export CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
-export CFLAGS="-O3 $CFLAGS $SANITIZER_OPTS"
+CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
+CFLAGS="-O3 $CFLAGS $SANITIZER_OPTS"
+
+export CC CFLAGS CXX CXXFLAGS
 
 rm -rf $srcdir
 cp -ar ../src $srcdir
