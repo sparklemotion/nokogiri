@@ -6,6 +6,7 @@ cd $(dirname $0)
 
 export SANITIZER_OPTS=""
 export SANITIZER_LINK=""
+SANITIZER=${SANITIZER:-normal}
 
 if [[ -z "${LLVM_CONFIG:-}" ]] ; then
   if [[ -x "$(command -v llvm-config)" ]]; then
@@ -25,17 +26,17 @@ export CXXFLAGS="-fsanitize=fuzzer-no-link"
 export CFLAGS="-fsanitize=fuzzer-no-link"
 export ENGINE_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.fuzzer-x86_64.a | head -1)"
 
-if [[ "${SANITIZER:-}" = "undefined" ]] ; then
   export SANITIZER_OPTS="-fsanitize=undefined"
   export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.ubsan_standalone_cxx-x86_64.a | head -1)"
+if [[ "${SANITIZER}" = "ubsan" ]] ; then
 fi
-if [[ "${SANITIZER:-}" = "address" ]] ; then
   export SANITIZER_OPTS="-fsanitize=address"
   export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.asan_cxx-x86_64.a | head -1)"
+if [[ "${SANITIZER}" = "asan" ]] ; then
 fi
-if [[ "${SANITIZER:-}" = "memory" ]] ; then
   export SANITIZER_OPTS="-fsanitize=memory -fPIE -pie -Wno-unused-command-line-argument"
   export SANITIZER_LINK="$(find $($LLVM_CONFIG --libdir) -name libclang_rt.msan_cxx-x86_64.a | head -1)"
+if [[ "${SANITIZER}" = "msan" ]] ; then
 fi
 
 export CXXFLAGS="-O3 $CXXFLAGS $SANITIZER_OPTS"
@@ -47,7 +48,7 @@ pushd $srcdir
 make
 popd
 
-if [[ -z "${SANITIZER:-}" ]] ; then
+if [[ "${SANITIZER}" = "normal" ]] ; then
   $CXX $CXXFLAGS -o build/parse_fuzzer parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
 else
   $CXX $CXXFLAGS -o build/parse_fuzzer-$SANITIZER parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK

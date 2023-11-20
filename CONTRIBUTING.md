@@ -238,14 +238,16 @@ bundle exec rake compile test
 
 ### Fuzzing your gumbo HTML5 parser changes
 
-When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki). This can be done by navigating to the `nokogiri/gumbo-parser` directory and executing `make fuzzing` in order to build the `gumbo-parser` fuzzer. Once built, navigate to the `nokogiri/gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
+When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki).
 
-- parse_fuzzer (standard fuzzer with no sanitizer)
-- parse_fuzzer-address (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
-- parse_fuzzer-memory (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
-- parse_fuzzer-undefined (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
+Build the fuzzers by navigating to the `gumbo-parser` directory and running `make fuzzers`. Once built, navigate to the `gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
 
-If the binary executed successfully you should now be seeing the following output filling up your terminal:
+- parse_fuzzer-normal (standard fuzzer with no sanitizer)
+- parse_fuzzer-asan (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
+- parse_fuzzer-msan (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
+- parse_fuzzer-ubsan (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
+
+If the binary executed successfully you should now be seeing the following output filling up your terminal (see https://llvm.org/docs/LibFuzzer.html#output for more information):
 
 ```
 INFO: Seed: 4156947595
