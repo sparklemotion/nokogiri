@@ -11,8 +11,6 @@ then
   fi
 fi
 
-echo $LLVM_CONFIG
-
 if [ ! -d "build" ]
 then
   mkdir build
