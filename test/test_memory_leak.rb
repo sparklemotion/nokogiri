@@ -336,7 +336,8 @@ class TestMemoryLeak < Nokogiri::TestCase
     rescue
       4096
     end
-    STATM_PATH = "/proc/#{Process.pid}/statm"
+
+    STATM_PATH = "/proc/self/statm"
     STATM_FOUND = File.exist?(STATM_PATH)
 
     def self.rss
