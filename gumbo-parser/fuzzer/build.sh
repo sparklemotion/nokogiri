@@ -1,8 +1,9 @@
 export SANITIZER_OPTS=""
 export SANITIZER_LINK=""
+export LLVM_CONFIG=""
 
 if [ -x "$(command -v llvm-config)" ]; then
-  export LLVM_CONFIG=$(which llvm-config)
+  LLVM_CONFIG=$(which llvm-config)
 fi
 
 if [ -z "${LLVM_CONFIG}" ]

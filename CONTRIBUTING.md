@@ -26,7 +26,6 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
 - [Making a release](#making-a-release)
-- [Fuzzing your gumbo parser changes](#fuzzing-your-gumbo-parser-changes)
 
 <!-- tocstop -->
 
@@ -237,6 +236,62 @@ git submodule update --init  #  test/html5lib-tests
 bundle exec rake compile test
 ```
 
+### Fuzzing your gumbo HTML5 parser changes
+
+When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki). This can be done by navigating to the `nokogiri/gumbo-parser` directory and executing `make fuzzing` in order to build the `gumbo-parser` fuzzer. Once built, navigate to the `nokogiri/gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
+
+- parse_fuzzer (standard fuzzer with no sanitizer)
+- parse_fuzzer-address (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
+- parse_fuzzer-memory (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
+- parse_fuzzer-undefined (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
+
+If the binary executed successfully you should now be seeing the following output filling up your terminal:
+
+```
+INFO: Seed: 4156947595
+INFO: Loaded 1 modules   (7149 inline 8-bit counters): 7149 0x58a462, 0x58c04f, 
+INFO: Loaded 1 PC tables (7149 PCs): 7149 0x53beb0,0x557d80, 
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 2 ft: 2 corp: 1/1b exec/s: 0 rss: 24Mb
+	NEW_FUNC[1/44]: 0x429840 in gumbo_parse_with_options (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x429840)
+	NEW_FUNC[2/44]: 0x42c0d0 in destroy_node (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x42c0d0)
+#721	NEW    cov: 180 ft: 181 corp: 2/12b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 4 ChangeByte-ChangeByte-ChangeBit-InsertRepeatedBytes-
+#722	NEW    cov: 186 ft: 196 corp: 3/23b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
+#723	NEW    cov: 186 ft: 228 corp: 4/34b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBinInt-
+#724	NEW    cov: 188 ft: 241 corp: 5/45b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
+#725	NEW    cov: 188 ft: 254 corp: 6/56b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeByte-
+#726	NEW    cov: 188 ft: 270 corp: 7/67b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 CopyPart-
+#732	NEW    cov: 188 ft: 279 corp: 8/78b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
+	NEW_FUNC[1/1]: 0x441de0 in gumbo_token_destroy (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x441de0)
+```
+
+However, if the fuzzer finds a "crash" (indicating that a bug has been found) it will stop fuzzing and the following output would be expected:
+
+```
+INFO: Seed: 1523017872
+INFO: Loaded 1 modules (16 guards): 0x744e60, 0x744ea0,
+INFO: -max_len is not provided, using 64
+INFO: A corpus is not provided, starting from an empty corpus
+#0    READ units: 1
+#1    INITED cov: 3 ft: 2 corp: 1/1b exec/s: 0 rss: 24Mb
+#3811 NEW    cov: 4 ft: 3 corp: 2/2b exec/s: 0 rss: 25Mb L: 1 MS: 5 ChangeBit-ChangeByte-ChangeBit-ShuffleBytes-ChangeByte-
+#3827 NEW    cov: 5 ft: 4 corp: 3/4b exec/s: 0 rss: 25Mb L: 2 MS: 1 CopyPart-
+#3963 NEW    cov: 6 ft: 5 corp: 4/6b exec/s: 0 rss: 25Mb L: 2 MS: 2 ShuffleBytes-ChangeBit-
+#4167 NEW    cov: 7 ft: 6 corp: 5/9b exec/s: 0 rss: 25Mb L: 3 MS: 1 InsertByte-
+==31511== ERROR: libFuzzer: deadly signal
+...
+artifact_prefix='./'; Test unit written to ./crash-b13e8756b13a00cf168300179061fb4b91fefbed
+```
+
+The above indicates that a crash has been identified and it can be reproduced by feeding the `crash-b13e8756b13a00cf168300179061fb4b91fefbed` file back into the binary used for fuzzing (e.g. parse-fuzzer) using the following command:
+
+```
+parse_fuzzer crash-b13e8756b13a00cf168300179061fb4b91fefbed
+```
+
+If you'd like to learn more about libfuzzer please give https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md a try.
+
 
 ## Style Guide
 
@@ -383,7 +438,7 @@ To modify or add a dependency, a few things needs to be in sync:
 A quick summary of what this looks like for you, the developer:
 
 1. edit the `requirements` in the gemspec
-2. run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jrubfuzzing-your-changesy`
+2. run `bundle exec rake vendor_jars` which updates everything under `lib/nokogiri/jruby`
 3. run `bundle exec rake check_manifest` and if necessary update the gemspec `files`
 4. make sure to check everything under `lib/nokogiri/jruby` into git, including the jar files
 
@@ -409,59 +464,3 @@ A quick checklist:
   - [ ] submit a PR to https://github.com/rubysec/ruby-advisory-db
 - [ ] update nokogiri.org
 - [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
-
-## Fuzzing your gumbo parser changes
-
-When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki). This can be done by navigating to the `nokogiri/gumbo-parser` directory and executing `make fuzzing` in order to build the `gumbo-parser` fuzzer. Once built, navigate to the `nokogiri/gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
-
-- parse_fuzzer (standard fuzzer with no sanitizer)
-- parse_fuzzer-address (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
-- parse_fuzzer-memory (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
-- parse_fuzzer-undefined (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
-
-If the binary executed successfully you should now be seeing the following output filling up your terminal:
-
-```
-INFO: Seed: 4156947595
-INFO: Loaded 1 modules   (7149 inline 8-bit counters): 7149 0x58a462, 0x58c04f, 
-INFO: Loaded 1 PC tables (7149 PCs): 7149 0x53beb0,0x557d80, 
-INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
-INFO: A corpus is not provided, starting from an empty corpus
-#2	INITED cov: 2 ft: 2 corp: 1/1b exec/s: 0 rss: 24Mb
-	NEW_FUNC[1/44]: 0x429840 in gumbo_parse_with_options (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x429840)
-	NEW_FUNC[2/44]: 0x42c0d0 in destroy_node (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x42c0d0)
-#721	NEW    cov: 180 ft: 181 corp: 2/12b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 4 ChangeByte-ChangeByte-ChangeBit-InsertRepeatedBytes-
-#722	NEW    cov: 186 ft: 196 corp: 3/23b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
-#723	NEW    cov: 186 ft: 228 corp: 4/34b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBinInt-
-#724	NEW    cov: 188 ft: 241 corp: 5/45b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
-#725	NEW    cov: 188 ft: 254 corp: 6/56b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeByte-
-#726	NEW    cov: 188 ft: 270 corp: 7/67b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 CopyPart-
-#732	NEW    cov: 188 ft: 279 corp: 8/78b lim: 11 exec/s: 0 rss: 27Mb L: 11/11 MS: 1 ChangeBit-
-	NEW_FUNC[1/1]: 0x441de0 in gumbo_token_destroy (/home/user/nokogiri/gumbo-parser/fuzzer/build/parse_fuzzer+0x441de0)
-```
-
-However, if the fuzzer finds a "crash" (indicating that a bug has been found) it will stop fuzzing and the following output would be expected:
-
-```
-INFO: Seed: 1523017872
-INFO: Loaded 1 modules (16 guards): 0x744e60, 0x744ea0,
-INFO: -max_len is not provided, using 64
-INFO: A corpus is not provided, starting from an empty corpus
-#0    READ units: 1
-#1    INITED cov: 3 ft: 2 corp: 1/1b exec/s: 0 rss: 24Mb
-#3811 NEW    cov: 4 ft: 3 corp: 2/2b exec/s: 0 rss: 25Mb L: 1 MS: 5 ChangeBit-ChangeByte-ChangeBit-ShuffleBytes-ChangeByte-
-#3827 NEW    cov: 5 ft: 4 corp: 3/4b exec/s: 0 rss: 25Mb L: 2 MS: 1 CopyPart-
-#3963 NEW    cov: 6 ft: 5 corp: 4/6b exec/s: 0 rss: 25Mb L: 2 MS: 2 ShuffleBytes-ChangeBit-
-#4167 NEW    cov: 7 ft: 6 corp: 5/9b exec/s: 0 rss: 25Mb L: 3 MS: 1 InsertByte-
-==31511== ERROR: libFuzzer: deadly signal
-...
-artifact_prefix='./'; Test unit written to ./crash-b13e8756b13a00cf168300179061fb4b91fefbed
-```
-
-The above indicates that a crash has been identified and it can be reproduced by feeding the `crash-b13e8756b13a00cf168300179061fb4b91fefbed` file back into the binary used for fuzzing (e.g. parse-fuzzer) using the following command:
-
-```
-parse_fuzzer crash-b13e8756b13a00cf168300179061fb4b91fefbed
-```
-
-If you'd like to learn more about libfuzzer please give https://github.com/google/fuzzing/blob/master/tutorial/libFuzzerTutorial.md a try.
