@@ -1,16 +1,17 @@
 export SANITIZER_OPTS=""
 export SANITIZER_LINK=""
-export LLVM_CONFIG=""
-
-if [ -x "$(command -v llvm-config)" ]; then
-  LLVM_CONFIG=$(which llvm-config)
-fi
 
 if [ -z "${LLVM_CONFIG}" ]
 then
-  echo 'llvm-config could not be found and $LLVM_CONFIG has not been set, expecting "export LLVM_CONFIG=/usr/bin/llvm-config-12" assuming clang-12 is installed, however any clang version works'
-  exit
+  if [ -x "$(command -v llvm-config)" ]; then
+    LLVM_CONFIG=$(which llvm-config)
+  else
+    echo 'llvm-config could not be found and $LLVM_CONFIG has not been set, expecting "export LLVM_CONFIG=/usr/bin/llvm-config-12" assuming clang-12 is installed, however any clang version works'
+    exit
+  fi
 fi
+
+echo $LLVM_CONFIG
 
 if [ ! -d "build" ]
 then
