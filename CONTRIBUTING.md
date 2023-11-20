@@ -26,7 +26,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [Bumping Java dependencies](#bumping-java-dependencies)
 - [Rake tasks](#rake-tasks)
 - [Making a release](#making-a-release)
-- [Fuzzing your gumbo-parser changes](#fuzzing-your-changes)
+- [Fuzzing your gumbo parser changes](#fuzzing-your-gumbo-parser-changes)
 
 <!-- tocstop -->
 
@@ -410,7 +410,7 @@ A quick checklist:
 - [ ] update nokogiri.org
 - [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
 
-## Fuzzing your gumbo-parser changes
+## Fuzzing your gumbo parser changes
 
 When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki). This can be done by navigating to the `nokogiri/gumbo-parser` directory and executing `make fuzzing` in order to build the `gumbo-parser` fuzzer. Once built, navigate to the `nokogiri/gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
 
