@@ -506,6 +506,7 @@ static void abandon_current_tag(GumboParser* parser) {
   for (unsigned int i = 0; i < tag_state->_attributes.length; ++i) {
     gumbo_destroy_attribute(tag_state->_attributes.data[i]);
   }
+  gumbo_free(tag_state->_name);
   gumbo_free(tag_state->_attributes.data);
   mark_tag_state_as_empty(tag_state);
   gumbo_string_buffer_destroy(&tag_state->_buffer);
