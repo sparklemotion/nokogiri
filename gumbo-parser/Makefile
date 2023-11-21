@@ -95,7 +95,7 @@ coverage:
 
 clean:
 	$(RM) -r build
-	$(RM) -r fuzzer/build fuzzer/src-*
+	$(RM) -r fuzzer/build fuzzer/src-* fuzzer/gumbo_corpus
 
 build/src/flags: | build/src
 	@echo 'old_CC := $(CC)' > $@

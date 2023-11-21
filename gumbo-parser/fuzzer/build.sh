@@ -4,6 +4,12 @@ set -eu
 
 cd $(dirname $0)
 
+echo $PWD
+
+if [ ! -d gumbo_corpus ]; then
+  unzip gumbo_corpus.zip -d gumbo_corpus
+fi
+
 SANITIZER_OPTS=""
 SANITIZER_LINK=""
 SANITIZER=${SANITIZER:-normal}

@@ -240,12 +240,18 @@ bundle exec rake compile test
 
 When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki).
 
-Build the fuzzers by navigating to the `gumbo-parser` directory and running `make fuzzers`. Once built, navigate to the `gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory with no arguments to start fuzzing:
+Build the fuzzers by navigating to the `gumbo-parser` directory and running `make fuzzers`. Once built, navigate to the `gumbo-parser/fuzzer/build` directory and execute one of the following binaries in this directory:
 
-- parse_fuzzer-normal (standard fuzzer with no sanitizer)
+- parse_fuzzer (standard fuzzer with no sanitizer)
 - parse_fuzzer-asan (fuzzer built using [ASAN](https://clang.llvm.org/docs/AddressSanitizer.html))
 - parse_fuzzer-msan (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
 - parse_fuzzer-ubsan (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
+
+To fuzz more efficiently, use the dictionary (gumbo.dict) and corpus (gumbo_corpus) found in `gumbo-parser/fuzzer` using the following arguments (assuming parse_fuzzer is in use):
+
+```
+./parse_fuzzer -dict=../gumbo.dict ../gumbo_corpus
+```
 
 If the binary executed successfully you should now be seeing the following output filling up your terminal (see https://llvm.org/docs/LibFuzzer.html#output for more information):
 
