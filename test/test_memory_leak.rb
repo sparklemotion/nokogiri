@@ -270,6 +270,20 @@ class TestMemoryLeak < Nokogiri::TestCase
         puts
       end
     end
+
+    describe "libgumbo abandoned tag" do
+      it "should not leak the tag name" do
+        html = <<~HTML
+          <asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf foo="bar
+        HTML
+        # should increase over the first 200_000 iterations (general parsing overhead),
+        # but then flatten out. on my machine at about 169k
+        1_000_000.times do |j|
+          Nokogiri::HTML5::Document.parse(html)
+          printf "%s::%s: (iter %d) %d\n", self.class, __method__, j, MemInfo.rss if j % 20_000 == 0
+        end
+      end
+    end
   end # if NOKOGIRI_GC
 
   def test_object_space_memsize_of
@@ -336,7 +350,8 @@ class TestMemoryLeak < Nokogiri::TestCase
     rescue
       4096
     end
-    STATM_PATH = "/proc/#{Process.pid}/statm"
+
+    STATM_PATH = "/proc/self/statm"
     STATM_FOUND = File.exist?(STATM_PATH)
 
     def self.rss
