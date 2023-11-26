@@ -25,10 +25,6 @@ pushd $GEMS_DIR
 
 popd
 
-if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
-  export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
-fi
-
 # 2.3.21 because https://github.com/rubygems/rubygems/issues/5914
 # 2.3.22 because https://github.com/rubygems/rubygems/issues/5940
 gem install bundler -v "~> 2.2, != 2.3.21, != 2.3.22"
