@@ -30,3 +30,11 @@
 3.2.0:x86-mingw32
 3.2.0:x86_64-darwin
 3.2.0:x86_64-linux
+3.3.0:aarch64-linux
+3.3.0:arm-linux
+3.3.0:arm64-darwin
+3.3.0:x64-mingw-ucrt
+3.3.0:x86-linux
+3.3.0:x86-mingw32
+3.3.0:x86_64-darwin
+3.3.0:x86_64-linux
