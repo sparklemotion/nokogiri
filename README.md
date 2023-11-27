@@ -111,7 +111,7 @@ You can help sponsor the maintainers of this software through one of these organ
 
 Requirements:
 
-- Ruby >= 2.7
+- Ruby >= 3.0
 - JRuby >= 9.4.0.0
 
 

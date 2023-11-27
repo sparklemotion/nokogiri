@@ -42,7 +42,6 @@ _xml_namespace_dealloc(void *ptr)
   xmlFree(ns);
 }
 
-#ifdef HAVE_RB_GC_LOCATION
 static void
 _xml_namespace_update_references(void *ptr)
 {
@@ -51,9 +50,6 @@ _xml_namespace_update_references(void *ptr)
     ns->_private = (void *)rb_gc_location((VALUE)ns->_private);
   }
 }
-#else
-#  define _xml_namespace_update_references 0
-#endif
 
 static const rb_data_type_t nokogiri_xml_namespace_type_with_dealloc = {
   .wrap_struct_name = "Nokogiri::XML::Namespace#with_dealloc",
