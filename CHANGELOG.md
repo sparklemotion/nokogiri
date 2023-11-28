@@ -44,6 +44,7 @@ Documentation on what can be matched:
 * Removed `Nokogiri::HTML5.get` which was deprecated in v1.12.0. [#2278] (@flavorjones)
 * Removed the CSS-to-XPath utility modules `XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins`, which were deprecated in v1.13.0 in favor of `XPathVisitor` constructor args. [#2403] (@flavorjones)
 * Removed `XML::Reader#attribute_nodes` which was deprecated in v1.13.8 in favor of `#attribute_hash`. [#2598, #2599] (@flavorjones)
+* Removed the `libxml/libxml2_path` key from `VersionInfo`, used in the past for third-party library integration, in favor of the `nokogiri/cppflags` and `nokogiri/ldflags` keys. Please note that third-party library integration is not fully supported and may be deprecated soon, see #2746 for more context. [#2143] (@flavorjones)
 
 
 ## 1.15.5 / 2023-11-17

@@ -651,8 +651,7 @@ append_cppflags(ENV["CPPFLAGS"].split) unless ENV["CPPFLAGS"].nil?
 append_ldflags(ENV["LDFLAGS"].split) unless ENV["LDFLAGS"].nil?
 $LIBS = concat_flags($LIBS, ENV["LIBS"])
 
-# nokogumbo code uses C90/C99 features, let's make sure older compilers won't give
-# errors/warnings. see #2302
+# libgumbo uses C90/C99 features, see #2302
 append_cflags(["-std=c99", "-Wno-declaration-after-statement"])
 
 # gumbo html5 serialization is slower with O3, let's make sure we use O2

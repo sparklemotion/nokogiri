@@ -34,8 +34,3 @@ rm -rf lib ext # ensure we don't use the local files
 rake test
 
 ./scripts/test-gem-installation
-
-# delete the Gemfile because that's confusing to older versions of rubygems (e.g., bionic32)
-rm -f Gemfile Gemfile.lock
-./scripts/test-nokogumbo-compatibility 2.0.4
-./scripts/test-nokogumbo-compatibility 2.0.5

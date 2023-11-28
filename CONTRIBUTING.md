@@ -359,8 +359,6 @@ See [Making a release](#making-a-release) below for the checklist.
 
 `scripts/test-exported-symbols` checks the compiled `nokogiri.so` library for surprising exported symbols. This script likely only works on Linux, sorry.
 
-`scripts/test-nokogumbo-compatibility` is used by CI to ensure that Nokogumbo installs correctly against the currently-installed version of Nokogiri. Nokogumbo receives this extra care because it compiles against Nokogiri's and libxml2's header files, and makes assumptions about what symbols are exported by Nokogiri's extension library.
-
 `scripts/files-modified-by-open-prs` is a hack to see what files are being proposed to change in the set of open pull requests. This might be useful if you're thinking about radically changing a file, to be aware of what merge conflicts might result. This could probably be a rake task.
 
 There's a `Vagrantfile` in the project root which I've used once or twice to try to reproduce problems non-Linux systems (like OpenBSD). It's not well-maintained so YMMV.
