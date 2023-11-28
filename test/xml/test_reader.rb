@@ -504,55 +504,6 @@ module Nokogiri
         )
       end
 
-      def test_reader_node_attributes_keep_a_reference_to_the_reader
-        skip_unless_libxml2("valgrind tests should only run with libxml2")
-
-        attribute_nodes = []
-
-        refute_valgrind_errors do
-          xml = <<~EOF
-            <root>
-              <content first_name="bob" last_name="loblaw"/>
-            </root>
-          EOF
-
-          reader = Nokogiri::XML::Reader.from_memory(xml)
-          reader.each do |element|
-            assert_output(nil, /Reader#attribute_nodes is deprecated/) do
-              attribute_nodes += element.attribute_nodes
-            end
-          end
-        end
-
-        assert_operator(attribute_nodes.length, :>, 0)
-        attribute_nodes.inspect
-      end
-
-      def test_namespaced_attributes
-        reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
-        <x xmlns:edi='http://ecommerce.example.org/schema' xmlns:commons="http://rets.org/xsd/RETSCommons">
-          <edi:foo commons:street-number="43">hello</edi:foo>
-          <y edi:name="francis" bacon="87"/>
-        </x>
-        eoxml
-        attr_ns = []
-        while reader.read
-          next unless reader.node_type == Nokogiri::XML::Node::ELEMENT_NODE
-
-          assert_output(nil, /Reader#attribute_nodes is deprecated/) do
-            reader.attribute_nodes.each { |attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
-          end
-        end
-        assert_equal(
-          [
-            "commons",
-            "edi",
-            nil,
-          ],
-          attr_ns,
-        )
-      end
-
       def test_local_name
         reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
         <x xmlns:edi='http://ecommerce.example.org/schema'>

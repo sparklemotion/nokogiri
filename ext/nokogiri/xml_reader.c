@@ -167,48 +167,6 @@ rb_xml_reader_namespaces(VALUE rb_reader)
 }
 
 /*
-  :call-seq: attribute_nodes() → Array<Nokogiri::XML::Attr>
-
-  Get the attributes of the current node as an Array of XML:Attr
-
-  ⚠ This method is deprecated and unsafe to use. It will be removed in a future version of Nokogiri.
-
-  See related: #attribute_hash, #attributes
- */
-static VALUE
-rb_xml_reader_attribute_nodes(VALUE rb_reader)
-{
-  xmlTextReaderPtr c_reader;
-  xmlNodePtr c_node;
-  VALUE attr_nodes;
-  int j;
-
-  // TODO: deprecated, remove in Nokogiri v1.15, see https://github.com/sparklemotion/nokogiri/issues/2598
-  // After removal, we can also remove all the "node_has_a_document" special handling from xml_node.c
-  NOKO_WARN_DEPRECATION("Reader#attribute_nodes is deprecated and will be removed in a future version of Nokogiri. Please use Reader#attribute_hash instead.");
-
-  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_reader_type, c_reader);
-
-  if (! has_attributes(c_reader)) {
-    return rb_ary_new() ;
-  }
-
-  c_node = xmlTextReaderExpand(c_reader);
-  if (c_node == NULL) {
-    return Qnil;
-  }
-
-  attr_nodes = noko_xml_node_attrs(c_node);
-
-  /* ensure that the Reader won't be GCed as long as a node is referenced */
-  for (j = 0 ; j < RARRAY_LEN(attr_nodes) ; j++) {
-    rb_iv_set(rb_ary_entry(attr_nodes, j), "@reader", rb_reader);
-  }
-
-  return attr_nodes;
-}
-
-/*
   :call-seq: attribute_hash() → Hash<String ⇒ String>
 
   Get the attributes of the current node as a Hash of names and values.
@@ -778,7 +736,6 @@ noko_init_xml_reader(void)
   rb_define_method(cNokogiriXmlReader, "attribute", reader_attribute, 1);
   rb_define_method(cNokogiriXmlReader, "attribute_at", attribute_at, 1);
   rb_define_method(cNokogiriXmlReader, "attribute_count", attribute_count, 0);
-  rb_define_method(cNokogiriXmlReader, "attribute_nodes", rb_xml_reader_attribute_nodes, 0);
   rb_define_method(cNokogiriXmlReader, "attribute_hash", rb_xml_reader_attribute_hash, 0);
   rb_define_method(cNokogiriXmlReader, "attributes?", attributes_eh, 0);
   rb_define_method(cNokogiriXmlReader, "base_uri", rb_xml_reader_base_uri, 0);

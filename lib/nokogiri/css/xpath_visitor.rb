@@ -335,25 +335,5 @@ module Nokogiri
         end
       end
     end
-
-    module XPathVisitorAlwaysUseBuiltins # :nodoc:
-      def self.new
-        warn(
-          "Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
-          { uplevel: 1 },
-        )
-        XPathVisitor.new(builtins: :always)
-      end
-    end
-
-    module XPathVisitorOptimallyUseBuiltins # :nodoc:
-      def self.new
-        warn(
-          "Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins is deprecated and will be removed in a future version of Nokogiri",
-          { uplevel: 1 },
-        )
-        XPathVisitor.new(builtins: :optimal)
-      end
-    end
   end
 end
