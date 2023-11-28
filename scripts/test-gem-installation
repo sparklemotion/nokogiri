@@ -86,16 +86,7 @@ describe gemspec.full_name do
 
     describe "library" do
       describe "packaged" do
-        describe "for nokogumbo" do
-          # this is for nokogumbo and shouldn't be forever
-          it "declares where headers are installed" do
-            assert_equal(
-              nokogiri_ext_dir,
-              Nokogiri::VERSION_INFO["libxml"]["libxml2_path"],
-              "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}",
-            )
-          end
-
+        describe "for third-party library linking" do
           it "installs packaged libraries' headers" do
             packaged_library_header_files.each do |header|
               assert(

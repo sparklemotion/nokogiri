@@ -94,10 +94,13 @@ module Nokogiri
           nokogiri["version"] = Nokogiri::VERSION
 
           unless jruby?
-            #  enable gems like nokogumbo to build with the following in their extconf.rb:
+            #  enable gems to build against Nokogiri with the following in their extconf.rb:
             #
             #    append_cflags(Nokogiri::VERSION_INFO["nokogiri"]["cppflags"])
             #    append_ldflags(Nokogiri::VERSION_INFO["nokogiri"]["ldflags"])
+            #
+            #  though, this won't work on all platform and versions of Ruby, and won't be supported
+            #  forever, see https://github.com/sparklemotion/nokogiri/discussions/2746 for context.
             #
             cppflags = ["-I#{header_directory.shellescape}"]
             ldflags = []
@@ -108,7 +111,8 @@ module Nokogiri
             end
 
             if windows?
-              # on windows, nokogumbo needs to link against nokogiri.so to resolve symbols. see #2167
+              # on windows, third party libraries that wish to link against nokogiri
+              # should link against nokogiri.so to resolve symbols. see #2167
               lib_directory = File.expand_path(File.join(File.dirname(__FILE__), "../#{ruby_minor}"))
               unless File.exist?(lib_directory)
                 lib_directory = File.expand_path(File.join(File.dirname(__FILE__), ".."))
@@ -136,9 +140,6 @@ module Nokogiri
               libxml["source"] = "packaged"
               libxml["precompiled"] = libxml2_precompiled?
               libxml["patches"] = Nokogiri::LIBXML2_PATCHES
-
-              # this is for nokogumbo and shouldn't be forever
-              libxml["libxml2_path"] = header_directory
             else
               libxml["source"] = "system"
             end
