@@ -4,10 +4,8 @@ require "helper"
 
 describe "compaction" do
   def skip_compaction_tests
-    # skip if compaction is not supported, or if we're running Ruby 2.7 on windows
-    # (because compaction is buggy on that platform)
-    !GC.respond_to?(:verify_compaction_references) ||
-      (RUBY_VERSION.start_with?("2.7") && Gem.win_platform?)
+    # supported in CRuby >= 3.0
+    !GC.respond_to?(:verify_compaction_references)
   end
 
   describe Nokogiri::XML::Node do

@@ -28,7 +28,6 @@ _xml_node_mark(void *ptr)
   }
 }
 
-#ifdef HAVE_RB_GC_LOCATION
 static void
 _xml_node_update_references(void *ptr)
 {
@@ -38,9 +37,6 @@ _xml_node_update_references(void *ptr)
     node->_private = (void *)rb_gc_location((VALUE)node->_private);
   }
 }
-#else
-#  define _xml_node_update_references 0
-#endif
 
 static const rb_data_type_t nokogiri_node_type = {
   .wrap_struct_name = "Nokogiri::XML::Node",

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: ["alpine", "mri-2.7", "mri-3.0", "mri-3.1", "mri-3.2", "mri-3.3-rc", "truffle-nightly", "ubuntu", "ubuntu32"]
+        tag: ["alpine", "mri-3.0", "mri-3.1", "mri-3.2", "mri-3.3-rc", "truffle-nightly", "ubuntu"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
