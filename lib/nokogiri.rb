@@ -94,7 +94,7 @@ module Nokogiri
 
     # :nodoc:
     def install_default_aliases
-      warn("Nokogiri.install_default_aliases is deprecated and will be removed in a future version of Nokogiri. Please call Nokogiri::EncodingHandler.install_default_aliases instead.")
+      warn("Nokogiri.install_default_aliases is deprecated. Please call Nokogiri::EncodingHandler.install_default_aliases instead. This will become an error in Nokogiri v1.17.0.", uplevel: 1, category: :deprecated) # deprecated in v1.14.0, remove in v1.17.0
       Nokogiri::EncodingHandler.install_default_aliases
     end
   end

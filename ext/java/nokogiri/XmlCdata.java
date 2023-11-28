@@ -51,8 +51,7 @@ public class XmlCdata extends XmlText
       throw context.runtime.newTypeError(msg);
     }
     if (!(rbDocument instanceof XmlDocument)) {
-      // TODO: deprecate allowing Node
-      context.runtime.getWarnings().warn("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in a future release of Nokogiri.");
+      context.runtime.getWarnings().warn("Passing a Node as the first parameter to CDATA.new is deprecated. Please pass a Document instead. This will become an error in Nokogiri v1.17.0."); // TODO: deprecated in v1.15.3, remove in v1.17.0
     }
 
     Document document = ((XmlNode) rbDocument).getOwnerDocument();

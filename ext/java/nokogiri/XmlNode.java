@@ -311,8 +311,7 @@ public class XmlNode extends RubyObject
       throw context.runtime.newArgumentError("document must be a Nokogiri::XML::Node");
     }
     if (!(doc instanceof XmlDocument)) {
-      // TODO: deprecate allowing Node
-      context.runtime.getWarnings().warn("Passing a Node as the second parameter to Node.new is deprecated. Please pass a Document instead, or prefer an alternative constructor like Node#add_child. This will become an error in a future release of Nokogiri.");
+      context.runtime.getWarnings().warn("Passing a Node as the second parameter to Node.new is deprecated. Please pass a Document instead, or prefer an alternative constructor like Node#add_child. This will become an error in Nokogiri v1.17.0."); // TODO: deprecated in v1.13.0, remove in v1.17.0
     }
 
     Document document = asXmlNode(context, doc).getOwnerDocument();
