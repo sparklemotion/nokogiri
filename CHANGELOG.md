@@ -35,6 +35,7 @@ Documentation on what can be matched:
 ### Removed
 
 * Removed `Nokogiri::HTML5.get` which was deprecated in v1.12.0. [#2278] (@flavorjones)
+* Removed the CSS-to-XPath utility modules `XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins`, which were deprecated in v1.13.0 in favor of `XPathVisitor` constructor args. [#2403] (@flavorjones)
 
 
 ## 1.15.5 / 2023-11-17

@@ -567,21 +567,6 @@ class TestNokogiri < Nokogiri::TestCase
           parser.parse("a[@data-words~=\"bar\"]"),
         )
       end
-
-      describe "XPathVisitorAlwaysUseBuiltins" do
-        let(:visitor) { Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins.new }
-
-        it "supports deprecated class" do
-          assert_output("", /XPathVisitorAlwaysUseBuiltins is deprecated/) { visitor }
-          assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
-          assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
-
-          assert_xpath(
-            "//*[nokogiri-builtin:css-class(@class,'awesome')]",
-            parser.parse(".awesome"),
-          )
-        end
-      end
     end
 
     describe "builtins:optimal" do
@@ -656,28 +641,6 @@ class TestNokogiri < Nokogiri::TestCase
             "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
             parser.parse("a[@class~='bar']"),
           )
-        end
-      end
-
-      describe "XPathVisitorOptimallyUseBuiltins" do
-        let(:visitor) { Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new }
-
-        it "supports deprecated class" do
-          assert_output("", /XPathVisitorOptimallyUseBuiltins is deprecated/) { visitor }
-          assert_instance_of(Nokogiri::CSS::XPathVisitor, visitor)
-          assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
-
-          if Nokogiri.uses_libxml?
-            assert_xpath(
-              "//*[nokogiri-builtin:css-class(@class,'awesome')]",
-              parser.parse(".awesome"),
-            )
-          else
-            assert_xpath(
-              "//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
-              parser.parse(".awesome"),
-            )
-          end
         end
       end
     end
