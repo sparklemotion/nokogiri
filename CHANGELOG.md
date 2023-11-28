@@ -32,6 +32,10 @@ Documentation on what can be matched:
 * CSS `nth` pseudo-classes now handle spaces, e.g. `"2n + 1"`. [#3018] (@fusion2004)
 * `libgumbo` no longer leaks memory when an incomplete tag is abandoned by the HTML5 parser. [#3036] (@flavorjones)
 
+### Removed
+
+* Removed `Nokogiri::HTML5.get` which was deprecated in v1.12.0. [#2278] (@flavorjones)
+
 
 ## 1.15.5 / 2023-11-17
 

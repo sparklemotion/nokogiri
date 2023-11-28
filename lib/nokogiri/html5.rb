@@ -239,23 +239,6 @@ module Nokogiri
         DocumentFragment.parse(string, encoding, options)
       end
 
-      # Fetch and parse a HTML document from the web, following redirects,
-      # handling https, and determining the character encoding using HTML5
-      # rules.  +uri+ may be a +String+ or a +URI+.  +options+ contains
-      # http headers and special options.  Everything which is not a
-      # special option is considered a header.  Special options include:
-      #  * :follow_limit => number of redirects which are followed
-      #  * :basic_auth => [username, password]
-      def get(uri, options = {})
-        # TODO: deprecate
-        warn(
-          "Nokogiri::HTML5.get is deprecated and will be removed in a future version of Nokogiri.",
-          uplevel: 1,
-          category: :deprecated,
-        )
-        get_impl(uri, options)
-      end
-
       # :nodoc:
       def read_and_encode(string, encoding)
         # Read the string with the given encoding.
@@ -282,55 +265,6 @@ module Nokogiri
       end
 
       private
-
-      def get_impl(uri, options = {})
-        headers = options.clone
-        headers = { follow_limit: headers } if Numeric === headers # deprecated
-        limit = headers[:follow_limit] ? headers.delete(:follow_limit).to_i : 10
-
-        require "net/http"
-        uri = URI(uri) unless URI === uri
-
-        http = Net::HTTP.new(uri.host, uri.port)
-
-        # TLS / SSL support
-        http.use_ssl = true if uri.scheme == "https"
-
-        # Pass through Net::HTTP override values, which currently include:
-        #   :ca_file, :ca_path, :cert, :cert_store, :ciphers,
-        #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
-        #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
-        #   :verify_callback, :verify_depth, :verify_mode
-        options.each do |key, _value|
-          http.send("#{key}=", headers.delete(key)) if http.respond_to?("#{key}=")
-        end
-
-        request = Net::HTTP::Get.new(uri.request_uri)
-
-        # basic authentication
-        auth = headers.delete(:basic_auth)
-        auth ||= [uri.user, uri.password] if uri.user && uri.password
-        request.basic_auth(auth.first, auth.last) if auth
-
-        # remaining options are treated as headers
-        headers.each { |key, value| request[key.to_s] = value.to_s }
-
-        response = http.request(request)
-
-        case response
-        when Net::HTTPSuccess
-          doc = parse(reencode(response.body, response["content-type"]), options)
-          doc.instance_variable_set(:@response, response)
-          doc.class.send(:attr_reader, :response)
-          doc
-        when Net::HTTPRedirection
-          response.value if limit <= 1
-          location = URI.join(uri, response["location"])
-          get_impl(location, options.merge(follow_limit: limit - 1))
-        else
-          response.value
-        end
-      end
 
       # Charset sniffing is a complex and controversial topic that understandably isn't done _by
       # default_ by the Ruby Net::HTTP library.  This being said, it is a very real problem for
