@@ -31,7 +31,7 @@ Documentation on what can be matched:
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated to v2.12.1 from v2.11.6. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.0 and https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.1 (@flavorjones)
+* [CRuby] Vendored libxml2 is updated to v2.12.2 from v2.11.6. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.0, https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.1, and https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.2 (@flavorjones)
 
 
 ### Fixed
