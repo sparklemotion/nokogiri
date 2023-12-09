@@ -21,6 +21,7 @@ If you're looking for guidance on filing a bug report or getting support, please
 - [How to run the tests](#how-to-run-the-tests)
 - [Style Guide](#style-guide)
 - [How Continuous Integration ("CI") is configured](#how-continuous-integration-ci-is-configured)
+- [How OSS-Fuzz is configured](#how-oss-fuzz-is-configured)
 - [Packaging releases](#packaging-releases)
 - [Other utilities](#other-utilities)
 - [Bumping Java dependencies](#bumping-java-dependencies)
@@ -408,6 +409,17 @@ These tests should use `Nokogiri::TestBenchmark` as the base class, and be in a 
 - Always checkout the source code **including submodules** (for the html5lib tests)
 - When testing packaged libraries (not system libraries), cache either `ports/` (for compiled libraries) or `ports/archives/` (for just tarballs)
   - note that `libgumbo` is built outside of `ports/` to allow us to do this caching safely
+
+
+## How OSS-Fuzz is configured
+
+[OSS-Fuzz](https://oss-fuzz.com/) is a service that runs fuzzing against open-source libraries.
+
+OSS-Fuzz was configured to fuzz Nokogiri's libgumbo in https://github.com/google/oss-fuzz/pull/11004. Updating the configuration should be done in that project.
+
+Notifications go to `nokogiri-oss-fuzz@googlegroups.com`.
+
+Some historical context can be found in [discussion #2992](https://github.com/sparklemotion/nokogiri/discussions/2992) and [pull request #3007](https://github.com/sparklemotion/nokogiri/pull/3007) by @fuzzy-boiii23a.
 
 
 ## Packaging releases
