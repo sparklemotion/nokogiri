@@ -92,7 +92,7 @@ module Nokogiri
         title = XML::Node.new("title", self) << tnode
         if (head = at_xpath("//head"))
           head << title
-        elsif (meta = (at_xpath("//meta[@charset]") || meta_content_type))
+        elsif (meta = at_xpath("//meta[@charset]") || meta_content_type)
           # better put after charset declaration
           meta.add_next_sibling(title)
         else
