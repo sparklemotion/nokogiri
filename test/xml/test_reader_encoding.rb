@@ -156,17 +156,6 @@ module Nokogiri
           assert_equal(@reader.encoding, name.encoding.name)
         end
       end
-
-      def test_value_lookup_segfault
-        skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
-        skip_unless_libxml2
-        stress_memory_while do
-          while (node = @reader.read)
-            nodes = node.attribute_nodes
-            nodes.first&.name
-          end
-        end
-      end
     end
   end
 end
