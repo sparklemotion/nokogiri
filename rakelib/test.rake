@@ -72,17 +72,38 @@ class ValgrindTestTask < Rake::TestTask
   end
 end
 
-class GdbTestTask < ValgrindTestTask
+class GdbTestTask < Rake::TestTask
   def ruby(*args, **options, &block)
     command = "gdb --args #{RUBY} #{args.join(" ")}"
     sh(command, **options, &block)
   end
 end
 
-class LldbTestTask < ValgrindTestTask
+class LldbTestTask < Rake::TestTask
   def ruby(*args, **options, &block)
     command = "lldb #{RUBY} -- #{args.join(" ")}"
     sh(command, **options, &block)
+  end
+end
+
+class MemorySuiteTestTask < Rake::TestTask
+  def ruby(*args, **options, &block)
+    ENV["NCPU"] = nil
+    ENV["NOKOGIRI_MEMORY_SUITE"] = "t"
+    ENV["NOKOGIRI_TEST_GC_LEVEL"] = "major"
+
+    super
+  end
+end
+
+if defined?(RubyMemcheck)
+  class MemcheckTestTask < RubyMemcheck::TestTask
+    def ruby(*args, **options, &block)
+      ENV["NCPU"] = nil
+      ENV["NOKOGIRI_MEMORY_SUITE"] = "t"
+
+      super
+    end
   end
 end
 
@@ -100,6 +121,11 @@ end
 def nokogiri_test_bench_configuration(t)
   nokogiri_test_task_configuration(t)
   t.test_files = FileList["test/**/bench_*.rb"]
+end
+
+def nokogiri_test_memory_suite_configuration(t)
+  nokogiri_test_task_configuration(t)
+  t.test_files = FileList["test/test_memory_usage.rb"]
 end
 
 Rake::TestTask.new do |t|
@@ -123,8 +149,12 @@ namespace "test" do
     nokogiri_test_case_configuration(t)
   end
 
+  MemorySuiteTestTask.new("memory_suite") do |t|
+    nokogiri_test_memory_suite_configuration(t)
+  end
+
   if defined?(RubyMemcheck)
-    RubyMemcheck::TestTask.new("memcheck") do |t|
+    MemcheckTestTask.new("memcheck") do |t|
       nokogiri_test_case_configuration(t)
     end
   end

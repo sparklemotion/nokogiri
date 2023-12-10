@@ -2,7 +2,6 @@
 
 #
 # Some environment variables that are used to configure the test suite:
-# - NOKOGIRI_TEST_FAIL_FAST: if set to anything, emit test failure messages immediately upon failure
 # - NOKOGIRI_TEST_GC_LEVEL: (roughly in order of stress)
 #   - "normal" - normal GC functionality (default)
 #   - "minor" - force a minor GC cycle after each test
@@ -10,7 +9,7 @@
 #   - "compact" - force a major GC after each test and GC compaction after every 20 tests
 #   - "verify" - force a major GC after each test and verify references-after-compaction after every 20 tests
 #   - "stress" - run tests with GC.stress set to true
-# - NOKOGIRI_GC: read more in test/test_memory_leak.rb
+# - NOKOGIRI_MEMORY_SUITE: read more in test/test_memory_usage.rb
 #
 
 unless ENV["RUBY_MEMCHECK_RUNNING"]
@@ -272,6 +271,103 @@ module Nokogiri
       return yield unless pend_eh
 
       pending(msg, &block)
+    end
+
+    # returns the page size in bytes
+    # will only work on linux
+    def meminfo_page_size
+      @page_size ||= %x(getconf PAGESIZE).chomp.to_i
+    end
+
+    # returns the vmsize in bytes
+    # will only work on linux
+    def meminfo_vmsize
+      File.read("/proc/self/statm").split(" ")[0].to_i * meminfo_page_size
+    end
+
+    # returns the rss in bytes
+    # will only work on linux
+    def meminfo_rss
+      File.read("/proc/self/statm").split(" ")[1].to_i * meminfo_page_size
+    end
+
+    # see test/test_memory_usage.rb for example usage
+    #
+    # when running under valgrind, this just loops for 1 second, so that valgrind leak check
+    # (ruby_memcheck) can find any leaks.
+    #
+    # otherwise, will loop for 10 seconds, measure vmsize over time, calculate the best-fit linear
+    # slope, and fail if there is definitely a leak.
+    def memwatch(method, n: nil, &block)
+      if i_am_running_in_valgrind
+        # when running under memcheck, just loop and let valgrind leak check do its thing
+        t1 = Time.now
+        loop do
+          yield
+          break if Time.new - t1 > 1
+        end
+        return
+      end
+
+      measurements = 10
+      default_run_length = 10 # seconds
+      warmup = 2.0 # seconds
+
+      if n.nil?
+        # calculate n to run for about default_run_length seconds
+        t1 = Time.now
+        n = 0
+        loop do
+          n += 1
+
+          yield
+
+          break if (Time.now - t1) > warmup
+        end
+        n = (n * (default_run_length / warmup)).ceil(-3)
+      end
+      data_point_every = n / measurements
+
+      puts
+
+      memsizes = []
+      iterations = []
+
+      t1 = Time.now
+      (n + 1).times do |j| # plus one to print out the final iteration
+        if j % data_point_every == 0
+          GC.start(full_mark: true)
+          memsize = meminfo_vmsize
+
+          printf("memwatch: %s: (n=%-2d %7d) %d Kb", method, memsizes.length + 1, j, memsize / 1024)
+          unless memsizes.empty?
+            delta = memsize - memsizes.last
+            printf(", Δ %+d", delta / 1024)
+          end
+          print("\n")
+
+          iterations << j
+          memsizes << memsize.to_f # so fit_linear gives us floats
+        end
+
+        yield
+      end
+      printf("memwatch: %s: elapsed %fs\n", method, Time.now - t1)
+
+      bench = Minitest::Benchmark.new("meminfo")
+      _a_coeff, b_coeff, r_squared = bench.fit_linear(iterations, memsizes)
+      printf(
+        "memwatch: %s: slope = %.5f (r^2 = %.3f)\n",
+        method,
+        b_coeff,
+        r_squared,
+      )
+
+      # we use `< 1` because losing more than 1 byte per iteration is a leak
+      refute(
+        b_coeff >= 1 && r_squared >= 0.7,
+        "best-fit slope #{b_coeff} (r^2=#{r_squared}) should be close to zero",
+      )
     end
   end
   # rubocop:enable Style/ClassVars
