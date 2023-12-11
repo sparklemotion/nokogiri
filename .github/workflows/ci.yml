@@ -360,6 +360,29 @@ jobs:
   #
   #  SECTION let's look for memory leaks
   #
+  memory_suite:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["disable"]
+        ruby: ["3.2"]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/cache@v3
+        if: matrix.sys == 'disable'
+        with:
+          path: ports
+          key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - run: bundle exec rake test:memory_suite
+
   memcheck:
     needs: ["basic"]
     strategy:

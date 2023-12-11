@@ -1328,20 +1328,6 @@ module Nokogiri
           assert_equal("fr", subject.lang)
         end
 
-        def test_text_node_robustness_gh1426
-          skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
-          skip_unless_libxml2("No need to test libxml-ruby workarounds on JRuby")
-          # notably, the original bug report was about libxml-ruby interactions
-          # this test should blow up under valgrind if we regress on libxml-ruby workarounds
-          # side note: this was fixed in libxml-ruby 2.9.0 by https://github.com/xml4r/libxml-ruby/pull/119
-          message = "<section><h2>BOOM!</h2></section>"
-          10_000.times do
-            node = Nokogiri::HTML4::DocumentFragment.parse(message).at_css("h2")
-            node.add_previous_sibling(Nokogiri::XML::Text.new("before", node.document))
-            node.add_next_sibling(Nokogiri::XML::Text.new("after", node.document))
-          end
-        end
-
         # issue 2559
         def test_serialize_unparented_node
           assert_equal("asdf", Nokogiri::HTML4::Document.parse("<div></div>").create_text_node("asdf").to_s)

@@ -1134,13 +1134,6 @@ module Nokogiri
             assert_equal("foo", target.root.content)
           end
 
-          it "doesn't leak the replaced node" do
-            skip("only run if NOKOGIRI_GC is set") unless ENV["NOKOGIRI_GC"]
-            doc = Nokogiri::XML("<root>test</root>")
-            doc2 = Nokogiri::XML("<root>#{"x" * 5000000}</root>")
-            doc2.root = doc.root
-          end
-
           it "raises an exception if passed something besides a Node" do
             doc = Nokogiri::XML::Document.parse(<<~EOF)
               <root>
