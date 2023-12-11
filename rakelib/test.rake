@@ -110,7 +110,7 @@ end
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
   t.verbose = true
-  t.options = "-v" if ENV["CI"]
+  # t.options = "-v" if ENV["CI"] # I haven't needed this in a long time. Commenting out 2023-12-10.
 end
 
 def nokogiri_test_case_configuration(t)
