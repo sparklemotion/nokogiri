@@ -65,11 +65,16 @@ class TestMemoryUsage < Nokogiri::TestCase
   #
   #  To run it along with the rest of the test suite with ruby_memcheck:
   #
-  #    bundle exec rake test:memory_suite
+  #    bundle exec rake test:memcheck
+  #
+  #  To run it in isolation with ruby_memcheck:
+  #
+  #    bundle exec rake test:memcheck TESTOPTS="-n/MEMORY_SUITE/"
+  #    bundle exec rake test:memcheck TESTOPTS="-n/MEMORY_SUITE.*io_callbacks/" # run only one test
   #
   #  or to run it in isolation with an analysis of vmsize:
   #
-  #    bundle exec rake test:memcheck
+  #    bundle exec rake test:memory_suite
   #
   describe "MEMORY_SUITE" do
     let(:basic_html) { <<~HTML }
