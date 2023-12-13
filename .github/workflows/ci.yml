@@ -361,6 +361,7 @@ jobs:
   #  SECTION let's look for memory leaks
   #
   memory_suite:
+    continue-on-error: true # still pressure testing the value of this suite
     needs: ["basic"]
     strategy:
       fail-fast: false
