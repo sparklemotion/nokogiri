@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## v1.16.0.rc1 / 2023-12-13
 
 #### Ruby
 
