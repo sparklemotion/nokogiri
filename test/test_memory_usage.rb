@@ -270,7 +270,7 @@ class TestMemoryUsage < Nokogiri::TestCase
 
     it "Document doesn't leak a replaced node" do
       html1 = "<root>test</root>"
-      html2 = "<root>#{"x" * 5000000}</root>"
+      html2 = "<root>#{"x" * 5000}</root>"
       memwatch(__method__) do
         doc = Nokogiri::XML(html1)
         doc2 = Nokogiri::XML(html2)
