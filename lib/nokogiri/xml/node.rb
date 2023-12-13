@@ -1049,29 +1049,35 @@ module Nokogiri
 
         return Nokogiri::XML::NodeSet.new(document) if contents.empty?
 
-        # libxml2 does not obey the +recover+ option after encountering errors during +in_context+
-        # parsing, and so this horrible hack is here to try to emulate recovery behavior.
-        #
-        # Unfortunately, this means we're no longer parsing "in context" and so namespaces that
-        # would have been inherited from the context node won't be handled correctly. This hack was
-        # written in 2010, and I regret it, because it's silently degrading functionality in a way
-        # that's not easily prevented (or even detected).
-        #
-        # I think preferable behavior would be to either:
-        #
-        # a. add an error noting that we "fell back" and pointing the user to turning off the +recover+ option
-        # b. don't recover, but raise a sensible exception
-        #
-        # For context and background: https://github.com/sparklemotion/nokogiri/issues/313
-        # FIXME bug report: https://github.com/sparklemotion/nokogiri/issues/2092
         error_count = document.errors.length
         node_set = in_context(contents, options.to_i)
-        if node_set.empty? && (document.errors.length > error_count)
-          if options.recover?
+        if document.errors.length > error_count
+          raise document.errors[error_count] unless options.recover?
+
+          if node_set.empty?
+            # libxml2 < 2.13 does not obey the +recover+ option after encountering errors during
+            # +in_context+ parsing, and so this horrible hack is here to try to emulate recovery
+            # behavior.
+            #
+            # (Note that HTML4 fragment parsing seems to have been fixed in abd74186, and XML
+            # fragment parsing is fixed in 1c106edf. Both are in 2.13.)
+            #
+            # Unfortunately, this means we're no longer parsing "in context" and so namespaces that
+            # would have been inherited from the context node won't be handled correctly. This hack
+            # was written in 2010, and I regret it, because it's silently degrading functionality in
+            # a way that's not easily prevented (or even detected).
+            #
+            # I think preferable behavior would be to either:
+            #
+            # a. add an error noting that we "fell back" and pointing the user to turning off the
+            #    +recover+ option
+            # b. don't recover, but raise a sensible exception
+            #
+            # For context and background:
+            # - https://github.com/sparklemotion/nokogiri/issues/313
+            # - https://github.com/sparklemotion/nokogiri/issues/2092
             fragment = document.related_class("DocumentFragment").parse(contents)
             node_set = fragment.children
-          else
-            raise document.errors[error_count]
           end
         end
         node_set
