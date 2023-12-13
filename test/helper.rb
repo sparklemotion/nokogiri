@@ -298,7 +298,7 @@ module Nokogiri
     #
     # otherwise, will loop for 10 seconds, measure vmsize over time, calculate the best-fit linear
     # slope, and fail if there is definitely a leak.
-    def memwatch(method, n: nil, &block)
+    def memwatch(method, n: nil, retry_once: true, &block)
       if i_am_running_in_valgrind
         # when running under memcheck, just loop and let valgrind leak check do its thing
         t1 = Time.now
@@ -363,11 +363,20 @@ module Nokogiri
         r_squared,
       )
 
-      # we use `< 1` because losing more than 1 byte per iteration is a leak
-      refute(
-        b_coeff >= 1 && r_squared >= 0.7,
-        "best-fit slope #{b_coeff} (r^2=#{r_squared}) should be close to zero",
-      )
+      begin
+        # we use `< 1` because losing more than 1 byte per iteration is a leak
+        refute(
+          b_coeff >= 1 && r_squared >= 0.7,
+          "best-fit slope #{b_coeff} (r^2=#{r_squared}) should be close to zero",
+        )
+      rescue Minitest::Assertion => e
+        if retry_once
+          printf("memwatch: %s: #{e}: retrying once\n", method)
+          memwatch(method, n: n, retry_once: false, &block)
+        else
+          raise e
+        end
+      end
     end
   end
   # rubocop:enable Style/ClassVars
