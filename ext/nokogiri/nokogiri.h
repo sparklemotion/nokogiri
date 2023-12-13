@@ -67,7 +67,11 @@ xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 
 #ifndef xmlErrorConstPtr
-#  define xmlErrorConstPtr const xmlError *
+#  if LIBXML_VERSION >= 21200
+#    define xmlErrorConstPtr const xmlError *
+#  else
+#    define xmlErrorConstPtr xmlError *
+#  endif
 #endif
 
 #include <ruby.h>
