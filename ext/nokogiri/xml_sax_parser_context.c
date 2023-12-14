@@ -59,6 +59,10 @@ parse_io(VALUE klass, VALUE io, VALUE encoding)
                                (xmlInputReadCallback)noko_io_read,
                                (xmlInputCloseCallback)noko_io_close,
                                (void *)io, enc);
+  if (!ctxt) {
+    rb_raise(rb_eRuntimeError, "failed to create xml sax parser context");
+  }
+
   if (ctxt->sax) {
     xmlFree(ctxt->sax);
     ctxt->sax = NULL;
