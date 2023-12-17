@@ -55,6 +55,7 @@ There are a few ways to ask exploratory questions:
 
 - The Nokogiri mailing list is active at https://groups.google.com/group/nokogiri-talk
 - Open an issue using the "Help Request" template at https://github.com/sparklemotion/nokogiri/issues
+- Open a discussion at https://github.com/sparklemotion/nokogiri/discussions
 
 Please do not mail the maintainers at their personal addresses.
 
@@ -90,6 +91,8 @@ We bump `Major.Minor.Patch` versions following this guidance:
 - Updating packaged libraries for non-security-related reasons.
 - Dropping support for EOLed Ruby versions. [Some folks find this objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but [SemVer says this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
 - Backwards-incompatible changes to internal or private methods and constants. These are detailed in the "Changes" section of each changelog entry.
+- Removal of deprecated methods or parameters, after a generous transition period; usually when those methods or parameters are rarely-used or dangerous to the user. Essentially, removals that do not justify a major version bump.
+
 
 `Patch`:
 
