@@ -440,7 +440,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
             ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: generic-gem
           path: gems
@@ -566,7 +566,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
@@ -747,7 +747,7 @@ jobs:
         with:
           submodules: true
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: jruby-gem
           path: gems
