@@ -39,3 +39,7 @@ Naming/MethodName:
 Performance/CollectionLiteralInLoop:
   Exclude:
     - test/**/*
+
+Performance/StringIdentifierArgument:
+  Exclude:
+    - test/**/*
