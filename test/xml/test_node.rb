@@ -547,7 +547,7 @@ module Nokogiri
           node = xml.at("address")
           ns = node.add_namespace(nil, "http://tenderlovemaking.com")
           ns2 = node.add_namespace(nil, "http://tenderlovemaking.com")
-          assert_equal(ns.object_id, ns2.object_id)
+          assert_same(ns, ns2)
         end
 
         def test_add_multiple_namespaces
