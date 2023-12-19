@@ -77,6 +77,7 @@ module Nokogiri
     XML_XINCLUDE_FILE    = File.join(ASSETS_DIR, "xinclude.xml")
     XML_ATOM_FILE        = File.join(ASSETS_DIR, "atom.xml")
     XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
+    XSLT_INCLUDING_FILE  = File.join(ASSETS_DIR, "xslt_including.xsl")
     XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
 
     def i_am_running_in_valgrind

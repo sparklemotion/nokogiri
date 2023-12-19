@@ -1,6 +1,8 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+require_relative "xslt/security"
+
 module Nokogiri
   class << self
     ###
@@ -19,6 +21,8 @@ module Nokogiri
   # See Nokogiri::XSLT::Stylesheet for creating and manipulating
   # Stylesheet object.
   module XSLT
+    include Nokogiri::XSLT::Security
+
     class << self
       # :call-seq:
       #   parse(xsl) → Nokogiri::XSLT::Stylesheet
@@ -84,6 +88,20 @@ module Nokogiri
         else
           Stylesheet.parse_stylesheet_doc(doc)
         end
+      end
+
+      ###
+      # Get the default security options used by libxslt
+      # [Returns] an object of type Nokogiri::XSLT::Security::Config
+      def default_security_options
+        Stylesheet.default_security_options
+      end
+
+      ###
+      # Set the default security options used by libxslt
+      # +options+ should be an object of type Nokogiri::XSLT::Security::Config
+      def default_security_options=(options)
+        Stylesheet.default_security_options = (options)
       end
 
       # :call-seq:
