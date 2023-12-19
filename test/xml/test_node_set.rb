@@ -284,7 +284,7 @@ module Nokogiri
             assert(node_set_one = xml.xpath("//employee"))
             assert(node_set_two = xml.xpath("//employee"))
 
-            refute_equal(node_set_one.object_id, node_set_two.object_id)
+            refute_same(node_set_one, node_set_two)
             refute_same(node_set_one, node_set_two)
 
             assert_operator(node_set_one, :==, node_set_two) # rubocop:disable Minitest/AssertEqual

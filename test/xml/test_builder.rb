@@ -425,7 +425,7 @@ module Nokogiri
         envelope = builder.doc.at_css("envelope")
         package = builder.doc.at_css("package")
         assert_equal(envelope.namespace, package.namespace)
-        assert_equal(envelope.namespace.object_id, package.namespace.object_id)
+        assert_same(envelope.namespace, package.namespace)
       end
 
       def test_builder_uses_proper_document_class
