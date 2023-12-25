@@ -26,7 +26,7 @@ group :development do
   # rubocop
   if Gem::Requirement.new("~> 3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
     gem "rubocop", "1.59.0"
-    gem "rubocop-minitest", "0.34.1"
+    gem "rubocop-minitest", "0.34.2"
     gem "rubocop-packaging", "0.5.2"
     gem "rubocop-performance", "1.20.0"
     gem "rubocop-rake", "= 0.6.0"
