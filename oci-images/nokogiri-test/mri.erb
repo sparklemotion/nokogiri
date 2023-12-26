@@ -2,7 +2,7 @@ FROM ruby:<%= version %>
 
 <%= include_file "debian-prelude.step" %>
 
-<% if version == "3.2" -%>
+<% if version >= "3.2" -%>
 <%= include_file "valgrind-from-source.step" %>
 <% else -%>
 <%= include_file "debian-valgrind.step" %>
