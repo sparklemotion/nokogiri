@@ -6,14 +6,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## v1.16.0.rc1 / 2023-12-13
 
+### Notable Changes
+
 #### Ruby
 
 This release introduces native gem support for Ruby 3.3.
 
 This release ends support for Ruby 2.7, for which [upstream support ended 2023-03-31](https://www.ruby-lang.org/en/downloads/branches/).
 
-
-### Notable Changes
 
 #### Pattern matching
 
@@ -41,7 +41,7 @@ Documentation on what can be matched:
 ### Fixed
 
 * CSS `nth` pseudo-classes now handle spaces, e.g. `"2n + 1"`. [#3018] (@fusion2004)
-* `libgumbo` no longer leaks memory when an incomplete tag is abandoned by the HTML5 parser. [#3036] (@flavorjones)
+* [CRuby] `libgumbo` no longer leaks memory when an incomplete tag is abandoned by the HTML5 parser. [#3036] (@flavorjones)
 
 
 ### Removed
@@ -49,7 +49,38 @@ Documentation on what can be matched:
 * Removed `Nokogiri::HTML5.get` which was deprecated in v1.12.0. [#2278] (@flavorjones)
 * Removed the CSS-to-XPath utility modules `XPathVisitorAlwaysUseBuiltins` and `XPathVisitorOptimallyUseBuiltins`, which were deprecated in v1.13.0 in favor of `XPathVisitor` constructor args. [#2403] (@flavorjones)
 * Removed `XML::Reader#attribute_nodes` which was deprecated in v1.13.8 in favor of `#attribute_hash`. [#2598, #2599] (@flavorjones)
-* Removed the `libxml/libxml2_path` key from `VersionInfo`, used in the past for third-party library integration, in favor of the `nokogiri/cppflags` and `nokogiri/ldflags` keys. Please note that third-party library integration is not fully supported and may be deprecated soon, see #2746 for more context. [#2143] (@flavorjones)
+* [CRuby] Removed the `libxml/libxml2_path` key from `VersionInfo`, used in the past for third-party library integration, in favor of the `nokogiri/cppflags` and `nokogiri/ldflags` keys. Please note that third-party library integration is not fully supported and may be deprecated soon, see #2746 for more context. [#2143] (@flavorjones)
+
+
+### Thank you!
+
+The following people and organizations were kind enough to sponsor @flavorjones or the Nokogiri project during the development of v1.16.0:
+
+* Götz Görisch @GoetzGoerisch
+* Airbnb @airbnb
+* Maxime Gauthier @biximilien
+* Renuo AG @renuo
+* YOSHIDA Katsuhiko @kyoshidajp
+* Homebrew @Homebrew
+* Hiroshi SHIBATA @hsbt
+* @zzak
+* Evil Martians @evilmartians
+* Ajaya Agrawalla @ajaya
+* Modern Treasury @Modern-Treasury
+* Danilo Lessa Bernardineli @danlessa
+* matt marques @mestre-dos-magos
+* Quan Nguyen @qu8n
+* Harry Lascelles @hlascelles
+* Oleksandr Tyshchenko @altivi
+* Prowly @prowlycom
+* Better Stack Community @betterstack-community
+* Sentry @getsentry
+* Codecov @codecov
+* Typesense @typesense
+* Roy Boivin II @Yabbo
+* Frank Groeneveld @frenkel
+
+We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
 
 
 ## 1.15.5 / 2023-11-17
