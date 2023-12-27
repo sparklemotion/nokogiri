@@ -805,6 +805,7 @@ module Nokogiri
           it "returns an enumerator given no block" do
             skip("enumerators confuse valgrind") if i_am_running_in_valgrind
             skip("enumerators confuse ASan") if i_am_running_with_asan
+            skip("https://bugs.ruby-lang.org/issues/20085") if RUBY_DESCRIPTION.include?("aarch64") && RUBY_VERSION == "3.3.0"
 
             employees = xml.search("//employee")
             enum = employees.each

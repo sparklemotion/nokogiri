@@ -8,7 +8,7 @@ module DockerHelper
   IMAGE_DIR = "oci-images/nokogiri-test"
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
-    mri: ["3.0", "3.1", "3.2", "3.3-rc"],
+    mri: ["3.0", "3.1", "3.2", "3.3"],
     truffle: ["nightly"],
   }
 
@@ -74,14 +74,14 @@ module DockerHelper
                   ruby-version: "3.1"
                   bundler-cache: true
                   bundler: latest
-              - uses: docker/setup-buildx-action@v2
-              - uses: docker/login-action@v2
+              - uses: docker/setup-buildx-action@v3
+              - uses: docker/login-action@v3
                 with:
                   registry: ghcr.io
                   username: ${{github.actor}}
                   password: ${{secrets.GITHUB_TOKEN}}
               - name: ${{matrix.tag}}
-                uses: docker/build-push-action@v3
+                uses: docker/build-push-action@v5
                 with:
                   context: "."
                   push: true
