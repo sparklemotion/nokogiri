@@ -71,7 +71,12 @@ Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
  * call-seq:
  *   parse_stylesheet_doc(document)
  *
- * Parse a stylesheet from +document+.
+ * Parse an XSLT::Stylesheet from +document+.
+ *
+ * [Parameters]
+ * - +document+ (Nokogiri::XML::Document) the document to be parsed.
+ *
+ * [Returns] Nokogiri::XSLT::Stylesheet
  */
 static VALUE
 parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
@@ -104,7 +109,7 @@ parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
  * call-seq:
  *   serialize(document)
  *
- * Serialize +document+ to an xml string.
+ * Serialize +document+ to an xml string, as specified by the +method+ parameter in the Stylesheet.
  */
 static VALUE
 rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
@@ -133,7 +138,7 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
  *   transform(document)
  *   transform(document, params = {})
  *
- * Apply an XSLT stylesheet to an XML::Document.
+ * Transform an XML::Document as defined by an XSLT::Stylesheet.
  *
  * [Parameters]
  * - +document+ (Nokogiri::XML::Document) the document to be transformed.
