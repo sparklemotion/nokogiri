@@ -3,9 +3,11 @@
 module Nokogiri
   module XML
     ###
-    # Nokogiri::XML::Reader parses an XML document similar to the way a cursor
-    # would move.  The Reader is given an XML document, and yields nodes
-    # to an each block.
+    # Nokogiri::XML::Reader parses an XML document similar to the way a cursor would move. The
+    # Reader is given an XML document, and yields nodes to an each block.
+    #
+    # The Reader parser might be good for when you need the speed and low memory usage of the SAX
+    # parser, but do not want to write a Document handler.
     #
     # Here is an example of usage:
     #
@@ -22,13 +24,12 @@ module Nokogiri
     #
     #     end
     #
-    # Note that Nokogiri::XML::Reader#each can only be called once!!  Once
-    # the cursor moves through the entire document, you must parse the
-    # document again.  So make sure that you capture any information you
-    # need during the first iteration.
+    # ⚠ Nokogiri::XML::Reader#each can only be called once! Once the cursor moves through the entire
+    # document, you must parse the document again. It may be better to capture all information you
+    # need during a single iteration.
     #
-    # The Reader parser is good for when you need the speed of a SAX parser,
-    # but do not want to write a Document handler.
+    # ⚠ libxml2 does not support error recovery in the Reader parser. The `RECOVER` ParseOption is
+    # ignored. If a syntax error is encountered during parsing, an exception will be raised.
     class Reader
       include Enumerable
 
