@@ -500,10 +500,16 @@ module Nokogiri
         end
 
         def test_non_existent_function
-          e = assert_raises(Nokogiri::XML::XPath::SyntaxError) do
+          exception = assert_raises(Nokogiri::XML::XPath::SyntaxError) do
             xml.xpath("//name[foo()]")
           end
-          assert_match(/function.*not found|Could not find function/, e.to_s)
+          if Nokogiri.jruby?
+            assert_includes(exception.message, "Could not find function: foo")
+          elsif Nokogiri.uses_libxml?(">= 2.13") # upstream commit 954b8984
+            assert_includes(exception.message, "Unregistered function")
+          else
+            assert_match(/xmlXPathCompOpEval: function .* not found/, exception.message)
+          end
         end
 
         def test_xpath_syntax_error

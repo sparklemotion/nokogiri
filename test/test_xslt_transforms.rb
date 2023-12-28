@@ -357,16 +357,10 @@ module Nokogiri
         exception = assert_raises(RuntimeError) do
           xslt.transform(doc)
         end
-        if truffleruby_system_libraries?
-          assert_equal(
-            "xslt_generic_error_handler: xmlXPathCompOpEval: function %s not found\nxslt_generic_error_handler: %s",
-            exception.message,
-          )
+        if Nokogiri.uses_libxml?(">= 2.13") # upstream commit 954b8984
+          assert_includes(exception.message, "Unregistered function")
         else
-          assert_match(
-            /xmlXPathCompOpEval: function decimal not found/,
-            exception.message,
-          )
+          assert_match(/xmlXPathCompOpEval: function .* not found/, exception.message)
         end
       end
 
