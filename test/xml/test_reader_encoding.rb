@@ -15,30 +15,133 @@ module Nokogiri
         )
       end
 
-      def test_libxml2_detects_internal_encoding_correctly
-        skip_unless_libxml2("This feature wasn't implemented for JRuby")
+      def test_detects_internal_encoding_correctly
+        skip_unless_libxml2("Internal encoding detection isn't implemented yet for JRuby")
 
         reader = Nokogiri::XML::Reader(<<~XML)
           <?xml version="1.0" encoding="ISO-8859-1"?>
-          <root attr="foo"><employee /></root>
+          <anotaci\xF3n>inspiraci\xF3n</anotaci\xF3n>
         XML
 
         assert_nil(reader.encoding)
+
         reader.each do
           assert_equal("ISO-8859-1", reader.encoding)
         end
       end
 
-      def test_libxml2_overrides_internal_encoding_when_specified
-        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
-          <?xml version="1.0" encoding="ISO-8859-1"?>
+      def test_reader_defaults_internal_encoding_to_utf8
+        skip_unless_libxml2("Internal encoding detection isn't implemented yet for JRuby")
+
+        reader = Nokogiri::XML::Reader(<<~XML)
+          <?xml version="1.0"?>
           <root attr="foo"><employee /></root>
         XML
 
-        assert_equal("UTF-8", reader.encoding)
+        assert_nil(reader.encoding)
+
         reader.each do
           assert_equal("UTF-8", reader.encoding)
         end
+      end
+
+      def test_override_internal_encoding_when_specified
+        if Nokogiri.uses_libxml? && !Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+          skip("iconv is not compiled into libxml2")
+        end
+
+        #
+        #  note that libxml2 behavior around document encoding changed at least twice between 2.9
+        #  and 2.12, so the testing here is superficial -- asserting on the reported encoding, but
+        #  not asserting on the bytes in the document or the serialized nodes.
+        #
+        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
+          <?xml version="1.0" encoding="ISO-8859-1"?>
+          <foo>asdf</foo>
+        XML
+
+        assert_equal("UTF-8", reader.encoding)
+
+        reader.read
+
+        if Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.12.0")
+          assert_equal("UTF-8", reader.encoding)
+        else
+          assert_equal("ISO-8859-1", reader.encoding)
+        end
+
+        reader = Nokogiri::XML::Reader(<<~XML, nil, "ISO-8859-1")
+          <?xml version="1.0" encoding="UTF-8"?>
+          <foo>asdf</foo>
+        XML
+
+        assert_equal("ISO-8859-1", reader.encoding)
+
+        reader.read
+
+        if Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.12.0")
+          assert_equal("ISO-8859-1", reader.encoding)
+        else
+          assert_equal("UTF-8", reader.encoding)
+        end
+      end
+
+      def test_attribute_encoding_issue_2891_no_encoding_specified
+        if Nokogiri.uses_libxml? && !Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+          skip("iconv is not compiled into libxml2")
+        end
+
+        # https://github.com/sparklemotion/nokogiri/issues/2891
+        reader = Nokogiri::XML::Reader(<<~XML)
+          <?xml version="1.0"?>
+          <anotación tipo="inspiración">INSPIRACIÓN</anotación>
+        XML
+
+        assert_nil(reader.encoding)
+
+        reader.read
+
+        assert_equal("UTF-8", reader.encoding) unless Nokogiri.jruby? # JRuby doesn't support encoding detection
+        assert_equal(
+          "<anotación tipo=\"inspiración\">INSPIRACIÓN</anotación>",
+          reader.outer_xml,
+        )
+      end
+
+      def test_attribute_encoding_issue_2891_correct_encoding_specified
+        if Nokogiri.uses_libxml? && !Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+          skip("iconv is not compiled into libxml2")
+        end
+
+        # https://github.com/sparklemotion/nokogiri/issues/2891
+        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
+          <?xml version="1.0"?>
+          <anotación tipo="inspiración">INSPIRACIÓN</anotación>
+        XML
+
+        assert_equal("UTF-8", reader.encoding)
+
+        reader.read
+
+        assert_equal("UTF-8", reader.encoding)
+        assert_equal(
+          "<anotación tipo=\"inspiración\">INSPIRACIÓN</anotación>",
+          reader.outer_xml,
+        )
+      end
+
+      def test_attribute_encoding_issue_2891_correct_encoding_specified_non_utf8
+        xml = <<~XML
+          <?xml version="1.0"?>
+          <test>\u{82B1}\u{82F1}</test>
+        XML
+        reader = Nokogiri::XML::Reader(xml, nil, "Shift_JIS")
+
+        assert_equal("Shift_JIS", reader.encoding)
+
+        reader.read
+
+        assert_equal("Shift_JIS", reader.encoding)
       end
 
       def test_attribute_at

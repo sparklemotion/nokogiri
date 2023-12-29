@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.16.next / unreleased
+
+### Fixed
+
+* [CRuby] `XML::Reader` defaults the encoding to UTF-8 if it's not specified in either the document or as a method parameter. Previously non-ASCII characters were serialized as NCRs in this case. [#2891] (@flavorjones)
+
+
 ## v1.16.0 / 2023-12-27
 
 ### Notable Changes
