@@ -183,11 +183,22 @@ module Nokogiri
         end
 
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
-        if Nokogiri.uses_libxml?
-          assert_equal ["ERROR: Attempt to load network entity http://foo.bar.com/", "4:14: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
-        else
-          assert_equal ["Attempt to load network entity http://foo.bar.com/"], doc.errors.map(&:to_s)
+
+        expected = if Nokogiri.uses_libxml?(">= 2.13")
+          [
+            "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
+            "ERROR: Attempt to load network entity http://foo.bar.com/",
+            "4:14: ERROR: Entity 'bar' not defined",
+          ]
+        elsif Nokogiri.uses_libxml?
+          [
+            "ERROR: Attempt to load network entity http://foo.bar.com/",
+            "4:14: ERROR: Entity 'bar' not defined",
+          ]
+        else # jruby
+          ["Attempt to load network entity http://foo.bar.com/"]
         end
+        assert_equal(expected, doc.errors.map(&:to_s))
       end
       # TODO: can we retreive a resource pointing to localhost when NONET is set to true ?
     end
