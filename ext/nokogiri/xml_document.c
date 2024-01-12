@@ -74,8 +74,10 @@ dealloc(void *data)
 
   ruby_xfree(doc->_private);
 
+#if defined(__GNUC__) && __GNUC__ >= 5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations" // xmlDeregisterNodeDefault is deprecated as of libxml2 2.11.0
+#endif
   /*
    * libxml-ruby < 3.0.0 uses xmlDeregisterNodeDefault. If the user is using one of those older
    * versions, the registered callback from libxml-ruby will access the _private pointers set by
@@ -90,7 +92,9 @@ dealloc(void *data)
   if (xmlDeregisterNodeDefaultValue) {
     remove_private((xmlNodePtr)doc);
   }
+#if defined(__GNUC__) && __GNUC__ >= 5
 #pragma GCC diagnostic pop
+#endif
 
   xmlFreeDoc(doc);
 }
