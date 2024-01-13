@@ -13,6 +13,9 @@ LDFLAGS := -pthread
 
 all: check
 
+oss-fuzz:
+	./fuzzer/build-ossfuzz.sh
+
 fuzzers: fuzzer-normal fuzzer-asan fuzzer-ubsan fuzzer-msan
 
 fuzzer-normal:
