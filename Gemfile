@@ -34,7 +34,7 @@ group :development do
     gem "rubocop", "1.59.0"
     gem "rubocop-minitest", "0.34.4"
     gem "rubocop-packaging", "0.5.2"
-    gem "rubocop-performance", "1.20.1"
+    gem "rubocop-performance", "1.20.2"
     gem "rubocop-rake", "= 0.6.0"
     gem "rubocop-shopify", "2.14.0"
   end
