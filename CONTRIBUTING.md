@@ -172,10 +172,17 @@ bundle exec rake compile test:lldb
 ```
 
 
-Run tests and look for new memory leaks:
+Run tests and look for memory leaks with valgrind and ruby_memcheck:
 
 ``` sh
 bundle exec rake compile test:memcheck
+```
+
+
+Run test/test_memory_usage.rb and look for memory leaks using RSS size and linear interpolation:
+
+``` sh
+bundle exec rake compile test:memory_suite
 ```
 
 
