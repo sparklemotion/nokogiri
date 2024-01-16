@@ -4826,14 +4826,17 @@ GumboOutput* gumbo_parse_with_options (
       // to a token.
       if (token.type == GUMBO_TOKEN_END_TAG &&
           token.v.end_tag.tag == GUMBO_TAG_UNKNOWN)
+      {
         gumbo_free(token.v.end_tag.name);
+        token.v.end_tag.name = NULL;
+      }
+      if (unlikely(state->_open_elements.length > max_tree_depth)) {
+        parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
+        gumbo_debug("Tree depth limit exceeded.\n");
+        break;
+      }
     }
 
-    if (unlikely(state->_open_elements.length > max_tree_depth)) {
-      parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
-      gumbo_debug("Tree depth limit exceeded.\n");
-      break;
-    }
 
     ++loop_count;
     assert(loop_count < 1000000000UL);
