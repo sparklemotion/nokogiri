@@ -301,5 +301,15 @@ class TestMemoryUsage < Nokogiri::TestCase
         Nokogiri::HTML5::Document.parse(html)
       end
     end
+
+    it "libgumbo max depth exceeded" do
+      html = "<html><body>"
+
+      memwatch(__method__) do
+        Nokogiri::HTML5.parse(html, max_tree_depth: 1)
+      rescue ArgumentError
+        # Expected error. This comment makes rubocop happy.
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
