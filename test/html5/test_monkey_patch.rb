@@ -12,6 +12,6 @@ class TestHtml5SerializationMonkeyPatch < Nokogiri::TestCase
 
   def test_html4_fragment
     frag = Nokogiri::HTML4.fragment("<span></span>")
-    assert(frag.is_a?(Nokogiri::HTML4::DocumentFragment))
+    assert_kind_of(Nokogiri::HTML4::DocumentFragment, frag)
   end
 end if Nokogiri.uses_gumbo?

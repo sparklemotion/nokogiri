@@ -164,7 +164,7 @@ class TestHtml5API < Nokogiri::TestCase
     span = doc.at_xpath("/html/body/form/span")
     refute_nil(span)
     frag = span.fragment("<form>Nested forms should be ignored</form>")
-    assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
+    assert_kind_of(Nokogiri::HTML5::DocumentFragment, frag)
     assert_equal(1, frag.children.length)
     nested_form = frag.at_xpath("form")
     assert_nil(nested_form)
@@ -176,7 +176,7 @@ class TestHtml5API < Nokogiri::TestCase
     span = doc.at_xpath("/html/body/span")
     refute_nil(span)
     frag = span.fragment("<form><span>Form should not be ignored</span></form>")
-    assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
+    assert_kind_of(Nokogiri::HTML5::DocumentFragment, frag)
     assert_equal(1, frag.children.length)
     form = frag.at_xpath("form")
     refute_nil(form)
@@ -185,7 +185,7 @@ class TestHtml5API < Nokogiri::TestCase
   def test_empty_fragment
     doc = Nokogiri.HTML5("<!DOCTYPE html><body>")
     frag = doc.fragment
-    assert(frag.is_a?(Nokogiri::HTML5::DocumentFragment))
+    assert_kind_of(Nokogiri::HTML5::DocumentFragment, frag)
     assert_empty(frag.children)
   end
 
