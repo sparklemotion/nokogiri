@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ports
           key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
