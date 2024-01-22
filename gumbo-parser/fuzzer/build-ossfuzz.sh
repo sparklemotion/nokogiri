@@ -1,3 +1,9 @@
+#
+#  this script is run by oss-fuzz to build the fuzzer
+#  see https://github.com/google/oss-fuzz/blob/master/projects/nokogiri/build.sh
+#
+set -ex
+
 cd src
 make
 cd ../
