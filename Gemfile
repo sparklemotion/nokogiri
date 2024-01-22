@@ -23,7 +23,7 @@ group :development do
   gem "rexical", "= 1.0.7"
 
   # tests
-  gem "minitest", "5.21.1"
+  gem "minitest", "5.21.2"
   gem "minitest-parallel_fork", "2.0.0"
   gem "ruby_memcheck", "2.3.0"
   gem "rubyzip", "~> 2.3.2"
