@@ -8,9 +8,12 @@ CrossRuby = Struct.new(:version, :platform) do
   MINGWUCRT_PLATFORM_REGEX = /mingw-ucrt/
   MINGW32_PLATFORM_REGEX = /mingw32/
   LINUX_PLATFORM_REGEX = /linux/
-  X86_LINUX_PLATFORM_REGEX = /x86.*linux/
-  AARCH_LINUX_PLATFORM_REGEX = /aarch.*linux/
-  ARM_LINUX_PLATFORM_REGEX = /arm-linux/
+  X86_LINUX_GNU_PLATFORM_REGEX = /x86.*linux-gnu$/
+  X86_LINUX_MUSL_PLATFORM_REGEX = /x86.*linux-musl$/
+  AARCH_LINUX_GNU_PLATFORM_REGEX = /aarch.*linux-gnu$/
+  AARCH_LINUX_MUSL_PLATFORM_REGEX = /aarch.*linux-musl$/
+  ARM_LINUX_GNU_PLATFORM_REGEX = /arm-linux-gnu$/
+  ARM_LINUX_MUSL_PLATFORM_REGEX = /arm-linux-musl$/
   DARWIN_PLATFORM_REGEX = /darwin/
 
   def windows?
@@ -42,47 +45,20 @@ CrossRuby = Struct.new(:version, :platform) do
     end
   end
 
-  def host
-    @host ||= case platform
-    when "x64-mingw-ucrt"
-      "x86_64-w64-mingw32"
-    when "x64-mingw32"
-      "x86_64-w64-mingw32"
-    when "x86-mingw32"
-      "i686-w64-mingw32"
-    when "x86_64-linux"
-      "x86_64-linux-gnu"
-    when "x86-linux"
-      "i686-linux-gnu"
-    when "aarch64-linux"
-      "aarch64-linux"
-    when "x86_64-darwin"
-      "x86_64-darwin"
-    when "arm64-darwin"
-      "aarch64-darwin"
-    else
-      raise "CrossRuby.platform: unsupported platform: #{platform}"
-    end
-  end
-
   def tool(name)
     (@binutils_prefix ||= case platform
-     when "x64-mingw-ucrt", "x64-mingw32"
-       "x86_64-w64-mingw32-"
-     when "x86-mingw32"
-       "i686-w64-mingw32-"
-     when "x86_64-linux"
-       "x86_64-redhat-linux-"
-     when "x86-linux"
-       "i686-redhat-linux-"
-     when "aarch64-linux"
-       "aarch64-linux-gnu-"
-     when "x86_64-darwin"
-       "x86_64-apple-darwin-"
-     when "arm64-darwin"
-       "aarch64-apple-darwin-"
-     when "arm-linux"
-       "arm-linux-gnueabihf-"
+     when "aarch64-linux-gnu" then "aarch64-linux-gnu-"
+     when "aarch64-linux-musl" then "aarch64-linux-musl-"
+     when "arm-linux-gnu" then "arm-linux-gnueabihf-"
+     when "arm-linux-musl" then "arm-linux-musleabihf-"
+     when "arm64-darwin" then "aarch64-apple-darwin-"
+     when "x64-mingw-ucrt", "x64-mingw32" then "x86_64-w64-mingw32-"
+     when "x86-linux-gnu" then "i686-redhat-linux-gnu-"
+     when "x86-linux-musl" then "i686-unknown-linux-musl-"
+     when "x86-mingw32" then "i686-w64-mingw32-"
+     when "x86_64-darwin" then "x86_64-apple-darwin-"
+     when "x86_64-linux-gnu" then "x86_64-redhat-linux-gnu-"
+     when "x86_64-linux-musl" then "x86_64-unknown-linux-musl-"
      else
        raise "CrossRuby.tool: unmatched platform: #{platform}"
      end) + name
@@ -90,22 +66,14 @@ CrossRuby = Struct.new(:version, :platform) do
 
   def target_file_format
     case platform
-    when "x64-mingw-ucrt", "x64-mingw32"
-      "pei-x86-64"
-    when "x86-mingw32"
-      "pei-i386"
-    when "x86_64-linux"
-      "elf64-x86-64"
-    when "x86-linux"
-      "elf32-i386"
-    when "aarch64-linux"
-      "elf64-littleaarch64"
-    when "x86_64-darwin"
-      "Mach-O 64-bit x86-64" # hmm
-    when "arm64-darwin"
-      "Mach-O arm64"
-    when "arm-linux"
-      "elf32-littlearm"
+    when "aarch64-linux-gnu", "aarch64-linux-musl" then "elf64-littleaarch64"
+    when "arm-linux-gnu", "arm-linux-musl" then "elf32-littlearm"
+    when "arm64-darwin" then "Mach-O arm64"
+    when "x64-mingw-ucrt", "x64-mingw32" then "pei-x86-64"
+    when "x86-linux-gnu", "x86-linux-musl" then "elf32-i386"
+    when "x86-mingw32" then "pei-i386"
+    when "x86_64-darwin" then "Mach-O 64-bit x86-64" # hmm
+    when "x86_64-linux-gnu", "x86_64-linux-musl" then "elf64-x86-64"
     else
       raise "CrossRuby.target_file_format: unmatched platform: #{platform}"
     end
@@ -162,7 +130,17 @@ CrossRuby = Struct.new(:version, :platform) do
         "api-ms-win-crt-utility-l1-1-0.dll",
         libruby_dll,
       ]
-    when X86_LINUX_PLATFORM_REGEX
+    when DARWIN_PLATFORM_REGEX
+      [
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/liblzma.5.dylib",
+        "/usr/lib/libobjc.A.dylib",
+      ]
+    when X86_LINUX_MUSL_PLATFORM_REGEX, ARM_LINUX_MUSL_PLATFORM_REGEX, AARCH_LINUX_MUSL_PLATFORM_REGEX
+      [
+        "libc.so",
+      ]
+    when X86_LINUX_GNU_PLATFORM_REGEX
       [
         "libm.so.6",
         "libc.so.6",
@@ -170,7 +148,7 @@ CrossRuby = Struct.new(:version, :platform) do
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
-    when AARCH_LINUX_PLATFORM_REGEX
+    when AARCH_LINUX_GNU_PLATFORM_REGEX
       [
         "libm.so.6",
         "libc.so.6",
@@ -179,13 +157,7 @@ CrossRuby = Struct.new(:version, :platform) do
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
-    when DARWIN_PLATFORM_REGEX
-      [
-        "/usr/lib/libSystem.B.dylib",
-        "/usr/lib/liblzma.5.dylib",
-        "/usr/lib/libobjc.A.dylib",
-      ]
-    when ARM_LINUX_PLATFORM_REGEX
+    when ARM_LINUX_GNU_PLATFORM_REGEX
       [
         "libm.so.6",
         "libdl.so.2",
@@ -201,10 +173,12 @@ CrossRuby = Struct.new(:version, :platform) do
 
   def dll_ref_versions
     case platform
-    when X86_LINUX_PLATFORM_REGEX
+    when X86_LINUX_GNU_PLATFORM_REGEX
       { "GLIBC" => "2.17" }
-    when AARCH_LINUX_PLATFORM_REGEX, ARM_LINUX_PLATFORM_REGEX
+    when AARCH_LINUX_GNU_PLATFORM_REGEX, ARM_LINUX_GNU_PLATFORM_REGEX
       { "GLIBC" => "2.29" }
+    when X86_LINUX_MUSL_PLATFORM_REGEX, AARCH_LINUX_MUSL_PLATFORM_REGEX, ARM_LINUX_MUSL_PLATFORM_REGEX
+      {}
     else
       raise "CrossRuby.dll_ref_versions: unmatched platform: #{platform}"
     end
