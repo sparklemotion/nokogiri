@@ -15,6 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] `XML::Reader` defaults the encoding to UTF-8 if it's not specified in either the document or as a method parameter. Previously non-ASCII characters were serialized as NCRs in this case. [#2891] (@flavorjones)
 * [CRuby] Restored support for compilation by GCC versions earlier than 4.6, which was broken in v1.15.0 (540e9aee). [#3090] (@adfoster-r7)
+* [CRuby] Patched upstream libxml2 to allow parsing HTML5 in the context of a namespaced node (e.g., foreign content like MathML). [#3112, #3116] (@flavorjones)
 
 
 ## v1.16.0 / 2023-12-27
