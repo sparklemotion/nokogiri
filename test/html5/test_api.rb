@@ -238,6 +238,22 @@ class TestHtml5API < Nokogiri::TestCase
     assert_equal("select", el.parent.parent.name)
   end
 
+  def test_parse_in_context_of_foreign_namespace
+    if Nokogiri.uses_libxml?("~> 2.12.0")
+      skip_unless_libxml2_patch("0012-parser-Fix-crash-in-xmlParseInNodeContext-with-HTML.patch")
+    end
+
+    # https://github.com/sparklemotion/nokogiri/issues/3112
+    # https://gitlab.gnome.org/GNOME/libxml2/-/issues/672
+    doc = Nokogiri::HTML5::Document.parse("<html><body><math>")
+    math = doc.at_css("math")
+
+    nodes = math.parse("mrow") # segfaults in libxml 2.12 before 95f2a174
+
+    assert_kind_of(Nokogiri::XML::NodeSet, nodes)
+    assert_equal(1, nodes.length)
+  end
+
   describe Nokogiri::HTML5::Document do
     describe "#fragment" do
       it "parses text nodes in a `body` context" do
