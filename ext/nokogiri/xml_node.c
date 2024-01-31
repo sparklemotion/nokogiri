@@ -2274,6 +2274,15 @@ in_context(VALUE self, VALUE _str, VALUE _options)
   return noko_xml_node_set_wrap(set, doc);
 }
 
+/* :nodoc: */
+VALUE
+rb_xml_node_data_ptr_eh(VALUE self)
+{
+  xmlNodePtr c_node;
+  Noko_Node_Get_Struct(self, xmlNode, c_node);
+  return c_node ? Qtrue : Qfalse;
+}
+
 VALUE
 noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
 {
@@ -2390,6 +2399,7 @@ noko_init_xml_node(void)
   rb_define_method(cNokogiriXmlNode, "content", rb_xml_node_content, 0);
   rb_define_method(cNokogiriXmlNode, "create_external_subset", create_external_subset, 3);
   rb_define_method(cNokogiriXmlNode, "create_internal_subset", create_internal_subset, 3);
+  rb_define_method(cNokogiriXmlNode, "data_ptr?", rb_xml_node_data_ptr_eh, 0);
   rb_define_method(cNokogiriXmlNode, "document", rb_xml_node_document, 0);
   rb_define_method(cNokogiriXmlNode, "dup", duplicate_node, -1);
   rb_define_method(cNokogiriXmlNode, "element_children", rb_xml_node_element_children, 0);

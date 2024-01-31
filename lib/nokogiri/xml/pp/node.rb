@@ -8,6 +8,11 @@ module Nokogiri
         COLLECTIONS = [:attribute_nodes, :children]
 
         def inspect
+          # handle the case where an exception is thrown during object construction
+          if respond_to?(:data_ptr?) && !data_ptr?
+            return "#<#{self.class}:#{format("0x%x", object_id)} (no data)>"
+          end
+
           attributes = inspect_attributes.reject do |x|
             attribute = send(x)
             !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
@@ -21,7 +26,7 @@ module Nokogiri
               "#{attribute}=#{send(attribute).inspect}"
             end.join(" ")
           end
-          "#<#{self.class.name}:#{format("0x%x", object_id)} #{attributes}>"
+          "#<#{self.class}:#{format("0x%x", object_id)} #{attributes}>"
         end
 
         def pretty_print(pp)

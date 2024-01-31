@@ -478,6 +478,16 @@ module Nokogiri
           end
         end
 
+        def test_inspect_object_with_no_data_ptr
+          # test for the edge case when an exception is thrown during object construction/copy
+          node = Nokogiri::XML("<root>").root
+          refute_includes(node.inspect, "(no data)")
+
+          node.stub :data_ptr?, false do
+            assert_includes(node.inspect, "(no data)")
+          end
+        end
+
         def test_fragment_creates_appropriate_class
           frag = Nokogiri.XML("<root><child/></root>").at_css("child").fragment("<thing/>")
           assert_instance_of(Nokogiri::XML::DocumentFragment, frag)
