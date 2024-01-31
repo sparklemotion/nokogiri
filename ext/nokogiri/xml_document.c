@@ -143,6 +143,35 @@ static const rb_data_type_t noko_xml_document_data_type = {
   // .flags = RUBY_TYPED_FREE_IMMEDIATELY, // TODO see https://github.com/sparklemotion/nokogiri/issues/2822
 };
 
+static VALUE
+_xml_document_alloc(VALUE klass)
+{
+  return TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, NULL);
+}
+
+static void
+_xml_document_data_ptr_set(VALUE rb_document, xmlDocPtr c_document)
+{
+  nokogiriTuplePtr tuple;
+
+  assert(DATA_PTR(rb_document) == NULL);
+  assert(c_document->_private == NULL);
+
+  DATA_PTR(rb_document) = c_document;
+
+  tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
+  tuple->doc = rb_document;
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
+  tuple->node_cache = rb_ary_new();
+
+  c_document->_private = tuple ;
+
+  rb_iv_set(rb_document, "@node_cache", tuple->node_cache);
+
+  return;
+}
+
+
 static void
 recursively_remove_namespaces_from_node(xmlNodePtr node)
 {
@@ -655,24 +684,16 @@ VALUE
 noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr c_document, int argc, VALUE *argv)
 {
   VALUE rb_document;
-  nokogiriTuplePtr tuple;
 
   if (!klass) {
     klass = cNokogiriXmlDocument;
   }
 
-  rb_document = TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, c_document);
-
-  tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
-  tuple->doc = rb_document;
-  tuple->unlinkedNodes = st_init_numtable_with_size(128);
-  tuple->node_cache = rb_ary_new();
-
-  c_document->_private = tuple ;
+  rb_document = _xml_document_alloc(klass);
+  _xml_document_data_ptr_set(rb_document, c_document);
 
   rb_iv_set(rb_document, "@decorators", Qnil);
   rb_iv_set(rb_document, "@errors", Qnil);
-  rb_iv_set(rb_document, "@node_cache", tuple->node_cache);
 
   rb_obj_call_init(rb_document, argc, argv);
 
