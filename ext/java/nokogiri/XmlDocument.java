@@ -416,9 +416,9 @@ public class XmlDocument extends XmlNode
 
   @JRubyMethod(visibility = Visibility.PROTECTED)
   public IRubyObject
-  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level, IRubyObject _ignored)
+  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level)
   {
-    super.initialize_copy_with_args(context, other, level, _ignored);
+    super.initialize_copy_with_args(context, other, level, null);
     resetCache();
     return this;
   }

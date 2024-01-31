@@ -19,6 +19,10 @@ module Nokogiri
       NCNAME_CHAR       = NCNAME_START_CHAR + "\\-\\.0-9"
       NCNAME_RE         = /^xmlns(?::([#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*))?$/
 
+      OBJECT_DUP_METHOD = Object.instance_method(:dup)
+      OBJECT_CLONE_METHOD = Object.instance_method(:clone)
+      private_constant :OBJECT_DUP_METHOD, :OBJECT_CLONE_METHOD
+
       class << self
         # Parse an XML file.
         #
@@ -178,6 +182,38 @@ module Nokogiri
         @errors     = []
         @decorators = nil
         @namespace_inheritance = false
+      end
+
+      #
+      # :call-seq:
+      #   dup → Nokogiri::XML::Document
+      #   dup(level) → Nokogiri::XML::Document
+      #
+      # Duplicate this node.
+      #
+      # [Parameters]
+      # - +level+ (optional Integer). 0 is a shallow copy, 1 (the default) is a deep copy.
+      # [Returns] The new Nokogiri::XML::Document
+      #
+      def dup(level = 1)
+        copy = OBJECT_DUP_METHOD.bind_call(self)
+        copy.initialize_copy_with_args(self, level)
+      end
+
+      #
+      # :call-seq:
+      #   clone → Nokogiri::XML::Document
+      #   clone(level) → Nokogiri::XML::Document
+      #
+      # Clone this node.
+      #
+      # [Parameters]
+      # - +level+ (optional Integer). 0 is a shallow copy, 1 (the default) is a deep copy.
+      # [Returns] The new Nokogiri::XML::Document
+      #
+      def clone(level = 1)
+        copy = OBJECT_CLONE_METHOD.bind_call(self)
+        copy.initialize_copy_with_args(self, level)
       end
 
       # :call-seq:
@@ -372,7 +408,6 @@ module Nokogiri
       end
 
       alias_method :to_xml, :serialize
-      alias_method :clone, :dup
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces

@@ -452,6 +452,44 @@ module Nokogiri
           end
         end
 
+        def test_dup_should_not_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          doc = Nokogiri::XML::Document.parse("<root/>")
+          doc.extend(m)
+
+          assert_respond_to(doc, :foo)
+          refute_respond_to(doc.dup, :foo)
+        end
+
+        def test_clone_should_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          doc = Nokogiri::XML::Document.parse("<root/>")
+          doc.extend(m)
+
+          assert_respond_to(doc, :foo)
+          assert_respond_to(doc.clone, :foo)
+        end
+
+        def test_inspect_object_with_no_data_ptr
+          # test for the edge case when an exception is thrown during object construction/copy
+          doc = Nokogiri::XML("<root>")
+          refute_includes(doc.inspect, "(no data)")
+
+          if doc.respond_to?(:data_ptr?)
+            doc.stub(:data_ptr?, false) do
+              assert_includes(doc.inspect, "(no data)")
+            end
+          end
+        end
+
         def test_document_should_not_have_default_ns
           doc = Nokogiri::XML::Document.new
 
@@ -612,15 +650,17 @@ module Nokogiri
           refute_empty(doc.errors)
         end
 
-        def test_document_has_errors
-          doc = Nokogiri::XML(<<~eoxml)
-            <foo><bar></foo>
-          eoxml
+        def test_document_errors
+          doc = Nokogiri::XML("<foo><bar></foo>")
+
           refute_empty(doc.errors)
           doc.errors.each do |error|
             assert_match(error.message, error.inspect)
             assert_match(error.message, error.to_s)
           end
+
+          assert_equal(doc.errors, doc.dup.errors)
+          assert_equal(doc.errors, doc.clone.errors)
         end
 
         def test_strict_document_throws_syntax_error
