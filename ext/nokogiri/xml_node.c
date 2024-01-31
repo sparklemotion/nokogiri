@@ -47,6 +47,24 @@ static const rb_data_type_t nokogiri_node_type = {
   .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
+static VALUE
+_xml_node_alloc(VALUE klass)
+{
+  return TypedData_Wrap_Struct(klass, &nokogiri_node_type, NULL);
+}
+
+static void
+_xml_node_data_ptr_set(VALUE rb_node, xmlNodePtr c_node)
+{
+  assert(DATA_PTR(rb_node) == NULL);
+  assert(c_node->_private == NULL);
+
+  DATA_PTR(rb_node) = c_node;
+  c_node->_private = (void *)rb_node;
+
+  return;
+}
+
 static void
 relink_namespace(xmlNodePtr reparented)
 {
@@ -2321,8 +2339,8 @@ noko_xml_node_wrap(VALUE rb_class, xmlNodePtr c_node)
     }
   }
 
-  rb_node = TypedData_Wrap_Struct(rb_class, &nokogiri_node_type, c_node) ;
-  c_node->_private = (void *)rb_node;
+  rb_node = _xml_node_alloc(rb_class);
+  _xml_node_data_ptr_set(rb_node, c_node);
 
   if (node_has_a_document) {
     rb_document = DOC_RUBY_OBJECT(c_doc);
