@@ -478,13 +478,41 @@ module Nokogiri
           end
         end
 
+        def test_dup_should_not_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          node = Nokogiri::XML::Document.parse("<root/>").root
+          node.extend(m)
+
+          assert_respond_to(node, :foo)
+          refute_respond_to(node.dup, :foo)
+        end
+
+        def test_clone_should_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          node = Nokogiri::XML::Document.parse("<root/>").root
+          node.extend(m)
+
+          assert_respond_to(node, :foo)
+          assert_respond_to(node.clone, :foo)
+        end
+
         def test_inspect_object_with_no_data_ptr
           # test for the edge case when an exception is thrown during object construction/copy
           node = Nokogiri::XML("<root>").root
           refute_includes(node.inspect, "(no data)")
 
-          node.stub :data_ptr?, false do
-            assert_includes(node.inspect, "(no data)")
+          if node.respond_to?(:data_ptr?)
+            node.stub(:data_ptr?, false) do
+              assert_includes(node.inspect, "(no data)")
+            end
           end
         end
 

@@ -962,51 +962,25 @@ internal_subset(VALUE self)
   return noko_xml_node_wrap(Qnil, (xmlNodePtr)dtd);
 }
 
-/*
- * :call-seq:
- *   dup → Nokogiri::XML::Node
- *   dup(depth) → Nokogiri::XML::Node
- *   dup(depth, new_parent_doc) → Nokogiri::XML::Node
- *
- * Copy this node.
- *
- * [Parameters]
- * - +depth+ 0 is a shallow copy, 1 (the default) is a deep copy.
- * - +new_parent_doc+
- *   The new node's parent Document. Defaults to the this node's document.
- *
- * [Returns] The new Nokogiri::XML::Node
- */
+/* :nodoc: */
 static VALUE
-duplicate_node(int argc, VALUE *argv, VALUE self)
+rb_xml_node_initialize_copy_with_args(VALUE rb_self, VALUE rb_other, VALUE rb_level, VALUE rb_new_parent_doc)
 {
-  VALUE r_level, r_new_parent_doc;
-  int level;
-  int n_args;
-  xmlDocPtr new_parent_doc;
-  xmlNodePtr node, dup;
+  xmlNodePtr c_self, c_other;
+  int c_level;
+  xmlDocPtr c_new_parent_doc;
 
-  Noko_Node_Get_Struct(self, xmlNode, node);
+  Noko_Node_Get_Struct(rb_other, xmlNode, c_other);
+  c_level = (int)NUM2INT(rb_level);
+  c_new_parent_doc = noko_xml_document_unwrap(rb_new_parent_doc);
 
-  n_args = rb_scan_args(argc, argv, "02", &r_level, &r_new_parent_doc);
+  c_self = xmlDocCopyNode(c_other, c_new_parent_doc, c_level);
+  if (c_self == NULL) { return Qnil; }
 
-  if (n_args < 1) {
-    r_level = INT2NUM((long)1);
-  }
-  level = (int)NUM2INT(r_level);
+  _xml_node_data_ptr_set(rb_self, c_self);
+  noko_xml_document_pin_node(c_self);
 
-  if (n_args < 2) {
-    new_parent_doc = node->doc;
-  } else {
-    new_parent_doc = noko_xml_document_unwrap(r_new_parent_doc);
-  }
-
-  dup = xmlDocCopyNode(node, new_parent_doc, level);
-  if (dup == NULL) { return Qnil; }
-
-  noko_xml_document_pin_node(dup);
-
-  return noko_xml_node_wrap(rb_obj_class(self), dup);
+  return rb_self;
 }
 
 /*
@@ -2385,7 +2359,7 @@ noko_init_xml_node(void)
 {
   cNokogiriXmlNode = rb_define_class_under(mNokogiriXml, "Node", rb_cObject);
 
-  rb_undef_alloc_func(cNokogiriXmlNode);
+  rb_define_alloc_func(cNokogiriXmlNode, _xml_node_alloc);
 
   rb_define_singleton_method(cNokogiriXmlNode, "new", rb_xml_node_new, -1);
 
@@ -2401,7 +2375,6 @@ noko_init_xml_node(void)
   rb_define_method(cNokogiriXmlNode, "create_internal_subset", create_internal_subset, 3);
   rb_define_method(cNokogiriXmlNode, "data_ptr?", rb_xml_node_data_ptr_eh, 0);
   rb_define_method(cNokogiriXmlNode, "document", rb_xml_node_document, 0);
-  rb_define_method(cNokogiriXmlNode, "dup", duplicate_node, -1);
   rb_define_method(cNokogiriXmlNode, "element_children", rb_xml_node_element_children, 0);
   rb_define_method(cNokogiriXmlNode, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(cNokogiriXmlNode, "external_subset", external_subset, 0);
@@ -2429,6 +2402,8 @@ noko_init_xml_node(void)
   rb_define_method(cNokogiriXmlNode, "previous_element", previous_element, 0);
   rb_define_method(cNokogiriXmlNode, "previous_sibling", previous_sibling, 0);
   rb_define_method(cNokogiriXmlNode, "unlink", unlink_node, 0);
+
+  rb_define_protected_method(cNokogiriXmlNode, "initialize_copy_with_args", rb_xml_node_initialize_copy_with_args, 3);
 
   rb_define_private_method(cNokogiriXmlNode, "add_child_node", add_child, 1);
   rb_define_private_method(cNokogiriXmlNode, "add_next_sibling_node", add_next_sibling, 1);

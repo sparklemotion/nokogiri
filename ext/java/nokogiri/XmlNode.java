@@ -966,45 +966,13 @@ public class XmlNode extends RubyObject
     return doc;
   }
 
+  @JRubyMethod(visibility = Visibility.PROTECTED)
   public IRubyObject
-  dup()
+  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level, IRubyObject _ignored)
   {
-    return dup_implementation(getMetaClass().getClassRuntime(), true);
-  }
-
-  @JRubyMethod
-  public IRubyObject
-  dup(ThreadContext context)
-  {
-    return dup_implementation(context, true);
-  }
-
-  @JRubyMethod
-  public IRubyObject
-  dup(ThreadContext context, IRubyObject depth)
-  {
-    boolean deep = depth instanceof RubyInteger && RubyFixnum.fix2int(depth) != 0;
-    return dup_implementation(context, deep);
-  }
-
-  protected final IRubyObject
-  dup_implementation(ThreadContext context, boolean deep)
-  {
-    return dup_implementation(context.runtime, deep);
-  }
-
-  protected IRubyObject
-  dup_implementation(Ruby runtime, boolean deep)
-  {
-    XmlNode clone;
-    try {
-      clone = (XmlNode) clone();
-    } catch (CloneNotSupportedException e) {
-      throw runtime.newRuntimeError(e.toString());
-    }
-    Node newNode = node.cloneNode(deep);
-    clone.node = newNode;
-    return clone;
+    boolean deep = level instanceof RubyInteger && RubyFixnum.fix2int(level) != 0;
+    this.node = asXmlNode(context, other).node.cloneNode(deep);
+    return this;
   }
 
   public static RubyString

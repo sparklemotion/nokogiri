@@ -127,6 +127,42 @@ module Nokogiri
         # This is intentionally empty, and sets the method signature for subclasses.
       end
 
+      #
+      # :call-seq:
+      #   dup → Nokogiri::XML::Node
+      #   dup(level) → Nokogiri::XML::Node
+      #   dup(level, new_parent_doc) → Nokogiri::XML::Node
+      #
+      # Duplicate this node.
+      #
+      # [Parameters]
+      # - +level+ (optional Integer). 0 is a shallow copy, 1 (the default) is a deep copy.
+      # - +new_parent_doc+ (optional Nokogiri::XML::Document)
+      #   The new node's parent Document. Defaults to the the Document of the current node.
+      # [Returns] The new Nokogiri::XML::Node
+      #
+      def dup(level = 1, new_parent_doc = document)
+        super().initialize_copy_with_args(self, level, new_parent_doc)
+      end
+
+      #
+      # :call-seq:
+      #   clone → Nokogiri::XML::Node
+      #   clone(level) → Nokogiri::XML::Node
+      #   clone(level, new_parent_doc) → Nokogiri::XML::Node
+      #
+      # Clone this node.
+      #
+      # [Parameters]
+      # - +level+ (optional Integer). 0 is a shallow copy, 1 (the default) is a deep copy.
+      # - +new_parent_doc+
+      #   The new node's parent Document. Defaults to the the Document of the current node.
+      # [Returns] The new Nokogiri::XML::Node
+      #
+      def clone(level = 1, new_parent_doc = document)
+        super().initialize_copy_with_args(self, level, new_parent_doc)
+      end
+
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!
@@ -474,7 +510,6 @@ module Nokogiri
       alias_method :to_str, :content
       alias_method :name, :node_name
       alias_method :type, :node_type
-      alias_method :clone, :dup
       alias_method :elements, :element_children
 
       # :section: Working With Node Attributes
