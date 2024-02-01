@@ -83,6 +83,26 @@ xml_node_set_allocate(VALUE klass)
   return TypedData_Wrap_Struct(klass, &xml_node_set_type, xmlXPathNodeSetCreate(NULL));
 }
 
+/* :nodoc: */
+static VALUE
+rb_xml_node_set_initialize_copy(VALUE rb_self, VALUE rb_other)
+{
+  xmlNodeSetPtr c_self, c_other;
+  VALUE rb_document;
+
+  TypedData_Get_Struct(rb_self, xmlNodeSet, &xml_node_set_type, c_self);
+  TypedData_Get_Struct(rb_other, xmlNodeSet, &xml_node_set_type, c_other);
+
+  xmlXPathNodeSetMerge(c_self, c_other);
+
+  rb_document = rb_iv_get(rb_other, "@document");
+  if (!NIL_P(rb_document)) {
+    rb_iv_set(rb_self, "@document", rb_document);
+    rb_funcall(rb_document, decorate, 1, rb_self);
+  }
+
+  return rb_self;
+}
 
 static void
 xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
@@ -110,27 +130,6 @@ xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
     cur->nodeTab[i] = cur->nodeTab[i + 1];
   }
   cur->nodeTab[cur->nodeNr] = NULL;
-}
-
-
-/*
- * call-seq:
- *  dup
- *
- * Duplicate this NodeSet. Note that the Nodes contained in the NodeSet are not
- * duplicated (similar to how Array and other Enumerable classes work).
- */
-static VALUE
-duplicate(VALUE rb_self)
-{
-  xmlNodeSetPtr c_self;
-  xmlNodeSetPtr dupl;
-
-  TypedData_Get_Struct(rb_self, xmlNodeSet, &xml_node_set_type, c_self);
-
-  dupl = xmlXPathNodeSetMerge(NULL, c_self);
-
-  return noko_xml_node_set_wrap(dupl, rb_iv_get(rb_self, "@document"));
 }
 
 /*
@@ -501,18 +500,19 @@ noko_init_xml_node_set(void)
 
   rb_define_alloc_func(cNokogiriXmlNodeSet, xml_node_set_allocate);
 
-  rb_define_method(cNokogiriXmlNodeSet, "length", length, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "[]", slice, -1);
-  rb_define_method(cNokogiriXmlNodeSet, "slice", slice, -1);
-  rb_define_method(cNokogiriXmlNodeSet, "push", push, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "|", rb_xml_node_set_union, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "-", minus, 1);
-  rb_define_method(cNokogiriXmlNodeSet, "unlink", unlink_nodeset, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "to_a", to_array, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "dup", duplicate, 0);
-  rb_define_method(cNokogiriXmlNodeSet, "delete", delete, 1);
   rb_define_method(cNokogiriXmlNodeSet, "&", intersection, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "-", minus, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "[]", slice, -1);
+  rb_define_method(cNokogiriXmlNodeSet, "delete", delete, 1);
   rb_define_method(cNokogiriXmlNodeSet, "include?", include_eh, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "length", length, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "push", push, 1);
+  rb_define_method(cNokogiriXmlNodeSet, "slice", slice, -1);
+  rb_define_method(cNokogiriXmlNodeSet, "to_a", to_array, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "unlink", unlink_nodeset, 0);
+  rb_define_method(cNokogiriXmlNodeSet, "|", rb_xml_node_set_union, 1);
+
+  rb_define_private_method(cNokogiriXmlNodeSet, "initialize_copy", rb_xml_node_set_initialize_copy, 1);
 
   decorate = rb_intern("decorate");
 }
