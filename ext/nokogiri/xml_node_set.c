@@ -68,13 +68,6 @@ xml_node_set_deallocate(void *data)
   xmlFree(node_set);
 }
 
-
-static VALUE
-xml_node_set_allocate(VALUE klass)
-{
-  return noko_xml_node_set_wrap(xmlXPathNodeSetCreate(NULL), Qnil);
-}
-
 static const rb_data_type_t xml_node_set_type = {
   .wrap_struct_name = "Nokogiri::XML::NodeSet",
   .function = {
@@ -83,6 +76,13 @@ static const rb_data_type_t xml_node_set_type = {
   },
   .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
+
+static VALUE
+xml_node_set_allocate(VALUE klass)
+{
+  return TypedData_Wrap_Struct(klass, &xml_node_set_type, xmlXPathNodeSetCreate(NULL));
+}
+
 
 static void
 xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
@@ -453,19 +453,21 @@ noko_xml_node_set_wrap(xmlNodeSetPtr c_node_set, VALUE document)
   VALUE rb_node_set ;
 
   if (c_node_set == NULL) {
-    c_node_set = xmlXPathNodeSetCreate(NULL);
+    rb_node_set = xml_node_set_allocate(cNokogiriXmlNodeSet);
+  } else {
+    rb_node_set = TypedData_Wrap_Struct(cNokogiriXmlNodeSet, &xml_node_set_type, c_node_set);
   }
-
-  rb_node_set = TypedData_Wrap_Struct(cNokogiriXmlNodeSet, &xml_node_set_type, c_node_set);
 
   if (!NIL_P(document)) {
     rb_iv_set(rb_node_set, "@document", document);
     rb_funcall(document, decorate, 1, rb_node_set);
   }
 
-  /* make sure we create ruby objects for all the results, so they'll be marked during the GC mark phase */
-  for (j = 0 ; j < c_node_set->nodeNr ; j++) {
-    noko_xml_node_wrap_node_set_result(c_node_set->nodeTab[j], rb_node_set);
+  if (c_node_set) {
+    /* create ruby objects for all the results, so they'll be marked during the GC mark phase */
+    for (j = 0 ; j < c_node_set->nodeNr ; j++) {
+      noko_xml_node_wrap_node_set_result(c_node_set->nodeTab[j], rb_node_set);
+    }
   }
 
   return rb_node_set ;
