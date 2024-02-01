@@ -57,17 +57,6 @@ module Nokogiri
           assert_equal("", doc.content)
         end
 
-        # issue 1060
-        def test_node_ownership_after_dup
-          html = "<html><head></head><body><div>replace me</div></body></html>"
-          doc = Nokogiri::XML::Document.parse(html)
-          dup = doc.dup
-          assert_same(dup, dup.at_css("div").document)
-
-          # should not raise an exception
-          dup.at_css("div").parse("<div>replaced</div>")
-        end
-
         # issue #835
         def test_manually_adding_reference_entities
           d = Nokogiri::XML::Document.new
@@ -435,8 +424,32 @@ module Nokogiri
           assert_nil(doc.validate)
         end
 
-        def test_clone
-          assert(xml.clone)
+        [:dup, :clone].each do |method|
+          define_method "test_document_#{method}" do
+            copy = xml.send(method)
+            assert_instance_of(Nokogiri::XML::Document, copy)
+            assert_predicate(copy, :xml?, "duplicate should be xml")
+            refute_empty(copy.xpath("//employee"))
+          end
+
+          # issue 1060
+          define_method "test_node_ownership_after_document_#{method}" do
+            html = "<html><head></head><body><div>replace me</div></body></html>"
+            doc = Nokogiri::XML::Document.parse(html)
+            copy = doc.send(method)
+            assert_same(copy, copy.at_css("div").document)
+
+            # should not raise an exception
+            copy.at_css("div").parse("<div>replaced</div>")
+          end
+
+          define_method "test_document_#{method}_shallow_copy" do
+            doc = Nokogiri::XML::Document.parse("<root><child/></root>")
+            copy = doc.send(method, 0)
+
+            refute_nil(doc.at_css("child"))
+            assert_nil(copy.at_css("child"))
+          end
         end
 
         def test_document_should_not_have_default_ns
@@ -819,12 +832,6 @@ module Nokogiri
           assert(xml.to_xml)
         end
 
-        def test_dup
-          dup = xml.dup
-          assert_instance_of(Nokogiri::XML::Document, dup)
-          assert_predicate(dup, :xml?, "duplicate should be xml")
-        end
-
         def test_new
           doc = Nokogiri::XML::Document.new
           assert(doc)
@@ -1094,6 +1101,11 @@ module Nokogiri
 
           it "#dup returns the expected class" do
             doc = klass.new.dup
+            assert_instance_of(klass, doc)
+          end
+
+          it "#clone returns the expected class" do
+            doc = klass.new.clone
             assert_instance_of(klass, doc)
           end
 
