@@ -38,8 +38,8 @@ _xml_node_update_references(void *ptr)
   }
 }
 
-static const rb_data_type_t nokogiri_node_type = {
-  .wrap_struct_name = "Nokogiri::XML::Node",
+static const rb_data_type_t xml_node_type = {
+  .wrap_struct_name = "xmlNode",
   .function = {
     .dmark = _xml_node_mark,
     .dcompact = _xml_node_update_references,
@@ -50,7 +50,7 @@ static const rb_data_type_t nokogiri_node_type = {
 static VALUE
 _xml_node_alloc(VALUE klass)
 {
-  return TypedData_Wrap_Struct(klass, &nokogiri_node_type, NULL);
+  return TypedData_Wrap_Struct(klass, &xml_node_type, NULL);
 }
 
 static void

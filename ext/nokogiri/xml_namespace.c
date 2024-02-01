@@ -51,8 +51,8 @@ _xml_namespace_update_references(void *ptr)
   }
 }
 
-static const rb_data_type_t nokogiri_xml_namespace_type_with_dealloc = {
-  .wrap_struct_name = "Nokogiri::XML::Namespace#with_dealloc",
+static const rb_data_type_t xml_ns_type_with_free = {
+  .wrap_struct_name = "xmlNs (with free)",
   .function = {
     .dfree = _xml_namespace_dealloc,
     .dcompact = _xml_namespace_update_references,
@@ -60,8 +60,8 @@ static const rb_data_type_t nokogiri_xml_namespace_type_with_dealloc = {
   .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
-static const rb_data_type_t nokogiri_xml_namespace_type_without_dealloc = {
-  .wrap_struct_name = "Nokogiri::XML::Namespace#without_dealloc",
+static const rb_data_type_t xml_ns_type_without_free = {
+  .wrap_struct_name = "xmlNs (without free)",
   .function = {
     .dcompact = _xml_namespace_update_references,
   },
@@ -145,7 +145,7 @@ noko_xml_namespace_wrap(xmlNsPtr c_namespace, xmlDocPtr c_document)
 
   if (c_document) {
     rb_namespace = TypedData_Wrap_Struct(cNokogiriXmlNamespace,
-                                         &nokogiri_xml_namespace_type_without_dealloc,
+                                         &xml_ns_type_without_free,
                                          c_namespace);
 
     if (DOC_RUBY_OBJECT_TEST(c_document)) {
@@ -154,7 +154,7 @@ noko_xml_namespace_wrap(xmlNsPtr c_namespace, xmlDocPtr c_document)
     }
   } else {
     rb_namespace = TypedData_Wrap_Struct(cNokogiriXmlNamespace,
-                                         &nokogiri_xml_namespace_type_with_dealloc,
+                                         &xml_ns_type_with_free,
                                          c_namespace);
   }
 

@@ -10,7 +10,7 @@ xml_schema_deallocate(void *data)
 }
 
 static const rb_data_type_t xml_schema_type = {
-  .wrap_struct_name = "Nokogiri::XML::Schema",
+  .wrap_struct_name = "xmlSchema",
   .function = {
     .dfree = xml_schema_deallocate,
   },

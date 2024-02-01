@@ -12,8 +12,8 @@ xml_sax_push_parser_free(void *data)
   }
 }
 
-static const rb_data_type_t xml_sax_push_parser_type = {
-  .wrap_struct_name = "Nokogiri::XML::SAX::PushParser",
+static const rb_data_type_t xml_parser_ctxt_type = {
+  .wrap_struct_name = "xmlParserCtxt",
   .function = {
     .dfree = xml_sax_push_parser_free,
   },
@@ -23,14 +23,14 @@ static const rb_data_type_t xml_sax_push_parser_type = {
 static VALUE
 allocate(VALUE klass)
 {
-  return TypedData_Wrap_Struct(klass, &xml_sax_push_parser_type, NULL);
+  return TypedData_Wrap_Struct(klass, &xml_parser_ctxt_type, NULL);
 }
 
 xmlParserCtxtPtr
 noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
 {
   xmlParserCtxtPtr c_parser;
-  TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_sax_push_parser_type, c_parser);
+  TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_parser_ctxt_type, c_parser);
   return c_parser;
 }
 
