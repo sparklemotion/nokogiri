@@ -21,11 +21,13 @@
 /html/
 
 # editors and tags
+.cache
 .classpath
 .project
 .settings
 .vscode
 build
+compile_commands.json
 TAGS
 tags
 
