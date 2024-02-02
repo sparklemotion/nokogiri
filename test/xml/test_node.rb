@@ -204,18 +204,28 @@ module Nokogiri
           assert_equal(0, node.children.length)
         end
 
-        def test_dup_to_another_document
+        def test_dup_same_parent_document_is_default
+          doc = XML::Document.parse("<root><div><p>hello</p></div></root>")
+          div = doc.at_css("div")
+          node = div.dup
+          assert_same(div.document, node.document)
+        end
+
+        def test_dup_different_parent_document
           skip_unless_libxml2("Node.dup with new_parent arg is only implemented on CRuby")
-          doc1 = Nokogiri::HTML4::Document.parse("<root><div><p>hello</p></div></root>")
-          doc2 = Nokogiri::HTML4::Document.parse("<div></div>")
+
+          doc1 = XML::Document.parse("<root><div><p>hello</p></div></root>")
+          doc2 = XML::Document.parse("<div></div>")
 
           div = doc1.at_css("div")
-          duplicate_div = div.dup(1, doc2)
+          copy = div.dup(1, doc2)
 
-          refute_nil(doc1.at_css("div"))
-          assert_equal(doc2, duplicate_div.document)
-          assert_equal(1, duplicate_div.children.length)
-          assert_equal("<p>hello</p>", duplicate_div.children.first.to_html)
+          assert_same(doc2, copy.document)
+          assert_equal(1, copy.children.length) # deep copy
+
+          copy = div.dup(0, doc2)
+
+          assert_equal(0, copy.children.length) # shallow copy
         end
 
         def test_subclass_dup
