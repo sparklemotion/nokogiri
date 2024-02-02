@@ -133,8 +133,8 @@ memsize(const void *data)
   return memsize;
 }
 
-static const rb_data_type_t noko_xml_document_data_type = {
-  .wrap_struct_name = "Nokogiri::XML::Document",
+static const rb_data_type_t xml_doc_type = {
+  .wrap_struct_name = "xmlDoc",
   .function = {
     .dmark = mark,
     .dfree = dealloc,
@@ -146,7 +146,7 @@ static const rb_data_type_t noko_xml_document_data_type = {
 static VALUE
 _xml_document_alloc(VALUE klass)
 {
-  return TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, NULL);
+  return TypedData_Wrap_Struct(klass, &xml_doc_type, NULL);
 }
 
 static void
@@ -707,7 +707,7 @@ xmlDocPtr
 noko_xml_document_unwrap(VALUE rb_document)
 {
   xmlDocPtr c_document;
-  TypedData_Get_Struct(rb_document, xmlDoc, &noko_xml_document_data_type, c_document);
+  TypedData_Get_Struct(rb_document, xmlDoc, &xml_doc_type, c_document);
   return c_document;
 }
 

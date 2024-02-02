@@ -10,7 +10,7 @@ xml_relax_ng_deallocate(void *data)
 }
 
 static const rb_data_type_t xml_relax_ng_type = {
-  .wrap_struct_name = "Nokogiri::XML::RelaxNG",
+  .wrap_struct_name = "xmlRelaxNG",
   .function = {
     .dfree = xml_relax_ng_deallocate,
   },

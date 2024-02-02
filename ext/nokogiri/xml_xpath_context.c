@@ -19,7 +19,7 @@ xml_xpath_context_deallocate(void *data)
 }
 
 static const rb_data_type_t xml_xpath_context_type = {
-  .wrap_struct_name = "Nokogiri::XML::XPathContext",
+  .wrap_struct_name = "xmlXPathContext",
   .function = {
     .dfree = xml_xpath_context_deallocate,
   },

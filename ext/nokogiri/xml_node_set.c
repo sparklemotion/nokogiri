@@ -69,7 +69,7 @@ xml_node_set_deallocate(void *data)
 }
 
 static const rb_data_type_t xml_node_set_type = {
-  .wrap_struct_name = "Nokogiri::XML::NodeSet",
+  .wrap_struct_name = "xmlNodeSet",
   .function = {
     .dmark = xml_node_set_mark,
     .dfree = xml_node_set_deallocate,

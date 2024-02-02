@@ -16,8 +16,8 @@ xml_sax_parser_context_free(void *data)
  *  note that htmlParserCtxtPtr == xmlParserCtxtPtr and xmlFreeParserCtxt() == htmlFreeParserCtxt()
  *  so we use this type for both XML::SAX::ParserContext and HTML::SAX::ParserContext
  */
-static const rb_data_type_t xml_sax_parser_context_type = {
-  .wrap_struct_name = "Nokogiri::XML::SAX::ParserContext",
+static const rb_data_type_t xml_parser_ctxt_type = {
+  .wrap_struct_name = "xmlParserCtxt",
   .function = {
     .dfree = xml_sax_parser_context_free,
   },
@@ -28,14 +28,14 @@ xmlParserCtxtPtr
 noko_xml_sax_parser_context_unwrap(VALUE rb_context)
 {
   xmlParserCtxtPtr c_context;
-  TypedData_Get_Struct(rb_context, xmlParserCtxt, &xml_sax_parser_context_type, c_context);
+  TypedData_Get_Struct(rb_context, xmlParserCtxt, &xml_parser_ctxt_type, c_context);
   return c_context;
 }
 
 VALUE
 noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
 {
-  return TypedData_Wrap_Struct(klass, &xml_sax_parser_context_type, c_context);
+  return TypedData_Wrap_Struct(klass, &xml_parser_ctxt_type, c_context);
 }
 
 
