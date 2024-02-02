@@ -135,7 +135,7 @@ public class XsltStylesheet extends RubyObject
     XmlDocument xmlDoc = (XmlDocument) args[0];
     ensureDocumentHasNoError(context, xmlDoc);
 
-    Document doc = ((XmlDocument) xmlDoc.dup_implementation(context, true)).getDocument();
+    Document doc = ((XmlDocument)xmlDoc.callMethod(context, "dup", runtime.newFixnum(1))).getDocument();
 
     XsltStylesheet xslt =
       (XsltStylesheet) NokogiriService.XSLT_STYLESHEET_ALLOCATOR.allocate(runtime, (RubyClass)klazz);

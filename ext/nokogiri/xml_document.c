@@ -143,6 +143,53 @@ static const rb_data_type_t noko_xml_document_data_type = {
   // .flags = RUBY_TYPED_FREE_IMMEDIATELY, // TODO see https://github.com/sparklemotion/nokogiri/issues/2822
 };
 
+static VALUE
+_xml_document_alloc(VALUE klass)
+{
+  return TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, NULL);
+}
+
+static void
+_xml_document_data_ptr_set(VALUE rb_document, xmlDocPtr c_document)
+{
+  nokogiriTuplePtr tuple;
+
+  assert(DATA_PTR(rb_document) == NULL);
+  assert(c_document->_private == NULL);
+
+  DATA_PTR(rb_document) = c_document;
+
+  tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
+  tuple->doc = rb_document;
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
+  tuple->node_cache = rb_ary_new();
+
+  c_document->_private = tuple ;
+
+  rb_iv_set(rb_document, "@node_cache", tuple->node_cache);
+
+  return;
+}
+
+/* :nodoc: */
+static VALUE
+rb_xml_document_initialize_copy_with_args(VALUE rb_self, VALUE rb_other, VALUE rb_level)
+{
+  xmlDocPtr c_other, c_self;
+  int c_level;
+
+  c_other = noko_xml_document_unwrap(rb_other);
+  c_level = (int)NUM2INT(rb_level);
+
+  c_self = xmlCopyDoc(c_other, c_level);
+  if (c_self == NULL) { return Qnil; }
+
+  c_self->type = c_other->type;
+  _xml_document_data_ptr_set(rb_self, c_self);
+
+  return rb_self ;
+}
+
 static void
 recursively_remove_namespaces_from_node(xmlNodePtr node)
 {
@@ -408,36 +455,6 @@ read_memory(VALUE klass,
 
 /*
  * call-seq:
- *  dup
- *
- * Copy this Document.  An optional depth may be passed in, but it defaults
- * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
- */
-static VALUE
-duplicate_document(int argc, VALUE *argv, VALUE self)
-{
-  xmlDocPtr doc, dup;
-  VALUE copy;
-  VALUE level;
-
-  if (rb_scan_args(argc, argv, "01", &level) == 0) {
-    level = INT2NUM((long)1);
-  }
-
-  doc = noko_xml_document_unwrap(self);
-
-  dup = xmlCopyDoc(doc, (int)NUM2INT(level));
-
-  if (dup == NULL) { return Qnil; }
-
-  dup->type = doc->type;
-  copy = noko_xml_document_wrap(rb_obj_class(self), dup);
-  rb_iv_set(copy, "@errors", rb_iv_get(self, "@errors"));
-  return copy ;
-}
-
-/*
- * call-seq:
  *  new(version = default)
  *
  * Create a new document with +version+ (defaults to "1.0")
@@ -655,24 +672,16 @@ VALUE
 noko_xml_document_wrap_with_init_args(VALUE klass, xmlDocPtr c_document, int argc, VALUE *argv)
 {
   VALUE rb_document;
-  nokogiriTuplePtr tuple;
 
   if (!klass) {
     klass = cNokogiriXmlDocument;
   }
 
-  rb_document = TypedData_Wrap_Struct(klass, &noko_xml_document_data_type, c_document);
-
-  tuple = (nokogiriTuplePtr)ruby_xmalloc(sizeof(nokogiriTuple));
-  tuple->doc = rb_document;
-  tuple->unlinkedNodes = st_init_numtable_with_size(128);
-  tuple->node_cache = rb_ary_new();
-
-  c_document->_private = tuple ;
+  rb_document = _xml_document_alloc(klass);
+  _xml_document_data_ptr_set(rb_document, c_document);
 
   rb_iv_set(rb_document, "@decorators", Qnil);
   rb_iv_set(rb_document, "@errors", Qnil);
-  rb_iv_set(rb_document, "@node_cache", tuple->node_cache);
 
   rb_obj_call_init(rb_document, argc, argv);
 
@@ -760,6 +769,8 @@ noko_init_xml_document(void)
    */
   cNokogiriXmlDocument = rb_define_class_under(mNokogiriXml, "Document", cNokogiriXmlNode);
 
+  rb_define_alloc_func(cNokogiriXmlDocument, _xml_document_alloc);
+
   rb_define_singleton_method(cNokogiriXmlDocument, "read_memory", read_memory, 4);
   rb_define_singleton_method(cNokogiriXmlDocument, "read_io", read_io, 4);
   rb_define_singleton_method(cNokogiriXmlDocument, "new", new, -1);
@@ -770,8 +781,10 @@ noko_init_xml_document(void)
   rb_define_method(cNokogiriXmlDocument, "encoding=", set_encoding, 1);
   rb_define_method(cNokogiriXmlDocument, "version", version, 0);
   rb_define_method(cNokogiriXmlDocument, "canonicalize", rb_xml_document_canonicalize, -1);
-  rb_define_method(cNokogiriXmlDocument, "dup", duplicate_document, -1);
   rb_define_method(cNokogiriXmlDocument, "url", url, 0);
   rb_define_method(cNokogiriXmlDocument, "create_entity", create_entity, -1);
   rb_define_method(cNokogiriXmlDocument, "remove_namespaces!", remove_namespaces_bang, 0);
+
+  rb_define_protected_method(cNokogiriXmlDocument, "initialize_copy_with_args", rb_xml_document_initialize_copy_with_args,
+                             2);
 }

@@ -15,6 +15,7 @@ import org.jruby.RubyRange;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -201,13 +202,21 @@ public class XmlNodeSet extends RubyObject implements NodeList
     return context.nil;
   }
 
-  @JRubyMethod
   public IRubyObject
   dup(ThreadContext context)
   {
     XmlNodeSet dup = newNodeSet(context.runtime, nodes.clone());
     dup.initializeFrom(context, this);
     return dup;
+  }
+
+  @JRubyMethod(visibility = Visibility.PROTECTED)
+  public IRubyObject
+  initialize_copy(ThreadContext context, IRubyObject other)
+  {
+    setNodes(getNodes(context, other));
+    initializeFrom(context, (XmlNodeSet)other);
+    return this;
   }
 
   @JRubyMethod(name = "include?")

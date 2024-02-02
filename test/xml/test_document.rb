@@ -57,17 +57,6 @@ module Nokogiri
           assert_equal("", doc.content)
         end
 
-        # issue 1060
-        def test_node_ownership_after_dup
-          html = "<html><head></head><body><div>replace me</div></body></html>"
-          doc = Nokogiri::XML::Document.parse(html)
-          dup = doc.dup
-          assert_same(dup, dup.at_css("div").document)
-
-          # should not raise an exception
-          dup.at_css("div").parse("<div>replaced</div>")
-        end
-
         # issue #835
         def test_manually_adding_reference_entities
           d = Nokogiri::XML::Document.new
@@ -435,8 +424,70 @@ module Nokogiri
           assert_nil(doc.validate)
         end
 
-        def test_clone
-          assert(xml.clone)
+        [:dup, :clone].each do |method|
+          define_method "test_document_#{method}" do
+            copy = xml.send(method)
+            assert_instance_of(Nokogiri::XML::Document, copy)
+            assert_predicate(copy, :xml?, "duplicate should be xml")
+            refute_empty(copy.xpath("//employee"))
+          end
+
+          # issue 1060
+          define_method "test_node_ownership_after_document_#{method}" do
+            html = "<html><head></head><body><div>replace me</div></body></html>"
+            doc = Nokogiri::XML::Document.parse(html)
+            copy = doc.send(method)
+            assert_same(copy, copy.at_css("div").document)
+
+            # should not raise an exception
+            copy.at_css("div").parse("<div>replaced</div>")
+          end
+
+          define_method "test_document_#{method}_shallow_copy" do
+            doc = Nokogiri::XML::Document.parse("<root><child/></root>")
+            copy = doc.send(method, 0)
+
+            refute_nil(doc.at_css("child"))
+            assert_nil(copy.at_css("child"))
+          end
+        end
+
+        def test_dup_should_not_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          doc = Nokogiri::XML::Document.parse("<root/>")
+          doc.extend(m)
+
+          assert_respond_to(doc, :foo)
+          refute_respond_to(doc.dup, :foo)
+        end
+
+        def test_clone_should_copy_singleton_class
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          doc = Nokogiri::XML::Document.parse("<root/>")
+          doc.extend(m)
+
+          assert_respond_to(doc, :foo)
+          assert_respond_to(doc.clone, :foo)
+        end
+
+        def test_inspect_object_with_no_data_ptr
+          # test for the edge case when an exception is thrown during object construction/copy
+          doc = Nokogiri::XML("<root>")
+          refute_includes(doc.inspect, "(no data)")
+
+          if doc.respond_to?(:data_ptr?)
+            doc.stub(:data_ptr?, false) do
+              assert_includes(doc.inspect, "(no data)")
+            end
+          end
         end
 
         def test_document_should_not_have_default_ns
@@ -599,15 +650,17 @@ module Nokogiri
           refute_empty(doc.errors)
         end
 
-        def test_document_has_errors
-          doc = Nokogiri::XML(<<~eoxml)
-            <foo><bar></foo>
-          eoxml
+        def test_document_errors
+          doc = Nokogiri::XML("<foo><bar></foo>")
+
           refute_empty(doc.errors)
           doc.errors.each do |error|
             assert_match(error.message, error.inspect)
             assert_match(error.message, error.to_s)
           end
+
+          assert_equal(doc.errors, doc.dup.errors)
+          assert_equal(doc.errors, doc.clone.errors)
         end
 
         def test_strict_document_throws_syntax_error
@@ -817,12 +870,6 @@ module Nokogiri
         def test_dump
           assert(xml.serialize)
           assert(xml.to_xml)
-        end
-
-        def test_dup
-          dup = xml.dup
-          assert_instance_of(Nokogiri::XML::Document, dup)
-          assert_predicate(dup, :xml?, "duplicate should be xml")
         end
 
         def test_new
@@ -1094,6 +1141,11 @@ module Nokogiri
 
           it "#dup returns the expected class" do
             doc = klass.new.dup
+            assert_instance_of(klass, doc)
+          end
+
+          it "#clone returns the expected class" do
+            doc = klass.new.clone
             assert_instance_of(klass, doc)
           end
 

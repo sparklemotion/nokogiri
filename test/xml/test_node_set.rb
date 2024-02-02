@@ -368,6 +368,32 @@ module Nokogiri
           end
         end
 
+        specify "test_dup_should_not_copy_singleton_class" do
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          set = Nokogiri::XML::Document.parse("<root/>").css("root")
+          set.extend(m)
+
+          assert_respond_to(set, :foo)
+          refute_respond_to(set.dup, :foo)
+        end
+
+        specify "test_clone_should_copy_singleton_class" do
+          # https://github.com/sparklemotion/nokogiri/issues/316
+          m = Module.new do
+            def foo; end
+          end
+
+          set = Nokogiri::XML::Document.parse("<root/>").css("root")
+          set.extend(m)
+
+          assert_respond_to(set, :foo)
+          assert_respond_to(set.clone, :foo)
+        end
+
         specify "#dup on empty set" do
           empty_set = Nokogiri::XML::NodeSet.new(xml, [])
           assert_equal(0, empty_set.dup.length) # this shouldn't raise null pointer exception

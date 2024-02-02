@@ -414,20 +414,13 @@ public class XmlDocument extends XmlNode
     return getCachedNodeOrCreate(context.runtime, rootNode);
   }
 
-  protected IRubyObject
-  dup_implementation(Ruby runtime, boolean deep)
+  @JRubyMethod(visibility = Visibility.PROTECTED)
+  public IRubyObject
+  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level)
   {
-    XmlDocument doc = (XmlDocument) super.dup_implementation(runtime, deep);
-    // Avoid creating a new XmlDocument since we cloned one
-    // already. Otherwise the following test will fail:
-    //
-    //   dup = doc.dup
-    //   dup.equal?(dup.children[0].document)
-    //
-    // Since `dup.children[0].document' will end up creating a new
-    // XmlDocument.  See #1060.
-    doc.resetCache();
-    return doc;
+    super.initialize_copy_with_args(context, other, level, null);
+    resetCache();
+    return this;
   }
 
   @JRubyMethod(name = "root=")
