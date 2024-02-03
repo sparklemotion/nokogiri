@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.next.0 / unreleased
+
+### Added
+
+* [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. (@flavorjones)
+
+
+
 ## v1.16.1 / 2024-02-03
 
 ### Dependencies

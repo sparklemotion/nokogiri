@@ -11,6 +11,14 @@ module Nokogiri
         assert_instance_of(Nokogiri::HTML4::Builder, foo)
       end
 
+      def test_builder_returns_html4_document
+        html_doc = Nokogiri::HTML4::Builder.new do
+          div("hello")
+        end
+
+        assert_kind_of(Nokogiri::HTML4::Document, html_doc.doc)
+      end
+
       def test_builder_with_explicit_tags
         html_doc = Nokogiri::HTML4::Builder.new do
           div.slide(class: "another_class") do

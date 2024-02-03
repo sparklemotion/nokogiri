@@ -254,6 +254,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/html4/sax/parser_context.rb",
     "lib/nokogiri/html4/sax/push_parser.rb",
     "lib/nokogiri/html5.rb",
+    "lib/nokogiri/html5/builder.rb",
     "lib/nokogiri/html5/document.rb",
     "lib/nokogiri/html5/document_fragment.rb",
     "lib/nokogiri/html5/node.rb",

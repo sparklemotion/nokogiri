@@ -20,6 +20,7 @@
 require_relative "html5/document"
 require_relative "html5/document_fragment"
 require_relative "html5/node"
+require_relative "html5/builder"
 
 module Nokogiri
   # Since v1.12.0
