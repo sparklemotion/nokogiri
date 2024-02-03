@@ -147,6 +147,36 @@ jobs:
       - run: bundle exec rake test:valgrind
       - run: bundle exec rake test:memcheck
 
+  truffleruby-head:
+    strategy:
+      fail-fast: false
+      matrix:
+        flags:
+          - "--disable-system-libraries --disable-static"
+          - "--disable-system-libraries --enable-static"
+          - "--enable-system-libraries"
+        include:
+          - flags: "--enable-system-libraries"
+            apt_packages: "libxml2-dev libxslt1-dev pkg-config"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ruby/setup-ruby-pkgs@v1
+        with:
+          ruby-version: truffleruby-head
+          bundler-cache: true
+          bundler: latest
+          apt-get: ${{ matrix.apt_packages }}
+      - uses: actions/cache@v4
+        with:
+          path: ports/archives
+          key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
+      - run: bundle install --local || bundle install
+      - run: bundle exec rake compile -- ${{matrix.flags}}
+      - run: bundle exec rake test
+
   jruby-head:
     runs-on: ubuntu-latest
     steps:
