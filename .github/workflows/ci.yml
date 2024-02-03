@@ -307,7 +307,7 @@ jobs:
       - run: bundle exec rake test
       - run: bundle exec rake test:bench
 
-  truffleruby-head:
+  truffleruby:
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -316,13 +316,20 @@ jobs:
           - "--disable-system-libraries --disable-static"
           - "--disable-system-libraries --enable-static"
           - "--enable-system-libraries"
+        include:
+          - flags: "--enable-system-libraries"
+            apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sparklemotion/nokogiri-test:truffle-nightly
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: ruby/setup-ruby-pkgs@v1
+        with:
+          ruby-version: truffleruby
+          bundler-cache: true
+          bundler: latest
+          apt-get: ${{ matrix.apt_packages }}
       - uses: actions/cache@v4
         with:
           path: ports/archives

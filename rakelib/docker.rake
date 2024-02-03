@@ -9,7 +9,6 @@ module DockerHelper
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
     mri: ["3.0", "3.1", "3.2", "3.3"],
-    truffle: ["nightly"],
   }
 
   class << self
