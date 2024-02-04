@@ -11,6 +11,22 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. (@flavorjones)
 
 
+### Fixed
+
+* [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
+
+
+## v1.16.2 / 2024-02-04
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address CVE-2024-25062. See [GHSA-xc9x-jj77-9p9j](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-xc9x-jj77-9p9j) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.5](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.5) from v2.12.4. (@flavorjones)
+
 
 ## v1.16.1 / 2024-02-03
 
