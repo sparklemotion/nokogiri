@@ -239,12 +239,11 @@ class TestHtml5API < Nokogiri::TestCase
   end
 
   def test_parse_in_context_of_foreign_namespace
-    if Nokogiri.uses_libxml?("~> 2.12.0")
-      skip_unless_libxml2_patch("0012-parser-Fix-crash-in-xmlParseInNodeContext-with-HTML.patch")
-    end
-
     # https://github.com/sparklemotion/nokogiri/issues/3112
     # https://gitlab.gnome.org/GNOME/libxml2/-/issues/672
+    # released upstream in v2.12.5
+    skip if Nokogiri.uses_libxml?(["~> 2.12.0", "< 2.12.5"])
+
     doc = Nokogiri::HTML5::Document.parse("<html><body><math>")
     math = doc.at_css("math")
 
