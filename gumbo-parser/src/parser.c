@@ -4762,7 +4762,18 @@ GumboOutput* gumbo_parse_with_options (
         adjusted_current_node &&
           adjusted_current_node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML
       );
-      gumbo_lex(&parser, &token);
+      // If the maximum tree depth has been exceeded, proceed as if EOF has been reached.
+      //
+      // The parser is pretty fragile. Breaking out of the parsing loop in the middle of
+      // the parse can leave the document in an inconsistent state.
+      if (unlikely(state->_open_elements.length > max_tree_depth)) {
+        parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
+        gumbo_debug("Tree depth limit exceeded.\n");
+        token.type = GUMBO_TOKEN_EOF;
+      } else {
+        gumbo_lex(&parser, &token);
+      }
+
     }
 
     const char* token_type = "text";
@@ -4829,11 +4840,6 @@ GumboOutput* gumbo_parse_with_options (
       {
         gumbo_free(token.v.end_tag.name);
         token.v.end_tag.name = NULL;
-      }
-      if (unlikely(state->_open_elements.length > max_tree_depth)) {
-        parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
-        gumbo_debug("Tree depth limit exceeded.\n");
-        break;
       }
     }
 
