@@ -14,6 +14,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Fixed
 
 * [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
+* `Node#clone`, `NodeSet#clone`, and `*::Document#clone` all properly copy the metaclass of the original as expected. Previously, `#clone` had been aliased to `#dup` for these classes (since v1.3.0 in 2009). [#316, #3117] @flavorjones
 
 
 ## v1.16.2 / 2024-02-04
