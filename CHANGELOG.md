@@ -9,6 +9,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Added
 
 * [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. (@flavorjones)
+* [CRuby] Attributes in an HTML5 document can be serialized individually, something that has always been supported by the HTML4 serializer. [#3125, #3127] @flavorjones
 
 
 ### Fixed
