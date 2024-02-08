@@ -1875,17 +1875,7 @@ output_node(
       // Add attributes.
       for (xmlAttrPtr attr = node->properties; attr; attr = attr->next) {
         output_char(out, ' ');
-        output_attr_name(out, attr);
-        if (attr->children) {
-          output_string(out, "=\"");
-          xmlChar *value = xmlNodeListGetString(attr->doc, attr->children, 1);
-          output_escaped_string(out, value, true);
-          xmlFree(value);
-          output_char(out, '"');
-        } else {
-          // Output name=""
-          output_string(out, "=\"\"");
-        }
+        output_node(out, (xmlNodePtr)attr, preserve_newline);
       }
       output_char(out, '>');
 
@@ -1900,6 +1890,23 @@ output_node(
         output_string(out, "</");
         output_tagname(out, node);
         output_char(out, '>');
+      }
+      break;
+
+    case XML_ATTRIBUTE_NODE:
+      {
+        xmlAttrPtr attr = (xmlAttrPtr)node;
+        output_attr_name(out, attr);
+        if (attr->children) {
+          output_string(out, "=\"");
+          xmlChar *value = xmlNodeListGetString(attr->doc, attr->children, 1);
+          output_escaped_string(out, value, true);
+          xmlFree(value);
+          output_char(out, '"');
+        } else {
+          // Output name=""
+          output_string(out, "=\"\"");
+        }
       }
       break;
 
