@@ -45,7 +45,8 @@ module Nokogiri
     end
 
     def libxml2_using_packaged?
-      libxml2? && Nokogiri::PACKAGED_LIBRARIES
+      false
+      # libxml2? && Nokogiri::PACKAGED_LIBRARIES
     end
 
     def libxml2_using_system?
