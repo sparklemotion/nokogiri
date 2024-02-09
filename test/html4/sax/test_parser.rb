@@ -20,7 +20,10 @@ module Nokogiri
         def test_parse_empty_file
           # Make sure empty files don't break stuff
           empty_file_name = File.join(ASSETS_DIR, "bogus.xml")
-          @parser.parse_file(empty_file_name) # assert_nothing_raised
+
+          refute_raises do
+            @parser.parse_file(empty_file_name)
+          end
         end
 
         def test_parse_file
@@ -164,7 +167,10 @@ module Nokogiri
         end
 
         def test_empty_processing_instruction
-          @parser.parse_memory("<strong>this will segfault<?strong>")
+          # https://github.com/sparklemotion/nokogiri/issues/845
+          refute_raises do
+            @parser.parse_memory("<strong>this will segfault<?strong>")
+          end
         end
 
         it "handles invalid types gracefully" do

@@ -985,9 +985,11 @@ module Nokogiri
         end
 
         def test_can_be_closed
-          f = File.open(XML_FILE)
-          Nokogiri::XML(f)
-          f.close
+          refute_raises do
+            f = File.open(XML_FILE)
+            Nokogiri::XML(f)
+            f.close
+          end
         end
 
         describe "JRuby-only methods" do

@@ -15,10 +15,6 @@ module Nokogiri
         assert_instance_of(EntityReference, ref)
       end
 
-      def test_many_references
-        100.times { EntityReference.new(@xml, "foo") }
-      end
-
       def test_newline_node
         # issue 719
         xml = <<~EOF

@@ -49,14 +49,16 @@ class TestMemoryUsage < Nokogiri::TestCase
       # https://github.com/sparklemotion/nokogiri/issues/2923
       skip("memsize_of not defined") unless ObjectSpace.respond_to?(:memsize_of)
 
-      doc = Nokogiri::XML(<<~XML)
-        <?xml version="1.0"?>
-        <!DOCTYPE staff PUBLIC "staff.dtd" [
-          <!ATTLIST payment type CDATA "check">
-        ]>
-        <staff></staff>
-      XML
-      ObjectSpace.memsize_of(doc) # assert_does_not_crash
+      refute_valgrind_errors do
+        doc = Nokogiri::XML(<<~XML)
+          <?xml version="1.0"?>
+          <!DOCTYPE staff PUBLIC "staff.dtd" [
+            <!ATTLIST payment type CDATA "check">
+          ]>
+          <staff></staff>
+        XML
+        ObjectSpace.memsize_of(doc)
+      end
     end
   end
 

@@ -88,10 +88,6 @@ module Nokogiri
           assert_instance_of(Nokogiri::HTML4::DocumentFragment, fragment)
         end
 
-        def test_many_fragments
-          100.times { Nokogiri::HTML4::DocumentFragment.new(html) }
-        end
-
         def test_html_fragment
           fragment = Nokogiri::HTML4.fragment("<div>a</div>")
           assert_equal("<div>a</div>", fragment.to_s)

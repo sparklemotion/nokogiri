@@ -12,17 +12,19 @@ describe "compaction" do
     it "compacts safely" do # https://github.com/sparklemotion/nokogiri/pull/2579
       skip if skip_compaction_tests
 
-      big_doc = "<root>" + ("a".."zz").map { |x| "<#{x}>#{x}</#{x}>" }.join + "</root>"
-      doc = Nokogiri.XML(big_doc)
+      refute_valgrind_errors do
+        big_doc = "<root>" + ("a".."zz").map { |x| "<#{x}>#{x}</#{x}>" }.join + "</root>"
+        doc = Nokogiri.XML(big_doc)
 
-      # ensure a bunch of node objects have been wrapped
-      doc.root.children.each(&:inspect)
+        # ensure a bunch of node objects have been wrapped
+        doc.root.children.each(&:inspect)
 
-      # compact the heap and try to get the node wrappers to move
-      gc_verify_compaction_references
+        # compact the heap and try to get the node wrappers to move
+        gc_verify_compaction_references
 
-      # access the node wrappers and make sure they didn't move
-      doc.root.children.each(&:inspect)
+        # access the node wrappers and make sure they didn't move
+        doc.root.children.each(&:inspect)
+      end
     end
   end
 
@@ -38,11 +40,13 @@ describe "compaction" do
         </root>
       EOF
 
-      doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
+      refute_valgrind_errors do
+        doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
 
-      gc_verify_compaction_references
+        gc_verify_compaction_references
 
-      doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
+        doc.at_xpath("//root:first", "root" => "http://example.com/root").namespace_scopes.inspect
+      end
     end
 
     it "remove_namespaces!" do
@@ -58,13 +62,15 @@ describe "compaction" do
         </root>
       XML
 
-      namespaces = doc.root.namespaces
-      namespaces.each(&:inspect)
-      doc.remove_namespaces!
+      refute_valgrind_errors do
+        namespaces = doc.root.namespaces
+        namespaces.each(&:inspect)
+        doc.remove_namespaces!
 
-      gc_verify_compaction_references
+        gc_verify_compaction_references
 
-      namespaces.each(&:inspect)
+        namespaces.each(&:inspect)
+      end
     end
   end
 end

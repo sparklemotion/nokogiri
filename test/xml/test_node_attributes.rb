@@ -75,12 +75,10 @@ module Nokogiri
 
         assert_empty(node.namespace_definitions.map(&:prefix))
 
-        # assert_nothing_raised do
         child_node = Nokogiri::XML::Node.new("foo", doc)
         child_node["xml:lang"] = "en-GB"
 
         node << child_node
-        # end
 
         assert_empty(child_node.namespace_definitions.map(&:prefix))
       end
@@ -100,18 +98,20 @@ module Nokogiri
       end
 
       def test_set_attribute_frees_nodes
-        # testing a segv
         skip_unless_libxml2("JRuby doesn't do GC.")
-        document = Nokogiri::XML.parse("<foo></foo>")
 
-        node = document.root
-        node["visible"] = "foo"
-        attribute = node.attribute("visible")
-        text = Nokogiri::XML::Text.new("bar", document)
-        attribute.add_child(text)
+        refute_valgrind_errors do
+          document = Nokogiri::XML.parse("<foo></foo>")
 
-        stress_memory_while do
-          node["visible"] = "attr"
+          node = document.root
+          node["visible"] = "foo"
+          attribute = node.attribute("visible")
+          text = Nokogiri::XML::Text.new("bar", document)
+          attribute.add_child(text)
+
+          stress_memory_while do
+            node["visible"] = "attr"
+          end
         end
       end
     end

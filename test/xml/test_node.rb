@@ -149,8 +149,13 @@ module Nokogiri
         def test_parse_error_on_fragment_with_empty_document
           doc = Document.new
           fragment = DocumentFragment.new(doc, "<foo><bar/></foo>")
-          node = fragment % "bar"
+          node = fragment.at_css("bar")
+
+          assert_empty(doc.errors)
+
           node.parse("<baz><</baz>")
+
+          refute_empty(doc.errors)
         end
 
         def test_parse_with_unparented_text_context_node

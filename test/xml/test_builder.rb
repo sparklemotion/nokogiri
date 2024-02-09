@@ -14,14 +14,6 @@ module Nokogiri
         assert_equal("world", doc.root["abcDef"])
       end
 
-      def test_builder_multiple_nodes
-        Nokogiri::XML::Builder.new do |xml|
-          0.upto(10) do
-            xml.text("test")
-          end
-        end
-      end
-
       def test_builder_resilient_to_exceptions
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.root do

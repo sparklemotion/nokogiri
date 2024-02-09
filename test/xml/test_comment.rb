@@ -31,12 +31,6 @@ module Nokogiri
           Nokogiri::XML::Comment.new("NOT A NOKOGIRI CLASS", "hello world")
         end
       end
-
-      def test_many_comments
-        100.times do
-          Nokogiri::XML::Comment.new(@xml, "hello world")
-        end
-      end
     end
   end
 end

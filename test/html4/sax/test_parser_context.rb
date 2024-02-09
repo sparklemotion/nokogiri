@@ -25,20 +25,20 @@ module Nokogiri
         end
 
         def test_parse_with_sax_parser
-          # assert_nothing_raised do
-          xml = "<root />"
-          ctx = ParserContext.new(xml)
-          parser = Parser.new(Doc.new)
-          ctx.parse_with(parser)
-          # end
+          refute_raises do
+            xml = "<root />"
+            ctx = ParserContext.new(xml)
+            parser = Parser.new(Doc.new)
+            ctx.parse_with(parser)
+          end
         end
 
         def test_from_file
-          # assert_nothing_raised do
-          ctx = ParserContext.file(HTML_FILE, "UTF-8")
-          parser = Parser.new(Doc.new)
-          ctx.parse_with(parser)
-          # end
+          refute_raises do
+            ctx = ParserContext.file(HTML_FILE, "UTF-8")
+            parser = Parser.new(Doc.new)
+            ctx.parse_with(parser)
+          end
         end
 
         def test_graceful_handling_of_invalid_types

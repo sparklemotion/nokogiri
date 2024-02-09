@@ -72,9 +72,12 @@ module Nokogiri
       end
 
       def test_remove_entity_namespace
-        s = %q{<?xml version='1.0'?><!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" [<!ENTITY % p ''>]>}
-        Nokogiri::XML(s).remove_namespaces!
-        # TODO: we should probably assert something here. See commit 14d2f59.
+        skip_unless_libxml2("valgrind tests should only run with libxml2")
+
+        refute_valgrind_errors do
+          s = %q{<?xml version='1.0'?><!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" [<!ENTITY % p ''>]>}
+          Nokogiri::XML(s).remove_namespaces!
+        end
       end
 
       def test_maintain_element_namespaces
