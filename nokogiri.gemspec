@@ -10,7 +10,7 @@ end
 NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
   java_p = /java/ === RUBY_PLATFORM
 
-  spec.name = "nokogiri"
+  spec.name = "nokogiri-backport"
   spec.version = defined?(Nokogiri::VERSION) ? Nokogiri::VERSION : "0.0.0"
 
   spec.summary = "Nokogiri (鋸) makes it easy and painless to work with XML and HTML from Ruby."
@@ -37,7 +37,7 @@ NOKOGIRI_SPEC ||= Gem::Specification.new do |spec|
 
   spec.license = "MIT"
 
-  spec.required_ruby_version = ">= 2.5.0"
+  spec.required_ruby_version = ">= 2.4.5"
 
   spec.homepage = "https://nokogiri.org"
   spec.metadata = {
