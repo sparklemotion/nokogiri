@@ -64,7 +64,7 @@ module Nokogiri
       end
 
       def parse(string)
-        @tokenizer.scan_setup(string)
+        @tokenizer.parse(string)
         do_parse
       end
 

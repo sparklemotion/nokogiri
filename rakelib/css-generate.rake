@@ -24,8 +24,14 @@ namespace "css" do
     sh "racc -l -o #{t.name} #{t.prerequisites.first}"
   end
 
-  casual_file_task.define_task(TOKENIZER_DEPS) do |t|
-    sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
+  file TOKENIZER_DEPS do |t|
+    require "oedipus_lex"
+    rex = OedipusLex.new
+    rex.parse_file(t.source)
+
+    File.open(t.name, "w") do |f|
+      f.write(rex.generate)
+    end
   end
 end
 

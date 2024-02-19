@@ -1,56 +1,62 @@
-module Nokogiri
-module CSS
-# :nodoc: all
-class Tokenizer
+class Nokogiri::CSS::Tokenizer
+
+option
+  lineno
+  column
+
+inner
+
+  def do_parse
+    # next_token # HACK! this should be provided by the parser or _something_
+  end
 
 macro
-  nl        \n|\r\n|\r|\f
-  w         [\s]*
-  nonascii  [^\0-\177]
-  num       -?([0-9]+|[0-9]*\.[0-9]+)
-  unicode   \\[0-9A-Fa-f]{1,6}(\r\n|[\s])?
+  NL        /\n|\r\n|\r|\f/
+  W         /[\s]*/
+  NONASCII  /[^\0-\177]/
+  NUM       /-?([0-9]+|[0-9]*\.[0-9]+)/
+  UNICODE   /\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?/
 
-  escape    {unicode}|\\[^\n\r\f0-9A-Fa-f]
-  nmchar    [_A-Za-z0-9-]|{nonascii}|{escape}
-  nmstart   [_A-Za-z]|{nonascii}|{escape}
-  ident     -?({nmstart})({nmchar})*
-  name      ({nmchar})+
-  string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*"
-  string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*'
-  string    {string1}|{string2}
+  ESCAPE    /#{UNICODE}|\\[^\n\r\f0-9A-Fa-f]/
+  NMCHAR    /[_A-Za-z0-9-]|#{NONASCII}|#{ESCAPE}/
+  NMSTART   /[_A-Za-z]|#{NONASCII}|#{ESCAPE}/
+  IDENT     /-?(#{NMSTART})(#{NMCHAR})*/
+  NAME      /(#{NMCHAR})+/
+  STRING1   /"([^\n\r\f"]|#{NL}|#{NONASCII}|#{ESCAPE})*(?<!\\)(?:\\{2})*"/
+  STRING2   /'([^\n\r\f']|#{NL}|#{NONASCII}|#{ESCAPE})*(?<!\\)(?:\\{2})*'/
+  STRING    /#{STRING1}|#{STRING2}/
 
 rule
 
-# [:state]  pattern  [actions]
+            # TODO: consider using something like this and drop all the \s's
+            # /[\ \t\r\f\v]+/  { next }
 
-            has\({w}         { [:HAS, text] }
-            {ident}\({w}     { [:FUNCTION, text] }
-            {ident}          { [:IDENT, text] }
-            \#{name}         { [:HASH, text] }
-            {w}~={w}         { [:INCLUDES, text] }
-            {w}\|={w}        { [:DASHMATCH, text] }
-            {w}\^={w}        { [:PREFIXMATCH, text] }
-            {w}\$={w}        { [:SUFFIXMATCH, text] }
-            {w}\*={w}        { [:SUBSTRINGMATCH, text] }
-            {w}!={w}         { [:NOT_EQUAL, text] }
-            {w}={w}          { [:EQUAL, text] }
-            {w}\)            { [:RPAREN, text] }
-            \[{w}            { [:LSQUARE, text] }
-            {w}\]            { [:RSQUARE, text] }
-            {w}\+{w}         { [:PLUS, text] }
-            {w}>{w}          { [:GREATER, text] }
-            {w},{w}          { [:COMMA, text] }
-            {w}~{w}          { [:TILDE, text] }
-            \:not\({w}       { [:NOT, text] }
-            {num}            { [:NUMBER, text] }
-            {w}\/\/{w}       { [:DOUBLESLASH, text] }
-            {w}\/{w}         { [:SLASH, text] }
+            /has\(#{W}/      { [:HAS, text] }
+            /#{NUM}/         { [:NUMBER, text] }
+            /#{IDENT}\(#{W}/ { [:FUNCTION, text] }
+            /#{IDENT}/       { [:IDENT, text] }
+            /##{NAME}/       { [:HASH, text] }
+            /#{W}\~=#{W}/    { [:INCLUDES, text] }
+            /#{W}\|=#{W}/    { [:DASHMATCH, text] }
+            /#{W}\^=#{W}/    { [:PREFIXMATCH, text] }
+            /#{W}\$=#{W}/    { [:SUFFIXMATCH, text] }
+            /#{W}\*=#{W}/    { [:SUBSTRINGMATCH, text] }
+            /#{W}!=#{W}/     { [:NOT_EQUAL, text] }
+            /#{W}=#{W}/      { [:EQUAL, text] }
+            /#{W}\)/         { [:RPAREN, text] }
+            /\[#{W}/         { [:LSQUARE, text] }
+            /#{W}\]/         { [:RSQUARE, text] }
+            /#{W}\+#{W}/     { [:PLUS, text] }
+            /#{W}>#{W}/      { [:GREATER, text] }
+            /#{W},#{W}/      { [:COMMA, text] }
+            /#{W}~#{W}/      { [:TILDE, text] }
+            /:not\(#{W}/     { [:NOT, text] }
+            /#{W}\/\/#{W}/   { [:DOUBLESLASH, text] }
+            /#{W}\/#{W}/     { [:SLASH, text] }
 
-            U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?  {[:UNICODE_RANGE, text] }
+            /U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?/  {[:UNICODE_RANGE, text] }
 
-            [\s]+            { [:S, text] }
-            {string}         { [:STRING, text] }
-            .                { [text, text] }
-end
-end
+            /[\s]+/          { [:S, text] }
+            /#{STRING}/      { [:STRING, text] }
+            /./              { [text, text] }
 end

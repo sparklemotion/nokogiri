@@ -20,7 +20,7 @@ group :development do
   gem "rake-compiler-dock", "1.4.0"
 
   # parser generator
-  gem "rexical", "= 1.0.7"
+  gem "oedipus_lex", "= 2.6.1"
 
   # tests
   gem "minitest", "5.22.2"
