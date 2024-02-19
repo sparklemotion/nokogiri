@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE FrackinDocType [
+ <!ELEMENT i-hate-xml (#PCDATA)>
+ <!ATTLIST i-hate-xml ur_id_for_intra_doc_ref_test ID #IMPLIED>
+ ]>
+<i-hate-xml ur_id_for_intra_doc_ref_test="some_frackin_id">
+</i-hate-xml>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<Envelope xmlns="urn:envelope">
+  <Data>
+  Hello, World!
+  </Data>
+</Envelope>

@@ -7,6 +7,7 @@ VALUE mNokogiriHtml4Sax ;
 VALUE mNokogiriHtml5 ;
 VALUE mNokogiriXml ;
 VALUE mNokogiriXmlSax ;
+VALUE mNokogiriXmlsec ;
 VALUE mNokogiriXmlXpath ;
 VALUE mNokogiriXslt ;
 
@@ -47,6 +48,7 @@ void noko_init_html_entity_lookup(void);
 void noko_init_html_sax_parser_context(void);
 void noko_init_html_sax_push_parser(void);
 void noko_init_gumbo(void);
+void noko_init_xmlsec(void);
 void noko_init_test_global_handlers(void);
 
 static ID id_read, id_write, id_external_encoding;
@@ -190,6 +192,7 @@ Init_nokogiri(void)
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
   mNokogiriXmlXpath = rb_define_module_under(mNokogiriXml, "XPath");
+  mNokogiriXmlsec   = rb_define_module_under(mNokogiri, "XMLSec");
   mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
 
   set_libxml_memory_management(); /* must be before any function calls that might invoke xmlInitParser() */
@@ -278,6 +281,7 @@ Init_nokogiri(void)
   noko_init_xml_document();
   noko_init_html_document();
   noko_init_gumbo();
+  noko_init_xmlsec();
 
   noko_init_test_global_handlers();
 

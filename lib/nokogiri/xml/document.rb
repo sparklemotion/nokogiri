@@ -12,6 +12,8 @@ module Nokogiri
     # For searching a Document, see Nokogiri::XML::Searchable#css and
     # Nokogiri::XML::Searchable#xpath
     class Document < Nokogiri::XML::Node
+      include Nokogiri::XMLSec::Document
+
       # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details. Note that we're not
       # attempting to handle unicode characters partly because libxml2 doesn't handle unicode
       # characters in NCNAMEs.

@@ -2,11 +2,11 @@
 # DO NOT DELETE
 
 gumbo.o: $(srcdir)/nokogiri.h
-html_document.o: $(srcdir)/nokogiri.h
-html_element_description.o: $(srcdir)/nokogiri.h
-html_entity_lookup.o: $(srcdir)/nokogiri.h
-html_sax_parser_context.o: $(srcdir)/nokogiri.h
-html_sax_push_parser.o: $(srcdir)/nokogiri.h
+html4_document.o: $(srcdir)/nokogiri.h
+html4_element_description.o: $(srcdir)/nokogiri.h
+html4_entity_lookup.o: $(srcdir)/nokogiri.h
+html4_sax_parser_context.o: $(srcdir)/nokogiri.h
+html4_sax_push_parser.o: $(srcdir)/nokogiri.h
 libxml2_backwards_compat.o: $(srcdir)/nokogiri.h
 nokogiri.o: $(srcdir)/nokogiri.h
 test_global_handlers.o: $(srcdir)/nokogiri.h
@@ -35,4 +35,12 @@ xml_schema.o: $(srcdir)/nokogiri.h
 xml_syntax_error.o: $(srcdir)/nokogiri.h
 xml_text.o: $(srcdir)/nokogiri.h
 xml_xpath_context.o: $(srcdir)/nokogiri.h
+xmlsec_decrypt_with_key.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_options.h $(srcdir)/xmlsec_util.h
+xmlsec_encrypt_with_key.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_options.h $(srcdir)/xmlsec_util.h
+xmlsec_id_attributes.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_util.h
+xmlsec_init.o: $(srcdir)/nokogiri.h
+xmlsec_options.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_options.h
+xmlsec_sign.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_options.h $(srcdir)/xmlsec_util.h
+xmlsec_util.o: $(srcdir)/xmlsec_util.h $(srcdir)/nokogiri.h
+xmlsec_verify_with.o: $(srcdir)/nokogiri.h $(srcdir)/xmlsec_util.h
 xslt_stylesheet.o: $(srcdir)/nokogiri.h
