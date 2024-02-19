@@ -1,5 +1,8 @@
 package nokogiri;
 
+import nokogiri.internals.*;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -8,7 +11,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.xerces.parsers.AbstractSAXParser;
 import net.sourceforge.htmlunit.cyberneko.parsers.SAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -16,12 +18,11 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXException;
 
-import nokogiri.internals.NokogiriHandler;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  * Class for Nokogiri::HTML4::SAX::ParserContext.
@@ -31,7 +32,7 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name = "Nokogiri::HTML4::SAX::ParserContext", parent = "Nokogiri::XML::SAX::ParserContext")
-public class Html4SaxParserContext extends XmlSaxParserContext
+public class Html4SaxParserContext extends SaxParserContext<SAXParser>
 {
   private static final long serialVersionUID = 1L;
 
@@ -50,7 +51,7 @@ public class Html4SaxParserContext extends XmlSaxParserContext
   }
 
   @Override
-  protected AbstractSAXParser
+  protected SAXParser
   createParser() throws SAXException
   {
     SAXParser parser = new SAXParser();
@@ -279,11 +280,69 @@ public class Html4SaxParserContext extends XmlSaxParserContext
     return ctx;
   }
 
-  @Override
-  protected void
-  preParse(final Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler)
+  protected Options
+  defaultParseOptions(ThreadContext context)
   {
-    // this function is meant to be empty.  It overrides the one in XmlSaxParserContext
+    return new ParserContext.Options(
+             RubyFixnum.fix2long(Helpers.invoke(context,
+                                 ((RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"))
+                                 .getConstant("DEFAULT_HTML"),
+                                 "to_i"))
+           );
   }
 
+  @JRubyMethod
+  public IRubyObject
+  parse_with(ThreadContext context, IRubyObject rubyParser)
+  {
+    return super.parse_with(context, rubyParser);
+  }
+
+  @JRubyMethod(name = "replace_entities=")
+  public IRubyObject
+  set_replace_entities(ThreadContext context, IRubyObject value)
+  {
+    replaceEntities = value.isTrue();
+    return this;
+  }
+
+  @JRubyMethod(name = "replace_entities")
+  public IRubyObject
+  get_replace_entities(ThreadContext context)
+  {
+    return context.runtime.newBoolean(replaceEntities);
+  }
+
+  @JRubyMethod(name = "recovery=")
+  public IRubyObject
+  set_recovery(ThreadContext context, IRubyObject value)
+  {
+    recovery = value.isTrue();
+    return this;
+  }
+
+  @JRubyMethod(name = "recovery")
+  public IRubyObject
+  get_recovery(ThreadContext context)
+  {
+    return context.runtime.newBoolean(recovery);
+  }
+
+  @JRubyMethod(name = "column")
+  public IRubyObject
+  column(ThreadContext context)
+  {
+    final Integer number = handler.getColumn();
+    if (number == null) { return context.getRuntime().getNil(); }
+    return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+  }
+
+  @JRubyMethod(name = "line")
+  public IRubyObject
+  line(ThreadContext context)
+  {
+    final Integer number = handler.getLine();
+    if (number == null) { return context.getRuntime().getNil(); }
+    return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+  }
 }

@@ -141,7 +141,7 @@ public class Html4Document extends XmlDocument
   public static IRubyObject
   read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args)
   {
-    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
+    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[3], args[2]);
     ctx.setIOInputSource(context, args[0], args[1]);
     return ctx.parse(context, (RubyClass) klass, args[1]);
   }
@@ -150,7 +150,7 @@ public class Html4Document extends XmlDocument
   public static IRubyObject
   read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args)
   {
-    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[2], args[3]);
+    HtmlDomParserContext ctx = new HtmlDomParserContext(context.runtime, args[3], args[2]);
     ctx.setStringInputSource(context, args[0], args[1]);
     return ctx.parse(context, (RubyClass) klass, args[1]);
   }

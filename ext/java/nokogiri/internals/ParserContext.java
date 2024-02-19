@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -34,13 +33,6 @@ public abstract class ParserContext extends RubyObject
   protected IRubyObject detected_encoding = null;
   protected int stringDataSize = -1;
   protected String java_encoding;
-
-  public
-  ParserContext(Ruby runtime)
-  {
-    // default to class 'Object' because this class isn't exposed to Ruby
-    super(runtime, runtime.getObject());
-  }
 
   public
   ParserContext(Ruby runtime, RubyClass klass)
@@ -225,38 +217,4 @@ public abstract class ParserContext extends RubyObject
       noXIncNode = test(options, NOXINCNODE);
     }
   }
-
-  /*
-  public static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
-      InputSource source;
-      public NokogiriXInlcudeEntityResolver(InputSource source) {
-          this.source = source;
-      }
-
-      @Override
-      public InputSource resolveEntity(String publicId, String systemId)
-              throws SAXException, IOException {
-          if (systemId != null) source.setSystemId(systemId);
-          if (publicId != null) source.setPublicId(publicId);
-          return source;
-      }
-  } */
-
-  public static abstract class ParserTask<T extends ParserContext> implements Callable<T>
-  {
-
-    protected final ThreadContext context; // TODO does not seem like a good idea!?
-    protected final IRubyObject handler;
-    protected final T parser;
-
-    protected
-    ParserTask(ThreadContext context, IRubyObject handler, T parser)
-    {
-      this.context = context;
-      this.handler = handler;
-      this.parser = parser;
-    }
-
-  }
-
 }

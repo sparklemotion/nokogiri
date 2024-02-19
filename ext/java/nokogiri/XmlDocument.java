@@ -352,7 +352,7 @@ public class XmlDocument extends XmlNode
   public static IRubyObject
   read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args)
   {
-    XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[2], args[3]);
+    XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[3], args[2]);
     ctx.setIOInputSource(context, args[0], args[1]);
     return ctx.parse(context, (RubyClass) klass, args[1]);
   }
@@ -361,7 +361,7 @@ public class XmlDocument extends XmlNode
   public static IRubyObject
   read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args)
   {
-    XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[2], args[3]);
+    XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[3], args[2]);
     ctx.setStringInputSource(context, args[0], args[1]);
     return ctx.parse(context, (RubyClass) klass, args[1]);
   }

@@ -41,13 +41,13 @@ public class HtmlDomParserContext extends XmlDomParserContext
   public
   HtmlDomParserContext(Ruby runtime, IRubyObject options)
   {
-    this(runtime, runtime.getNil(), options);
+    this(runtime, options, runtime.getNil());
   }
 
   public
-  HtmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options)
+  HtmlDomParserContext(Ruby runtime, IRubyObject options, IRubyObject encoding)
   {
-    super(runtime, encoding, options);
+    super(runtime, options, encoding);
     java_encoding = NokogiriHelpers.getValidEncoding(encoding);
   }
 
