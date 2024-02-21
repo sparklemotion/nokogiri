@@ -1187,7 +1187,7 @@ static GumboNode* insert_element_of_tag_type (
   element->parse_flags |= GUMBO_INSERTION_BY_PARSER | reason;
   insert_element(parser, element, false);
   gumbo_debug (
-    "Inserting %s element (@%p) from tag type.\n",
+    "Inserting <%s> element (@%p) from tag type.\n",
     gumbo_normalized_tagname(tag),
     (void*)element
   );
@@ -1204,6 +1204,11 @@ static GumboNode* insert_foreign_element (
   assert(token->type == GUMBO_TOKEN_START_TAG);
   GumboNode* element = create_element_from_token(token, tag_namespace);
   insert_element(parser, element, false);
+  gumbo_debug (
+    "Inserting <%s> foreign element (@%p).\n",
+    gumbo_normalized_tagname(element->v.element.tag),
+    (void*)element
+  );
   if (
     token_has_attribute(token, "xmlns")
     && !attribute_matches_case_sensitive (
@@ -2066,6 +2071,7 @@ static void remove_from_parent(GumboNode* node) {
 
 // This is here to clean up memory when the spec says "Ignore current token."
 static void ignore_token(GumboParser* parser) {
+  gumbo_debug("Ignoring token.\n");
   GumboToken* token = parser->_parser_state->_current_token;
   // Ownership of the token's internal buffers are normally transferred to the
   // element, but if no element is emitted (as happens in non-verbatim-mode
@@ -2430,7 +2436,7 @@ static void adoption_agency_algorithm(GumboParser* parser, GumboToken* token)
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-end
 static void finish_parsing(GumboParser* parser) {
-  gumbo_debug("Finishing parsing");
+  gumbo_debug("Finishing parsing\n");
   maybe_flush_text_node_buffer(parser);
   GumboParserState* state = parser->_parser_state;
   for (
@@ -4389,7 +4395,7 @@ static void handle_html_content(GumboParser* parser, GumboToken* token) {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inforeign
 static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
-  gumbo_debug("Handling foreign content");
+  gumbo_debug("Handling foreign content.\n");
   switch (token->type) {
     case GUMBO_TOKEN_NULL:
       parser_add_parse_error(parser, token);
@@ -4797,7 +4803,7 @@ GumboOutput* gumbo_parse_with_options (
         break;
     }
     gumbo_debug (
-      "Handling %s token @%lu:%lu in state %u.\n",
+      "Handling %s token @%lu:%lu in insertion mode %u.\n",
       (char*) token_type,
       (unsigned long)token.position.line,
       (unsigned long)token.position.column,
