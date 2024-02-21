@@ -376,8 +376,8 @@ if java?
 
     ext.ext_dir = "ext/java"
     ext.lib_dir = "lib/nokogiri"
-    ext.source_version = "1.7"
-    ext.target_version = "1.7"
+    ext.source_version = "1.8"
+    ext.target_version = "1.8"
     ext.classpath = ext.gem_spec.files.select { |path| File.fnmatch?("**/*.jar", path) }.join(":")
     ext.debug = true if ENV["JAVA_DEBUG"]
   end
