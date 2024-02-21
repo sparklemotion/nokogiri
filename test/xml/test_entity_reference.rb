@@ -187,7 +187,7 @@ module Nokogiri
         expected = if Nokogiri.uses_libxml?(">= 2.13")
           [
             "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
-            "ERROR: Attempt to load network entity http://foo.bar.com/",
+            "ERROR: Attempt to load network entity: http://foo.bar.com/",
             "4:14: ERROR: Entity 'bar' not defined",
           ]
         elsif Nokogiri.uses_libxml?
