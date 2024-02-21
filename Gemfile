@@ -36,7 +36,7 @@ group :development do
     gem "rubocop-packaging", "0.5.2"
     gem "rubocop-performance", "1.20.2"
     gem "rubocop-rake", "= 0.6.0"
-    gem "rubocop-shopify", "2.14.0"
+    gem "rubocop-shopify", "2.15.1"
   end
 end
 
