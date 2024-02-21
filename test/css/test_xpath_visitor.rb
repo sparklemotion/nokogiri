@@ -45,7 +45,7 @@ describe Nokogiri::CSS::XPathVisitor do
       )
       assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
 
-      assert_equal({ "foo": "bar" }, Nokogiri::CSS::XPathVisitor.new(namespaces: { "foo": "bar" }).namespaces)
+      assert_equal({ foo: "bar" }, Nokogiri::CSS::XPathVisitor.new(namespaces: { foo: "bar" }).namespaces)
 
       assert_equal("xxx", Nokogiri::CSS::XPathVisitor.new(prefix: "xxx").prefix)
     end

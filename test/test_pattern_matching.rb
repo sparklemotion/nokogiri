@@ -220,77 +220,79 @@ describe "experimental pattern matching" do
     end
   end
 
-  describe "actual pattern matching" do
-    let(:ns_default) { "http://nokogiri.org/ns/default" }
-    let(:ns_noko) { "http://nokogiri.org/ns/noko" }
-    let(:doc_xml) { <<~XML }
-      <root xmlns="#{ns_default}" xmlns:noko="#{ns_noko}">
-        <child1 foo="abc" noko:bar="def" />
-        <noko:child2 foo="qwe" noko:bar="rty" />
-        <child3>
-          <grandchild1 size="small">hello &amp; goodbye</grandchild1>
-          <grandchild2 size="large"><!-- shhh --></grandchild2>
-        </child3>
-      </root>
-    XML
-    let(:frag_xml) { <<~XML }
-      <child1 /><child2 foo="bar" qwe="rty" /><child3 />
-    XML
-    let(:frag) { Nokogiri::XML::DocumentFragment.parse(frag_xml) }
-    let(:doc) { Nokogiri::XML::Document.parse(doc_xml) }
+  unless RUBY_ENGINE == "truffleruby" # https://github.com/oracle/truffleruby/issues/3589
+    describe "actual pattern matching" do
+      let(:ns_default) { "http://nokogiri.org/ns/default" }
+      let(:ns_noko) { "http://nokogiri.org/ns/noko" }
+      let(:doc_xml) { <<~XML }
+        <root xmlns="#{ns_default}" xmlns:noko="#{ns_noko}">
+          <child1 foo="abc" noko:bar="def" />
+          <noko:child2 foo="qwe" noko:bar="rty" />
+          <child3>
+            <grandchild1 size="small">hello &amp; goodbye</grandchild1>
+            <grandchild2 size="large"><!-- shhh --></grandchild2>
+          </child3>
+        </root>
+      XML
+      let(:frag_xml) { <<~XML }
+        <child1 /><child2 foo="bar" qwe="rty" /><child3 />
+      XML
+      let(:frag) { Nokogiri::XML::DocumentFragment.parse(frag_xml) }
+      let(:doc) { Nokogiri::XML::Document.parse(doc_xml) }
 
-    describe "Document" do
-      it "finds nodes" do
-        assert_pattern do
-          doc => { root: { children: [*, { name: "child3", children: grandchildren }, *] } }
-          expected = doc.at_css("child3").children
-          assert_equal(expected, grandchildren)
+      describe "Document" do
+        it "finds nodes" do
+          assert_pattern do
+            doc => { root: { children: [*, { name: "child3", children: grandchildren }, *] } }
+            expected = doc.at_css("child3").children
+            assert_equal(expected, grandchildren)
+          end
+        end
+
+        it "finds nodes with namespaces" do
+          ns = ns_default
+          assert_pattern do
+            doc => { root: { children: [*, { namespace: { href: ^ns }, name: "child3" }, *] } }
+          end
+        end
+
+        it "finds node contents" do
+          assert_pattern do
+            doc => { root: { children: [*, { children: [*, {name: "grandchild1", content: }, *] }, *] } }
+            assert_equal("hello & goodbye", content)
+          end
+        end
+
+        it "finds node contents by attribute" do
+          assert_pattern do
+            doc => { root: { children: [*, { children: [*, {attributes: [*, {name: "size", value: "small"}, *], content: }, *] }, *] } }
+            assert_equal("hello & goodbye", content)
+          end
         end
       end
 
-      it "finds nodes with namespaces" do
-        ns = ns_default
-        assert_pattern do
-          doc => { root: { children: [*, { namespace: { href: ^ns }, name: "child3" }, *] } }
+      describe "Fragment" do
+        it "finds nodes" do
+          assert_pattern do
+            frag => [{name: "child1"}, {name: "child2"}, {name: "child3"}, {content: "\n"}]
+          end
+        end
+
+        it "finds attributes" do
+          assert_pattern do
+            frag => [*, {name: "child2", attributes: }, *]
+            assert_equal("foo", attributes.first.name)
+          end
         end
       end
 
-      it "finds node contents" do
-        assert_pattern do
-          doc => { root: { children: [*, { children: [*, {name: "grandchild1", content: }, *] }, *] } }
-          assert_equal("hello & goodbye", content)
-        end
-      end
-
-      it "finds node contents by attribute" do
-        assert_pattern do
-          doc => { root: { children: [*, { children: [*, {attributes: [*, {name: "size", value: "small"}, *], content: }, *] }, *] } }
-          assert_equal("hello & goodbye", content)
+      describe "Node" do
+        it "finds nodes" do
+          assert_pattern do
+            doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
+          end
         end
       end
     end
-
-    describe "Fragment" do
-      it "finds nodes" do
-        assert_pattern do
-          frag => [{name: "child1"}, {name: "child2"}, {name: "child3"}, {content: "\n"}]
-        end
-      end
-
-      it "finds attributes" do
-        assert_pattern do
-          frag => [*, {name: "child2", attributes: }, *]
-          assert_equal("foo", attributes.first.name)
-        end
-      end
-    end
-
-    describe "Node" do
-      it "finds nodes" do
-        assert_pattern do
-          doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
-        end
-      end
-    end
-  end unless RUBY_ENGINE == "truffleruby" # https://github.com/oracle/truffleruby/issues/3589
+  end
 end
