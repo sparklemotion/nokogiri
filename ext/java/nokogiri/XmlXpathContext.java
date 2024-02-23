@@ -1,6 +1,5 @@
 package nokogiri;
 
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,7 +103,7 @@ public class XmlXpathContext extends RubyObject
   {
     String query = rbQuery.convertToString().asJavaString();
 
-    if (!handler.isNil() && !isContainsPrefix(query)) {
+    if (!isContainsPrefix(query)) {
       //
       //  The user has passed in a handler, but isn't using the `nokogiri:` prefix as
       //  instructed in JRuby land, so let's try to be clever and rewrite the query, inserting
@@ -113,9 +112,6 @@ public class XmlXpathContext extends RubyObject
       StringBuilder namespacedQuery = new StringBuilder();
       int jchar = 0;
 
-      // Find the methods on the handler object
-      Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
-
       // Find the function calls in the xpath query
       Matcher xpathFunctionCalls = XPathFunctionCaptureRE.matcher(query);
 
@@ -123,7 +119,7 @@ public class XmlXpathContext extends RubyObject
         namespacedQuery.append(query.subSequence(jchar, xpathFunctionCalls.start()));
         jchar = xpathFunctionCalls.start();
 
-        if (methodNames.contains(xpathFunctionCalls.group())) {
+        if (handler.respondsTo(xpathFunctionCalls.group())) {
           namespacedQuery.append(NokogiriNamespaceContext.NOKOGIRI_PREFIX);
           namespacedQuery.append(":");
         }
@@ -132,7 +128,7 @@ public class XmlXpathContext extends RubyObject
         jchar = xpathFunctionCalls.end();
       }
 
-      if (jchar < query.length() - 1) {
+      if (jchar < query.length()) {
         namespacedQuery.append(query.subSequence(jchar, query.length()));
       }
       query = namespacedQuery.toString();

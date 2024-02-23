@@ -261,6 +261,7 @@ module Nokogiri
           ![Hash, String, Symbol].include?(param.class)
         end
         params -= [handler] if handler
+        handler = XPathFunctions.wrap(handler)
 
         hashes = []
         while Hash === params.last || params.last.nil?
