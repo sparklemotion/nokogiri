@@ -140,7 +140,7 @@ module Nokogiri
 
       # Relax any hardcoded limit from the parser. Off by default.
       #
-      # ⚠ There may be a performance penalty when this option is set.
+      # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       HUGE        = 1 << 19
 
       # Support line numbers up to <code>long int</code> (default is a <code>short int</code>). On
