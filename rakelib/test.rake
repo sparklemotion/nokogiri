@@ -109,7 +109,7 @@ end
 
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
-  t.verbose = true
+  # t.verbose = true # This is noisier than we need. Commenting out 2024-03-07.
   # t.options = "-v" if ENV["CI"] # I haven't needed this in a long time. Commenting out 2023-12-10.
 end
 
