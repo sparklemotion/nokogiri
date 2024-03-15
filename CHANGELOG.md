@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.16.3 / 2024-03-15
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.6) from v2.12.5. (@flavorjones)
+
+
 ## v1.16.2 / 2024-02-04
 
 ### Security
