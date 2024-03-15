@@ -537,6 +537,7 @@ read_more(VALUE self)
     if (RTEST(constructor_encoding)) {
       c_document->encoding = xmlStrdup(BAD_CAST StringValueCStr(constructor_encoding));
     } else {
+      rb_iv_set(self, "@encoding", NOKOGIRI_STR_NEW2("UTF-8"));
       c_document->encoding = xmlStrdup(BAD_CAST "UTF-8");
     }
   }
