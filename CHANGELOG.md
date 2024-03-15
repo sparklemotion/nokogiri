@@ -18,6 +18,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * `Node#clone`, `NodeSet#clone`, and `*::Document#clone` all properly copy the metaclass of the original as expected. Previously, `#clone` had been aliased to `#dup` for these classes (since v1.3.0 in 2009). [#316, #3117] @flavorjones
 
 
+## v1.16.3 / 2024-03-15
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.6) from v2.12.5. (@flavorjones)
+
+
+### Changed
+
+* [CRuby] `XML::Reader` sets the `@encoding` instance variable during reading if it is not passed into the initializer. Previously, it would remain `nil`. The behavior of `Reader#encoding` has not changed. This works around changes to how libxml2 reports the encoding used in v2.12.6.
+
+
 ## v1.16.2 / 2024-02-04
 
 ### Security
