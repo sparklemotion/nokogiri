@@ -136,6 +136,18 @@ The following people and organizations were kind enough to sponsor @flavorjones 
 We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
 
 
+## 1.15.6 / 2024-03-16
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address CVE-2024-25062. See [GHSA-xc9x-jj77-9p9j](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-xc9x-jj77-9p9j) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to v2.11.7 from v2.11.6. For details please see https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.7
+
+
 ## 1.15.5 / 2023-11-17
 
 ### Dependencies
