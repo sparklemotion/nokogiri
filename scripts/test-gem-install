@@ -29,9 +29,7 @@ if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
   export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
 fi
 
-# 2.3.21 because https://github.com/rubygems/rubygems/issues/5914
-# 2.3.22 because https://github.com/rubygems/rubygems/issues/5940
-gem install bundler -v "~> 2.2, != 2.3.21, != 2.3.22"
+gem install bundler -v "2.4.22" # should work fine on ruby 2.7 and above
 bundle install --local || bundle install
 
 rm -rf lib ext # ensure we don't use the local files
