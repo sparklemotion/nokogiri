@@ -46,6 +46,9 @@ public class XmlCdata extends XmlText
     IRubyObject rbDocument = args[0];
     content = args[1];
 
+    if (content.isNil()) {
+      throw context.runtime.newTypeError("expected second parameter to be a String, received NilClass");
+    }
     if (!(rbDocument instanceof XmlNode)) {
       String msg = "expected first parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
       throw context.runtime.newTypeError(msg);

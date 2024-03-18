@@ -23,24 +23,19 @@ new (int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &document, &content, &rest);
 
+  Check_Type(content, T_STRING);
   if (rb_obj_is_kind_of(document, cNokogiriXmlNode)) {
     document = rb_funcall(document, document_id, 0);
   } else if (!rb_obj_is_kind_of(document, cNokogiriXmlDocument)
              && !rb_obj_is_kind_of(document, cNokogiriXmlDocumentFragment)) {
     rb_raise(rb_eArgError, "first argument must be a XML::Document or XML::Node");
   }
-
   xml_doc = noko_xml_document_unwrap(document);
 
-  node = xmlNewDocComment(
-           xml_doc,
-           (const xmlChar *)StringValueCStr(content)
-         );
-
+  node = xmlNewDocComment(xml_doc, (const xmlChar *)StringValueCStr(content));
+  noko_xml_document_pin_node(node);
   rb_node = noko_xml_node_wrap(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
-
-  noko_xml_document_pin_node(node);
 
   if (rb_block_given_p()) { rb_yield(rb_node); }
 

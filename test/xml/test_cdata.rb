@@ -28,11 +28,10 @@ describe Nokogiri::XML::CDATA do
       assert_same(doc, node.document)
     end
 
-    it "has nil content when passed nil" do
-      node = Nokogiri::XML::CDATA.new(Nokogiri::XML::Document.new, nil)
-
-      assert_instance_of(Nokogiri::XML::CDATA, node)
-      assert_nil(node.content)
+    it "when passed nil raises TypeError" do
+      assert_raises(TypeError) do
+        Nokogiri::XML::CDATA.new(Nokogiri::XML::Document.new, nil)
+      end
     end
 
     it "does not accept anything but a string" do
