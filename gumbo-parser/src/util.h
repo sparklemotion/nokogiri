@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include "macros.h"
 
+#define GUMBO_USE_ARENA 1
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,8 +19,7 @@ extern "C" {
 char* gumbo_strdup(const char* str) XMALLOC NONNULL_ARGS;
 
 void* gumbo_alloc(size_t size) XMALLOC;
-void* gumbo_realloc(void* ptr, size_t size) RETURNS_NONNULL;
-void gumbo_free(void* ptr);
+void* gumbo_realloc(void* prev_ptr, size_t prev_size, size_t size) RETURNS_NONNULL;
 
 // Debug wrapper for printf
 #ifdef GUMBO_DEBUG
