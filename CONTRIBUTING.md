@@ -131,6 +131,13 @@ To run a focused test, use Minitest's `TESTOPTS`:
 bundle exec rake compile test TESTOPTS="-n/test_last_element_child/"
 ```
 
+Or to run tests on specific files, use `TESTGLOB`:
+
+``` sh
+bundle exec rake compile test TESTGLOB="test/**/test_*node*rb"
+```
+
+
 To run the test suite in parallel, set the `NCPU` environment variable; and to compile in parallel, set the `MAKEFLAGS` environment variable (you may want to set these in something like your .bashrc):
 
 ``` sh
