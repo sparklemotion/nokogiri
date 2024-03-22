@@ -17,6 +17,8 @@ dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
       break;
     default:
       if (node->parent == NULL) {
+        node->next = NULL;
+        node->prev = NULL;
         xmlAddChild((xmlNodePtr)doc, node);
       }
   }
