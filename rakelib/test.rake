@@ -109,13 +109,12 @@ end
 
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
-  # t.verbose = true # This is noisier than we need. Commenting out 2024-03-07.
-  # t.options = "-v" if ENV["CI"] # I haven't needed this in a long time. Commenting out 2023-12-10.
+  t.verbose = true if ENV["TESTGLOB"]
 end
 
 def nokogiri_test_case_configuration(t)
   nokogiri_test_task_configuration(t)
-  t.test_files = FileList["test/**/test_*.rb"]
+  t.test_files = FileList[ENV["TESTGLOB"] || "test/**/test_*.rb"]
 end
 
 def nokogiri_test_bench_configuration(t)

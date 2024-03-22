@@ -20,6 +20,7 @@ rb_xml_text_s_new(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &rb_string, &rb_document, &rb_rest);
 
+  Check_Type(rb_string, T_STRING);
   if (!rb_obj_is_kind_of(rb_document, cNokogiriXmlNode)) {
     rb_raise(rb_eTypeError,
              "expected second parameter to be a Nokogiri::XML::Document, received %"PRIsVALUE,
@@ -35,11 +36,8 @@ rb_xml_text_s_new(int argc, VALUE *argv, VALUE klass)
     c_document = noko_xml_document_unwrap(rb_document);
   }
 
-  c_node = xmlNewText((xmlChar *)StringValueCStr(rb_string));
-  c_node->doc = c_document;
-
+  c_node = xmlNewDocText(c_document, (xmlChar *)StringValueCStr(rb_string));
   noko_xml_document_pin_node(c_node);
-
   rb_node = noko_xml_node_wrap(klass, c_node) ;
   rb_obj_call_init(rb_node, argc, argv);
 

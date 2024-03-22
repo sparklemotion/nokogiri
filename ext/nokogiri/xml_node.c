@@ -1893,22 +1893,21 @@ output_node(
       }
       break;
 
-    case XML_ATTRIBUTE_NODE:
-      {
-        xmlAttrPtr attr = (xmlAttrPtr)node;
-        output_attr_name(out, attr);
-        if (attr->children) {
-          output_string(out, "=\"");
-          xmlChar *value = xmlNodeListGetString(attr->doc, attr->children, 1);
-          output_escaped_string(out, value, true);
-          xmlFree(value);
-          output_char(out, '"');
-        } else {
-          // Output name=""
-          output_string(out, "=\"\"");
-        }
+    case XML_ATTRIBUTE_NODE: {
+      xmlAttrPtr attr = (xmlAttrPtr)node;
+      output_attr_name(out, attr);
+      if (attr->children) {
+        output_string(out, "=\"");
+        xmlChar *value = xmlNodeListGetString(attr->doc, attr->children, 1);
+        output_escaped_string(out, value, true);
+        xmlFree(value);
+        output_char(out, '"');
+      } else {
+        // Output name=""
+        output_string(out, "=\"\"");
       }
-      break;
+    }
+    break;
 
     case XML_TEXT_NODE:
       if (node->parent
