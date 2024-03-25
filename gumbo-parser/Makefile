@@ -40,7 +40,7 @@ src/%.c: src/%.gperf
 	gperf -m100 $< | ./gperf-filter.sed > $@
 
 src/%.c: src/%.rl
-	ragel -F1 -o $@ $<
+	ragel -G2 -e -o $@ $<
 endif
 
 build/src:
