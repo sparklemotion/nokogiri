@@ -154,7 +154,7 @@ module Nokogiri
           GC.compact
         rescue NotImplementedError
           @@gc_level = "normal"
-          warn("#{__FILE__}:#{__LINE__}: GC compaction not suppport by platform")
+          warn("#{__FILE__}:#{__LINE__}: GC compaction not supported by platform")
         end
       end
     end

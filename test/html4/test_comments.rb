@@ -149,7 +149,7 @@ module Nokogiri
       # https://html.spec.whatwg.org/multipage/parsing.html#parse-error-incorrectly-opened-comment
       #
       # This error occurs if the parser encounters the "<!" code point
-      # sequence that is not immidiately followed by two U+002D (-)
+      # sequence that is not immediately followed by two U+002D (-)
       # code points and that is not the start of a DOCTYPE or a CDATA
       # section. All content that follows the "<!" code point sequence
       # up to a U+003E (>) code point (if present) or to the end of
@@ -248,7 +248,7 @@ module Nokogiri
       #
       # This error occurs if the parser encounters a nested comment
       # (e.g., <!-- <!-- nested --> -->). Such a comment will be
-      # closed by the first occuring "-->" code point sequence and
+      # closed by the first occurring "-->" code point sequence and
       # everything that follows will be treated as markup.
       describe "nested comment" do
         let(:html) { "<html><body><div id=under-test><!-- outer <!-- inner --><div id=do-i-exist></div>--></div></body></html>" }

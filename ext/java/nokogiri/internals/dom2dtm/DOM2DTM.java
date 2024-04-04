@@ -453,7 +453,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
     // sequence. The lastTextNode value will be set to the last node in the
     // contiguous sequence, and -- AFTER the DTM addNode -- can be used to
     // advance next over this whole block. Should be simpler than special-casing
-    // the above loop for "Was the logically-preceeding sibling a text node".
+    // the above loop for "Was the logically-preceding sibling a text node".
     //
     // Finally, a DTM node should be considered a CDATASection only if all the
     // contiguous text it covers is CDATASections. The first Text should
@@ -1188,7 +1188,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   getNodeValue(int nodeHandle)
   {
     // The _type(nodeHandle) call was taking the lion's share of our
-    // time, and was wrong anyway since it wasn't coverting handle to
+    // time, and was wrong anyway since it wasn't converting handle to
     // identity. Inlined it.
     int type = _exptype(makeNodeIdentity(nodeHandle));
     type = (NULL != type) ? getNodeType(nodeHandle) : NULL;
@@ -1436,7 +1436,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   /** Bind an IncrementalSAXSource to this DTM. NOT RELEVANT for DOM2DTM, since
    * we're wrapped around an existing DOM.
    *
-   * @param source The IncrementalSAXSource that we want to recieve events from
+   * @param source The IncrementalSAXSource that we want to receive events from
    * on demand.
    */
   public void
@@ -1450,7 +1450,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
    *
    * @return null if this model doesn't respond to SAX events,
    * "this" if the DTM object has a built-in SAX ContentHandler,
-   * the IncrmentalSAXSource if we're bound to one and should receive
+   * the IncrementalSAXSource if we're bound to one and should receive
    * the SAX stream via it for incremental build purposes...
    * */
   public org.xml.sax.ContentHandler
@@ -1462,7 +1462,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
   /**
    * Return this DTM's lexical handler.
    *
-   * %REVIEW% Should this return null if constrution already done/begun?
+   * %REVIEW% Should this return null if construction already done/begun?
    *
    * @return null if this model doesn't respond to lexical SAX events,
    * "this" if the DTM object has a built-in SAX ContentHandler,

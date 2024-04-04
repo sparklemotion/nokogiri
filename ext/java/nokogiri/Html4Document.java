@@ -30,7 +30,7 @@ public class Html4Document extends XmlDocument
 
   private static final String DEFAULT_CONTENT_TYPE = "html";
   private static final String DEFAULT_PUBLIC_ID = "-//W3C//DTD HTML 4.01//EN";
-  private static final String DEFAULT_SYTEM_ID = "http://www.w3.org/TR/html4/strict.dtd";
+  private static final String DEFAULT_SYSTEM_ID = "http://www.w3.org/TR/html4/strict.dtd";
 
   private String parsed_encoding = null;
 
@@ -88,7 +88,7 @@ public class Html4Document extends XmlDocument
                                        getDocument(),
                                        context.getRuntime().newString(DEFAULT_CONTENT_TYPE),
                                        context.getRuntime().newString(DEFAULT_PUBLIC_ID),
-                                       context.getRuntime().newString(DEFAULT_SYTEM_ID));
+                                       context.getRuntime().newString(DEFAULT_SYSTEM_ID));
       setInternalSubset(internalSubset);
     }
 

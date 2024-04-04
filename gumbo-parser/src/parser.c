@@ -4513,7 +4513,7 @@ static void handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
   if (i == 0)
     return;
   // We can't call handle_token directly because the current node is still in
-  // a foriegn namespace, so it would re-enter this and result in infinite
+  // a foreign namespace, so it would re-enter this and result in infinite
   // recursion.
   handle_html_content(parser, token);
 }

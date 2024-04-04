@@ -66,7 +66,7 @@ public class NokogiriDomParser extends DOMParser
   {
     dtd.reset();
     if (xInclude) {
-      setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
+      setEntityResolver(new NokogiriXIncludeEntityResolver(source));
     }
     super.parse(source);
     Document doc = getDocument();
@@ -77,11 +77,11 @@ public class NokogiriDomParser extends DOMParser
     doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
   }
 
-  private static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver
+  private static class NokogiriXIncludeEntityResolver implements org.xml.sax.EntityResolver
   {
     InputSource source;
     private
-    NokogiriXInlcudeEntityResolver(InputSource source)
+    NokogiriXIncludeEntityResolver(InputSource source)
     {
       this.source = source;
     }

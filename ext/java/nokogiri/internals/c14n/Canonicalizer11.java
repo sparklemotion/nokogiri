@@ -600,7 +600,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase
         // that from the input buffer else if the input buffer consists
         // only of ".." and if the output buffer does not contain only
         // the root slash "/", then move the ".." to the output buffer
-        // else delte it.; otherwise,
+        // else delete it.; otherwise,
       } else if (input.equals(".")) {
         input = "";
         printStep("2D", output, input);

@@ -425,7 +425,7 @@ module Nokogiri
       end
 
       ###
-      # Return a nicely formated string representation
+      # Return a nicely formatted string representation
       def inspect
         "[#{map(&:inspect).join(", ")}]"
       end

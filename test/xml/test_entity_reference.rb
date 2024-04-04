@@ -200,7 +200,7 @@ module Nokogiri
         end
         assert_equal(expected, doc.errors.map(&:to_s))
       end
-      # TODO: can we retreive a resource pointing to localhost when NONET is set to true ?
+      # TODO: can we retrieve a resource pointing to localhost when NONET is set to true ?
     end
 
     class TestSaxEntityReference < Nokogiri::SAX::TestCase

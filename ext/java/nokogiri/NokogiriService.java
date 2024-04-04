@@ -37,7 +37,7 @@ public class NokogiriService implements BasicLibraryService
   }
 
   private static Map<String, RubyClass>
-  populateNokogiriClassCahce(Ruby ruby)
+  populateNokogiriClassCache(Ruby ruby)
   {
     Map<String, RubyClass> nokogiriClassCache = new HashMap<String, RubyClass>();
     nokogiriClassCache.put("Nokogiri::HTML4::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::Document"));
@@ -91,7 +91,7 @@ public class NokogiriService implements BasicLibraryService
     createDocuments(ruby, xmlModule, htmlModule, xmlNode);
     createSaxModule(ruby, xmlSaxModule, htmlSaxModule);
     createXsltModule(ruby, xsltModule);
-    nokogiri.setInternalVariable("cache", populateNokogiriClassCahce(ruby));
+    nokogiri.setInternalVariable("cache", populateNokogiriClassCache(ruby));
   }
 
   private void

@@ -87,7 +87,7 @@ public class NokogiriBlockingQueueInputStream extends InputStream
 
   /**
    * This method shouldn't be called unless the parser has finished parsing or
-   * threw an exception while doing so, otherwise, there'll be the protential
+   * threw an exception while doing so, otherwise, there'll be the potential
    * that the read method will block indefinitely.
    */
   @Override

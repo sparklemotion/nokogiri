@@ -90,7 +90,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
   //private Set<Node> xpathNodeSet;
   /**
    * The node to be skipped/excluded from the DOM tree
-   * in subtree canonicalizations.
+   * in subtree canonicalization.
    */
   private Node excludeNode;
   private OutputStream writer = new ByteArrayOutputStream();
