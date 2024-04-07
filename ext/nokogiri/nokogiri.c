@@ -203,6 +203,9 @@ Init_nokogiri(void)
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xsltEngineVersion));
 
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ZLIB_ENABLED"),
+               xmlHasFeature(XML_WITH_ZLIB) == 1 ? Qtrue : Qfalse);
+
 #ifdef NOKOGIRI_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
 #  ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
