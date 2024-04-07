@@ -195,39 +195,51 @@ module Nokogiri
       end
 
       def test_add_previous_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-
-        assert(a_tag = xml.css("a").first)
-
+        xml = Nokogiri::XML("<root>  <a>Hello world</a>   </root>")
+        a_tag = xml.at_css("a")
         left_space = a_tag.previous
         right_space = a_tag.next
+
+        assert_equal("  ", left_space.content)
         assert_predicate(left_space, :text?)
+        assert_equal("   ", right_space.content)
         assert_predicate(right_space, :text?)
 
         left_space.add_previous_sibling(right_space)
-        assert_equal(left_space, right_space)
+
+        if Nokogiri.uses_libxml?(">= 2.13.0")
+          # after gnome/libxml2@f43197fc text nodes are never merged
+          assert_equal("  ", left_space.content)
+          assert_equal("   ", right_space.content)
+        else
+          # before gnome/libxml2@f43197fc blank text nodes are merged
+          assert_equal("     ", left_space.content)
+          assert_equal("     ", right_space.content)
+        end
       end
 
       def test_add_next_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-
-        assert(a_tag = xml.css("a").first)
-
+        xml = Nokogiri::XML("<root>  <a>Hello world</a>   </root>")
+        a_tag = xml.at_css("a")
         left_space = a_tag.previous
         right_space = a_tag.next
+
+        assert_equal("  ", left_space.content)
         assert_predicate(left_space, :text?)
+        assert_equal("   ", right_space.content)
         assert_predicate(right_space, :text?)
 
         right_space.add_next_sibling(left_space)
-        assert_equal(left_space, right_space)
+
+        if Nokogiri.uses_libxml?(">= 2.13.0")
+          # after gnome/libxml2@f43197fc text nodes are never merged
+          assert_equal("  ", left_space.content)
+          assert_equal("   ", right_space.content)
+        else
+          # before gnome/libxml2@f43197fc blank text nodes are merged
+          assert_equal("     ", left_space.content)
+          assert_equal("     ", right_space.content)
+        end
       end
 
       def test_add_next_sibling_to_root_raises_exception
