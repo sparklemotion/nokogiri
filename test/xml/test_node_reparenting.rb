@@ -623,11 +623,7 @@ module Nokogiri
               assert_equal "after", after.content
               refute_nil after.parent, "unrelated node should not be affected"
 
-              if Nokogiri.uses_libxml?(">= 2.13.0")
-                assert_equal "beforex", before.content # coalescing fixed in gnome/libxml2@4ccd3eb8
-              else
-                assert_equal "before", before.content
-              end
+              assert_equal "before", before.content
               refute_nil before.parent, "no need to reparent"
             end
           end
@@ -666,11 +662,7 @@ module Nokogiri
               assert_equal "before", before.content
               refute_nil before.parent, "unrelated node should not be affected"
 
-              if Nokogiri.uses_libxml?(">= 2.13.0")
-                assert_equal "xafter", after.content # coalescing fixed in gnome/libxml2@4ccd3eb8
-              else
-                assert_equal "after", after.content
-              end
+              assert_equal "after", after.content
               refute_nil after.parent
             end
           end
