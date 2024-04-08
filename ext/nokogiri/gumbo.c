@@ -538,7 +538,7 @@ error:
   VALUE doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
   VALUE dtd = rb_funcall(doc, internal_subset, 0);
   VALUE doc_quirks_mode = rb_iv_get(doc, "@quirks_mode");
-  if (NIL_P(ctx) || NIL_P(doc_quirks_mode)) {
+  if (NIL_P(ctx) || (TYPE(ctx) == T_STRING) || NIL_P(doc_quirks_mode)) {
     quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS;
   } else if (NIL_P(dtd)) {
     quirks_mode = GUMBO_DOCTYPE_QUIRKS;

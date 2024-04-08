@@ -66,6 +66,15 @@ describe Nokogiri::HTML5 do
           assert_equal(Nokogiri::HTML5::QuirksMode::NO_QUIRKS, fragment.quirks_mode)
           assert_equal(no_quirks_output, fragment.to_html)
         end
+
+        describe "context node is just a tag name and not a real node" do
+          it "parses the fragment in no-quirks mode" do
+            fragment = Nokogiri::HTML5::DocumentFragment.new(document, input, "body")
+
+            assert_equal(Nokogiri::HTML5::QuirksMode::NO_QUIRKS, fragment.quirks_mode)
+            assert_equal(no_quirks_output, fragment.to_html)
+          end
+        end
       end
 
       describe "document does not have a doctype" do
@@ -77,6 +86,15 @@ describe Nokogiri::HTML5 do
 
           assert_equal(Nokogiri::HTML5::QuirksMode::QUIRKS, fragment.quirks_mode)
           assert_equal(quirks_output, fragment.to_html)
+        end
+
+        describe "context node is just a tag name and not a real node" do
+          it "parses the fragment in no-quirks mode" do
+            fragment = Nokogiri::HTML5::DocumentFragment.new(document, input, "body")
+
+            assert_equal(Nokogiri::HTML5::QuirksMode::NO_QUIRKS, fragment.quirks_mode)
+            assert_equal(no_quirks_output, fragment.to_html)
+          end
         end
       end
     end
