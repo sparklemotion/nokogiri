@@ -2,7 +2,7 @@
 
 The Nokogiri Core Contributors take security very seriously and investigate all reported vulnerabilities.
 
-If you would like to report a vulnerablity or have a security concern regarding Nokogiri or how Nokogiri is using any of its underlying platform-specific libraries (such as libxml2 or xerces), please [report it via HackerOne](https://hackerone.com/nokogiri/reports/new).
+If you would like to report a vulnerability or have a security concern regarding Nokogiri or how Nokogiri is using any of its underlying platform-specific libraries (such as libxml2 or xerces), please [report it via HackerOne](https://hackerone.com/nokogiri/reports/new).
 
 Your report will be acknowledged within 24 hours, and you'll receive a more detailed response within 72 hours indicating next steps in handling your report.
 

@@ -573,7 +573,7 @@ public class DOM2DTMdefaultNamespaceDeclarationNode implements Attr, TypeInfo
    * <code>Node</code> references returned by the implementation reference
    * the same object. When two <code>Node</code> references are references
    * to the same object, even if through a proxy, the references may be
-   * used completely interchangably, such that all attributes have the
+   * used completely interchangeably, such that all attributes have the
    * same values and calling the same DOM method on either reference
    * always has exactly the same effect.
    * @param other The node to test against.
@@ -688,7 +688,7 @@ public class DOM2DTMdefaultNamespaceDeclarationNode implements Attr, TypeInfo
   public String
   getTextContent() throws DOMException
   {
-    return getNodeValue();  // overriden in some subclasses
+    return getNodeValue();  // overridden in some subclasses
   }
 
   /**

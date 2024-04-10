@@ -2178,7 +2178,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631,
 * `XML::Node#namespace=` takes nil as a parameter
 * `XML::Node#xpath` returns things other than `NodeSet` objects. [#208]
 * `XSLT::StyleSheet#transform` accepts hashes for parameters. [#223]
-* Psuedo selectors inside `not()` work. [#205]
+* Pseudo selectors inside `not()` work. [#205]
 * `XML::Builder` doesn't break when nodes are unlinked. [#228] (vihai)
 * Encoding can be forced on the SAX parser. [#204] (Eugene Pimenov)
 * `XML::DocumentFragment` uses `XML::Node#parse` to determine children.
@@ -2202,7 +2202,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. [#631,
 * Added fragment support to `Node#add_child`, `Node#add_next_sibling`, `Node#add_previous_sibling`, and `Node#replace`.
 * `XML::Node#previous_element` implemented
 * Rubinius support
-* Ths CSS selector engine now supports `:has()`
+* The CSS selector engine now supports `:has()`
 * `XML::NodeSet#filter()` was added
 * `XML::Node.next=` and .previous= are aliases for add_next_sibling and add_previous_sibling. [#183]
 

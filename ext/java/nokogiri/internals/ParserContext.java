@@ -227,9 +227,9 @@ public abstract class ParserContext extends RubyObject
   }
 
   /*
-  public static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
+  public static class NokogiriXIncludeEntityResolver implements org.xml.sax.EntityResolver {
       InputSource source;
-      public NokogiriXInlcudeEntityResolver(InputSource source) {
+      public NokogiriXIncludeEntityResolver(InputSource source) {
           this.source = source;
       }
 

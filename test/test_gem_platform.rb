@@ -26,7 +26,7 @@ class TestGemPlatform < Nokogiri::TestCase
   # [1]: https://arstechnica.com/gadgets/2020/06/this-is-apples-roadmap-for-moving-the-first-macs-away-from-intel/
   #
   # There seems to be a lot of uncertainty right now, so I'm writing
-  # some tests to express my expectations, and we're gonig to
+  # some tests to express my expectations, and we're going to
   # conservatively use `x86_64-darwin` as the platform name for the
   # native gem.
   let(:darwin_gem_platform) { Gem::Platform.new("x86_64-darwin") }

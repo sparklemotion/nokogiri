@@ -758,7 +758,7 @@ module Nokogiri
           assert_equal(xml.serialize(nil, conf), string)
         end
 
-        def test_hold_refence_to_subnode
+        def test_hold_reference_to_subnode
           doc = Nokogiri::XML(<<~XML)
             <root>
               <a>

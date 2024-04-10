@@ -287,7 +287,7 @@ public class XmlNode extends RubyObject
    * args but not for an exact number.  Any extra args will then be
    * passed to 'initialize'.  The way 'new' and this 'init' function
    * interact means that subclasses cannot arbitrarily change the
-   * require aruments by defining an 'initialize' method.  This is
+   * require arguments by defining an 'initialize' method.  This is
    * how the C libxml wrapper works also.
    *
    * As written it performs initialization for a new Element with
@@ -407,7 +407,7 @@ public class XmlNode extends RubyObject
   /**
    * This method should be called after a node has been adopted in a new
    * document. This method will ensure that the node is renamed with the
-   * appriopriate NS uri. First the prefix of the node is extracted, then is
+   * appropriate NS uri. First the prefix of the node is extracted, then is
    * used to lookup the namespace uri in the new document starting at the
    * current node and traversing the ancestors. If the namespace uri wasn't
    * empty (or null) all children and the node has attributes and/or children

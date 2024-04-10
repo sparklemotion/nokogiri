@@ -41,7 +41,7 @@ module Nokogiri
           end
         end
 
-        def test_parse_file_non_existant
+        def test_parse_file_non_existent
           assert_raises(Errno::ENOENT) do
             @parser.parse_file("there_is_no_reasonable_way_this_file_exists")
           end

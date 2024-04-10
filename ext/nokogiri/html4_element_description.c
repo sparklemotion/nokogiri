@@ -245,7 +245,7 @@ implied_start_tag_eh(VALUE self)
  * call-seq:
  *  name
  *
- * Get the tag name for this ElemementDescription
+ * Get the tag name for this ElementDescription
  */
 static VALUE
 name(VALUE self)
@@ -261,7 +261,7 @@ name(VALUE self)
  * call-seq:
  *  [](tag_name)
  *
- * Get ElemementDescription for +tag_name+
+ * Get ElementDescription for +tag_name+
  */
 static VALUE
 get_description(VALUE klass, VALUE tag_name)
