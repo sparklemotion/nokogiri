@@ -24,6 +24,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
 
 
+## v1.16.4 / 2024-04-10
+
+### Dependencies
+
+* [CRuby] Vendored zlib in the precompiled native gems is updated to [v1.3.1](https://zlib.net/ChangeLog.txt) from v1.3. Nokogiri is not affected by the minizip CVE patched in this version, but this update may satisfy some security scanners. Related, see [this discussion](https://github.com/sparklemotion/nokogiri/discussions/3168) about removing the compression libraries altogether in a future version of Nokogiri.
+
+
 ## v1.16.3 / 2024-03-15
 
 ### Dependencies
