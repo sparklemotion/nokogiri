@@ -129,14 +129,16 @@ module Nokogiri
 
     class << self
       def nokogiri_test_gc_level
-        if ["stress", "major", "minor", "normal"].include?(ENV["NOKOGIRI_TEST_GC_LEVEL"])
-          ENV["NOKOGIRI_TEST_GC_LEVEL"]
-        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "compact") && defined?(GC.compact)
-          "compact"
-        elsif (ENV["NOKOGIRI_TEST_GC_LEVEL"] == "verify") && defined?(GC.verify_compaction_references)
-          "verify"
+        level = ENV["NOKOGIRI_TEST_GC_LEVEL"]&.to_sym
+
+        if [:stress, :major, :minor, :normal].include?(level)
+          level
+        elsif (level == :compact) && defined?(GC.compact)
+          :compact
+        elsif (level == :verify) && defined?(GC.verify_compaction_references)
+          :verify
         else
-          "normal"
+          :normal
         end
       end
     end
@@ -147,13 +149,12 @@ module Nokogiri
 
       @@gc_level = TestCase.nokogiri_test_gc_level
 
-      if ["compact", "verify"].include?(@@gc_level)
-        # the only way of detecting an unsupported platform is actually
-        # trying GC compaction
+      if [:compact, :verify].include?(@@gc_level)
+        # the only way of detecting an unsupported platform is actually trying GC compaction
         begin
           GC.compact
         rescue NotImplementedError
-          @@gc_level = "normal"
+          @@gc_level = :normal
           warn("#{__FILE__}:#{__LINE__}: GC compaction not supported by platform")
         end
       end
@@ -171,7 +172,7 @@ module Nokogiri
       end
 
       unless Nokogiri.jruby?
-        if @@gc_level == "stress"
+        if @@gc_level == :stress
           GC.stress = true
         end
       end
@@ -182,22 +183,24 @@ module Nokogiri
     def teardown
       unless Nokogiri.jruby?
         case @@gc_level
-        when "minor"
+        when :minor
           GC.start(full_mark: false)
-        when "major"
+        when :major
           GC.start(full_mark: true)
-        when "compact"
+        when :compact
           if @@test_count % COMPACT_EVERY == 0
             GC.compact
+            putc("<")
           else
             GC.start(full_mark: true)
           end
-        when "verify"
+        when :verify
           if @@test_count % COMPACT_EVERY == 0
             gc_verify_compaction_references
+            putc("!")
           end
           GC.start(full_mark: true)
-        when "stress"
+        when :stress
           GC.stress = false
         end
       end
@@ -236,7 +239,7 @@ module Nokogiri
       raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
 
       yield.tap do
-        GC.start(full_mark: true) if @@gc_level == "minor"
+        GC.start(full_mark: true) if @@gc_level == :minor
       end
     end
 
