@@ -135,7 +135,8 @@ module Nokogiri
           level
         elsif (level == :compact) && defined?(GC.compact)
           :compact
-        elsif (level == :verify) && defined?(GC.verify_compaction_references)
+        elsif (level == :verify) && defined?(GC.verify_compaction_references) &&
+            Gem::Requirement.new(">= 3.3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
           :verify
         else
           :normal
