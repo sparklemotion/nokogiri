@@ -269,8 +269,7 @@ module Nokogiri
           cfg.dtdload
           cfg.noent
         end
-        nodes = []
-        reader.each { |n| nodes << n.value }
+        nodes = reader.map(&:value)
 
         assert_equal ["foobar"], nodes.compact.map(&:strip).reject(&:empty?)
       end
@@ -282,8 +281,7 @@ module Nokogiri
           cfg.default_xml
           cfg.dtdload
         end
-        nodes = []
-        reader.each { |n| nodes << n.value }
+        nodes = reader.map(&:value)
 
         assert_empty nodes.compact.map(&:strip).reject(&:empty?)
       end
