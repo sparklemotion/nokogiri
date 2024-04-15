@@ -12,9 +12,8 @@ module Nokogiri
         end
 
         def test_each
-          attributes = []
-          @xml.xpath("//address")[1].each do |key, value|
-            attributes << [key, value]
+          attributes = @xml.xpath("//address")[1].map do |key, value|
+            [key, value]
           end
           assert_equal([["domestic", "Yes"], ["street", "Yes"]], attributes)
         end
