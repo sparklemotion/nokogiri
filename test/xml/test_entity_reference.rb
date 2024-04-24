@@ -163,7 +163,9 @@ module Nokogiri
         doc = @parser.parse(xml, path, &:default_xml)
 
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
-        if Nokogiri.uses_libxml?
+        if Nokogiri.uses_libxml?(">= 2.13.0") # gnome/libxml2@b717abdd
+          assert_equal ["5:14: WARNING: Entity 'bar' not defined"], doc.errors.map(&:to_s)
+        elsif Nokogiri.uses_libxml?
           assert_equal ["5:14: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
         end
       end
@@ -184,11 +186,11 @@ module Nokogiri
 
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
 
-        expected = if Nokogiri.uses_libxml?(">= 2.13")
+        expected = if Nokogiri.uses_libxml?(">= 2.13") # many gnome/libxml2 changes made in 2023-12
           [
             "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
             "ERROR: Attempt to load network entity: http://foo.bar.com/",
-            "4:14: ERROR: Entity 'bar' not defined",
+            "4:14: WARNING: Entity 'bar' not defined", # gnome/libxml2@b717abdd
           ]
         elsif Nokogiri.uses_libxml?
           [
@@ -218,16 +220,20 @@ module Nokogiri
         xml = File.read(xml_document)
         @parser.parse(xml)
 
-        refute_nil @parser.document.errors
+        actual = if Nokogiri.uses_libxml?(">= 2.13.0") # gnome/libxml2@b717abdd
+          @parser.document.warnings
+        else
+          @parser.document.errors
+        end
 
-        errors = @parser.document.errors.map { |e| e.to_s.strip }
+        actual = actual.map { |e| e.to_s.strip }
         expected = if truffleruby_system_libraries?
           ["error_func: %s"]
         else
           ["Entity 'bar' not defined"]
         end
 
-        assert_equal(expected, errors)
+        assert_equal(expected, actual)
       end
 
       test_relative_and_absolute_path :test_more_sax_entity_reference do
@@ -241,16 +247,23 @@ module Nokogiri
         XML
         @parser.parse(xml)
 
-        refute_nil @parser.document.errors
+        actual = if Nokogiri.uses_libxml?(">= 2.13.0") # gnome/libxml2@b717abdd
+          @parser.document.warnings
+        else
+          @parser.document.errors
+        end
 
-        errors = @parser.document.errors.map { |e| e.to_s.strip }
+        refute_nil(actual)
+        refute_empty(actual)
+
+        actual = actual.map { |e| e.to_s.strip }
         expected = if truffleruby_system_libraries?
           ["error_func: %s"]
         else
           ["Entity 'bar' not defined"]
         end
 
-        assert_equal(expected, errors)
+        assert_equal(expected, actual)
       end
     end
 
