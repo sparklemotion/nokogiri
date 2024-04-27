@@ -137,6 +137,9 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
       NOKOGIRI_USE_SYSTEM_LIBRARIES
           Equivalent to `--enable-system-libraries` when set, even if nil or blank.
 
+      AR
+          Use this path to invoke the library archiver instead of `RbConfig::CONFIG['AR']`
+
       CC
           Use this path to invoke the compiler instead of `RbConfig::CONFIG['CC']`
 
@@ -145,6 +148,9 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
       CFLAGS
           If this string is accepted by the compiler, add it to the flags passed to the compiler
+
+      LD
+          Use this path to invoke the linker instead of `RbConfig::CONFIG['LD']`
 
       LDFLAGS
           If this string is accepted by the linker, add it to the flags passed to the linker
@@ -626,12 +632,22 @@ if openbsd? && !config_system_libraries?
   append_cppflags "-I/usr/local/include"
 end
 
+if ENV["AR"]
+  RbConfig::CONFIG["AR"] = RbConfig::MAKEFILE_CONFIG["AR"] = ENV["AR"]
+end
+
 if ENV["CC"]
   RbConfig::CONFIG["CC"] = RbConfig::MAKEFILE_CONFIG["CC"] = ENV["CC"]
 end
 
-# use same c compiler for libxml and libxslt
+if ENV["LD"]
+  RbConfig::CONFIG["LD"] = RbConfig::MAKEFILE_CONFIG["LD"] = ENV["LD"]
+end
+
+# use same toolchain for libxml and libxslt
+ENV["AR"] = RbConfig::CONFIG["AR"]
 ENV["CC"] = RbConfig::CONFIG["CC"]
+ENV["LD"] = RbConfig::CONFIG["LD"]
 
 if arg_config("--prevent-strip")
   old_cflags = $CFLAGS.split.join(" ")
