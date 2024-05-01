@@ -339,7 +339,6 @@ jobs:
       - run: bundle exec rake test
 
   bsd:
-    continue-on-error: true # let's see if it's really fixed
     needs: ["basic"]
     strategy:
       fail-fast: false
