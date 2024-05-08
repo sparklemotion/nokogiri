@@ -190,7 +190,7 @@ module Nokogiri
           [
             "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
             "ERROR: Attempt to load network entity: http://foo.bar.com/",
-            "4:14: WARNING: Entity 'bar' not defined", # gnome/libxml2@b717abdd
+            "4:14: FATAL: Entity 'bar' not defined", # gnome/libxml2@b717abdd, gnome/libxml2@fdc5ff36
           ]
         elsif Nokogiri.uses_libxml?
           [
