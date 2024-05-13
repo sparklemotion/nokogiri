@@ -544,7 +544,7 @@ jobs:
         plat:
           - "aarch64-linux"
           - "arm-linux"
-          - "arm64-darwin" # github actions does not support this runtime as of 2022-12, but let's build anyway
+          - "arm64-darwin"
           - "x64-mingw-ucrt"
           - "x64-mingw32"
           - "x86-linux"
@@ -681,7 +681,7 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
@@ -692,6 +692,26 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: cruby-x86_64-darwin-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+
+  cruby-arm64-darwin-install:
+    needs: ["cruby-package"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.0", "3.1", "3.2", "3.3"]
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cruby-arm64-darwin-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
