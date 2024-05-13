@@ -25,6 +25,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
 
 
+## v1.16.5
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated to address CVE-2024-34459. See [GHSA-r95h-9x8f-r3f7](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-r95h-9x8f-r3f7) for more information.
+
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.7](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.7) from v2.12.6. (@flavorjones)
+
+
 ## v1.16.4 / 2024-04-10
 
 ### Dependencies
