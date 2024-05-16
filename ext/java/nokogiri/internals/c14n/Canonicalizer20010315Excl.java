@@ -222,7 +222,7 @@ public abstract class Canonicalizer20010315Excl extends CanonicalizerBase
         if (!XMLNS_URI.equals(attribute.getNamespaceURI())) {
           if (isVisible(attribute) && isOutputElement) {
             // The Element is output element, add the prefix (if used)
-            // to visibyUtilized
+            // to visiblyUtilized
             String prefix = attribute.getPrefix();
             if (prefix != null && !(prefix.equals(XML) || prefix.equals(XMLNS))) {
               visiblyUtilized.add(prefix);

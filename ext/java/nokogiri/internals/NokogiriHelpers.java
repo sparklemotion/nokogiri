@@ -724,7 +724,7 @@ public class NokogiriHelpers
   convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str)
   {
     if (!(doc instanceof Html4Document)) { return str; }
-    String parsed_encoding = ((Html4Document)doc).getPraedEncoding();
+    String parsed_encoding = ((Html4Document)doc).getParsedEncoding();
     if (parsed_encoding == null) { return str; }
     String ruby_encoding = rubyStringToString(doc.getEncoding());
     if (ruby_encoding == null) { return str; }

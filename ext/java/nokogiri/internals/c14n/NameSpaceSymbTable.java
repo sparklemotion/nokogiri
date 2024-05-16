@@ -217,7 +217,7 @@ public class NameSpaceSymbTable
     symb.put(prefix, ne);
     if (ob != null) {
       //We have a previous definition store it for the pop.
-      //Check if a previous definition(not the inmidiatly one) has been rendered.
+      //Check if a previous definition(not the immediate one) has been rendered.
       ne.lastrendered = ob.lastrendered;
       if ((ob.lastrendered != null) && (ob.lastrendered.equals(uri))) {
         //Yes it is. Mark as rendered.

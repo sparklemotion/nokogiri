@@ -62,7 +62,7 @@ public class XmlDocumentFragment extends XmlNode
 
     XmlDocument doc = (XmlDocument) args[0];
 
-    // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
+    // make well-formed fragment, ignore invalid namespace, or add appropriate namespace to parse
     if (args.length > 1 && args[1] instanceof RubyString) {
       final RubyString arg1 = (RubyString) args[1];
       if (XmlDocumentFragment.isTag(arg1)) {

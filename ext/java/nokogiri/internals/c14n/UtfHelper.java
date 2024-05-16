@@ -22,11 +22,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-public final class UtfHelpper
+public final class UtfHelper
 {
 
   private
-  UtfHelpper()
+  UtfHelper()
   {
     // complete
   }
