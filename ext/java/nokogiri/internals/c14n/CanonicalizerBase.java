@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -243,7 +242,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
           ns.outputNodePush();
           writer.write('<');
           String name = currentElement.getTagName();
-          UtfHelpper.writeByte(name, writer, cache);
+          UtfHelper.writeByte(name, writer, cache);
 
           Iterator<Attr> attrs = this.handleAttributesSubtree(currentElement, ns);
           if (attrs != null) {
@@ -257,7 +256,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
           sibling = currentNode.getFirstChild();
           if (sibling == null) {
             writer.write(END_TAG);
-            UtfHelpper.writeStringToUtf8(name, writer);
+            UtfHelper.writeStringToUtf8(name, writer);
             writer.write('>');
             //We finished with this level, pop to the previous definitions.
             ns.outputNodePop();
@@ -274,7 +273,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
       }
       while (sibling == null && parentNode != null) {
         writer.write(END_TAG);
-        UtfHelpper.writeByte(((Element)parentNode).getTagName(), writer, cache);
+        UtfHelper.writeByte(((Element)parentNode).getTagName(), writer, cache);
         writer.write('>');
         //We finished with this level, pop to the previous definitions.
         ns.outputNodePop();
@@ -467,7 +466,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
   ) throws IOException
   {
     writer.write(' ');
-    UtfHelpper.writeByte(name, writer, cache);
+    UtfHelper.writeByte(name, writer, cache);
     writer.write(equalsStr);
     byte[] toWrite;
     final int length = value.length();
@@ -505,7 +504,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
           if (c < 0x80) {
             writer.write(c);
           } else {
-            UtfHelpper.writeCharToUtf8(c, writer);
+            UtfHelper.writeCharToUtf8(c, writer);
           }
           continue;
       }
@@ -543,7 +542,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
         if (c < 0x80) {
           writer.write(c);
         } else {
-          UtfHelpper.writeCharToUtf8(c, writer);
+          UtfHelper.writeCharToUtf8(c, writer);
         }
       }
     }
@@ -560,7 +559,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
         if (c == 0x0D) {
           writer.write(XD);
         } else {
-          UtfHelpper.writeCharToUtf8(c, writer);
+          UtfHelper.writeCharToUtf8(c, writer);
         }
       }
     }
@@ -599,7 +598,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
         if (c < 0x80) {
           writer.write(c);
         } else {
-          UtfHelpper.writeCharToUtf8(c, writer);
+          UtfHelper.writeCharToUtf8(c, writer);
         }
       }
     }
@@ -649,7 +648,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi
           if (c < 0x80) {
             writer.write(c);
           } else {
-            UtfHelpper.writeCharToUtf8(c, writer);
+            UtfHelper.writeCharToUtf8(c, writer);
           }
           continue;
       }

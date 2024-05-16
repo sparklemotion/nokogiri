@@ -569,17 +569,17 @@ static StateResult emit_from_mark(GumboParser* parser, GumboToken* output) {
 }
 
 // Appends a codepoint to the current tag buffer. If
-// reinitilize_position_on_first is set, this also initializes the tag buffer
+// reinitialize_position_on_first is set, this also initializes the tag buffer
 // start point; the only time you would *not* want to pass true for this
 // parameter is if you want the original_text to include character (like an
 // opening quote) that doesn't appear in the value.
 static void append_char_to_tag_buffer (
   GumboParser* parser,
   int codepoint,
-  bool reinitilize_position_on_first
+  bool reinitialize_position_on_first
 ) {
   GumboStringBuffer* buffer = &parser->_tokenizer_state->_tag_state._buffer;
-  if (buffer->length == 0 && reinitilize_position_on_first) {
+  if (buffer->length == 0 && reinitialize_position_on_first) {
     reset_tag_buffer_start_point(parser);
   }
   gumbo_string_buffer_append_codepoint(codepoint, buffer);
@@ -589,10 +589,10 @@ static void append_char_to_tag_buffer (
 static void append_string_to_tag_buffer (
   GumboParser* parser,
   GumboStringPiece* str,
-  bool reinitilize_position_on_first
+  bool reinitialize_position_on_first
 ) {
   GumboStringBuffer* buffer = &parser->_tokenizer_state->_tag_state._buffer;
-  if (buffer->length == 0 && reinitilize_position_on_first) {
+  if (buffer->length == 0 && reinitialize_position_on_first) {
     reset_tag_buffer_start_point(parser);
   }
   gumbo_string_buffer_append_string(str, buffer);

@@ -225,7 +225,7 @@ module Nokogiri
         check_params(result_doc, params)
       end
 
-      def test_xslt_paramaters
+      def test_xslt_parameters
         # see http://yokolet.blogspot.com/2010/10/pure-java-nokogiri-xslt-extension.html")
         skip_unless_libxml2("cannot get it working on JRuby")
 

@@ -1509,7 +1509,7 @@ Several changes were made to improve performance:
 * [JRuby] fix slow add_child [#692]
 * [JRuby] fix load errors when deploying to JRuby/Torquebox [#1114] (@atambo and @jvshahid)
 * [JRuby] fix NPE when inspecting nodes returned by `NodeSet#drop` [#1042] (@mkristian)
-* [JRuby] fix nil attriubte node's namespace in reader [#1327] (@codekitchen)
+* [JRuby] fix nil attribute node's namespace in reader [#1327] (@codekitchen)
 * [JRuby] fix Nokogiri munging unicode characters that require more than 2 bytes [#1113] (@mkristian)
 * [JRuby] allow unlinking an unparented node (#1112, #1152) (@esse)
 * [JRuby] allow Fragment parsing on a frozen string (#444, #1077)

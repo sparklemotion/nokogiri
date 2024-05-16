@@ -141,7 +141,7 @@ public class XmlDtd extends XmlNode
    *
    * NekoDTD parser returns a new document node containing elements
    * representing the dtd declarations. The plan is to get the root
-   * element and adopt it into the correct document, stipping the
+   * element and adopt it into the correct document, stripping the
    * Document provided by NekoDTD.
    *
    */
@@ -454,7 +454,7 @@ public class XmlDtd extends XmlNode
    * This recursive function will not descend into an
    * 'externalSubset' node, thus for an internal subset it only
    * extracts nodes in the internal subset, and for an external
-   * subset it extracts everything and assumess <code>node</code>
+   * subset it extracts everything and assumes <code>node</code>
    * and all children are part of the external subset.
    */
   protected IRubyObject[]

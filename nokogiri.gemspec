@@ -141,7 +141,7 @@ Gem::Specification.new do |spec|
     "ext/java/nokogiri/internals/c14n/InvalidCanonicalizerException.java",
     "ext/java/nokogiri/internals/c14n/NameSpaceSymbTable.java",
     "ext/java/nokogiri/internals/c14n/NodeFilter.java",
-    "ext/java/nokogiri/internals/c14n/UtfHelpper.java",
+    "ext/java/nokogiri/internals/c14n/UtfHelper.java",
     "ext/java/nokogiri/internals/c14n/XMLUtils.java",
     "ext/java/nokogiri/internals/dom2dtm/DOM2DTM.java",
     "ext/java/nokogiri/internals/dom2dtm/DOM2DTMdefaultNamespaceDeclarationNode.java",

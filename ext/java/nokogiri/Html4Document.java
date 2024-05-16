@@ -132,7 +132,7 @@ public class Html4Document extends XmlDocument
   }
 
   public String
-  getPraedEncoding()
+  getParsedEncoding()
   {
     return parsed_encoding;
   }

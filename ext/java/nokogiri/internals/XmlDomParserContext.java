@@ -107,7 +107,7 @@ public class XmlDomParserContext extends ParserContext
       setFeature(FEATURE_NOT_EXPAND_ENTITY, true);
     }
     // If we turn off loading of external DTDs complete, we don't
-    // getthe publicID.  Instead of turning off completely, we use
+    // get the publicID.  Instead of turning off completely, we use
     // an entity resolver that returns empty documents.
     if (options.dtdLoad) {
       setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);

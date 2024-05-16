@@ -403,7 +403,7 @@ module Nokogiri
         @decorators.each do |klass, list|
           next unless node.is_a?(klass)
 
-          list.each { |moodule| node.extend(moodule) }
+          list.each { |mod| node.extend(mod) }
         end
       end
 

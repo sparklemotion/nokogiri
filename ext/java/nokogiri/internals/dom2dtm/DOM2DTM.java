@@ -51,7 +51,7 @@ import org.xml.sax.ContentHandler;
  * Note that it doesn't necessarily represent a full Document
  * tree. You can wrap a DOM2DTM around a specific node and its subtree
  * and the right things should happen. (I don't _think_ we currently
- * support DocumentFrgment nodes as roots, though that might be worth
+ * support DocumentFragment nodes as roots, though that might be worth
  * considering.)
  *
  * Note too that we do not currently attempt to track document
@@ -63,7 +63,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
 //    static final boolean JJK_DEBUG=false;
 //    static final boolean JJK_NEWCODE=true;
 
-  /** Manefest constant
+  /** Manifest constant
    */
   static final String NAMESPACE_DECL_NS = "http://www.w3.org/XML/1998/namespace";
 
@@ -330,7 +330,7 @@ public class DOM2DTM extends DTMDefaultBaseIterators
     }
 
     // %REVIEW% Is this local copy Really Useful from a performance
-    // point of view?  Or is this a false microoptimization?
+    // point of view?  Or is this a false micro-optimization?
     Node pos = m_pos;
     Node next = null;
     int nexttype = NULL;
