@@ -112,7 +112,7 @@ class TestHtml5Encoding < Nokogiri::TestCase
   # I'm happy to change them. I'm just pasting them in here so I'm pretty sure
   # the right-to-left languages are backward. Corrections welcome.
   ENCODINGS = [
-    ["UTF-8",          "Let's concatentate all of these for UTF-8"], # English
+    ["UTF-8",          "Let's concatenate all of these for UTF-8"], # English
     ["IBM866",         "А дело бывало -- и коза волка съедала"], # Russian
     ["ISO-8859-2",     "Co můžeš udělat dnes, neodkládej na zítřek."], # Czech
     ["ISO-8859-3",     "Yukarda mavi gök, asağıda yağız yer yaratıldıkta"], # Turkish
