@@ -63,13 +63,13 @@ class Tokenizer
                   when (text = @ss.scan(/has\([\s]*/))
                      action { [:HAS, text] }
 
-                  when (text = @ss.scan(/-?([_A-Za-z]|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])([_A-Za-z0-9-]|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])*\([\s]*/))
+                  when (text = @ss.scan(/-?([_A-Za-z]|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))([_A-Za-z0-9-]|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))*\([\s]*/))
                      action { [:FUNCTION, text] }
 
-                  when (text = @ss.scan(/-?([_A-Za-z]|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])([_A-Za-z0-9-]|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])*/))
+                  when (text = @ss.scan(/-?([_A-Za-z]|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))([_A-Za-z0-9-]|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))*/))
                      action { [:IDENT, text] }
 
-                  when (text = @ss.scan(/\#([_A-Za-z0-9-]|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])+/))
+                  when (text = @ss.scan(/\#([_A-Za-z0-9-]|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))+/))
                      action { [:HASH, text] }
 
                   when (text = @ss.scan(/[\s]*~=[\s]*/))
@@ -132,7 +132,7 @@ class Tokenizer
                   when (text = @ss.scan(/[\s]+/))
                      action { [:S, text] }
 
-                  when (text = @ss.scan(/"([^\n\r\f"]|\n|\r\n|\r|\f|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])*(?<!\\)(?:\\{2})*"|'([^\n\r\f']|\n|\r\n|\r|\f|[^\0-\177]|\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f])*(?<!\\)(?:\\{2})*'/))
+                  when (text = @ss.scan(/("([^\n\r\f"]|(\n|\r\n|\r|\f)|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))*(?<!\\)(?:\\{2})*"|'([^\n\r\f']|(\n|\r\n|\r|\f)|[^\0-\177]|(\\[0-9A-Fa-f]{1,6}(\r\n|[\s])?|\\[^\n\r\f0-9A-Fa-f]))*(?<!\\)(?:\\{2})*')/))
                      action { [:STRING, text] }
 
                   when (text = @ss.scan(/./))
