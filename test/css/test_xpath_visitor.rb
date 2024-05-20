@@ -369,6 +369,11 @@ class TestNokogiri < Nokogiri::TestCase
         assert_xpath("//*[not(@id='foo')]", parser.parse(":not(#foo)"))
         assert_xpath("//*[count(preceding-sibling::*)=0]", parser.parse(":first-child"))
       end
+
+      it "raises an exception for pseudo-classes that are not XPath Names" do
+        # see https://github.com/sparklemotion/nokogiri/issues/3193
+        assert_raises(Nokogiri::CSS::SyntaxError) { parser.parse("div:-moz-drag-over") }
+      end
     end
 
     describe "combinators" do
