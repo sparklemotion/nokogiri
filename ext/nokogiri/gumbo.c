@@ -322,12 +322,19 @@ static VALUE parse_continue(VALUE parse_args);
  *  @!visibility protected
  */
 static VALUE
-parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth, VALUE klass)
+noko_gumbo_s_parse(int argc, VALUE *argv, VALUE _self)
 {
+  VALUE input, url, klass, kwargs;
+
+  rb_scan_args(argc, argv, "3:", &input, &url, &klass, &kwargs);
+  if (NIL_P(kwargs)) {
+    kwargs = rb_hash_new();
+  }
+
   GumboOptions options = kGumboDefaultOptions;
-  options.max_attributes = NUM2INT(max_attributes);
-  options.max_errors = NUM2INT(max_errors);
-  options.max_tree_depth = NUM2INT(max_depth);
+  options.max_attributes = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_attributes"))));
+  options.max_errors = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_errors"))));
+  options.max_tree_depth = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_tree_depth"))));
 
   GumboOutput *output = perform_parse(&options, input);
   ParseArgs args = {
@@ -415,22 +422,23 @@ static VALUE fragment_continue(VALUE parse_args);
  *  @!visibility protected
  */
 static VALUE
-fragment(
-  VALUE self,
-  VALUE doc_fragment,
-  VALUE tags,
-  VALUE ctx,
-  VALUE max_attributes,
-  VALUE max_errors,
-  VALUE max_depth
-)
+noko_gumbo_s_fragment(int argc, VALUE *argv, VALUE _self)
 {
+  VALUE doc_fragment;
+  VALUE tags;
+  VALUE ctx;
+  VALUE kwargs;
   ID name = rb_intern_const("name");
   const char *ctx_tag;
   GumboNamespaceEnum ctx_ns;
   GumboQuirksModeEnum quirks_mode;
   bool form = false;
   const char *encoding = NULL;
+
+  rb_scan_args(argc, argv, "3:", &doc_fragment, &tags, &ctx, &kwargs);
+  if (NIL_P(kwargs)) {
+    kwargs = rb_hash_new();
+  }
 
   if (NIL_P(ctx)) {
     ctx_tag = "body";
@@ -535,12 +543,14 @@ error:
   }
 
   // Perform a fragment parse.
-  int depth = NUM2INT(max_depth);
   GumboOptions options = kGumboDefaultOptions;
-  options.max_attributes = NUM2INT(max_attributes);
-  options.max_errors = NUM2INT(max_errors);
+  options.max_attributes = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_attributes"))));
+  options.max_errors = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_errors"))));
+
   // Add one to account for the HTML element.
+  int depth = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_tree_depth"))));
   options.max_tree_depth = depth < 0 ? -1 : (depth + 1);
+
   options.fragment_context = ctx_tag;
   options.fragment_namespace = ctx_ns;
   options.fragment_encoding = encoding;
@@ -587,8 +597,8 @@ noko_init_gumbo(void)
   parent = rb_intern_const("parent");
 
   // Define Nokogumbo module with parse and fragment methods.
-  rb_define_singleton_method(mNokogiriGumbo, "parse", parse, 6);
-  rb_define_singleton_method(mNokogiriGumbo, "fragment", fragment, 6);
+  rb_define_singleton_method(mNokogiriGumbo, "parse", noko_gumbo_s_parse, -1);
+  rb_define_singleton_method(mNokogiriGumbo, "fragment", noko_gumbo_s_fragment, -1);
 }
 
 // vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:
