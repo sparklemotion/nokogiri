@@ -44,7 +44,7 @@ module Nokogiri
         tags = Nokogiri::HTML5.read_and_encode(tags, nil)
 
         options[:max_attributes] ||= Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
-        options[:max_errors] ||= options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
+        options[:max_errors] ||= options.delete(:max_parse_errors) || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
         options[:max_tree_depth] ||= Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
 
         Nokogiri::Gumbo.fragment(self, tags, ctx, **options)
