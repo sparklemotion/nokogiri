@@ -316,6 +316,33 @@ parse_cleanup(VALUE parse_args)
   return Qnil;
 }
 
+// Scan the keyword arguments for options common to the document and fragment
+// parse.
+static GumboOptions
+common_options(VALUE kwargs)
+{
+  // The order of the keywords determines the order of the values below.
+  // If this order is changed, then setting the options below must change as
+  // well.
+  ID keywords[] = {
+    rb_intern_const("max_attributes"),
+    rb_intern_const("max_errors"),
+    rb_intern_const("max_tree_depth"),
+  };
+  VALUE values[sizeof keywords / sizeof keywords[0]];
+
+  // Extract the values coresponding to the required keywords. Raise an error
+  // if required arguments are missing.
+  rb_get_kwargs(kwargs, keywords, 3, 0, values);
+
+  GumboOptions options = kGumboDefaultOptions;
+  options.max_attributes = NUM2INT(values[0]);
+  options.max_errors = NUM2INT(values[1]);
+  options.max_tree_depth = NUM2INT(values[2]);
+
+  return options;
+}
+
 static VALUE parse_continue(VALUE parse_args);
 
 /*
@@ -331,10 +358,7 @@ noko_gumbo_s_parse(int argc, VALUE *argv, VALUE _self)
     kwargs = rb_hash_new();
   }
 
-  GumboOptions options = kGumboDefaultOptions;
-  options.max_attributes = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_attributes"))));
-  options.max_errors = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_errors"))));
-  options.max_tree_depth = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_tree_depth"))));
+  GumboOptions options = common_options(kwargs);
 
   GumboOutput *output = perform_parse(&options, input);
   ParseArgs args = {
@@ -440,6 +464,8 @@ noko_gumbo_s_fragment(int argc, VALUE *argv, VALUE _self)
     kwargs = rb_hash_new();
   }
 
+  GumboOptions options = common_options(kwargs);
+
   if (NIL_P(ctx)) {
     ctx_tag = "body";
     ctx_ns = GUMBO_NAMESPACE_HTML;
@@ -543,14 +569,8 @@ error:
   }
 
   // Perform a fragment parse.
-  GumboOptions options = kGumboDefaultOptions;
-  options.max_attributes = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_attributes"))));
-  options.max_errors = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_errors"))));
-
-  // Add one to account for the HTML element.
-  int depth = NUM2INT(rb_hash_aref(kwargs, ID2SYM(rb_intern_const("max_tree_depth"))));
-  options.max_tree_depth = depth < 0 ? -1 : (depth + 1);
-
+  // Add one to the max tree depth to account for the HTML element.
+  options.max_tree_depth = options.max_tree_depth < 0 ? -1 : (options.max_tree_depth + 1);
   options.fragment_context = ctx_tag;
   options.fragment_namespace = ctx_ns;
   options.fragment_encoding = encoding;
