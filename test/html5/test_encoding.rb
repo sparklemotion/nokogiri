@@ -189,7 +189,7 @@ class TestHtml5Encoding < Nokogiri::TestCase
     define_method("test_parse_encoded_#{enc[0]}".to_sym) do
       html = "<!DOCTYPE html><span>#{enc[1]}</span>"
       encoded_html = round_trip_through(html, enc[0])
-      doc = Nokogiri::HTML5(encoded_html, encoding: enc[0])
+      doc = Nokogiri::HTML5(encoded_html, enc[0])
       span = doc.at("/html/body/span")
       refute_nil span
       assert_equal enc[1], span.content
@@ -210,7 +210,7 @@ class TestHtml5Encoding < Nokogiri::TestCase
       skip "https://bugs.ruby-lang.org/issues/15033" if enc[0] == "ISO-2022-JP"
       round_trip_through(enc[1], enc[0])
       encoded = encodings_doc.serialize(encoding: enc[0])
-      doc = Nokogiri::HTML5(encoded, encoding: enc[0])
+      doc = Nokogiri::HTML5(encoded, enc[0])
       assert_equal encodings_html, doc.serialize
     end
   end
