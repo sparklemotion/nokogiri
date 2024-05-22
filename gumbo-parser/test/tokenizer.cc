@@ -75,7 +75,7 @@ class GumboTokenizerTest : public GumboTest {
     parser_._output->document_error = false;
     gumbo_lex(&parser_, &token_);
     EXPECT_EQ(errors_are_expected, parser_._output->document_error);
-    errors_are_expected_ = errors_are_expected;
+    errors_are_expected_ |= errors_are_expected;
   }
 
   void NextChar(int c, bool errors_are_expected = false) {
