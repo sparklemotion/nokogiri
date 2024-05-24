@@ -189,8 +189,19 @@ class TestHtml5Encoding < Nokogiri::TestCase
     define_method("test_parse_encoded_#{enc[0]}".to_sym) do
       html = "<!DOCTYPE html><span>#{enc[1]}</span>"
       encoded_html = round_trip_through(html, enc[0])
-      doc = Nokogiri::HTML5(encoded_html, encoding: enc[0])
+      doc = Nokogiri::HTML5(encoded_html)
       span = doc.at("/html/body/span")
+
+      refute_nil span
+      assert_equal enc[1], span.content
+    end
+
+    define_method("test_parse_encoded_#{enc[0]}_with_encoding".to_sym) do
+      html = "<!DOCTYPE html><span>#{enc[1]}</span>"
+      encoded_html = round_trip_through(html, enc[0])
+      doc = Nokogiri::HTML5(encoded_html, nil, enc[0])
+      span = doc.at("/html/body/span")
+
       refute_nil span
       assert_equal enc[1], span.content
     end
@@ -198,6 +209,7 @@ class TestHtml5Encoding < Nokogiri::TestCase
     define_method("test_inner_html_encoded_#{enc[0]}".to_sym) do
       encoded = round_trip_through(enc[1], enc[0])
       span = encodings_doc.at(%(/html/body/span[@id="#{enc[0]}"]))
+
       refute_nil span
       assert_equal encoded, span.inner_html(encoding: enc[0])
     end
@@ -208,9 +220,25 @@ class TestHtml5Encoding < Nokogiri::TestCase
       # multiple conversions have to happen. I'm not sure it's worth working
       # around. It impacts this test though.
       skip "https://bugs.ruby-lang.org/issues/15033" if enc[0] == "ISO-2022-JP"
+
       round_trip_through(enc[1], enc[0])
       encoded = encodings_doc.serialize(encoding: enc[0])
-      doc = Nokogiri::HTML5(encoded, encoding: enc[0])
+      doc = Nokogiri::HTML5(encoded)
+
+      assert_equal encodings_html, doc.serialize
+    end
+
+    define_method("test_roundtrip_through_#{enc[0]}_with_encoding".to_sym) do
+      # https://bugs.ruby-lang.org/issues/15033
+      # Ruby has a bug with the `:fallback` parameter passed to `#encode` when
+      # multiple conversions have to happen. I'm not sure it's worth working
+      # around. It impacts this test though.
+      skip "https://bugs.ruby-lang.org/issues/15033" if enc[0] == "ISO-2022-JP"
+
+      round_trip_through(enc[1], enc[0])
+      encoded = encodings_doc.serialize(encoding: enc[0])
+      doc = Nokogiri::HTML5(encoded, nil, enc[0])
+
       assert_equal encodings_html, doc.serialize
     end
   end

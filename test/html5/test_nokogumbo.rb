@@ -268,6 +268,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     end
 
     assert(Nokogiri::HTML5(html, max_tree_depth: depth))
+    assert(Nokogiri::HTML5(html, max_tree_depth: -1))
   end
 
   def test_max_depth_fragment
@@ -278,6 +279,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     end
 
     assert(Nokogiri::HTML5.fragment(html, max_tree_depth: depth))
+    assert(Nokogiri::HTML5.fragment(html, max_tree_depth: -1))
   end
 
   def test_document_encoding
@@ -336,6 +338,15 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     frag = Nokogiri::HTML5::DocumentFragment.parse(html)
     expected = [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::COMMENT_NODE]
     assert_equal(expected, frag.at_css("div").children.map(&:type))
+  end
+
+  it "raises an exception if an unexpected kwarg is provided" do
+    assert_raises(ArgumentError) do
+      Nokogiri::HTML5::Document.parse("<p>", foo: "bar")
+    end
+    assert_raises(ArgumentError) do
+      Nokogiri::HTML5::DocumentFragment.parse("<p>", Encoding::UTF_8, foo: "bar")
+    end
   end
 
   private

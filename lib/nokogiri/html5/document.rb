@@ -92,7 +92,7 @@ module Nokogiri
             raise ArgumentError, "not a string or IO object"
           end
 
-          do_parse(string_or_io, url, encoding, options)
+          do_parse(string_or_io, url, encoding, **options)
         end
 
         # Create a new document from an IO object.
@@ -101,7 +101,7 @@ module Nokogiri
         def read_io(io, url = nil, encoding = nil, **options)
           raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
 
-          do_parse(io, url, encoding, options)
+          do_parse(io, url, encoding, **options)
         end
 
         # Create a new document from a String.
@@ -110,17 +110,19 @@ module Nokogiri
         def read_memory(string, url = nil, encoding = nil, **options)
           raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
 
-          do_parse(string, url, encoding, options)
+          do_parse(string, url, encoding, **options)
         end
 
         private
 
-        def do_parse(string_or_io, url, encoding, options)
+        def do_parse(string_or_io, url, encoding, **options)
           string = HTML5.read_and_encode(string_or_io, encoding)
-          max_attributes = options[:max_attributes] || Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
-          max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
-          max_depth = options[:max_tree_depth] || Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
-          doc = Nokogiri::Gumbo.parse(string, url, max_attributes, max_errors, max_depth, self)
+
+          options[:max_attributes] ||= Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
+          options[:max_errors] ||= options.delete(:max_parse_errors) || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
+          options[:max_tree_depth] ||= Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
+
+          doc = Nokogiri::Gumbo.parse(string, url, self, **options)
           doc.encoding = "UTF-8"
           doc
         end
