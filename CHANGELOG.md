@@ -15,8 +15,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
-* [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
 * `Node#clone`, `NodeSet#clone`, and `*::Document#clone` all properly copy the metaclass of the original as expected. Previously, `#clone` had been aliased to `#dup` for these classes (since v1.3.0 in 2009). [#316, #3117] @flavorjones
+* CSS queries for pseudo-selectors that cannot be transpiled into XPath queries now raise a more descriptive `Nokogiri::CSS::SyntaxError` when they are parsed. Previously, an invalid XPath query was created and a hard-to-understand XPath error was being raised by the query engine. [#3197] @flavorjones
+* [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
 * [CRuby] Update node GC lifecycle to avoid a potential memory leak with fragments in libxml 2.13.0 caused by changes in `xmlAddChild`. [#3156] @flavorjones
 
 
