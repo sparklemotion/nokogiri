@@ -184,9 +184,9 @@ module Nokogiri
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_child_node_and_reparent_attrs(n) }
+          node_or_tags.each { |n| add_child_node(n) }
         else
-          add_child_node_and_reparent_attrs(node_or_tags)
+          add_child_node(node_or_tags)
         end
         node_or_tags
       end
@@ -386,9 +386,9 @@ module Nokogiri
         node_or_tags = coerce(node_or_tags)
         children.unlink
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_child_node_and_reparent_attrs(n) }
+          node_or_tags.each { |n| add_child_node(n) }
         else
-          add_child_node_and_reparent_attrs(node_or_tags)
+          add_child_node(node_or_tags)
         end
       end
 
@@ -1599,14 +1599,6 @@ module Nokogiri
       end
 
       IMPLIED_XPATH_CONTEXTS = [".//"].freeze
-
-      def add_child_node_and_reparent_attrs(node)
-        add_child_node(node)
-        node.attribute_nodes.find_all { |a| a.name.include?(":") }.each do |attr_node|
-          attr_node.remove
-          node[attr_node.name] = attr_node.value
-        end
-      end
     end
   end
 end

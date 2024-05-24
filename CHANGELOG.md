@@ -277,6 +277,11 @@ You can read more about this in the decision record at [`adr/2023-04-libxml-memo
 * [CRuby] `XSLT.transform` now makes a defensive copy of the document if it has blank text nodes with Ruby objects instantiated for them _and_ the template uses `xsl:strip-spaces`. This prevents unsafe behavior in libxslt from causing a segfault. There is a small performance cost, but we think this has the virtue of being "what the user meant" since modifying the original is surprising behavior for most users. Previously this would allow unsafe memory access and potentially segfault. [#2800]
 
 
+### Fixed
+
+* [CRuby] When reparenting HTML nodes, do not attempt to relink namespaces. Previously, an HTML attribute with a colon might be interpreted as a prefixed/namespaced atttribute (for example, "xml:lang"). [[#1790](https://github.com/sparklemotion/nokogiri/issues/1790)]
+
+
 ### Improved
 
 * `Nokogiri::XML::Node::SaveOptions#inspect` now shows the names of the options set in the bitmask, similar to `ParseOptions`. [#2767]
