@@ -268,6 +268,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     end
 
     assert(Nokogiri::HTML5(html, max_tree_depth: depth))
+    assert(Nokogiri::HTML5(html, max_tree_depth: -1))
   end
 
   def test_max_depth_fragment
@@ -278,6 +279,7 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     end
 
     assert(Nokogiri::HTML5.fragment(html, max_tree_depth: depth))
+    assert(Nokogiri::HTML5.fragment(html, max_tree_depth: -1))
   end
 
   def test_document_encoding

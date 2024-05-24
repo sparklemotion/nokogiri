@@ -337,7 +337,10 @@ common_options(VALUE kwargs) {
   GumboOptions options = kGumboDefaultOptions;
   options.max_attributes = NUM2INT(values[0]);
   options.max_errors = NUM2INT(values[1]);
-  options.max_tree_depth = NUM2INT(values[2]);
+
+  // handle negative values
+  int depth = NUM2INT(values[2]);
+  options.max_tree_depth = depth < 0 ? UINT_MAX : (unsigned int)depth;
 
   return options;
 }
@@ -568,13 +571,14 @@ error:
   }
 
   // Perform a fragment parse.
-  // Add one to the max tree depth to account for the HTML element.
-  options.max_tree_depth = options.max_tree_depth < 0 ? -1 : (options.max_tree_depth + 1);
   options.fragment_context = ctx_tag;
   options.fragment_namespace = ctx_ns;
   options.fragment_encoding = encoding;
   options.quirks_mode = quirks_mode;
   options.fragment_context_has_form_ancestor = form;
+
+  // Add one to the max tree depth to account for the HTML element.
+  if (options.max_tree_depth < UINT_MAX) { options.max_tree_depth++; }
 
   GumboOutput *output = perform_parse(&options, tags);
   ParseArgs args = {
