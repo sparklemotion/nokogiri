@@ -682,12 +682,9 @@ append_cflags("-Winline")
 # good to have no matter what Ruby was compiled with
 append_cflags("-Wmissing-noreturn")
 
-# check integer loss of precision
-if darwin?
-  append_cflags("-Wshorten-64-to-32")
-else
-  append_cflags("-Wconversion -Wno-sign-conversion")
-end
+# check integer loss of precision. this flag won't generally work until Ruby 3.4.
+# see https://bugs.ruby-lang.org/issues/20507
+append_cflags("-Wconversion")
 
 # handle clang variations, see #1101
 if darwin?

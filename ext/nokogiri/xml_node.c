@@ -1805,12 +1805,12 @@ output_escaped_string(VALUE out, xmlChar const *start, bool attr)
       ++next;
       continue;
     }
-    output_partial_string(out, (char const *)start, next - start);
+    output_partial_string(out, (char const *)start, (size_t)(next - start));
     output_string(out, replacement);
     next += replaced_bytes;
     start = next;
   }
-  output_partial_string(out, (char const *)start, next - start);
+  output_partial_string(out, (char const *)start, (size_t)(next - start));
 }
 
 static bool
@@ -2024,11 +2024,11 @@ rb_xml_node_line_set(VALUE rb_node, VALUE rb_line_number)
   // libxml2 optionally uses xmlNode.psvi to store longer line numbers, but only for text nodes.
   // search for "psvi" in SAX2.c and tree.c to learn more.
   if (line_number < 65535) {
-    c_node->line = (short) line_number;
+    c_node->line = (short unsigned)line_number;
   } else {
     c_node->line = 65535;
     if (c_node->type == XML_TEXT_NODE) {
-      c_node->psvi = (void *)(ptrdiff_t) line_number;
+      c_node->psvi = (void *)(ptrdiff_t)line_number;
     }
   }
 

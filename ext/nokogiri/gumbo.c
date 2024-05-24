@@ -70,7 +70,7 @@ perform_parse(const GumboOptions *options, VALUE input)
   GumboOutput *output = gumbo_parse_with_options(
                           options,
                           RSTRING_PTR(input),
-                          RSTRING_LEN(input)
+                          (size_t)RSTRING_LEN(input)
                         );
 
   const char *status_string = gumbo_status_to_string(output->status);
@@ -236,7 +236,7 @@ static void
 add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
 {
   const char *input_str = RSTRING_PTR(input);
-  size_t input_len = RSTRING_LEN(input);
+  size_t input_len = (size_t)RSTRING_LEN(input);
 
   // Add parse errors to rdoc.
   if (output->errors.length) {
@@ -248,11 +248,11 @@ add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE url)
       GumboSourcePosition position = gumbo_error_position(err);
       char *msg;
       size_t size = gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
-      VALUE err_str = rb_utf8_str_new(msg, size);
+      VALUE err_str = rb_utf8_str_new(msg, (int)size);
       free(msg);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
       const char *error_code = gumbo_error_code(err);
-      VALUE str1 = error_code ? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
+      VALUE str1 = error_code ? rb_utf8_str_new_static(error_code, (int)strlen(error_code)) : Qnil;
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
@@ -393,7 +393,7 @@ lookup_namespace(VALUE node, bool require_known_ns)
   Check_Type(ns, T_STRING);
 
   const char *href_ptr = RSTRING_PTR(ns);
-  size_t href_len = RSTRING_LEN(ns);
+  size_t href_len = (size_t)RSTRING_LEN(ns);
 #define NAMESPACE_P(uri) (href_len == sizeof uri - 1 && !memcmp(href_ptr, uri, href_len))
   if (NAMESPACE_P("http://www.w3.org/1999/xhtml")) {
     return GUMBO_NAMESPACE_HTML;
@@ -451,7 +451,7 @@ noko_gumbo_s_fragment(int argc, VALUE *argv, VALUE _self)
   } else if (TYPE(ctx) == T_STRING) {
     ctx_tag = StringValueCStr(ctx);
     ctx_ns = GUMBO_NAMESPACE_HTML;
-    size_t len = RSTRING_LEN(ctx);
+    size_t len = (size_t)RSTRING_LEN(ctx);
     const char *colon = memchr(ctx_tag, ':', len);
     if (colon) {
       switch (colon - ctx_tag) {
