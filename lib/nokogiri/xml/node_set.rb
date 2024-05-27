@@ -123,7 +123,7 @@ module Nokogiri
           return self[args.first]
         end
 
-        super(*args)
+        super
       end
       alias_method :%, :at
 
