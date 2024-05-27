@@ -20,7 +20,7 @@ group :development do
   gem "rake-compiler-dock", "1.5.0"
 
   # parser generator
-  gem "rexical", "= 1.0.7"
+  gem "rexical", "1.0.8"
 
   # tests
   gem "minitest", "5.23.0"
