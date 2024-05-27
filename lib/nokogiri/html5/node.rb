@@ -29,7 +29,7 @@ module Nokogiri
     # 💡 HTML5 functionality is not available when running JRuby.
     module Node
       def inner_html(options = {})
-        return super(options) unless document.is_a?(HTML5::Document)
+        return super unless document.is_a?(HTML5::Document)
 
         result = options[:preserve_newline] && prepend_newline? ? +"\n" : +""
         result << children.map { |child| child.to_html(options) }.join
@@ -37,7 +37,7 @@ module Nokogiri
       end
 
       def write_to(io, *options)
-        return super(io, *options) unless document.is_a?(HTML5::Document)
+        return super unless document.is_a?(HTML5::Document)
 
         options = options.first.is_a?(Hash) ? options.shift : {}
         encoding = options[:encoding] || options[0]
@@ -68,7 +68,7 @@ module Nokogiri
       end
 
       def fragment(tags)
-        return super(tags) unless document.is_a?(HTML5::Document)
+        return super unless document.is_a?(HTML5::Document)
 
         DocumentFragment.new(document, tags, self)
       end
@@ -81,7 +81,7 @@ module Nokogiri
       # annoying with attribute names like xml:lang since libxml2 will
       # actually create the xml namespace if it doesn't exist already.
       def add_child_node_and_reparent_attrs(node)
-        return super(node) unless document.is_a?(HTML5::Document)
+        return super unless document.is_a?(HTML5::Document)
 
         # I'm not sure what this method is supposed to do. Reparenting
         # namespaces is handled by libxml2, including child namespaces which

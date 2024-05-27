@@ -26,7 +26,7 @@ module Nokogiri
 
         def initialize
           @encoding = nil
-          super()
+          super
         end
 
         def start_element(name, attrs = [])
