@@ -109,7 +109,7 @@ memsize_node(const xmlNodePtr node)
   xmlAttrPtr property;
   size_t memsize = 0;
 
-  memsize += xmlStrlen(node->name);
+  memsize += (size_t)xmlStrlen(node->name);
 
   if (node->type == XML_ELEMENT_NODE) {
     for (property = node->properties; property; property = property->next) {
@@ -117,7 +117,7 @@ memsize_node(const xmlNodePtr node)
     }
   }
   if (node->type == XML_TEXT_NODE) {
-    memsize += xmlStrlen(node->content);
+    memsize += (size_t)xmlStrlen(node->content);
   }
   for (child = node->children; child; child = child->next) {
     memsize += sizeof(xmlNode) + memsize_node(child);
