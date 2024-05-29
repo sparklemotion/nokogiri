@@ -328,13 +328,12 @@ jobs:
         with:
           ruby-version: truffleruby
           bundler-cache: true
-          bundler: latest
+          bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
       - uses: actions/cache@v4
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- ${{matrix.flags}}
       - run: bundle exec rake test
 
