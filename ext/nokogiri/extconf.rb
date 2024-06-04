@@ -15,7 +15,7 @@ PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."
 REQUIRED_LIBXML_VERSION = "2.6.21"
 RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
-REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.2" # keep this version in sync with the one in the gemspec
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.5" # keep this version in sync with the one in the gemspec
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 # Keep track of what versions of what libraries we build against
@@ -435,7 +435,6 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
   require "rubygems"
   gem("mini_portile2", REQUIRED_MINI_PORTILE_VERSION) # gemspec is not respected at install time
   require "mini_portile2"
-  message("Using mini_portile version #{MiniPortile::VERSION}\n")
 
   unless ["libxml2", "libxslt"].include?(name)
     OTHER_LIBRARY_VERSIONS[name] = version
@@ -546,7 +545,6 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
       chdir_for_build { recipe.cook }
       FileUtils.touch(checkpoint)
     end
-    recipe.activate
   end
 end
 
@@ -816,6 +814,9 @@ else
       end
     end
 
+    zlib_recipe.mkmf_config(pkg: "zlib", static: static_p && "z")
+    ensure_func("gzdopen", "zlib.h")
+
     unless nix?
       libiconv_recipe = process_recipe(
         "libiconv",
@@ -841,7 +842,12 @@ else
           "LDFLAGS=",
         ]
       end
+
+      # libiconv does not ship with a pkg-config file
+      libiconv_recipe.mkmf_config(static: static_p && "iconv")
+      ensure_func("iconv_open", "iconv.h")
     end
+
   elsif darwin? && !have_header("iconv.h")
     abort(<<~EOM.chomp)
       -----
@@ -855,30 +861,6 @@ else
       version and run it.
       -----
     EOM
-  end
-
-  if zlib_recipe
-    append_cppflags("-I#{zlib_recipe.path}/include")
-    $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH
-    ensure_package_configuration(
-      opt: "zlib",
-      pc: "zlib",
-      lib: "z",
-      headers: "zlib.h",
-      func: "gzdopen",
-    )
-  end
-
-  if libiconv_recipe
-    append_cppflags("-I#{libiconv_recipe.path}/include")
-    $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH
-    ensure_package_configuration(
-      opt: "iconv",
-      pc: "iconv",
-      lib: "iconv",
-      headers: "iconv.h",
-      func: "iconv_open",
-    )
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
@@ -937,6 +919,9 @@ else
     ]
   end
 
+  libxml2_recipe.mkmf_config(pkg: "libxml-2.0", static: static_p && "xml2")
+  ensure_func("xmlParseDoc", "libxml/parser.h")
+
   libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]["version"], static_p, cross_build_p) do |recipe|
     source_dir = arg_config("--with-xslt-source-dir")
     if source_dir
@@ -976,72 +961,27 @@ else
     ]
   end
 
-  append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
-  append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
+  libxslt_recipe.mkmf_config(pkg: "libxslt", static: static_p && "xslt")
+  ensure_func("xsltParseStylesheetDoc", "libxslt/xslt.h")
 
-  $libs = $libs.shellsplit.tap do |libs|
-    [libxml2_recipe, libxslt_recipe].each do |recipe|
-      libname = recipe.name[/\Alib(.+)\z/, 1]
-      config_basename = "#{libname}-config"
-      File.join(recipe.path, "bin", config_basename).tap do |config|
-        # call config scripts explicit with 'sh' for compat with Windows
-        cflags = %x(sh #{config} --cflags).strip
-        message("#{config_basename} cflags: #{cflags}\n")
-        $CPPFLAGS = concat_flags(cflags, $CPPFLAGS) # prepend
+  libxslt_recipe.mkmf_config(pkg: "libexslt", static: static_p && "exslt")
+  ensure_func("exsltFuncRegister", "libexslt/exslt.h")
 
-        %x(sh #{config} --libs).strip.shellsplit.each do |arg|
-          case arg
-          when /\A-L(.+)\z/
-            # Prioritize ports' directories
-            $LIBPATH = if Regexp.last_match(1).start_with?(PACKAGE_ROOT_DIR + "/")
-              [Regexp.last_match(1)] | $LIBPATH
-            else
-              $LIBPATH | [Regexp.last_match(1)]
-            end
-          when /\A-l./
-            libs.unshift(arg)
-          else
-            $LDFLAGS << " " << arg.shellescape
-          end
-        end
-      end
-
-      patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(" ")
-      append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\"#{patches_string}\\""])
-
-      case libname
-      when "xml2"
-        # xslt-config --libs or pkg-config libxslt --libs does not include
-        # -llzma, so we need to add it manually when linking statically.
-        if static_p && preserving_globals { local_have_library("lzma") }
-          # Add it at the end; GH #988
-          libs << "-llzma"
-        end
-      when "xslt"
-        # xslt-config does not have a flag to emit options including
-        # -lexslt, so add it manually.
-        libs.unshift("-lexslt")
-      end
-    end
-  end.shelljoin
-
-  if static_p
-    static_archive_ld_flag = needs_darwin_linker_hack ? ["-load_hidden"] : []
-    $libs = $libs.shellsplit.map do |arg|
-      case arg
-      when "-lxml2"
-        static_archive_ld_flag + [File.join(libxml2_recipe.path, "lib", libflag_to_filename(arg))]
-      when "-lxslt", "-lexslt"
-        static_archive_ld_flag + [File.join(libxslt_recipe.path, "lib", libflag_to_filename(arg))]
-      else
-        arg
-      end
-    end.flatten.shelljoin
+  if windows? && static_p
+    append_cppflags("-DLIBXSLT_STATIC -DLIBEXSLT_STATIC") # https://gitlab.gnome.org/GNOME/libxslt/-/merge_requests/66
   end
 
-  ensure_func("xmlParseDoc", "libxml/parser.h")
-  ensure_func("xsltParseStylesheetDoc", "libxslt/xslt.h")
-  ensure_func("exsltFuncRegister", "libexslt/exslt.h")
+  # Nokogiri::VERSION_INFO metadata
+  append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
+  append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
+  [libxml2_recipe, libxslt_recipe].each do |recipe|
+    patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(" ")
+    append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\"#{patches_string}\\""])
+  end
+
+  # if static_p
+  #   static_archive_ld_flag = needs_darwin_linker_hack ? ["-load_hidden"] : []
+  # end
 end
 
 libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
@@ -1091,7 +1031,6 @@ libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_b
 end
 append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
 $libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
-$LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
 ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 
 have_func("xmlHasFeature") || abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
