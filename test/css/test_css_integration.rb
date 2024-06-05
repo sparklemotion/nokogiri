@@ -2,8 +2,8 @@
 
 require "helper"
 
-class TestNokogiriCssIntegration < Nokogiri::TestCase
-  describe "CSS integration tests" do
+describe Nokogiri::CSS do
+  describe "integration tests" do
     let(:subject) do
       subject_class.parse(<<~HTML)
         <html><body>
