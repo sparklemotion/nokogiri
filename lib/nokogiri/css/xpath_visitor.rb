@@ -44,6 +44,15 @@ module Nokogiri
         VALUES = [XML, HTML4, HTML5]
       end
 
+      # The visitor configuration set via the +builtins:+ keyword argument to XPathVisitor.new.
+      attr_reader :builtins
+
+      # The visitor configuration set via the +doctype:+ keyword argument to XPathVisitor.new.
+      attr_reader :doctype
+
+      # The visitor configuration set via the +prefix:+ keyword argument to XPathVisitor.new.
+      attr_reader :prefix
+
       # :call-seq:
       #   new() → XPathVisitor
       #   new(builtins:, doctype:) → XPathVisitor
@@ -54,7 +63,11 @@ module Nokogiri
       #
       # [Returns] XPathVisitor
       #
-      def initialize(builtins: BuiltinsConfig::NEVER, doctype: DoctypeConfig::XML)
+      def initialize(
+        builtins: BuiltinsConfig::NEVER,
+        doctype: DoctypeConfig::XML,
+        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX
+      )
         unless BuiltinsConfig::VALUES.include?(builtins)
           raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
         end
@@ -64,6 +77,7 @@ module Nokogiri
 
         @builtins = builtins
         @doctype = doctype
+        @prefix = prefix
       end
 
       # :call-seq: config() → Hash
@@ -72,7 +86,7 @@ module Nokogiri
       #   a Hash representing the configuration of the XPathVisitor, suitable for use as
       #   part of the CSS cache key.
       def config
-        { builtins: @builtins, doctype: @doctype }
+        { builtins: @builtins, doctype: @doctype, prefix: @prefix }
       end
 
       # :stopdoc:

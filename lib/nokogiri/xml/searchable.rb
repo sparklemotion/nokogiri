@@ -243,13 +243,13 @@ module Nokogiri
       end
 
       def xpath_query_from_css_rule(rule, ns)
-        visitor = Nokogiri::CSS::XPathVisitor.new(
-          builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
-          doctype: document.xpath_doctype,
-        )
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
-          CSS.xpath_for(rule.to_s, {
+          visitor = Nokogiri::CSS::XPathVisitor.new(
+            builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
+            doctype: document.xpath_doctype,
             prefix: implied_xpath_context,
+          )
+          CSS.xpath_for(rule.to_s, {
             ns: ns,
             visitor: visitor,
           })

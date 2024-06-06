@@ -45,11 +45,21 @@ module Nokogiri
         selector = selector.to_str
         raise Nokogiri::CSS::SyntaxError, "empty CSS selector" if selector.empty?
 
-        prefix = options.fetch(:prefix, Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX)
-        visitor = options.fetch(:visitor) { Nokogiri::CSS::XPathVisitor.new }
+        if options.key?(:prefix) && options.key?(:visitor)
+          raise ArgumentError, "cannot provide both :prefix and :visitor"
+        end
+
         ns = options.fetch(:ns, {})
 
-        Parser.new(ns).xpath_for(selector, prefix, visitor)
+        visitor = if options.key?(:prefix)
+          Nokogiri::CSS::XPathVisitor.new(prefix: options.fetch(:prefix))
+        elsif options.key?(:visitor)
+          options.fetch(:visitor)
+        else
+          Nokogiri::CSS::XPathVisitor.new
+        end
+
+        Parser.new(ns).xpath_for(selector, visitor)
       end
     end
   end

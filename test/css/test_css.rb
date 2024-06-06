@@ -12,6 +12,7 @@ describe Nokogiri::CSS do
       Nokogiri::CSS::Parser.without_cache do
         mock_visitor = Minitest::Mock.new
         mock_visitor.expect(:accept, "injected-value", [Nokogiri::CSS::Node])
+        mock_visitor.expect(:prefix, "//")
 
         result = Nokogiri::CSS.xpath_for("foo", visitor: mock_visitor)
 
@@ -23,15 +24,29 @@ describe Nokogiri::CSS do
     it "accepts an options hash" do
       assert_equal(
         ["./foo"],
-        Nokogiri::CSS.xpath_for("foo", { prefix: "./", visitor: Nokogiri::CSS::XPathVisitor.new }),
+        Nokogiri::CSS.xpath_for("foo", { prefix: "./" }),
+      )
+      assert_equal(
+        ["./foo"],
+        Nokogiri::CSS.xpath_for("foo", { visitor: Nokogiri::CSS::XPathVisitor.new(prefix: "./") }),
       )
     end
 
     it "accepts keyword arguments" do
       assert_equal(
         ["./foo"],
-        Nokogiri::CSS.xpath_for("foo", prefix: "./", visitor: Nokogiri::CSS::XPathVisitor.new),
+        Nokogiri::CSS.xpath_for("foo", prefix: "./"),
       )
+      assert_equal(
+        ["./foo"],
+        Nokogiri::CSS.xpath_for("foo", visitor: Nokogiri::CSS::XPathVisitor.new(prefix: "./")),
+      )
+    end
+
+    it "does not accept both prefix and visitor" do
+      assert_raises(ArgumentError) do
+        Nokogiri::CSS.xpath_for("foo", prefix: "./", visitor: Nokogiri::CSS::XPathVisitor.new)
+      end
     end
 
     describe "error handling" do

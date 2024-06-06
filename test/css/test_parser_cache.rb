@@ -40,8 +40,8 @@ describe Nokogiri::CSS::Parser do
 
         Nokogiri::CSS.xpath_for(@css)
         Nokogiri::CSS.xpath_for(@css)
-        Nokogiri::CSS::Parser.new.xpath_for(@css, "//", Nokogiri::CSS::XPathVisitor.new)
-        Nokogiri::CSS::Parser.new.xpath_for(@css, "//", Nokogiri::CSS::XPathVisitor.new)
+        Nokogiri::CSS::Parser.new.xpath_for(@css, Nokogiri::CSS::XPathVisitor.new(prefix: "//"))
+        Nokogiri::CSS::Parser.new.xpath_for(@css, Nokogiri::CSS::XPathVisitor.new(prefix: "//"))
 
         if cache_setting
           assert_equal(1, Nokogiri::CSS::Parser.class_eval { @cache.count })
@@ -134,19 +134,19 @@ describe Nokogiri::CSS::Parser do
       Nokogiri::CSS.xpath_for("foo", prefix: ".//", ns: { "example" => "http://example.com/" })
       Nokogiri::CSS.xpath_for(
         "foo",
-        prefix: ".//",
         ns: { "example" => "http://example.com/" },
         visitor: Nokogiri::CSS::XPathVisitor.new(
           builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+          prefix: ".//",
         ),
       )
       Nokogiri::CSS.xpath_for(
         "foo",
-        prefix: ".//",
         ns: { "example" => "http://example.com/" },
         visitor: Nokogiri::CSS::XPathVisitor.new(
           builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
           doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+          prefix: ".//",
         ),
       )
       assert_equal(5, cache.length)
