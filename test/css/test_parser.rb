@@ -3,10 +3,12 @@
 require "helper"
 
 describe Nokogiri::CSS::Parser do
-  let(:parser) { Nokogiri::CSS::Parser.new }
+  def parser_parse(selector)
+    Nokogiri::CSS::Parser.new(selector).parse
+  end
 
   it "#find_by_type" do
-    ast = parser.parse("a:nth-child(2)").first
+    ast = parser_parse("a:nth-child(2)").first
     matches = ast.find_by_type(
       [
         :CONDITIONAL_SELECTOR,
@@ -22,7 +24,7 @@ describe Nokogiri::CSS::Parser do
   end
 
   it "#to_type" do
-    ast = parser.parse("a:nth-child(2)").first
+    ast = parser_parse("a:nth-child(2)").first
     assert_equal(
       [
         :CONDITIONAL_SELECTOR,
@@ -37,7 +39,7 @@ describe Nokogiri::CSS::Parser do
   end
 
   it "#to_a_" do
-    asts = parser.parse("a:nth-child(2)")
+    asts = parser_parse("a:nth-child(2)")
     assert_equal(
       [
         :CONDITIONAL_SELECTOR,
@@ -52,7 +54,7 @@ describe Nokogiri::CSS::Parser do
   end
 
   it "parses xpath attributes in conditional selectors" do
-    ast = parser.parse("a[@class~=bar]").first
+    ast = parser_parse("a[@class~=bar]").first
     assert_equal(
       [
         :CONDITIONAL_SELECTOR,
@@ -69,7 +71,7 @@ describe Nokogiri::CSS::Parser do
   end
 
   it "parses xpath attributes" do
-    ast = parser.parse("a/@href").first
+    ast = parser_parse("a/@href").first
     assert_equal(
       [:CHILD_SELECTOR, [:ELEMENT_NAME, ["a"]], [:ATTRIB_NAME, ["href"]]],
       ast.to_a,
@@ -77,7 +79,7 @@ describe Nokogiri::CSS::Parser do
   end
 
   it "parses xpath attributes passed to xpath functions" do
-    ast = parser.parse("a:foo(@href)").first
+    ast = parser_parse("a:foo(@href)").first
     assert_equal(
       [
         :CONDITIONAL_SELECTOR,
@@ -94,7 +96,7 @@ describe Nokogiri::CSS::Parser do
       ast.to_a,
     )
 
-    ast = parser.parse("a:foo(@href,@id)").first
+    ast = parser_parse("a:foo(@href,@id)").first
     assert_equal(
       [
         :CONDITIONAL_SELECTOR,

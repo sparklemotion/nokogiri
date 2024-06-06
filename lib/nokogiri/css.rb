@@ -35,13 +35,21 @@ module Nokogiri
       #   The namespaces that are referenced in the query, if any. This is a hash where the keys are
       #   the namespace prefix and the values are the namespace URIs. Default is an empty Hash.
       #
+      # - +cache:+ (Boolean)
+      #
+      #   Whether to use the SelectorCache for the translated query. Default is +true+ to ensure
+      #   that repeated queries don't incur the overhead of re-parsing the selector.
+      #
       # [Returns] (String) The equivalent XPath query for +selector+
       #
       # 💡 Note that translated queries are cached for performance concerns.
       #
       def xpath_for(
         selector, options = nil,
-        prefix: options&.delete(:prefix), visitor: options&.delete(:visitor), ns: options&.delete(:ns)
+        prefix: options&.delete(:prefix),
+        visitor: options&.delete(:visitor),
+        ns: options&.delete(:ns),
+        cache: true
       )
         unless options.nil?
           warn("Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
@@ -61,7 +69,12 @@ module Nokogiri
           Nokogiri::CSS::XPathVisitor.new
         end
 
-        Parser.new(ns).xpath_for(selector, visitor)
+        if cache
+          key = SelectorCache.key(ns: ns, selector: selector, visitor: visitor)
+          SelectorCache[key] ||= Parser.new(selector, ns: ns).xpath(visitor)
+        else
+          Parser.new(selector, ns: ns).xpath(visitor)
+        end
       end
     end
   end
@@ -74,5 +87,6 @@ $-w = false
 require_relative "css/parser"
 $-w = x
 
+require_relative "css/selector_cache"
 require_relative "css/tokenizer"
 require_relative "css/syntax_error"

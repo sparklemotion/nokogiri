@@ -233,6 +233,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/css/parser.rb",
     "lib/nokogiri/css/parser.y",
     "lib/nokogiri/css/parser_extras.rb",
+    "lib/nokogiri/css/selector_cache.rb",
     "lib/nokogiri/css/syntax_error.rb",
     "lib/nokogiri/css/tokenizer.rb",
     "lib/nokogiri/css/tokenizer.rex",
