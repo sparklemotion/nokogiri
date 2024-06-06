@@ -11,6 +11,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. @flavorjones
 * [CRuby] Attributes in an HTML5 document can be serialized individually, something that has always been supported by the HTML4 serializer. [#3125, #3127] @flavorjones
 * [CRuby] When compiling packaged libraries from source, allow users' `AR` and `LD` environment variables to set the archiver and linker commands, respectively. This augments the existing `CC` environment variable to set the compiler command. [#3165] @ziggythehamster
+* `XPathVisitor` now handles the xpath prefix as a constructor argument.
+* `XPathVisitor` exposes `#prefix`, `#builtins`, and `#doctype` attributes.
 
 
 ### Fixed
@@ -24,6 +26,18 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
+* The CSS selector cache can now be disabled with a boolean `cache:` keyword argument to `CSS.xpath_for` which defaults to `true`. Note that this keyword replaces the previous global methods `Parser.set_cache` and `Parser.without_cache(&block)`.
+
+
+### Deprecated
+
+* Passing an options hash to `XPathVisitor.new` is now deprecated and will generate a warning. Use keyword arguments instead. This will become an error in a future version of Nokogiri.
+* The undocumented and unused method `Nokogiri::CSS.parse` is now deprecated and will generate a warning. Use `CSS::Parser#parse` instead. This will be removed in a future version of Nokogiri.
+
+
+### Removed
+
+* The internal-only CSS parser classes have changed dramatically. These classes have always been internal-only and not intended to be part of the public API, as mentioned in the CHANGELOG entry for v1.13.0. Public APIs are available for all supported functionality. If your code has been using these undocumented classes directly and you need assistance upgrading, feel free to open an issue and we'll try to help.
 
 
 ## v1.16.5
