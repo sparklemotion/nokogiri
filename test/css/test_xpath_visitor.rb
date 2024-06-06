@@ -18,19 +18,37 @@ describe Nokogiri::CSS::XPathVisitor do
   def assert_xpath(expecteds, asts)
     expecteds = [expecteds].flatten
     expecteds.zip(asts).each do |expected, actual|
-      assert_equal(expected, actual.to_xpath("//", visitor))
+      assert_equal(expected, actual.to_xpath(visitor))
     end
   end
 
   it "accepts some config parameters" do
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER))
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS))
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL))
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
+      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER).builtins,
+    )
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS).builtins,
+    )
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
+      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL).builtins,
+    )
     assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(builtins: :not_valid) }
 
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML))
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4))
-    refute_nil(Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5))
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML).doctype,
+    )
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4).doctype,
+    )
+    assert_equal(
+      Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5).doctype,
+    )
     assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
   end
 
@@ -38,6 +56,7 @@ describe Nokogiri::CSS::XPathVisitor do
     expected = {
       builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
       doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+      prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
     }
     assert_equal(expected, visitor.config)
   end
@@ -520,7 +539,12 @@ describe Nokogiri::CSS::XPathVisitor do
     let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS) }
 
     it "exposes its configuration" do
-      assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
+      expected = {
+        builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+        doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+      }
+      assert_equal(expected, visitor.config)
     end
 
     it ". class" do
@@ -578,7 +602,12 @@ describe Nokogiri::CSS::XPathVisitor do
     let(:visitor) { Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL) }
 
     it "exposes its configuration" do
-      assert_equal({ builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL, doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML }, visitor.config)
+      expected = {
+        builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
+        doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+      }
+      assert_equal(expected, visitor.config)
     end
 
     #

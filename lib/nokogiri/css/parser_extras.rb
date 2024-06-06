@@ -73,10 +73,10 @@ module Nokogiri
       end
 
       # Get the xpath for +string+ using +options+
-      def xpath_for(string, prefix, visitor)
-        key = cache_key(string, prefix, visitor)
+      def xpath_for(string, visitor)
+        key = cache_key(string, visitor)
         self.class[key] ||= parse(string).map do |ast|
-          ast.to_xpath(prefix, visitor)
+          ast.to_xpath(visitor)
         end
       end
 
@@ -86,9 +86,9 @@ module Nokogiri
         raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
       end
 
-      def cache_key(query, prefix, visitor)
+      def cache_key(query, visitor)
         if self.class.cache_on?
-          [query, prefix, @namespaces, visitor.config]
+          [query, @namespaces, visitor.config]
         end
       end
     end
