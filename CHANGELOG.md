@@ -26,6 +26,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
 
 
+### Deprecated
+
+* The undocumented and unused method `Nokogiri::CSS.parse` is now deprecated and will generate a warning. The AST returned by this method is private and subject to change and removal in future versions of Nokogiri. This method will be removed in a future version of Nokogiri.
+
+
 ## v1.16.5
 
 ### Security
