@@ -22,14 +22,19 @@ describe Nokogiri::CSS do
     end
 
     it "accepts an options hash" do
-      assert_equal(
-        ["./foo"],
-        Nokogiri::CSS.xpath_for("foo", { prefix: "./" }),
-      )
-      assert_equal(
-        ["./foo"],
-        Nokogiri::CSS.xpath_for("foo", { visitor: Nokogiri::CSS::XPathVisitor.new(prefix: "./") }),
-      )
+      assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+        assert_equal(
+          ["./foo"],
+          Nokogiri::CSS.xpath_for("foo", { prefix: "./" }),
+        )
+      end
+
+      assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+        assert_equal(
+          ["./foo"],
+          Nokogiri::CSS.xpath_for("foo", { visitor: Nokogiri::CSS::XPathVisitor.new(prefix: "./") }),
+        )
+      end
     end
 
     it "accepts keyword arguments" do
