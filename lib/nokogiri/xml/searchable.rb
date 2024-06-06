@@ -249,10 +249,7 @@ module Nokogiri
             doctype: document.xpath_doctype,
             prefix: implied_xpath_context,
           )
-          CSS.xpath_for(rule.to_s, {
-            ns: ns,
-            visitor: visitor,
-          })
+          CSS.xpath_for(rule.to_s, ns: ns, visitor: visitor)
         end.join(" | ")
       end
 

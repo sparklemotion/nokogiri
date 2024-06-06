@@ -70,22 +70,24 @@ module Nokogiri
       #
       #   Nokogiri::CSS.xpath_for("h1, h2, h3") # => ["//h1", "//h2", "//h3"]
       #
-      def xpath_for(selector, options = {})
-        raise TypeError, "no implicit conversion of #{selector.inspect} to String" unless selector.respond_to?(:to_str)
-
-        selector = selector.to_str
-        raise Nokogiri::CSS::SyntaxError, "empty CSS selector" if selector.empty?
-
-        if options.key?(:prefix) && options.key?(:visitor)
-          raise ArgumentError, "cannot provide both :prefix and :visitor"
+      def xpath_for(
+        selector, options = nil,
+        prefix: options&.delete(:prefix), visitor: options&.delete(:visitor), ns: options&.delete(:ns)
+      )
+        unless options.nil?
+          warn("Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
         end
 
-        ns = options.fetch(:ns, {})
+        raise(TypeError, "no implicit conversion of #{selector.inspect} to String") unless selector.respond_to?(:to_str)
 
-        visitor = if options.key?(:prefix)
-          Nokogiri::CSS::XPathVisitor.new(prefix: options.fetch(:prefix))
-        elsif options.key?(:visitor)
-          options.fetch(:visitor)
+        selector = selector.to_str
+        raise(Nokogiri::CSS::SyntaxError, "empty CSS selector") if selector.empty?
+
+        raise ArgumentError, "cannot provide both :prefix and :visitor" if prefix && visitor
+
+        ns ||= {}
+        visitor ||= if prefix
+          Nokogiri::CSS::XPathVisitor.new(prefix: prefix)
         else
           Nokogiri::CSS::XPathVisitor.new
         end
