@@ -8,6 +8,7 @@ module Nokogiri
       # TODO: Deprecate this method ahead of 2.0 and delete it in 2.0.
       # It is not used by Nokogiri and shouldn't be part of the public API.
       def parse(selector) # :nodoc:
+        warn("Nokogiri::CSS.parse is deprecated and will be removed in a future version of Nokogiri. Use Nokogiri::CSS::Parser#parse instead.", uplevel: 1, category: :deprecated)
         Parser.new.parse(selector)
       end
 
