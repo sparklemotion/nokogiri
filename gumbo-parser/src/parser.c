@@ -749,10 +749,20 @@ static void parser_add_parse_error (
   GumboParserError* extra_data = &error->v.parser;
   extra_data->input_type = token->type;
   extra_data->input_tag = GUMBO_TAG_UNKNOWN;
-  if (token->type == GUMBO_TOKEN_START_TAG) {
+  extra_data->input_name = NULL;
+  if (token->type == GUMBO_TOKEN_START_TAG)
+  {
     extra_data->input_tag = token->v.start_tag.tag;
-  } else if (token->type == GUMBO_TOKEN_END_TAG) {
+    if (extra_data->input_tag == GUMBO_TAG_UNKNOWN && token->v.start_tag.name) {
+      extra_data->input_name = gumbo_strdup(token->v.start_tag.name);
+    }
+  }
+  else if (token->type == GUMBO_TOKEN_END_TAG)
+  {
     extra_data->input_tag = token->v.end_tag.tag;
+    if (extra_data->input_tag == GUMBO_TAG_UNKNOWN && token->v.end_tag.name) {
+      extra_data->input_name = gumbo_strdup(token->v.end_tag.name);
+    }
   }
   const GumboParserState* state = parser->_parser_state;
   extra_data->parser_state = state->_insertion_mode;
@@ -763,10 +773,13 @@ static void parser_add_parse_error (
       node->type == GUMBO_NODE_ELEMENT
       || node->type == GUMBO_NODE_TEMPLATE
     );
-    gumbo_vector_add (
-      (void*) node->v.element.tag,
-      &extra_data->tag_stack
-    );
+    void *tag;
+    if (node->v.element.tag == GUMBO_TAG_UNKNOWN && node->v.element.name) {
+      tag = gumbo_strdup(node->v.element.name);
+    } else {
+      tag = (void *)(uintptr_t)node->v.element.tag;
+    }
+    gumbo_vector_add(tag, &extra_data->tag_stack);
   }
 }
 
