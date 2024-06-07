@@ -96,8 +96,14 @@ static void print_tag_stack (
     if (i) {
       print_message(output, ", ");
     }
-    GumboTag tag = (GumboTag)(intptr_t) error->tag_stack.data[i];
-    print_message(output, "%s", gumbo_normalized_tagname(tag));
+    uintptr_t tag = (uintptr_t) error->tag_stack.data[i];
+    const char* tag_name;
+    if (tag > GUMBO_TAG_UNKNOWN) {
+      tag_name = error->tag_stack.data[i];
+    } else {
+      tag_name = gumbo_normalized_tagname((GumboTag)tag);
+    }
+    print_message(output, "%s", tag_name);
   }
   gumbo_string_buffer_append_codepoint('.', output);
 }
@@ -326,41 +332,45 @@ static void handle_parser_error (
   }
 
   switch (error->input_type) {
-    case GUMBO_TOKEN_DOCTYPE:
-      print_message(output, "This is not a legal doctype");
-      return;
-    case GUMBO_TOKEN_COMMENT:
-      // Should never happen; comments are always legal.
-      assert(0);
-      // But just in case...
-      print_message(output, "Comments aren't legal here");
-      return;
-    case GUMBO_TOKEN_CDATA:
-    case GUMBO_TOKEN_WHITESPACE:
-    case GUMBO_TOKEN_CHARACTER:
-      print_message(output, "Character tokens aren't legal here");
-      return;
-    case GUMBO_TOKEN_NULL:
-      print_message(output, "Null bytes are not allowed in HTML5");
-      return;
-    case GUMBO_TOKEN_EOF:
-      if (error->parser_state == GUMBO_INSERTION_MODE_INITIAL) {
-        print_message(output, "You must provide a doctype");
-      } else {
-        print_message(output, "Premature end of file.");
-        print_tag_stack(error, output);
-      }
-      return;
-    case GUMBO_TOKEN_START_TAG:
-      print_message(output, "Start tag '%s' isn't allowed here.",
-                    gumbo_normalized_tagname(error->input_tag));
+  case GUMBO_TOKEN_DOCTYPE:
+    print_message(output, "This is not a legal doctype");
+    return;
+  case GUMBO_TOKEN_COMMENT:
+    // Should never happen; comments are always legal.
+    assert(0);
+    // But just in case...
+    print_message(output, "Comments aren't legal here");
+    return;
+  case GUMBO_TOKEN_CDATA:
+  case GUMBO_TOKEN_WHITESPACE:
+  case GUMBO_TOKEN_CHARACTER:
+    print_message(output, "Character tokens aren't legal here");
+    return;
+  case GUMBO_TOKEN_NULL:
+    print_message(output, "Null bytes are not allowed in HTML5");
+    return;
+  case GUMBO_TOKEN_EOF:
+    if (error->parser_state == GUMBO_INSERTION_MODE_INITIAL) {
+      print_message(output, "You must provide a doctype");
+    } else {
+      print_message(output, "Premature end of file.");
       print_tag_stack(error, output);
-      return;
-    case GUMBO_TOKEN_END_TAG:
-      print_message(output, "End tag '%s' isn't allowed here.",
-                    gumbo_normalized_tagname(error->input_tag));
-      print_tag_stack(error, output);
-      return;
+    }
+    return;
+  case GUMBO_TOKEN_START_TAG:
+  case GUMBO_TOKEN_END_TAG:
+  {
+    const char* tag_name;
+    const char* which = error->input_type == GUMBO_TOKEN_START_TAG ? "Start" : "End";
+    if (error->input_name) {
+      tag_name = error->input_name;
+    } else {
+      tag_name = gumbo_normalized_tagname(error->input_tag);
+    }
+    print_message(output, "%s tag '%s' isn't allowed here.", which, tag_name);
+    print_tag_stack(error, output);
+    return;
+  }
   }
 }
 
@@ -613,6 +623,17 @@ void gumbo_print_caret_diagnostic (
 
 void gumbo_error_destroy(GumboError* error) {
   if (error->type == GUMBO_ERR_PARSER) {
+    // Free the tag name.
+    if (error->v.parser.input_name) {
+      gumbo_free(error->v.parser.input_name);
+    }
+
+    for (unsigned int i = 0; i < error->v.parser.tag_stack.length; ++i) {
+      intptr_t tag = (intptr_t) error->v.parser.tag_stack.data[i];
+      if (tag > GUMBO_TAG_UNKNOWN) {
+        gumbo_free(error->v.parser.tag_stack.data[i]);
+      }
+    }
     gumbo_vector_destroy(&error->v.parser.tag_stack);
   }
   gumbo_free(error);
