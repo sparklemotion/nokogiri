@@ -1055,9 +1055,13 @@ if arg_config("--gumbo-dev")
   $VPATH << "$(srcdir)/../../gumbo-parser/src"
   find_header("nokogiri_gumbo.h") || abort("nokogiri_gumbo.h not found")
 else
-  libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
+  libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", true, cross_build_p, false) do |recipe|
     recipe.source_directory = File.join(PACKAGE_ROOT_DIR, "gumbo-parser")
   end
+  append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
+  $libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
+  $LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
+  ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 end
 
 have_func("xmlHasFeature") || abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
@@ -1102,17 +1106,6 @@ if config_clean?
       \t-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? "enable" : "disable"}-static
     EOF
   end
-  File.open("Makefile", "at") do |mk|
-    mk.print(<<~EOF)
-
-      .PHONY: rebuild-libgumbo
-
-      $(TARGET_SO): rebuild-libgumbo
-      rebuild-libgumbo:
-      \t-$(Q)$(MAKE) -C tmp/#{libgumbo_recipe.host}/ports/libgumbo/1.0.0-nokogiri/libgumbo-1.0.0-nokogiri install
-    EOF
-  end
-
 end
 
 # rubocop:enable Style/GlobalVars
