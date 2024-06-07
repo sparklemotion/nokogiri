@@ -251,6 +251,15 @@ git submodule update --init  #  test/html5lib-tests
 bundle exec rake compile test
 ```
 
+If you're actively working on the libgumbo source, you will probably want a faster feedback loop than `rake clean compile test` will give you. Here's how to get more immediate builds of libgumbo whenever you change a file:
+
+``` sh
+bundle exec rake clean compile -- --gumbo-dev
+# change a gumbo file
+bundle exec rake compile # immediate compilation of changed file and relinking of nokogiri.so
+```
+
+
 ### Fuzzing your gumbo HTML5 parser changes
 
 When making changes or adding new features to `gumbo-parser`, it's recommended to run [libfuzzer](https://llvm.org/docs/LibFuzzer.html) against `gumbo-parser` using various [sanitizers](https://github.com/google/sanitizers/wiki).

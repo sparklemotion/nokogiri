@@ -1044,55 +1044,67 @@ else
   ensure_func("exsltFuncRegister", "libexslt/exslt.h")
 end
 
-libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
-  recipe.configure_options = []
+if arg_config("--gumbo-dev")
+  message("DEV MODE ENABLED: build libgumbo as packaged source")
+  ext_dir = File.dirname(__FILE__)
+  Dir.chdir(ext_dir) do
+    $srcs = Dir["*.c", "../../gumbo-parser/src/*.c"]
+    $hdrs = Dir["*.h", "../../gumbo-parser/src/*.h"]
+  end
+  $INCFLAGS << " -I$(srcdir)/../../gumbo-parser/src"
+  $VPATH << "$(srcdir)/../../gumbo-parser/src"
+  find_header("nokogiri_gumbo.h") || abort("nokogiri_gumbo.h not found")
+else
+  libgumbo_recipe = process_recipe("libgumbo", "1.0.0-nokogiri", static_p, cross_build_p, false) do |recipe|
+    recipe.configure_options = []
 
-  class << recipe
-    def downloaded?
-      true
-    end
-
-    def extract
-      target = File.join(tmp_path, "gumbo-parser")
-      output("Copying gumbo-parser files into #{target}...")
-      FileUtils.mkdir_p(target)
-      FileUtils.cp(Dir.glob(File.join(PACKAGE_ROOT_DIR, "gumbo-parser/src/*")), target)
-    end
-
-    def configured?
-      true
-    end
-
-    def install
-      lib_dir = File.join(port_path, "lib")
-      inc_dir = File.join(port_path, "include")
-      FileUtils.mkdir_p([lib_dir, inc_dir])
-      FileUtils.cp(File.join(work_path, "libgumbo.a"), lib_dir)
-      FileUtils.cp(Dir.glob(File.join(work_path, "*.h")), inc_dir)
-    end
-
-    def compile
-      cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g")
-
-      env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
-      if config_cross_build?
-        if host.include?("darwin")
-          env["AR"] = "#{host}-libtool"
-          env["ARFLAGS"] = "-o"
-        else
-          env["AR"] = "#{host}-ar"
-        end
-        env["RANLIB"] = "#{host}-ranlib"
+    class << recipe
+      def downloaded?
+        true
       end
 
-      execute("compile", make_cmd, { env: env })
+      def extract
+        target = File.join(tmp_path, "gumbo-parser")
+        output("Copying gumbo-parser files into #{target}...")
+        FileUtils.mkdir_p(target)
+        FileUtils.cp(Dir.glob(File.join(PACKAGE_ROOT_DIR, "gumbo-parser/src/*")), target)
+      end
+
+      def configured?
+        true
+      end
+
+      def install
+        lib_dir = File.join(port_path, "lib")
+        inc_dir = File.join(port_path, "include")
+        FileUtils.mkdir_p([lib_dir, inc_dir])
+        FileUtils.cp(File.join(work_path, "libgumbo.a"), lib_dir)
+        FileUtils.cp(Dir.glob(File.join(work_path, "*.h")), inc_dir)
+      end
+
+      def compile
+        cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g")
+
+        env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
+        if config_cross_build?
+          if host.include?("darwin")
+            env["AR"] = "#{host}-libtool"
+            env["ARFLAGS"] = "-o"
+          else
+            env["AR"] = "#{host}-ar"
+          end
+          env["RANLIB"] = "#{host}-ranlib"
+        end
+
+        execute("compile", make_cmd, { env: env })
+      end
     end
   end
+  append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
+  $libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
+  $LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
+  ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 end
-append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
-$libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
-$LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
-ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 
 have_func("xmlHasFeature") || abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
 have_func("xmlFirstElementChild") # introduced in libxml 2.7.3
