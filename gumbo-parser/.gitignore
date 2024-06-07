@@ -1,5 +1,10 @@
-build
-googletest
-src/*.o
-fuzzer/build
-src/libgumbo.a
+/build
+/googletest
+/src/*.o
+/fuzzer/build
+/src/libgumbo.a
+/aclocal.m4
+/autom4te.cache/
+/configure
+/configure.in
+Makefile.in
