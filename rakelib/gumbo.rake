@@ -35,9 +35,11 @@ namespace "gumbo" do
   CLOBBER.add(gtest_pkg)
   CLOBBER.add(gumbotest_configure)
   CLOBBER.add("gumbo-parser/Makefile.in")
-  CLOBBER.add("gumbo-parser/configure")
   CLOBBER.add("gumbo-parser/src/Makefile.in")
   CLOBBER.add("gumbo-parser/test/Makefile.in")
+  CLOBBER.add("gumbo-parser/build-aux/*")
+  CLOBBER.add("gumbo-parser/autom4te.cache")
+  CLOBBER.add("gumbo-parser/aclocal.m4")
 end
 
 desc "Run the gumbo parser test suite"
