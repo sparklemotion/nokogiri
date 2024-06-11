@@ -69,6 +69,12 @@ describe Nokogiri::CSS do
         assert_raises(TypeError) { Nokogiri::CSS.xpath_for(Object.new) }
         assert_raises(TypeError) { Nokogiri::CSS.xpath_for(["foo", "bar"]) }
       end
+
+      it "raises an exception for pseudo-classes that are not XPath Names" do
+        # see https://github.com/sparklemotion/nokogiri/issues/3193
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for("div:-moz-drag-over") }
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for("div:-moz-drag-over()") }
+      end
     end
   end
 end

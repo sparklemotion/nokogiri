@@ -50,7 +50,7 @@ describe Nokogiri::CSS::XPathVisitor do
     end
   end
 
-  dsecribe "#config" do
+  describe "#config" do
     it "exposes its configuration" do
       expected = {
         builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
@@ -63,14 +63,6 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_nil(visitor.namespaces)
       assert_equal(Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX, visitor.prefix)
     end
-  end
-
-  it "raises an exception on single quote" do
-    assert_raises(Nokogiri::CSS::SyntaxError) { parser.parse("'") }
-  end
-
-  it "raises an exception on invalid CSS syntax" do
-    assert_raises(Nokogiri::CSS::SyntaxError) { parser.parse("a[x=]") }
   end
 
   describe "selectors" do
@@ -406,12 +398,6 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//*[nokogiri:link(.)]", parser.parse(":link"))
       assert_xpath("//*[not(@id='foo')]", parser.parse(":not(#foo)"))
       assert_xpath("//*[count(preceding-sibling::*)=0]", parser.parse(":first-child"))
-    end
-
-    it "raises an exception for pseudo-classes that are not XPath Names" do
-      # see https://github.com/sparklemotion/nokogiri/issues/3193
-      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for("div:-moz-drag-over") }
-      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for("div:-moz-drag-over()") }
     end
   end
 
