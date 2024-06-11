@@ -14,6 +14,7 @@ macro
   nmchar    ([_A-Za-z0-9-]|{nonascii}|{escape})
   nmstart   ([_A-Za-z]|{nonascii}|{escape})
   name      {nmstart}{nmchar}*
+  ident     -?{name}
   charref   {nmchar}+
   string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*"
   string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*'
@@ -24,8 +25,8 @@ rule
 # [:state]  pattern  [actions]
 
             has\({w}         { [:HAS, text] }
-            {name}\({w}      { [:FUNCTION, text] }
-            {name}           { [:IDENT, text] }
+            {ident}\({w}     { [:FUNCTION, text] }
+            {ident}          { [:IDENT, text] }
             \#{charref}      { [:HASH, text] }
             {w}~={w}         { [:INCLUDES, text] }
             {w}\|={w}        { [:DASHMATCH, text] }
@@ -43,7 +44,6 @@ rule
             {w}~{w}          { [:TILDE, text] }
             \:not\({w}       { [:NOT, text] }
             {num}            { [:NUMBER, text] }
-            {w}\-{w}         { [:MINUS, text] }
             {w}\/\/{w}       { [:DOUBLESLASH, text] }
             {w}\/{w}         { [:SLASH, text] }
 

@@ -1,6 +1,6 @@
 class Nokogiri::CSS::Parser
 
-token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS MINUS GREATER S STRING IDENT
+token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA NUMBER PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL
 token SLASH DOUBLESLASH NOT EQUAL RPAREN LSQUARE RSQUARE HAS
 
@@ -143,17 +143,13 @@ rule
         raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
       end
     }
-  | IDENT PLUS NUMBER {               # n+3
+  | IDENT PLUS NUMBER {               # n+3, -n+3
       if val[0] == 'n'
         val.unshift("1")
         result = Node.new(:NTH, val)
-      else
-        raise Racc::ParseError, "parse error on IDENT '#{val[0]}'"
-      end
-    }
-  | MINUS IDENT PLUS NUMBER {         # -n+3
-      if val[1] == 'n'
-        val[0] = '-1'
+      elsif val[0] == '-n'
+        val[0] = 'n'
+        val.unshift("-1")
         result = Node.new(:NTH, val)
       else
         raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
