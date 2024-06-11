@@ -65,6 +65,42 @@ describe Nokogiri::CSS::XPathVisitor do
     end
   end
 
+  describe "custom pseudo-classes via XPathVisitor methods" do
+    it "pseudo-class functions" do
+      visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
+        attr_accessor :called
+
+        def visit_function_aaron(node)
+          @called = true
+          "aaron() = 1"
+        end
+      end.new
+
+      assert_equal(
+        ["//a[aaron() = 1]"],
+        Nokogiri::CSS.xpath_for("a:aaron()", visitor: visitor),
+      )
+      assert visitor.called
+    end
+
+    it "pseudo-classes selectors" do
+      visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
+        attr_accessor :called
+
+        def visit_pseudo_class_aaron(node)
+          @called = true
+          "aaron() = 1"
+        end
+      end.new
+
+      assert_equal(
+        ["//a[aaron() = 1]"],
+        Nokogiri::CSS.xpath_for("a:aaron", visitor: visitor),
+      )
+      assert visitor.called
+    end
+  end
+
   describe "selectors" do
     it "* universal" do
       assert_xpath("//*", parser.parse("*"))
@@ -482,34 +518,6 @@ describe Nokogiri::CSS::XPathVisitor do
     it "handles self()" do
       # TODO: it's unclear how this is useful and we should consider deprecating it
       assert_xpath("//self::div", parser.parse("self(div)"))
-    end
-
-    it "supports custom functions" do
-      visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
-        attr_accessor :awesome
-
-        def visit_function_aaron(node)
-          @awesome = true
-          "aaron() = 1"
-        end
-      end.new
-      ast = parser.parse("a:aaron()").first
-      assert_equal "a[aaron() = 1]", visitor.accept(ast)
-      assert visitor.awesome
-    end
-
-    it "supports custom pseudo-classes" do
-      visitor = Class.new(Nokogiri::CSS::XPathVisitor) do
-        attr_accessor :awesome
-
-        def visit_pseudo_class_aaron(node)
-          @awesome = true
-          "aaron() = 1"
-        end
-      end.new
-      ast = parser.parse("a:aaron").first
-      assert_equal "a[aaron() = 1]", visitor.accept(ast)
-      assert visitor.awesome
     end
   end
 
