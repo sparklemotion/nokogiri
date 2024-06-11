@@ -13,32 +13,62 @@ module Nokogiri
       end
 
       # :call-seq:
-      #   xpath_for(selector) → String
-      #   xpath_for(selector [, prefix:] [, visitor:] [, ns:]) → String
+      #   xpath_for(selector_list) → Array<String>
+      #   xpath_for(selector_list [, prefix:] [, visitor:] [, ns:]) → Array<String>
       #
-      # Translate a CSS selector to the equivalent XPath query.
+      # Translate a CSS selector list to the equivalent XPath expressions.
+      #
+      # 💡 Note that translated queries are cached by default for performance concerns.
+      #
+      # ⚠ Users should prefer Nokogiri::XML::Searchable#css, which is mixed into all document and
+      # node classes, for querying documents with CSS selectors. This method is the underlying
+      # mechanism used by XML::Searchable and is provided solely for advanced users to translate
+      # \CSS selectors to XPath directly.
+      #
+      # Also see Nokogiri::XML::Searchable#css for documentation on supported CSS selector features,
+      # some extended syntax that Nokogiri supports, and advanced CSS features like pseudo-class
+      # functions.
       #
       # [Parameters]
-      # - +selector+ (String) The CSS selector to be translated into XPath
+      # - +selector_list+ (String)
+      #
+      #   The CSS selector to be translated into XPath. This is always a String, but that string
+      #   value may be a {selector list}[https://www.w3.org/TR/selectors-4/#grouping] (see
+      #   examples).
       #
       # - +prefix:+ (String)
       #
-      #   The XPath prefix for the query, see Nokogiri::XML::XPath for some options. Default is
-      #   +XML::XPath::GLOBAL_SEARCH_PREFIX+.
+      #   The XPath expression prefix which determines the search context. See Nokogiri::XML::XPath
+      #   for standard options. Default is +XPath::GLOBAL_SEARCH_PREFIX+.
       #
       # - +visitor:+ (Nokogiri::CSS::XPathVisitor)
       #
       #   The visitor class to use to transform the AST into XPath. Default is
-      #   +Nokogiri::CSS::XPathVisitor.new+.
+      #   +Nokogiri::CSS::XPathVisitor.new+. See Nokogiri::CSS::XPathVisitor for more information on
+      #   some of the complex behavior that can be customized for your document type.
       #
       # - +ns:+ (Hash<String ⇒ String>)
       #
-      #   The namespaces that are referenced in the query, if any. This is a hash where the keys are
-      #   the namespace prefix and the values are the namespace URIs. Default is an empty Hash.
+      #   Namespaces that are referenced in the query, if any. This is a hash where the keys are the
+      #   namespace prefix and the values are the namespace URIs. Default is an empty Hash.
       #
-      # [Returns] (String) The equivalent XPath query for +selector+
+      # [Returns] (Array<String>) The equivalent set of XPath expressions for +selector_list+
       #
-      # 💡 Note that translated queries are cached for performance concerns.
+      # *Example* with a simple selector:
+      #
+      #   Nokogiri::CSS.xpath_for("div") # => ["//div"]
+      #
+      # *Example* with a compound selector:
+      #
+      #   Nokogiri::CSS.xpath_for("div.xl") # => ["//div[contains(concat(' ',normalize-space(@class),' '),' xl ')]"]
+      #
+      # *Example* with a complex selector:
+      #
+      #   Nokogiri::CSS.xpath_for("h1 + div") # => ["//h1/following-sibling::*[1]/self::div"]
+      #
+      # *Example* with a selector list:
+      #
+      #   Nokogiri::CSS.xpath_for("h1, h2, h3") # => ["//h1", "//h2", "//h3"]
       #
       def xpath_for(selector, options = {})
         raise TypeError, "no implicit conversion of #{selector.inspect} to String" unless selector.respond_to?(:to_str)

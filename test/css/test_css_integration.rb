@@ -2,8 +2,8 @@
 
 require "helper"
 
-class TestNokogiriCssIntegration < Nokogiri::TestCase
-  describe "CSS integration tests" do
+describe Nokogiri::CSS do
+  describe "integration tests" do
     let(:subject) do
       subject_class.parse(<<~HTML)
         <html><body>
@@ -128,127 +128,127 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
         let(:subject_class) { doctype }
 
         it "selects even" do
-          assert_result_rows([2, 4, 6, 8, 10, 12, 14], subject.search("table//tr:nth(even)"))
+          assert_result_rows([2, 4, 6, 8, 10, 12, 14], subject.css("table//tr:nth(even)"))
         end
 
         it "selects odd" do
-          assert_result_rows([1, 3, 5, 7, 9, 11, 13], subject.search("table//tr:nth(odd)"))
+          assert_result_rows([1, 3, 5, 7, 9, 11, 13], subject.css("table//tr:nth(odd)"))
         end
 
         it "selects n" do
-          assert_result_rows((1..14).to_a, subject.search("table//tr:nth(n)"))
+          assert_result_rows((1..14).to_a, subject.css("table//tr:nth(n)"))
         end
 
         it "selects 2n" do
-          assert_equal(subject.search("table//tr:nth(even)").inner_text, subject.search("table//tr:nth(2n)").inner_text)
+          assert_equal(subject.css("table//tr:nth(even)").inner_text, subject.css("table//tr:nth(2n)").inner_text)
         end
 
         it "selects 2np1" do
-          assert_equal(subject.search("table//tr:nth(odd)").inner_text, subject.search("table//tr:nth(2n+1)").inner_text)
+          assert_equal(subject.css("table//tr:nth(odd)").inner_text, subject.css("table//tr:nth(2n+1)").inner_text)
         end
 
         it "selects 4np3" do
-          assert_result_rows([3, 7, 11], subject.search("table//tr:nth(4n+3)"))
+          assert_result_rows([3, 7, 11], subject.css("table//tr:nth(4n+3)"))
         end
 
         it "selects 3np4" do
-          assert_result_rows([4, 7, 10, 13], subject.search("table//tr:nth(3n+4)"))
+          assert_result_rows([4, 7, 10, 13], subject.css("table//tr:nth(3n+4)"))
         end
 
         it "selects mnp3" do
-          assert_result_rows([1, 2, 3], subject.search("table//tr:nth(-n+3)"))
+          assert_result_rows([1, 2, 3], subject.css("table//tr:nth(-n+3)"))
         end
 
         it "selects 4nm1" do
-          assert_result_rows([3, 7, 11], subject.search("table//tr:nth(4n-1)"))
+          assert_result_rows([3, 7, 11], subject.css("table//tr:nth(4n-1)"))
         end
 
         it "selects np3" do
-          assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], subject.search("table//tr:nth(n+3)"))
+          assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], subject.css("table//tr:nth(n+3)"))
         end
 
         it "selects first" do
-          assert_result_rows([1], subject.search("table//tr:first"))
-          assert_result_rows([1], subject.search("table//tr:first()"))
+          assert_result_rows([1], subject.css("table//tr:first"))
+          assert_result_rows([1], subject.css("table//tr:first()"))
         end
 
         it "selects last" do
-          assert_result_rows([14], subject.search("table//tr:last"))
-          assert_result_rows([14], subject.search("table//tr:last()"))
+          assert_result_rows([14], subject.css("table//tr:last"))
+          assert_result_rows([14], subject.css("table//tr:last()"))
         end
 
         it "selects first_child" do
-          assert_result_rows([1], subject.search("div/b:first-child"), "bold")
-          assert_result_rows([1], subject.search("table//tr:first-child"))
-          assert_result_rows([2, 4], subject.search("div/h1.c:first-child"), "header")
+          assert_result_rows([1], subject.css("div/b:first-child"), "bold")
+          assert_result_rows([1], subject.css("table//tr:first-child"))
+          assert_result_rows([2, 4], subject.css("div/h1.c:first-child"), "header")
         end
 
         it "selects last_child" do
-          assert_result_rows([3], subject.search("div/b:last-child"), "bold")
-          assert_result_rows([14], subject.search("table//tr:last-child"))
-          assert_result_rows([3, 4], subject.search("div/h1.c:last-child"), "header")
+          assert_result_rows([3], subject.css("div/b:last-child"), "bold")
+          assert_result_rows([14], subject.css("table//tr:last-child"))
+          assert_result_rows([3, 4], subject.css("div/h1.c:last-child"), "header")
         end
 
         it "selects nth_child" do
-          assert_result_rows([2], subject.search("div/b:nth-child(3)"), "bold")
-          assert_result_rows([5], subject.search("table//tr:nth-child(5)"))
-          assert_result_rows([1, 3], subject.search("div/h1.c:nth-child(2)"), "header")
-          assert_result_rows([3, 4], subject.search("div/i.b:nth-child(2n+1)"), "italic")
-          assert_result_rows([3, 4], subject.search("div/i.b:nth-child(2n + 1)"), "italic")
+          assert_result_rows([2], subject.css("div/b:nth-child(3)"), "bold")
+          assert_result_rows([5], subject.css("table//tr:nth-child(5)"))
+          assert_result_rows([1, 3], subject.css("div/h1.c:nth-child(2)"), "header")
+          assert_result_rows([3, 4], subject.css("div/i.b:nth-child(2n+1)"), "italic")
+          assert_result_rows([3, 4], subject.css("div/i.b:nth-child(2n + 1)"), "italic")
         end
 
         it "selects first_of_type" do
-          assert_result_rows([1], subject.search("table//tr:first-of-type"))
-          assert_result_rows([1], subject.search("div/b:first-of-type"), "bold")
-          assert_result_rows([2], subject.search("div/b.a:first-of-type"), "bold")
-          assert_result_rows([3], subject.search("div/i.b:first-of-type"), "italic")
+          assert_result_rows([1], subject.css("table//tr:first-of-type"))
+          assert_result_rows([1], subject.css("div/b:first-of-type"), "bold")
+          assert_result_rows([2], subject.css("div/b.a:first-of-type"), "bold")
+          assert_result_rows([3], subject.css("div/i.b:first-of-type"), "italic")
         end
 
         it "selects last_of_type" do
-          assert_result_rows([14], subject.search("table//tr:last-of-type"))
-          assert_result_rows([3], subject.search("div/b:last-of-type"), "bold")
-          assert_result_rows([2, 7], subject.search("div/i:last-of-type"), "italic")
-          assert_result_rows([2, 6, 7], subject.search("div i:last-of-type"), "italic")
-          assert_result_rows([4], subject.search("div/i.b:last-of-type"), "italic")
+          assert_result_rows([14], subject.css("table//tr:last-of-type"))
+          assert_result_rows([3], subject.css("div/b:last-of-type"), "bold")
+          assert_result_rows([2, 7], subject.css("div/i:last-of-type"), "italic")
+          assert_result_rows([2, 6, 7], subject.css("div i:last-of-type"), "italic")
+          assert_result_rows([4], subject.css("div/i.b:last-of-type"), "italic")
         end
 
         it "selects nth_of_type" do
-          assert_result_rows([1], subject.search("div/b:nth-of-type(1)"), "bold")
-          assert_result_rows([2], subject.search("div/b:nth-of-type(2)"), "bold")
-          assert_result_rows([2], subject.search("div/.a:nth-of-type(1)"), "bold")
-          assert_result_rows([2, 4, 7], subject.search("div i:nth-of-type(2n)"), "italic")
-          assert_result_rows([1, 3, 5, 6], subject.search("div i:nth-of-type(2n+1)"), "italic")
-          assert_result_rows([1], subject.search("div .a:nth-of-type(2n)"), "emphasis")
-          assert_result_rows([2, 3], subject.search("div .a:nth-of-type(2n+1)"), "bold")
+          assert_result_rows([1], subject.css("div/b:nth-of-type(1)"), "bold")
+          assert_result_rows([2], subject.css("div/b:nth-of-type(2)"), "bold")
+          assert_result_rows([2], subject.css("div/.a:nth-of-type(1)"), "bold")
+          assert_result_rows([2, 4, 7], subject.css("div i:nth-of-type(2n)"), "italic")
+          assert_result_rows([1, 3, 5, 6], subject.css("div i:nth-of-type(2n+1)"), "italic")
+          assert_result_rows([1], subject.css("div .a:nth-of-type(2n)"), "emphasis")
+          assert_result_rows([2, 3], subject.css("div .a:nth-of-type(2n+1)"), "bold")
         end
 
         it "selects nth_last_of_type" do
-          assert_result_rows([14], subject.search("table//tr:nth-last-of-type(1)"))
-          assert_result_rows([12], subject.search("table//tr:nth-last-of-type(3)"))
-          assert_result_rows([2, 6, 7], subject.search("div i:nth-last-of-type(1)"), "italic")
-          assert_result_rows([1, 5], subject.search("div i:nth-last-of-type(2)"), "italic")
-          assert_result_rows([4], subject.search("div/i.b:nth-last-of-type(1)"), "italic")
-          assert_result_rows([3], subject.search("div/i.b:nth-last-of-type(2)"), "italic")
+          assert_result_rows([14], subject.css("table//tr:nth-last-of-type(1)"))
+          assert_result_rows([12], subject.css("table//tr:nth-last-of-type(3)"))
+          assert_result_rows([2, 6, 7], subject.css("div i:nth-last-of-type(1)"), "italic")
+          assert_result_rows([1, 5], subject.css("div i:nth-last-of-type(2)"), "italic")
+          assert_result_rows([4], subject.css("div/i.b:nth-last-of-type(1)"), "italic")
+          assert_result_rows([3], subject.css("div/i.b:nth-last-of-type(2)"), "italic")
         end
 
         it "selects only_of_type" do
-          assert_result_rows([1, 4], subject.search("div/p:only-of-type"), "para")
-          assert_result_rows([5], subject.search("div/i.c:only-of-type"), "italic")
+          assert_result_rows([1, 4], subject.css("div/p:only-of-type"), "para")
+          assert_result_rows([5], subject.css("div/i.c:only-of-type"), "italic")
         end
 
         it "selects only_child" do
-          assert_result_rows([4], subject.search("div/p:only-child"), "para")
-          assert_result_rows([4], subject.search("div/h1.c:only-child"), "header")
+          assert_result_rows([4], subject.css("div/p:only-child"), "para")
+          assert_result_rows([4], subject.css("div/h1.c:only-child"), "header")
         end
 
         it "selects empty" do
-          result = subject.search("p:empty")
+          result = subject.css("p:empty")
           assert_equal(1, result.size, "unexpected number of rows returned: '#{result.inner_text}'")
           assert_equal("empty", result.first["class"])
         end
 
         it "selects parent" do
-          result = subject.search("p:parent")
+          result = subject.css("p:parent")
           assert_equal(5, result.size)
           0.upto(3) do |j|
             assert_equal("para#{j + 1} ", result[j].inner_text)
@@ -266,13 +266,13 @@ class TestNokogiriCssIntegration < Nokogiri::TestCase
               <p id="5">p5 </p>
           HTML
           doc = subject_class.parse(html)
-          assert_equal(2, doc.search("#3 ~ p").size)
-          assert_equal("p4 p5 ", doc.search("#3 ~ p").inner_text)
-          assert_equal(0, doc.search("#5 ~ p").size)
+          assert_equal(2, doc.css("#3 ~ p").size)
+          assert_equal("p4 p5 ", doc.css("#3 ~ p").inner_text)
+          assert_equal(0, doc.css("#5 ~ p").size)
 
-          assert_equal(1, doc.search("#3 + p").size)
-          assert_equal("p4 ", doc.search("#3 + p").inner_text)
-          assert_equal(0, doc.search("#5 + p").size)
+          assert_equal(1, doc.css("#3 + p").size)
+          assert_equal("p4 ", doc.css("#3 + p").inner_text)
+          assert_equal(0, doc.css("#5 + p").size)
         end
 
         it "selects has_a" do

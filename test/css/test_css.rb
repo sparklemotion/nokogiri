@@ -49,6 +49,7 @@ describe Nokogiri::CSS do
         assert_raises(TypeError) { Nokogiri::CSS.xpath_for(nil) }
         assert_raises(TypeError) { Nokogiri::CSS.xpath_for(3) }
         assert_raises(TypeError) { Nokogiri::CSS.xpath_for(Object.new) }
+        assert_raises(TypeError) { Nokogiri::CSS.xpath_for(["foo", "bar"]) }
       end
     end
   end
