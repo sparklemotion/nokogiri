@@ -128,6 +128,8 @@ module Nokogiri
           is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
           ".#{"//" unless is_direct}#{node.value[1].accept(self)}"
         else
+          validate_xpath_function_name(node.value.first)
+
           # xpath function call, let's marshal those arguments
           args = ["."]
           args += node.value[1..-1].map do |n|
@@ -207,6 +209,7 @@ module Nokogiri
           when "parent" then "node()"
           when "root" then "not(parent::*)"
           else
+            validate_xpath_function_name(node.value.first)
             "nokogiri:#{node.value.first}(.)"
           end
         end
@@ -269,6 +272,12 @@ module Nokogiri
       end
 
       private
+
+      def validate_xpath_function_name(name)
+        if name.start_with?("-")
+          raise Nokogiri::CSS::SyntaxError, "Invalid XPath function name '#{name}'"
+        end
+      end
 
       def html5_element_name_needs_namespace_handling(node)
         # if this is the wildcard selector "*", use it as normal
