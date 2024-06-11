@@ -8,7 +8,7 @@ describe Nokogiri::CSS::XPathVisitor do
 
   def assert_xpath(expecteds, input_selector_list)
     expecteds = Array(expecteds)
-    actuals = Nokogiri::CSS.xpath_for(input_selector_list, visitor: visitor)
+    actuals = Nokogiri::CSS.xpath_for(input_selector_list, visitor: visitor, cache: false)
 
     expecteds.zip(actuals).each do |expected, actual|
       assert_equal(expected, actual)
@@ -79,7 +79,7 @@ describe Nokogiri::CSS::XPathVisitor do
 
       assert_equal(
         ["//a[aaron() = 1]"],
-        Nokogiri::CSS.xpath_for("a:aaron()", visitor: visitor),
+        Nokogiri::CSS.xpath_for("a:aaron()", visitor: visitor, cache: false),
       )
       assert visitor.called
     end
@@ -96,7 +96,7 @@ describe Nokogiri::CSS::XPathVisitor do
 
       assert_equal(
         ["//a[aaron() = 1]"],
-        Nokogiri::CSS.xpath_for("a:aaron", visitor: visitor),
+        Nokogiri::CSS.xpath_for("a:aaron", visitor: visitor, cache: false),
       )
       assert visitor.called
     end
@@ -176,18 +176,18 @@ describe Nokogiri::CSS::XPathVisitor do
         }
 
         # An intentionally-empty namespace means "don't use the default xmlns"
-        assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns))
+        assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns, cache: false))
 
         # The default namespace is not applied to attributes (just elements)
         assert_equal(
           ["//xmlns:a[@class='bar']"],
-          Nokogiri::CSS.xpath_for("a[class='bar']", ns: ns),
+          Nokogiri::CSS.xpath_for("a[class='bar']", ns: ns, cache: false),
         )
 
         # We can explicitly apply a namespace to an attribue
         assert_equal(
           ["//xmlns:a[@hoge:class='bar']"],
-          Nokogiri::CSS.xpath_for("a[hoge|class='bar']", ns: ns),
+          Nokogiri::CSS.xpath_for("a[hoge|class='bar']", ns: ns, cache: false),
         )
       end
 
