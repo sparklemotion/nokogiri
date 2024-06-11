@@ -56,11 +56,9 @@ module Nokogiri
         end
       end
 
-      # Create a new CSS parser with respect to +namespaces+
-      def initialize(namespaces = {})
+      def initialize
         @tokenizer = Tokenizer.new
-        @namespaces = namespaces
-        super()
+        super
       end
 
       def parse(string)
@@ -73,10 +71,10 @@ module Nokogiri
       end
 
       # Get the xpath for +string+ using +options+
-      def xpath_for(string, prefix, visitor)
-        key = cache_key(string, prefix, visitor)
+      def xpath_for(string, visitor)
+        key = cache_key(string, visitor)
         self.class[key] ||= parse(string).map do |ast|
-          ast.to_xpath(prefix, visitor)
+          ast.to_xpath(visitor)
         end
       end
 
@@ -86,9 +84,9 @@ module Nokogiri
         raise SyntaxError, "unexpected '#{error_value}' after '#{after}'"
       end
 
-      def cache_key(query, prefix, visitor)
+      def cache_key(query, visitor)
         if self.class.cache_on?
-          [query, prefix, @namespaces, visitor.config]
+          [query, visitor.config]
         end
       end
     end

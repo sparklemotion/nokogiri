@@ -24,11 +24,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
+* The internal `CSS::XPathVisitor` class now accepts the xpath prefix and the context namespaces as constructor arguments. The `prefix:` and `ns:` keyword arguments to `CSS.xpath_for` cannot be specified if the `visitor:` keyword argument is also used. `CSS::XPathVisitor` now exposes `#builtins`, `#doctype`, `#prefix`, and `#namespaces` attributes.
 
 
 ### Deprecated
 
 * The undocumented and unused method `Nokogiri::CSS.parse` is now deprecated and will generate a warning. The AST returned by this method is private and subject to change and removal in future versions of Nokogiri. This method will be removed in a future version of Nokogiri.
+* Passing an options hash to `CSS.xpath_for` is now deprecated and will generate a warning. Use keyword arguments instead. This will become an error in a future version of Nokogiri.
 
 
 ## v1.16.5
