@@ -62,7 +62,6 @@ module Nokogiri
 
         raise ArgumentError, "cannot provide both :prefix and :visitor" if prefix && visitor
 
-        ns ||= {}
         visitor ||= if prefix
           Nokogiri::CSS::XPathVisitor.new(prefix: prefix)
         else

@@ -480,7 +480,7 @@ def _reduce_24(val, _values, result)
 end
 
 def _reduce_25(val, _values, result)
-      name = @namespaces.key?('xmlns') ? "xmlns:#{val[0]}" : val[0]
+      name = @namespaces&.key?('xmlns') ? "xmlns:#{val[0]}" : val[0]
       result = Node.new(:ELEMENT_NAME, [name])
 
     result

@@ -66,7 +66,7 @@ rule
   namespaced_ident:
     namespace '|' IDENT { result = Node.new(:ELEMENT_NAME, [[val[0], val[2]].compact.join(':')]) }
   | IDENT {
-      name = @namespaces.key?('xmlns') ? "xmlns:#{val[0]}" : val[0]
+      name = @namespaces&.key?('xmlns') ? "xmlns:#{val[0]}" : val[0]
       result = Node.new(:ELEMENT_NAME, [name])
     }
   ;
