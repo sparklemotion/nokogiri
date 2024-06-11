@@ -159,7 +159,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//h1[@a='test']", %q{h1[a=\te\st]})
       end
 
-      it "parses leading @ (non-standard)" do
+      it "parses leading @ (extended-syntax)" do
         assert_xpath("//a[@id='Boing']", "a[@id='Boing']")
         assert_xpath("//a[@id='Boing']", "a[@id = 'Boing']")
         assert_xpath("//a[@id='Boing']//div", "a[@id='Boing'] div")
@@ -209,6 +209,21 @@ describe Nokogiri::CSS::XPathVisitor do
       it "|=" do
         assert_xpath(
           "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "a[class|='bar']",
+        )
+        assert_xpath(
+          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "a[class |= 'bar']",
+        )
+        assert_xpath(
+          "//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
+          "a[id|='Boing']",
+        )
+      end
+
+      it "|= (extended-syntax)" do
+        assert_xpath(
+          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
           "a[@class|='bar']",
         )
         assert_xpath(
@@ -217,11 +232,34 @@ describe Nokogiri::CSS::XPathVisitor do
         )
         assert_xpath(
           "//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
-          "a[id|='Boing']",
+          "a[@id|='Boing']",
         )
       end
 
       it "~=" do
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+          "a[class~='bar']",
+        )
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+          "a[class ~= 'bar']",
+        )
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+          "a[class~=bar]",
+        )
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+          "a[class~=\"bar\"]",
+        )
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
+          "a[data-words~=\"bar\"]",
+        )
+      end
+
+      it "~= (extended-syntax)" do
         assert_xpath(
           "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
           "a[@class~='bar']",
@@ -240,7 +278,7 @@ describe Nokogiri::CSS::XPathVisitor do
         )
         assert_xpath(
           "//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
-          "a[data-words~=\"bar\"]",
+          "a[@data-words~=\"bar\"]",
         )
       end
 
@@ -265,7 +303,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//a[contains(@id,'Boing')]", "a[id *= 'Boing']")
       end
 
-      it "!= (non-standard)" do
+      it "!= (extended-syntax)" do
         assert_xpath("//a[@id!='Boing']", "a[id!='Boing']")
         assert_xpath("//a[@id!='Boing']", "a[id != 'Boing']")
       end
@@ -308,7 +346,7 @@ describe Nokogiri::CSS::XPathVisitor do
       )
     end
 
-    it ":nth and friends (non-standard)" do
+    it ":nth and friends (extended-syntax)" do
       assert_xpath("//a[position()=1]", "a:first()")
       assert_xpath("//a[position()=1]", "a:first") # no parens
       assert_xpath("//a[position()=99]", "a:eq(99)")
@@ -326,7 +364,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[count(following-sibling::*)=98]", "a:nth-last-child(99)")
     end
 
-    it "[n] as :nth-child (non-standard)" do
+    it "[n] as :nth-child (extended-syntax)" do
       assert_xpath("//a[count(preceding-sibling::*)=1]", "a[2]")
     end
 
@@ -481,19 +519,19 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("./a/b/i", "> a > b > i")
     end
 
-    it "/ (non-standard)" do
+    it "/ (extended-syntax)" do
       assert_xpath("//x/y", "x/y")
       assert_xpath("//x/y", "x / y")
     end
 
-    it "// (non-standard)" do
+    it "// (extended-syntax)" do
       assert_xpath("//x//y", "x//y")
       assert_xpath("//x//y", "x // y")
     end
   end
 
   describe "functions" do
-    it "handles text() (non-standard)" do
+    it "handles text() (extended-syntax)" do
       assert_xpath("//a[child::text()]", "a[text()]")
       assert_xpath("//child::text()", "text()")
       assert_xpath("//a//child::text()", "a text()")
@@ -502,16 +540,16 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a//child::text()", "a text()")
     end
 
-    it "handles comment() (non-standard)" do
+    it "handles comment() (extended-syntax)" do
       assert_xpath("//script//comment()", "script comment()")
     end
 
-    it "handles contains() (non-standard)" do
+    it "handles contains() (extended-syntax)" do
       # https://api.jquery.com/contains-selector/
       assert_xpath(%{//div[contains(.,"youtube")]}, %{div:contains("youtube")})
     end
 
-    it "handles gt() (non-standard)" do
+    it "handles gt() (extended-syntax)" do
       # https://api.jquery.com/gt-selector/
       assert_xpath("//td[position()>3]", "td:gt(3)")
     end
@@ -545,9 +583,6 @@ describe Nokogiri::CSS::XPathVisitor do
   it "handles multiple selectors" do
     assert_xpath(["//x/y", "//y/z"], "x > y, y > z")
     assert_xpath(["//x/y", "//y/z"], "x > y,y > z")
-    ###
-    # TODO: should we make this work?
-    # assert_xpath ['//x/y', '//y/z'], 'x > y | y > z'
   end
 
   describe "builtins:always" do
@@ -589,6 +624,29 @@ describe Nokogiri::CSS::XPathVisitor do
     it "~=" do
       assert_xpath(
         "//a[nokogiri-builtin:css-class(@class,'bar')]",
+        "a[class~='bar']",
+      )
+      assert_xpath(
+        "//a[nokogiri-builtin:css-class(@class,'bar')]",
+        "a[class ~= 'bar']",
+      )
+      assert_xpath(
+        "//a[nokogiri-builtin:css-class(@class,'bar')]",
+        "a[class~=bar]",
+      )
+      assert_xpath(
+        "//a[nokogiri-builtin:css-class(@class,'bar')]",
+        "a[class~=\"bar\"]",
+      )
+      assert_xpath(
+        "//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+        "a[data-words~=\"bar\"]",
+      )
+    end
+
+    it "~= (extended-syntax)" do
+      assert_xpath(
+        "//a[nokogiri-builtin:css-class(@class,'bar')]",
         "a[@class~='bar']",
       )
       assert_xpath(
@@ -602,10 +660,6 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath(
         "//a[nokogiri-builtin:css-class(@class,'bar')]",
         "a[@class~=\"bar\"]",
-      )
-      assert_xpath(
-        "//a[nokogiri-builtin:css-class(@data-words,'bar')]",
-        "a[data-words~=\"bar\"]",
       )
       assert_xpath(
         "//a[nokogiri-builtin:css-class(@data-words,'bar')]",
@@ -685,6 +739,20 @@ describe Nokogiri::CSS::XPathVisitor do
       if Nokogiri.uses_libxml?
         assert_xpath(
           "//a[nokogiri-builtin:css-class(@class,'bar')]",
+          "a[class~='bar']",
+        )
+      else
+        assert_xpath(
+          "//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+          "a[class~='bar']",
+        )
+      end
+    end
+
+    it "~= (extended-syntax)" do
+      if Nokogiri.uses_libxml?
+        assert_xpath(
+          "//a[nokogiri-builtin:css-class(@class,'bar')]",
           "a[@class~='bar']",
         )
       else
@@ -747,7 +815,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//ns1:foo", "ns1|foo")
       end
 
-      it "avoids the wildcard when using attribute selectors" do
+      it "avoids the wildcard when using attribute selectors (extended-syntax)" do
         if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
           assert_xpath("//*:a/@href", "a/@href")
         else
@@ -762,7 +830,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//*[local-name()='foo']", "foo")
       end
 
-      it "avoids the wildcard when using attribute selectors" do
+      it "avoids the wildcard when using attribute selectors (extended-syntax)" do
         assert_xpath("//*[local-name()='a']/@href", "a/@href")
       end
     end
