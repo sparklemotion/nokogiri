@@ -23,11 +23,9 @@ module Nokogiri
             list = xpath("#{XPATH_PREFIX}#{name}[#{conds}]")
           end
         else
-          CSS::Parser.without_cache do
-            list = xpath(
-              *CSS.xpath_for("#{name}#{args.first}", prefix: XPATH_PREFIX),
-            )
-          end
+          list = xpath(
+            *CSS.xpath_for("#{name}#{args.first}", prefix: XPATH_PREFIX, cache: false),
+          )
         end
 
         super if list.empty?

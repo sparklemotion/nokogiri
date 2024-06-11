@@ -14,7 +14,7 @@ module Nokogiri
 
       # :call-seq:
       #   xpath_for(selector_list) → Array<String>
-      #   xpath_for(selector_list [, prefix:] [, visitor:] [, ns:]) → Array<String>
+      #   xpath_for(selector_list [, prefix:] [, ns:] [, visitor:] [, cache:]) → Array<String>
       #
       # Translate a CSS selector list to the equivalent XPath expressions.
       #
@@ -36,21 +36,31 @@ module Nokogiri
       #   value may be a {selector list}[https://www.w3.org/TR/selectors-4/#grouping] (see
       #   examples).
       #
+      # [Keyword arguments]
       # - +prefix:+ (String)
       #
       #   The XPath expression prefix which determines the search context. See Nokogiri::XML::XPath
       #   for standard options. Default is +XPath::GLOBAL_SEARCH_PREFIX+.
       #
-      # - +visitor:+ (Nokogiri::CSS::XPathVisitor)
-      #
-      #   The visitor class to use to transform the AST into XPath. Default is
-      #   +Nokogiri::CSS::XPathVisitor.new+. See Nokogiri::CSS::XPathVisitor for more information on
-      #   some of the complex behavior that can be customized for your document type.
-      #
-      # - +ns:+ (Hash<String ⇒ String>)
+      # - +ns:+ (Hash<String ⇒ String>, nil)
       #
       #   Namespaces that are referenced in the query, if any. This is a hash where the keys are the
-      #   namespace prefix and the values are the namespace URIs. Default is an empty Hash.
+      #   namespace prefix and the values are the namespace URIs. Default is +nil+ indicating an
+      #   empty set of namespaces.
+      #
+      # - +visitor:+ (Nokogiri::CSS::XPathVisitor)
+      #
+      #   Use this XPathVisitor object to transform the CSS AST into XPath expressions. See
+      #   Nokogiri::CSS::XPathVisitor for more information on some of the complex behavior that can
+      #   be customized for your document type. Default is +Nokogiri::CSS::XPathVisitor.new+.
+      #
+      #   ⚠ Note that this option is mutually exclusive with +prefix+ and +ns+. If +visitor+ is
+      #   provided, +prefix+ and +ns+ must not be present.
+      #
+      # - +cache:+ (Boolean)
+      #
+      #   Whether to use the SelectorCache for the translated query to ensure that repeated queries
+      #   don't incur the overhead of re-parsing the selector. Default is +true+.
       #
       # [Returns] (Array<String>) The equivalent set of XPath expressions for +selector_list+
       #
@@ -72,7 +82,10 @@ module Nokogiri
       #
       def xpath_for(
         selector, options = nil,
-        prefix: options&.delete(:prefix), visitor: options&.delete(:visitor), ns: options&.delete(:ns)
+        prefix: options&.delete(:prefix),
+        visitor: options&.delete(:visitor),
+        ns: options&.delete(:ns),
+        cache: true
       )
         unless options.nil?
           warn("Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
@@ -96,12 +109,18 @@ module Nokogiri
           Nokogiri::CSS::XPathVisitor.new(**visitor_kw)
         end
 
-        Parser.new.xpath_for(selector, visitor)
+        if cache
+          key = SelectorCache.key(selector: selector, visitor: visitor)
+          SelectorCache[key] ||= Parser.new.xpath_for(selector, visitor)
+        else
+          Parser.new.xpath_for(selector, visitor)
+        end
       end
     end
   end
 end
 
+require_relative "css/selector_cache"
 require_relative "css/node"
 require_relative "css/xpath_visitor"
 x = $-w
