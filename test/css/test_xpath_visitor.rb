@@ -14,51 +14,55 @@ describe Nokogiri::CSS::XPathVisitor do
     end
   end
 
-  it "accepts some config parameters" do
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
-      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER).builtins,
-    )
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
-      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS).builtins,
-    )
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
-      Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL).builtins,
-    )
-    assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(builtins: :not_valid) }
+  describe ".new" do
+    it "accepts some config parameters" do
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
+        Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER).builtins,
+      )
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
+        Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS).builtins,
+      )
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
+        Nokogiri::CSS::XPathVisitor.new(builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL).builtins,
+      )
+      assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(builtins: :not_valid) }
 
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
-      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML).doctype,
-    )
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
-      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4).doctype,
-    )
-    assert_equal(
-      Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
-      Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5).doctype,
-    )
-    assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+        Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML).doctype,
+      )
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4,
+        Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML4).doctype,
+      )
+      assert_equal(
+        Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5,
+        Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5).doctype,
+      )
+      assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
 
-    assert_equal({ "foo": "bar" }, Nokogiri::CSS::XPathVisitor.new(namespaces: { "foo": "bar" }).namespaces)
+      assert_equal({ "foo": "bar" }, Nokogiri::CSS::XPathVisitor.new(namespaces: { "foo": "bar" }).namespaces)
 
-    assert_equal("xxx", Nokogiri::CSS::XPathVisitor.new(prefix: "xxx").prefix)
+      assert_equal("xxx", Nokogiri::CSS::XPathVisitor.new(prefix: "xxx").prefix)
+    end
   end
 
-  it "exposes its configuration" do
-    expected = {
-      builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
-      doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
-      prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
-      namespaces: nil,
-    }
-    assert_equal(expected, visitor.config)
+  dsecribe "#config" do
+    it "exposes its configuration" do
+      expected = {
+        builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
+        doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
+        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+        namespaces: nil,
+      }
+      assert_equal(expected, visitor.config)
 
-    assert_nil(visitor.namespaces)
-    assert_equal(Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX, visitor.prefix)
+      assert_nil(visitor.namespaces)
+      assert_equal(Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX, visitor.prefix)
+    end
   end
 
   it "raises an exception on single quote" do
