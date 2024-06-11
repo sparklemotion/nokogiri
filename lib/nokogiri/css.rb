@@ -83,16 +83,20 @@ module Nokogiri
         selector = selector.to_str
         raise(Nokogiri::CSS::SyntaxError, "empty CSS selector") if selector.empty?
 
-        raise ArgumentError, "cannot provide both :prefix and :visitor" if prefix && visitor
-
-        ns ||= {}
-        visitor ||= if prefix
-          Nokogiri::CSS::XPathVisitor.new(prefix: prefix)
-        else
-          Nokogiri::CSS::XPathVisitor.new
+        if visitor
+          raise ArgumentError, "cannot provide both :prefix and :visitor" if prefix
+          raise ArgumentError, "cannot provide both :ns and :visitor" if ns
         end
 
-        Parser.new(ns).xpath_for(selector, visitor)
+        visitor ||= begin
+          visitor_kw = {}
+          visitor_kw[:prefix] = prefix if prefix
+          visitor_kw[:namespaces] = ns if ns
+
+          Nokogiri::CSS::XPathVisitor.new(**visitor_kw)
+        end
+
+        Parser.new.xpath_for(selector, visitor)
       end
     end
   end

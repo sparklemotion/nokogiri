@@ -248,8 +248,9 @@ module Nokogiri
             builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
             doctype: document.xpath_doctype,
             prefix: implied_xpath_context,
+            namespaces: ns,
           )
-          CSS.xpath_for(rule.to_s, ns: ns, visitor: visitor)
+          CSS.xpath_for(rule.to_s, visitor: visitor)
         end.join(" | ")
       end
 

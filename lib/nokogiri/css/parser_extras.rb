@@ -56,11 +56,9 @@ module Nokogiri
         end
       end
 
-      # Create a new CSS parser with respect to +namespaces+
-      def initialize(namespaces = {})
+      def initialize
         @tokenizer = Tokenizer.new
-        @namespaces = namespaces
-        super()
+        super
       end
 
       def parse(string)
@@ -88,7 +86,7 @@ module Nokogiri
 
       def cache_key(query, visitor)
         if self.class.cache_on?
-          [query, @namespaces, visitor.config]
+          [query, visitor.config]
         end
       end
     end

@@ -5,14 +5,6 @@ require "helper"
 
 describe Nokogiri::CSS::XPathVisitor do
   let(:parser) { Nokogiri::CSS::Parser.new }
-
-  let(:parser_with_ns) do
-    Nokogiri::CSS::Parser.new({
-      "xmlns" => "http://default.example.com/",
-      "hoge" => "http://hoge.example.com/",
-    })
-  end
-
   let(:visitor) { Nokogiri::CSS::XPathVisitor.new }
 
   def assert_xpath(expecteds, asts)
@@ -50,6 +42,10 @@ describe Nokogiri::CSS::XPathVisitor do
       Nokogiri::CSS::XPathVisitor.new(doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::HTML5).doctype,
     )
     assert_raises(ArgumentError) { Nokogiri::CSS::XPathVisitor.new(doctype: :not_valid) }
+
+    assert_equal({ "foo": "bar" }, Nokogiri::CSS::XPathVisitor.new(namespaces: { "foo": "bar" }).namespaces)
+
+    assert_equal("xxx", Nokogiri::CSS::XPathVisitor.new(prefix: "xxx").prefix)
   end
 
   it "exposes its configuration" do
@@ -57,8 +53,12 @@ describe Nokogiri::CSS::XPathVisitor do
       builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::NEVER,
       doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
       prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+      namespaces: nil,
     }
     assert_equal(expected, visitor.config)
+
+    assert_nil(visitor.namespaces)
+    assert_equal(Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX, visitor.prefix)
   end
 
   it "raises an exception on single quote" do
@@ -137,9 +137,25 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//a[@href]", parser.parse("a[|href]"))
         assert_xpath("//*[@flavorjones:href]", parser.parse("*[flavorjones|href]"))
 
-        ## Default namespace is not applied to attributes, so this is @class, not @xmlns:class.
-        assert_xpath("//xmlns:a[@class='bar']", parser_with_ns.parse("a[class='bar']"))
-        assert_xpath("//xmlns:a[@hoge:class='bar']", parser_with_ns.parse("a[hoge|class='bar']"))
+        ns = {
+          "xmlns" => "http://default.example.com/",
+          "hoge" => "http://hoge.example.com/",
+        }
+
+        # An intentionally-empty namespace means "don't use the default xmlns"
+        assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns))
+
+        # The default namespace is not applied to attributes (just elements)
+        assert_equal(
+          ["//xmlns:a[@class='bar']"],
+          Nokogiri::CSS.xpath_for("a[class='bar']", ns: ns),
+        )
+
+        # We can explicitly apply a namespace to an attribue
+        assert_equal(
+          ["//xmlns:a[@hoge:class='bar']"],
+          Nokogiri::CSS.xpath_for("a[hoge|class='bar']", ns: ns),
+        )
       end
 
       it "rhs with quotes" do
@@ -543,6 +559,7 @@ describe Nokogiri::CSS::XPathVisitor do
         builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::ALWAYS,
         doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
         prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+        namespaces: nil,
       }
       assert_equal(expected, visitor.config)
     end
@@ -606,6 +623,7 @@ describe Nokogiri::CSS::XPathVisitor do
         builtins: Nokogiri::CSS::XPathVisitor::BuiltinsConfig::OPTIMAL,
         doctype: Nokogiri::CSS::XPathVisitor::DoctypeConfig::XML,
         prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+        namespaces: nil,
       }
       assert_equal(expected, visitor.config)
     end

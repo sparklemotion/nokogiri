@@ -53,6 +53,9 @@ module Nokogiri
       # The visitor configuration set via the +prefix:+ keyword argument to XPathVisitor.new.
       attr_reader :prefix
 
+      # The visitor configuration set via the +namespaces:+ keyword argument to XPathVisitor.new.
+      attr_reader :namespaces
+
       # :call-seq:
       #   new() → XPathVisitor
       #   new(builtins:, doctype:) → XPathVisitor
@@ -66,7 +69,8 @@ module Nokogiri
       def initialize(
         builtins: BuiltinsConfig::NEVER,
         doctype: DoctypeConfig::XML,
-        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX
+        prefix: Nokogiri::XML::XPath::GLOBAL_SEARCH_PREFIX,
+        namespaces: nil
       )
         unless BuiltinsConfig::VALUES.include?(builtins)
           raise(ArgumentError, "Invalid values #{builtins.inspect} for builtins: keyword parameter")
@@ -78,6 +82,7 @@ module Nokogiri
         @builtins = builtins
         @doctype = doctype
         @prefix = prefix
+        @namespaces = namespaces
       end
 
       # :call-seq: config() → Hash
@@ -86,7 +91,7 @@ module Nokogiri
       #   a Hash representing the configuration of the XPathVisitor, suitable for use as
       #   part of the CSS cache key.
       def config
-        { builtins: @builtins, doctype: @doctype, prefix: @prefix }
+        { builtins: @builtins, doctype: @doctype, prefix: @prefix, namespaces: @namespaces }
       end
 
       # :stopdoc:
@@ -272,6 +277,14 @@ module Nokogiri
           else
             "*[local-name()='#{node.value.first}']"
           end
+        elsif node.value.length == 2 # has a namespace prefix
+          if node.value.first.nil? # namespace prefix is empty
+            node.value.last
+          else
+            node.value.join(":")
+          end
+        elsif @namespaces&.key?("xmlns") # apply the default namespace if it's declared
+          "xmlns:#{node.value.first}"
         else
           node.value.first
         end
@@ -294,10 +307,10 @@ module Nokogiri
       end
 
       def html5_element_name_needs_namespace_handling(node)
-        # if this is the wildcard selector "*", use it as normal
-        node.value.first != "*" &&
-          # if there is already a namespace (i.e., it is a prefixed QName), use it as normal
-          !node.value.first.include?(":")
+        # if there is already a namespace (i.e., it is a prefixed QName), use it as normal
+        node.value.length == 1 &&
+          # if this is the wildcard selector "*", use it as normal
+          node.value.first != "*"
       end
 
       def nth(node, options = {})
