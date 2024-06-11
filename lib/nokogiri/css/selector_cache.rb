@@ -22,7 +22,7 @@ module Nokogiri
         # Clear the cache
         def clear_cache(create_new_object = false)
           @mutex.synchronize do
-            if create_new_object
+            if create_new_object # used in tests to avoid 'method redefined' warnings when injecting spies
               @cache = {}
             else
               @cache.clear
