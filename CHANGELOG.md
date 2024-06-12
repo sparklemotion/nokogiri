@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## v1.next / unreleased
 
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.13.0](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.0). (@flavorjones)
+
+
 ### Added
 
 * [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. @flavorjones
