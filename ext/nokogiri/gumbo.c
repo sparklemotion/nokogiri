@@ -301,15 +301,19 @@ common_options(VALUE kwargs)
   // If this order is changed, then setting the options below must change as
   // well.
   ID keywords[] = {
+    // Required keywords.
     rb_intern_const("max_attributes"),
     rb_intern_const("max_errors"),
     rb_intern_const("max_tree_depth"),
+
+    // Optional keywords.
+    rb_intern_const("parse_noscript_content_as_text"),
   };
   VALUE values[sizeof keywords / sizeof keywords[0]];
 
   // Extract the values coresponding to the required keywords. Raise an error
   // if required arguments are missing.
-  rb_get_kwargs(kwargs, keywords, 3, 0, values);
+  rb_get_kwargs(kwargs, keywords, 3, 1, values);
 
   GumboOptions options = kGumboDefaultOptions;
   options.max_attributes = NUM2INT(values[0]);
@@ -318,6 +322,8 @@ common_options(VALUE kwargs)
   // handle negative values
   int depth = NUM2INT(values[2]);
   options.max_tree_depth = depth < 0 ? UINT_MAX : (unsigned int)depth;
+
+  options.parse_noscript_content_as_text = RTEST(values[3]);
 
   return options;
 }
