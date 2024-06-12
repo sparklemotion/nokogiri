@@ -117,7 +117,7 @@ class TestHtml5API < Nokogiri::TestCase
     # Start tag 'img' isn't allowed here
     # End tag 'noscript' isn't allowed here
     # End tag head isn't allowed here
-    assert(noscript.children.empty?)
+    assert_empty(noscript.children)
     img = doc.at("/html/body/img")
     refute_nil(img)
   end
@@ -130,7 +130,7 @@ class TestHtml5API < Nokogiri::TestCase
     noscript = doc.at("/html/head/noscript")
     assert_equal(0, doc.errors.length, doc.errors.join("\n"))
     assert_equal(1, noscript.children.length)
-    assert(noscript.children.first.is_a?(Nokogiri::XML::Text))
+    assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
   end
 
   def test_parse_noscript_as_elements_in_body
@@ -146,22 +146,22 @@ class TestHtml5API < Nokogiri::TestCase
     doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: true, max_errors: 100)
     noscript = doc.at("/html/body/noscript")
     assert_equal(0, doc.errors.length, doc.errors.join("\n"))
-    assert(noscript.children.first.is_a?(Nokogiri::XML::Text))
+    assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
   end
 
   def test_parse_noscript_fragment_as_elements
     html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
-    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, 'noscript', parse_noscript_content_as_text: false, max_errors: 100)
+    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: false, max_errors: 100)
     assert_equal(0, frag.errors.length, frag.errors.join("\n"))
     assert_equal(2, frag.children.length)
   end
 
   def test_parse_noscript_fragment_as_text
     html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
-    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, 'noscript', parse_noscript_content_as_text: true, max_errors: 100)
+    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: true, max_errors: 100)
     assert_equal(0, frag.errors.length, frag.errors.join("\n"))
     assert_equal(1, frag.children.length)
-    assert(frag.children.first.is_a?(Nokogiri::XML::Text))
+    assert_kind_of(Nokogiri::XML::Text, frag.children.first)
   end
 
   ["pre", "listing", "textarea"].each do |tag|
