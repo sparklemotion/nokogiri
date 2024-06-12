@@ -323,7 +323,7 @@ common_options(VALUE kwargs)
   int depth = NUM2INT(values[2]);
   options.max_tree_depth = depth < 0 ? UINT_MAX : (unsigned int)depth;
 
-  options.parse_noscript_content_as_text = RTEST(values[3]);
+  options.parse_noscript_content_as_text = values[3] != Qundef && RTEST(values[3]);
 
   return options;
 }
