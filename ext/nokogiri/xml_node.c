@@ -2165,15 +2165,6 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 
   xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
 
-  /* Twiddle global variable because of a bug in libxml2.
-   * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
-   *
-   * TODO: this is fixed, and HTML_PARSE_NOIMPLIED is defined, in libxml2 2.7.7
-   */
-#ifndef HTML_PARSE_NOIMPLIED
-  htmlHandleOmittedElem(0);
-#endif
-
   /* This function adds a fake node to the child of +node+.  If the parser
    * does not exit cleanly with XML_ERR_OK, the list is freed.  This can
    * leave the child pointers in a bad state if they were originally empty.
@@ -2201,10 +2192,6 @@ in_context(VALUE self, VALUE _str, VALUE _options)
     child_iter->parent = (xmlNodePtr)node->doc;
     child_iter = child_iter->next;
   }
-
-#ifndef HTML_PARSE_NOIMPLIED
-  htmlHandleOmittedElem(1);
-#endif
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
