@@ -1577,19 +1577,12 @@ module Nokogiri
         node_or_tags
       end
 
-      USING_LIBXML_WITH_BROKEN_SERIALIZATION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
-      private_constant :USING_LIBXML_WITH_BROKEN_SERIALIZATION
-
       def to_format(save_option, options)
-        return dump_html if USING_LIBXML_WITH_BROKEN_SERIALIZATION
-
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
       def write_format_to(save_option, io, options)
-        return (io << dump_html) if USING_LIBXML_WITH_BROKEN_SERIALIZATION
-
         options[:save_with] ||= save_option
         write_to(io, options)
       end
