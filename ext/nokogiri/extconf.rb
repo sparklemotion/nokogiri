@@ -1094,6 +1094,16 @@ else
             env["AR"] = "#{host}-ar"
           end
           env["RANLIB"] = "#{host}-ranlib"
+          if windows?
+            # NOTE: that in any particular windows gem package, we only ever compile against either
+            # msvcrt (ruby <= 3.0) or ucrt (ruby > 3.0), so even though this gets evaluated only once
+            # per gem (and not per-version-of-ruby), it's OK.
+            env["CFLAGS"] = if RbConfig::CONFIG["RUBY_SO_NAME"].include?("msvcrt")
+              concat_flags(env["CFLAGS"], "-D_RUBY_MSVCRT")
+            else
+              concat_flags(env["CFLAGS"], "-D_RUBY_UCRT")
+            end
+          end
         end
 
         execute("compile", make_cmd, { env: env })
