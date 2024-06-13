@@ -43,13 +43,11 @@ validate_document(VALUE self, VALUE document)
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
-#ifdef HAVE_XMLSCHEMASETVALIDSTRUCTUREDERRORS
   xmlSchemaSetValidStructuredErrors(
     valid_ctxt,
     Nokogiri_error_array_pusher,
     (void *)errors
   );
-#endif
 
   xmlSchemaValidateDoc(valid_ctxt, doc);
 
@@ -84,13 +82,11 @@ validate_file(VALUE self, VALUE rb_filename)
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
-#ifdef HAVE_XMLSCHEMASETVALIDSTRUCTUREDERRORS
   xmlSchemaSetValidStructuredErrors(
     valid_ctxt,
     Nokogiri_error_array_pusher,
     (void *)errors
   );
-#endif
 
   xmlSchemaValidateFile(valid_ctxt, filename, 0);
 
@@ -122,13 +118,11 @@ xml_schema_parse_schema(
   rb_errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
 
-#ifdef HAVE_XMLSCHEMASETPARSERSTRUCTUREDERRORS
   xmlSchemaSetParserStructuredErrors(
     c_parser_context,
     Nokogiri_error_array_pusher,
     (void *)rb_errors
   );
-#endif
 
   parse_options_int = (int)NUM2INT(rb_funcall(rb_parse_options, rb_intern("to_i"), 0));
   if (parse_options_int & XML_PARSE_NONET) {

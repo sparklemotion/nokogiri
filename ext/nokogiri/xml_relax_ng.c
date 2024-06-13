@@ -43,13 +43,11 @@ validate_document(VALUE self, VALUE document)
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
-#ifdef HAVE_XMLRELAXNGSETVALIDSTRUCTUREDERRORS
   xmlRelaxNGSetValidStructuredErrors(
     valid_ctxt,
     Nokogiri_error_array_pusher,
     (void *)errors
   );
-#endif
 
   xmlRelaxNGValidateDoc(valid_ctxt, doc);
 
@@ -79,13 +77,11 @@ xml_relax_ng_parse_schema(
   rb_errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
 
-#ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
   xmlRelaxNGSetParserStructuredErrors(
     c_parser_context,
     Nokogiri_error_array_pusher,
     (void *)rb_errors
   );
-#endif
 
   c_schema = xmlRelaxNGParse(c_parser_context);
 
