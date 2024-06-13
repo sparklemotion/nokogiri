@@ -19,6 +19,7 @@
 
 # documentation
 /html/
+/ri/
 
 # editors and tags
 .cache
