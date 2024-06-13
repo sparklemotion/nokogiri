@@ -1066,17 +1066,10 @@ previous_element(VALUE self)
   xmlNodePtr node, sibling;
   Noko_Node_Get_Struct(self, xmlNode, node);
 
-  /*
-   *  note that we don't use xmlPreviousElementSibling here because it's buggy pre-2.7.7.
-   */
-  sibling = node->prev;
+  sibling = xmlPreviousElementSibling(node);
   if (!sibling) { return Qnil; }
 
-  while (sibling && sibling->type != XML_ELEMENT_NODE) {
-    sibling = sibling->prev;
-  }
-
-  return sibling ? noko_xml_node_wrap(Qnil, sibling) : Qnil ;
+  return noko_xml_node_wrap(Qnil, sibling);
 }
 
 /* :nodoc: */
