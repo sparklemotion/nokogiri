@@ -46,7 +46,8 @@ static int PRINTF(2) print_message (
     args
   );
   va_end(args);
-#if _MSC_VER && _MSC_VER < 1900
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || defined(_RUBY_MSVCRT)
   if (bytes_written == -1) {
     // vsnprintf returns -1 on older MSVC++ if there's not enough capacity,
     // instead of returning the number of bytes that would've been written had
@@ -57,19 +58,19 @@ static int PRINTF(2) print_message (
 
     va_start(args, format);
     bytes_written = vsnprintf (
-      output->data + output->length,
+      NULL,
       0,
       format,
       args
     );
     va_end(args);
   }
-#else
+#endif
+
   // -1 in standard C99 indicates an encoding error. Return 0 and do nothing.
   if (bytes_written == -1) {
     return 0;
   }
-#endif
 
   if (bytes_written >= remaining_capacity) {
     // At least double the size of the buffer.
