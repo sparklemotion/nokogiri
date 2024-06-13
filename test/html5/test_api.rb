@@ -128,7 +128,7 @@ class TestHtml5API < Nokogiri::TestCase
     html = "<!DOCTYPE html><head><noscript><img src=!></noscript></head>"
     doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: true, max_errors: 100)
     noscript = doc.at("/html/head/noscript")
-    assert_equal(0, doc.errors.length, doc.errors.join("\n"))
+    assert_empty(doc.errors)
     assert_equal(1, noscript.children.length)
     assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
   end
@@ -136,7 +136,7 @@ class TestHtml5API < Nokogiri::TestCase
   def test_parse_noscript_as_elements_in_body
     html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
     doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: false, max_errors: 100)
-    assert_equal(0, doc.errors.length, doc.errors.join("\n"))
+    assert_empty(doc.errors)
     img = doc.at("/html/body/noscript/img")
     refute_nil(img)
   end
@@ -145,24 +145,34 @@ class TestHtml5API < Nokogiri::TestCase
     html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
     doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: true, max_errors: 100)
     noscript = doc.at("/html/body/noscript")
-    assert_equal(0, doc.errors.length, doc.errors.join("\n"))
+    assert_empty(doc.errors, doc.errors.join("\n"))
+    assert_equal(1, noscript.children.length)
     assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
   end
 
   def test_parse_noscript_fragment_as_elements
     html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
     frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: false, max_errors: 100)
-    assert_equal(0, frag.errors.length, frag.errors.join("\n"))
+    assert_empty(frag.errors)
     assert_equal(2, frag.children.length)
   end
 
   def test_parse_noscript_fragment_as_text
     html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
     frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: true, max_errors: 100)
-    assert_equal(0, frag.errors.length, frag.errors.join("\n"))
+    assert_empty(frag.errors)
     assert_equal(1, frag.children.length)
     assert_kind_of(Nokogiri::XML::Text, frag.children.first)
   end
+
+  def test_parse_noscript_content_default
+    html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
+    doc = Nokogiri::HTML5(html, max_errors: 100)
+    assert_empty(doc.errors)
+    img = doc.at("/html/body/noscript/img")
+    refute_nil(img)
+  end
+  
 
   ["pre", "listing", "textarea"].each do |tag|
     define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
