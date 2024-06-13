@@ -50,19 +50,19 @@ static int PRINTF(2) print_message (
   if (bytes_written == -1) {
     // vsnprintf returns -1 on older MSVC++ if there's not enough capacity,
     // instead of returning the number of bytes that would've been written had
-    // there been enough. In this case, we'll double the buffer size and hope
-    // it fits when we retry (letting it fail and returning 0 if it doesn't),
-    // since there's no way to smartly resize the buffer.
-    gumbo_string_buffer_reserve(output->capacity * 2, output);
+    // there been enough. In this case, we can call vsnprintf() again but
+    // with a count of 0 to get the number of bytes written, not including
+    // the null terminator.
+    // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/vsnprintf-vsnprintf-vsnprintf-l-vsnwprintf-vsnwprintf-l?view=msvc-140#behavior-summary
+
     va_start(args, format);
-    int result = vsnprintf (
+    bytes_written = vsnprintf (
       output->data + output->length,
-      remaining_capacity,
+      0,
       format,
       args
     );
     va_end(args);
-    return result == -1 ? 0 : result;
   }
 #else
   // -1 in standard C99 indicates an encoding error. Return 0 and do nothing.
@@ -72,7 +72,13 @@ static int PRINTF(2) print_message (
 #endif
 
   if (bytes_written >= remaining_capacity) {
-    gumbo_string_buffer_reserve(output->capacity + bytes_written, output);
+    // At least double the size of the buffer.
+    size_t new_capacity = output->capacity * 2;
+    if (new_capacity < output->length + bytes_written + 1) {
+      // The +1 is for the null terminator.
+      new_capacity = output->length + bytes_written + 1;
+    }
+    gumbo_string_buffer_reserve(new_capacity, output);
     remaining_capacity = output->capacity - output->length;
     va_start(args, format);
     bytes_written = vsnprintf (
