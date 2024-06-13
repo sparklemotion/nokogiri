@@ -56,13 +56,6 @@
 
 #include <libexslt/exslt.h>
 
-/* libxml2_backwards_compat.c */
-#ifndef HAVE_XMLFIRSTELEMENTCHILD
-xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
-xmlNodePtr xmlNextElementSibling(xmlNodePtr node);
-xmlNodePtr xmlLastElementChild(xmlNodePtr parent);
-#endif
-
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 

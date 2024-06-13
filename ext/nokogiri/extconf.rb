@@ -1116,7 +1116,6 @@ else
   ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
 end
 
-have_func("xmlFirstElementChild") # introduced in libxml 2.7.3
 have_func("xmlRelaxNGSetParserStructuredErrors") # introduced in libxml 2.6.24
 have_func("xmlRelaxNGSetValidStructuredErrors") # introduced in libxml 2.6.21
 have_func("xmlSchemaSetValidStructuredErrors") # introduced in libxml 2.6.23
