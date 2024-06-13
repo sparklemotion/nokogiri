@@ -264,6 +264,21 @@ module Nokogiri
           assert_equal("staff.dtd", ss.system_id)
         end
 
+        def test_replacing_internal_subset
+          # see https://github.com/rgrove/sanitize/pull/238
+          skip_unless_libxml2("JRuby impl does not support unlinking the internal subset, it probably should")
+
+          document = Nokogiri::HTML5::Document.parse("<!DOCTYPE foo><html><div>hello</div></html>")
+
+          assert_equal("foo", document.internal_subset.name)
+
+          document.internal_subset.unlink
+          document.create_internal_subset("bar", nil, nil)
+
+          assert_equal("bar", document.internal_subset.name)
+          assert_operator(document.to_html, :start_with?, "<!DOCTYPE bar>")
+        end
+
         def test_external_subset
           assert_nil(xml.external_subset)
           xml = Dir.chdir(ASSETS_DIR) do

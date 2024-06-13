@@ -136,18 +136,18 @@ CrossRuby = Struct.new(:version, :platform) do
     case platform
     when MINGW32_PLATFORM_REGEX
       [
+        "advapi32.dll",
+        "bcrypt.dll",
         "kernel32.dll",
         "msvcrt.dll",
-        "ws2_32.dll",
         "user32.dll",
-        "advapi32.dll",
+        "ws2_32.dll",
         libruby_dll,
       ]
     when MINGWUCRT_PLATFORM_REGEX
       [
-        "kernel32.dll",
-        "ws2_32.dll",
         "advapi32.dll",
+        "bcrypt.dll",
         "api-ms-win-crt-convert-l1-1-0.dll",
         "api-ms-win-crt-environment-l1-1-0.dll",
         "api-ms-win-crt-filesystem-l1-1-0.dll",
@@ -160,22 +160,24 @@ CrossRuby = Struct.new(:version, :platform) do
         "api-ms-win-crt-string-l1-1-0.dll",
         "api-ms-win-crt-time-l1-1-0.dll",
         "api-ms-win-crt-utility-l1-1-0.dll",
+        "kernel32.dll",
+        "ws2_32.dll",
         libruby_dll,
       ]
     when X86_LINUX_PLATFORM_REGEX
       [
-        "libm.so.6",
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
+        "libm.so.6",
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
     when AARCH_LINUX_PLATFORM_REGEX
       [
-        "libm.so.6",
+        "ld-linux-aarch64.so.1",
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
-        "ld-linux-aarch64.so.1",
+        "libm.so.6",
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
@@ -187,10 +189,10 @@ CrossRuby = Struct.new(:version, :platform) do
       ]
     when ARM_LINUX_PLATFORM_REGEX
       [
-        "libm.so.6",
-        "libdl.so.2",
-        "libc.so.6",
         "ld-linux-armhf.so.3",
+        "libc.so.6",
+        "libdl.so.2",
+        "libm.so.6",
       ].tap do |dlls|
         dlls << "libpthread.so.0" if ver >= "3.2.0"
       end
@@ -255,7 +257,7 @@ def verify_dll(dll, cross_ruby)
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi.match?(dump)
 
     # Verify that the DLL dependencies are all allowed.
-    actual_imports = dump.scan(/DLL Name: (.*)$/).map { |name| name.first.downcase }.uniq
+    actual_imports = dump.scan(/DLL Name: (.*)$/).map { |name| name.first.downcase }.uniq.sort
     unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
@@ -268,7 +270,7 @@ def verify_dll(dll, cross_ruby)
     raise "export function Init_nokogiri not in dll #{dll}" unless nm.include?(" T Init_nokogiri")
 
     # Verify that the DLL dependencies are all allowed.
-    actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
+    actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq.sort
     unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
@@ -306,7 +308,7 @@ def verify_dll(dll, cross_ruby)
     end
 
     # Verify that the DLL dependencies are all allowed.
-    actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq
+    actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.sort
     unless (actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
