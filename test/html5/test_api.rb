@@ -172,7 +172,6 @@ class TestHtml5API < Nokogiri::TestCase
     img = doc.at("/html/body/noscript/img")
     refute_nil(img)
   end
-  
 
   ["pre", "listing", "textarea"].each do |tag|
     define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
