@@ -56,6 +56,7 @@ module Nokogiri
     class Node
       include Nokogiri::XML::PP::Node
       include Nokogiri::XML::Searchable
+      include Nokogiri::XMLSec::Node
       include Nokogiri::ClassResolver
       include Enumerable
 

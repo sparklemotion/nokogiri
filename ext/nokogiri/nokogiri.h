@@ -56,6 +56,14 @@
 
 #include <libexslt/exslt.h>
 
+#include <xmlsec/xmlsec.h>
+#include <xmlsec/xmltree.h>
+#include <xmlsec/xmldsig.h>
+#include <xmlsec/xmlenc.h>
+#include <xmlsec/templates.h>
+#include <xmlsec/crypto.h>
+#include <xmlsec/errors.h>
+
 /* libxml2_backwards_compat.c */
 #ifndef HAVE_XMLFIRSTELEMENTCHILD
 xmlNodePtr xmlFirstElementChild(xmlNodePtr parent);
@@ -110,6 +118,7 @@ NOKOPUBVAR VALUE mNokogiriHtml4 ;
 NOKOPUBVAR VALUE mNokogiriHtml4Sax ;
 NOKOPUBVAR VALUE mNokogiriHtml5 ;
 NOKOPUBVAR VALUE mNokogiriXml ;
+NOKOPUBVAR VALUE mNokogiriXmlsec ;
 NOKOPUBVAR VALUE mNokogiriXmlSax ;
 NOKOPUBVAR VALUE mNokogiriXmlXpath ;
 NOKOPUBVAR VALUE mNokogiriXslt ;
@@ -144,6 +153,14 @@ NOKOPUBVAR VALUE cNokogiriXmlText ;
 NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
 NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
+
+NOKOPUBVAR VALUE cNokogiriXmlsecDocument;
+NOKOPUBVAR VALUE cNokogiriXmlsecNode;
+NOKOPUBVAR VALUE cNokogiriXmlsecSigningError;
+NOKOPUBVAR VALUE cNokogiriXmlsecVerificationError;
+NOKOPUBVAR VALUE cNokogiriXmlsecKeystoreError;
+NOKOPUBVAR VALUE cNokogiriXmlsecEncryptionError;
+NOKOPUBVAR VALUE cNokogiriXmlsecDecryptionError;
 
 NOKOPUBVAR VALUE cNokogiriHtml4Document ;
 NOKOPUBVAR VALUE cNokogiriHtml4SaxPushParser ;

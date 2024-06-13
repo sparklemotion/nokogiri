@@ -116,6 +116,7 @@ end
 require_relative "nokogiri/version"
 require_relative "nokogiri/class_resolver"
 require_relative "nokogiri/syntax_error"
+require_relative "nokogiri/xmlsec"
 require_relative "nokogiri/xml"
 require_relative "nokogiri/xslt"
 require_relative "nokogiri/html4"
