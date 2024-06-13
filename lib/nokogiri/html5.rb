@@ -46,182 +46,210 @@ module Nokogiri
   #
   # == Parsing options
   #
-  # The document and fragment parsing methods support options that are different from Nokogiri's.
+  # The document and fragment parsing methods support options that are
+  # different from Nokogiri's.
   #
   # - <tt>Nokogiri.HTML5(html, url = nil, encoding = nil, options = {})</tt>
-  # - <tt>Nokogiri::HTML5.parse(html, url = nil, encoding = nil, options = {})</tt>
-  # - <tt>Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil, options = {})</tt>
+  # - <tt>Nokogiri::HTML5.parse(html, url = nil, encoding = nil, options =
+  #   {})</tt>
+  # - <tt>Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil,
+  #   options = {})</tt>
   # - <tt>Nokogiri::HTML5.fragment(html, encoding = nil, options = {})</tt>
-  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, options = {})</tt>
+  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil,
+  #   options = {})</tt>
   #
-  # The three currently supported options are +:max_errors+, +:max_tree_depth+ and
-  # +:max_attributes+, described below.
+  # The four currently supported options are +:max_errors+, +:max_tree_depth+,
+  # +:max_attributes+, and +parse_noscript_content_as_text+ described below.
   #
   # === Error reporting
   #
-  # Nokogiri contains an experimental HTML5 parse error reporting facility. By default, no parse
-  # errors are reported but this can be configured by passing the +:max_errors+ option to
-  # {HTML5.parse} or {HTML5.fragment}.
+  # Nokogiri contains an experimental HTML5 parse error reporting facility. By
+  # default, no parse errors are reported but this can be configured by
+  # passing the +:max_errors+ option to {HTML5.parse} or {HTML5.fragment}.
   #
   # For example, this script:
   #
-  #   doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />', max_errors: 10)
-  #   doc.errors.each do |err|
-  #     puts(err)
-  #   end
+  #   doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />',
+  #   max_errors: 10) doc.errors.each do |err| puts(err) end
   #
   # Emits:
   #
-  #   1:1: ERROR: Expected a doctype token
-  #   <span/>Hi there!</span foo=bar />
-  #   ^
+  #   1:1: ERROR: Expected a doctype token <span/>Hi there!</span foo=bar /> ^
   #   1:1: ERROR: Start tag of nonvoid HTML element ends with '/>', use '>'.
-  #   <span/>Hi there!</span foo=bar />
-  #   ^
-  #   1:17: ERROR: End tag ends with '/>', use '>'.
-  #   <span/>Hi there!</span foo=bar />
-  #                   ^
-  #   1:17: ERROR: End tag contains attributes.
-  #   <span/>Hi there!</span foo=bar />
-  #                   ^
+  #   <span/>Hi there!</span foo=bar /> ^ 1:17: ERROR: End tag ends with '/>',
+  #   use '>'. <span/>Hi there!</span foo=bar /> ^ 1:17: ERROR: End tag
+  #   contains attributes. <span/>Hi there!</span foo=bar /> ^
   #
-  # Using <tt>max_errors: -1</tt> results in an unlimited number of errors being returned.
+  # Using <tt>max_errors: -1</tt> results in an unlimited number of errors
+  # being returned.
   #
-  # The errors returned by {HTML5::Document#errors} are instances of {Nokogiri::XML::SyntaxError}.
+  # The errors returned by {HTML5::Document#errors} are instances of
+  # {Nokogiri::XML::SyntaxError}.
   #
-  # The {https://html.spec.whatwg.org/multipage/parsing.html#parse-errors HTML standard} defines a
-  # number of standard parse error codes. These error codes only cover the "tokenization" stage of
-  # parsing HTML. The parse errors in the "tree construction" stage do not have standardized error
+  # The {https://html.spec.whatwg.org/multipage/parsing.html#parse-errors HTML
+  # standard} defines a number of standard parse error codes. These error
+  # codes only cover the "tokenization" stage of parsing HTML. The parse
+  # errors in the "tree construction" stage do not have standardized error
   # codes (yet).
   #
-  # As a convenience to Nokogiri users, the defined error codes are available via
-  # {Nokogiri::XML::SyntaxError#str1} method.
+  # As a convenience to Nokogiri users, the defined error codes are available
+  # via {Nokogiri::XML::SyntaxError#str1} method.
   #
-  #   doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />', max_errors: 10)
-  #   doc.errors.each do |err|
-  #     puts("#{err.line}:#{err.column}: #{err.str1}")
-  #   end
+  #   doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />',
+  #   max_errors: 10) doc.errors.each do |err|
+  #     puts("#{err.line}:#{err.column}: #{err.str1}") end
   #   # => 1:1: generic-parser
   #   #    1:1: non-void-html-element-start-tag-with-trailing-solidus
   #   #    1:17: end-tag-with-trailing-solidus
   #   #    1:17: end-tag-with-attributes
   #
-  # Note that the first error is +generic-parser+ because it's an error from the tree construction
-  # stage and doesn't have a standardized error code.
+  # Note that the first error is +generic-parser+ because it's an error from
+  # the tree construction stage and doesn't have a standardized error code.
   #
-  # For the purposes of semantic versioning, the error messages, error locations, and error codes
-  # are not part of Nokogiri's public API. That is, these are subject to change without Nokogiri's
-  # major version number changing. These may be stabilized in the future.
+  # For the purposes of semantic versioning, the error messages, error
+  # locations, and error codes are not part of Nokogiri's public API. That is,
+  # these are subject to change without Nokogiri's major version number
+  # changing. These may be stabilized in the future.
   #
   # === Maximum tree depth
   #
-  # The maximum depth of the DOM tree parsed by the various parsing methods is configurable by the
-  # +:max_tree_depth+ option. If the depth of the tree would exceed this limit, then an
-  # {::ArgumentError} is thrown.
+  # The maximum depth of the DOM tree parsed by the various parsing methods is
+  # configurable by the +:max_tree_depth+ option. If the depth of the tree
+  # would exceed this limit, then an {::ArgumentError} is thrown.
   #
-  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH = 400</tt>) can be
-  # removed by giving the option <tt>max_tree_depth: -1</tt>.
+  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
+  # = 400</tt>) can be removed by giving the option <tt>max_tree_depth:
+  # -1</tt>.
   #
-  #   html = '<!DOCTYPE html>' + '<div>' * 1000
-  #   doc = Nokogiri.HTML5(html)
+  #   html = '<!DOCTYPE html>' + '<div>' * 1000 doc = Nokogiri.HTML5(html)
   #   # raises ArgumentError: Document tree depth limit exceeded
   #   doc = Nokogiri.HTML5(html, max_tree_depth: -1)
   #
   # === Attribute limit per element
   #
-  # The maximum number of attributes per DOM element is configurable by the +:max_attributes+
-  # option. If a given element would exceed this limit, then an {::ArgumentError} is thrown.
+  # The maximum number of attributes per DOM element is configurable by the
+  # +:max_attributes+ option. If a given element would exceed this limit, then
+  # an {::ArgumentError} is thrown.
   #
-  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES = 400</tt>) can be
-  # removed by giving the option <tt>max_attributes: -1</tt>.
+  # This limit (which defaults to <tt>Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
+  # = 400</tt>) can be removed by giving the option <tt>max_attributes:
+  # -1</tt>.
   #
-  #   html = '<!DOCTYPE html><div ' + (1..1000).map { |x| "attr-#{x}" }.join(' ') + '>'
+  # html = '<!DOCTYPE html><div ' + (1..1000).map { |x| "attr-#{x}" }.join('
+  # ') + '>'
   #   # "<!DOCTYPE html><div attr-1 attr-2 attr-3 ... attr-1000>"
   #   doc = Nokogiri.HTML5(html)
   #   # raises ArgumentError: Attributes per element limit exceeded
   #   doc = Nokogiri.HTML5(html, max_attributes: -1)
   #
+  # === Parse +noscript+ elements' content as text
+  #
+  # By default, the content of +noscript+ elements is parsed as HTML elements.
+  # Browsers that support scripting parse the content of +noscript+ elements
+  # as raw text.
+  #
+  # The +parse_noscript_content_as_text+ option causes Nokogiri to parse the
+  # content of +noscript+ elements as a single text node.
+  #
+  #   html = "<!DOCTYPE html><noscript><meta charset='UTF-8'><link rel=stylesheet href=!></noscript>"
+  #   doc = Nokogiri::HTML5.parse(html, parse_noscript_content_as_text: true)
+  #   puts(doc.at("/html/head/noscript").children.length)
+  #   # 1
+  #
+  # In contrast, +parse_noscript_content_as_text: false+ (the default) causes
+  # the +noscript+ element in the previous example to have two children, a
+  # +meta+ element and a +link+ element.
+  #
+  #   doc = Nokogiri::HTML5.parse(html)
+  #   puts(doc.at("/html/head/noscript").children.length)
+  #   #2
+  #
   # == HTML Serialization
   #
-  # After parsing HTML, it may be serialized using any of the {Nokogiri::XML::Node} serialization
-  # methods. In particular, {XML::Node#serialize}, {XML::Node#to_html}, and {XML::Node#to_s} will
-  # serialize a given node and its children. (This is the equivalent of JavaScript's
-  # +Element.outerHTML+.) Similarly, {XML::Node#inner_html} will serialize the children of a given
-  # node. (This is the equivalent of JavaScript's +Element.innerHTML+.)
+  # After parsing HTML, it may be serialized using any of the
+  # {Nokogiri::XML::Node} serialization methods. In particular,
+  # {XML::Node#serialize}, {XML::Node#to_html}, and {XML::Node#to_s} will
+  # serialize a given node and its children. (This is the equivalent of
+  # JavaScript's +Element.outerHTML+.) Similarly, {XML::Node#inner_html} will
+  # serialize the children of a given node. (This is the equivalent of
+  # JavaScript's +Element.innerHTML+.)
   #
-  #   doc = Nokogiri::HTML5("<!DOCTYPE html><span>Hello world!</span>")
-  #   puts doc.serialize
+  #   doc = Nokogiri::HTML5("<!DOCTYPE html><span>Hello world!</span>") puts
+  #   doc.serialize
   #   # => <!DOCTYPE html><html><head></head><body><span>Hello world!</span></body></html>
   #
-  # Due to quirks in how HTML is parsed and serialized, it's possible for a DOM tree to be
-  # serialized and then re-parsed, resulting in a different DOM.  Mostly, this happens with DOMs
-  # produced from invalid HTML. Unfortunately, even valid HTML may not survive serialization and
+  # Due to quirks in how HTML is parsed and serialized, it's possible for a
+  # DOM tree to be serialized and then re-parsed, resulting in a different
+  # DOM.  Mostly, this happens with DOMs produced from invalid HTML.
+  # Unfortunately, even valid HTML may not survive serialization and
   # re-parsing.
   #
-  # In particular, a newline at the start of +pre+, +listing+, and +textarea+ elements is ignored by
-  # the parser.
+  # In particular, a newline at the start of +pre+, +listing+, and +textarea+
+  # elements is ignored by the parser.
   #
   #   doc = Nokogiri::HTML5(<<-EOF)
   #   <!DOCTYPE html>
   #   <pre>
   #   Content</pre>
-  #   EOF
-  #   puts doc.at('/html/body/pre').serialize
+  #   EOF puts doc.at('/html/body/pre').serialize
   #   # => <pre>Content</pre>
   #
-  # In this case, the original HTML is semantically equivalent to the serialized version. If the
-  # +pre+, +listing+, or +textarea+ content starts with two newlines, the first newline will be
-  # stripped on the first parse and the second newline will be stripped on the second, leading to
-  # semantically different DOMs. Passing the parameter <tt>preserve_newline: true</tt> will cause
-  # two or more newlines to be preserved. (A single leading newline will still be removed.)
+  # In this case, the original HTML is semantically equivalent to the
+  # serialized version. If the +pre+, +listing+, or +textarea+ content starts
+  # with two newlines, the first newline will be stripped on the first parse
+  # and the second newline will be stripped on the second, leading to
+  # semantically different DOMs. Passing the parameter <tt>preserve_newline:
+  # true</tt> will cause two or more newlines to be preserved. (A single
+  # leading newline will still be removed.)
   #
   #   doc = Nokogiri::HTML5(<<-EOF)
   #   <!DOCTYPE html>
   #   <listing>
   #
-  #   Content</listing>
-  #   EOF
-  #   puts doc.at('/html/body/listing').serialize(preserve_newline: true)
+  #   Content</listing> EOF puts
+  #   doc.at('/html/body/listing').serialize(preserve_newline: true)
   #   # => <listing>
   #   #
   #   #    Content</listing>
   #
   # == Encodings
   #
-  # Nokogiri always parses HTML5 using {https://en.wikipedia.org/wiki/UTF-8 UTF-8}; however, the
-  # encoding of the input can be explicitly selected via the optional +encoding+ parameter. This is
-  # most useful when the input comes not from a string but from an IO object.
+  # Nokogiri always parses HTML5 using {https://en.wikipedia.org/wiki/UTF-8
+  # UTF-8}; however, the encoding of the input can be explicitly selected via
+  # the optional +encoding+ parameter. This is most useful when the input
+  # comes not from a string but from an IO object.
   #
-  # When serializing a document or node, the encoding of the output string can be specified via the
-  # +:encoding+ options. Characters that cannot be encoded in the selected encoding will be encoded
-  # as {https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references HTML numeric
-  # entities}.
+  # When serializing a document or node, the encoding of the output string can
+  # be specified via the +:encoding+ options. Characters that cannot be
+  # encoded in the selected encoding will be encoded as
+  # {https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+  # HTML numeric entities}.
   #
-  #   frag = Nokogiri::HTML5.fragment('<span>아는 길도 물어가라</span>')
-  #   html = frag.serialize(encoding: 'US-ASCII')
-  #   puts html
+  #   frag = Nokogiri::HTML5.fragment('<span>아는 길도 물어가라</span>') html
+  #   = frag.serialize(encoding: 'US-ASCII') puts html
   #   # => <span>&#xc544;&#xb294; &#xae38;&#xb3c4; &#xbb3c;&#xc5b4;&#xac00;&#xb77c;</span>
-  #   frag = Nokogiri::HTML5.fragment(html)
-  #   puts frag.serialize
+  #   frag = Nokogiri::HTML5.fragment(html) puts frag.serialize
   #   # => <span>아는 길도 물어가라</span>
   #
-  # (There's a {https://bugs.ruby-lang.org/issues/15033 bug} in all current versions of Ruby that
-  # can cause the entity encoding to fail. Of the mandated supported encodings for HTML, the only
-  # encoding I'm aware of that has this bug is <tt>'ISO-2022-JP'</tt>. We recommend avoiding this
+  # (There's a {https://bugs.ruby-lang.org/issues/15033 bug} in all current
+  # versions of Ruby that can cause the entity encoding to fail. Of the
+  # mandated supported encodings for HTML, the only encoding I'm aware of that
+  # has this bug is <tt>'ISO-2022-JP'</tt>. We recommend avoiding this
   # encoding.)
   #
   # == Notes
   #
-  # * The {Nokogiri::HTML5.fragment} function takes a string and parses it
-  #   as a HTML5 document.  The +<html>+, +<head>+, and +<body>+ elements are
-  #   removed from this document, and any children of these elements that remain
-  #   are returned as a {Nokogiri::HTML5::DocumentFragment}.
+  # * The {Nokogiri::HTML5.fragment} function takes a string and parses it as
+  #   a HTML5 document.  The +<html>+, +<head>+, and +<body>+ elements are
+  #   removed from this document, and any children of these elements that
+  #   remain are returned as a {Nokogiri::HTML5::DocumentFragment}.
   #
   # * The {Nokogiri::HTML5.parse} function takes a string and passes it to the
   #   <code>gumbo_parse_with_options</code> method, using the default options.
   #   The resulting Gumbo parse tree is then walked.
   #
-  # * Instead of uppercase element names, lowercase element names are produced.
+  # * Instead of uppercase element names, lowercase element names are
+  #   produced.
   #
   # * Instead of returning +unknown+ as the element name for unknown tags, the
   #   original tag name is returned verbatim.
