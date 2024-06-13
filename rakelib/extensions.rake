@@ -141,6 +141,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "ws2_32.dll",
         "user32.dll",
         "advapi32.dll",
+        "bcrypt.dll",
         libruby_dll,
       ]
     when MINGWUCRT_PLATFORM_REGEX
@@ -148,6 +149,7 @@ CrossRuby = Struct.new(:version, :platform) do
         "kernel32.dll",
         "ws2_32.dll",
         "advapi32.dll",
+        "bcrypt.dll",
         "api-ms-win-crt-convert-l1-1-0.dll",
         "api-ms-win-crt-environment-l1-1-0.dll",
         "api-ms-win-crt-filesystem-l1-1-0.dll",
