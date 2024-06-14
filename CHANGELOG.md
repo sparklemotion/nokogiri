@@ -10,13 +10,19 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] Vendored libxml2 is updated to [v2.13.0](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.0). [#3230] @flavorjones
 * [CRuby] Vendored libxslt is updated to [v1.1.40](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.40). [#3230] @flavorjones
-* [CRuby] Minimum supported version of libxml2 raised to v2.7.7 (released 2010-03-15) from v2.6.21. @flavorjones
+* [CRuby] Minimum supported version of libxml2 raised to v2.7.7 (released 2010-03-15) from v2.6.21. [#3232] @flavorjones
+* [JRuby] Minimum supported versino of Java raised to 8 (released 2014-03-18) from 7. [#3134] @flavorjones 
+* [CRuby] Update to rake-compiler-dock v1.5.1 for building precompiled native gems. [#3216] @flavorjones
 
 
 ### Added
 
-* [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. @flavorjones
+* [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. [#3119] @flavorjones
 * [CRuby] Attributes in an HTML5 document can be serialized individually, something that has always been supported by the HTML4 serializer. [#3125, #3127] @flavorjones
+
+
+### Improved
+* Documentation has been improved for `CSS.xpath_for`. [#3224] @flavorjones
 * [CRuby] When compiling packaged libraries from source, allow users' `AR` and `LD` environment variables to set the archiver and linker commands, respectively. This augments the existing `CC` environment variable to set the compiler command. [#3165] @ziggythehamster
 
 
@@ -26,12 +32,16 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * CSS queries for pseudo-selectors that cannot be translated into XPath expressions now raise a more descriptive `Nokogiri::CSS::SyntaxError` when they are parsed. Previously, an invalid XPath expression was evaluated and a hard-to-understand XPath error was raised by the query engine. [#3193] @flavorjones
 * [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
 * [CRuby] Update node GC lifecycle to avoid a potential memory leak with fragments in libxml 2.13.0 caused by changes in `xmlAddChild`. [#3156] @flavorjones
+* [CRuby] libgumbo correctly prints nonstandard element names in error messages. [#3219] @stevecheckoway
 
 
 ### Changed
 
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in the upcoming libxml 2.13.0 release. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
-* The internal `CSS::XPathVisitor` class now accepts the xpath prefix and the context namespaces as constructor arguments. The `prefix:` and `ns:` keyword arguments to `CSS.xpath_for` cannot be specified if the `visitor:` keyword argument is also used. `CSS::XPathVisitor` now exposes `#builtins`, `#doctype`, `#prefix`, and `#namespaces` attributes.
+* Internals:
+  * The internal `CSS::XPathVisitor` class now accepts the xpath prefix and the context namespaces as constructor arguments. The `prefix:` and `ns:` keyword arguments to `CSS.xpath_for` cannot be specified if the `visitor:` keyword argument is also used. `CSS::XPathVisitor` now exposes `#builtins`, `#doctype`, `#prefix`, and `#namespaces` attributes. [#3225] @flavorjones
+  * The internal CSS selector cache has been extracted into a distinct class, `CSS::SelectorCache`. Previously it was part of the `CSS::Parser` class. [#3226] @flavorjones
+  * The internal `Gumbo.parse` and `Gumbo.fragment` methods now take keyword arguments instead of positional arguments. [#3199] @flavorjones
 
 
 ### Deprecated
