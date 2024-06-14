@@ -5,12 +5,6 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  # ruby 3.4.0-dev removed some gems from the default set
-  #
-  # TODO: we should be able to remove these as our gem dependencies sort it out and we pull them in
-  # transitively.
-  gem "mutex_m"
-
   # bootstrapping
   gem "bundler", "~> 2.3"
   gem "rake", "13.2.1"
