@@ -74,14 +74,12 @@ module Nokogiri
         end
 
         def test_to_xhtml_with_indent
-          skip if Nokogiri.uses_libxml?("~> 2.6.0")
           doc = Nokogiri::HTML4("<html><body><a>foo</a></body></html>")
           doc = Nokogiri::HTML4(doc.to_xhtml(indent: 2))
           assert_indent(2, doc)
         end
 
         def test_write_to_xhtml_with_indent
-          skip if Nokogiri.uses_libxml?("~> 2.6.0")
           io = StringIO.new
           doc = Nokogiri::HTML4("<html><body><a>foo</a></body></html>")
           doc.write_xhtml_to(io, indent: 5)
