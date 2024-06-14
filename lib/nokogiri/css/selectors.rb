@@ -26,6 +26,7 @@
 # THE SOFTWARE.
 
 require_relative "selectors/tokenizer"
+require_relative "selectors/parser"
 require_relative "selectors/pretty_print"
 
 module Nokogiri
@@ -35,30 +36,15 @@ module Nokogiri
       attr_reader :source
 
       def initialize(source)
-        @source = preprocess(source)
+        @source = source
       end
 
       def tokenize
-        Selectors::Tokenizer.new(source).tokenize.to_a
+        Selectors::Tokenizer.new(@source).tokenize
       end
 
-      private
-
-      #-------------------------------------------------------------------------
-      # 3. Tokenizing and Parsing CSS
-      # https://www.w3.org/TR/css-syntax-3/#tokenizing-and-parsing
-      #-------------------------------------------------------------------------
-
-      # 3.3. Preprocessing the input stream
-      # https://www.w3.org/TR/css-syntax-3/#input-preprocessing
-      def preprocess(input)
-        input.gsub(/\r\n?|\f/, "\n").tr("\x00", "\u{FFFD}")
-
-        # We should also be replacing surrogate characters in the input stream
-        # with the replacement character, but it's not entirely possible to do
-        # that if the string is already UTF-8 encoded. Until we dive further
-        # into encoding and handle fallback encodings, we'll just skip this.
-        # .gsub(/[\u{D800}-\u{DFFF}]/, "\u{FFFD}")
+      def parse
+        Selectors::Parser.new(tokenize).parse
       end
     end
   end

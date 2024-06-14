@@ -73,18 +73,13 @@ module Nokogiri
         attr_reader :source, :errors
 
         def initialize(source)
-          @source = source
+          @source = preprocess(source)
           @errors = []
         end
 
-        #-------------------------------------------------------------------------
-        # 4. Tokenization
-        # https://www.w3.org/TR/css-syntax-3/#tokenization
-        #-------------------------------------------------------------------------
-
         # Create an enumerator of tokens from the source.
         def tokenize
-          Enumerator.new do |enum|
+          tokens = Enumerator.new do |enum|
             index = 0
 
             while index < source.length
@@ -96,6 +91,25 @@ module Nokogiri
 
             enum << EOFToken[index]
           end
+
+          # convert FunctionTokens and arguments into Function objects
+          values = []
+          values << consume_component_value(tokens) until tokens.peek.is_a?(EOFToken)
+          values
+        end
+
+        private
+
+        # 3.3. Preprocessing the input stream
+        # https://www.w3.org/TR/css-syntax-3/#input-preprocessing
+        def preprocess(input)
+          input.gsub(/\r\n?|\f/, "\n").tr("\x00", "\u{FFFD}")
+
+          # We should also be replacing surrogate characters in the input stream
+          # with the replacement character, but it's not entirely possible to do
+          # that if the string is already UTF-8 encoded. Until we dive further
+          # into encoding and handle fallback encodings, we'll just skip this.
+          # .gsub(/[\u{D800}-\u{DFFF}]/, "\u{FFFD}")
         end
 
         # 4.3.1. Consume a token
@@ -546,6 +560,41 @@ module Nokogiri
         # https://www.w3.org/TR/css-syntax-3/#whitespace
         def whitespace?(value)
           /#{WHITESPACE}/o.match?(value)
+        end
+
+        # 5.4.7. Consume a component value
+        # https://www.w3.org/TR/css-syntax-3/#consume-component-value
+        def consume_component_value(tokens)
+          case tokens.peek
+          # # we don't need to support simple blocks for Selectors
+          # # TODO: test this and see what happens
+          # in OpenCurlyToken | OpenSquareToken | OpenParenToken
+          #   consume_simple_block(tokens)
+          in FunctionToken
+            consume_function(tokens)
+          else
+            tokens.next
+          end
+        end
+
+        # 5.4.9. Consume a function
+        # https://www.w3.org/TR/css-syntax-3/#consume-function
+        def consume_function(tokens)
+          name_token = tokens.next
+          value = []
+
+          loop do
+            case tokens.peek
+            in CloseParenToken[location:]
+              tokens.next
+              return Function.new(name: name_token.value, value: value, location: name_token.location.to(location))
+            in EOFToken[location:]
+              errors << ParseError.new("Unexpected EOF while parsing function at #{name_token.location.start_char}")
+              return Function.new(name: name_token.value, value: value, location: name_token.location.to(location))
+            else
+              value << consume_component_value(tokens)
+            end
+          end
         end
       end
 

@@ -73,12 +73,12 @@ describe Nokogiri::CSS::XPathVisitor do
 
         def visit_function_aaron(node)
           @called = true
-          "aaron() = 1"
+          "xxxxx"
         end
       end.new
 
       assert_equal(
-        ["//a[aaron() = 1]"],
+        ["//a[xxxxx]"],
         Nokogiri::CSS.xpath_for("a:aaron()", visitor: visitor, cache: false),
       )
       assert visitor.called
@@ -90,12 +90,12 @@ describe Nokogiri::CSS::XPathVisitor do
 
         def visit_pseudo_class_aaron(node)
           @called = true
-          "aaron() = 1"
+          "xxxxx"
         end
       end.new
 
       assert_equal(
-        ["//a[aaron() = 1]"],
+        ["//a[xxxxx]"],
         Nokogiri::CSS.xpath_for("a:aaron", visitor: visitor, cache: false),
       )
       assert visitor.called
@@ -346,7 +346,7 @@ describe Nokogiri::CSS::XPathVisitor do
       )
     end
 
-    it ":nth and friends (extended-syntax)" do
+    it ":nth and friends" do
       assert_xpath("//a[position()=1]", "a:first()")
       assert_xpath("//a[position()=1]", "a:first") # no parens
       assert_xpath("//a[position()=99]", "a:eq(99)")
@@ -554,7 +554,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//td[position()>3]", "td:gt(3)")
     end
 
-    it "handles self()" do
+    it "handles self() (extended-syntax)" do
       # TODO: it's unclear how this is useful and we should consider deprecating it
       assert_xpath("//self::div", "self(div)")
     end
@@ -576,7 +576,7 @@ describe Nokogiri::CSS::XPathVisitor do
     assert_xpath("//a[nokogiri:active(.) and @id='foo']", "a:active#foo")
   end
 
-  it "handles function with pseudo-class" do
+  it "handles function with pseudo-class (extended-syntax)" do
     assert_xpath("//child::text()[position()=99]", "text():nth-of-type(99)")
   end
 
