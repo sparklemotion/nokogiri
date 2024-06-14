@@ -8,8 +8,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated to [v2.13.0](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.0). @flavorjones
-* [CRuby] Vendored libxslt is updated to [v1.1.40](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.40). @flavorjones
+* [CRuby] Vendored libxml2 is updated to [v2.13.0](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.0). [#3230] @flavorjones
+* [CRuby] Vendored libxslt is updated to [v1.1.40](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.40). [#3230] @flavorjones
+* [CRuby] Minimum supported version of libxml2 raised to v2.7.7 (released 2010-03-15) from v2.6.21. @flavorjones
 
 
 ### Added
