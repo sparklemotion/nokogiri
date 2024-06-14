@@ -241,44 +241,55 @@ describe "experimental pattern matching" do
 
     describe "Document" do
       it "finds nodes" do
-        doc => { root: { children: [*, { name: "child3", children: grandchildren }, *] } }
-        expected = doc.at_css("child3").children
-        assert_equal(expected, grandchildren)
+        assert_pattern do
+          doc => { root: { children: [*, { name: "child3", children: grandchildren }, *] } }
+          expected = doc.at_css("child3").children
+          assert_equal(expected, grandchildren)
+        end
       end
 
       it "finds nodes with namespaces" do
         ns = ns_default
-        # refute_raises
-        doc => { root: { children: [*, { namespace: { href: ^ns }, name: "child3" }, *] } }
+        assert_pattern do
+          doc => { root: { children: [*, { namespace: { href: ^ns }, name: "child3" }, *] } }
+        end
       end
 
       it "finds node contents" do
-        doc => { root: { children: [*, { children: [*, {name: "grandchild1", content: }, *] }, *] } }
-        assert_equal("hello & goodbye", content)
+        assert_pattern do
+          doc => { root: { children: [*, { children: [*, {name: "grandchild1", content: }, *] }, *] } }
+          assert_equal("hello & goodbye", content)
+        end
       end
 
       it "finds node contents by attribute" do
-        doc => { root: { children: [*, { children: [*, {attributes: [*, {name: "size", value: "small"}, *], content: }, *] }, *] } }
-        assert_equal("hello & goodbye", content)
+        assert_pattern do
+          doc => { root: { children: [*, { children: [*, {attributes: [*, {name: "size", value: "small"}, *], content: }, *] }, *] } }
+          assert_equal("hello & goodbye", content)
+        end
       end
     end
 
     describe "Fragment" do
       it "finds nodes" do
-        # refute_raises
-        frag => [{name: "child1"}, {name: "child2"}, {name: "child3"}, {content: "\n"}]
+        assert_pattern do
+          frag => [{name: "child1"}, {name: "child2"}, {name: "child3"}, {content: "\n"}]
+        end
       end
 
       it "finds attributes" do
-        frag => [*, {name: "child2", attributes: }, *]
-        assert_equal("foo", attributes.first.name)
+        assert_pattern do
+          frag => [*, {name: "child2", attributes: }, *]
+          assert_equal("foo", attributes.first.name)
+        end
       end
     end
 
     describe "Node" do
       it "finds nodes" do
-        # refute_raises
-        doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
+        assert_pattern do
+          doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
+        end
       end
     end
   end unless RUBY_ENGINE == "truffleruby" # https://github.com/oracle/truffleruby/issues/3589
