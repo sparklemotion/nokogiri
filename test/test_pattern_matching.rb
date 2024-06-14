@@ -281,5 +281,5 @@ describe "experimental pattern matching" do
         doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
       end
     end
-  end
+  end unless RUBY_ENGINE == "truffleruby" # https://github.com/oracle/truffleruby/issues/3589
 end
