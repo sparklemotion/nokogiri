@@ -116,11 +116,7 @@ module Nokogiri
 
           assert(block_called)
 
-          noshade_value = if Nokogiri.uses_libxml?("< 2.7.7")
-            ["noshade", "noshade"]
-          else
-            ["noshade", nil]
-          end
+          noshade_value = ["noshade", nil]
 
           assert_equal(
             [

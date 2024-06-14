@@ -100,11 +100,7 @@ module Nokogiri
         def test_html_fragment_has_outer_text
           doc = "a<div>b</div>c"
           fragment = Nokogiri::HTML4::Document.new.fragment(doc)
-          if Nokogiri.uses_libxml?("<= 2.6.16")
-            assert_equal("a<div>b</div><p>c</p>", fragment.to_s)
-          else
-            assert_equal("a<div>b</div>c", fragment.to_s)
-          end
+          assert_equal("a<div>b</div>c", fragment.to_s)
         end
 
         def test_html_fragment_case_insensitivity
@@ -162,13 +158,7 @@ module Nokogiri
         def test_to_xhtml
           doc = "<span>foo<br></span><span>bar</span><p></p>"
           fragment = Nokogiri::HTML4::Document.new.fragment(doc)
-          if Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.7.0")
-            assert_equal("<span>foo<br /></span><span>bar</span><p></p>", fragment.to_xhtml)
-          else
-            # FIXME: why are we doing this ? this violates the spec,
-            # see http://www.w3.org/TR/xhtml1/#C_2
-            assert_equal("<span>foo<br></span><span>bar</span><p></p>", fragment.to_xhtml)
-          end
+          assert_equal("<span>foo<br /></span><span>bar</span><p></p>", fragment.to_xhtml)
         end
 
         def test_to_xml
