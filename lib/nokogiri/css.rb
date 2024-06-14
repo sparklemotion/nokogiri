@@ -120,7 +120,10 @@ module Nokogiri
   end
 end
 
+require_relative "css/syntax_error"
 require_relative "css/selector_cache"
+require_relative "css/selectors"
+
 require_relative "css/node"
 require_relative "css/xpath_visitor"
 x = $-w
@@ -129,4 +132,3 @@ require_relative "css/parser"
 $-w = x
 
 require_relative "css/tokenizer"
-require_relative "css/syntax_error"
