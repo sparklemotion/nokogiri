@@ -29,9 +29,8 @@ module Nokogiri
   module CSS
     # :nodoc: all
     class Selectors
-      # Parses selectors according to https://www.w3.org/TR/selectors-4 from the version dated 7 May
-      # 2022.
-      class Parser
+      # Abstract base class for parsers
+      class Base
         class MissingTokenError < Nokogiri::CSS::SyntaxError
         end
 
@@ -72,27 +71,104 @@ module Nokogiri
           @tokens = TokenEnumerator.new(tokens)
         end
 
-        def parse
-          selector_list.tap do
-            # TODO: add tests for error detection / handling
-            token = tokens.peek
-            unless token.nil? || EOFToken === token
-              token_message = token.respond_to?(:value) ? token.value : token.class.name
-              message = format(
-                "Unexpected token '%s' at character %d",
-                token_message,
-                token.location.to_range.begin + 1,
-              )
-              raise Nokogiri::CSS::SyntaxError, message
+        private
+
+        def ensure_no_more_tokens
+          token = tokens.peek
+          return if token.nil? || EOFToken === token
+
+          PP.pp(token, (buffer = StringIO.new))
+          message = format(
+            "Unexpected token '%s' at characters %d..%d",
+            buffer.string.chomp,
+            token.location.to_range.begin + 1,
+            token.location.to_range.end,
+          )
+          raise Nokogiri::CSS::SyntaxError, message
+        end
+
+        def consume(*values)
+          result =
+            values.map do |value|
+              case [value, tokens.peek]
+              in [String, DelimToken[value: token_value]] if value == token_value
+                tokens.next
+              in [String, IdentToken[value: token_value]] if value == token_value
+                tokens.next
+              in [Class, token] if token.is_a?(value)
+                tokens.next
+              in [_, token]
+                raise MissingTokenError, "Expected #{value} but got #{token.inspect}"
+              end
+            end
+
+          result.size == 1 ? result.first : result
+        end
+
+        def consume_whitespace
+          loop do
+            case tokens.peek
+            in CommentToken | WhitespaceToken
+              tokens.next
+            else
+              return
             end
           end
         end
 
-        private
+        def consume_operator(operator_class)
+          if operator_class::TOKEN != WhitespaceToken
+            consume_whitespace
+          end
+          result = consume(*operator_class::TOKEN)
+          consume_whitespace
 
-        #-------------------------------------------------------------------------
-        # Parsing methods
-        #-------------------------------------------------------------------------
+          operator_class.new(value: result)
+        end
+
+        def one_or_more
+          items = []
+
+          consume_whitespace
+          items << yield
+
+          loop do
+            consume_whitespace
+            if maybe { consume(CommaToken) }
+              consume_whitespace
+              items << yield
+            else
+              return items
+            end
+          end
+        end
+
+        def maybe
+          tokens.transaction do
+            yield
+          rescue MissingTokenError
+            raise TokenEnumerator::Rollback
+          end
+        end
+
+        def options
+          value = yield
+          raise MissingTokenError, "Expected one of many to match" if value.nil?
+
+          value
+        end
+      end
+
+      # Parser for CSS selectors
+      # https://www.w3.org/TR/selectors-4 from the version dated 7 May 2022.
+      class Parser < Base
+        def parse
+          result = selector_list
+          ensure_no_more_tokens
+          result
+        end
+
+        private
 
         # <selector-list> = <complex-selector-list>
         def selector_list
@@ -274,9 +350,6 @@ module Nokogiri
           in IdentToken
             PseudoClassSelector.new(value: consume(IdentToken))
           in Function
-            node = consume(Function)
-            arguments = node.value.empty? ? nil : Selectors::Parser.new(node.value).parse
-            function = PseudoClassFunction.new(name: node.name, arguments: arguments)
             PseudoClassSelector.new(value: function)
           else
             raise MissingTokenError, "Expected pseudo class selector to produce something"
@@ -289,77 +362,195 @@ module Nokogiri
           PseudoElementSelector.new(value: pseudo_class_selector)
         end
 
-        #-------------------------------------------------------------------------
-        # Helper methods
-        #-------------------------------------------------------------------------
-
-        def consume(*values)
-          result =
-            values.map do |value|
-              case [value, tokens.peek]
-              in [String, DelimToken[value: token_value]] if value == token_value
-                tokens.next
-              in [Class, token] if token.is_a?(value)
-                tokens.next
-              in [_, token]
-                raise MissingTokenError, "Expected #{value} but got #{token.inspect}"
-              end
-            end
-
-          result.size == 1 ? result.first : result
-        end
-
-        def consume_whitespace
-          loop do
-            case tokens.peek
-            in CommentToken | WhitespaceToken
-              tokens.next
-            else
-              return
+        def function
+          node = consume(Function)
+          arguments = if node.value.empty?
+            nil
+          else
+            options do
+              maybe { Selectors::ANPlusBParser.new(node.value).parse } ||
+                maybe { Selectors::Parser.new(node.value).parse }
             end
           end
+
+          PseudoClassFunction.new(name: node.name, arguments: arguments)
+        end
+      end
+
+      # Parser for AN+B microsyntax
+      # https://www.w3.org/TR/css-syntax-3/#the-anb-type
+      class ANPlusBParser < Base
+        # <an+b> =
+        #   odd | even |
+        #   <integer> |
+        #
+        #   <n-dimension> |
+        #   '+'?† n |
+        #   -n |
+        #
+        #   <ndashdigit-dimension> |
+        #   '+'?† <ndashdigit-ident> |
+        #   <dashndashdigit-ident> |
+        #
+        #   <n-dimension> <signed-integer> |
+        #   '+'?† n <signed-integer> |
+        #   -n <signed-integer> |
+        #
+        #   <ndash-dimension> <signless-integer> |
+        #   '+'?† n- <signless-integer> |
+        #   -n- <signless-integer> |
+        #
+        #   <n-dimension> ['+' | '-'] <signless-integer>
+        #   '+'?† n ['+' | '-'] <signless-integer> |
+        #   -n ['+' | '-'] <signless-integer>
+        #
+        # where:
+        #
+        # - <n-dimension> is a <dimension-token> with its type flag set to "integer", and a unit
+        #   that is an ASCII case-insensitive match for "n"
+        # - <ndash-dimension> is a <dimension-token> with its type flag set to "integer", and a unit
+        #   that is an ASCII case-insensitive match for "n-"
+        # - <ndashdigit-dimension> is a <dimension-token> with its type flag set to "integer", and a
+        #   unit that is an ASCII case-insensitive match for "n-*", where "*" is a series of one or
+        #   more digits
+
+        # - <ndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive match
+        #   for "n-*", where "*" is a series of one or more digits
+        # - <dashndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive
+        #   match for "-n-*", where "*" is a series of one or more digits
+
+        # - <integer> is a <number-token> with its type flag set to "integer"
+        # - <signed-integer> is a <number-token> with its type flag set to "integer", and whose
+        #   representation starts with "+" or "-"
+        # - <signless-integer> is a <number-token> with its type flag set to "integer", and whose
+        #   representation starts with a digit
+        #
+        # †: When a plus sign (+) precedes an ident starting with "n", as in the cases marked above,
+        # there must be no whitespace between the two tokens, or else the tokens do not match the
+        # above grammar. Whitespace is valid (and ignored) between any other two tokens.
+        def parse
+          result = an_plus_b
+          ensure_no_more_tokens
+          result
         end
 
-        def consume_operator(operator_class)
-          if operator_class::TOKEN != WhitespaceToken
-            consume_whitespace
-          end
-          result = consume(*operator_class::TOKEN)
+        def an_plus_b
           consume_whitespace
 
-          operator_class.new(value: result)
+          values = options do
+            maybe { end_of_expression { odd_or_even } } ||
+              maybe { end_of_expression { consume(NumberToken) } } ||
+              maybe { end_of_expression { n_dimension } } ||
+              maybe { end_of_expression { bare_n } } ||
+              maybe { end_of_expression { ndashdigit_dimension } } ||
+              maybe { end_of_expression { ndashdigit_ident } } ||
+              maybe { end_of_expression { dashndashdigit_ident } } ||
+              maybe { end_of_expression { n_dimension_signed_integer } } ||
+              maybe { end_of_expression { bare_n_signed_integer } }
+          end
+
+          ANPlusB.new(values: Array(values))
         end
 
-        def one_or_more
-          items = []
+        def end_of_expression
+          result = yield
 
           consume_whitespace
-          items << yield
+          raise MissingTokenError, "Expected end of expression" unless tokens.peek.nil? || tokens.peek.is_a?(EOFToken)
 
-          loop do
-            consume_whitespace
-            if maybe { consume(CommaToken) }
-              consume_whitespace
-              items << yield
-            else
-              return items
+          result
+        end
+
+        def odd_or_even
+          options do
+            maybe { consume("even") } || maybe { consume("odd") }
+          end
+        end
+
+        def n_dimension
+          node = consume(DimensionToken)
+
+          unless node.type == "integer" && node.unit =~ /\An-?\z/i
+            raise MissingTokenError, "Invalid n-dimension"
+          end
+
+          node
+        end
+
+        def bare_n
+          maybe { consume("-n") } ||
+            maybe do
+              values = []
+              maybe { values << consume("+") }
+              values << consume("n")
             end
-          end
         end
 
-        def maybe
-          tokens.transaction do
-            yield
-          rescue MissingTokenError
-            raise TokenEnumerator::Rollback
+        def ndashdigit_dimension
+          node = consume(DimensionToken)
+
+          unless node.type == "integer" && node.unit =~ /\An-\d+\z/i
+            raise MissingTokenError, "Invalid ndashdigit-dimension"
           end
+
+          node
         end
 
-        def options
-          value = yield
-          raise MissingTokenError, "Expected one of many to match" if value.nil?
+        # '+'?† <ndashdigit-ident>
+        def ndashdigit_ident
+          values = []
+          maybe { values << consume("+") }
+          values << (node = consume(IdentToken))
 
-          value
+          unless /\An-\d+\z/i.match?(node.value)
+            raise MissingTokenError, "Invalid ndashdigit-ident"
+          end
+
+          values
+        end
+
+        def dashndashdigit_ident
+          node = consume(IdentToken)
+
+          unless /\A-n-\d+\z/i.match?(node.value)
+            raise MissingTokenError, "Invalid dashndashdigit-ident"
+          end
+
+          node
+        end
+
+        # <n-dimension> <signed-integer>
+        def n_dimension_signed_integer
+          values = []
+
+          values << n_dimension
+          consume_whitespace
+          values << signed_integer
+
+          values
+        end
+
+        # '+'?† n <signed-integer> |
+        # -n <signed-integer>
+        def bare_n_signed_integer
+          values = []
+
+          values << bare_n
+          consume_whitespace
+          values << signed_integer
+
+          values.flatten
+        end
+
+        # "+33", "-33" but not "33"
+        def signed_integer
+          node = consume(NumberToken)
+
+          unless /\A[+-]/.match?(node.text)
+            raise MissingTokenError, "Invalid signed-integer"
+          end
+
+          node
         end
       end
 
@@ -702,6 +893,28 @@ module Nokogiri
       class PseudoElementSelector < ValueNode
         def accept(visitor)
           visitor.visit_pseudo_element_selector(self)
+        end
+      end
+
+      class ANPlusB < Node
+        attr_reader :values
+
+        def initialize(values:) # rubocop:disable Lint/MissingSuper
+          @values = values
+        end
+
+        def accept(visitor)
+          visitor.visit_an_plus_b(self)
+        end
+
+        def child_nodes
+          values
+        end
+
+        alias_method :deconstruct, :child_nodes
+
+        def deconstruct_keys(keys)
+          { values: values }
         end
       end
     end

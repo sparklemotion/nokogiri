@@ -139,6 +139,15 @@ module Nokogiri
         # Selectors
         # ----------
 
+        def visit_an_plus_b(node)
+          token("an-plus-b") do
+            node.values.each do |value|
+              q.breakable
+              q.pp(value)
+            end
+          end
+        end
+
         def visit_attr_matcher(node)
           value(node.class::PP_NAME, node)
         end

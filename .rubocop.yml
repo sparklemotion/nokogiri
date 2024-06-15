@@ -42,3 +42,7 @@ Performance/CollectionLiteralInLoop:
 Performance/StringIdentifierArgument:
   Exclude:
     - test/**/*
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - test/**/*
