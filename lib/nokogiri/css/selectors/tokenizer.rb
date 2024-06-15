@@ -239,7 +239,7 @@ module Nokogiri
             index += 1
             State.new(PercentageToken.new(value: value, type: type, location: start...index), index)
           else
-            State.new(NumberToken.new(value: value, type: type, location: start...index), index)
+            State.new(NumberToken.new(value: value, type: type, location: start...index, text: source[start...index]), index)
           end
         end
 
@@ -1194,12 +1194,13 @@ module Nokogiri
       # A parsed token that contains a numeric value.
       # https://www.w3.org/TR/css-syntax-3/#typedef-number-token
       class NumberToken < Node
-        attr_reader :value, :type, :location
+        attr_reader :value, :type, :location, :text
 
-        def initialize(value:, type:, location:) # rubocop:disable Lint/MissingSuper
+        def initialize(value:, type:, location:, text:) # rubocop:disable Lint/MissingSuper
           @value = value
           @type = type
           @location = Location.from(location)
+          @text = text
         end
 
         def accept(visitor)
@@ -1213,7 +1214,7 @@ module Nokogiri
         alias_method :deconstruct, :child_nodes
 
         def deconstruct_keys(keys)
-          { value: value, type: type, location: location }
+          { value: value, type: type, location: location, text: text }
         end
       end
 

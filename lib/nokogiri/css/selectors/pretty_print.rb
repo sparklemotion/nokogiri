@@ -117,6 +117,9 @@ module Nokogiri
 
             q.breakable
             q.pp(node.value)
+
+            q.breakable
+            q.pp(node.text)
           end
         end
 
