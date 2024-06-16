@@ -4,23 +4,23 @@ require "helper"
 
 class Nokogiri::CSS::Selectors
   describe Nokogiri::CSS::Selectors::ANPlusBParser do
-    def an_plus_b(input)
-      tokens = Tokenizer.new(input).tokenize
-      ANPlusBParser.new(tokens).parse
+    def an_plus_b(input, debug: false)
+      tokens = Tokenizer.new(input).tokenize.tap { |ast| pp(ast) if debug }
+      ANPlusBParser.new(tokens).parse.tap { |ast| pp(ast) if debug }
     end
 
     class << self
-      def it_is_An_plus_B(input)
+      def it_is_An_plus_B(input, debug: false)
         it("parses #{input.inspect}") do
-          ast = an_plus_b(input)
+          ast = an_plus_b(input, debug: debug)
           assert_pattern { yield ast }
         end
       end
 
-      def it_is_not_An_plus_B(input)
+      def it_is_not_An_plus_B(input, debug: false)
         it("does not parse #{input.inspect}") do
           assert_raises(Nokogiri::CSS::SyntaxError) do
-            an_plus_b(input)
+            an_plus_b(input, debug: debug)
           end
         end
       end
@@ -98,5 +98,51 @@ class Nokogiri::CSS::Selectors
     it_is_An_plus_B("n -33") do |ast|
       ast => ANPlusB[IdentToken(value: "n"), NumberToken(value: -33, type: "integer")]
     end
+    it_is_not_An_plus_B("n 33")
+    it_is_An_plus_B("-n +33") do |ast|
+      ast => ANPlusB[IdentToken(value: "-n"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("-n -33") do |ast|
+      ast => ANPlusB[IdentToken(value: "-n"), NumberToken(value: -33, type: "integer")]
+    end
+    it_is_not_An_plus_B("-n 33")
+
+    # <ndash-dimension> <signless-integer> |
+    # '+'?† n- <signless-integer> |
+    # -n- <signless-integer> |
+    #
+    # <ndash-dimension> is a <dimension-token> with its type flag set to "integer", and a unit that
+    # is an ASCII case-insensitive match for "n-"
+    #
+    # <signless-integer> is a <number-token> with its type flag set to "integer", and whose
+    # representation starts with a digit
+    it_is_An_plus_B("42n- 33") do |ast|
+      ast => ANPlusB[
+        DimensionToken(value: 42, unit: "n-", type: "integer"), NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_An_plus_B("+n- 33") do |ast|
+      ast => ANPlusB[
+        DelimToken(value: "+"), IdentToken(value: "n-"), NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_An_plus_B("n- 33") do |ast|
+      ast => ANPlusB[
+        IdentToken(value: "n-"), NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_An_plus_B("-n- 33") do |ast|
+      ast => ANPlusB[
+        IdentToken(value: "-n-"), NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_not_An_plus_B("42n- +33")
+    it_is_not_An_plus_B("42n- -33")
+    it_is_not_An_plus_B("+n- +33")
+    it_is_not_An_plus_B("+n- -33")
+    it_is_not_An_plus_B("n- +33")
+    it_is_not_An_plus_B("n- -33")
+    it_is_not_An_plus_B("-n- +33")
+    it_is_not_An_plus_B("-n- -33")
   end
 end

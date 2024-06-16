@@ -446,12 +446,15 @@ module Nokogiri
               maybe { end_of_expression { ndashdigit_ident } } ||
               maybe { end_of_expression { dashndashdigit_ident } } ||
               maybe { end_of_expression { n_dimension_signed_integer } } ||
-              maybe { end_of_expression { bare_n_signed_integer } }
+              maybe { end_of_expression { bare_n_signed_integer } } ||
+              maybe { end_of_expression { ndash_dimension_signless_integer } } ||
+              maybe { end_of_expression { bare_n_signless_integer } }
           end
 
           ANPlusB.new(values: Array(values))
         end
 
+        # If there are any non-whitespace remaining unparsed, raise MissingTokenError
         def end_of_expression
           result = yield
 
@@ -467,25 +470,36 @@ module Nokogiri
           end
         end
 
+        # <n-dimension> is a <dimension-token> with its type flag set to "integer", and a unit that
+        # is an ASCII case-insensitive match for "n"
         def n_dimension
           node = consume(DimensionToken)
 
-          unless node.type == "integer" && node.unit =~ /\An-?\z/i
+          unless node.type == "integer" && node.unit =~ /\An\z/i
             raise MissingTokenError, "Invalid n-dimension"
           end
 
           node
         end
 
-        def bare_n
-          maybe { consume("-n") } ||
+        # '+'?† n |
+        #  -n
+        #
+        # if n_ident is set to "n-", can also used for
+        #
+        #   '+'?† n- | -n-
+        def bare_n(n_ident: "n")
+          maybe { consume("-#{n_ident}") } ||
             maybe do
               values = []
               maybe { values << consume("+") }
-              values << consume("n")
+              values << consume(n_ident)
             end
         end
 
+        # <ndashdigit-dimension> is a <dimension-token> with its type flag set to "integer", and a
+        # unit that is an ASCII case-insensitive match for "n-*", where "*" is a series of one or
+        # more digits
         def ndashdigit_dimension
           node = consume(DimensionToken)
 
@@ -497,6 +511,9 @@ module Nokogiri
         end
 
         # '+'?† <ndashdigit-ident>
+        #
+        # <ndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive match for
+        # "n-*", where "*" is a series of one or more digits
         def ndashdigit_ident
           values = []
           maybe { values << consume("+") }
@@ -509,6 +526,8 @@ module Nokogiri
           values
         end
 
+        # <dashndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive match
+        # for "-n-*", where "*" is a series of one or more digits
         def dashndashdigit_ident
           node = consume(IdentToken)
 
@@ -542,7 +561,8 @@ module Nokogiri
           values.flatten
         end
 
-        # "+33", "-33" but not "33"
+        # <signed-integer> is a <number-token> with its type flag set to "integer", and whose
+        # representation starts with "+" or "-"
         def signed_integer
           node = consume(NumberToken)
 
@@ -551,6 +571,53 @@ module Nokogiri
           end
 
           node
+        end
+
+        # <signless-integer> is a <number-token> with its type flag set to "integer", and whose
+        # representation starts with a digit
+        def signless_integer
+          node = consume(NumberToken)
+
+          unless /\A\d/.match?(node.text)
+            raise MissingTokenError, "Invalid signless-integer"
+          end
+
+          node
+        end
+
+        # <ndash-dimension> is a <dimension-token> with its type flag set to "integer", and a unit
+        # that is an ASCII case-insensitive match for "n-"
+        def ndash_dimension
+          node = consume(DimensionToken)
+
+          unless node.type == "integer" && node.unit =~ /\An-\z/i
+            raise MissingTokenError, "Invalid ndash-dimension"
+          end
+
+          node
+        end
+
+        # <ndash-dimension> <signless-integer>
+        def ndash_dimension_signless_integer
+          values = []
+
+          values << ndash_dimension
+          consume_whitespace
+          values << signless_integer
+
+          values
+        end
+
+        # '+'?† n- <signless-integer> |
+        # -n- <signless-integer> |
+        def bare_n_signless_integer
+          values = []
+
+          values << bare_n(n_ident: "n-")
+          consume_whitespace
+          values << signless_integer
+
+          values.flatten
         end
       end
 
