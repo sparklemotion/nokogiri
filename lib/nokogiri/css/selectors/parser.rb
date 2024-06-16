@@ -448,7 +448,9 @@ module Nokogiri
               maybe { end_of_expression { n_dimension_signed_integer } } ||
               maybe { end_of_expression { bare_n_signed_integer } } ||
               maybe { end_of_expression { ndash_dimension_signless_integer } } ||
-              maybe { end_of_expression { bare_n_signless_integer } }
+              maybe { end_of_expression { bare_n_signless_integer } } ||
+              maybe { end_of_expression { n_dimension_signless_integer } } ||
+              maybe { end_of_expression { bare_n_op_signless_integer } }
           end
 
           ANPlusB.new(values: Array(values))
@@ -614,6 +616,33 @@ module Nokogiri
           values = []
 
           values << bare_n(n_ident: "n-")
+          consume_whitespace
+          values << signless_integer
+
+          values.flatten
+        end
+
+        # <n-dimension> ['+' | '-'] <signless-integer>
+        def n_dimension_signless_integer
+          values = []
+
+          values << n_dimension
+          consume_whitespace
+          values << options { maybe { consume("+") } || maybe { consume("-") } }
+          consume_whitespace
+          values << signless_integer
+
+          values
+        end
+
+        # '+'?† n ['+' | '-'] <signless-integer> |
+        # -n ['+' | '-'] <signless-integer>
+        def bare_n_op_signless_integer
+          values = []
+
+          values << bare_n
+          consume_whitespace
+          values << options { maybe { consume("+") } || maybe { consume("-") } }
           consume_whitespace
           values << signless_integer
 

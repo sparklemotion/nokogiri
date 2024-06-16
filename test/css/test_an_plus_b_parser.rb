@@ -69,8 +69,8 @@ class Nokogiri::CSS::Selectors
     it_is_An_plus_B("42n-33") { |ast| ast => ANPlusB[DimensionToken(value: 42, unit: "n-33", type: "integer")] }
     it_is_An_plus_B("n-33") { |ast| ast => ANPlusB[IdentToken("n-33")] }
     it_is_An_plus_B("+n-33") { |ast| ast => ANPlusB[DelimToken("+"), IdentToken("n-33")] }
-    it_is_not_An_plus_B("+ n-33")
     it_is_An_plus_B("-n-33") { |ast| ast => ANPlusB[IdentToken("-n-33")] }
+    it_is_not_An_plus_B("+ n-33")
 
     # <n-dimension> <signed-integer> |
     # '+'?† n <signed-integer> |
@@ -90,21 +90,21 @@ class Nokogiri::CSS::Selectors
         NumberToken(value: -33, type: "integer")
       ]
     end
-    it_is_not_An_plus_B("42n 33")
-    it_is_not_An_plus_B("42n33")
     it_is_An_plus_B("n +33") do |ast|
       ast => ANPlusB[IdentToken("n"), NumberToken(value: 33, type: "integer")]
     end
     it_is_An_plus_B("n -33") do |ast|
       ast => ANPlusB[IdentToken("n"), NumberToken(value: -33, type: "integer")]
     end
-    it_is_not_An_plus_B("n 33")
     it_is_An_plus_B("-n +33") do |ast|
       ast => ANPlusB[IdentToken("-n"), NumberToken(value: 33, type: "integer")]
     end
     it_is_An_plus_B("-n -33") do |ast|
       ast => ANPlusB[IdentToken("-n"), NumberToken(value: -33, type: "integer")]
     end
+    it_is_not_An_plus_B("42n 33")
+    it_is_not_An_plus_B("42n33")
+    it_is_not_An_plus_B("n 33")
     it_is_not_An_plus_B("-n 33")
 
     # <ndash-dimension> <signless-integer> |
@@ -144,5 +144,44 @@ class Nokogiri::CSS::Selectors
     it_is_not_An_plus_B("n- -33")
     it_is_not_An_plus_B("-n- +33")
     it_is_not_An_plus_B("-n- -33")
+
+    # <n-dimension> ['+' | '-'] <signless-integer>
+    # '+'?† n ['+' | '-'] <signless-integer> |
+    # -n ['+' | '-'] <signless-integer>
+    it_is_An_plus_B("42n + 33") do |ast|
+      ast => ANPlusB[
+        DimensionToken(value: 42, unit: "n", type: "integer"),
+        DelimToken("+"),
+        NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_An_plus_B("42n - 33") do |ast|
+      ast => ANPlusB[
+        DimensionToken(value: 42, unit: "n", type: "integer"),
+        DelimToken("-"),
+        NumberToken(value: 33, type: "integer")
+      ]
+    end
+    it_is_An_plus_B("n + 33") do |ast|
+      ast => ANPlusB[IdentToken("n"), DelimToken("+"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("n - 33") do |ast|
+      ast => ANPlusB[IdentToken("n"), DelimToken("-"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("+n + 33") do |ast|
+      ast => ANPlusB[DelimToken("+"), IdentToken("n"), DelimToken("+"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("+n - 33") do |ast|
+      ast => ANPlusB[DelimToken("+"), IdentToken("n"), DelimToken("-"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("-n + 33") do |ast|
+      ast => ANPlusB[IdentToken("-n"), DelimToken("+"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_An_plus_B("-n - 33") do |ast|
+      ast => ANPlusB[IdentToken("-n"), DelimToken("-"), NumberToken(value: 33, type: "integer")]
+    end
+    it_is_not_An_plus_B("42n + +33")
+    it_is_not_An_plus_B("42n + -33")
+    it_is_not_An_plus_B("42n- + 33")
   end
 end
