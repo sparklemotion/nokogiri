@@ -413,12 +413,12 @@ module Nokogiri
         # - <ndashdigit-dimension> is a <dimension-token> with its type flag set to "integer", and a
         #   unit that is an ASCII case-insensitive match for "n-*", where "*" is a series of one or
         #   more digits
-
+        #
         # - <ndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive match
         #   for "n-*", where "*" is a series of one or more digits
         # - <dashndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive
         #   match for "-n-*", where "*" is a series of one or more digits
-
+        #
         # - <integer> is a <number-token> with its type flag set to "integer"
         # - <signed-integer> is a <number-token> with its type flag set to "integer", and whose
         #   representation starts with "+" or "-"
@@ -477,26 +477,11 @@ module Nokogiri
         def n_dimension
           node = consume(DimensionToken)
 
-          unless node.type == "integer" && node.unit =~ /\An\z/i
+          unless node.type == "integer" && node.unit.downcase == "n"
             raise MissingTokenError, "Invalid n-dimension"
           end
 
           node
-        end
-
-        # '+'?† n |
-        #  -n
-        #
-        # if n_ident is set to "n-", can also used for
-        #
-        #   '+'?† n- | -n-
-        def bare_n(n_ident: "n")
-          maybe { consume("-#{n_ident}") } ||
-            maybe do
-              values = []
-              maybe { values << consume("+") }
-              values << consume(n_ident)
-            end
         end
 
         # <ndashdigit-dimension> is a <dimension-token> with its type flag set to "integer", and a
@@ -507,6 +492,18 @@ module Nokogiri
 
           unless node.type == "integer" && node.unit =~ /\An-\d+\z/i
             raise MissingTokenError, "Invalid ndashdigit-dimension"
+          end
+
+          node
+        end
+
+        # <ndash-dimension> is a <dimension-token> with its type flag set to "integer", and a unit
+        # that is an ASCII case-insensitive match for "n-"
+        def ndash_dimension
+          node = consume(DimensionToken)
+
+          unless node.type == "integer" && node.unit.downcase == "n-"
+            raise MissingTokenError, "Invalid ndash-dimension"
           end
 
           node
@@ -540,6 +537,23 @@ module Nokogiri
           node
         end
 
+        # '+'?† n |
+        #  -n
+        #
+        # if n_ident is set to "n-", can also used for
+        #
+        #   '+'?† n- | -n-
+        def bare_n(n_ident: "n")
+          options do
+            maybe { consume("-#{n_ident}") } ||
+              maybe do
+                values = []
+                maybe { values << consume("+") }
+                values << consume(n_ident)
+              end
+          end
+        end
+
         # <n-dimension> <signed-integer>
         def n_dimension_signed_integer
           values = []
@@ -568,7 +582,7 @@ module Nokogiri
         def signed_integer
           node = consume(NumberToken)
 
-          unless /\A[+-]/.match?(node.text)
+          unless node.text[0] == "+" || node.text[0] == "-"
             raise MissingTokenError, "Invalid signed-integer"
           end
 
@@ -582,18 +596,6 @@ module Nokogiri
 
           unless /\A\d/.match?(node.text)
             raise MissingTokenError, "Invalid signless-integer"
-          end
-
-          node
-        end
-
-        # <ndash-dimension> is a <dimension-token> with its type flag set to "integer", and a unit
-        # that is an ASCII case-insensitive match for "n-"
-        def ndash_dimension
-          node = consume(DimensionToken)
-
-          unless node.type == "integer" && node.unit =~ /\An-\z/i
-            raise MissingTokenError, "Invalid ndash-dimension"
           end
 
           node

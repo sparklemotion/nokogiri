@@ -183,5 +183,8 @@ class Nokogiri::CSS::Selectors
     it_is_not_An_plus_B("42n + +33")
     it_is_not_An_plus_B("42n + -33")
     it_is_not_An_plus_B("42n- + 33")
+
+    # parser behavior
+    it_is_not_An_plus_B("42n+33 foo")
   end
 end
