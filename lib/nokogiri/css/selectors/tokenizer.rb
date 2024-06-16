@@ -1020,7 +1020,9 @@ module Nokogiri
           []
         end
 
-        alias_method :deconstruct, :child_nodes
+        def deconstruct
+          [value]
+        end
 
         def deconstruct_keys(keys)
           { value: value, location: location }
@@ -1184,7 +1186,9 @@ module Nokogiri
           []
         end
 
-        alias_method :deconstruct, :child_nodes
+        def deconstruct
+          [value]
+        end
 
         def deconstruct_keys(keys)
           { value: value, location: location }

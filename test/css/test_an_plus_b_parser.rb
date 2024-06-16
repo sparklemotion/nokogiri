@@ -30,10 +30,10 @@ class Nokogiri::CSS::Selectors
     # <an+b> =
     #   odd | even |
     #   <integer> |
-    it_is_An_plus_B("even") { |ast| ast => ANPlusB[IdentToken(value: "even")] }
-    it_is_An_plus_B(" even ") { |ast| ast => ANPlusB[IdentToken(value: "even")] }
-    it_is_An_plus_B("odd") { |ast| ast => ANPlusB[IdentToken(value: "odd")] }
-    it_is_An_plus_B(" odd ") { |ast| ast => ANPlusB[IdentToken(value: "odd")] }
+    it_is_An_plus_B("even") { |ast| ast => ANPlusB[IdentToken("even")] }
+    it_is_An_plus_B(" even ") { |ast| ast => ANPlusB[IdentToken("even")] }
+    it_is_An_plus_B("odd") { |ast| ast => ANPlusB[IdentToken("odd")] }
+    it_is_An_plus_B(" odd ") { |ast| ast => ANPlusB[IdentToken("odd")] }
     it_is_An_plus_B("42") { |ast| ast => ANPlusB[NumberToken(value: 42, type: "integer")] }
     it_is_An_plus_B(" 42 ") { |ast| ast => ANPlusB[NumberToken(value: 42, type: "integer")] }
 
@@ -49,9 +49,9 @@ class Nokogiri::CSS::Selectors
     # grammar. Whitespace is valid (and ignored) between any other two tokens.
     it_is_An_plus_B("42n") { |ast| ast => ANPlusB[DimensionToken(value: 42, unit: "n", type: "integer")] }
     it_is_An_plus_B("42N") { |ast| ast => ANPlusB[DimensionToken(value: 42, unit: "N", type: "integer")] }
-    it_is_An_plus_B("n") { |ast| ast => ANPlusB[IdentToken(value: "n")] }
-    it_is_An_plus_B("+n") { |ast| ast => ANPlusB[DelimToken(value: "+"), IdentToken(value: "n")] }
-    it_is_An_plus_B("-n") { |ast| ast => ANPlusB[IdentToken(value: "-n")] }
+    it_is_An_plus_B("n") { |ast| ast => ANPlusB[IdentToken("n")] }
+    it_is_An_plus_B("+n") { |ast| ast => ANPlusB[DelimToken("+"), IdentToken("n")] }
+    it_is_An_plus_B("-n") { |ast| ast => ANPlusB[IdentToken("-n")] }
     it_is_not_An_plus_B("+ n")
 
     # <ndashdigit-dimension> |
@@ -67,10 +67,10 @@ class Nokogiri::CSS::Selectors
     # <dashndashdigit-ident> is an <ident-token> whose value is an ASCII case-insensitive match for
     # "-n-*", where "*" is a series of one or more digits
     it_is_An_plus_B("42n-33") { |ast| ast => ANPlusB[DimensionToken(value: 42, unit: "n-33", type: "integer")] }
-    it_is_An_plus_B("n-33") { |ast| ast => ANPlusB[IdentToken(value: "n-33")] }
-    it_is_An_plus_B("+n-33") { |ast| ast => ANPlusB[DelimToken(value: "+"), IdentToken(value: "n-33")] }
+    it_is_An_plus_B("n-33") { |ast| ast => ANPlusB[IdentToken("n-33")] }
+    it_is_An_plus_B("+n-33") { |ast| ast => ANPlusB[DelimToken("+"), IdentToken("n-33")] }
     it_is_not_An_plus_B("+ n-33")
-    it_is_An_plus_B("-n-33") { |ast| ast => ANPlusB[IdentToken(value: "-n-33")] }
+    it_is_An_plus_B("-n-33") { |ast| ast => ANPlusB[IdentToken("-n-33")] }
 
     # <n-dimension> <signed-integer> |
     # '+'?† n <signed-integer> |
@@ -93,17 +93,17 @@ class Nokogiri::CSS::Selectors
     it_is_not_An_plus_B("42n 33")
     it_is_not_An_plus_B("42n33")
     it_is_An_plus_B("n +33") do |ast|
-      ast => ANPlusB[IdentToken(value: "n"), NumberToken(value: 33, type: "integer")]
+      ast => ANPlusB[IdentToken("n"), NumberToken(value: 33, type: "integer")]
     end
     it_is_An_plus_B("n -33") do |ast|
-      ast => ANPlusB[IdentToken(value: "n"), NumberToken(value: -33, type: "integer")]
+      ast => ANPlusB[IdentToken("n"), NumberToken(value: -33, type: "integer")]
     end
     it_is_not_An_plus_B("n 33")
     it_is_An_plus_B("-n +33") do |ast|
-      ast => ANPlusB[IdentToken(value: "-n"), NumberToken(value: 33, type: "integer")]
+      ast => ANPlusB[IdentToken("-n"), NumberToken(value: 33, type: "integer")]
     end
     it_is_An_plus_B("-n -33") do |ast|
-      ast => ANPlusB[IdentToken(value: "-n"), NumberToken(value: -33, type: "integer")]
+      ast => ANPlusB[IdentToken("-n"), NumberToken(value: -33, type: "integer")]
     end
     it_is_not_An_plus_B("-n 33")
 
@@ -123,17 +123,17 @@ class Nokogiri::CSS::Selectors
     end
     it_is_An_plus_B("+n- 33") do |ast|
       ast => ANPlusB[
-        DelimToken(value: "+"), IdentToken(value: "n-"), NumberToken(value: 33, type: "integer")
+        DelimToken("+"), IdentToken("n-"), NumberToken(value: 33, type: "integer")
       ]
     end
     it_is_An_plus_B("n- 33") do |ast|
       ast => ANPlusB[
-        IdentToken(value: "n-"), NumberToken(value: 33, type: "integer")
+        IdentToken("n-"), NumberToken(value: 33, type: "integer")
       ]
     end
     it_is_An_plus_B("-n- 33") do |ast|
       ast => ANPlusB[
-        IdentToken(value: "-n-"), NumberToken(value: 33, type: "integer")
+        IdentToken("-n-"), NumberToken(value: 33, type: "integer")
       ]
     end
     it_is_not_An_plus_B("42n- +33")
