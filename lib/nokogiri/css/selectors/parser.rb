@@ -394,22 +394,106 @@ module Nokogiri
 
       # Nokogiri supports extended syntax
       class ExtendedParser < Parser
-        # operators "/" and "//" have historically been accepted by Nokogiri's CSS parser to mean
-        # child and descendant.
+        # operator "/" has historically been accepted to mean child
+        # operator "//" has historically been accepted to mean descendant.
         def combinator
           options do
             maybe { consume_operator(Combinator::Descendant, token: ["/", "/"]) } ||
-            maybe { consume_operator(Combinator::Child, token: "/") } ||
+              maybe { consume_operator(Combinator::Child, token: "/") } ||
               super
           end
         end
 
-        # matcher "!=" has historically been accepted by Nokogiri's CSS parser to mean "not equal"
+        # matcher "!=" has historically been accepted to mean "not equal"
         def attr_matcher
           options do
             maybe { consume_operator(AttrMatcher::NotEqual) } ||
-            super
+              super
           end
+        end
+
+        # a bare "text()" has historically been accepted to match any text node
+        # a bare "comment()" has historically been accepted to match any comment node
+        def subclass_selector
+          options do
+            maybe { xpath_function } ||
+              super
+          end
+        end
+
+        def xpath_function
+          xf = consume(Function)
+
+          case xf
+          in Function[value: [], name: "text"] |
+             Function[value: [], name: "comment"] |
+             Function[name: "self"]
+            XPathFunction.new(value: xf)
+          else
+            raise MissingTokenError, "Cannot recognize XPath function"
+          end
+        end
+
+        # referencing an attribute node via "@class" has historically been supported in order to
+        # retrieve attributes via CSS selector
+        def type_selector
+          options do
+            maybe { wq_name } ||
+              maybe { consume(AtKeywordToken) } ||
+              TypeSelector.new(prefix: maybe { ns_prefix }, name: consume("*"))
+          end
+        end
+
+        # using "@class" instead of "class" to reference an attribute within an attribute selector
+        # referencing the text() function as an attribute selector, "a[text()]"
+        # referencing the nth-child with an attribute selector, "a[2]"
+        def attribute_selector
+          options do
+            maybe { super } ||
+              maybe { attribute_selector_at_keyword } ||
+              maybe { attribute_selector_nth_child } ||
+              maybe { attribute_selector_xpath_function }
+          end
+        end
+
+        # same as superclass attribute_selector() but with AtKeywordToken
+        def attribute_selector_at_keyword
+          consume(OpenSquareToken)
+
+          name = consume(AtKeywordToken)
+          matcher = maybe do
+            AttributeSelectorMatcher.new(
+              matcher: attr_matcher,
+              value: options do
+                maybe { consume(StringToken) } ||
+                  maybe { consume(IdentToken) } ||
+                  maybe { consume(NumberToken) }
+              end,
+              modifier: maybe { attr_modifier },
+            )
+          end
+
+          consume(CloseSquareToken)
+
+          AttributeSelector.new(name: name, matcher: matcher)
+        end
+
+        # a[2]
+        def attribute_selector_nth_child
+          consume(OpenSquareToken)
+          matcher = consume(NumberToken)
+          consume(CloseSquareToken)
+
+          AttributeSelector.new(name: nil, matcher: matcher)
+        end
+
+        # a[text()]
+        def attribute_selector_xpath_function
+          consume(OpenSquareToken)
+          matcher = xpath_function
+          consume(CloseSquareToken)
+
+          AttributeSelector.new(name: nil, matcher: matcher)
         end
       end
 
@@ -1061,6 +1145,12 @@ module Nokogiri
       class PseudoElementSelector < ValueNode
         def accept(visitor)
           visitor.visit_pseudo_element_selector(self)
+        end
+      end
+
+      class XPathFunction < ValueNode
+        def accept(visitor)
+          visitor.visit_xpath_function(self)
         end
       end
 

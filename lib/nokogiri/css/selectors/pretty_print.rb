@@ -279,6 +279,10 @@ module Nokogiri
           all_keys("wq-name", node)
         end
 
+        def visit_xpath_function(node)
+          all_keys("xpath-function", node)
+        end
+
         private
 
         def value(name, node)
