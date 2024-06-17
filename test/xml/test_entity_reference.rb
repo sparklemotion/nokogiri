@@ -186,7 +186,13 @@ module Nokogiri
 
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
 
-        expected = if Nokogiri.uses_libxml?(">= 2.13")
+        expected = if Nokogiri.uses_libxml?("~> 2.14")
+          [
+            "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
+            # "attempt to load network entity" removed in gnome/libxml2@1b1e8b3c
+            "4:14: ERROR: Entity 'bar' not defined",
+          ]
+        elsif Nokogiri.uses_libxml?("~> 2.13.0")
           [
             "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
             "ERROR: Attempt to load network entity: http://foo.bar.com/",

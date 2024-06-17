@@ -269,17 +269,16 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
           it "XML::Schema parsing does not attempt to access external DTDs" do
             doc = Nokogiri::XML::Schema.new(schema)
             errors = doc.errors.map(&:to_s)
-            assert_equal(
-              1,
-              errors.grep(/ERROR: Attempt to load network entity/).length,
+            refute_empty(
+              errors.grep(/Attempt to load network entity/),
               "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
             )
             assert_empty(
-              errors.grep(/WARNING: failed to load HTTP resource/),
+              errors.grep(/failed to load HTTP resource/),
               "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'",
             )
             assert_empty(
-              errors.grep(/WARNING: failed to load external entity/),
+              errors.grep(/failed to load external entity/),
               "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'",
             )
           end
@@ -287,17 +286,16 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
           it "XML::Schema parsing of memory does not attempt to access external DTDs" do
             doc = Nokogiri::XML::Schema.read_memory(schema)
             errors = doc.errors.map(&:to_s)
-            assert_equal(
-              1,
-              errors.grep(/ERROR: Attempt to load network entity/).length,
+            refute_empty(
+              errors.grep(/Attempt to load network entity/),
               "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
             )
             assert_empty(
-              errors.grep(/WARNING: failed to load HTTP resource/),
+              errors.grep(/failed to load HTTP resource/),
               "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'",
             )
             assert_empty(
-              errors.grep(/WARNING: failed to load external entity/),
+              errors.grep(/failed to load external entity/),
               "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'",
             )
           end
@@ -307,25 +305,21 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
           it "XML::Schema parsing attempts to access external DTDs" do
             doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
             errors = doc.errors.map(&:to_s)
-            assert_equal(
-              0,
-              errors.grep(/ERROR: Attempt to load network entity/).length,
+            assert_empty(
+              errors.grep(/Attempt to load network entity/),
               "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
             )
-            # changed from "WARNING" to "FATAL" in libxml2 2.13
-            assert_equal(1, errors.grep(/(WARNING|FATAL): failed to load/).length)
+            assert_equal(1, errors.grep(%r(failed to load.*http://localhost:8000/making-a-request)).length)
           end
 
           it "XML::Schema parsing of memory attempts to access external DTDs" do
             doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
             errors = doc.errors.map(&:to_s)
-            assert_equal(
-              0,
-              errors.grep(/ERROR: Attempt to load network entity/).length,
+            assert_empty(
+              errors.grep(/ERROR: Attempt to load network entity/),
               "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
             )
-            # changed from "WARNING" to "FATAL" in libxml2 2.13
-            assert_equal(1, errors.grep(/(WARNING|FATAL): failed to load/).length)
+            assert_equal(1, errors.grep(%r(failed to load.*http://localhost:8000/making-a-request)).length)
           end
         end
       end
