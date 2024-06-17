@@ -454,19 +454,22 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[nokogiri:aaron(.)]", "a:aaron()")
       assert_xpath("//a[nokogiri:aaron(.,12)]", "a:aaron(12)")
       assert_xpath("//a[nokogiri:aaron(.,12,1)]", "a:aaron(12, 1)")
+      assert_xpath("//a[nokogiri:aaron(.,'bar')]", "a:aaron('bar')")
+      assert_xpath("//a[nokogiri:aaron(.,'domestic','Yes')]", "a:aaron('domestic', 'Yes')")
+      assert_xpath("//a[nokogiri:aaron(.,'domestic','Yes')]", 'a:aaron("domestic", "Yes")')
 
       assert_xpath("//a[nokogiri:link(.)]", "a:link")
       assert_xpath("//a[nokogiri:visited(.)]", "a:visited")
       assert_xpath("//a[nokogiri:hover(.)]", "a:hover")
       assert_xpath("//a[nokogiri:active(.)]", "a:active")
+    end
 
+    it "miscellaneous pseudo-classes are converted into xpath function calls (extended-syntax)" do
       assert_xpath("//a[nokogiri:foo(.,@href)]", "a:foo(@href)")
       assert_xpath("//a[nokogiri:foo(.,@href,@id)]", "a:foo(@href, @id)")
       assert_xpath("//a[nokogiri:foo(.,@a,b)]", "a:foo(@a, b)")
       assert_xpath("//a[nokogiri:foo(.,a,@b)]", "a:foo(a, @b)")
       assert_xpath("//a[nokogiri:foo(.,a,10)]", "a:foo(a, 10)")
-      assert_xpath("//a[nokogiri:foo(.,42)]", "a:foo(42)")
-      assert_xpath("//a[nokogiri:foo(.,'bar')]", "a:foo('bar')")
     end
 
     it "bare pseudo-class matches any ident" do
