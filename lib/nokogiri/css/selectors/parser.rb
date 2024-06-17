@@ -116,11 +116,11 @@ module Nokogiri
           end
         end
 
-        def consume_operator(operator_class)
-          if operator_class::TOKEN != WhitespaceToken
+        def consume_operator(operator_class, token: operator_class::TOKEN)
+          if token != WhitespaceToken
             consume_whitespace
           end
-          result = consume(*operator_class::TOKEN)
+          result = consume(*token)
           consume_whitespace
 
           operator_class.new(value: result)
@@ -389,6 +389,27 @@ module Nokogiri
           end
 
           PseudoClassFunction.new(name: node.name, arguments: arguments)
+        end
+      end
+
+      # Nokogiri supports extended syntax
+      class ExtendedParser < Parser
+        # operators "/" and "//" have historically been accepted by Nokogiri's CSS parser to mean
+        # child and descendant.
+        def combinator
+          options do
+            maybe { consume_operator(Combinator::Descendant, token: ["/", "/"]) } ||
+            maybe { consume_operator(Combinator::Child, token: "/") } ||
+              super
+          end
+        end
+
+        # matcher "!=" has historically been accepted by Nokogiri's CSS parser to mean "not equal"
+        def attr_matcher
+          options do
+            maybe { consume_operator(AttrMatcher::NotEqual) } ||
+            super
+          end
         end
       end
 
@@ -972,6 +993,16 @@ module Nokogiri
 
           def accept(visitor)
             visitor.visit_attr_matcher_include(self)
+          end
+        end
+
+        # Nokogiri extended syntax
+        class NotEqual < ValueNode
+          TOKEN = ["!", "="]
+          PP_NAME = "attr-matcher-not-equal"
+
+          def accept(visitor)
+            visitor.visit_attr_matcher_not_equal(self)
           end
         end
       end

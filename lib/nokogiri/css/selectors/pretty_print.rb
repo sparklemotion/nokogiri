@@ -176,6 +176,10 @@ module Nokogiri
           visit_attr_matcher(node)
         end
 
+        def visit_attr_matcher_not_equal(node)
+          visit_attr_matcher(node)
+        end
+
         def visit_attribute_selector(node)
           all_keys("attribute-selector", node)
         end

@@ -44,7 +44,7 @@ module Nokogiri
       end
 
       def parse
-        Selectors::Parser.new(tokenize).parse
+        Selectors::ExtendedParser.new(tokenize).parse
       end
     end
   end
