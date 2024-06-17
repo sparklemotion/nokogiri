@@ -163,12 +163,27 @@ module Nokogiri
       # https://www.w3.org/TR/selectors-4 from the version dated 7 May 2022.
       class Parser < Base
         def parse
-          result = selector_list
+          result = acceptable_top_level_selector_list
           ensure_no_more_tokens
           result
         end
 
         private
+
+        # this is a hack to allow us to accept either relative or absolute selectors, since the
+        # current Searchable / XPathVisitor implementations decide on the prefix late in the
+        # css-to-xpath conversion process.
+        #
+        # TODO: the Parser class should force callers to be specific about whether relative or
+        # absolute selectors are expected. Then `prefix` should no longer be needed.
+        def acceptable_top_level_selector_list
+          one_or_more do
+            options do
+              maybe { complex_selector } ||
+                maybe { relative_selector }
+            end
+          end
+        end
 
         # <selector-list> = <complex-selector-list>
         def selector_list
@@ -187,7 +202,6 @@ module Nokogiri
 
         # <relative-selector-list> = <relative-selector>#
         def relative_selector_list
-          raise "TODO: needs a test"
           one_or_more { relative_selector }
         end
 
@@ -205,7 +219,6 @@ module Nokogiri
 
         # <relative-selector> = <combinator>? <complex-selector>
         def relative_selector
-          raise "TODO: needs a test"
           if (c = maybe { combinator })
             RelativeSelector.new(combinator: c, complex_selector: complex_selector)
           else
@@ -369,7 +382,9 @@ module Nokogiri
           else
             options do
               maybe { Selectors::ANPlusBParser.new(node.value).parse } ||
-                maybe { Selectors::Parser.new(node.value).parse }
+                maybe { Selectors::Parser.new(node.value).parse } ||
+                # TODO: probably not right but we can come back when we know what the XPathVisitor needs
+                node.value # https://www.w3.org/TR/css-syntax-3/#typedef-any-value
             end
           end
 
@@ -726,6 +741,30 @@ module Nokogiri
             subclasses: subclasses,
             pseudo_elements: pseudo_elements,
           }
+        end
+      end
+
+      # Struct.new(:combinator, :complex_selector, keyword_init: true)
+      class RelativeSelector < Node
+        attr_reader :combinator, :complex_selector
+
+        def initialize(combinator:, complex_selector:) # rubocop:disable Lint/MissingSuper
+          @combinator = combinator
+          @complex_selector = complex_selector
+        end
+
+        def accept(visitor)
+          visitor.visit_relative_selector(self)
+        end
+
+        def child_nodes
+          [combinator, complex_selector]
+        end
+
+        alias_method :deconstruct, :child_nodes
+
+        def deconstruct_keys(keys)
+          { combinator: combinator, complex_selector: complex_selector }
         end
       end
 

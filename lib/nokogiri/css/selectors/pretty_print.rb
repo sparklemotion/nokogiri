@@ -263,6 +263,10 @@ module Nokogiri
           all_keys("pseudo-class-function", node)
         end
 
+        def visit_relative_selector(node)
+          all_keys("relative-selector", node)
+        end
+
         def visit_type_selector(node)
           all_keys("type-selector", node)
         end

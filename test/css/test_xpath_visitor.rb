@@ -456,7 +456,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[nokogiri:aaron(.,12,1)]", "a:aaron(12, 1)")
       assert_xpath("//a[nokogiri:aaron(.,'bar')]", "a:aaron('bar')")
       assert_xpath("//a[nokogiri:aaron(.,'domestic','Yes')]", "a:aaron('domestic', 'Yes')")
-      assert_xpath("//a[nokogiri:aaron(.,'domestic','Yes')]", 'a:aaron("domestic", "Yes")')
+      assert_xpath("//a[nokogiri:aaron(.,\"domestic\",\"Yes\")]", 'a:aaron("domestic", "Yes")')
 
       assert_xpath("//a[nokogiri:link(.)]", "a:link")
       assert_xpath("//a[nokogiri:visited(.)]", "a:visited")
