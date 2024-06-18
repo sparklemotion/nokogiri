@@ -271,7 +271,7 @@ module Nokogiri
         # <type-selector> = <wq-name> | <ns-prefix>? '*'
         def type_selector
           options do
-            maybe { wq_name } ||
+            maybe { TypeSelector.from_wq_name(wq_name) } ||
               TypeSelector.new(prefix: maybe { ns_prefix }, name: consume("*"))
           end
         end
@@ -432,7 +432,7 @@ module Nokogiri
         # - a bare "comment()" has historically been accepted to match any comment node
         def type_selector
           options do
-            maybe { wq_name } ||
+            maybe { TypeSelector.from_wq_name(wq_name) } ||
               maybe { consume(AtKeywordToken) } ||
               maybe { xpath_function } ||
               TypeSelector.new(prefix: maybe { ns_prefix }, name: consume("*"))
@@ -947,6 +947,12 @@ module Nokogiri
       end
 
       class TypeSelector < WqName
+        class << self
+          def from_wq_name(wq_name)
+            TypeSelector.new(prefix: wq_name.prefix, name: wq_name.name)
+          end
+        end
+
         def accept(visitor)
           visitor.visit_type_selector(self)
         end

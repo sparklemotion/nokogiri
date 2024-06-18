@@ -40,6 +40,14 @@ module Nokogiri
         end
 
         def visit_wq_name(node)
+          if node.prefix
+            "#{accept(node.prefix)}#{accept(node.name)}"
+          else
+            accept(node.name)
+          end
+        end
+
+        def visit_type_selector(node)
           node_name = accept(node.name)
           if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
             # HTML5 has namespaces that should be ignored in CSS queries
@@ -189,14 +197,6 @@ module Nokogiri
             end
           else
             raise Nokogiri::CSS::SyntaxError, "Unexpected matcher #{node.matcher}"
-          end
-        end
-
-        def visit_type_selector(node)
-          if node.prefix
-            "#{accept(node.prefix)}#{accept(node.name)}"
-          else
-            accept(node.name)
           end
         end
 
