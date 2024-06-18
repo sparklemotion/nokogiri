@@ -233,6 +233,9 @@ NORETURN_DECL void Nokogiri_error_raise(void *ctx, xmlErrorConstPtr error);
 void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name) ;
 
+xmlParserInputPtr Nokogiri_xmlSecNoXxeExternalEntityLoader(const char *URL, const char *ID, xmlParserCtxtPtr ctxt);
+void noko_xmlsec_reset_entity_loader(void);
+
 static inline
 nokogiriSAXTuplePtr
 nokogiri_sax_tuple_new(xmlParserCtxtPtr ctxt, VALUE self)
