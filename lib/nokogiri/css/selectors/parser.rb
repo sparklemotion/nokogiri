@@ -251,6 +251,9 @@ module Nokogiri
             raise MissingTokenError, "Expected compound selector to produce something"
           end
 
+          subclasses = nil if subclasses.empty?
+          pseudo_elements = nil if pseudo_elements.empty?
+
           CompoundSelector.new(type: type, subclasses: subclasses, pseudo_elements: pseudo_elements)
         end
 
@@ -381,7 +384,7 @@ module Nokogiri
             nil
           else
             options do
-              maybe { Selectors::ANPlusBParser.new(node.value).parse } ||
+              maybe { [Selectors::ANPlusBParser.new(node.value).parse] } ||
                 maybe { Selectors::Parser.new(node.value).parse } ||
                 # TODO: probably not right but we can come back when we know what the XPathVisitor needs
                 node.value # https://www.w3.org/TR/css-syntax-3/#typedef-any-value
@@ -412,19 +415,8 @@ module Nokogiri
           end
         end
 
-        # a bare "text()" has historically been accepted to match any text node
-        # a bare "comment()" has historically been accepted to match any comment node
-        def subclass_selector
-          options do
-            maybe { xpath_function } ||
-              super
-          end
-        end
-
         def xpath_function
-          xf = consume(Function)
-
-          case xf
+          case (xf = consume(Function))
           in Function[value: [], name: "text"] |
              Function[value: [], name: "comment"] |
              Function[name: "self"]
@@ -434,12 +426,15 @@ module Nokogiri
           end
         end
 
-        # referencing an attribute node via "@class" has historically been supported in order to
-        # retrieve attributes via CSS selector
+        # - referencing an attribute node via "@class" has historically been supported in order to
+        #   retrieve attributes via CSS selector
+        # - a bare "text()" has historically been accepted to match any text node
+        # - a bare "comment()" has historically been accepted to match any comment node
         def type_selector
           options do
             maybe { wq_name } ||
               maybe { consume(AtKeywordToken) } ||
+              maybe { xpath_function } ||
               TypeSelector.new(prefix: maybe { ns_prefix }, name: consume("*"))
           end
         end
@@ -668,8 +663,11 @@ module Nokogiri
             maybe { consume("-#{n_ident}") } ||
               maybe do
                 values = []
+
                 maybe { values << consume("+") }
                 values << consume(n_ident)
+
+                values
               end
           end
         end
