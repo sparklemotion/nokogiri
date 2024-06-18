@@ -297,7 +297,6 @@ module Nokogiri
               if index == source.length
                 next
               elsif source[index] == "\n"
-                value << source[index]
                 index += 1
               else
                 state = consume_escaped_code_point(index)
