@@ -105,7 +105,9 @@ module Nokogiri
         end
 
         def visit_pseudo_class_function(node)
-          # TODO: visit_function_#{node.name}
+          # TODO: come back to this when we're the primary execution path
+          # msg = :"visit_function_#{node.name}"
+          # return send(msg, node) if respond_to?(msg)
 
           case node.name
           # when "eq"
@@ -153,7 +155,9 @@ module Nokogiri
             return accept(node.value)
           end
 
-          # TODO: visit_pseudo_class_#{node.name}
+          # TODO: come back to this when we're the primary execution path
+          # msg = :"visit_pseudo_class_#{node.name}"
+          # return send(msg, node) if respond_to?(msg)
 
           case (node_name = accept(node.value))
           when "shit"
@@ -192,8 +196,22 @@ module Nokogiri
               keyword_attribute(wq_namish(node.name), node.matcher.value)
             when AttrMatcher::Equal
               "#{wq_namish(node.name)}=#{quote_accept(node.matcher.value)}"
+            when AttrMatcher::NotEqual
+              "#{wq_namish(node.name)}!=#{quote_accept(node.matcher.value)}"
+            when AttrMatcher::DashMatch
+              name = wq_namish(node.name)
+              value = quote_accept(node.matcher.value)
+              "#{name}=#{value} or starts-with(#{name},concat(#{value},'-'))"
+            when AttrMatcher::StartWith
+              "starts-with(#{wq_namish(node.name)},#{quote_accept(node.matcher.value)})"
+            when AttrMatcher::EndWith
+              name = wq_namish(node.name)
+              value = quote_accept(node.matcher.value)
+              "substring(#{name},string-length(#{name})-string-length(#{value})+1,string-length(#{value}))=#{value}"
+            when AttrMatcher::Include
+              "contains(#{wq_namish(node.name)},#{quote_accept(node.matcher.value)})"
             else
-              "x"
+              "x" # TODO: OBVIOUSLY REMOVE ME
             end
           else
             raise Nokogiri::CSS::SyntaxError, "Unexpected matcher #{node.matcher}"
@@ -203,6 +221,12 @@ module Nokogiri
         def visit_delim_token(node)
           node.value
         end
+
+        def visit_number_token(node)
+          node.value
+        end
+
+        private
 
         # ----------
         # Helpers
@@ -227,6 +251,7 @@ module Nokogiri
         end
 
         def quote(string)
+          string = string.to_s
           if string.include?(%('))
             string = string.gsub('"', "&quot;") if string.include?(%("))
             %("#{string}")
