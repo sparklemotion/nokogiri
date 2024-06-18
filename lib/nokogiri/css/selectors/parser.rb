@@ -87,13 +87,13 @@ module Nokogiri
           raise Nokogiri::CSS::SyntaxError, message
         end
 
-        def consume(*values)
+        def consume(*values, case_insensitive: false)
           result =
             values.map do |value|
               case [value, tokens.peek]
               in [String, DelimToken[value: token_value]] if value == token_value
                 tokens.next
-              in [String, IdentToken[value: token_value]] if value == token_value
+              in [String, IdentToken[value: token_value]] if (value == token_value) || (case_insensitive && value.downcase == token_value.downcase)
                 tokens.next
               in [Class, token] if token.is_a?(value)
                 tokens.next
@@ -660,12 +660,12 @@ module Nokogiri
         #   '+'?† n- | -n-
         def bare_n(n_ident: "n")
           options do
-            maybe { consume("-#{n_ident}") } ||
+            maybe { consume("-#{n_ident}", case_insensitive: true) } ||
               maybe do
                 values = []
 
                 maybe { values << consume("+") }
-                values << consume(n_ident)
+                values << consume(n_ident, case_insensitive: true)
 
                 values
               end
@@ -1159,10 +1159,13 @@ module Nokogiri
       end
 
       class ANPlusB < Node
-        attr_reader :values
+        attr_reader :values, :a, :b
 
         def initialize(values:) # rubocop:disable Lint/MissingSuper
           @values = values
+          @a = nil
+          @b = nil
+          calculate_a_and_b
         end
 
         def accept(visitor)
@@ -1176,7 +1179,82 @@ module Nokogiri
         alias_method :deconstruct, :child_nodes
 
         def deconstruct_keys(keys)
-          { values: values }
+          { values: values, a: a, b: b }
+        end
+
+        private
+
+        def calculate_a_and_b
+          case values
+          in [IdentToken("even")]
+            @a = 2
+            @b = 0
+          in [IdentToken("odd")]
+            @a = 2
+            @b = 1
+          in [IdentToken("n" | "N")] |
+             [DelimToken("+"), IdentToken("n" | "N")]
+            @a = 1
+            @b = 0
+          in [IdentToken("-n" | "-N")]
+            @a = -1
+            @b = 0
+          in [NumberToken(value: b)]
+            @a = 0
+            @b = b
+          in [IdentToken("n" | "N"), NumberToken(value: b)]
+            @a = 1
+            @b = b
+          in [IdentToken("n-" | "N-"), NumberToken(value: b)]
+            @a = 1
+            @b = -b
+          in [IdentToken("-n" | "-N"), NumberToken(value: b)]
+            @a = -1
+            @b = b
+          in [IdentToken("-n-" | "-N-"), NumberToken(value: b)]
+            @a = -1
+            @b = -b
+          in [IdentToken("n" | "N"), DelimToken(("+" | "-") => b_sign), NumberToken(value: b)]
+            @a = 1
+            @b = b_sign == "+" ? b : -b
+          in [IdentToken("-n" | "-N"), DelimToken(("+" | "-") => b_sign), NumberToken(value: b)]
+            @a = -1
+            @b = b_sign == "+" ? b : -b
+          in [DelimToken("+"), IdentToken("n" | "N"), DelimToken("+" | "-" => b_sign), NumberToken(value: b)]
+            @a = 1
+            @b = b_sign == "+" ? b : -b
+          in [DimensionToken(value: a, unit: unit)]
+            @a = a
+            @b = extract_b_from_unit(unit)
+          in [DimensionToken(value: a, unit: unit), NumberToken(value: b)]
+            @a = a
+            @b = unit.end_with?("-") ? -b : b
+          in [DimensionToken(value: a, unit: unit), DelimToken("+" | "-" => b_sign), NumberToken(value: b)]
+            @a = a
+            @b = b_sign == "+" ? b : -b
+          in [DelimToken("+"), IdentToken("n-" | "N-"), NumberToken(value: b)]
+            @a = 1
+            @b = -b
+          in [DelimToken("+"), IdentToken(/\An-/i => value)]
+            @a = 1
+            @b = extract_b_from_unit(value)
+          in [IdentToken(/\An-/i => value)]
+            @a = 1
+            @b = extract_b_from_unit(value)
+          in [IdentToken(/\A-n-/i => value)]
+            @a = -1
+            @b = extract_b_from_unit(value)
+          else
+            pp(values)
+          end
+        end
+
+        def extract_b_from_unit(unit)
+          if unit =~ /(-?[0-9]+)\z/
+            Regexp.last_match(1).to_i
+          else
+            0
+          end
         end
       end
     end
