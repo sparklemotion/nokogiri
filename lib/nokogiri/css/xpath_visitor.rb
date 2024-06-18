@@ -3,10 +3,7 @@
 
 module Nokogiri
   module CSS
-    # When translating CSS selectors to XPath queries with Nokogiri::CSS.xpath_for, the XPathVisitor
-    # class allows for changing some of the behaviors related to builtin xpath functions and quirks
-    # of HTML5.
-    class XPathVisitor
+    class XPathVisitorBase
       WILDCARD_NAMESPACES = Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch") # :nodoc:
 
       # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
@@ -94,6 +91,15 @@ module Nokogiri
         { builtins: @builtins, doctype: @doctype, prefix: @prefix, namespaces: @namespaces }
       end
 
+      def accept(node)
+        node.accept(self)
+      end
+    end
+
+    # When translating CSS selectors to XPath queries with Nokogiri::CSS.xpath_for, the XPathVisitor
+    # class allows for changing some of the behaviors related to builtin xpath functions and quirks
+    # of HTML5.
+    class XPathVisitor < XPathVisitorBase
       # :stopdoc:
       def visit_function(node)
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, "")}"
@@ -292,10 +298,6 @@ module Nokogiri
 
       def visit_attrib_name(node)
         "@#{node.value.first}"
-      end
-
-      def accept(node)
-        node.accept(self)
       end
 
       private

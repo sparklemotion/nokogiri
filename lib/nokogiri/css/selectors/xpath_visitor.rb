@@ -1,0 +1,238 @@
+# frozen_string_literal: true
+
+require_relative "../xpath_visitor"
+
+module Nokogiri
+  module CSS
+    # :nodoc: all
+    class Selectors
+      class XPathVisitor < Nokogiri::CSS::XPathVisitorBase
+        EMPTY_STRING = ""
+
+        # Generate the XPath expression for the given CSS selector AST.
+        def xpath(ast)
+          # prefix = if ALLOW_COMBINATOR_ON_SELF.include?(type) && value.first.nil?
+          #   "."
+          # else
+          #   visitor.prefix
+          # end
+          prefix + accept(ast)
+        end
+
+        # ----------
+        # Visitor methods
+        # ----------
+
+        def visit_complex_selector(node)
+          "#{accept(node.left)}#{accept(node.combinator)}#{accept(node.right)}"
+        end
+
+        def visit_compound_selector(node)
+          type_selector = node.type.nil? ? "*" : accept(node.type)
+
+          subclasses_selector = if node.subclasses.nil? || node.subclasses.empty?
+            EMPTY_STRING
+          else
+            "[" + node.subclasses.map { |subclass| accept(subclass) }.join(" and ") + "]"
+          end
+
+          type_selector + subclasses_selector
+        end
+
+        def visit_wq_name(node)
+          node_name = accept(node.name)
+          if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
+            # HTML5 has namespaces that should be ignored in CSS queries
+            # https://github.com/sparklemotion/nokogiri/issues/2376
+            if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+              if WILDCARD_NAMESPACES
+                "*:#{node_name}"
+              else
+                "*[nokogiri-builtin:local-name-is('#{node_name}')]"
+              end
+            else
+              "*[local-name()='#{node_name}']"
+            end
+          elsif node.prefix
+            "#{accept(node.prefix)}#{node_name}"
+          elsif @namespaces&.key?("xmlns") # apply the default namespace if it's declared
+            "xmlns:#{node_name}"
+          else
+            node_name
+          end
+        end
+
+        def visit_ident_token(node)
+          node.value
+        end
+
+        def visit_combinator_child(node)
+          "/"
+        end
+
+        def visit_combinator_descendant(node)
+          "//"
+        end
+
+        def visit_at_keyword_token(node)
+          "@#{node.value}"
+        end
+
+        def visit_ns_prefix(node)
+          node.value.nil? ? EMPTY_STRING : "#{accept(node.value)}:"
+        end
+
+        def visit_xpath_function(node)
+          f = node.value
+          case f.name
+          when "text"
+            "child::text()"
+          when "comment"
+            "comment()"
+          when "self"
+            "self::#{accept(f.value.first)}"
+          else
+            raise Nokogiri::CSS::SyntaxError, "Unsupported XPath function #{f.inspect}"
+          end
+        end
+
+        def visit_pseudo_class_function(node)
+          # TODO: visit_function_#{node.name}
+
+          case node.name
+          # when "eq"
+          #   # TODO
+          when "nth", "nth-of-type"
+            unless node.arguments.size == 1 && ANPlusB === node.arguments.first
+              raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to #{node.name}()"
+            end
+
+            "position()=99" # TODO: OBVIOUSLY WRONG
+          # when "nth-child"
+          #   # TODO
+          # when "nth-last-of-type"
+          #   # TODO
+          # when "nth-last-child"
+          #   # TODO
+          # when "first", "first-of-type"
+          #   # TODO
+          # when "last", "last-of-type"
+          #   # TODO
+          when "contains"
+            unless node.arguments.size == 1
+              raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to contains()"
+            end
+
+            "contains(.,'#{accept(node.arguments.first)}')"
+          when "gt"
+            unless node.arguments.size == 1 && ANPlusB === node.arguments.first
+              raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to gt(): #{node.arguments}"
+            end
+
+            "position()>3" # TODO: OBVIOUSLY WRONG
+          # when "only-child"
+          #   # TODO
+          # when "has"
+          #   # TODO
+          else # custom xpath function call
+            # TODO
+            "<pseudo-class-function>"
+          end
+        end
+
+        def visit_pseudo_class_selector(node)
+          if PseudoClassFunction === node.value
+            return accept(node.value)
+          end
+
+          # TODO: visit_pseudo_class_#{node.name}
+
+          case (node_name = accept(node.value))
+          when "shit"
+            "shit"
+          else
+            # TODO: validate_xpath_function_name(node.value.first)
+            "nokogiri:#{node_name}(.)"
+          end
+        end
+
+        def visit_class_selector(node)
+          keyword_attribute("@class", node.value)
+        end
+
+        def visit_id_selector(node)
+          "@id='#{accept(node.value)}'"
+        end
+
+        def visit_hash_token(node)
+          node.value
+        end
+
+        def visit_string_token(node)
+          node.value
+        end
+
+        def visit_attribute_selector(node)
+          case node.matcher
+          when XPathFunction
+            accept(node.matcher)
+          when AttributeSelectorMatcher
+            case node.matcher.matcher
+            when AttrMatcher::IncludeWord
+              keyword_attribute(wq_namish(node.name), node.matcher.value)
+            when AttrMatcher::Equal
+              "#{wq_namish(node.name)}='#{accept(node.matcher.value)}'"
+            else
+              "x"
+            end
+          else
+            raise Nokogiri::CSS::SyntaxError, "Unexpected matcher #{node.matcher}"
+          end
+        end
+
+        def visit_type_selector(node)
+          if node.prefix
+            "#{accept(node.prefix)}#{accept(node.name)}"
+          else
+            accept(node.name)
+          end
+        end
+
+        def visit_delim_token(node)
+          node.value
+        end
+
+        # ----------
+        # Helpers
+        # ----------
+
+        # we accept "@name" in a lot of places as extended syntax where normally CSS only expects wq-names.
+        def wq_namish(node)
+          case node
+          when AtKeywordToken
+            accept(node)
+          else
+            "@#{accept(node)}"
+          end
+        end
+
+        # if there is already a namespace (i.e., it is a prefixed QName), use it as normal
+        # if this is the wildcard selector "*", use it as normal
+        def html5_element_name_needs_namespace_handling(node)
+          node.prefix.nil? && node.name != "*"
+        end
+
+        def keyword_attribute(hay, needle)
+          needle_name = accept(needle)
+          if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
+            # use the builtin implementation
+            "nokogiri-builtin:css-class(#{hay},'#{needle_name}')"
+          else
+            # use only ordinary xpath functions
+            "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle_name} ')"
+          end
+        end
+      end
+    end
+  end
+end

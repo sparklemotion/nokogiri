@@ -28,6 +28,7 @@
 require_relative "selectors/tokenizer"
 require_relative "selectors/parser"
 require_relative "selectors/pretty_print"
+require_relative "selectors/xpath_visitor"
 
 module Nokogiri
   module CSS
