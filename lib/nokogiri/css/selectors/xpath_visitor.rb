@@ -48,10 +48,10 @@ module Nokogiri
               if WILDCARD_NAMESPACES
                 "*:#{node_name}"
               else
-                "*[nokogiri-builtin:local-name-is('#{node_name}')]"
+                "*[nokogiri-builtin:local-name-is(#{quote(node_name)})]"
               end
             else
-              "*[local-name()='#{node_name}']"
+              "*[local-name()=#{quote(node_name)}]"
             end
           elsif node.prefix
             "#{accept(node.prefix)}#{node_name}"
@@ -123,7 +123,7 @@ module Nokogiri
               raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to contains()"
             end
 
-            "contains(.,'#{accept(node.arguments.first)}')"
+            "contains(.,#{quote_accept(node.arguments.first)})"
           when "gt"
             unless node.arguments.size == 1 && ANPlusB === node.arguments.first
               raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to gt(): #{node.arguments}"
@@ -161,7 +161,7 @@ module Nokogiri
         end
 
         def visit_id_selector(node)
-          "@id='#{accept(node.value)}'"
+          "@id=#{quote_accept(node.value)}"
         end
 
         def visit_hash_token(node)
@@ -169,11 +169,13 @@ module Nokogiri
         end
 
         def visit_string_token(node)
-          node.value
+          quote(node.value)
         end
 
         def visit_attribute_selector(node)
           case node.matcher
+          when nil
+            "@#{accept(node.name)}"
           when XPathFunction
             accept(node.matcher)
           when AttributeSelectorMatcher
@@ -181,7 +183,7 @@ module Nokogiri
             when AttrMatcher::IncludeWord
               keyword_attribute(wq_namish(node.name), node.matcher.value)
             when AttrMatcher::Equal
-              "#{wq_namish(node.name)}='#{accept(node.matcher.value)}'"
+              "#{wq_namish(node.name)}=#{quote_accept(node.matcher.value)}"
             else
               "x"
             end
@@ -206,6 +208,33 @@ module Nokogiri
         # Helpers
         # ----------
 
+        def quote_accept(node)
+          case node
+          when StringToken
+            accept(node)
+          else
+            quote(accept(node))
+          end
+        end
+
+        def unquote_accept(node)
+          case node
+          when StringToken
+            node.value
+          else
+            accept(node)
+          end
+        end
+
+        def quote(string)
+          if string.include?(%('))
+            string = string.gsub('"', "&quot;") if string.include?(%("))
+            %("#{string}")
+          else
+            %('#{string}')
+          end
+        end
+
         # we accept "@name" in a lot of places as extended syntax where normally CSS only expects wq-names.
         def wq_namish(node)
           case node
@@ -223,13 +252,13 @@ module Nokogiri
         end
 
         def keyword_attribute(hay, needle)
-          needle_name = accept(needle)
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
             # use the builtin implementation
-            "nokogiri-builtin:css-class(#{hay},'#{needle_name}')"
+            "nokogiri-builtin:css-class(#{hay},#{quote_accept(needle)})"
           else
             # use only ordinary xpath functions
-            "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle_name} ')"
+            needle_name = " #{unquote_accept(needle)} " # pad with spaces
+            "contains(concat(' ',normalize-space(#{hay}),' '),#{quote(needle_name)})"
           end
         end
       end
