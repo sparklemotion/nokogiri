@@ -85,10 +85,6 @@ module Nokogiri
           end
         end
 
-        def visit_ident_token(node)
-          node.value
-        end
-
         def visit_combinator_child(node)
           "/"
         end
@@ -97,8 +93,12 @@ module Nokogiri
           "//"
         end
 
-        def visit_at_keyword_token(node)
-          "@#{node.value}"
+        def visit_combinator_subsequent_sibling(node)
+          "/following-sibling::"
+        end
+
+        def visit_combinator_next_sibling(node)
+          "/following-sibling::*[1]/self::"
         end
 
         def visit_ns_prefix(node)
@@ -196,20 +196,14 @@ module Nokogiri
           "@id=#{quote_accept(node.value)}"
         end
 
-        def visit_hash_token(node)
-          node.value
-        end
-
-        def visit_string_token(node)
-          quote(node.value)
-        end
-
         def visit_attribute_selector(node)
           case node.matcher
           when nil
             "@#{accept(node.name)}"
           when XPathFunction
             accept(node.matcher)
+          when NumberToken
+            attr_select_nth_child(node.matcher.value)
           when AttributeSelectorMatcher
             case node.matcher.matcher
             when AttrMatcher::IncludeWord
@@ -236,6 +230,26 @@ module Nokogiri
           else
             raise Nokogiri::CSS::SyntaxError, "Unexpected matcher #{node.matcher}"
           end
+        end
+
+        # ----------
+        # Visit methods for tokens
+        # ----------
+
+        def visit_ident_token(node)
+          node.value
+        end
+
+        def visit_at_keyword_token(node)
+          "@#{node.value}"
+        end
+
+        def visit_hash_token(node)
+          node.value
+        end
+
+        def visit_string_token(node)
+          quote(node.value)
         end
 
         def visit_delim_token(node)
