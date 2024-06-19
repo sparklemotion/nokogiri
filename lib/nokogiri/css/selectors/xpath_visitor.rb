@@ -16,6 +16,11 @@ module Nokogiri
           # else
           #   visitor.prefix
           # end
+          prefix = if RelativeSelector === ast
+            "."
+          else
+            self.prefix
+          end
           prefix + accept(ast)
         end
 
@@ -25,6 +30,10 @@ module Nokogiri
 
         def visit_complex_selector(node)
           "#{accept(node.left)}#{accept(node.combinator)}#{accept(node.right)}"
+        end
+
+        def visit_relative_selector(node)
+          "#{accept(node.combinator)}#{accept(node.complex_selector)}"
         end
 
         def visit_compound_selector(node)
@@ -142,8 +151,13 @@ module Nokogiri
             "position()>3" # TODO: OBVIOUSLY WRONG
           # when "only-child"
           #   # TODO
-          # when "has"
-          #   # TODO
+          when "has"
+            case node.arguments.first
+            when RelativeSelector
+              ".#{accept(node.arguments.first)}"
+            else
+              ".//#{accept(node.arguments.first)}"
+            end
           else # custom xpath function call
             # TODO
             "<pseudo-class-function>"
