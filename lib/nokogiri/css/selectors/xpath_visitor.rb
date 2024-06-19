@@ -42,7 +42,13 @@ module Nokogiri
           subclasses_selector = if node.subclasses.nil? || node.subclasses.empty?
             EMPTY_STRING
           else
-            "[" + node.subclasses.map { |subclass| accept(subclass) }.join(" and ") + "]"
+            filters = ["["]
+            node.subclasses.each_with_index do |subclass, j|
+              filters << " and " if j > 0
+              filters << accept(subclass)
+            end
+            filters << "]"
+            filters.join
           end
 
           type_selector + subclasses_selector

@@ -315,7 +315,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[position()=1]", "a:first-of-type()")
       assert_xpath("//a[position()=1]", "a:first-of-type") # no parens
       assert_xpath(
-        "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=1]",
+        "//a[contains(concat(' ',normalize-space(@class),' '),' b ') and position()=1]",
         "a.b:first-of-type",
       ) # no parens
     end
@@ -323,7 +323,7 @@ describe Nokogiri::CSS::XPathVisitor do
     it ":nth-of-type" do
       assert_xpath("//a[position()=99]", "a:nth-of-type(99)")
       assert_xpath(
-        "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=99]",
+        "//a[contains(concat(' ',normalize-space(@class),' '),' b ') and position()=99]",
         "a.b:nth-of-type(99)",
       )
     end
@@ -332,7 +332,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[position()=last()]", "a:last-of-type()")
       assert_xpath("//a[position()=last()]", "a:last-of-type") # no parens
       assert_xpath(
-        "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()]",
+        "//a[contains(concat(' ',normalize-space(@class),' '),' b ') and position()=last()]",
         "a.b:last-of-type",
       ) # no parens
     end
@@ -341,7 +341,7 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[position()=last()]", "a:nth-last-of-type(1)")
       assert_xpath("//a[position()=last()-98]", "a:nth-last-of-type(99)")
       assert_xpath(
-        "//a[contains(concat(' ',normalize-space(@class),' '),' b ')][position()=last()-98]",
+        "//a[contains(concat(' ',normalize-space(@class),' '),' b ') and position()=last()-98]",
         "a.b:nth-last-of-type(99)",
       )
     end
