@@ -56,6 +56,7 @@ const GumboOptions kGumboDefaultOptions = {
   .fragment_encoding = NULL,
   .quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS,
   .fragment_context_has_form_ancestor = false,
+  .parse_noscript_content_as_text = false,
 };
 
 #define STRING(s) {.data = s, .length = sizeof(s) - 1}
@@ -2627,6 +2628,7 @@ static void handle_in_head(GumboParser* parser, GumboToken* token) {
   }
   if (
     tag_in(token, kStartTag, &(const TagSet){TAG(NOFRAMES), TAG(STYLE)})
+    || (tag_is(token, kStartTag, GUMBO_TAG_NOSCRIPT) && parser->_options->parse_noscript_content_as_text)
   ) {
     run_generic_parsing_algorithm(parser, token, GUMBO_LEX_RAWTEXT);
     return;
@@ -3332,7 +3334,10 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
     run_generic_parsing_algorithm(parser, token, GUMBO_LEX_RAWTEXT);
     return;
   }
-  if (tag_is(token, kStartTag, GUMBO_TAG_NOEMBED)) {
+  if (
+    tag_is(token, kStartTag, GUMBO_TAG_NOEMBED)
+    || (tag_is(token, kStartTag, GUMBO_TAG_NOSCRIPT) && parser->_options->parse_noscript_content_as_text)
+  ) {
     run_generic_parsing_algorithm(parser, token, GUMBO_LEX_RAWTEXT);
     return;
   }
@@ -4646,12 +4651,20 @@ static void fragment_parser_init (
   const char* fragment_encoding = options->fragment_encoding;
   GumboQuirksModeEnum quirks = options->quirks_mode;
   bool ctx_has_form_ancestor = options->fragment_context_has_form_ancestor;
-
   GumboNode* root;
-  // 2.
+
+  // 1. [Create a new Document node, and mark it as being an HTML document.]
+  // 2. [If the node document of the context element is in quirks mode, then
+  //    let the Document be in quirks mode. Otherwise, the node document of
+  //    the context element is in limited-quirks mode, then let the Document
+  //    be in limited-quirks mode. Otherwise, leave the Document in no-quirks
+  //    mode.]
   get_document_node(parser)->v.document.doc_type_quirks_mode = quirks;
 
-  // 3.
+  // 3. [If allowDeclarativeShadowRoots is true, then set the Document's allow
+  //    declarative shadow roots to true.]
+  // 4. [Create a new HTML parser, and associate it with the just created Document node.]
+  // 5. [Set the state of the HTML parser's tokenization stage as follows, switching on the context element:]
   parser->_parser_state->_fragment_ctx =
     create_fragment_ctx_element(fragment_ctx, fragment_namespace, fragment_encoding);
   GumboTag ctx_tag = parser->_parser_state->_fragment_ctx->v.element.tag;
@@ -4678,8 +4691,8 @@ static void fragment_parser_init (
         break;
 
       case GUMBO_TAG_NOSCRIPT:
-        /* scripting is disabled in Gumbo, so leave the tokenizer
-         * in the default data state */
+        if (options->parse_noscript_content_as_text)
+          gumbo_tokenizer_set_state(parser, GUMBO_LEX_RAWTEXT);
         break;
 
       case GUMBO_TAG_PLAINTEXT:

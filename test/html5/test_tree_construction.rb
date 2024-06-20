@@ -70,6 +70,11 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
   end
 
   def run_test
+    options = {
+      max_errors: -1,
+      parse_noscript_content_as_text: @test[:script] == :on,
+    }
+
     if @test[:context]
       # this is a fragment test
       if @test_context_node
@@ -85,15 +90,15 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
           doc = Nokogiri::HTML5::Document.new
           context_node = doc.create_element(@test[:context].first)
         end
-        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], context_node, max_errors: @test[:errors].length + 10)
+        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], context_node, **options)
       else
         # run the test using a tag name
         ctx = @test[:context].join(":")
         doc = Nokogiri::HTML5::Document.new
-        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 10)
+        doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, **options)
       end
     else
-      doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 10)
+      doc = Nokogiri::HTML5.parse(@test[:data], **options)
     end
     # Walk the tree.
     exp_nodes = [@test[:document]]
@@ -161,7 +166,7 @@ module Html5libTestCaseParser
   class BadHtml5libFormat < RuntimeError; end
 
   def self.parse_test(test_data)
-    test = { script: :both }
+    test = { script: :off }
     index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
     raise(BadHtml5libFormat, "Expected #errors in\n#{test_data}") if index.nil?
 
@@ -323,8 +328,6 @@ module Html5libTestCaseParser
 
       klass = Class.new(TestHtml5TreeConstructionBase) do
         tests.each_with_index do |test, index|
-          next if test[:script] == :on
-
           define_method "test_#{index}" do
             @test = test
             @index = index

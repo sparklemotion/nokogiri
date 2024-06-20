@@ -780,6 +780,15 @@ typedef struct GumboInternalOptions {
    * Default: `false`.
    */
   bool fragment_context_has_form_ancestor;
+
+  /**
+   * Parse `noscript` elements as if scripting was enabled. This causes the
+   * contents of the `noscript` element to be parsed as raw text, rather
+   * than as HTML elements.
+   * 
+   * Default: `false`.
+   */
+  bool parse_noscript_content_as_text;
 } GumboOptions;
 
 /** Default options struct; use this with gumbo_parse_with_options. */

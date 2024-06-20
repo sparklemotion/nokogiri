@@ -104,6 +104,75 @@ class TestHtml5API < Nokogiri::TestCase
     assert_match("ฉันไม่พูดภาษาไทย", html2)
   end
 
+  def test_parse_noscript_as_elements_in_head
+    # <img> isn't allowed in noscript so the noscript element is popped off
+    # the stack of open elements and the <img> token is reprocessed in `head`
+    # which causes the `head` element to be popped off the stack of open
+    # elements and a `body` element to be inserted. Then the `img` element is
+    # inserted in the body.
+    html = "<!DOCTYPE html><head><noscript><img src=!></noscript></head>"
+    doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: false, max_errors: 100)
+    noscript = doc.at("/html/head/noscript")
+    assert_equal(3, doc.errors.length, doc.errors.join("\n"))
+    # Start tag 'img' isn't allowed here
+    # End tag 'noscript' isn't allowed here
+    # End tag head isn't allowed here
+    assert_empty(noscript.children)
+    img = doc.at("/html/body/img")
+    refute_nil(img)
+  end
+
+  def test_parse_noscript_as_text_in_head
+    # In contrast to the previous test, when the scripting flag is enabled, the content
+    # of the noscript element is parsed as raw text.
+    html = "<!DOCTYPE html><head><noscript><img src=!></noscript></head>"
+    doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: true, max_errors: 100)
+    noscript = doc.at("/html/head/noscript")
+    assert_empty(doc.errors)
+    assert_equal(1, noscript.children.length)
+    assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
+  end
+
+  def test_parse_noscript_as_elements_in_body
+    html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
+    doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: false, max_errors: 100)
+    assert_empty(doc.errors)
+    img = doc.at("/html/body/noscript/img")
+    refute_nil(img)
+  end
+
+  def test_parse_noscript_as_text_in_body
+    html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
+    doc = Nokogiri::HTML5(html, parse_noscript_content_as_text: true, max_errors: 100)
+    noscript = doc.at("/html/body/noscript")
+    assert_empty(doc.errors, doc.errors.join("\n"))
+    assert_equal(1, noscript.children.length)
+    assert_kind_of(Nokogiri::XML::Text, noscript.children.first)
+  end
+
+  def test_parse_noscript_fragment_as_elements
+    html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
+    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: false, max_errors: 100)
+    assert_empty(frag.errors)
+    assert_equal(2, frag.children.length)
+  end
+
+  def test_parse_noscript_fragment_as_text
+    html = "<meta charset='UTF-8'><link rel=stylesheet href=!>"
+    frag = Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, html, "noscript", parse_noscript_content_as_text: true, max_errors: 100)
+    assert_empty(frag.errors)
+    assert_equal(1, frag.children.length)
+    assert_kind_of(Nokogiri::XML::Text, frag.children.first)
+  end
+
+  def test_parse_noscript_content_default
+    html = "<!DOCTYPE html><body><noscript><img src=!></noscript></body>"
+    doc = Nokogiri::HTML5(html, max_errors: 100)
+    assert_empty(doc.errors)
+    img = doc.at("/html/body/noscript/img")
+    refute_nil(img)
+  end
+
   ["pre", "listing", "textarea"].each do |tag|
     define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
       doc = Nokogiri::HTML5("<!DOCTYPE html><#{tag}>\n\nContent</#{tag}>")

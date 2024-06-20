@@ -24,6 +24,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Improved
 * Documentation has been improved for `CSS.xpath_for`. [#3224] @flavorjones
 * [CRuby] When compiling packaged libraries from source, allow users' `AR` and `LD` environment variables to set the archiver and linker commands, respectively. This augments the existing `CC` environment variable to set the compiler command. [#3165] @ziggythehamster
+* [CRuby] The HTML5 parse methods accept a `:parse_noscript_content_as_text` keyword argument which will emulate the parsing behavior of a browser which has scripting enabled. [#3178, #3231] @stevecheckoway
 
 
 ### Fixed
