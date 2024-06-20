@@ -109,12 +109,33 @@ module Nokogiri
           Nokogiri::CSS::XPathVisitor.new(**visitor_kw)
         end
 
-        if cache
+        ### test the new stuff in parallel
+        new_ast = nil
+        new_results = begin
+          new_visitor = Nokogiri::CSS::Selectors::XPathVisitor.new(**visitor.config)
+
+          new_ast = Nokogiri::CSS::Selectors.new(selector).parse
+          new_ast.map do |ast|
+            new_visitor.xpath(ast)
+          end
+        rescue Exception => e
+          puts "\nError: #{selector.inspect}: #{e.message}"
+          puts e.backtrace[0..10]
+        end
+
+        old_results = if cache
           key = SelectorCache.key(selector: selector, visitor: visitor)
           SelectorCache[key] ||= Parser.new.xpath_for(selector, visitor)
         else
           Parser.new.xpath_for(selector, visitor)
         end
+
+        if new_results != old_results
+          puts
+          pp(input: selector, ast: new_ast, new: new_results, old: old_results)
+        end
+
+        old_results
       end
     end
   end

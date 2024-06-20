@@ -125,24 +125,26 @@ module Nokogiri
           # return send(msg, node) if respond_to?(msg)
 
           case node.name
-          # when "eq"
-          #   # TODO
-          when "nth", "nth-of-type"
+          when "nth", "nth-of-type", "eq"
             unless node.arguments.size == 1 && ANPlusB === node.arguments.first
               raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to #{node.name}()"
             end
 
-            "position()=99" # TODO: OBVIOUSLY WRONG
+            attr_select_nth(node.arguments.first)
           # when "nth-child"
           #   # TODO
-          # when "nth-last-of-type"
-          #   # TODO
+          when "nth-last-of-type"
+            unless node.arguments.size == 1 && ANPlusB === node.arguments.first
+              raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to #{node.name}()"
+            end
+
+            attr_select_nth_last_of_type(node.arguments.first)
           # when "nth-last-child"
           #   # TODO
-          # when "first", "first-of-type"
-          #   # TODO
-          # when "last", "last-of-type"
-          #   # TODO
+          when "first", "first-of-type"
+            attr_select_nth(1) # TODO: dedup
+          when "last", "last-of-type"
+            attr_select_nth_last_of_type(1) # TODO: dedup
           when "contains"
             unless node.arguments.size == 1
               raise Nokogiri::CSS::SyntaxError, "Unexpected arguments to contains()"
@@ -164,9 +166,17 @@ module Nokogiri
             else
               ".//#{accept(node.arguments.first)}"
             end
+          when "not"
+            "not(#{accept(node.arguments.first)})"
           else # custom xpath function call
-            # TODO
-            "<pseudo-class-function>"
+            arguments = ["."]
+            node.arguments&.each do |arg|
+              next if WhitespaceToken === arg
+              next if CommaToken === arg
+
+              arguments << accept(arg)
+            end
+            "nokogiri:#{node.name}(#{arguments.join(",")})"
           end
         end
 
@@ -180,12 +190,23 @@ module Nokogiri
           # return send(msg, node) if respond_to?(msg)
 
           case (node_name = accept(node.value))
-          when "shit"
-            "shit"
+          when "empty" then "not(node())"
+          when "first", "first-of-type" then attr_select_nth(1) # TODO: dedup
+          when "first-child" then "count(preceding-sibling::*)=0"
+          when "last", "last-of-type" then attr_select_nth_last_of_type(1) # TODO: dedup
+          when "only-child" then "count(preceding-sibling::*)=0 and count(following-sibling::*)=0"
+          when "only-of-type" then "last()=1"
+          when "parent" then "node()"
           else
             # TODO: validate_xpath_function_name(node.value.first)
             "nokogiri:#{node_name}(.)"
           end
+        end
+
+        def visit_an_plus_b(node)
+          raise Nokogiri::CSS::SyntaxError, "Cannot use an+b here" unless node.a == 0
+
+          node.b.to_s
         end
 
         def visit_class_selector(node)
@@ -266,6 +287,25 @@ module Nokogiri
         # Helpers
         # ----------
 
+        def attr_select_nth_child(n)
+          "count(preceding-sibling::*)=#{n - 1}"
+        end
+
+        def attr_select_nth(n)
+          index = ANPlusB === n ? n.b : n
+
+          "position()=#{index}"
+        end
+
+        def attr_select_nth_last_of_type(n)
+          index = (ANPlusB === n ? n.b : n) - 1
+          if index == 0
+            "position()=last()"
+          else
+            "position()=last()-#{index}"
+          end
+        end
+
         def quote_accept(node)
           case node
           when StringToken
@@ -287,8 +327,17 @@ module Nokogiri
         def quote(string)
           string = string.to_s
           if string.include?(%('))
-            string = string.gsub('"', "&quot;") if string.include?(%("))
-            %("#{string}")
+            if string.include?(%("))
+              concat = ["concat("]
+              parts = string.split(%("))
+              parts.each_with_index do |part, j|
+                concat << "," if j > 0
+                concat << "\"#{part}\""
+              end
+              concat.join
+            else
+              %("#{string}")
+            end
           else
             %('#{string}')
           end

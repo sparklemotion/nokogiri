@@ -549,7 +549,7 @@ describe Nokogiri::CSS::XPathVisitor do
 
     it "handles contains() (extended-syntax)" do
       # https://api.jquery.com/contains-selector/
-      assert_xpath(%{//div[contains(.,"youtube")]}, %{div:contains("youtube")})
+      assert_xpath(%{//div[contains(.,'youtube')]}, %{div:contains('youtube')})
     end
 
     it "handles gt() (extended-syntax)" do
