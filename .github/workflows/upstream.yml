@@ -63,7 +63,7 @@ jobs:
   xmlsoft-head-valgrind:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.1
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
     steps:
       - uses: actions/checkout@v4
         with:
@@ -127,7 +127,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-    runs-on: ubuntu-20.04 # warning that 22.04 binary has dwarf5 debug info that valgrind can't read
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
