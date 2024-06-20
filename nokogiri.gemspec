@@ -152,6 +152,7 @@ Gem::Specification.new do |spec|
     "ext/nokogiri/html4_entity_lookup.c",
     "ext/nokogiri/html4_sax_parser_context.c",
     "ext/nokogiri/html4_sax_push_parser.c",
+    "ext/nokogiri/libxml2_polyfill.c",
     "ext/nokogiri/nokogiri.c",
     "ext/nokogiri/nokogiri.h",
     "ext/nokogiri/xml_attr.c",

@@ -56,6 +56,14 @@
 
 #include <libexslt/exslt.h>
 
+/* libxml2_polyfill.c */
+#ifndef HAVE_XMLCTXTSETOPTIONS
+int xmlCtxtSetOptions(xmlParserCtxtPtr ctxt, int options);
+#endif
+#ifndef HAVE_XMLCTXTGETOPTIONS
+int xmlCtxtGetOptions(xmlParserCtxtPtr ctxt);
+#endif
+
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
 

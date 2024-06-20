@@ -30,7 +30,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   Nokogiri_structured_error_func_restore(&handler_state);
 
-  if ((status != 0) && !(ctx->options & XML_PARSE_RECOVER)) {
+  if ((status != 0) && !(xmlCtxtGetOptions(ctx) & XML_PARSE_RECOVER)) {
     // TODO: there appear to be no tests for this block
     xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
     Nokogiri_error_raise(NULL, e);
