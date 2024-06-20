@@ -27,15 +27,15 @@ jobs:
           - url: https://github.com/flavorjones/loofah
             name: loofah
             command: "bundle exec rake test"
-            ruby: "3.2"
+            ruby: "3.3"
           - url: https://github.com/rails/rails-html-sanitizer
             name: rails-html-sanitizer
             command: "bundle exec rake test"
-            ruby: "3.2"
+            ruby: "3.3"
           - url: https://github.com/rgrove/sanitize
             name: sanitize
             command: "bundle exec rake test"
-            ruby: "3.2"
+            ruby: "3.3"
           - url: https://github.com/ebeigarts/signer
             name: signer
             command: "bundle exec rake spec"
@@ -47,7 +47,7 @@ jobs:
           - url: https://github.com/rails/rails
             name: xmlmini
             command: "cd activesupport && bundle exec rake test TESTOPTS=-n/XmlMini/"
-            ruby: "3.2"
+            ruby: "3.3"
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
@@ -59,11 +59,11 @@ jobs:
           - url: https://github.com/sparklemotion/mechanize
             name: mechanize
             command: "bundle exec rake test"
-            ruby: "3.2"
+            ruby: "3.3"
           - url: https://github.com/stimulusreflex/stimulus_reflex
             name: stimulus_reflex
             command: "bundle exec rake test"
-            ruby: "3.2"
+            ruby: "3.3"
           # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
           #   name: nokogiri-xmlsec-instructure
           #   precommand: "apt install -y libxmlsec1-dev"
