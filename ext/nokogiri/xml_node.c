@@ -2081,7 +2081,7 @@ dump_html(VALUE self)
 
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
-  html = NOKOGIRI_STR_NEW2(buf->content);
+  html = NOKOGIRI_STR_NEW2(xmlBufferContent(buf));
   xmlBufferFree(buf);
   return html ;
 }

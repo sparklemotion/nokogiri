@@ -97,7 +97,6 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
 
-  ctx->sax2 = 1;
   DATA_PTR(self) = ctx;
   return self;
 }
