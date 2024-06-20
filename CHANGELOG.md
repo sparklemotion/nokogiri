@@ -50,6 +50,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * Passing an options hash to `CSS.xpath_for` is now deprecated and will generate a warning. Use keyword arguments instead. This will become an error in a future version of Nokogiri.
 
 
+## v1.16.6 / 2024-06-13
+
+## Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.8](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.8), which the release notes state is a bugfix release.
+
+
 ## v1.16.5
 
 ### Security
