@@ -16,30 +16,28 @@ start_document(void *ctx)
 
   xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
 
-  if (NULL != ctxt && ctxt->html != 1) {
-    if (ctxt->standalone != -1) { /* -1 means there was no declaration */
-      VALUE encoding = Qnil ;
-      VALUE standalone = Qnil;
-      VALUE version;
-      if (ctxt->encoding) {
-        encoding = NOKOGIRI_STR_NEW2(ctxt->encoding) ;
-      } else if (ctxt->input && ctxt->input->encoding) {
-        encoding = NOKOGIRI_STR_NEW2(ctxt->input->encoding) ;
-      }
-
-      version = ctxt->version ? NOKOGIRI_STR_NEW2(ctxt->version) : Qnil;
-
-      switch (ctxt->standalone) {
-        case 0:
-          standalone = NOKOGIRI_STR_NEW2("no");
-          break;
-        case 1:
-          standalone = NOKOGIRI_STR_NEW2("yes");
-          break;
-      }
-
-      rb_funcall(doc, id_xmldecl, 3, version, encoding, standalone);
+  if (ctxt->standalone != -1) { /* -1 means there was no declaration */
+    VALUE encoding = Qnil ;
+    VALUE standalone = Qnil;
+    VALUE version;
+    if (ctxt->encoding) {
+      encoding = NOKOGIRI_STR_NEW2(ctxt->encoding) ;
+    } else if (ctxt->input && ctxt->input->encoding) {
+      encoding = NOKOGIRI_STR_NEW2(ctxt->input->encoding) ;
     }
+
+    version = ctxt->version ? NOKOGIRI_STR_NEW2(ctxt->version) : Qnil;
+
+    switch (ctxt->standalone) {
+      case 0:
+        standalone = NOKOGIRI_STR_NEW2("no");
+        break;
+      case 1:
+        standalone = NOKOGIRI_STR_NEW2("yes");
+        break;
+    }
+
+    rb_funcall(doc, id_xmldecl, 3, version, encoding, standalone);
   }
 
   rb_funcall(doc, id_start_document, 0);
@@ -282,10 +280,9 @@ static const rb_data_type_t xml_sax_handler_type = {
 };
 
 static VALUE
-allocate(VALUE klass)
+noko_xml_sax_parser_initialize(VALUE self)
 {
-  xmlSAXHandlerPtr handler;
-  VALUE self = TypedData_Make_Struct(klass, xmlSAXHandler, &xml_sax_handler_type, handler);
+  xmlSAXHandlerPtr handler = noko_xml_sax_parser_unwrap(self);
 
   handler->startDocument = start_document;
   handler->endDocument = end_document;
@@ -304,8 +301,15 @@ allocate(VALUE klass)
   return self;
 }
 
+static VALUE
+noko_xml_sax_parser_allocate(VALUE klass)
+{
+  xmlSAXHandlerPtr handler;
+  return TypedData_Make_Struct(klass, xmlSAXHandler, &xml_sax_handler_type, handler);
+}
+
 xmlSAXHandlerPtr
-noko_sax_handler_unwrap(VALUE rb_sax_handler)
+noko_xml_sax_parser_unwrap(VALUE rb_sax_handler)
 {
   xmlSAXHandlerPtr c_sax_handler;
   TypedData_Get_Struct(rb_sax_handler, xmlSAXHandler, &xml_sax_handler_type, c_sax_handler);
@@ -317,7 +321,9 @@ noko_init_xml_sax_parser(void)
 {
   cNokogiriXmlSaxParser = rb_define_class_under(mNokogiriXmlSax, "Parser", rb_cObject);
 
-  rb_define_alloc_func(cNokogiriXmlSaxParser, allocate);
+  rb_define_alloc_func(cNokogiriXmlSaxParser, noko_xml_sax_parser_allocate);
+
+  rb_define_private_method(cNokogiriXmlSaxParser, "initialize_native", noko_xml_sax_parser_initialize, 0);
 
   id_start_document = rb_intern("start_document");
   id_end_document = rb_intern("end_document");

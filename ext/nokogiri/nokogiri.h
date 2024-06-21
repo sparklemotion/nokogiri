@@ -149,6 +149,7 @@ NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 NOKOPUBVAR VALUE cNokogiriHtml4Document ;
 NOKOPUBVAR VALUE cNokogiriHtml4SaxPushParser ;
 NOKOPUBVAR VALUE cNokogiriHtml4ElementDescription ;
+NOKOPUBVAR VALUE cNokogiriHtml4SaxParser;
 NOKOPUBVAR VALUE cNokogiriHtml4SaxParserContext;
 NOKOPUBVAR VALUE cNokogiriHtml5Document ;
 
@@ -204,7 +205,7 @@ xmlDocPtr noko_xml_document_unwrap(VALUE rb_document);
 NOKOPUBFUN VALUE Nokogiri_wrap_xml_document(VALUE klass,
     xmlDocPtr doc); /* deprecated. use noko_xml_document_wrap() instead. */
 
-xmlSAXHandlerPtr noko_sax_handler_unwrap(VALUE rb_sax_handler);
+xmlSAXHandlerPtr noko_xml_sax_parser_unwrap(VALUE rb_sax_handler);
 
 xmlParserCtxtPtr noko_xml_sax_push_parser_unwrap(VALUE rb_parser);
 

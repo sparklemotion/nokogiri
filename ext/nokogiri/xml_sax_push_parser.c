@@ -80,7 +80,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   const char *filename = NULL;
   xmlParserCtxtPtr ctx;
 
-  sax = noko_sax_handler_unwrap(_xml_sax);
+  sax = noko_xml_sax_parser_unwrap(_xml_sax);
 
   if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 

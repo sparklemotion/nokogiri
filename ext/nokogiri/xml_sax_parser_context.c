@@ -155,7 +155,7 @@ parse_with(VALUE self, VALUE sax_handler)
   }
 
   ctxt = noko_xml_sax_parser_context_unwrap(self);
-  sax = noko_sax_handler_unwrap(sax_handler);
+  sax = noko_xml_sax_parser_unwrap(sax_handler);
 
   ctxt->sax = sax;
   ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
