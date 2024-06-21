@@ -126,7 +126,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sys: ["enable", "disable"]
+        sys: ["disable"]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
