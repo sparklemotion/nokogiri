@@ -73,6 +73,8 @@ module Nokogiri
           @encoding = check_encoding(encoding)
           @document = doc
           @warned   = false
+
+          initialize_native unless Nokogiri.jruby?
         end
 
         ###

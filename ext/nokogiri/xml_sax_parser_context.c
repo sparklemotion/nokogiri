@@ -155,7 +155,7 @@ parse_with(VALUE self, VALUE sax_handler)
   }
 
   ctxt = noko_xml_sax_parser_context_unwrap(self);
-  sax = noko_sax_handler_unwrap(sax_handler);
+  sax = noko_xml_sax_parser_unwrap(sax_handler);
 
   ctxt->sax = sax;
   ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
@@ -177,12 +177,17 @@ parse_with(VALUE self, VALUE sax_handler)
 static VALUE
 set_replace_entities(VALUE self, VALUE value)
 {
+  int error;
   xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
-  if (Qfalse == value) {
-    ctxt->replaceEntities = 0;
+  if (RB_TEST(value)) {
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) | XML_PARSE_NOENT);
   } else {
-    ctxt->replaceEntities = 1;
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) & ~XML_PARSE_NOENT);
+  }
+
+  if (error) {
+    rb_raise(rb_eRuntimeError, "failed to set parser context options (%x)", error);
   }
 
   return value;
@@ -200,10 +205,10 @@ get_replace_entities(VALUE self)
 {
   xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
-  if (0 == ctxt->replaceEntities) {
-    return Qfalse;
-  } else {
+  if (xmlCtxtGetOptions(ctxt) & XML_PARSE_NOENT) {
     return Qtrue;
+  } else {
+    return Qfalse;
   }
 }
 
@@ -255,12 +260,17 @@ column(VALUE self)
 static VALUE
 set_recovery(VALUE self, VALUE value)
 {
+  int error;
   xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
-  if (value == Qfalse) {
-    ctxt->recovery = 0;
+  if (RB_TEST(value)) {
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) | XML_PARSE_RECOVER);
   } else {
-    ctxt->recovery = 1;
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) & ~XML_PARSE_RECOVER);
+  }
+
+  if (error) {
+    rb_raise(rb_eRuntimeError, "failed to set parser context options (%x)", error);
   }
 
   return value;
@@ -278,10 +288,10 @@ get_recovery(VALUE self)
 {
   xmlParserCtxtPtr ctxt = noko_xml_sax_parser_context_unwrap(self);
 
-  if (ctxt->recovery == 0) {
-    return Qfalse;
-  } else {
+  if (xmlCtxtGetOptions(ctxt) & XML_PARSE_RECOVER) {
     return Qtrue;
+  } else {
+    return Qfalse;
   }
 }
 

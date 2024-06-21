@@ -30,7 +30,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   Nokogiri_structured_error_func_restore(&handler_state);
 
-  if ((status != 0) && !(ctx->options & XML_PARSE_RECOVER)) {
+  if ((status != 0) && !(xmlCtxtGetOptions(ctx) & XML_PARSE_RECOVER)) {
     // TODO: there appear to be no tests for this block
     xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
     Nokogiri_error_raise(NULL, e);
@@ -54,7 +54,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
   htmlParserCtxtPtr ctx;
   xmlCharEncoding enc = XML_CHAR_ENCODING_NONE;
 
-  sax = noko_sax_handler_unwrap(_xml_sax);
+  sax = noko_xml_sax_parser_unwrap(_xml_sax);
 
   if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 
@@ -79,7 +79,6 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
 
   ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
 
-  ctx->sax2 = 1;
   DATA_PTR(self) = ctx;
   return self;
 }

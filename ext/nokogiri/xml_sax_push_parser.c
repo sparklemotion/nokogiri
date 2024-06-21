@@ -58,7 +58,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if (xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
-    if (!(ctx->options & XML_PARSE_RECOVER)) {
+    if (!(xmlCtxtGetOptions(ctx) & XML_PARSE_RECOVER)) {
       xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
       Nokogiri_error_raise(NULL, e);
     }
@@ -80,7 +80,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   const char *filename = NULL;
   xmlParserCtxtPtr ctx;
 
-  sax = noko_sax_handler_unwrap(_xml_sax);
+  sax = noko_xml_sax_parser_unwrap(_xml_sax);
 
   if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 
@@ -97,7 +97,6 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
 
-  ctx->sax2 = 1;
   DATA_PTR(self) = ctx;
   return self;
 }
@@ -109,18 +108,20 @@ get_options(VALUE self)
 
   ctx = noko_xml_sax_push_parser_unwrap(self);
 
-  return INT2NUM(ctx->options);
+  return INT2NUM(xmlCtxtGetOptions(ctx));
 }
 
 static VALUE
 set_options(VALUE self, VALUE options)
 {
+  int error;
   xmlParserCtxtPtr ctx;
 
   ctx = noko_xml_sax_push_parser_unwrap(self);
 
-  if (xmlCtxtUseOptions(ctx, (int)NUM2INT(options)) != 0) {
-    rb_raise(rb_eRuntimeError, "Cannot set XML parser context options");
+  error = xmlCtxtSetOptions(ctx, (int)NUM2INT(options));
+  if (error) {
+    rb_raise(rb_eRuntimeError, "Cannot set XML parser context options (%x)", error);
   }
 
   return Qnil;
@@ -136,14 +137,12 @@ set_options(VALUE self, VALUE options)
 static VALUE
 get_replace_entities(VALUE self)
 {
-  xmlParserCtxtPtr ctx;
+  xmlParserCtxtPtr ctxt = noko_xml_sax_push_parser_unwrap(self);
 
-  ctx = noko_xml_sax_push_parser_unwrap(self);
-
-  if (0 == ctx->replaceEntities) {
-    return Qfalse;
-  } else {
+  if (xmlCtxtGetOptions(ctxt) & XML_PARSE_NOENT) {
     return Qtrue;
+  } else {
+    return Qfalse;
   }
 }
 
@@ -157,14 +156,17 @@ get_replace_entities(VALUE self)
 static VALUE
 set_replace_entities(VALUE self, VALUE value)
 {
-  xmlParserCtxtPtr ctx;
+  int error;
+  xmlParserCtxtPtr ctxt = noko_xml_sax_push_parser_unwrap(self);
 
-  ctx = noko_xml_sax_push_parser_unwrap(self);
-
-  if (Qfalse == value) {
-    ctx->replaceEntities = 0;
+  if (RB_TEST(value)) {
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) | XML_PARSE_NOENT);
   } else {
-    ctx->replaceEntities = 1;
+    error = xmlCtxtSetOptions(ctxt, xmlCtxtGetOptions(ctxt) & ~XML_PARSE_NOENT);
+  }
+
+  if (error) {
+    rb_raise(rb_eRuntimeError, "failed to set parser context options (%x)", error);
   }
 
   return value;

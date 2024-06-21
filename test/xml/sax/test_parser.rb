@@ -49,15 +49,15 @@ module Nokogiri
           assert_nil(parser.document.xmldecls)
         end
 
-        it :test_xml_decl do
-          [
-            ['<?xml version="1.0" ?>', ["1.0"]],
-            ['<?xml version="1.0" encoding="UTF-8" ?>', ["1.0", "UTF-8"]],
-            ['<?xml version="1.0" standalone="yes"?>', ["1.0", "yes"]],
-            ['<?xml version="1.0" standalone="no"?>', ["1.0", "no"]],
-            ['<?xml version="1.0" encoding="UTF-8" standalone="no"?>', ["1.0", "UTF-8", "no"]],
-            ['<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>', ["1.0", "ISO-8859-1", "yes"]],
-          ].each do |decl, value|
+        [
+          ['<?xml version="1.0" ?>', ["1.0"]],
+          ['<?xml version="1.0" encoding="UTF-8" ?>', ["1.0", "UTF-8"]],
+          ['<?xml version="1.0" standalone="yes"?>', ["1.0", "yes"]],
+          ['<?xml version="1.0" standalone="no"?>', ["1.0", "no"]],
+          ['<?xml version="1.0" encoding="UTF-8" standalone="no"?>', ["1.0", "UTF-8", "no"]],
+          ['<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>', ["1.0", "ISO-8859-1", "yes"]],
+        ].each do |decl, value|
+          it "parses xml decl '#{decl}'" do
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
 
             xml = "#{decl}\n<root />"
