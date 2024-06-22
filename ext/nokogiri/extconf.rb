@@ -57,30 +57,6 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
             Look for headers in DIRECTORY.
 
 
-      Related to zlib:
-
-        --with-zlib-dir=DIRECTORY
-            Look for zlib headers and library in DIRECTORY.
-
-        --with-zlib-lib=DIRECTORY
-            Look for zlib library in DIRECTORY.
-
-        --with-zlib-include=DIRECTORY
-            Look for zlib headers in DIRECTORY.
-
-
-      Related to iconv:
-
-        --with-iconv-dir=DIRECTORY
-            Look for iconv headers and library in DIRECTORY.
-
-        --with-iconv-lib=DIRECTORY
-            Look for iconv library in DIRECTORY.
-
-        --with-iconv-include=DIRECTORY
-            Look for iconv headers in DIRECTORY.
-
-
       Related to libxml2:
 
         --with-xml2-dir=DIRECTORY
@@ -94,6 +70,10 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
         --with-xml2-source-dir=DIRECTORY
             (dev only) Build libxml2 from the source code in DIRECTORY
+
+        --disable-xml2-legacy
+            Do not build libxml2 with zlib, liblzma, or HTTP support. This will become the default
+            in a future version of Nokogiri.
 
 
       Related to libxslt:
@@ -121,6 +101,30 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
 
         --with-exslt-include=DIRECTORY
             Look for exslt headers in DIRECTORY.
+
+
+      Related to iconv:
+
+        --with-iconv-dir=DIRECTORY
+            Look for iconv headers and library in DIRECTORY.
+
+        --with-iconv-lib=DIRECTORY
+            Look for iconv library in DIRECTORY.
+
+        --with-iconv-include=DIRECTORY
+            Look for iconv headers in DIRECTORY.
+
+
+      Related to zlib (ignored if `--disable-xml2-legacy` is used):
+
+        --with-zlib-dir=DIRECTORY
+            Look for zlib headers and library in DIRECTORY.
+
+        --with-zlib-lib=DIRECTORY
+            Look for zlib library in DIRECTORY.
+
+        --with-zlib-include=DIRECTORY
+            Look for zlib headers in DIRECTORY.
 
 
     Flags only used when building and using the packaged libraries:
@@ -179,6 +183,10 @@ def config_system_libraries?
   enable_config("system-libraries", ENV.key?("NOKOGIRI_USE_SYSTEM_LIBRARIES")) do |_, default|
     arg_config("--use-system-libraries", default)
   end
+end
+
+def config_with_xml2_legacy?
+  enable_config("xml2-legacy", true)
 end
 
 def windows?
@@ -707,13 +715,15 @@ append_cppflags(' "-Idummypath"') if windows?
 
 if config_system_libraries?
   message "Building nokogiri using system libraries.\n"
-  ensure_package_configuration(
-    opt: "zlib",
-    pc: "zlib",
-    lib: "z",
-    headers: "zlib.h",
-    func: "gzdopen",
-  )
+  if config_with_xml2_legacy?
+    ensure_package_configuration(
+      opt: "zlib",
+      pc: "zlib",
+      lib: "z",
+      headers: "zlib.h",
+      func: "gzdopen",
+    )
+  end
   ensure_package_configuration(
     opt: "xml2",
     pc: "libxml-2.0",
@@ -757,58 +767,60 @@ else
   require "yaml"
   dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
 
-  dir_config("zlib")
+  dir_config("zlib") if config_with_xml2_legacy?
 
   if cross_build_p || windows?
-    zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
-      recipe.files = [{
-        url: zlib_source(recipe.version),
-        sha256: dependencies["zlib"]["sha256"],
-      }]
-      if windows?
-        class << recipe
-          attr_accessor :cross_build_p
+    if config_with_xml2_legacy?
+      zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
+        recipe.files = [{
+          url: zlib_source(recipe.version),
+          sha256: dependencies["zlib"]["sha256"],
+        }]
+        if windows?
+          class << recipe
+            attr_accessor :cross_build_p
 
-          def configure
-            Dir.chdir(work_path) do
-              mk = File.read("win32/Makefile.gcc")
-              File.open("win32/Makefile.gcc", "wb") do |f|
-                f.puts "BINARY_PATH = #{path}/bin"
-                f.puts "LIBRARY_PATH = #{path}/lib"
-                f.puts "INCLUDE_PATH = #{path}/include"
-                mk.sub!(/^PREFIX\s*=\s*$/, "PREFIX = #{host}-") if cross_build_p
-                f.puts mk
+            def configure
+              Dir.chdir(work_path) do
+                mk = File.read("win32/Makefile.gcc")
+                File.open("win32/Makefile.gcc", "wb") do |f|
+                  f.puts "BINARY_PATH = #{path}/bin"
+                  f.puts "LIBRARY_PATH = #{path}/lib"
+                  f.puts "INCLUDE_PATH = #{path}/include"
+                  mk.sub!(/^PREFIX\s*=\s*$/, "PREFIX = #{host}-") if cross_build_p
+                  f.puts mk
+                end
               end
             end
-          end
 
-          def configured?
-            Dir.chdir(work_path) do
-              !!(File.read("win32/Makefile.gcc") =~ /^BINARY_PATH/)
+            def configured?
+              Dir.chdir(work_path) do
+                !!(File.read("win32/Makefile.gcc") =~ /^BINARY_PATH/)
+              end
+            end
+
+            def compile
+              execute("compile", "make -f win32/Makefile.gcc")
+            end
+
+            def install
+              execute("install", "make -f win32/Makefile.gcc install")
             end
           end
-
-          def compile
-            execute("compile", "make -f win32/Makefile.gcc")
-          end
-
-          def install
-            execute("install", "make -f win32/Makefile.gcc install")
-          end
-        end
-        recipe.cross_build_p = cross_build_p
-      else
-        class << recipe
-          def configure
-            env = {}
-            env["CFLAGS"] = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
-            env["CHOST"] = host
-            execute("configure", ["./configure", "--static", configure_prefix], { env: env })
-            if darwin?
-              # needed as of zlib 1.2.13
-              Dir.chdir(work_path) do
-                makefile = File.read("Makefile").gsub(/^AR=.*$/, "AR=#{host}-libtool")
-                File.open("Makefile", "w") { |m| m.write(makefile) }
+          recipe.cross_build_p = cross_build_p
+        else
+          class << recipe
+            def configure
+              env = {}
+              env["CFLAGS"] = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
+              env["CHOST"] = host
+              execute("configure", ["./configure", "--static", configure_prefix], { env: env })
+              if darwin?
+                # needed as of zlib 1.2.13
+                Dir.chdir(work_path) do
+                  makefile = File.read("Makefile").gsub(/^AR=.*$/, "AR=#{host}-libtool")
+                  File.open("Makefile", "w") { |m| m.write(makefile) }
+                end
               end
             end
           end
@@ -899,6 +911,10 @@ else
 
     if cross_build_p
       cppflags = concat_flags(cppflags, "-DNOKOGIRI_PRECOMPILED_LIBRARIES")
+    end
+
+    if config_with_xml2_legacy?
+      recipe.configure_options << "--with-legacy"
     end
 
     if zlib_recipe
