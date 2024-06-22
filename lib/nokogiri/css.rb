@@ -88,7 +88,7 @@ module Nokogiri
         cache: true
       )
         unless options.nil?
-          warn("Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
+          warn("Nokogiri::CSS.xpath_for: Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
         end
 
         raise(TypeError, "no implicit conversion of #{selector.inspect} to String") unless selector.respond_to?(:to_str)

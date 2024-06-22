@@ -398,6 +398,44 @@ class TestHtml5API < Nokogiri::TestCase
   end
 
   describe Nokogiri::HTML5::DocumentFragment do
+    describe "passing in context node" do
+      it "to DocumentFragment.new" do
+        fragment = Nokogiri::HTML5::DocumentFragment.new(
+          Nokogiri::HTML5::Document.new,
+          "<body><div>foo</div></body>",
+          "html",
+        )
+        assert_match(/<body>/, fragment.to_s)
+        assert_match(/<head>/, fragment.to_s)
+      end
+
+      describe "to DocumentFragment.parse" do
+        it "as an options hash" do
+          assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+            fragment = Nokogiri::HTML5::DocumentFragment.parse(
+              "<body><div>foo</div></body>",
+              nil,
+              { context: "html" },
+            )
+            assert_match(/<body>/, fragment.to_s)
+            assert_match(/<head>/, fragment.to_s)
+          end
+        end
+
+        it "as keyword argument" do
+          fragment = Nokogiri::HTML5::DocumentFragment.parse("<body><div>foo</div></body>", context: "html")
+          assert_match(/<body>/, fragment.to_s)
+          assert_match(/<head>/, fragment.to_s)
+        end
+      end
+
+      it "to HTML5.fragment" do
+        fragment = Nokogiri::HTML5.fragment("<body><div>foo</div></body>", context: "html")
+        assert_match(/<body>/, fragment.to_s)
+        assert_match(/<head>/, fragment.to_s)
+      end
+    end
+
     describe "subclassing" do
       let(:klass) do
         Class.new(Nokogiri::HTML5::DocumentFragment) do

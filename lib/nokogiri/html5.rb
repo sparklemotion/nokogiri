@@ -249,11 +249,13 @@ module Nokogiri
   #
   # == Notes
   #
-  # * The Nokogiri::HTML5.fragment function takes a string and parses it as a HTML5 document. The
-  #   +html+, +head+, and +body+ elements are removed from this document, and any children of these
-  #   elements that remain are returned as a Nokogiri::HTML5::DocumentFragment.
+  # * The Nokogiri::HTML5.fragment function takes a String or IO and parses it as a HTML5 document
+  #   in a +body+ context. As a result, the +html+, +head+, and +body+ elements are removed from
+  #   this document, and any children of these elements that remain are returned as a
+  #   Nokogiri::HTML5::DocumentFragment; but you can pass in a different context (e.g., "html" to
+  #   get +head+ and +body+ tags in the result).
   #
-  # * The Nokogiri::HTML5.parse function takes a string and passes it to the
+  # * The Nokogiri::HTML5.parse function takes a String or IO and passes it to the
   #   <code>gumbo_parse_with_options</code> method, using the default options.  The resulting Gumbo
   #   parse tree is then walked.
   #
@@ -273,7 +275,7 @@ module Nokogiri
       # Parse a fragment from +string+. Convenience method for
       # Nokogiri::HTML5::DocumentFragment.parse.
       def fragment(string, encoding = nil, **options)
-        DocumentFragment.parse(string, encoding, options)
+        DocumentFragment.parse(string, encoding, **options)
       end
 
       # :nodoc:
