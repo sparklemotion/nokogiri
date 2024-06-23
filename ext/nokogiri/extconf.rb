@@ -205,6 +205,10 @@ def openbsd?
   RbConfig::CONFIG["target_os"].include?("openbsd")
 end
 
+def android?
+  RbConfig::CONFIG["target_os"].include?("android")
+end
+
 def aix?
   RbConfig::CONFIG["target_os"].include?("aix")
 end
@@ -586,6 +590,8 @@ def do_clean
     Pathname.glob(pwd.join("tmp", "*", "ports")) do |dir|
       FileUtils.rm_rf(dir, verbose: true)
     end
+
+    exit!(0) if android?
 
     if config_static?
       # ports installation can be safely removed if statically linked.
@@ -1165,7 +1171,7 @@ if config_clean?
     mk.print(<<~EOF)
 
       all: clean-ports
-      clean-ports: $(DLLIB)
+      clean-ports: #{android? ? "$(TARGET_SO)" : "$(DLLIB)"}
       \t-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? "enable" : "disable"}-static
     EOF
   end
