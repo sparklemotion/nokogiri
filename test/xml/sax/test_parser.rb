@@ -274,6 +274,16 @@ module Nokogiri
           end
         end
 
+        it "parses a compressed file" do
+          skip("libxml2 legacy support") unless Nokogiri.uses_libxml? && Nokogiri::LIBXML_ZLIB_ENABLED
+
+          filename = XML_FILE + ".gz"
+          parser.parse_file(filename)
+
+          refute_nil(parser.document.start_elements)
+          assert_operator(parser.document.start_elements.count, :>, 30)
+        end
+
         it :test_render_parse_nil_param do
           assert_raises(TypeError) { parser.parse_memory(nil) }
         end
