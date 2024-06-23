@@ -1165,7 +1165,7 @@ if config_clean?
     mk.print(<<~EOF)
 
       all: clean-ports
-      clean-ports: $(DLLIB)
+      clean-ports: $(TARGET_SO)
       \t-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? "enable" : "disable"}-static
     EOF
   end
