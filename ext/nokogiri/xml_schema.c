@@ -17,12 +17,6 @@ static const rb_data_type_t xml_schema_type = {
   .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
-/*
- * call-seq:
- *  validate_document(document)
- *
- * Validate a Nokogiri::XML::Document against this Schema.
- */
 static VALUE
 validate_document(VALUE self, VALUE document)
 {
