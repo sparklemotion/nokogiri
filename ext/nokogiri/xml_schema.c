@@ -18,7 +18,7 @@ static const rb_data_type_t xml_schema_type = {
 };
 
 static VALUE
-validate_document(VALUE self, VALUE document)
+noko_xml_schema__validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlSchemaPtr schema;
@@ -50,14 +50,8 @@ validate_document(VALUE self, VALUE document)
   return errors;
 }
 
-/*
- * call-seq:
- *  validate_file(filename)
- *
- * Validate a file against this Schema.
- */
 static VALUE
-validate_file(VALUE self, VALUE rb_filename)
+noko_xml_schema__validate_file(VALUE self, VALUE rb_filename)
 {
   xmlSchemaPtr schema;
   xmlSchemaValidCtxtPtr valid_ctxt;
@@ -96,7 +90,7 @@ xml_schema_parse_schema(
   VALUE rb_parse_options
 )
 {
-  xmlExternalEntityLoader old_loader = 0;
+  xmlExternalEntityLoader saved_loader = 0;
   libxmlStructuredErrorHandlerState handler_state;
 
   if (NIL_P(rb_parse_options)) {
@@ -117,14 +111,14 @@ xml_schema_parse_schema(
   );
 
   if (c_parse_options & XML_PARSE_NONET) {
-    old_loader = xmlGetExternalEntityLoader();
+    saved_loader = xmlGetExternalEntityLoader();
     xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
   }
 
   xmlSchemaPtr c_schema = xmlSchemaParse(c_parser_context);
 
-  if (old_loader) {
-    xmlSetExternalEntityLoader(old_loader);
+  if (saved_loader) {
+    xmlSetExternalEntityLoader(saved_loader);
   }
 
   xmlSchemaFreeParserCtxt(c_parser_context);
@@ -147,18 +141,24 @@ xml_schema_parse_schema(
 }
 
 /*
- * call-seq:
- *   read_memory(string) → Nokogiri::XML::Schema
+ * :call-seq:
+ *   read_memory(input) → Nokogiri::XML::Schema
+ *   read_memory(input, parse_options) → Nokogiri::XML::Schema
  *
- * Create a new schema parsed from the contents of +string+
+ * Parse an XSD schema definition and create a new Schema object.
  *
- * [Parameters]
- * - +string+: String containing XML to be parsed as a schema
+ * 💡 Note that the limitation of this method relative to Schema.new is that +input+ must be type
+ * String, whereas Schema.new also supports IO types.
+ *
+ * [parameters]
+ * - +input+ (String) XSD schema definition
+ * - +parse_options+ (Nokogiri::XML::ParseOptions)
+ *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
  *
  * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE rb_class)
+xml_schema_s_read_memory(int argc, VALUE *argv, VALUE rb_class)
 {
   VALUE rb_content;
   VALUE rb_parse_options;
@@ -175,18 +175,21 @@ read_memory(int argc, VALUE *argv, VALUE rb_class)
 }
 
 /*
- * call-seq:
+ * :call-seq:
  *   from_document(document) → Nokogiri::XML::Schema
+ *   from_document(document, parse_options) → Nokogiri::XML::Schema
  *
- * Create a new schema parsed from the +document+.
+ * Create a Schema from an already-parsed XSD schema definition document.
  *
  * [Parameters]
- * - +document+: Nokogiri::XML::Document to be parsed
+ * - +document+ (XML::Document) A document object representing the parsed XSD
+ * - +parse_options+ (Nokogiri::XML::ParseOptions)
+ *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
  *
  * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE rb_class)
+noko_xml_schema_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 {
   VALUE rb_document;
   VALUE rb_parse_options;
@@ -236,9 +239,9 @@ noko_init_xml_schema(void)
 
   rb_undef_alloc_func(cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", read_memory, -1);
-  rb_define_singleton_method(cNokogiriXmlSchema, "from_document", rb_xml_schema_s_from_document, -1);
+  rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", xml_schema_s_read_memory, -1);
+  rb_define_singleton_method(cNokogiriXmlSchema, "from_document", noko_xml_schema_s_from_document, -1);
 
-  rb_define_private_method(cNokogiriXmlSchema, "validate_document", validate_document, 1);
-  rb_define_private_method(cNokogiriXmlSchema, "validate_file",     validate_file, 1);
+  rb_define_private_method(cNokogiriXmlSchema, "validate_document", noko_xml_schema__validate_document, 1);
+  rb_define_private_method(cNokogiriXmlSchema, "validate_file",     noko_xml_schema__validate_file, 1);
 }
