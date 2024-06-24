@@ -206,11 +206,15 @@ module Nokogiri
         end
       end
 
+      super
+
+      if !skipped? && !error? && assertions.zero?
+        raise(Minitest::Assertion, "Test is missing assertions")
+      end
+
       if Nokogiri.uses_libxml?
         refute(@fake_error_handler_called, "the fake error handler should never get called")
       end
-
-      super
     end
 
     def gc_verify_compaction_references
@@ -241,6 +245,13 @@ module Nokogiri
 
       yield.tap do
         GC.start(full_mark: true) if @@gc_level == :minor
+        @assertions += 1
+      end
+    end
+
+    def refute_raises
+      yield.tap do
+        @assertions += 1
       end
     end
 
@@ -304,12 +315,14 @@ module Nokogiri
     # slope, and fail if there is definitely a leak.
     def memwatch(method, n: nil, retry_once: true, &block)
       if i_am_running_in_valgrind
-        # when running under memcheck, just loop and let valgrind leak check do its thing
-        t1 = Time.now
-        loop do
-          yield
-          break if Time.new - t1 > 1
+        refute_valgrind_errors do
+          t1 = Time.now
+          loop do
+            yield
+            break if Time.new - t1 > 1
+          end
         end
+
         return
       end
 

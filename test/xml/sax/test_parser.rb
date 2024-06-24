@@ -363,11 +363,14 @@ module Nokogiri
         end
 
         it :test_parse_document do
-          skip_unless_libxml2("JRuby SAXParser only parses well-formed XML documents")
           parser.parse_memory(<<~EOF)
-            <p>Paragraph 1</p>
-            <p>Paragraph 2</p>
+            <div>
+              <p>Paragraph 1</p>
+              <p>Paragraph 2</p>
+            </div>
           EOF
+
+          assert_equal(["div", "p", "p"], parser.document.start_elements.map(&:first))
         end
 
         it :test_parser_attributes do

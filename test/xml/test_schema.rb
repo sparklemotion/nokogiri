@@ -200,11 +200,15 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
     end
 
     it "xsd_with_dtd" do
+      # https://github.com/sparklemotion/nokogiri/pull/791
       Dir.chdir(File.join(ASSETS_DIR, "saml")) do
-        # works
-        Nokogiri::XML::Schema(File.read("xmldsig_schema.xsd"))
-        # was not working
-        Nokogiri::XML::Schema(File.read("saml20protocol_schema.xsd"))
+        refute_raises do
+          Nokogiri::XML::Schema(File.read("xmldsig_schema.xsd"))
+        end
+
+        refute_raises do
+          Nokogiri::XML::Schema(File.read("saml20protocol_schema.xsd"))
+        end
       end
     end
 
@@ -220,7 +224,10 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
         <xs:import/>
         </xs:schema>
       EOF
-      Nokogiri::XML::Schema(xsd) # assert_nothing_raised
+
+      refute_raises do
+        Nokogiri::XML::Schema(xsd)
+      end
     end
 
     it "issue_1985_schema_parse_modifying_underlying_document" do

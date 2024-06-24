@@ -143,12 +143,14 @@ module Nokogiri
       end
 
       def test_io_that_reads_too_much
-        io = if Nokogiri.jruby?
-          ReallyBadIO4Java.new
-        else
-          ReallyBadIO.new
+        refute_raises do
+          io = if Nokogiri.jruby?
+            ReallyBadIO4Java.new
+          else
+            ReallyBadIO.new
+          end
+          Nokogiri::XML::Reader(io)
         end
-        Nokogiri::XML::Reader(io)
       end
 
       def test_in_memory

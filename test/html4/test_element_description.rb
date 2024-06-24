@@ -70,8 +70,12 @@ module Nokogiri
       end
 
       def test_null_default_sub_element
+        # https://github.com/sparklemotion/nokogiri/issues/917
         doc = Nokogiri::HTML4("foo")
-        doc.root.description.default_sub_element
+
+        refute_raises do
+          doc.root.description.default_sub_element
+        end
       end
 
       def test_optional_attributes

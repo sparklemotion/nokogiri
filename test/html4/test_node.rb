@@ -193,12 +193,14 @@ module Nokogiri
         table = html.xpath("//table")[1]
         trs = table.xpath("tr").drop(1)
 
-        # the jruby implementation of drop uses dup() on the IRubyObject (which
-        # is NOT the same dup() method on the ruby Object) which produces a
-        # shallow clone. a shallow of valid XMLNode triggers several
-        # NullPointerException on inspect() since loads of invariants
-        # are not set. the fix for GH1042 ensures a proper working clone.
-        trs.inspect # assert_nothing_raised
+        refute_raises do
+          # the jruby implementation of drop uses dup() on the IRubyObject (which
+          # is NOT the same dup() method on the ruby Object) which produces a
+          # shallow clone. a shallow of valid XMLNode triggers several
+          # NullPointerException on inspect() since loads of invariants
+          # are not set. the fix for GH1042 ensures a proper working clone.
+          trs.inspect
+        end
       end
 
       def test_fragment_node_to_xhtml # see #2355

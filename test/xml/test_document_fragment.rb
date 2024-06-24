@@ -60,13 +60,12 @@ module Nokogiri
           assert_instance_of(Nokogiri::XML::DocumentFragment, fragment)
         end
 
-        def test_many_fragments
-          100.times { Nokogiri::XML::DocumentFragment.new(xml) }
-        end
-
         def test_unparented_text_node_parse
-          fragment = Nokogiri::XML::DocumentFragment.parse("foo")
-          fragment.children.after("<bar/>")
+          # https://github.com/sparklemotion/nokogiri/issues/407
+          refute_raises do
+            fragment = Nokogiri::XML::DocumentFragment.parse("foo")
+            fragment.children.after("<bar/>")
+          end
         end
 
         def test_xml_fragment
@@ -259,8 +258,12 @@ module Nokogiri
         end
 
         def test_add_node_to_doc_fragment_segfault
-          frag = Nokogiri::XML::DocumentFragment.new(xml, "<p>hello world</p>")
-          Nokogiri::XML::Comment.new(frag, "moo")
+          skip_unless_libxml2("valgrind tests should only run with libxml2")
+
+          refute_valgrind_errors do
+            frag = Nokogiri::XML::DocumentFragment.new(xml, "<p>hello world</p>")
+            Nokogiri::XML::Comment.new(frag, "moo")
+          end
         end
 
         def test_issue_1077_parsing_of_frozen_strings
@@ -272,7 +275,9 @@ module Nokogiri
           EOS
           input.freeze
 
-          Nokogiri::XML::DocumentFragment.parse(input) # assert_nothing_raised
+          refute_raises do
+            Nokogiri::XML::DocumentFragment.parse(input)
+          end
         end
 
         def test_dup_should_exist_in_a_new_document
