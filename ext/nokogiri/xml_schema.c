@@ -142,40 +142,6 @@ xml_schema_parse_schema(
 
 /*
  * :call-seq:
- *   read_memory(input) → Nokogiri::XML::Schema
- *   read_memory(input, parse_options) → Nokogiri::XML::Schema
- *
- * Parse an XSD schema definition and create a new Schema object.
- *
- * 💡 Note that the limitation of this method relative to Schema.new is that +input+ must be type
- * String, whereas Schema.new also supports IO types.
- *
- * [parameters]
- * - +input+ (String) XSD schema definition
- * - +parse_options+ (Nokogiri::XML::ParseOptions)
- *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
- *
- * [Returns] Nokogiri::XML::Schema
- */
-static VALUE
-xml_schema_s_read_memory(int argc, VALUE *argv, VALUE rb_class)
-{
-  VALUE rb_content;
-  VALUE rb_parse_options;
-  xmlSchemaParserCtxtPtr c_parser_context;
-
-  rb_scan_args(argc, argv, "11", &rb_content, &rb_parse_options);
-
-  c_parser_context = xmlSchemaNewMemParserCtxt(
-                       (const char *)StringValuePtr(rb_content),
-                       (int)RSTRING_LEN(rb_content)
-                     );
-
-  return xml_schema_parse_schema(rb_class, c_parser_context, rb_parse_options);
-}
-
-/*
- * :call-seq:
  *   from_document(document) → Nokogiri::XML::Schema
  *   from_document(document, parse_options) → Nokogiri::XML::Schema
  *
@@ -239,7 +205,6 @@ noko_init_xml_schema(void)
 
   rb_undef_alloc_func(cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlSchema, "read_memory", xml_schema_s_read_memory, -1);
   rb_define_singleton_method(cNokogiriXmlSchema, "from_document", noko_xml_schema_s_from_document, -1);
 
   rb_define_private_method(cNokogiriXmlSchema, "validate_document", noko_xml_schema__validate_document, 1);

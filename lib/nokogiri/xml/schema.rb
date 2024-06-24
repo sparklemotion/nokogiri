@@ -68,7 +68,26 @@ module Nokogiri
       # [Returns] Nokogiri::XML::Schema
       #
       def self.new(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
-        from_document(Nokogiri::XML(input), parse_options)
+        read_memory(input, parse_options)
+      end
+
+      # :call-seq:
+      #   read_memory(input) → Nokogiri::XML::Schema
+      #   read_memory(input, parse_options) → Nokogiri::XML::Schema
+      #
+      # Parse an XSD schema definition and create a new Schema object.
+      #
+      # 💡 Note that the limitation of this method relative to Schema.new is that +input+ must be type
+      # String, whereas Schema.new also supports IO types.
+      #
+      # [parameters]
+      # - +input+ (String) XSD schema definition
+      # - +parse_options+ (Nokogiri::XML::ParseOptions)
+      #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
+      #
+      # [Returns] Nokogiri::XML::Schema
+      def self.read_memory(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
+        from_document(Nokogiri::XML::Document.parse(input), parse_options)
       end
 
       #

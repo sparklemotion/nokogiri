@@ -102,39 +102,6 @@ xml_relax_ng_parse_schema(
 
 /*
  * :call-seq:
- *   read_memory(input) → Nokogiri::XML::RelaxNG
- *   read_memory(input, parse_options) → Nokogiri::XML::RelaxNG
- *
- * Parse a RELAX NG schema definition and create a new Schema object.
- *
- * 💡 Note that the limitation of this method relative to RelaxNG.new is that +input+ must be type
- * String, whereas RelaxNG.new also supports IO types.
- *
- * [Parameters]
- * - +input+ (String) RELAX NG schema definition
- * - +parse_options+ (Nokogiri::XML::ParseOptions) Defaults to ParseOptions::DEFAULT_SCHEMA
- *
- * [Returns] Nokogiri::XML::RelaxNG
- */
-static VALUE
-noko_xml_relax_ng_s_read_memory(int argc, VALUE *argv, VALUE rb_class)
-{
-  VALUE rb_content;
-  VALUE rb_parse_options;
-  xmlRelaxNGParserCtxtPtr c_parser_context;
-
-  rb_scan_args(argc, argv, "11", &rb_content, &rb_parse_options);
-
-  c_parser_context = xmlRelaxNGNewMemParserCtxt(
-                       (const char *)StringValuePtr(rb_content),
-                       (int)RSTRING_LEN(rb_content)
-                     );
-
-  return xml_relax_ng_parse_schema(rb_class, c_parser_context, rb_parse_options);
-}
-
-/*
- * :call-seq:
  *   from_document(document) → Nokogiri::XML::RelaxNG
  *   from_document(document, parse_options) → Nokogiri::XML::RelaxNG
  *
@@ -173,7 +140,6 @@ noko_init_xml_relax_ng(void)
   assert(cNokogiriXmlSchema);
   cNokogiriXmlRelaxNG = rb_define_class_under(mNokogiriXml, "RelaxNG", cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", noko_xml_relax_ng_s_read_memory, -1);
   rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", noko_xml_relax_ng_s_from_document, -1);
 
   rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", noko_xml_relax_ng__validate_document, 1);

@@ -52,12 +52,33 @@ module Nokogiri
       # [Parameters]
       # - +input+ (String, IO) RELAX NG schema definition
       # - +parse_options+ (Nokogiri::XML::ParseOptions)
-      #   Defaults to ParseOptions::DEFAULT_SCHEMA
+      #   Defaults to ParseOptions::DEFAULT_SCHEMA  ⚠ Unused
       #
       # [Returns] Nokogiri::XML::RelaxNG
       #
+      # ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+      # future functionality.
       def self.new(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
-        from_document(Nokogiri::XML(input), parse_options)
+        read_memory(input, parse_options)
+      end
+
+      # :call-seq:
+      #   read_memory(input) → Nokogiri::XML::RelaxNG
+      #   read_memory(input, parse_options) → Nokogiri::XML::RelaxNG
+      #
+      # Parse a RELAX NG schema definition and create a new Schema object.
+      #
+      # [Parameters]
+      # - +input+ (String) RELAX NG schema definition
+      # - +parse_options+ (Nokogiri::XML::ParseOptions)
+      #   Defaults to ParseOptions::DEFAULT_SCHEMA  ⚠ Unused
+      #
+      # [Returns] Nokogiri::XML::RelaxNG
+      #
+      # ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+      # future functionality.
+      def self.read_memory(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
+        from_document(Nokogiri::XML::Document.parse(input), parse_options)
       end
     end
   end
