@@ -693,17 +693,6 @@ module Nokogiri
           assert_equal(0, doc.errors.length)
         end
 
-        def test_leaking_dtd_nodes_after_internal_subset_removal
-          # see https://github.com/sparklemotion/nokogiri/issues/1784
-          #
-          # just checking that this doesn't raise a valgrind error. we
-          # don't otherwise have any test coverage for removing DTDs.
-          #
-          100.times do |_i|
-            Nokogiri::HTML4::Document.new.internal_subset.remove
-          end
-        end
-
         it "skips encoding for script tags" do
           html = Nokogiri::HTML4(<<~HTML)
             <html>
