@@ -43,9 +43,15 @@ noko_xml_schema__validate_document(VALUE self, VALUE document)
     (void *)errors
   );
 
-  xmlSchemaValidateDoc(valid_ctxt, doc);
+  int status = xmlSchemaValidateDoc(valid_ctxt, doc);
 
   xmlSchemaFreeValidCtxt(valid_ctxt);
+
+  if (status != 0) {
+    if (RARRAY_LEN(errors) == 0) {
+      rb_ary_push(errors, rb_str_new2("Could not validate document"));
+    }
+  }
 
   return errors;
 }
@@ -76,9 +82,15 @@ noko_xml_schema__validate_file(VALUE self, VALUE rb_filename)
     (void *)errors
   );
 
-  xmlSchemaValidateFile(valid_ctxt, filename, 0);
+  int status = xmlSchemaValidateFile(valid_ctxt, filename, 0);
 
   xmlSchemaFreeValidCtxt(valid_ctxt);
+
+  if (status != 0) {
+    if (RARRAY_LEN(errors) == 0) {
+      rb_ary_push(errors, rb_str_new2("Could not validate file."));
+    }
+  }
 
   return errors;
 }

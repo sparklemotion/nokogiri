@@ -202,14 +202,22 @@ public class XmlSchema extends RubyObject
 
     XmlDomParserContext ctx = new XmlDomParserContext(runtime, RubyFixnum.newFixnum(runtime, 1L));
     ctx.setInputSourceFile(context, file);
-    XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(runtime, "Nokogiri::XML::Document"), context.nil);
-    return validate_document_or_file(context, xmlDocument);
+    try {
+      XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(runtime, "Nokogiri::XML::Document"), context.nil);
+      return validate_document_or_file(context, xmlDocument);
+    } catch (Exception ex) {
+      RubyArray errors = (RubyArray)context.runtime.newEmptyArray();
+      XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
+      xmlSyntaxError.setException(ex);
+      errors.append(xmlSyntaxError);
+      return errors;
+    }
   }
 
   IRubyObject
   validate_document_or_file(ThreadContext context, XmlDocument xmlDocument)
   {
-    RubyArray errors = (RubyArray)context.runtime.newEmptyArray();
+    RubyArray errors = context.runtime.newEmptyArray();
     ErrorHandler errorHandler = new SchemaErrorHandler(context.runtime, errors);
     setErrorHandler(errorHandler);
 
