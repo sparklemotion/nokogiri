@@ -154,7 +154,7 @@ rb_xml_reader_namespaces(VALUE rb_reader)
 
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
 
-  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   c_node = xmlTextReaderExpand(c_reader);
   xmlSetStructuredErrorFunc(NULL, NULL);
 
@@ -196,7 +196,7 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
 
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
 
-  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   c_node = xmlTextReaderExpand(c_reader);
   xmlSetStructuredErrorFunc(NULL, NULL);
 
@@ -515,44 +515,41 @@ node_type(VALUE self)
  * Move the Reader forward through the XML document.
  */
 static VALUE
-read_more(VALUE self)
+read_more(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
-  xmlErrorConstPtr error;
-  VALUE error_list;
-  int ret;
-  xmlDocPtr c_document;
+  xmlTextReaderPtr c_reader;
+  libxmlStructuredErrorHandlerState handler_state;
 
-  TypedData_Get_Struct(self, xmlTextReader, &xml_text_reader_type, reader);
+  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_text_reader_type, c_reader);
 
-  error_list = rb_funcall(self, rb_intern("errors"), 0);
+  VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-  ret = xmlTextReaderRead(reader);
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  int status = xmlTextReaderRead(c_reader);
 
-  c_document = xmlTextReaderCurrentDoc(reader);
+  noko__structured_error_func_restore(&handler_state);
+
+  xmlDocPtr c_document = xmlTextReaderCurrentDoc(c_reader);
   if (c_document && c_document->encoding == NULL) {
-    VALUE constructor_encoding = rb_iv_get(self, "@encoding");
+    VALUE constructor_encoding = rb_iv_get(rb_reader, "@encoding");
     if (RTEST(constructor_encoding)) {
       c_document->encoding = xmlStrdup(BAD_CAST StringValueCStr(constructor_encoding));
     } else {
-      rb_iv_set(self, "@encoding", NOKOGIRI_STR_NEW2("UTF-8"));
+      rb_iv_set(rb_reader, "@encoding", NOKOGIRI_STR_NEW2("UTF-8"));
       c_document->encoding = xmlStrdup(BAD_CAST "UTF-8");
     }
   }
 
-  if (ret == 1) { return self; }
-  if (ret == 0) { return Qnil; }
+  if (status == 1) { return rb_reader; }
+  if (status == 0) { return Qnil; }
 
-  error = xmlGetLastError();
-  if (error) {
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+  /* if we're here, there was an error */
+  VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+  if (RB_TEST(exception)) {
+    rb_exc_raise(exception);
   } else {
-    rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
+    rb_raise(rb_eRuntimeError, "Error pulling: %d", status);
   }
-
-  return Qnil;
 }
 
 /*

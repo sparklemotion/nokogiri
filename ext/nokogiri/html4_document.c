@@ -46,7 +46,7 @@ rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_enco
   const char *c_encoding = NIL_P(rb_encoding) ? NULL : StringValueCStr(rb_encoding);
   int options = NUM2INT(rb_options);
 
-  xmlSetStructuredErrorFunc((void *)rb_error_list, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)rb_error_list, noko__error_array_pusher);
 
   c_doc = htmlReadIO(noko_io_read, noko_io_close, (void *)rb_io, c_url, c_encoding, options);
 
@@ -106,7 +106,7 @@ rb_html_document_s_read_memory(VALUE klass, VALUE rb_html, VALUE rb_url, VALUE r
   int html_len = (int)RSTRING_LEN(rb_html);
   int options = NUM2INT(rb_options);
 
-  xmlSetStructuredErrorFunc((void *)rb_error_list, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)rb_error_list, noko__error_array_pusher);
 
   c_doc = htmlReadMemory(c_buffer, html_len, c_url, c_encoding, options);
 

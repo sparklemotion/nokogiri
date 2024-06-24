@@ -98,49 +98,22 @@
   fun:evaluate
 }
 {
-  https://github.com/sparklemotion/nokogiri/actions/runs/5354163940/jobs/9710862134
-  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 28,980 of 37,883
-  # *xmlNewNodeEatName (tree.c:2299)
-  # *xmlNewDocNodeEatName (tree.c:2374)
-  # *xmlSAX2StartElementNs (SAX2.c:2255)
-  # *xmlParseStartTag2 (parser.c:9658)
-  # *xmlParseElementStart (parser.c:10043)
-  # *xmlParseContentInternal (parser.c:9908)
-  # *xmlParseElement (parser.c:9983)
-  # *xmlParseDocument (parser.c:10821)
-  # *xmlDoRead (parser.c:15167)
-  # *read_memory (xml_document.c:331)
-  Memcheck:Leak
-  fun:malloc
-  fun:objspace_xmalloc0
-  ...
-  fun:xmlNewNodeEatName
-  fun:xmlNewDocNodeEatName
-  fun:xmlSAX2StartElementNs
-  fun:xmlParseStartTag*
-  fun:xmlParseElementStart
-  fun:xmlParseContentInternal
-  fun:xmlParseElement
-  fun:xmlParseDocument
-  fun:xmlDoRead
-  fun:read_memory
-}
-{
   https://github.com/sparklemotion/nokogiri/actions/runs/4845701723/jobs/8634781681
-  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 28,576 of 36,831
-  #   malloc (vg_replace_malloc.c:381)
-  #   objspace_xmalloc0 (gc.c:12298)
-  #   xmlNewNodeEatName (tree.c:2257)
-  #   xmlNewDocNodeEatName (tree.c:2329)
-  #   xmlSAX2StartElementNs (SAX2.c:2085)
-  #   xmlParseStartTag2 (parser.c:9459)
-  #   xmlParseElementStart (parser.c:9848)
-  #   xmlParseContentInternal (parser.c:9697)
-  #   xmlParseElement (parser.c:9786)
-  #   xmlParseDocument (parser.c:10572)
-  #   xmlCtxtParseDocument (parser.c:13508)
-  #   xmlReadMemory (parser.c:13646)
-  #  *read_memory (xml_document.c:382)
+  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 408 of 452
+  #   malloc (at /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+  #   objspace_xmalloc0 (gc.c:12617)
+  #  *xmlNewElem (tree.c:2084)
+  #  *xmlNewDocNodeEatName (tree.c:2188)
+  #  *xmlSAX2StartElementNs (SAX2.c:2129)
+  #  *xmlParseStartTag2.constprop.0 (parser.c:9455)
+  #  *xmlParseElementStart (parser.c:9851)
+  #  *xmlParseContentInternal (parser.c:9693)
+  #  *xmlParseElement (parser.c:9789)
+  #  *xmlParseDocument (parser.c:10573)
+  #  *xmlCtxtParseDocument (parser.c:13687)
+  #  *xmlReadMemory (parser.c:13822)
+  #  *noko_xml_document_s_read_memory (xml_document.c:427)
+  #   vm_call_cfunc_with_frame_ (vm_insnhelper.c:3490)
   Memcheck:Leak
   fun:malloc
   fun:objspace_xmalloc0
@@ -148,9 +121,8 @@
   fun:xmlNewDocNodeEatName
   fun:xmlSAX2StartElementNs
   ...
-  fun:xmlParseDocument
-  ...
-  fun:read_memory
+  fun:xmlReadMemory
+  fun:noko_xml_document_s_read_memory
 }
 {
   TODO
