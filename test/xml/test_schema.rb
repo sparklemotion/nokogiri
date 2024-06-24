@@ -180,11 +180,9 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
 
       it "validate_empty_document" do
         doc = Nokogiri::XML("")
-        assert(errors = xsd.validate(doc))
 
-        pending_if("https://github.com/sparklemotion/nokogiri/issues/783", Nokogiri.jruby?) do
-          assert_equal(1, errors.length)
-        end
+        assert(errors = xsd.validate(doc))
+        assert_equal(1, errors.length)
       end
 
       it "valid?" do

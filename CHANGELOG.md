@@ -40,7 +40,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] libgumbo correctly prints nonstandard element names in error messages. [#3219] @stevecheckoway
 * [JRuby] Fixed some bugs in how `Node#attributes` handles attributes with namespaces. [#2677, #2679] @flavorjones
 * [JRuby] Fix `Schema#validate` to only return the most recent Document's errors. Previously, if multiple documents were validated, this method returned the accumulated errors of all previous documents. [#1282] @flavorjones
-* [JRuby] Fix `Schema#validate` to not clobber the `@errors` instance variable. [#1282] @ flavorjones
+* [JRuby] Fix `Schema#validate` to not clobber the `@errors` instance variable. [#1282] @flavorjones
+* [JRuby] Empty documents fail schema validation as they should. [#783] @flavorjones
 
 
 ### Changed

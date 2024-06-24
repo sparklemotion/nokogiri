@@ -248,6 +248,10 @@ public class XmlSchema extends RubyObject
   protected void
   validate(Document document) throws SAXException, IOException
   {
+    if (document.getDocumentElement() == null) {
+      throw new SAXException("Document is empty");
+    }
+
     DOMSource docSource = new DOMSource(document);
     validator.validate(docSource);
   }
