@@ -309,6 +309,20 @@ module Nokogiri
           refute_nil(duplicate.at_css("b"))
         end
 
+        def test_in_context_fragment_parsing_recovery
+          skip("This tests behavior in libxml 2.13") unless Nokogiri.uses_libxml?(">= 2.13.0")
+
+          # https://github.com/sparklemotion/nokogiri/issues/2092
+          context_xml = "<root xmlns:n='https://example.com/foo'></root>"
+          context_doc = Nokogiri::XML::Document.parse(context_xml)
+          invalid_xml_fragment = "<n:a><b></n:a>" # note missing closing tag for `b`
+          fragment = context_doc.root.parse(invalid_xml_fragment)
+
+          assert_equal("a", fragment.first.name)
+          assert_equal("n", fragment.first.namespace.prefix)
+          assert_equal("https://example.com/foo", fragment.first.namespace.href)
+        end
+
         def test_for_libxml_in_context_fragment_parsing_bug_workaround
           skip_unless_libxml2("valgrind tests should only run with libxml2")
 

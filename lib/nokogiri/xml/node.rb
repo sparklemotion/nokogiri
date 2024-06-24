@@ -1086,9 +1086,11 @@ module Nokogiri
 
         error_count = document.errors.length
         node_set = in_context(contents, options.to_i)
+
         if document.errors.length > error_count
           raise document.errors[error_count] unless options.recover?
 
+          # TODO: remove this block when libxml2 < 2.13 is no longer supported
           if node_set.empty?
             # libxml2 < 2.13 does not obey the +recover+ option after encountering errors during
             # +in_context+ parsing, and so this horrible hack is here to try to emulate recovery
@@ -1115,6 +1117,7 @@ module Nokogiri
             node_set = fragment.children
           end
         end
+
         node_set
       end
 
