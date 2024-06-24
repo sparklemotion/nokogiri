@@ -17,12 +17,6 @@ static const rb_data_type_t xml_relax_ng_type = {
   .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
 
-/*
- * call-seq:
- *  validate_document(document)
- *
- * Validate a Nokogiri::XML::Document against this RelaxNG schema.
- */
 static VALUE
 noko_xml_relax_ng__validate_document(VALUE self, VALUE document)
 {
@@ -107,36 +101,23 @@ xml_relax_ng_parse_schema(
 }
 
 /*
- * call-seq:
- *  read_memory(string)
+ * :call-seq:
+ *   from_document(document) → Nokogiri::XML::RelaxNG
+ *   from_document(document, parse_options) → Nokogiri::XML::RelaxNG
  *
- * Create a new RelaxNG from the contents of +string+
+ * Create a Schema from an already-parsed RELAX NG schema definition document.
+ *
+ * [Parameters]
+ * - +document+ (XML::Document) A XML::Document object representing the parsed RELAX NG
+ * - +parse_options+ (Nokogiri::XML::ParseOptions) ⚠ Unused
+ *
+ * [Returns] Nokogiri::XML::RelaxNG
+ *
+ * ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+ * future functionality.
  */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE rb_class)
-{
-  VALUE rb_content;
-  VALUE rb_parse_options;
-  xmlRelaxNGParserCtxtPtr c_parser_context;
-
-  rb_scan_args(argc, argv, "11", &rb_content, &rb_parse_options);
-
-  c_parser_context = xmlRelaxNGNewMemParserCtxt(
-                       (const char *)StringValuePtr(rb_content),
-                       (int)RSTRING_LEN(rb_content)
-                     );
-
-  return xml_relax_ng_parse_schema(rb_class, c_parser_context, rb_parse_options);
-}
-
-/*
- * call-seq:
- *  from_document(doc)
- *
- * Create a new RelaxNG schema from the Nokogiri::XML::Document +doc+
- */
-static VALUE
-from_document(int argc, VALUE *argv, VALUE rb_class)
+noko_xml_relax_ng_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 {
   VALUE rb_document;
   VALUE rb_parse_options;
@@ -159,8 +140,7 @@ noko_init_xml_relax_ng(void)
   assert(cNokogiriXmlSchema);
   cNokogiriXmlRelaxNG = rb_define_class_under(mNokogiriXml, "RelaxNG", cNokogiriXmlSchema);
 
-  rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", read_memory, -1);
-  rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", from_document, -1);
+  rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", noko_xml_relax_ng_s_from_document, -1);
 
   rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", noko_xml_relax_ng__validate_document, 1);
 }

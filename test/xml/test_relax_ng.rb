@@ -11,8 +11,9 @@ module Nokogiri
       end
 
       def test_parse_with_memory
-        assert_instance_of(Nokogiri::XML::RelaxNG, @schema)
-        assert_equal(0, @schema.errors.length)
+        schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE))
+        assert_instance_of(Nokogiri::XML::RelaxNG, schema)
+        assert_equal(0, schema.errors.length)
       end
 
       def test_new
