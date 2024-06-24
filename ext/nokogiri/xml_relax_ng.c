@@ -24,7 +24,7 @@ static const rb_data_type_t xml_relax_ng_type = {
  * Validate a Nokogiri::XML::Document against this RelaxNG schema.
  */
 static VALUE
-validate_document(VALUE self, VALUE document)
+noko_xml_relax_ng__validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlRelaxNGPtr schema;
@@ -162,5 +162,5 @@ noko_init_xml_relax_ng(void)
   rb_define_singleton_method(cNokogiriXmlRelaxNG, "read_memory", read_memory, -1);
   rb_define_singleton_method(cNokogiriXmlRelaxNG, "from_document", from_document, -1);
 
-  rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", validate_document, 1);
+  rb_define_private_method(cNokogiriXmlRelaxNG, "validate_document", noko_xml_relax_ng__validate_document, 1);
 }

@@ -39,6 +39,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update node GC lifecycle to avoid a potential memory leak with fragments in libxml 2.13.0 caused by changes in `xmlAddChild`. [#3156] @flavorjones
 * [CRuby] libgumbo correctly prints nonstandard element names in error messages. [#3219] @stevecheckoway
 * [JRuby] Fixed some bugs in how `Node#attributes` handles attributes with namespaces. [#2677, #2679] @flavorjones
+* [JRuby] Fix `Schema#validate` to only return the most recent Document's errors. Previously, if multiple documents were validated, this method returned the accumulated errors of all previous documents. [#1282] @flavorjones
+* [JRuby] Fix `Schema#validate` to not clobber the `@errors` instance variable. [#1282] @ flavorjones
 
 
 ### Changed

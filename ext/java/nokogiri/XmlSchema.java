@@ -222,7 +222,7 @@ public class XmlSchema extends RubyObject
   IRubyObject
   validate_document_or_file(ThreadContext context, XmlDocument xmlDocument)
   {
-    RubyArray<?> errors = (RubyArray) this.getInstanceVariable("@errors");
+    RubyArray errors = (RubyArray)context.runtime.newEmptyArray();
     ErrorHandler errorHandler = new SchemaErrorHandler(context.runtime, errors);
     setErrorHandler(errorHandler);
 
