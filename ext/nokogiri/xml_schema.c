@@ -45,7 +45,7 @@ validate_document(VALUE self, VALUE document)
 
   xmlSchemaSetValidStructuredErrors(
     valid_ctxt,
-    Nokogiri_error_array_pusher,
+    noko__error_array_pusher,
     (void *)errors
   );
 
@@ -84,7 +84,7 @@ validate_file(VALUE self, VALUE rb_filename)
 
   xmlSchemaSetValidStructuredErrors(
     valid_ctxt,
-    Nokogiri_error_array_pusher,
+    noko__error_array_pusher,
     (void *)errors
   );
 
@@ -97,16 +97,13 @@ validate_file(VALUE self, VALUE rb_filename)
 
 static VALUE
 xml_schema_parse_schema(
-  VALUE klass,
+  VALUE rb_class,
   xmlSchemaParserCtxtPtr c_parser_context,
   VALUE rb_parse_options
 )
 {
-  VALUE rb_errors;
-  int parse_options_int;
-  xmlSchemaPtr c_schema;
   xmlExternalEntityLoader old_loader = 0;
-  VALUE rb_schema;
+  libxmlStructuredErrorHandlerState handler_state;
 
   if (NIL_P(rb_parse_options)) {
     rb_parse_options = rb_const_get_at(
@@ -114,43 +111,41 @@ xml_schema_parse_schema(
                          rb_intern("DEFAULT_SCHEMA")
                        );
   }
+  int c_parse_options = (int)NUM2INT(rb_funcall(rb_parse_options, rb_intern("to_i"), 0));
 
-  rb_errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)rb_errors, Nokogiri_error_array_pusher);
+  VALUE rb_errors = rb_ary_new();
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
   xmlSchemaSetParserStructuredErrors(
     c_parser_context,
-    Nokogiri_error_array_pusher,
+    noko__error_array_pusher,
     (void *)rb_errors
   );
 
-  parse_options_int = (int)NUM2INT(rb_funcall(rb_parse_options, rb_intern("to_i"), 0));
-  if (parse_options_int & XML_PARSE_NONET) {
+  if (c_parse_options & XML_PARSE_NONET) {
     old_loader = xmlGetExternalEntityLoader();
     xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
   }
 
-  c_schema = xmlSchemaParse(c_parser_context);
+  xmlSchemaPtr c_schema = xmlSchemaParse(c_parser_context);
 
   if (old_loader) {
     xmlSetExternalEntityLoader(old_loader);
   }
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(c_parser_context);
+  noko__structured_error_func_restore(&handler_state);
 
   if (NULL == c_schema) {
-    xmlErrorConstPtr error = xmlGetLastError();
-    if (error) {
-      Nokogiri_error_raise(NULL, error);
+    VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+    if (RB_TEST(exception)) {
+      rb_exc_raise(exception);
     } else {
       rb_raise(rb_eRuntimeError, "Could not parse document");
     }
-
-    return Qnil;
   }
 
-  rb_schema = TypedData_Wrap_Struct(klass, &xml_schema_type, c_schema);
+  VALUE rb_schema = TypedData_Wrap_Struct(rb_class, &xml_schema_type, c_schema);
   rb_iv_set(rb_schema, "@errors", rb_errors);
   rb_iv_set(rb_schema, "@parse_options", rb_parse_options);
 
@@ -169,7 +164,7 @@ xml_schema_parse_schema(
  * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-read_memory(int argc, VALUE *argv, VALUE klass)
+read_memory(int argc, VALUE *argv, VALUE rb_class)
 {
   VALUE rb_content;
   VALUE rb_parse_options;
@@ -182,7 +177,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
                        (int)RSTRING_LEN(rb_content)
                      );
 
-  return xml_schema_parse_schema(klass, c_parser_context, rb_parse_options);
+  return xml_schema_parse_schema(rb_class, c_parser_context, rb_parse_options);
 }
 
 /*
@@ -197,7 +192,7 @@ read_memory(int argc, VALUE *argv, VALUE klass)
  * [Returns] Nokogiri::XML::Schema
  */
 static VALUE
-rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE klass)
+rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 {
   VALUE rb_document;
   VALUE rb_parse_options;
@@ -230,7 +225,7 @@ rb_xml_schema_s_from_document(int argc, VALUE *argv, VALUE klass)
   }
 
   c_parser_context = xmlSchemaNewDocParserCtxt(c_document);
-  rb_schema = xml_schema_parse_schema(klass, c_parser_context, rb_parse_options);
+  rb_schema = xml_schema_parse_schema(rb_class, c_parser_context, rb_parse_options);
 
   if (defensive_copy_p) {
     xmlFreeDoc(c_document);

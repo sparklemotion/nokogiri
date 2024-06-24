@@ -3,7 +3,7 @@
 VALUE cNokogiriXmlSyntaxError;
 
 void
-Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state)
+noko__structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state)
 {
   /* this method is tightly coupled to the implementation of xmlSetStructuredErrorFunc */
   handler_state->user_data = xmlStructuredErrorContext;
@@ -11,36 +11,38 @@ Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_s
 }
 
 void
-Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state,
-    void *user_data,
-    xmlStructuredErrorFunc handler)
+noko__structured_error_func_save_and_set(
+  libxmlStructuredErrorHandlerState *handler_state,
+  void *user_data,
+  xmlStructuredErrorFunc handler
+)
 {
-  Nokogiri_structured_error_func_save(handler_state);
+  noko__structured_error_func_save(handler_state);
   xmlSetStructuredErrorFunc(user_data, handler);
 }
 
 void
-Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state)
+noko__structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state)
 {
   xmlSetStructuredErrorFunc(handler_state->user_data, handler_state->handler);
 }
 
 void
-Nokogiri_error_array_pusher(void *ctx, xmlErrorConstPtr error)
+noko__error_array_pusher(void *ctx, xmlErrorConstPtr error)
 {
   VALUE list = (VALUE)ctx;
   Check_Type(list, T_ARRAY);
-  rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error(error));
+  rb_ary_push(list,  noko_xml_syntax_error__wrap(error));
 }
 
 void
-Nokogiri_error_raise(void *ctx, xmlErrorConstPtr error)
+noko__error_raise(void *ctx, xmlErrorConstPtr error)
 {
-  rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+  rb_exc_raise(noko_xml_syntax_error__wrap(error));
 }
 
 VALUE
-Nokogiri_wrap_xml_syntax_error(xmlErrorConstPtr error)
+noko_xml_syntax_error__wrap(xmlErrorConstPtr error)
 {
   VALUE msg, e, klass;
 

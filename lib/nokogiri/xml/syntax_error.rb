@@ -6,6 +6,19 @@ module Nokogiri
     # This class provides information about XML SyntaxErrors.  These
     # exceptions are typically stored on Nokogiri::XML::Document#errors.
     class SyntaxError < ::Nokogiri::SyntaxError
+      class << self
+        def aggregate(errors)
+          return nil if errors.empty?
+          return errors.first if errors.length == 1
+
+          messages = ["Multiple errors encountered:"]
+          errors.each do |error|
+            messages << error.to_s
+          end
+          new(messages.join("\n"))
+        end
+      end
+
       attr_reader :domain
       attr_reader :code
       attr_reader :level

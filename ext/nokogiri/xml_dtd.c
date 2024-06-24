@@ -144,7 +144,7 @@ validate(VALUE self, VALUE document)
 
   ctxt = xmlNewValidCtxt();
 
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)error_list, noko__error_array_pusher);
 
   xmlValidateDtd(ctxt, doc, dtd);
 

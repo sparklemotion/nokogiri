@@ -2105,36 +2105,38 @@ compare(VALUE self, VALUE _other)
 
 /*
  * call-seq:
- *   process_xincludes(options)
+ *   process_xincludes(flags)
  *
  * Loads and substitutes all xinclude elements below the node. The
- * parser context will be initialized with +options+.
+ * parser context will be initialized with +flags+.
  */
 static VALUE
-process_xincludes(VALUE self, VALUE options)
+noko_xml_node__process_xincludes(VALUE rb_node, VALUE rb_flags)
 {
-  int rcode ;
-  xmlNodePtr node;
-  VALUE error_list = rb_ary_new();
+  int status ;
+  xmlNodePtr c_node;
+  VALUE rb_errors = rb_ary_new();
+  libxmlStructuredErrorHandlerState handler_state;
 
-  Noko_Node_Get_Struct(self, xmlNode, node);
+  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-  rcode = xmlXIncludeProcessTreeFlags(node, (int)NUM2INT(options));
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  if (rcode < 0) {
-    xmlErrorConstPtr error;
+  status = xmlXIncludeProcessTreeFlags(c_node, (int)NUM2INT(rb_flags));
 
-    error = xmlGetLastError();
-    if (error) {
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+  noko__structured_error_func_restore(&handler_state);
+
+  if (status < 0) {
+    VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+
+    if (RB_TEST(exception)) {
+      rb_exc_raise(exception);
     } else {
       rb_raise(rb_eRuntimeError, "Could not perform xinclude substitution");
     }
   }
 
-  return self;
+  return rb_node;
 }
 
 
@@ -2156,7 +2158,7 @@ in_context(VALUE self, VALUE _str, VALUE _options)
   node_children = node->children;
   doc_children  = node->doc->children;
 
-  xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)err, noko__error_array_pusher);
 
   /* This function adds a fake node to the child of +node+.  If the parser
    * does not exit cleanly with XML_ERR_OK, the list is freed.  This can
@@ -2401,7 +2403,7 @@ noko_init_xml_node(void)
   rb_define_private_method(cNokogiriXmlNode, "native_write_to", native_write_to, 4);
   rb_define_private_method(cNokogiriXmlNode, "prepend_newline?", rb_prepend_newline, 0);
   rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 1);
-  rb_define_private_method(cNokogiriXmlNode, "process_xincludes", process_xincludes, 1);
+  rb_define_private_method(cNokogiriXmlNode, "process_xincludes", noko_xml_node__process_xincludes, 1);
   rb_define_private_method(cNokogiriXmlNode, "replace_node", replace, 1);
   rb_define_private_method(cNokogiriXmlNode, "set", set, 2);
   rb_define_private_method(cNokogiriXmlNode, "set_namespace", set_namespace, 1);

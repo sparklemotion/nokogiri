@@ -397,7 +397,7 @@ rb_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
     );
   }
 
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  xmlSetStructuredErrorFunc((void *)errors, noko__error_array_pusher);
   xmlSetGenericErrorFunc((void *)errors, generic_exception_pusher);
 
   xpath = xmlXPathEvalExpression(query, c_context);

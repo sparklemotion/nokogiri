@@ -232,13 +232,13 @@ xmlParserCtxtPtr noko_xml_sax_parser_context_unwrap(VALUE rb_context);
 #  define NOKO_WARN_DEPRECATION(message...) rb_warning(message)
 #endif
 
-void Nokogiri_structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
-void Nokogiri_structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state, void *user_data,
+void noko__structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
+void noko__structured_error_func_save_and_set(libxmlStructuredErrorHandlerState *handler_state, void *user_data,
     xmlStructuredErrorFunc handler);
-void Nokogiri_structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
-VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorConstPtr error);
-void Nokogiri_error_array_pusher(void *ctx, xmlErrorConstPtr error);
-NORETURN_DECL void Nokogiri_error_raise(void *ctx, xmlErrorConstPtr error);
+void noko__structured_error_func_restore(libxmlStructuredErrorHandlerState *handler_state);
+VALUE noko_xml_syntax_error__wrap(xmlErrorConstPtr error);
+void noko__error_array_pusher(void *ctx, xmlErrorConstPtr error);
+NORETURN_DECL void noko__error_raise(void *ctx, xmlErrorConstPtr error);
 void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name) ;
 

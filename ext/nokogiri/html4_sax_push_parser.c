@@ -24,16 +24,16 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
     size = (int)RSTRING_LEN(_chunk);
   }
 
-  Nokogiri_structured_error_func_save_and_set(&handler_state, NULL, NULL);
+  noko__structured_error_func_save_and_set(&handler_state, NULL, NULL);
 
   status = htmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0);
 
-  Nokogiri_structured_error_func_restore(&handler_state);
+  noko__structured_error_func_restore(&handler_state);
 
   if ((status != 0) && !(xmlCtxtGetOptions(ctx) & XML_PARSE_RECOVER)) {
     // TODO: there appear to be no tests for this block
     xmlErrorConstPtr e = xmlCtxtGetLastError(ctx);
-    Nokogiri_error_raise(NULL, e);
+    noko__error_raise(NULL, e);
   }
 
   return self;
