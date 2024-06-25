@@ -43,6 +43,7 @@ task :check_manifest, [:verbose] do |_, args|
     .gitignore
     .gitmodules
     .rubocop.yml
+    .rubocop_exclude.yml
     .rubocop_todo.yml
     CHANGELOG.md
     CODE_OF_CONDUCT.md
