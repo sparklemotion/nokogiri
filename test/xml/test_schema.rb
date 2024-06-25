@@ -178,13 +178,6 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
         assert_raises(ArgumentError) { xsd.validate(string) }
       end
 
-      it "validate_empty_document" do
-        doc = Nokogiri::XML("")
-
-        assert(errors = xsd.validate(doc))
-        assert_equal(1, errors.length)
-      end
-
       it "valid?" do
         valid_doc = Nokogiri::XML(File.read(PO_XML_FILE))
 
@@ -210,8 +203,9 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
         let(:good_xml) { %(<Contacts xmlns="http://www.example.org/contactExample"><Contact></Contact></Contacts>) }
         let(:bad_xml) { %(<Contacts xmlns="http://www.example.org/wrongNs"><Contact></Contact></Contacts>) }
 
+        let(:schema) { Nokogiri::XML::Schema.new(xsd) }
+
         it "does not clobber @errors" do
-          schema = Nokogiri::XML::Schema.new(xsd)
           bad_doc = Nokogiri::XML(bad_xml)
 
           # assert on setup
@@ -224,7 +218,6 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
 
         it "returns only the most recent document's errors" do
           # https://github.com/sparklemotion/nokogiri/issues/1282
-          schema = Nokogiri::XML::Schema.new(xsd)
           good_doc = Nokogiri::XML(good_xml)
           bad_doc = Nokogiri::XML(bad_xml)
 
@@ -234,6 +227,38 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
 
           # this is the bit under test
           assert_empty(schema.validate(good_doc))
+        end
+
+        it "return errors for empty documents" do
+          doc = Nokogiri::XML("")
+
+          assert(errors = schema.validate(doc))
+          assert_equal(1, errors.length)
+        end
+
+        it "return errors for empty files" do
+          Tempfile.create do |f|
+            f.write("") && f.close
+
+            assert(errors = schema.validate(f.path))
+            assert_equal(1, errors.length)
+          end
+        end
+
+        it "returns errors when validating bad documents" do
+          doc = Nokogiri::XML("xyz")
+
+          assert(errors = schema.validate(doc))
+          assert_equal(1, errors.length)
+        end
+
+        it "returns errors when validating bad files" do
+          Tempfile.create do |f|
+            f.write("xyz") && f.close
+
+            assert(errors = schema.validate(f.path))
+            assert_equal(1, errors.length)
+          end
         end
       end
     end
