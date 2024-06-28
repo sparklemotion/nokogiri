@@ -60,7 +60,7 @@ describe Nokogiri::CSS do
 
       it "raises a SyntaxError exception if the query is empty" do
         e = assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for("") }
-        assert_includes("empty CSS selector", e.message)
+        assert_equal("empty CSS selector", e.message)
       end
 
       it "raises an TypeError exception if the query is not a string" do
