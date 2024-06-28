@@ -12,7 +12,7 @@
 # - NOKOGIRI_MEMORY_SUITE: read more in test/test_memory_usage.rb
 #
 
-unless ENV["RUBY_MEMCHECK_RUNNING"]
+unless ENV["RUBY_MEMCHECK_RUNNING"] || ENV["NCPU"]
   require "simplecov"
   SimpleCov.start do
     add_filter "/test/"
@@ -49,6 +49,7 @@ warn
 
 require "minitest/autorun"
 require "minitest/benchmark"
+
 if ENV["NCPU"] && !Nokogiri.jruby?
   require "minitest/parallel_fork"
   warn "Running parallel tests with NCPU=#{ENV["NCPU"].inspect}"

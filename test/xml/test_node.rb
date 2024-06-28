@@ -1438,12 +1438,22 @@ module Nokogiri
             end
           end
 
+          it "raises an error if the input is not parseable" do
+            thing = doc.at_css("thing")
+
+            e = assert_raises(RuntimeError) do
+              thing.wrap("<<")
+            end
+            assert_includes(e.message, "Failed to parse '<<' in the context of a 'root' element")
+          end
+
           it "raises an ArgumentError on other types" do
             thing = doc.at_css("thing")
 
-            assert_raises(ArgumentError) do
+            e = assert_raises(ArgumentError) do
               thing.wrap(1)
             end
+            assert_includes(e.message, "Requires a String or Node argument, and cannot accept a Integer")
           end
         end
 
