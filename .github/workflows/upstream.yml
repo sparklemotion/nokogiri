@@ -34,7 +34,7 @@ jobs:
           ruby-version: "3.3"
           apt-get: "autogen libtool shtool"
           brew: "automake autogen libtool shtool"
-          mingw: "autotools"
+          mingw: "autotools xz"
           bundler-cache: true
           bundler: latest
       - name: Setup libxml2
