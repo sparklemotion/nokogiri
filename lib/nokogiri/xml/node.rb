@@ -264,7 +264,7 @@ module Nokogiri
           if new_parent.nil?
             raise "Failed to parse '#{node_or_tags}' in the context of a '#{context_node.name}' element"
           end
-        when XML::Node
+        when Node
           new_parent = node_or_tags.dup
         else
           raise ArgumentError, "Requires a String or Node argument, and cannot accept a #{node_or_tags.class}"
