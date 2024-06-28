@@ -104,7 +104,7 @@ parse_memory(VALUE klass, VALUE data)
   Check_Type(data, T_STRING);
 
   if (!(int)RSTRING_LEN(data)) {
-    rb_raise(rb_eRuntimeError, "data cannot be empty");
+    rb_raise(rb_eRuntimeError, "input string cannot be empty");
   }
 
   ctxt = xmlCreateMemoryParserCtxt(StringValuePtr(data),

@@ -241,16 +241,15 @@ public class XmlSaxParserContext extends ParserContext
       try {
         do_parse();
       } catch (SAXParseException ex) {
-        // A bad document (<foo><bar></foo>) should call the
-        // error handler instead of raising a SAX exception.
-
-        // However, an EMPTY document should raise a RuntimeError.
-        // This is a bit kludgy, but AFAIK SAX doesn't distinguish
-        // between empty and bad whereas Nokogiri does.
+        // An EMPTY document should raise a RuntimeError. This is a bit kludgy, but AFAIK SAX
+        // doesn't distinguish between empty and bad whereas Nokogiri does.
         String message = ex.getMessage();
         if (message != null && message.contains("Premature end of file.") && stringDataSize < 1) {
-          throw runtime.newRuntimeError("couldn't parse document: " + message);
+          throw runtime.newRuntimeError("input string cannot be empty");
         }
+
+        // A bad document (<foo><bar></foo>) should call the
+        // error handler instead of raising a SAX exception.
         handler.error(ex);
       }
     } catch (SAXException ex) {

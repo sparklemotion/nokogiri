@@ -63,7 +63,7 @@ public abstract class ParserContext extends RubyObject
     Ruby ruby = context.getRuntime();
 
     if (!(data.respondsTo("read"))) {
-      throw ruby.newTypeError("must respond to :read");
+      throw ruby.newTypeError("argument expected to respond to :read");
     }
 
     source.setByteStream(new IOInputStream(data));
@@ -80,8 +80,11 @@ public abstract class ParserContext extends RubyObject
 
     Ruby ruby = context.getRuntime();
 
+    if (data.isNil()) {
+      throw ruby.newTypeError("wrong argument type nil (expected String)");
+    }
     if (!(data instanceof RubyString)) {
-      throw ruby.newTypeError("must be kind_of String");
+      throw ruby.newTypeError("wrong argument type " + data.getMetaClass() + " (expected String)");
     }
 
     RubyString stringData = (RubyString) data;
