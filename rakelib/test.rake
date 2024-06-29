@@ -28,9 +28,10 @@ class ValgrindTestTask < Rake::TestTask
   end
 
   def ruby(*args, **options, &block)
+    ENV["NCPU"] = nil # don't run valgrind in parallel (minitest-parallel_fork)
+
     valgrind_options = check_for_suppression_file(VALGRIND_OPTIONS)
     command = "ulimit -s unlimited && valgrind #{valgrind_options.join(" ")} #{RUBY} #{args.join(" ")}"
-    ENV["NCPU"] = nil # don't run valgrind in parallel (minitest-parallel_fork)
     sh(command, **options, &block)
   end
 
@@ -74,6 +75,8 @@ end
 
 class GdbTestTask < Rake::TestTask
   def ruby(*args, **options, &block)
+    ENV["NCPU"] = nil
+
     command = "gdb --args #{RUBY} #{args.join(" ")}"
     sh(command, **options, &block)
   end
@@ -81,6 +84,8 @@ end
 
 class LldbTestTask < Rake::TestTask
   def ruby(*args, **options, &block)
+    ENV["NCPU"] = nil
+
     command = "lldb #{RUBY} -- #{args.join(" ")}"
     sh(command, **options, &block)
   end
