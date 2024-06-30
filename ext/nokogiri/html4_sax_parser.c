@@ -30,7 +30,8 @@ noko_init_html4_sax_parser(void)
 {
   cNokogiriHtml4SaxParser = rb_define_class_under(mNokogiriHtml4Sax, "Parser", cNokogiriXmlSaxParser);
 
-  rb_define_private_method(cNokogiriHtml4SaxParser, "initialize_native", noko_html4_sax_parser_initialize, 0);
+  rb_define_private_method(cNokogiriHtml4SaxParser, "initialize_native",
+                           noko_html4_sax_parser_initialize, 0);
 
   id_start_document = rb_intern("start_document");
 }

@@ -362,7 +362,18 @@ You can auto-format the C, Java, and Ruby code with `rake format`.
 
 There are some pending Rubocop rules in `.rubocop_todo.yml`. If you'd like to fix them up, I will happily merge your pull request.
 
-No, I don't want to debate any of the style choices.
+For C code, naming is currently inconsistent, but I am generally moving towards some guidelines that will make stack traces more readable and usable:
+
+- Public functions and functions bound to Ruby methods should start with `noko_` followed by the snake case class name.
+  - e.g., `noko_xml_sax_parser_context_...`
+- Static functions (file scope) do not need the "noko" prefix, but should be named with the snake case class name.
+  - e.g., `xml_sax_parser_context_...`
+- Ruby singleton methods should have `_s_` before the method name
+  - e.g., `noko_xml_sax_parser_context_s_io` for `Nokogiri::XML::SAX::ParserContext.io`
+- Ruby instance methods should have `__` before the method name
+  - e.g., `noko_xml_sax_parser_context__line` for `Nokogiri::XML::SAX::ParserContext#line`
+- Ruby attribute getters and setters should have `_get` or `_set` as a suffix
+  - e.g., `noko_xml_sax_parser_context__recovery_set` for `Nokogiri::XML::SAX::ParserContext#recovery=`
 
 
 ## How Continuous Integration ("CI") is configured

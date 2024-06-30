@@ -3,7 +3,7 @@
 VALUE cNokogiriHtml4SaxParserContext ;
 
 static VALUE
-parse_memory(VALUE klass, VALUE data, VALUE encoding)
+noko_html4_sax_parser_s_parse_memory(VALUE klass, VALUE data, VALUE encoding)
 {
   htmlParserCtxtPtr ctxt;
 
@@ -35,7 +35,7 @@ parse_memory(VALUE klass, VALUE data, VALUE encoding)
 }
 
 static VALUE
-parse_file(VALUE klass, VALUE filename, VALUE encoding)
+noko_html4_sax_parser_context_s_parse_file(VALUE klass, VALUE filename, VALUE encoding)
 {
   htmlParserCtxtPtr ctxt = htmlCreateFileParserCtxt(
                              StringValueCStr(filename),
@@ -51,7 +51,7 @@ parse_file(VALUE klass, VALUE filename, VALUE encoding)
 }
 
 static VALUE
-parse_doc(VALUE ctxt_val)
+html4_sax_parser_context_parse_doc(VALUE ctxt_val)
 {
   htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
   htmlParseDocument(ctxt);
@@ -59,7 +59,7 @@ parse_doc(VALUE ctxt_val)
 }
 
 static VALUE
-parse_doc_finalize(VALUE ctxt_val)
+html4_sax_parser_context_parse_doc_finalize(VALUE ctxt_val)
 {
   htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
 
@@ -72,7 +72,7 @@ parse_doc_finalize(VALUE ctxt_val)
 }
 
 static VALUE
-parse_with(VALUE self, VALUE sax_handler)
+noko_html4_sax_parser_context__parse_with(VALUE self, VALUE sax_handler)
 {
   htmlParserCtxtPtr ctxt;
   htmlSAXHandlerPtr sax;
@@ -89,7 +89,8 @@ parse_with(VALUE self, VALUE sax_handler)
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
+  rb_ensure(html4_sax_parser_context_parse_doc, (VALUE)ctxt,
+            html4_sax_parser_context_parse_doc_finalize, (VALUE)ctxt);
 
   return self;
 }
@@ -101,8 +102,11 @@ noko_init_html_sax_parser_context(void)
   cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext",
                                    cNokogiriXmlSaxParserContext);
 
-  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory", parse_memory, 2);
-  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file", parse_file, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory",
+                             noko_html4_sax_parser_s_parse_memory, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file",
+                             noko_html4_sax_parser_context_s_parse_file, 2);
 
-  rb_define_method(cNokogiriHtml4SaxParserContext, "parse_with", parse_with, 1);
+  rb_define_method(cNokogiriHtml4SaxParserContext, "parse_with",
+                   noko_html4_sax_parser_context__parse_with, 1);
 }

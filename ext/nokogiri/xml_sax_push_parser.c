@@ -12,7 +12,7 @@ xml_sax_push_parser_free(void *data)
   }
 }
 
-static const rb_data_type_t xml_parser_ctxt_type = {
+static const rb_data_type_t xml_sax_push_parser_type = {
   .wrap_struct_name = "xmlParserCtxt",
   .function = {
     .dfree = xml_sax_push_parser_free,
@@ -21,16 +21,16 @@ static const rb_data_type_t xml_parser_ctxt_type = {
 };
 
 static VALUE
-allocate(VALUE klass)
+xml_sax_push_parser_allocate(VALUE klass)
 {
-  return TypedData_Wrap_Struct(klass, &xml_parser_ctxt_type, NULL);
+  return TypedData_Wrap_Struct(klass, &xml_sax_push_parser_type, NULL);
 }
 
 xmlParserCtxtPtr
 noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
 {
   xmlParserCtxtPtr c_parser;
-  TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_parser_ctxt_type, c_parser);
+  TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_sax_push_parser_type, c_parser);
   return c_parser;
 }
 
@@ -41,12 +41,11 @@ noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
  * Write +chunk+ to PushParser. +last_chunk+ triggers the end_document handle
  */
 static VALUE
-native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
+noko_xml_sax_push_parser__native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
   const char *chunk  = NULL;
   int size            = 0;
-
 
   ctx = noko_xml_sax_push_parser_unwrap(self);
 
@@ -74,7 +73,7 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
  * Initialize the push parser with +xml_sax+ using +filename+
  */
 static VALUE
-initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
+noko_xml_sax_push_parser__initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 {
   xmlSAXHandlerPtr sax;
   const char *filename = NULL;
@@ -102,7 +101,7 @@ initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 }
 
 static VALUE
-get_options(VALUE self)
+noko_xml_sax_push_parser__options_get(VALUE self)
 {
   xmlParserCtxtPtr ctx;
 
@@ -112,7 +111,7 @@ get_options(VALUE self)
 }
 
 static VALUE
-set_options(VALUE self, VALUE options)
+noko_xml_sax_push_parser__options_set(VALUE self, VALUE options)
 {
   int error;
   xmlParserCtxtPtr ctx;
@@ -135,7 +134,7 @@ set_options(VALUE self, VALUE options)
  * set to true
  */
 static VALUE
-get_replace_entities(VALUE self)
+noko_xml_sax_push_parser__replace_entities_get(VALUE self)
 {
   xmlParserCtxtPtr ctxt = noko_xml_sax_push_parser_unwrap(self);
 
@@ -154,7 +153,7 @@ get_replace_entities(VALUE self)
  * set to true
  */
 static VALUE
-set_replace_entities(VALUE self, VALUE value)
+noko_xml_sax_push_parser__replace_entities_set(VALUE self, VALUE value)
 {
   int error;
   xmlParserCtxtPtr ctxt = noko_xml_sax_push_parser_unwrap(self);
@@ -177,13 +176,19 @@ noko_init_xml_sax_push_parser(void)
 {
   cNokogiriXmlSaxPushParser = rb_define_class_under(mNokogiriXmlSax, "PushParser", rb_cObject);
 
-  rb_define_alloc_func(cNokogiriXmlSaxPushParser, allocate);
+  rb_define_alloc_func(cNokogiriXmlSaxPushParser, xml_sax_push_parser_allocate);
 
-  rb_define_method(cNokogiriXmlSaxPushParser, "options", get_options, 0);
-  rb_define_method(cNokogiriXmlSaxPushParser, "options=", set_options, 1);
-  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities", get_replace_entities, 0);
-  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities=", set_replace_entities, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options",
+                   noko_xml_sax_push_parser__options_get, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "options=",
+                   noko_xml_sax_push_parser__options_set, 1);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities",
+                   noko_xml_sax_push_parser__replace_entities_get, 0);
+  rb_define_method(cNokogiriXmlSaxPushParser, "replace_entities=",
+                   noko_xml_sax_push_parser__replace_entities_set, 1);
 
-  rb_define_private_method(cNokogiriXmlSaxPushParser, "initialize_native", initialize_native, 2);
-  rb_define_private_method(cNokogiriXmlSaxPushParser, "native_write", native_write, 2);
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "initialize_native",
+                           noko_xml_sax_push_parser__initialize_native, 2);
+  rb_define_private_method(cNokogiriXmlSaxPushParser, "native_write",
+                           noko_xml_sax_push_parser__native_write, 2);
 }

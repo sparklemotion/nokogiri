@@ -9,7 +9,7 @@ VALUE cNokogiriHtml4SaxPushParser;
  * Write +chunk+ to PushParser. +last_chunk+ triggers the end_document handle
  */
 static VALUE
-native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
+noko_html4_sax_push_parser__native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
   const char *chunk = NULL;
@@ -46,8 +46,12 @@ native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
  * Initialize the push parser with +xml_sax+ using +filename+
  */
 static VALUE
-initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
-                  VALUE encoding)
+noko_html4_sax_push_parser__initialize_native(
+  VALUE self,
+  VALUE _xml_sax,
+  VALUE _filename,
+  VALUE encoding
+)
 {
   htmlSAXHandlerPtr sax;
   const char *filename = NULL;
@@ -87,8 +91,11 @@ void
 noko_init_html_sax_push_parser(void)
 {
   assert(cNokogiriXmlSaxPushParser);
-  cNokogiriHtml4SaxPushParser = rb_define_class_under(mNokogiriHtml4Sax, "PushParser", cNokogiriXmlSaxPushParser);
+  cNokogiriHtml4SaxPushParser =
+    rb_define_class_under(mNokogiriHtml4Sax, "PushParser", cNokogiriXmlSaxPushParser);
 
-  rb_define_private_method(cNokogiriHtml4SaxPushParser, "initialize_native", initialize_native, 3);
-  rb_define_private_method(cNokogiriHtml4SaxPushParser, "native_write", native_write, 2);
+  rb_define_private_method(cNokogiriHtml4SaxPushParser, "initialize_native",
+                           noko_html4_sax_push_parser__initialize_native, 3);
+  rb_define_private_method(cNokogiriHtml4SaxPushParser, "native_write",
+                           noko_html4_sax_push_parser__native_write, 2);
 }
