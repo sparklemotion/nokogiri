@@ -6,8 +6,10 @@ static void
 xml_sax_push_parser_free(void *data)
 {
   xmlParserCtxtPtr ctx = data;
-  if (ctx != NULL) {
-    NOKOGIRI_SAX_TUPLE_DESTROY(ctx->userData);
+  if (ctx->myDoc) {
+    xmlFreeDoc(ctx->myDoc);
+  }
+  if (ctx) {
     xmlFreeParserCtxt(ctx);
   }
 }
@@ -94,7 +96,8 @@ noko_xml_sax_push_parser__initialize_native(VALUE self, VALUE _xml_sax, VALUE _f
     rb_raise(rb_eRuntimeError, "Could not create a parser context");
   }
 
-  ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
+  ctx->userData = ctx;
+  ctx->_private = (void *)_xml_sax;
 
   DATA_PTR(self) = ctx;
   return self;

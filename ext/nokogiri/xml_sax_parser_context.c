@@ -9,7 +9,12 @@ xml_sax_parser_context_type_free(void *data)
 {
   xmlParserCtxtPtr ctxt = data;
   ctxt->sax = NULL;
-  xmlFreeParserCtxt(ctxt);
+  if (ctxt->myDoc) {
+    xmlFreeDoc(ctxt->myDoc);
+  }
+  if (ctxt) {
+    xmlFreeParserCtxt(ctxt);
+  }
 }
 
 /*
@@ -117,6 +122,7 @@ noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
   return noko_xml_sax_parser_context_wrap(rb_class, c_context);
 }
 
+/* TODO use rb_protect instead of rb_ensure */
 static VALUE
 xml_sax_parser_context_parse_doc(VALUE ctxt_val)
 {
@@ -128,13 +134,7 @@ xml_sax_parser_context_parse_doc(VALUE ctxt_val)
 static VALUE
 xml_sax_parser_context_parse_doc_finalize(VALUE ctxt_val)
 {
-  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
-
-  if (NULL != ctxt->myDoc) {
-    xmlFreeDoc(ctxt->myDoc);
-  }
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+  // TODO: delete this function? i dunno.
   return Qnil;
 }
 
@@ -158,7 +158,8 @@ noko_xml_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
   sax = noko_xml_sax_parser_unwrap(rb_sax_parser);
 
   c_context->sax = sax;
-  c_context->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(c_context, rb_sax_parser);
+  c_context->userData = c_context; /* so we can use libxml2/SAX2.c handlers if we want to */
+  c_context->_private = (void *)rb_sax_parser;
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 

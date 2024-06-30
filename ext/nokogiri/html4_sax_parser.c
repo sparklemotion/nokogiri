@@ -7,7 +7,8 @@ static ID id_start_document;
 static void
 noko_html4_sax_parser_start_document(void *ctx)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
   rb_funcall(doc, id_start_document, 0);

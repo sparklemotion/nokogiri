@@ -81,7 +81,8 @@ noko_html4_sax_push_parser__initialize_native(
     rb_raise(rb_eRuntimeError, "Could not create a parser context");
   }
 
-  ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
+  ctx->userData = ctx;
+  ctx->_private = (void *)_xml_sax;
 
   DATA_PTR(self) = ctx;
   return self;

@@ -160,12 +160,6 @@ typedef struct _nokogiriTuple {
 } nokogiriTuple;
 typedef nokogiriTuple *nokogiriTuplePtr;
 
-typedef struct _nokogiriSAXTuple {
-  xmlParserCtxtPtr  ctxt;
-  VALUE             self;
-} nokogiriSAXTuple;
-typedef nokogiriSAXTuple *nokogiriSAXTuplePtr;
-
 typedef struct _libxmlStructuredErrorHandlerState {
   void *user_data;
   xmlStructuredErrorFunc handler;
@@ -218,11 +212,6 @@ xmlParserCtxtPtr noko_xml_sax_parser_context_unwrap(VALUE rb_context);
 #define DOC_NODE_CACHE(x) (((nokogiriTuplePtr)(x->_private))->node_cache)
 #define NOKOGIRI_NAMESPACE_EH(node) ((node)->type == XML_NAMESPACE_DECL)
 
-#define NOKOGIRI_SAX_SELF(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->self
-#define NOKOGIRI_SAX_CTXT(_ctxt) ((nokogiriSAXTuplePtr)(_ctxt))->ctxt
-#define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) nokogiri_sax_tuple_new(_ctxt, _self)
-#define NOKOGIRI_SAX_TUPLE_DESTROY(_tuple) ruby_xfree(_tuple)
-
 #define DISCARD_CONST_QUAL(t, v) ((t)(uintptr_t)(v))
 #define DISCARD_CONST_QUAL_XMLCHAR(v) DISCARD_CONST_QUAL(xmlChar *, v)
 
@@ -241,15 +230,5 @@ void noko__error_array_pusher(void *ctx, xmlErrorConstPtr error);
 NORETURN_DECL void noko__error_raise(void *ctx, xmlErrorConstPtr error);
 void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler,
     const char *function_name) ;
-
-static inline
-nokogiriSAXTuplePtr
-nokogiri_sax_tuple_new(xmlParserCtxtPtr ctxt, VALUE self)
-{
-  nokogiriSAXTuplePtr tuple = ruby_xmalloc(sizeof(nokogiriSAXTuple));
-  tuple->self = self;
-  tuple->ctxt = ctxt;
-  return tuple;
-}
 
 #endif /* NOKOGIRI_NATIVE */

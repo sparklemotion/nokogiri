@@ -35,10 +35,10 @@ static const rb_data_type_t xml_sax_parser_type = {
 static void
 noko_xml_sax_parser_start_document_callback(void *ctx)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
-  xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
 
   if (ctxt->standalone != -1) { /* -1 means there was no declaration */
     VALUE encoding = Qnil ;
@@ -72,16 +72,20 @@ noko_xml_sax_parser_start_document_callback(void *ctx)
 static void
 noko_xml_sax_parser_end_document_callback(void *ctx)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   rb_funcall(doc, id_end_document, 0);
 }
 
 static void
 noko_xml_sax_parser_start_element_callback(void *ctx, const xmlChar *name, const xmlChar **atts)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE attributes = rb_ary_new();
   const xmlChar *attr;
   int i = 0;
@@ -105,8 +109,10 @@ noko_xml_sax_parser_start_element_callback(void *ctx, const xmlChar *name, const
 static void
 noko_xml_sax_parser_end_element_callback(void *ctx, const xmlChar *name)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   rb_funcall(doc, id_end_element, 1, NOKOGIRI_STR_NEW2(name));
 }
 
@@ -151,7 +157,8 @@ noko_xml_sax_parser_start_element_ns_callback(
   int nb_defaulted,
   const xmlChar **attributes)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
   VALUE attribute_ary = xml_sax_parser_marshal_attributes(nb_attributes, attributes);
@@ -191,7 +198,8 @@ noko_xml_sax_parser_end_element_ns_callback(
   const xmlChar *prefix,
   const xmlChar *uri)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
   rb_funcall(doc, id_end_element_namespace, 3,
@@ -204,8 +212,10 @@ noko_xml_sax_parser_end_element_ns_callback(
 static void
 noko_xml_sax_parser_characters_callback(void *ctx, const xmlChar *ch, int len)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE str = NOKOGIRI_STR_NEW(ch, len);
   rb_funcall(doc, id_characters, 1, str);
 }
@@ -213,8 +223,10 @@ noko_xml_sax_parser_characters_callback(void *ctx, const xmlChar *ch, int len)
 static void
 noko_xml_sax_parser_comment_callback(void *ctx, const xmlChar *value)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE str = NOKOGIRI_STR_NEW2(value);
   rb_funcall(doc, id_comment, 1, str);
 }
@@ -223,8 +235,10 @@ PRINTFLIKE_DECL(2, 3)
 static void
 noko_xml_sax_parser_warning_callback(void *ctx, const char *msg, ...)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE rb_message;
 
 #ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
@@ -245,8 +259,10 @@ PRINTFLIKE_DECL(2, 3)
 static void
 noko_xml_sax_parser_error_callback(void *ctx, const char *msg, ...)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE rb_message;
 
 #ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
@@ -266,8 +282,10 @@ noko_xml_sax_parser_error_callback(void *ctx, const char *msg, ...)
 static void
 noko_xml_sax_parser_cdata_block_callback(void *ctx, const xmlChar *value, int len)
 {
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
+
   VALUE string = NOKOGIRI_STR_NEW(value, len);
   rb_funcall(doc, id_cdata_block, 1, string);
 }
@@ -275,11 +293,11 @@ noko_xml_sax_parser_cdata_block_callback(void *ctx, const xmlChar *value, int le
 static void
 noko_xml_sax_parser_processing_instruction_callback(void *ctx, const xmlChar *name, const xmlChar *content)
 {
-  VALUE rb_content;
-  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
-  rb_content = content ? NOKOGIRI_STR_NEW2(content) : Qnil;
+  VALUE rb_content = content ? NOKOGIRI_STR_NEW2(content) : Qnil;
 
   rb_funcall(doc,
              id_processing_instruction,

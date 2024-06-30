@@ -61,13 +61,7 @@ html4_sax_parser_context_parse_doc(VALUE ctxt_val)
 static VALUE
 html4_sax_parser_context_parse_doc_finalize(VALUE ctxt_val)
 {
-  htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
-
-  if (ctxt->myDoc) {
-    xmlFreeDoc(ctxt->myDoc);
-  }
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+  // TODO: delete this function? i dunno.
   return Qnil;
 }
 
@@ -85,7 +79,8 @@ noko_html4_sax_parser_context__parse_with(VALUE self, VALUE sax_handler)
   sax = noko_xml_sax_parser_unwrap(sax_handler);
 
   ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+  ctxt->userData = ctxt; /* so we can use libxml2/SAX2.c handlers if we want to */
+  ctxt->_private = (void *)sax_handler;
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
