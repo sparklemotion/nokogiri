@@ -15,6 +15,7 @@ static ID id_error;
 static ID id_warning;
 static ID id_cdata_block;
 static ID id_processing_instruction;
+static ID id_reference;
 
 static size_t
 xml_sax_parser_memsize(const void *data)
@@ -308,6 +309,22 @@ noko_xml_sax_parser_processing_instruction_callback(void *ctx, const xmlChar *na
             );
 }
 
+static void
+noko_xml_sax_parser_reference_callback(void *ctx, const xmlChar *name)
+{
+  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctx;
+  xmlEntityPtr entity = xmlSAX2GetEntity(ctxt, name);
+
+  VALUE self = (VALUE)ctxt->_private;
+  VALUE doc = rb_iv_get(self, "@document");
+
+  if (entity && entity->content) {
+    rb_funcall(doc, id_reference, 2, NOKOGIRI_STR_NEW2(entity->name), NOKOGIRI_STR_NEW2(entity->content));
+  } else {
+    rb_funcall(doc, id_reference, 2, NOKOGIRI_STR_NEW2(name), Qnil);
+  }
+}
+
 static VALUE
 noko_xml_sax_parser__initialize_native(VALUE self)
 {
@@ -325,6 +342,7 @@ noko_xml_sax_parser__initialize_native(VALUE self)
   handler->error = noko_xml_sax_parser_error_callback;
   handler->cdataBlock = noko_xml_sax_parser_cdata_block_callback;
   handler->processingInstruction = noko_xml_sax_parser_processing_instruction_callback;
+  handler->reference = noko_xml_sax_parser_reference_callback;
 
   /* use some of libxml2's default callbacks to managed DTDs and entities */
   handler->getEntity = xmlSAX2GetEntity;
@@ -381,4 +399,5 @@ noko_init_xml_sax_parser(void)
   id_start_element_namespace = rb_intern("start_element_namespace");
   id_end_element_namespace = rb_intern("end_element_namespace");
   id_processing_instruction = rb_intern("processing_instruction");
+  id_reference = rb_intern("reference");
 }

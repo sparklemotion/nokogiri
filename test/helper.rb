@@ -415,6 +415,7 @@ module Nokogiri
         attr_reader :end_elements_namespace
         attr_reader :xmldecls
         attr_reader :processing_instructions
+        attr_reader :references
 
         def initialize
           @errors = []
@@ -487,6 +488,12 @@ module Nokogiri
         def processing_instruction(name, content)
           @processing_instructions ||= []
           @processing_instructions << [name, content]
+          super
+        end
+
+        def reference(name, content)
+          @references ||= []
+          @references << [name, content]
           super
         end
       end

@@ -227,7 +227,7 @@ public class XmlSaxParserContext extends ParserContext
     }
 
     errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
-    handler = new NokogiriHandler(runtime, handlerRuby, errorHandler);
+    handler = new NokogiriHandler(runtime, handlerRuby, errorHandler, options.noEnt);
 
     preParse(runtime, handlerRuby, handler);
     parser.setContentHandler(handler);
@@ -236,6 +236,12 @@ public class XmlSaxParserContext extends ParserContext
 
     try {
       parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+    } catch (Exception ex) {
+      throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
+    }
+
+    try {
+      parser.setProperty("http://xml.org/sax/properties/declaration-handler", handler);
     } catch (Exception ex) {
       throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
     }

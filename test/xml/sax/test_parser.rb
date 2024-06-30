@@ -517,6 +517,12 @@ module Nokogiri
 
                 assert_equal(["\u0092", "\u0092"], parser.document.data)
               end
+
+              it "never call #references when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_nil(parser.document.references)
+              end
             end
           end
 
@@ -531,6 +537,12 @@ module Nokogiri
                 parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
 
                 assert_equal(["&", "&"], parser.document.data)
+              end
+
+              it "never call #references when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_nil(parser.document.references)
               end
             end
           end
@@ -549,6 +561,18 @@ module Nokogiri
                 assert_equal(["quux", "quux"], parser.document.data)
               end
             end
+
+            it "does not call #references when replace_entities=true" do
+              parser.parse(xml) { |pc| pc.replace_entities = true }
+
+              assert_nil(parser.document.references)
+            end
+
+            it "calls #references when replace_entities=false" do
+              parser.parse(xml) { |pc| pc.replace_entities = false }
+
+              assert_equal([["bar", "quux"], ["bar", "quux"]], parser.document.references)
+            end
           end
 
           describe "undeclared entities" do
@@ -566,6 +590,24 @@ module Nokogiri
 
                 assert_nil(parser.document.data)
               end
+            end
+
+            it "does not call #references when replace_entities=true" do
+              parser.parse(xml) do |pc|
+                pc.replace_entities = true
+                pc.recovery = true # because an undeclared entity is an error
+              end
+
+              assert_nil(parser.document.references)
+            end
+
+            it "calls #references when replace_entities=false" do
+              parser.parse(xml) do |pc|
+                pc.replace_entities = false
+                pc.recovery = true # because an undeclared entity is an error
+              end
+
+              assert_equal([["bar", nil], ["bar", nil]], parser.document.references)
             end
           end
 
@@ -586,6 +628,7 @@ module Nokogiri
 
               assert_nil(parser.document.data)
               assert_empty(parser.document.errors)
+              assert_equal([["local", nil], ["local", nil]], parser.document.references)
             end
 
             it "resolves local external entities when replace_entities is true" do
@@ -604,6 +647,7 @@ module Nokogiri
 
               assert_equal(["local-contents", "local-contents"], parser.document.data)
               assert_equal(0, parser.document.errors.length)
+              assert_nil(parser.document.references)
             end
           end
 
@@ -619,6 +663,7 @@ module Nokogiri
 
             assert_nil(parser.document.data)
             assert_empty(parser.document.errors)
+            assert_equal([["remote", nil], ["remote", nil]], parser.document.references)
           end
         end
       end

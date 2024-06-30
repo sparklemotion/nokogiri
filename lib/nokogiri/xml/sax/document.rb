@@ -131,6 +131,9 @@ module Nokogiri
         def characters(string)
         end
 
+        def reference(name, content)
+        end
+
         ###
         # Called when comments are encountered
         # +string+ contains the comment data
