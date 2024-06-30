@@ -43,7 +43,7 @@ public class XmlSaxParserContext extends ParserContext
 
   protected NokogiriHandler handler;
   protected NokogiriErrorHandler errorHandler;
-  private boolean replaceEntities = true;
+  private boolean replaceEntities = false;
   private boolean recovery = false;
 
   public
@@ -222,6 +222,9 @@ public class XmlSaxParserContext extends ParserContext
 
     /* TODO: how should we pass in parse options? */
     ParserContext.Options options = defaultParseOptions(context);
+    if (replaceEntities) {
+      options.noEnt = true;
+    }
 
     errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
     handler = new NokogiriHandler(runtime, handlerRuby, errorHandler);

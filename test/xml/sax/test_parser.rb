@@ -169,7 +169,7 @@ module Nokogiri
               [
                 "root",
                 [],
-                nil, nil,
+                nil, (nil | ""), # TODO: jruby is returning an empty string, cruby is returning nil
                 [["foo", "http://foo.example.com/"]], # namespace declarations
               ], [
                 "a",
@@ -475,39 +475,6 @@ module Nokogiri
           end
         end
 
-        it "does not resolve entities by default" do
-          xml = <<~XML
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE doc [
-              <!ENTITY local SYSTEM "file:///#{File.expand_path(__FILE__)}">
-              <!ENTITY custom "resolved>
-            ]>
-            <doc><foo>&local;</foo><foo>&custom;</foo></doc>
-          XML
-
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          parser.parse(xml)
-
-          assert_nil(doc.data)
-        end
-
-        it "does not resolve network external entities by default" do
-          xml = <<~XML
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE doc [
-              <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
-            ]>
-            <doc><foo>&remote;</foo></doc>
-          XML
-
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          parser.parse(xml)
-
-          assert_nil(doc.data)
-        end
-
         it "handles parser warnings" do
           skip_unless_libxml2("this is testing error message formatting in the C extension")
 
@@ -525,6 +492,133 @@ module Nokogiri
             assert_equal("warning_func: %s", parser.document.warnings.first)
           else
             assert_match(/URI .* is not absolute/, parser.document.warnings.first)
+          end
+        end
+
+        describe "entities" do
+          it "does not replace entities by default" do
+            parser_context = nil
+            parser.parse("<root></root>") do |ctx|
+              parser_context = ctx
+            end
+
+            refute(parser_context.replace_entities)
+          end
+
+          describe "character references" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&#146;</foo><foo>&#146;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replace when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["\u0092", "\u0092"], parser.document.data)
+              end
+            end
+          end
+
+          describe "predefined entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&amp;</foo><foo>&amp;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replace when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["&", "&"], parser.document.data)
+              end
+            end
+          end
+
+          describe "internal entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE root [ <!ENTITY bar "quux"> ]>
+              <root><foo>&bar;</foo><foo>&bar;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replaces when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["quux", "quux"], parser.document.data)
+              end
+            end
+          end
+
+          describe "undeclared entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&bar;</foo><foo>&bar;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "does not replace undeclared entities when replace_entities is #{replace_entities}" do
+                parser.parse(xml) do |pc|
+                  pc.replace_entities = replace_entities
+                  pc.recovery = true # because an undeclared entity is an error
+                end
+
+                assert_nil(parser.document.data)
+              end
+            end
+          end
+
+          describe "local external entities" do
+            it "does not resolve local external entities when replace_entities is false" do
+              Tempfile.create do |io|
+                io.write("local-contents")
+                io.close
+                xml = <<~XML
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE doc [
+                    <!ENTITY local SYSTEM "file:///#{io.path}">
+                  ]>
+                  <doc><foo>&local;</foo><foo>&local;</foo></doc>
+                XML
+                parser.parse(xml) { |pc| pc.replace_entities = false }
+              end
+
+              assert_nil(parser.document.data)
+              assert_empty(parser.document.errors)
+            end
+
+            it "resolves local external entities when replace_entities is true" do
+              Tempfile.create do |io|
+                io.write("local-contents")
+                io.close
+                xml = <<~XML
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE doc [
+                    <!ENTITY local SYSTEM "#{io.path}">
+                  ]>
+                  <doc><foo>&local;</foo><foo>&local;</foo></doc>
+                XML
+                parser.parse(xml) { |pc| pc.replace_entities = true }
+              end
+
+              assert_equal(["local-contents", "local-contents"], parser.document.data)
+              assert_equal(0, parser.document.errors.length)
+            end
+          end
+
+          it "does not resolve network external entities when replace_entities is false" do
+            xml = <<~XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE doc [
+                <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
+              ]>
+              <doc><foo>&remote;</foo><foo>&remote;</foo></doc>
+            XML
+            parser.parse(xml) { |pc| pc.replace_entities = false }
+
+            assert_nil(parser.document.data)
+            assert_empty(parser.document.errors)
           end
         end
       end

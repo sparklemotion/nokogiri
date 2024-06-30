@@ -11,6 +11,8 @@ noko_html4_sax_parser_start_document(void *ctx)
   VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
+  xmlSAX2StartDocument(ctx);
+
   rb_funcall(doc, id_start_document, 0);
 }
 

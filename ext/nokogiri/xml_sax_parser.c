@@ -39,6 +39,7 @@ noko_xml_sax_parser_start_document_callback(void *ctx)
   VALUE self = (VALUE)ctxt->_private;
   VALUE doc = rb_iv_get(self, "@document");
 
+  xmlSAX2StartDocument(ctx);
 
   if (ctxt->standalone != -1) { /* -1 means there was no declaration */
     VALUE encoding = Qnil ;
@@ -324,6 +325,19 @@ noko_xml_sax_parser__initialize_native(VALUE self)
   handler->error = noko_xml_sax_parser_error_callback;
   handler->cdataBlock = noko_xml_sax_parser_cdata_block_callback;
   handler->processingInstruction = noko_xml_sax_parser_processing_instruction_callback;
+
+  /* use some of libxml2's default callbacks to managed DTDs and entities */
+  handler->getEntity = xmlSAX2GetEntity;
+  handler->internalSubset = xmlSAX2InternalSubset;
+  handler->externalSubset = xmlSAX2ExternalSubset;
+  handler->isStandalone = xmlSAX2IsStandalone;
+  handler->hasInternalSubset = xmlSAX2HasInternalSubset;
+  handler->hasExternalSubset = xmlSAX2HasExternalSubset;
+  handler->resolveEntity = xmlSAX2ResolveEntity;
+  handler->getParameterEntity = xmlSAX2GetParameterEntity;
+  handler->entityDecl = xmlSAX2EntityDecl;
+  handler->unparsedEntityDecl = xmlSAX2UnparsedEntityDecl;
+
   handler->initialized = XML_SAX2_MAGIC;
 
   return self;
