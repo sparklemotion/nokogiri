@@ -169,7 +169,7 @@ module Nokogiri
               [
                 "root",
                 [],
-                nil, (nil | ""), # TODO: jruby is returning an empty string, cruby is returning nil
+                nil, nil,
                 [["foo", "http://foo.example.com/"]], # namespace declarations
               ], [
                 "a",

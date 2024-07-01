@@ -165,7 +165,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
          stringOrNil(runtime, localName),
          rubyAttr,
          stringOrNil(runtime, getPrefix(qName)),
-         stringOrNil(runtime, uri),
+         uri.length() > 0 ? stringOrNil(runtime, uri) : runtime.getNil(),
          rubyNSAttr);
   }
 
