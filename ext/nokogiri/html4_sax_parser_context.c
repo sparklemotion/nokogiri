@@ -51,43 +51,30 @@ noko_html4_sax_parser_context_s_parse_file(VALUE klass, VALUE filename, VALUE en
 }
 
 static VALUE
-html4_sax_parser_context_parse_doc(VALUE ctxt_val)
-{
-  htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
-  htmlParseDocument(ctxt);
-  return Qnil;
-}
-
-static VALUE
-html4_sax_parser_context_parse_doc_finalize(VALUE ctxt_val)
-{
-  // TODO: delete this function? i dunno.
-  return Qnil;
-}
-
-static VALUE
-noko_html4_sax_parser_context__parse_with(VALUE self, VALUE sax_handler)
+noko_html4_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
 {
   htmlParserCtxtPtr ctxt;
   htmlSAXHandlerPtr sax;
 
-  if (!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser)) {
+  if (!rb_obj_is_kind_of(rb_sax_parser, cNokogiriXmlSaxParser)) {
     rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
   }
 
-  ctxt = noko_xml_sax_parser_context_unwrap(self);
-  sax = noko_xml_sax_parser_unwrap(sax_handler);
+  ctxt = noko_xml_sax_parser_context_unwrap(rb_context);
+  sax = noko_xml_sax_parser_unwrap(rb_sax_parser);
 
   ctxt->sax = sax;
   ctxt->userData = ctxt; /* so we can use libxml2/SAX2.c handlers if we want to */
-  ctxt->_private = (void *)sax_handler;
+  ctxt->_private = (void *)rb_sax_parser;
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  rb_ensure(html4_sax_parser_context_parse_doc, (VALUE)ctxt,
-            html4_sax_parser_context_parse_doc_finalize, (VALUE)ctxt);
+  /* although we're calling back into Ruby here, we don't need to worry about exceptions, because we
+   * don't have any cleanup to do. The only memory we need to free is handled by
+   * xml_sax_parser_context_type_free */
+  htmlParseDocument(ctxt);
 
-  return self;
+  return Qnil;
 }
 
 void

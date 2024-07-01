@@ -122,22 +122,6 @@ noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
   return noko_xml_sax_parser_context_wrap(rb_class, c_context);
 }
 
-/* TODO use rb_protect instead of rb_ensure */
-static VALUE
-xml_sax_parser_context_parse_doc(VALUE ctxt_val)
-{
-  xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
-  xmlParseDocument(ctxt);
-  return Qnil;
-}
-
-static VALUE
-xml_sax_parser_context_parse_doc_finalize(VALUE ctxt_val)
-{
-  // TODO: delete this function? i dunno.
-  return Qnil;
-}
-
 /*
  * call-seq:
  *  parse_with(sax_handler)
@@ -163,10 +147,10 @@ noko_xml_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  rb_ensure(
-    xml_sax_parser_context_parse_doc, (VALUE)c_context,
-    xml_sax_parser_context_parse_doc_finalize, (VALUE)c_context
-  );
+  /* although we're calling back into Ruby here, we don't need to worry about exceptions, because we
+   * don't have any cleanup to do. The only memory we need to free is handled by
+   * xml_sax_parser_context_type_free */
+  xmlParseDocument(c_context);
 
   return Qnil;
 }
