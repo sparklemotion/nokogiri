@@ -626,8 +626,8 @@ module Nokogiri
                 parser.parse(xml) { |pc| pc.replace_entities = false }
               end
 
-              assert_nil(parser.document.data)
               assert_empty(parser.document.errors)
+              assert_nil(parser.document.data)
               assert_equal([["local", nil], ["local", nil]], parser.document.references)
             end
 
@@ -645,8 +645,8 @@ module Nokogiri
                 parser.parse(xml) { |pc| pc.replace_entities = true }
               end
 
+              assert_empty(parser.document.errors)
               assert_equal(["local-contents", "local-contents"], parser.document.data)
-              assert_equal(0, parser.document.errors.length)
               assert_nil(parser.document.references)
             end
           end
@@ -661,10 +661,28 @@ module Nokogiri
             XML
             parser.parse(xml) { |pc| pc.replace_entities = false }
 
-            assert_nil(parser.document.data)
             assert_empty(parser.document.errors)
+            assert_nil(parser.document.data)
             assert_equal([["remote", nil], ["remote", nil]], parser.document.references)
           end
+
+          # # commented out because xmlIO uses the generic error handler for the network error.  I
+          # # just didn't have time to go deal with that, and didn't want the error message coming out
+          # # in my test output.
+          # it "does not resolve network external entities when replace_entities is true" do
+          #   xml = <<~XML
+          #     <?xml version="1.0" encoding="UTF-8"?>
+          #     <!DOCTYPE doc [
+          #       <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
+          #     ]>
+          #     <doc><foo>&remote;</foo><foo>&remote;</foo></doc>
+          #   XML
+          #   parser.parse(xml) { |pc| pc.replace_entities = true }
+
+          #   assert_empty(parser.document.errors)
+          #   assert_nil(parser.document.data)
+          #   assert_nil(parser.document.references)
+          # end
         end
       end
     end

@@ -37,9 +37,6 @@ noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
 }
 
 /*
- * call-seq:
- *  native_write(chunk, last_chunk)
- *
  * Write +chunk+ to PushParser. +last_chunk+ triggers the end_document handle
  */
 static VALUE
@@ -131,10 +128,14 @@ noko_xml_sax_push_parser__options_set(VALUE self, VALUE options)
 
 /*
  * call-seq:
- *  replace_entities
+ *   replace_entities
  *
- * Should this parser replace entities?  &amp; will get converted to '&' if
- * set to true
+ * See Document@Entity+Handling for an explanation of the behavior controlled by this flag.
+ *
+ * [Returns] (Boolean) Value of the parse option. (Default +false+)
+ *
+ * This option is perhaps misnamed by the libxml2 author, since it controls resolution and not
+ * replacement.
  */
 static VALUE
 noko_xml_sax_push_parser__replace_entities_get(VALUE self)
@@ -150,10 +151,18 @@ noko_xml_sax_push_parser__replace_entities_get(VALUE self)
 
 /*
  * call-seq:
- *  replace_entities=(boolean)
+ *   replace_entities=(value)
  *
- * Should this parser replace entities?  &amp; will get converted to '&' if
- * set to true
+ * See Document@Entity+Handling for an explanation of the behavior controlled by this flag.
+ *
+ * [Parameters]
+ * - +value+ (Boolean) Whether external parsed entities will be resolved.
+ *
+ * ⚠ <b>It is UNSAFE to set this option to +true+</b> when parsing untrusted documents. The option
+ * defaults to +false+ for this reason.
+ *
+ * This option is perhaps misnamed by the libxml2 author, since it controls resolution and not
+ * replacement.
  */
 static VALUE
 noko_xml_sax_push_parser__replace_entities_set(VALUE self, VALUE value)

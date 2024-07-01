@@ -46,9 +46,17 @@ noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
 
 /*
  * call-seq:
- *  parse_io(io, encoding)
+ *   io(input, encoding_id)
  *
- * Parse +io+ object with +encoding+
+ * Create a parser context for an +input+ IO which will assume +encoding+
+ *
+ * [Parameters]
+ * - +io+ (IO) The readable IO object from which to read input
+ * - +encoding_id+ (Integer) The libxml2 encoding ID to use, see SAX::Parser::ENCODINGS
+ *
+ * [Returns] Nokogiri::XML::SAX::ParserContext
+ *
+ * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
  */
 static VALUE
 noko_xml_sax_parser_context_s_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding_id)
@@ -78,9 +86,16 @@ noko_xml_sax_parser_context_s_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding_
 
 /*
  * call-seq:
- *  parse_file(filename)
+ *   file(path)
  *
- * Parse file given +filename+
+ * Create a parser context for the file at +path+.
+ *
+ * [Parameters]
+ * - +path+ (String) The path to the input file
+ *
+ * [Returns] Nokogiri::XML::SAX::ParserContext
+ *
+ * 💡 Calling Nokogiri::XML::SAX::Parser.parse_file is more convenient for most use cases.
  */
 static VALUE
 noko_xml_sax_parser_context_s_file(VALUE rb_class, VALUE rb_path)
@@ -97,9 +112,16 @@ noko_xml_sax_parser_context_s_file(VALUE rb_class, VALUE rb_path)
 
 /*
  * call-seq:
- *  parse_memory(data)
+ *   memory(input)
  *
- * Parse the XML stored in memory in +data+
+ * Create a parser context for the +input+ String.
+ *
+ * [Parameters]
+ * - +input+ (String) The input string to be parsed.
+ *
+ * [Returns] Nokogiri::XML::SAX::ParserContext
+ *
+ * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
  */
 static VALUE
 noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
@@ -157,10 +179,27 @@ noko_xml_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
 
 /*
  * call-seq:
- *  replace_entities=(boolean)
+ *   replace_entities=(value)
  *
- * Should this parser replace entities?  &amp; will get converted to '&' if
- * set to true
+ * See Document@Entity+Handling for an explanation of the behavior controlled by this flag.
+ *
+ * [Parameters]
+ * - +value+ (Boolean) Whether external parsed entities will be resolved.
+ *
+ * ⚠ <b>It is UNSAFE to set this option to +true+</b> when parsing untrusted documents. The option
+ * defaults to +false+ for this reason.
+ *
+ * This option is perhaps misnamed by the libxml2 author, since it controls resolution and not
+ * replacement.
+ *
+ * [Example]
+ * Because this class is generally not instantiated directly, you would typically set this option
+ * via the block argument to Nokogiri::XML::SAX::Parser.parse et al:
+ *
+ *     parser = Nokogiri::XML::SAX::Parser.new(document_handler)
+ *     parser.parse(xml) do |ctx|
+ *       ctx.replace_entities = true # this is UNSAFE for untrusted documents!
+ *     end
  */
 static VALUE
 noko_xml_sax_parser_context__replace_entities_set(VALUE rb_context, VALUE rb_value)
@@ -183,10 +222,14 @@ noko_xml_sax_parser_context__replace_entities_set(VALUE rb_context, VALUE rb_val
 
 /*
  * call-seq:
- *  replace_entities
+ *   replace_entities
  *
- * Should this parser replace entities?  &amp; will get converted to '&' if
- * set to true
+ * See Document@Entity+Handling for an explanation of the behavior controlled by this flag.
+ *
+ * [Returns] (Boolean) Value of the parse option. (Default +false+)
+ *
+ * This option is perhaps misnamed by the libxml2 author, since it controls resolution and not
+ * replacement.
  */
 static VALUE
 noko_xml_sax_parser_context__replace_entities_get(VALUE rb_context)
@@ -203,7 +246,7 @@ noko_xml_sax_parser_context__replace_entities_get(VALUE rb_context)
 /*
  * call-seq: line
  *
- * Get the current line the parser context is processing.
+ * [Returns] (Integer) the line number of the line being currently parsed.
  */
 static VALUE
 noko_xml_sax_parser_context__line(VALUE rb_context)
@@ -222,7 +265,7 @@ noko_xml_sax_parser_context__line(VALUE rb_context)
 /*
  * call-seq: column
  *
- * Get the current column the parser context is processing.
+ * [Returns] (Integer) the column number of the column being currently parsed.
  */
 static VALUE
 noko_xml_sax_parser_context__column(VALUE rb_context)
@@ -240,10 +283,25 @@ noko_xml_sax_parser_context__column(VALUE rb_context)
 
 /*
  * call-seq:
- *  recovery=(boolean)
+ *   recovery=(value)
  *
- * Should this parser recover from structural errors? It will not stop processing
- * file on structural errors if set to true
+ * Controls whether this parser will recover from parsing errors. If set to +true+, the parser will
+ * invoke the SAX::Document#error callback and continue processing the file. If set to +false+, the
+ * parser will stop processing the file on the first parsing error.
+ *
+ * [Parameters]
+ * - +value+ (Boolean) Recover from parsing errors. (Default is +false+ for XML and +true+ for HTML.)
+ *
+ * [Returns] (Boolean) The passed +value+.
+ *
+ * [Example]
+ * Because this class is generally not instantiated directly, you would typically set this option
+ * via the block argument to Nokogiri::XML::SAX::Parser.parse et al:
+ *
+ *     parser = Nokogiri::XML::SAX::Parser.new(document_handler)
+ *     parser.parse(xml) do |ctx|
+ *       ctx.recovery = true
+ *     end
  */
 static VALUE
 noko_xml_sax_parser_context__recovery_set(VALUE rb_context, VALUE rb_value)
@@ -266,10 +324,15 @@ noko_xml_sax_parser_context__recovery_set(VALUE rb_context, VALUE rb_value)
 
 /*
  * call-seq:
- *  recovery
+ *   recovery
  *
- * Should this parser recover from structural errors? It will not stop processing
- * file on structural errors if set to true
+ * Inspect whether this parser will recover from parsing errors. If set to +true+, the parser will
+ * invoke the SAX::Document#error callback and continue processing the file. If set to +false+, the
+ * parser will stop processing the file on the first parsing error.
+ *
+ * [Returns] (Boolean) Whether this parser will recover from parsing errors.
+ *
+ * Default is +false+ for XML and +true+ for HTML.
  */
 static VALUE
 noko_xml_sax_parser_context__recovery_get(VALUE rb_context)

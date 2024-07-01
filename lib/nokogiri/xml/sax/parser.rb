@@ -35,7 +35,7 @@ module Nokogiri
         class Attribute < Struct.new(:localname, :prefix, :uri, :value)
         end
 
-        # Encodinds this parser supports
+        # Encodings this parser supports
         ENCODINGS = {
           "NONE" => 0, # No char encoding detected
           "UTF-8" => 1, # UTF-8

@@ -6,7 +6,7 @@ VALUE cNokogiriXmlAttr;
  * call-seq:
  *  value=(content)
  *
- * Set the value for this Attr to +content+. Use `nil` to remove the value
+ * Set the value for this Attr to +content+. Use +nil+ to remove the value
  * (e.g., a HTML boolean attribute).
  */
 static VALUE
