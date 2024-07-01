@@ -602,6 +602,8 @@ module Nokogiri
             end
 
             it "calls #references when replace_entities=false" do
+              skip if Nokogiri.uses_libxml?("< 2.13.0") # gnome/libxml2@b717abdd
+
               parser.parse(xml) do |pc|
                 pc.replace_entities = false
                 pc.recovery = true # because an undeclared entity is an error
