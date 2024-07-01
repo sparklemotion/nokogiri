@@ -236,11 +236,6 @@ public class XmlSaxParserContext extends ParserContext
 
     try {
       parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
-    } catch (Exception ex) {
-      throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
-    }
-
-    try {
       parser.setProperty("http://xml.org/sax/properties/declaration-handler", handler);
     } catch (Exception ex) {
       throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
