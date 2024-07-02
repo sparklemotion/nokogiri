@@ -41,6 +41,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * `Node#clone`, `NodeSet#clone`, and `*::Document#clone` all properly copy the metaclass of the original as expected. Previously, `#clone` had been aliased to `#dup` for these classes (since v1.3.0 in 2009). [#316, #3117] @flavorjones
 * CSS queries for pseudo-selectors that cannot be translated into XPath expressions now raise a more descriptive `Nokogiri::CSS::SyntaxError` when they are parsed. Previously, an invalid XPath expression was evaluated and a hard-to-understand XPath error was raised by the query engine. [#3193] @flavorjones
 * `Schema#validate` returns errors on empty and malformed files. Previously, it would return errors on empty/malformed Documents, but not when reading from files. [#642] @flavorjones
+* `XML::Builder` is now consistent with how it sets block scope. Previously, missing methods with blocks on dynamically-created nodes were always handled by invoking `instance_eval(&block)` on the Builder, even when the Builder was yielding self for all other missing methods with blocks. [#1041] @flavorjones
 * [CRuby] libgumbo (the HTML5 parser) treats reaching max-depth as EOF. This addresses a class of issues when the parser is interrupted in this way. [#3121] @stevecheckoway
 * [CRuby] Update node GC lifecycle to avoid a potential memory leak with fragments in libxml 2.13.0 caused by changes in `xmlAddChild`. [#3156] @flavorjones
 * [CRuby] libgumbo correctly prints nonstandard element names in error messages. [#3219] @stevecheckoway

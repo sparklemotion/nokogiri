@@ -475,7 +475,14 @@ module Nokogiri
           if block
             old_parent = @doc_builder.parent
             @doc_builder.parent = @node
-            value = @doc_builder.instance_eval(&block)
+
+            arity = @doc_builder.arity || block.arity
+            value = if arity <= 0
+              @doc_builder.instance_eval(&block)
+            else
+              yield(@doc_builder)
+            end
+
             @doc_builder.parent = old_parent
             return value
           end
