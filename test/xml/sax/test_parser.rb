@@ -634,6 +634,8 @@ module Nokogiri
             end
 
             it "resolves local external entities when replace_entities is true" do
+              skip if Nokogiri.uses_libxml?("< 2.9.11") # gnome/libxml2@eddfbc38
+
               Tempfile.create do |io|
                 io.write("local-contents")
                 io.close
