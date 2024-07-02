@@ -452,16 +452,27 @@ module Nokogiri
       end
 
       def test_inner_xml
-        str = "<x><y>hello</y></x>"
+        str = "<x><y>hello &amp; goodbye</y></x>"
         reader = Nokogiri::XML::Reader.from_memory(str)
 
         reader.read
 
-        assert_equal("<y>hello</y>", reader.inner_xml)
+        assert_equal("<y>hello &amp; goodbye</y>", reader.inner_xml)
       end
 
       def test_outer_xml
-        str = ["<x><y>hello</y></x>", "<y>hello</y>", "hello", "<y/>", "<x/>"]
+        str = [
+          "<x><y>hello &amp; goodbye</y></x>",
+          "<y>hello &amp; goodbye</y>",
+          "hello &amp; goodbye",
+          "<y/>",
+          "<x/>",
+        ]
+        if Nokogiri.jruby?
+          # jruby will split the string up into three nodes, shrug.
+          str.delete_at(2)
+          str.insert(2, "hello ", "&amp;", " goodbye")
+        end
         reader = Nokogiri::XML::Reader.from_memory(str.first)
 
         xml = []

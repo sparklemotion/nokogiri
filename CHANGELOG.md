@@ -52,6 +52,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] Empty documents fail schema validation as they should. [#783] @flavorjones
 * [JRuby] SAX parsing now respects the `#replace_entities` attribute, which defaults to `false`. Previously this flag defaulted to `true` and was completely ignored. [#614] @flavorjones
 * [JRuby] The SAX callback `Document#start_element_namespace` received a blank string for the URI when a namespace was not present. It now receives `nil` (as does the CRuby impl). [#3265] @flavorjones
+* [JRuby] `Reader#outer_xml` and `#inner_xml` encode entities properly. [#1523] @flavorjones
 
 
 ### Changed
