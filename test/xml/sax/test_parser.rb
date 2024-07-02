@@ -8,39 +8,85 @@ module Nokogiri
       describe Nokogiri::XML::SAX::Parser do
         let(:parser) { Nokogiri::XML::SAX::Parser.new(Doc.new) }
 
-        it :test_parser_context_yielded_io do
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          xml = "<foo a='&amp;b'/>"
+        describe ".parse" do
+          describe "passed IO (parse_io)" do
+            it "parses an IO" do
+              File.open(XML_FILE, "rb") do |f|
+                parser.parse(f)
+              end
 
-          block_called = false
-          parser.parse(StringIO.new(xml)) do |ctx|
-            block_called = true
-            ctx.replace_entities = true
+              refute_empty(parser.document.cdata_blocks)
+            end
+
+            it "yields the parser context" do
+              doc = Doc.new
+              parser = Nokogiri::XML::SAX::Parser.new(doc)
+              xml = "<foo a='&amp;b'/>"
+
+              block_called = false
+              parser.parse(StringIO.new(xml)) do |ctx|
+                block_called = true
+                ctx.replace_entities = true
+              end
+
+              assert(block_called)
+              assert_equal([["foo", [["a", "&b"]]]], doc.start_elements)
+            end
           end
 
-          assert(block_called)
+          describe "passed String (parse_memory)" do
+            it "parses a String" do
+              parser.parse(File.read(XML_FILE))
 
-          assert_equal([["foo", [["a", "&b"]]]], doc.start_elements)
+              refute_empty(parser.document.cdata_blocks)
+            end
+
+            it "yields the parser context" do
+              doc = Doc.new
+              parser = Nokogiri::XML::SAX::Parser.new(doc)
+              xml = "<foo a='&amp;b'/>"
+
+              block_called = false
+              parser.parse(xml) do |ctx|
+                block_called = true
+                ctx.replace_entities = true
+              end
+
+              assert(block_called)
+
+              assert_equal([["foo", [["a", "&b"]]]], doc.start_elements)
+            end
+          end
         end
 
-        it :test_parser_context_yielded_in_memory do
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          xml = "<foo a='&amp;b'/>"
+        describe ".parse_file" do
+          it "parses a file" do
+            parser.parse_file(XML_FILE)
 
-          block_called = false
-          parser.parse(xml) do |ctx|
-            block_called = true
-            ctx.replace_entities = true
+            assert_raises(ArgumentError) do
+              parser.parse_file(nil)
+            end
+
+            assert_raises(Errno::ENOENT) do
+              parser.parse_file("")
+            end
+            assert_raises(Errno::EISDIR) do
+              parser.parse_file(File.expand_path(File.dirname(__FILE__)))
+            end
           end
 
-          assert(block_called)
+          it "parses a compressed file" do
+            skip("libxml2 legacy support") unless Nokogiri.uses_libxml? && Nokogiri::LIBXML_ZLIB_ENABLED
 
-          assert_equal([["foo", [["a", "&b"]]]], doc.start_elements)
+            filename = XML_FILE + ".gz"
+            parser.parse_file(filename)
+
+            refute_nil(parser.document.start_elements)
+            assert_operator(parser.document.start_elements.count, :>, 30)
+          end
         end
 
-        it :test_empty_decl do
+        it "handles documents without an xml decl" do
           parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
 
           xml = "<root />"
@@ -67,114 +113,120 @@ module Nokogiri
           end
         end
 
-        it :test_parse_empty do
-          assert_raises(RuntimeError) do
-            parser.parse("")
-          end
+        it "raises an error on empty content" do
+          e = assert_raises(RuntimeError) { parser.parse("") }
+          assert_equal("input string cannot be empty", e.message)
         end
 
         it "handles invalid types gracefully" do
-          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse(0xcafecafe) }
-          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_memory(0xcafecafe) }
-          assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_io(0xcafecafe) }
+          e = assert_raises(TypeError) { parser.parse(nil) }
+          assert_equal("wrong argument type nil (expected String)", e.message)
+
+          e = assert_raises(TypeError) { parser.parse_memory(nil) }
+          assert_equal("wrong argument type nil (expected String)", e.message)
+
+          e = assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse(0xcafecafe) }
+          assert_equal("wrong argument type Integer (expected String)", e.message)
+
+          e = assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_memory(0xcafecafe) }
+          assert_equal("wrong argument type Integer (expected String)", e.message)
+
+          e = assert_raises(TypeError) { Nokogiri::XML::SAX::Parser.new.parse_io(0xcafecafe) }
+          assert_equal("argument expected to respond to :read", e.message)
         end
 
-        it :test_namespace_declaration_order_is_saved do
-          parser.parse(<<~EOF)
+        it "preserves the order of namespace decls" do
+          parser.parse(<<~XML)
             <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
               <a foo:bar='hello' />
             </root>
-          EOF
+          XML
+
           assert_equal(2, parser.document.start_elements_namespace.length)
+
           el = parser.document.start_elements_namespace.first
           namespaces = el.last
+
           assert_equal(["foo", "http://foo.example.com/"], namespaces.first)
           assert_equal([nil, "http://example.com/"], namespaces.last)
         end
 
-        it :test_bad_document_calls_error_handler do
+        it "calls the error handler when there are parse errors" do
           parser.parse("<foo><bar></foo>")
           assert(parser.document.errors)
           refute_empty(parser.document.errors)
         end
 
-        it :test_namespace_are_super_fun_to_parse do
-          parser.parse(<<~EOF)
+        it "start_elements_namespace is called with namespaced attributes" do
+          parser.parse(<<~XML)
             <root xmlns:foo='http://foo.example.com/'>
-              <a foo:bar='hello' />
-              <b xmlns:foo='http://bar.example.com/'>
-                <a foo:bar='hello' />
-              </b>
-              <foo:bar>hello world</foo:bar>
+              <foo:a foo:bar='hello' />
             </root>
-          EOF
+          XML
 
-          refute_empty(parser.document.start_elements_namespace)
-          el = parser.document.start_elements_namespace[1]
-          assert_equal("a", el.first)
-          assert_equal(1, el[1].length)
-
-          attribute = el[1].first
-          assert_equal("bar", attribute.localname)
-          assert_equal("foo", attribute.prefix)
-          assert_equal("hello", attribute.value)
-          assert_equal("http://foo.example.com/", attribute.uri)
+          assert_pattern do
+            parser.document.start_elements_namespace => [
+              [
+                "root",
+                [],
+                nil, nil,
+                [["foo", "http://foo.example.com/"]], # namespace declarations
+              ], [
+                "a",
+                [Nokogiri::XML::SAX::Parser::Attribute(localname: "bar", prefix: "foo", uri: "http://foo.example.com/", value: "hello")], # prefixed attribute
+                "foo", "http://foo.example.com/", # prefix and uri for the "a" element
+                [],
+              ]
+            ]
+          end
         end
 
-        it :test_sax_v1_namespace_attribute_declarations do
-          parser.parse(<<~EOF)
+        it "start_element is called with namespace declarations" do
+          parser.parse(<<~XML)
             <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
-              <a foo:bar='hello' />
-              <b xmlns:foo='http://bar.example.com/'>
-                <a foo:bar='hello' />
-              </b>
-              <foo:bar>hello world</foo:bar>
             </root>
-          EOF
+          XML
+
           refute_empty(parser.document.start_elements)
+
           elm = parser.document.start_elements.first
+
           assert_equal("root", elm.first)
           assert_includes(elm[1], ["xmlns:foo", "http://foo.example.com/"])
           assert_includes(elm[1], ["xmlns", "http://example.com/"])
         end
 
-        it :test_sax_v1_namespace_nodes do
-          parser.parse(<<~EOF)
+        it "start_element and end_element are called without namespaces" do
+          parser.parse(<<~XML)
             <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
-              <a foo:bar='hello' />
-              <b xmlns:foo='http://bar.example.com/'>
-                <a foo:bar='hello' />
-              </b>
-              <foo:bar>hello world</foo:bar>
+              <foo:bar foo:quux="xxx">hello world</foo:bar>
             </root>
-          EOF
-          assert_equal(5, parser.document.start_elements.length)
-          assert_includes(parser.document.start_elements.map(&:first), "foo:bar")
-          assert_includes(parser.document.end_elements.map(&:first), "foo:bar")
+          XML
+
+          assert_pattern do
+            parser.document.start_elements => [
+              ["root", [["xmlns:foo", "http://foo.example.com/"], ["xmlns", "http://example.com/"]]],
+              ["foo:bar", [["foo:quux", "xxx"]]],
+            ]
+          end
+
+          assert_pattern do
+            parser.document.end_elements => [["foo:bar"], ["root"]]
+          end
         end
 
-        it :test_start_is_called_without_namespace do
-          parser.parse(<<~EOF)
-            <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
-            <foo:f><bar></foo:f>
-            </root>
-          EOF
-          assert_equal(
-            ["root", "foo:f", "bar"],
-            parser.document.start_elements.map(&:first),
-          )
-        end
-
-        it :test_parser_sets_encoding do
+        it "has correct encoding" do
           parser = Nokogiri::XML::SAX::Parser.new(Doc.new, "UTF-8")
           assert_equal("UTF-8", parser.encoding)
         end
 
-        it :test_errors_set_after_parsing_bad_dom do
+        it "error strings are UTF-8" do
           doc = Nokogiri::XML("<foo><bar></foo>")
-          assert(doc.errors)
+
+          assert(doc.errors) # assert on setup
 
           parser.parse("<foo><bar></foo>")
+
           assert(parser.document.errors)
           refute_empty(parser.document.errors)
 
@@ -190,242 +242,207 @@ module Nokogiri
           end
         end
 
-        it :test_parse_io_does_not_override_encoding do
+        it "parse_io with encoding" do
+          # https://github.com/sparklemotion/nokogiri/pull/1942
           parser = XML::SAX::Parser.new(Doc.new, "UTF-8")
           parser.parse_io(StringIO.new("<root/>"), "ASCII")
+
           assert_equal "UTF-8", parser.encoding
         end
 
-        it :test_parse_with_memory_argument do
-          parser.parse(File.read(XML_FILE))
-          refute_empty(parser.document.cdata_blocks)
-        end
+        ["UTF-8", "utf-8"].each do |encoding|
+          it "parses with encoding #{encoding.inspect}" do
+            File.open(XML_FILE, "rb") do |f|
+              parser.parse_io(f, encoding)
+            end
+            refute_empty(parser.document.cdata_blocks)
 
-        it :test_parse_with_io_argument do
-          File.open(XML_FILE, "rb") do |f|
-            parser.parse(f)
-          end
-          refute_empty(parser.document.cdata_blocks)
-        end
+            called = false
+            parser.document.start_elements.flatten.each do |thing|
+              assert_equal("UTF-8", thing.encoding.name)
+              called = true
+            end
+            assert(called)
 
-        it :test_parse_io do
-          call_parse_io_with_encoding("UTF-8")
-        end
+            called = false
+            parser.document.end_elements.flatten.each do |thing|
+              assert_equal("UTF-8", thing.encoding.name)
+              called = true
+            end
+            assert(called)
 
-        # issue #828
-        it :test_parse_io_lower_case_encoding do
-          call_parse_io_with_encoding("utf-8")
-        end
+            called = false
+            parser.document.data.each do |thing|
+              assert_equal("UTF-8", thing.encoding.name)
+              called = true
+            end
+            assert(called)
 
-        def call_parse_io_with_encoding(encoding)
-          File.open(XML_FILE, "rb") do |f|
-            parser.parse_io(f, encoding)
-          end
-          refute_empty(parser.document.cdata_blocks)
+            called = false
+            parser.document.comments.flatten.each do |thing|
+              assert_equal("UTF-8", thing.encoding.name)
+              called = true
+            end
+            assert(called)
 
-          called = false
-          parser.document.start_elements.flatten.each do |thing|
-            assert_equal("UTF-8", thing.encoding.name)
-            called = true
-          end
-          assert(called)
-
-          called = false
-          parser.document.end_elements.flatten.each do |thing|
-            assert_equal("UTF-8", thing.encoding.name)
-            called = true
-          end
-          assert(called)
-
-          called = false
-          parser.document.data.each do |thing|
-            assert_equal("UTF-8", thing.encoding.name)
-            called = true
-          end
-          assert(called)
-
-          called = false
-          parser.document.comments.flatten.each do |thing|
-            assert_equal("UTF-8", thing.encoding.name)
-            called = true
-          end
-          assert(called)
-
-          called = false
-          parser.document.cdata_blocks.flatten.each do |thing|
-            assert_equal("UTF-8", thing.encoding.name)
-            called = true
-          end
-          assert(called)
-        end
-
-        it :test_parse_file do
-          parser.parse_file(XML_FILE)
-
-          assert_raises(ArgumentError) do
-            parser.parse_file(nil)
-          end
-
-          assert_raises(Errno::ENOENT) do
-            parser.parse_file("")
-          end
-          assert_raises(Errno::EISDIR) do
-            parser.parse_file(File.expand_path(File.dirname(__FILE__)))
+            called = false
+            parser.document.cdata_blocks.flatten.each do |thing|
+              assert_equal("UTF-8", thing.encoding.name)
+              called = true
+            end
+            assert(called)
           end
         end
 
-        it "parses a compressed file" do
-          skip("libxml2 legacy support") unless Nokogiri.uses_libxml? && Nokogiri::LIBXML_ZLIB_ENABLED
-
-          filename = XML_FILE + ".gz"
-          parser.parse_file(filename)
-
-          refute_nil(parser.document.start_elements)
-          assert_operator(parser.document.start_elements.count, :>, 30)
-        end
-
-        it :test_render_parse_nil_param do
-          assert_raises(TypeError) { parser.parse_memory(nil) }
-        end
-
-        it :test_bad_encoding_args do
+        it "raises when given an invalid encoding name" do
           assert_raises(ArgumentError) { Nokogiri::XML::SAX::Parser.new(Doc.new, "not an encoding") }
           assert_raises(ArgumentError) { parser.parse_io(StringIO.new("<root/>"), "not an encoding") }
         end
 
-        it :test_ctag do
-          parser.parse_memory(<<~EOF)
+        it "cdata_block is called when CDATA is parsed" do
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">
               <![CDATA[ This is a comment ]]>
               Paragraph 1
             </p>
-          EOF
+          XML
+
           assert_equal([" This is a comment "], parser.document.cdata_blocks)
         end
 
-        it :test_comment do
-          parser.parse_memory(<<~EOF)
+        it "comment is called when a comment is parsed" do
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">
               <!-- This is a comment -->
               Paragraph 1
             </p>
-          EOF
+          XML
+
           assert_equal([" This is a comment "], parser.document.comments)
         end
 
-        it :test_characters do
-          parser.parse_memory(<<~EOF)
+        it "characters is called when text is parsed" do
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">Paragraph 1</p>
-          EOF
+          XML
+
           assert_equal(["Paragraph 1"], parser.document.data)
         end
 
-        it :test_end_document do
-          parser.parse_memory(<<~EOF)
+        it "end_document is called when parsing is complete" do
+          refute(parser.document.end_document_called)
+
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">Paragraph 1</p>
-          EOF
+          XML
+
           assert(parser.document.end_document_called)
         end
 
-        it :test_end_element do
-          parser.parse_memory(<<~EOF)
+        it "end_element is called when an element is closed" do
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">Paragraph 1</p>
-          EOF
+          XML
+
           assert_equal([["p"]], parser.document.end_elements)
         end
 
-        it :test_start_element_attrs do
-          parser.parse_memory(<<~EOF)
+        it "start_element is called when an element is opened" do
+          parser.parse_memory(<<~XML)
             <p id="asdfasdf">Paragraph 1</p>
-          EOF
+          XML
+
           assert_equal([["p", [["id", "asdfasdf"]]]], parser.document.start_elements)
         end
 
-        it :test_start_element_attrs_include_namespaces do
-          parser.parse_memory(<<~EOF)
+        it "start_element is called with namespace declarations" do
+          parser.parse_memory(<<~XML)
             <p xmlns:foo='http://foo.example.com/'>Paragraph 1</p>
-          EOF
+          XML
+
           assert_equal(
             [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
             parser.document.start_elements,
           )
         end
 
-        it :test_processing_instruction do
-          parser.parse_memory(<<~EOF)
+        it "processing_instruction is called when a processing instruction is parsed" do
+          parser.parse_memory(<<~XML)
             <?xml-stylesheet href="a.xsl" type="text/xsl"?>
             <?xml version="1.0"?>
-          EOF
+          XML
+
           assert_equal(
             [["xml-stylesheet", 'href="a.xsl" type="text/xsl"']],
             parser.document.processing_instructions,
           )
         end
 
-        it :test_parse_document do
-          parser.parse_memory(<<~EOF)
-            <div>
-              <p>Paragraph 1</p>
-              <p>Paragraph 2</p>
-            </div>
-          EOF
-
-          assert_equal(["div", "p", "p"], parser.document.start_elements.map(&:first))
-        end
-
-        it :test_parser_attributes do
-          xml = <<~EOF
+        it "start_element is called with attributes" do
+          xml = <<~XML
             <?xml version="1.0" ?><root><foo a="&amp;b" c="&gt;d" /></root>
-          EOF
+          XML
 
-          block_called = false
           parser.parse(xml) do |ctx|
-            block_called = true
             ctx.replace_entities = true
           end
-
-          assert(block_called)
 
           assert_equal(
             [["root", []], ["foo", [["a", "&b"], ["c", ">d"]]]], parser.document.start_elements
           )
         end
 
-        it :test_recovery_from_incorrect_xml do
-          xml = <<~EOF
-            <?xml version="1.0" ?><Root><Data><?xml version='1.0'?><Item>hey</Item></Data><Data><Item>hey yourself</Item></Data></Root>
-          EOF
+        describe "error handling" do
+          let(:invalid_xml) { <<~XML }
+            <?xml version="1.0" ?>
+            <Root>
+              <Data>
+                <?xml version='1.0'?>
+                <Item>hey</Item>
+                </Data><Data>
+                <Item>hey yourself</Item>
+              </Data>
+            </Root>
+          XML
 
-          block_called = false
-          parser.parse(xml) do |ctx|
-            block_called = true
-            ctx.recovery = true
+          it "does not recover by default" do
+            parser.parse(invalid_xml)
+
+            assert_equal(
+              [["Root", []], ["Data", []]],
+              parser.document.start_elements,
+            )
           end
 
-          assert(block_called)
+          it "recovers when `recovery` is true" do
+            parser.parse(invalid_xml) do |ctx|
+              ctx.recovery = true
+            end
 
-          assert_equal(
-            [["Root", []], ["Data", []], ["Item", []], ["Data", []], ["Item", []]],
-            parser.document.start_elements,
-          )
+            assert_equal(
+              [["Root", []], ["Data", []], ["Item", []], ["Data", []], ["Item", []]],
+              parser.document.start_elements,
+            )
+          end
         end
 
-        it :test_square_bracket_in_text do
-          # issue 1261
-          xml = <<~EOF
+        it "parses square brackets properly" do
+          # https://github.com/sparklemotion/nokogiri/issues/1261
+          xml = <<~XML
             <tu tuid="87dea04cf60af103ff09d1dba36ae820" segtype="block">
               <prop type="x-smartling-string-variant">en:#:home_page:#:stories:#:[6]:#:name</prop>
               <tuv xml:lang="en-US"><seg>Sandy S.</seg></tuv>
             </tu>
-          EOF
+          XML
           parser.parse(xml)
+
           assert_includes(parser.document.data, "en:#:home_page:#:stories:#:[6]:#:name")
         end
 
-        it :test_large_cdata_is_handled do
+        it "handles large CDATA" do
           skip("see #2132 and https://gitlab.gnome.org/GNOME/libxml2/-/issues/200") if Nokogiri::VersionInfo.instance.libxml2_using_system?
 
-          template = <<~EOF
+          template = <<~XML
             <?xml version="1.0" encoding="UTF-8"?>
             <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://example.com">
                <soapenv:Header>
@@ -440,7 +457,7 @@ module Nokogiri
                 </ns:checkToken>
                </soapenv:Body>
             </soapenv:Envelope>
-          EOF
+          XML
 
           factor = 10
           huge_data = "a" * (1024 * 1024 * factor)
@@ -458,41 +475,9 @@ module Nokogiri
           end
         end
 
-        it "does not resolve entities by default" do
-          xml = <<~EOF
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE doc [
-              <!ENTITY local SYSTEM "file:///#{File.expand_path(__FILE__)}">
-              <!ENTITY custom "resolved>
-            ]>
-            <doc><foo>&local;</foo><foo>&custom;</foo></doc>
-          EOF
-
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          parser.parse(xml)
-
-          assert_nil(doc.data)
-        end
-
-        it "does not resolve network external entities by default" do
-          xml = <<~EOF
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE doc [
-              <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
-            ]>
-            <doc><foo>&remote;</foo></doc>
-          EOF
-
-          doc = Doc.new
-          parser = Nokogiri::XML::SAX::Parser.new(doc)
-          parser.parse(xml)
-
-          assert_nil(doc.data)
-        end
-
         it "handles parser warnings" do
           skip_unless_libxml2("this is testing error message formatting in the C extension")
+
           xml = <<~XML
             <?xml version="1.0" encoding="UTF-8"?>
             <doc xmlns="x">
@@ -501,12 +486,207 @@ module Nokogiri
             </doc>
           XML
           parser.parse(xml)
+
           refute_empty(parser.document.warnings)
           if truffleruby_system_libraries?
             assert_equal("warning_func: %s", parser.document.warnings.first)
           else
             assert_match(/URI .* is not absolute/, parser.document.warnings.first)
           end
+        end
+
+        describe "entities" do
+          it "does not replace entities by default" do
+            parser_context = nil
+            parser.parse("<root></root>") do |ctx|
+              parser_context = ctx
+            end
+
+            refute(parser_context.replace_entities)
+          end
+
+          describe "character references" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&#146;</foo><foo>&#146;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replace when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["\u0092", "\u0092"], parser.document.data)
+              end
+
+              it "never call #references when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_nil(parser.document.references)
+              end
+            end
+          end
+
+          describe "predefined entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&amp;</foo><foo>&amp;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replace when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["&", "&"], parser.document.data)
+              end
+
+              it "never call #references when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_nil(parser.document.references)
+              end
+            end
+          end
+
+          describe "internal entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE root [ <!ENTITY bar "quux"> ]>
+              <root><foo>&bar;</foo><foo>&bar;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "always replaces when replace_entities=#{replace_entities}" do
+                parser.parse(xml) { |pc| pc.replace_entities = replace_entities }
+
+                assert_equal(["quux", "quux"], parser.document.data)
+              end
+            end
+
+            it "does not call #references when replace_entities=true" do
+              parser.parse(xml) { |pc| pc.replace_entities = true }
+
+              assert_nil(parser.document.references)
+            end
+
+            it "calls #references when replace_entities=false" do
+              parser.parse(xml) { |pc| pc.replace_entities = false }
+
+              assert_equal([["bar", "quux"], ["bar", "quux"]], parser.document.references)
+            end
+          end
+
+          describe "undeclared entities" do
+            let(:xml) { <<~XML }
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root><foo>&bar;</foo><foo>&bar;</foo></root>
+            XML
+
+            [true, false].each do |replace_entities|
+              it "does not replace undeclared entities when replace_entities is #{replace_entities}" do
+                parser.parse(xml) do |pc|
+                  pc.replace_entities = replace_entities
+                  pc.recovery = true # because an undeclared entity is an error
+                end
+
+                assert_nil(parser.document.data)
+              end
+            end
+
+            it "does not call #references when replace_entities=true" do
+              parser.parse(xml) do |pc|
+                pc.replace_entities = true
+                pc.recovery = true # because an undeclared entity is an error
+              end
+
+              assert_nil(parser.document.references)
+            end
+
+            it "calls #references when replace_entities=false" do
+              skip if Nokogiri.uses_libxml?("< 2.13.0") # gnome/libxml2@b717abdd
+
+              parser.parse(xml) do |pc|
+                pc.replace_entities = false
+                pc.recovery = true # because an undeclared entity is an error
+              end
+
+              assert_equal([["bar", nil], ["bar", nil]], parser.document.references)
+            end
+          end
+
+          describe "local external entities" do
+            it "does not resolve local external entities when replace_entities is false" do
+              Tempfile.create do |io|
+                io.write("local-contents")
+                io.close
+                xml = <<~XML
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE doc [
+                    <!ENTITY local SYSTEM "file:///#{io.path}">
+                  ]>
+                  <doc><foo>&local;</foo><foo>&local;</foo></doc>
+                XML
+                parser.parse(xml) { |pc| pc.replace_entities = false }
+              end
+
+              assert_empty(parser.document.errors)
+              assert_nil(parser.document.data)
+              assert_equal([["local", nil], ["local", nil]], parser.document.references)
+            end
+
+            it "resolves local external entities when replace_entities is true" do
+              skip if Nokogiri.uses_libxml?("< 2.9.11") # gnome/libxml2@eddfbc38
+
+              Tempfile.create do |io|
+                io.write("local-contents")
+                io.close
+                xml = <<~XML
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE doc [
+                    <!ENTITY local SYSTEM "#{io.path}">
+                  ]>
+                  <doc><foo>&local;</foo><foo>&local;</foo></doc>
+                XML
+                parser.parse(xml) { |pc| pc.replace_entities = true }
+              end
+
+              assert_empty(parser.document.errors)
+              assert_equal(["local-contents", "local-contents"], parser.document.data)
+              assert_nil(parser.document.references)
+            end
+          end
+
+          it "does not resolve network external entities when replace_entities is false" do
+            xml = <<~XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE doc [
+                <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
+              ]>
+              <doc><foo>&remote;</foo><foo>&remote;</foo></doc>
+            XML
+            parser.parse(xml) { |pc| pc.replace_entities = false }
+
+            assert_empty(parser.document.errors)
+            assert_nil(parser.document.data)
+            assert_equal([["remote", nil], ["remote", nil]], parser.document.references)
+          end
+
+          # # commented out because xmlIO uses the generic error handler for the network error.  I
+          # # just didn't have time to go deal with that, and didn't want the error message coming out
+          # # in my test output.
+          # it "does not resolve network external entities when replace_entities is true" do
+          #   xml = <<~XML
+          #     <?xml version="1.0" encoding="UTF-8"?>
+          #     <!DOCTYPE doc [
+          #       <!ENTITY remote SYSTEM "http://0.0.0.0:8080/evil.dtd">
+          #     ]>
+          #     <doc><foo>&remote;</foo><foo>&remote;</foo></doc>
+          #   XML
+          #   parser.parse(xml) { |pc| pc.replace_entities = true }
+
+          #   assert_empty(parser.document.errors)
+          #   assert_nil(parser.document.data)
+          #   assert_nil(parser.document.references)
+          # end
         end
       end
     end

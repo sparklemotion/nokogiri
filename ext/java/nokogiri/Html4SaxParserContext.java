@@ -56,10 +56,9 @@ public class Html4SaxParserContext extends XmlSaxParserContext
     SAXParser parser = new SAXParser();
 
     try {
-      parser.setProperty(
-        "http://cyberneko.org/html/properties/names/elems", "lower");
-      parser.setProperty(
-        "http://cyberneko.org/html/properties/names/attrs", "lower");
+      parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+      parser.setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
+      parser.setFeature("http://cyberneko.org/html/features/report-errors", true);
 
       // NekoHTML should not try to guess the encoding based on the meta
       // tags or other information in the document.  This is already

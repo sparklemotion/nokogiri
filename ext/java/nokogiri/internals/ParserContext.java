@@ -63,7 +63,7 @@ public abstract class ParserContext extends RubyObject
     Ruby ruby = context.getRuntime();
 
     if (!(data.respondsTo("read"))) {
-      throw ruby.newTypeError("must respond to :read");
+      throw ruby.newTypeError("argument expected to respond to :read");
     }
 
     source.setByteStream(new IOInputStream(data));
@@ -80,8 +80,11 @@ public abstract class ParserContext extends RubyObject
 
     Ruby ruby = context.getRuntime();
 
+    if (data.isNil()) {
+      throw ruby.newTypeError("wrong argument type nil (expected String)");
+    }
     if (!(data instanceof RubyString)) {
-      throw ruby.newTypeError("must be kind_of String");
+      throw ruby.newTypeError("wrong argument type " + data.getMetaClass() + " (expected String)");
     }
 
     RubyString stringData = (RubyString) data;
@@ -179,23 +182,23 @@ public abstract class ParserContext extends RubyObject
     protected static final long NOCDATA = 16384;
     protected static final long NOXINCNODE = 32768;
 
-    public final boolean strict;
-    public final boolean recover;
-    public final boolean noEnt;
-    public final boolean dtdLoad;
-    public final boolean dtdAttr;
-    public final boolean dtdValid;
-    public final boolean noError;
-    public final boolean noWarning;
-    public final boolean pedantic;
-    public final boolean noBlanks;
-    public final boolean sax1;
-    public final boolean xInclude;
-    public final boolean noNet;
-    public final boolean noDict;
-    public final boolean nsClean;
-    public final boolean noCdata;
-    public final boolean noXIncNode;
+    public boolean strict;
+    public boolean recover;
+    public boolean noEnt;
+    public boolean dtdLoad;
+    public boolean dtdAttr;
+    public boolean dtdValid;
+    public boolean noError;
+    public boolean noWarning;
+    public boolean pedantic;
+    public boolean noBlanks;
+    public boolean sax1;
+    public boolean xInclude;
+    public boolean noNet;
+    public boolean noDict;
+    public boolean nsClean;
+    public boolean noCdata;
+    public boolean noXIncNode;
 
     protected static boolean
     test(long options, long mask)

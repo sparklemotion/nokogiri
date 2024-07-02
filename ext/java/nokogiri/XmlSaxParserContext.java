@@ -43,7 +43,7 @@ public class XmlSaxParserContext extends ParserContext
 
   protected NokogiriHandler handler;
   protected NokogiriErrorHandler errorHandler;
-  private boolean replaceEntities = true;
+  private boolean replaceEntities = false;
   private boolean recovery = false;
 
   public
@@ -222,9 +222,12 @@ public class XmlSaxParserContext extends ParserContext
 
     /* TODO: how should we pass in parse options? */
     ParserContext.Options options = defaultParseOptions(context);
+    if (replaceEntities) {
+      options.noEnt = true;
+    }
 
     errorHandler = new NokogiriStrictErrorHandler(runtime, options.noError, options.noWarning);
-    handler = new NokogiriHandler(runtime, handlerRuby, errorHandler);
+    handler = new NokogiriHandler(runtime, handlerRuby, errorHandler, options.noEnt);
 
     preParse(runtime, handlerRuby, handler);
     parser.setContentHandler(handler);
@@ -233,6 +236,7 @@ public class XmlSaxParserContext extends ParserContext
 
     try {
       parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+      parser.setProperty("http://xml.org/sax/properties/declaration-handler", handler);
     } catch (Exception ex) {
       throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
     }
@@ -241,16 +245,15 @@ public class XmlSaxParserContext extends ParserContext
       try {
         do_parse();
       } catch (SAXParseException ex) {
-        // A bad document (<foo><bar></foo>) should call the
-        // error handler instead of raising a SAX exception.
-
-        // However, an EMPTY document should raise a RuntimeError.
-        // This is a bit kludgy, but AFAIK SAX doesn't distinguish
-        // between empty and bad whereas Nokogiri does.
+        // An EMPTY document should raise a RuntimeError. This is a bit kludgy, but AFAIK SAX
+        // doesn't distinguish between empty and bad whereas Nokogiri does.
         String message = ex.getMessage();
         if (message != null && message.contains("Premature end of file.") && stringDataSize < 1) {
-          throw runtime.newRuntimeError("couldn't parse document: " + message);
+          throw runtime.newRuntimeError("input string cannot be empty");
         }
+
+        // A bad document (<foo><bar></foo>) should call the
+        // error handler instead of raising a SAX exception.
         handler.error(ex);
       }
     } catch (SAXException ex) {

@@ -3,14 +3,14 @@
 VALUE cNokogiriHtml4SaxParserContext ;
 
 static VALUE
-parse_memory(VALUE klass, VALUE data, VALUE encoding)
+noko_html4_sax_parser_s_parse_memory(VALUE klass, VALUE data, VALUE encoding)
 {
   htmlParserCtxtPtr ctxt;
 
   Check_Type(data, T_STRING);
 
   if (!(int)RSTRING_LEN(data)) {
-    rb_raise(rb_eRuntimeError, "data cannot be empty");
+    rb_raise(rb_eRuntimeError, "input string cannot be empty");
   }
 
   ctxt = htmlCreateMemoryParserCtxt(StringValuePtr(data),
@@ -35,7 +35,7 @@ parse_memory(VALUE klass, VALUE data, VALUE encoding)
 }
 
 static VALUE
-parse_file(VALUE klass, VALUE filename, VALUE encoding)
+noko_html4_sax_parser_context_s_parse_file(VALUE klass, VALUE filename, VALUE encoding)
 {
   htmlParserCtxtPtr ctxt = htmlCreateFileParserCtxt(
                              StringValueCStr(filename),
@@ -51,47 +51,30 @@ parse_file(VALUE klass, VALUE filename, VALUE encoding)
 }
 
 static VALUE
-parse_doc(VALUE ctxt_val)
-{
-  htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
-  htmlParseDocument(ctxt);
-  return Qnil;
-}
-
-static VALUE
-parse_doc_finalize(VALUE ctxt_val)
-{
-  htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
-
-  if (ctxt->myDoc) {
-    xmlFreeDoc(ctxt->myDoc);
-  }
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
-  return Qnil;
-}
-
-static VALUE
-parse_with(VALUE self, VALUE sax_handler)
+noko_html4_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
 {
   htmlParserCtxtPtr ctxt;
   htmlSAXHandlerPtr sax;
 
-  if (!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser)) {
+  if (!rb_obj_is_kind_of(rb_sax_parser, cNokogiriXmlSaxParser)) {
     rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
   }
 
-  ctxt = noko_xml_sax_parser_context_unwrap(self);
-  sax = noko_xml_sax_parser_unwrap(sax_handler);
+  ctxt = noko_xml_sax_parser_context_unwrap(rb_context);
+  sax = noko_xml_sax_parser_unwrap(rb_sax_parser);
 
   ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+  ctxt->userData = ctxt; /* so we can use libxml2/SAX2.c handlers if we want to */
+  ctxt->_private = (void *)rb_sax_parser;
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
-  rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
+  /* although we're calling back into Ruby here, we don't need to worry about exceptions, because we
+   * don't have any cleanup to do. The only memory we need to free is handled by
+   * xml_sax_parser_context_type_free */
+  htmlParseDocument(ctxt);
 
-  return self;
+  return Qnil;
 }
 
 void
@@ -101,8 +84,11 @@ noko_init_html_sax_parser_context(void)
   cNokogiriHtml4SaxParserContext = rb_define_class_under(mNokogiriHtml4Sax, "ParserContext",
                                    cNokogiriXmlSaxParserContext);
 
-  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory", parse_memory, 2);
-  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file", parse_file, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "memory",
+                             noko_html4_sax_parser_s_parse_memory, 2);
+  rb_define_singleton_method(cNokogiriHtml4SaxParserContext, "file",
+                             noko_html4_sax_parser_context_s_parse_file, 2);
 
-  rb_define_method(cNokogiriHtml4SaxParserContext, "parse_with", parse_with, 1);
+  rb_define_method(cNokogiriHtml4SaxParserContext, "parse_with",
+                   noko_html4_sax_parser_context__parse_with, 1);
 }

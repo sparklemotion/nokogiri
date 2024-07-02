@@ -42,25 +42,24 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
 
   private Locator locator;
   private boolean needEmptyAttrCheck;
+  private boolean replaceEntities;
+  private Set<String> entities = new HashSet<String>();
 
   public
-  NokogiriHandler(Ruby runtime, IRubyObject object, NokogiriErrorHandler errorHandler)
+  NokogiriHandler(Ruby runtime,
+                  IRubyObject object,
+                  NokogiriErrorHandler errorHandler,
+                  boolean replaceEntities)
   {
     assert object != null;
     this.runtime = runtime;
     this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
     this.object = object;
     this.errorHandler = errorHandler;
+    this.replaceEntities = replaceEntities;
     charactersBuilder = new StringBuilder();
     String objectName = object.getMetaClass().getName();
     if ("Nokogiri::HTML4::SAX::Parser".equals(objectName)) { needEmptyAttrCheck = true; }
-  }
-
-  @Override
-  public void
-  skippedEntity(String skippedEntity)
-  {
-    call("error", runtime.newString("Entity '" + skippedEntity + "' not defined\n"));
   }
 
   @Override
@@ -88,7 +87,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
   public void
   endDocument()
   {
-    populateCharacters();
+    flushCharacters();
     call("end_document");
   }
 
@@ -161,12 +160,12 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
     }
 
     if (localName == null || localName.isEmpty()) { localName = getLocalPart(qName); }
-    populateCharacters();
+    flushCharacters();
     call("start_element_namespace",
          stringOrNil(runtime, localName),
          rubyAttr,
          stringOrNil(runtime, getPrefix(qName)),
-         stringOrNil(runtime, uri),
+         uri.length() > 0 ? stringOrNil(runtime, uri) : runtime.getNil(),
          rubyNSAttr);
   }
 
@@ -204,7 +203,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
   public void
   endElement(String uri, String localName, String qName)
   {
-    populateCharacters();
+    flushCharacters();
     call("end_element_namespace",
          stringOrNil(runtime, localName),
          stringOrNil(runtime, getPrefix(qName)),
@@ -220,9 +219,54 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
 
   @Override
   public void
+  externalEntityDecl(java.lang.String name, java.lang.String publicId, java.lang.String systemId)
+  throws SAXException
+  {
+    entities.add(name);
+  }
+
+  @Override
+  public void
+  internalEntityDecl(java.lang.String name, java.lang.String value)
+  throws SAXException
+  {
+    entities.add(name);
+  }
+
+  @Override
+  public void
+  skippedEntity(String name)
+  {
+    call("error", runtime.newString("Entity '" + name + "' not defined\n"));
+    if (!replaceEntities) {
+      call("reference", runtime.newString(name), runtime.getNil());
+    }
+  }
+
+  @Override
+  public void
+  startEntity(String name)
+  {
+    flushCharacters();
+  }
+
+  @Override
+  public void
+  endEntity(String name)
+  {
+    IRubyObject content = charactersBuilder.length() > 0 ? runtime.newString(charactersBuilder.toString()) :
+                          runtime.getNil();
+    if (!replaceEntities && entities.contains(name)) {
+      call("reference", runtime.newString(name), content);
+    }
+    flushCharacters();
+  }
+
+  @Override
+  public void
   comment(char[] ch, int start, int length)
   {
-    populateCharacters();
+    flushCharacters();
     call("comment", runtime.newString(new String(ch, start, length)));
   }
 
@@ -230,7 +274,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
   public void
   startCDATA()
   {
-    populateCharacters();
+    flushCharacters();
   }
 
   @Override
@@ -329,7 +373,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler
   }
 
   protected void
-  populateCharacters()
+  flushCharacters()
   {
     if (charactersBuilder.length() > 0) {
       call("characters", runtime.newString(charactersBuilder.toString()));
