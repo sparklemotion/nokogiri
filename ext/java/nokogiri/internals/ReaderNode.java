@@ -557,7 +557,7 @@ public abstract class ReaderNode
     public String
     getString()
     {
-      return value;
+      return encodeJavaString(value).toString();
     }
   }
 
