@@ -1485,9 +1485,44 @@ node_type(VALUE self)
 
 /*
  * call-seq:
- *  content=
+ *   native_content=(input)
  *
- * Set the content for this Node
+ * Set the content of this node to +input+.
+ *
+ * [Parameters]
+ * - +input+ (String) The new content for this node.
+ *
+ * ⚠ This method behaves differently depending on the node type. For Text, CDATA, Comment, and
+ * ProcessingInstruction nodes, it treats the input as raw content, which means that the final DOM
+ * will contain the entity-escaped version of the input (see example below). For Element and Attr
+ * nodes, it treats the input as parsed content and expects it to be valid markup that is already
+ * entity-escaped.
+ *
+ * 💡 Use Node#content= for a more consistent API across node types.
+ *
+ * [Example]
+ * Note the behavior differences of this method between Text and Element nodes:
+ *
+ *   doc = Nokogiri::HTML::Document.parse(<<~HTML)
+ *     <html>
+ *       <body>
+ *         <div id="first">asdf</div>
+ *         <div id="second">asdf</div>
+ *   HTML
+ *
+ *   text_node = doc.at_css("div#first").children.first
+ *   div_node = doc.at_css("div#second")
+ *
+ *   value = "You &amp; Me"
+ *
+ *   text_node.native_content = value
+ *   div_node.native_content = value
+ *
+ *   doc.css("div").to_html
+ *   # => "<div id=\"first\">You &amp;amp; Me</div>
+ *   #     <div id=\"second\">You &amp; Me</div>"
+ *
+ * See also: #content=
  */
 static VALUE
 set_native_content(VALUE self, VALUE content)

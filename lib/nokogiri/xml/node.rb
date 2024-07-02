@@ -442,8 +442,48 @@ module Nokogiri
       end
 
       ####
-      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not
-      # interpreted as markup.
+      # call-seq:
+      #   content=(input)
+      #
+      # Set the content of this node to +input+.
+      #
+      # [Parameters]
+      # - +input+ (String) The new content for this node. Input is considered to be raw content, and
+      #   so will be entity-escaped in the final DOM string.
+      #
+      # [Example]
+      # Note how entities are handled:
+      #
+      #   doc = Nokogiri::HTML::Document.parse(<<~HTML)
+      #     <html>
+      #       <body>
+      #         <div id="first">asdf</div>
+      #         <div id="second">asdf</div>
+      #   HTML
+      #
+      #   text_node = doc.at_css("div#first").children.first
+      #   div_node = doc.at_css("div#second")
+      #
+      #   value = "You &amp; Me"
+      #
+      #   text_node.content = value
+      #   div_node.content = value
+      #
+      #   doc.css("div").to_html
+      #   # => "<div id=\"first\">You &amp;amp; Me</div>
+      #   #     <div id=\"second\">You &amp;amp; Me</div>"
+      #
+      # For content that is already entity-escaped, use CGI::unescapeHTML to decode it:
+      #
+      #   text_node.content = CGI::unescapeHTML(value)
+      #   div_node.content = CGI::unescapeHTML(value)
+      #
+      #   doc.css("div").to_html
+      #   # => "<div id=\"first\">You &amp; Me</div>
+      #   #     <div id=\"second\">You &amp; Me</div>"
+      #
+      # See also: #native_content=
+      #
       def content=(string)
         self.native_content = encode_special_chars(string.to_s)
       end
