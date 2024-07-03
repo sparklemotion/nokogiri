@@ -52,6 +52,9 @@ module Nokogiri
         ###
         # Finish the parsing.  This method is only necessary for
         # Nokogiri::XML::SAX::Document#end_document to be called.
+        #
+        # ⚠ Note that empty documents are treated as an error when using the libxml2-based
+        # implementation (CRuby), but are fine when using the Xerces-based implementation (JRuby).
         def finish
           write("", true)
         end

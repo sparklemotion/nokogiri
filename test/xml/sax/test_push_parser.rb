@@ -32,9 +32,36 @@ describe Nokogiri::XML::SAX::PushParser do
 
   it :test_empty_doc do
     parser.options |= Nokogiri::XML::ParseOptions::RECOVER
-    parser.write("", true)
-    assert_nil parser.document.start_elements
-    assert_nil parser.document.end_elements
+    parser.finish
+
+    assert_nil(parser.document.start_elements)
+    assert_nil(parser.document.end_elements)
+    if Nokogiri.jruby?
+      assert_empty(parser.document.errors)
+    elsif Nokogiri.uses_libxml?(">= 2.12.0") # gnome/libxml2@53050b1d
+      assert_match(/Document is empty/, parser.document.errors.first)
+    end
+    assert(parser.document.end_document_called)
+  end
+
+  it :test_empty_doc_without_recovery do
+    # behavior is different between implementations
+    # https://github.com/sparklemotion/nokogiri/issues/1758
+    if Nokogiri.jruby?
+      parser.finish
+
+      assert_nil(parser.document.start_elements)
+      assert_nil(parser.document.end_elements)
+      assert_empty(parser.document.errors)
+      assert(parser.document.end_document_called)
+    else
+      e = assert_raises(Nokogiri::XML::SyntaxError) do
+        parser.finish
+      end
+      if Nokogiri.uses_libxml?(">= 2.12.0") # gnome/libxml2@53050b1d
+        assert_match(/Document is empty/, e.message)
+      end
+    end
   end
 
   it :test_finish_should_rethrow_last_error do
