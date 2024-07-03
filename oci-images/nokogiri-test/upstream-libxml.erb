@@ -1,0 +1,12 @@
+#
+# intended for use in the libxml2 CI pipeline to test Nokogiri as a downstream consumer
+#
+FROM ruby:3.3
+
+<%= include_file "debian-prelude.step" %>
+<%= include_file "valgrind-from-source.step" %>
+
+RUN apt-get install -y autogen libtool shtool
+
+<%= include_file "update-bundler.step" %>
+<%= include_file "bundle-install.step" %>

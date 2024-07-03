@@ -11,10 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: ["alpine", "mri-3.0", "mri-3.1", "mri-3.2", "mri-3.3", "ubuntu"]
+        tag: ["alpine", "mri-3.0", "mri-3.1", "mri-3.2", "mri-3.3", "ubuntu", "upstream-libxml"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1

@@ -65,7 +65,7 @@ module DockerHelper
                 tag: #{platforms.inspect}
             runs-on: ubuntu-latest
             steps:
-              - uses: actions/checkout@v3
+              - uses: actions/checkout@v4
                 with:
                   submodules: true
               - uses: ruby/setup-ruby@v1
@@ -80,7 +80,7 @@ module DockerHelper
                   username: ${{github.actor}}
                   password: ${{secrets.GITHUB_TOKEN}}
               - name: ${{matrix.tag}}
-                uses: docker/build-push-action@v5
+                uses: docker/build-push-action@v6
                 with:
                   context: "."
                   push: true
