@@ -26,7 +26,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -43,7 +43,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -64,10 +64,10 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -81,7 +81,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:ubuntu
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -103,10 +103,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -134,10 +134,10 @@ jobs:
     env:
       NOKOGIRI_LIBXML_MEMORY_MANAGEMENT: ${{matrix.mem}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -156,7 +156,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
@@ -174,7 +174,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v1 # v1 because of https://github.com/actions/checkout/issues/334
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
@@ -195,10 +195,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -220,10 +220,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -241,15 +241,15 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -270,16 +270,16 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -295,10 +295,10 @@ jobs:
         ruby: ["jruby-9.4"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -321,16 +321,16 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: truffleruby
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -345,10 +345,10 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: vmactions/freebsd-vm@v1
+      - uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
         with:
           usesh: true
           copyback: false
@@ -374,10 +374,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -397,10 +397,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -418,8 +418,8 @@ jobs:
     outputs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -432,10 +432,10 @@ jobs:
     name: "generic-package"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -445,7 +445,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
             ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: generic-gem
           path: gems
@@ -460,14 +460,14 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: generic-gem
           path: gems
@@ -482,13 +482,13 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: generic-gem
           path: gems
@@ -503,14 +503,14 @@ jobs:
         ruby: ["3.0"]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: generic-gem
           path: gems
@@ -526,14 +526,14 @@ jobs:
         ruby: ["3.1", "3.2", "3.3"]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: generic-gem
           path: gems
@@ -558,10 +558,10 @@ jobs:
           - "x86_64-linux"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -571,7 +571,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
@@ -585,10 +585,10 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x86-linux-gem
           path: gems
@@ -607,10 +607,10 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-aarch64-linux-gem
           path: gems
@@ -629,10 +629,10 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-arm-linux-gem
           path: gems
@@ -651,13 +651,13 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x86_64-linux-gem
           path: gems
@@ -671,10 +671,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x86_64-linux-gem
           path: gems
@@ -688,13 +688,13 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x86_64-darwin-gem
           path: gems
@@ -708,13 +708,13 @@ jobs:
         ruby: ["3.0", "3.1", "3.2", "3.3"]
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-arm64-darwin-gem
           path: gems
@@ -728,13 +728,13 @@ jobs:
         ruby: ["3.0"]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x64-mingw32-gem
           path: gems
@@ -749,13 +749,13 @@ jobs:
         ruby: ["3.1", "3.2", "3.3"]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: cruby-x64-mingw-ucrt-gem
           path: gems
@@ -768,11 +768,11 @@ jobs:
     container:
       image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: jruby-gem
           path: gems
@@ -788,10 +788,10 @@ jobs:
     name: "jruby-${{matrix.jruby}}-jre${{matrix.jre}}-install"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: jruby-gem
           path: gems

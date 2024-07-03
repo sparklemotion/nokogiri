@@ -26,10 +26,10 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "3.3"
           apt-get: "autogen libtool shtool"
@@ -65,7 +65,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
       - name: Setup libxml2
@@ -104,17 +104,17 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -129,16 +129,16 @@ jobs:
         sys: ["disable"]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -160,16 +160,16 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+      - uses: ruby/setup-ruby-pkgs@1493c009477b19efcb54cfaf72b5f9d1fd6ba86c # v1.33.2
         with:
           ruby-version: truffleruby-head
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -179,10 +179,10 @@ jobs:
   jruby-head:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@21a479f2d79b4b86079bb533d2e0502eb795c042 # v1.181.0
         with:
           ruby-version: "jruby-head"
           bundler-cache: true
@@ -195,10 +195,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports
           key: ports-ubuntu-3.3-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}

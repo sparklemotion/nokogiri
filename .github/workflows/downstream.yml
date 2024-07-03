@@ -17,6 +17,9 @@ on:
     branches:
       - '*'
 
+permissions:
+  contents: read
+
 jobs:
   downstream:
     name: downstream-${{matrix.name}}
@@ -72,10 +75,10 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ports
           key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
