@@ -6,9 +6,9 @@ module Nokogiri
     # Popular encoding aliases not known by all iconv implementations that Nokogiri should support.
     USEFUL_ALIASES = {
       # alias_name => true_name
-      "NOKOGIRI-SENTINEL" => "UTF-8", # indicating the Nokogiri has installed aliases
+      "ISO-2022-JP" => "ISO-2022-JP", # only for JRuby tests, this is a no-op in CRuby
+      "NOKOGIRI-SENTINEL" => "ISO-2022-JP", # indicating the Nokogiri has installed aliases
       "Windows-31J" => "CP932", # Windows-31J is the IANA registered name of CP932.
-      "UTF-8" => "UTF-8", # for JRuby tests, this is a no-op in CRuby
     }
 
     class << self
