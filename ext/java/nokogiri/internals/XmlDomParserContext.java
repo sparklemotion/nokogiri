@@ -91,28 +91,17 @@ public class XmlDomParserContext extends ParserContext
     // Fix for Issue#586.  This limits entity expansion up to 100000 and nodes up to 3000.
     setProperty(SECURITY_MANAGER, new org.apache.xerces.util.SecurityManager());
 
-    if (options.noBlanks) {
-      setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
-    }
+    setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, !options.noBlanks);
+    setFeature(CONTINUE_AFTER_FATAL_ERROR, options.recover);
+    setFeature(FEATURE_VALIDATION, options.dtdValid);
+    setFeature(FEATURE_NOT_EXPAND_ENTITY, !options.noEnt);
 
-    if (options.recover) {
-      setFeature(CONTINUE_AFTER_FATAL_ERROR, true);
-    }
-
-    if (options.dtdValid) {
-      setFeature(FEATURE_VALIDATION, true);
-    }
-
-    if (!options.noEnt) {
-      setFeature(FEATURE_NOT_EXPAND_ENTITY, true);
-    }
     // If we turn off loading of external DTDs complete, we don't
     // get the publicID.  Instead of turning off completely, we use
     // an entity resolver that returns empty documents.
-    if (options.dtdLoad) {
-      setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);
-      setFeature(FEATURE_LOAD_DTD_GRAMMAR, true);
-    }
+    setFeature(FEATURE_LOAD_EXTERNAL_DTD, options.dtdLoad);
+    setFeature(FEATURE_LOAD_DTD_GRAMMAR, options.dtdLoad);
+
     parser.setEntityResolver(new NokogiriEntityResolver(runtime, errorHandler, options));
   }
 

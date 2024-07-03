@@ -40,6 +40,78 @@ module Nokogiri
 
         entity.inspect # should not segfault
       end
+
+      def test_serialization_of_local_entities_without_noent
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <!DOCTYPE test [ <!ENTITY quux "expansion"> ]>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml)
+        assert_equal("<test>&quux;</test>", doc.root.to_xml)
+      end
+
+      def test_serialization_of_local_entities_with_noent
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <!DOCTYPE test [ <!ENTITY quux "expansion"> ]>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml) { |cfg| cfg.noent }
+        assert_equal("<test>expansion</test>", doc.root.to_xml)
+      end
+
+      def test_serialization_of_undeclared_entities_without_noent
+        if Nokogiri.uses_libxml?("< 2.13.0") # gnome/libxml2@45fe9924
+          skip("libxml2 version under test is inconsistent in handling undeclared entities")
+        end
+
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml)
+        assert_equal("<test>&quux;</test>", doc.root.to_xml)
+      end
+
+      def test_serialization_of_undeclared_entities_with_noent
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml) { |cfg| cfg.noent }
+        assert_equal("<test/>", doc.root.to_xml)
+      end
+
+      def test_serialization_of_unresolved_entities_without_noent
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <!DOCTYPE test [
+            <!ENTITY quux SYSTEM "http://0.0.0.0:8080/not-resolved.dtd">
+          ]>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml)
+        assert_equal("<test>&quux;</test>", doc.root.to_xml)
+      end
+
+      def test_serialization_of_unresolved_entities_with_noent
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <!DOCTYPE test [
+            <!ENTITY quux SYSTEM "http://0.0.0.0:8080/not-resolved.dtd">
+          ]>
+          <test>&quux;</test>
+        XML
+
+        doc = Nokogiri::XML(xml) { |cfg| cfg.noent }
+        assert_equal("<test/>", doc.root.to_xml)
+      end
     end
 
     module Common
