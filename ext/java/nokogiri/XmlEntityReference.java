@@ -61,19 +61,23 @@ public class XmlEntityReference extends XmlNode
   public void
   accept(ThreadContext context, SaveContextVisitor visitor)
   {
+    //
+    // Note that when noEnt is set, we call setFeature(FEATURE_NOT_EXPAND_ENTITY, false) in
+    // XmlDomParserContext.
+    //
+    // See https://xerces.apache.org/xerces-j/features.html section on `create-entity-ref-nodes`
+    //
+    // When set to true (the default), then EntityReference nodes are present in the DOM tree, and
+    // its children represent the replacement text. When set to false, then the EntityReference is
+    // not present in the tree, and instead the replacement text nodes are present.
+    //
+    // So: if we are here, then noEnt must be true, and we should just serialize the EntityReference
+    // and not worry about the replacement text. When noEnt is false, we would never this and
+    // instead would be serializing the replacement text.
+    //
+    // https://github.com/sparklemotion/nokogiri/issues/3270
+    //
     visitor.enter(node);
-    Node child = node.getFirstChild();
-    while (child != null) {
-      IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
-      if (nokoNode instanceof XmlNode) {
-        XmlNode cur = (XmlNode) nokoNode;
-        cur.accept(context, visitor);
-      } else if (nokoNode instanceof XmlNamespace) {
-        XmlNamespace cur = (XmlNamespace) nokoNode;
-        cur.accept(context, visitor);
-      }
-      child = child.getNextSibling();
-    }
     visitor.leave(node);
   }
 }
