@@ -256,7 +256,7 @@ module Nokogiri
 
         expected = if Nokogiri.uses_libxml?("~> 2.14")
           [
-            "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
+            "2:49: ERROR: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
             # "attempt to load network entity" removed in gnome/libxml2@1b1e8b3c
             "4:14: ERROR: Entity 'bar' not defined",
           ]
