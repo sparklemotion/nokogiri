@@ -50,7 +50,7 @@ warn
 require "minitest/autorun"
 require "minitest/benchmark"
 
-if ENV["NCPU"] && !Nokogiri.jruby?
+if !Nokogiri.jruby? && ENV["NCPU"].to_i > 1
   require "minitest/parallel_fork"
   warn "Running parallel tests with NCPU=#{ENV["NCPU"].inspect}"
 end
