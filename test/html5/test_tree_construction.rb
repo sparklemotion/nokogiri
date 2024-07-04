@@ -72,7 +72,7 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
   def run_test
     options = {
       max_errors: -1,
-      parse_noscript_content_as_text: @test[:script] == :on,
+      parse_noscript_content_as_text: @test_script_on,
     }
 
     if @test[:context]
@@ -166,7 +166,7 @@ module Html5libTestCaseParser
   class BadHtml5libFormat < RuntimeError; end
 
   def self.parse_test(test_data)
-    test = { script: :off }
+    test = { script: :both }
     index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
     raise(BadHtml5libFormat, "Expected #errors in\n#{test_data}") if index.nil?
 
@@ -328,19 +328,47 @@ module Html5libTestCaseParser
 
       klass = Class.new(TestHtml5TreeConstructionBase) do
         tests.each_with_index do |test, index|
-          define_method "test_#{index}" do
-            @test = test
-            @index = index
-            @test_context_node = false
-            run_test
+          if test[:script] == :both || test[:script] == :off
+            define_method "test_#{index}__script_off" do
+              @test = test
+              @index = index
+              @test_script_on = false
+              @test_context_node = false
+              run_test
+            end
           end
 
-          define_method "test_#{index}__with_node" do
-            @test = test
-            @index = index
-            @test_context_node = true
-            run_test
-          end if test[:context]
+          if test[:script] == :both || test[:script] == :on
+            define_method "test_#{index}__script_on" do
+              @test = test
+              @index = index
+              @test_script_on = true
+              @test_context_node = false
+              run_test
+            end
+          end
+
+          if test[:context]
+            if test[:script] == :both || test[:script] == :off
+              define_method "test_#{index}__script_off__with_node" do
+                @test = test
+                @index = index
+                @test_script_on = false
+                @test_context_node = true
+                run_test
+              end
+            end
+
+            if test[:script] == :both || test[:script] == :on
+              define_method "test_#{index}__script_on__with_node" do
+                @test = test
+                @index = index
+                @test_script_on = true
+                @test_context_node = true
+                run_test
+              end
+            end
+          end
         end
       end
       Object.const_set(test_name, klass)
