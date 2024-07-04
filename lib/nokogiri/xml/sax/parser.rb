@@ -69,7 +69,7 @@ module Nokogiri
         attr_accessor :encoding
 
         # Create a new Parser with +doc+ and +encoding+
-        def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = "UTF-8")
+        def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = nil)
           @encoding = check_encoding(encoding)
           @document = doc
           @warned   = false
@@ -89,9 +89,27 @@ module Nokogiri
         end
 
         ###
-        # Parse given +io+
+        # :call-seq:
+        #   parse_io(io)
+        #   parse_io(io) { |parser_context| ... }
+        #   parse_io(io, encoding)
+        #   parse_io(io, encoding) { |parser_context| ... }
+        #
+        # Parse an input stream.
+        #
+        # [Parameters]
+        # - +io+ (IO) The readable IO object from which to read input
+        # - +encoding+ (optional String) An encoding name to use when parsing the input. (default
+        #   `nil` for autodetection)
+        #
+        # [Yields]
+        # If a block is given, the underlying ParserContext object will be yielded. This can be used to set
+        # options on the parser context before parsing begins.
+        #
         def parse_io(io, encoding = @encoding)
-          ctx = ParserContext.io(io, ENCODINGS[check_encoding(encoding)])
+          encoding_id = encoding ? ENCODINGS[check_encoding(encoding)] : ENCODINGS["NONE"]
+
+          ctx = ParserContext.io(io, encoding_id)
           yield ctx if block_given?
           ctx.parse_with(self)
         end
@@ -108,8 +126,27 @@ module Nokogiri
           ctx.parse_with(self)
         end
 
-        def parse_memory(data)
-          ctx = ParserContext.memory(data)
+        # :call-seq:
+        #   parse_memory(input)
+        #   parse_memory(input) { |parser_context| ... }
+        #   parse_memory(input, encoding)
+        #   parse_memory(input, encoding) { |parser_context| ... }
+        #
+        # Parse an input string.
+        #
+        # [Parameters]
+        # - +input+ (String) The input string to be parsed.
+        # - +encoding+ (optional String) An encoding name to use when parsing the input. (default
+        #   `nil` for autodetection)
+        #
+        # [Yields]
+        # If a block is given, the underlying ParserContext object will be yielded. This can be used to set
+        # options on the parser context before parsing begins.
+        #
+        def parse_memory(input, encoding = @encoding)
+          encoding_id = encoding ? ENCODINGS[check_encoding(encoding)] : ENCODINGS["NONE"]
+
+          ctx = ParserContext.memory(input, encoding_id)
           yield ctx if block_given?
           ctx.parse_with(self)
         end
@@ -117,6 +154,7 @@ module Nokogiri
         private
 
         def check_encoding(encoding)
+          return nil unless encoding
           encoding.upcase.tap do |enc|
             raise ArgumentError, "'#{enc}' is not a valid encoding" unless ENCODINGS[enc]
           end

@@ -46,32 +46,43 @@ noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
 
 /*
  * call-seq:
+ *   io(input)
  *   io(input, encoding_id)
  *
  * Create a parser context for an +input+ IO which will assume +encoding+
  *
  * [Parameters]
  * - +io+ (IO) The readable IO object from which to read input
- * - +encoding_id+ (Integer) The libxml2 encoding ID to use, see SAX::Parser::ENCODINGS
+ * - +encoding_id+ (optional Integer) The libxml2 encoding ID to use, see SAX::Parser::ENCODINGS
+ *   (default: 0, corresponding to "NONE", which means to autodetect the encoding)
  *
  * [Returns] Nokogiri::XML::SAX::ParserContext
  *
  * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
  */
 static VALUE
-noko_xml_sax_parser_context_s_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding_id)
+noko_xml_sax_parser_context_s_io(int argc, VALUE *argv, VALUE rb_class)
 {
-  xmlParserCtxtPtr c_context;
-  xmlCharEncoding c_encoding = (xmlCharEncoding)NUM2INT(rb_encoding_id);
+  VALUE rb_io, rb_encoding_id;
+
+  rb_scan_args(argc, argv, "11", &rb_io, &rb_encoding_id);
+
+  xmlCharEncoding c_encoding;
+  if (RB_TEST(rb_encoding_id)) {
+    c_encoding = (xmlCharEncoding)NUM2INT(rb_encoding_id);
+  } else {
+    c_encoding = XML_CHAR_ENCODING_NONE;
+  }
 
   if (!rb_respond_to(rb_io, id_read)) {
     rb_raise(rb_eTypeError, "argument expected to respond to :read");
   }
 
-  c_context = xmlCreateIOParserCtxt(NULL, NULL,
-                                    (xmlInputReadCallback)noko_io_read,
-                                    (xmlInputCloseCallback)noko_io_close,
-                                    (void *)rb_io, c_encoding);
+  xmlParserCtxtPtr c_context =
+    xmlCreateIOParserCtxt(NULL, NULL,
+                          (xmlInputReadCallback)noko_io_read,
+                          (xmlInputCloseCallback)noko_io_close,
+                          (void *)rb_io, c_encoding);
   if (!c_context) {
     rb_raise(rb_eRuntimeError, "failed to create xml sax parser context");
   }
@@ -113,32 +124,41 @@ noko_xml_sax_parser_context_s_file(VALUE rb_class, VALUE rb_path)
 /*
  * call-seq:
  *   memory(input)
+ *   memory(input, encoding_id)
  *
  * Create a parser context for the +input+ String.
  *
  * [Parameters]
  * - +input+ (String) The input string to be parsed.
+ * - +encoding_id+ (optional Integer) The libxml2 encoding ID to use, see SAX::Parser::ENCODINGS
+ *   (default: 0, corresponding to "NONE", which means to autodetect the encoding)
  *
  * [Returns] Nokogiri::XML::SAX::ParserContext
  *
  * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
  */
 static VALUE
-noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
+noko_xml_sax_parser_context_s_memory(int argc, VALUE *argv, VALUE rb_class)
 {
-  xmlParserCtxtPtr c_context;
+  VALUE rb_input, rb_encoding_id;
 
+  rb_scan_args(argc, argv, "11", &rb_input, &rb_encoding_id);
   Check_Type(rb_input, T_STRING);
 
   if (!(int)RSTRING_LEN(rb_input)) {
     rb_raise(rb_eRuntimeError, "input string cannot be empty");
   }
 
-  c_context = xmlCreateMemoryParserCtxt(StringValuePtr(rb_input),
-                                        (int)RSTRING_LEN(rb_input));
+  xmlParserCtxtPtr c_context =
+    xmlCreateMemoryParserCtxt(StringValuePtr(rb_input), (int)RSTRING_LEN(rb_input));
   if (c_context->sax) {
     xmlFree(c_context->sax);
     c_context->sax = NULL;
+  }
+
+  if (RB_TEST(rb_encoding_id)) {
+    xmlCharEncoding c_encoding = (xmlCharEncoding)NUM2INT(rb_encoding_id);
+    xmlSwitchEncoding(c_context, c_encoding);
   }
 
   return noko_xml_sax_parser_context_wrap(rb_class, c_context);
@@ -353,8 +373,8 @@ noko_init_xml_sax_parser_context(void)
 
   rb_undef_alloc_func(cNokogiriXmlSaxParserContext);
 
-  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "io", noko_xml_sax_parser_context_s_io, 2);
-  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "memory", noko_xml_sax_parser_context_s_memory, 1);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "io", noko_xml_sax_parser_context_s_io, -1);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "memory", noko_xml_sax_parser_context_s_memory, -1);
   rb_define_singleton_method(cNokogiriXmlSaxParserContext, "file", noko_xml_sax_parser_context_s_file, 1);
 
   rb_define_method(cNokogiriXmlSaxParserContext, "parse_with", noko_xml_sax_parser_context__parse_with, 1);
