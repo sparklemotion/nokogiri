@@ -215,9 +215,109 @@ module Nokogiri
           end
         end
 
-        it "has correct encoding" do
-          parser = Nokogiri::XML::SAX::Parser.new(Doc.new, "UTF-8")
-          assert_equal("UTF-8", parser.encoding)
+        describe "encoding" do
+          # proper ISO-8859-1 encoding
+          let(:xml_encoding_iso8859) { "<?xml version='1.0' encoding='ISO-8859-1'?>\n<content>B\xF6hnhardt</content>" }
+          # this input string is really UTF-8 but is marked as ISO-8859-1
+          let(:xml_encoding_broken) { "<?xml version='1.0' encoding='ISO-8859-1'?>\n<content>Böhnhardt</content>" }
+          # this input string is really ISO-8859-1 but is marked as UTF-8
+          let(:xml_encoding_broken2) { "<?xml version='1.0' encoding='UTF-8'?>\n<content>B\xF6hnhardt</content>" }
+
+          it "is nil by default to indicate encoding should be autodetected" do
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            assert_nil(parser.encoding)
+          end
+
+          it "can be set in the initializer" do
+            assert_equal("UTF-8", Nokogiri::XML::SAX::Parser.new(Doc.new, "UTF-8").encoding)
+            assert_equal("ISO-2022-JP", Nokogiri::XML::SAX::Parser.new(Doc.new, "ISO-2022-JP").encoding)
+          end
+
+          it "raises when given an invalid encoding name" do
+            assert_raises(ArgumentError) do
+              Nokogiri::XML::SAX::Parser.new(Doc.new, "not an encoding").parse_io(StringIO.new("<root/>"))
+            end
+            assert_raises(ArgumentError) do
+              Nokogiri::XML::SAX::Parser.new(Doc.new, "not an encoding").parse_memory("<root/>")
+            end
+            assert_raises(ArgumentError) { parser.parse_io(StringIO.new("<root/>"), "not an encoding") }
+            assert_raises(ArgumentError) { parser.parse_memory("<root/>", "not an encoding") }
+          end
+
+          it "autodetects the encoding if not overridden" do
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse(xml_encoding_iso8859)
+
+            # correctly converted the input ISO-8859-1 to UTF-8 for the callback
+            assert_equal("Böhnhardt", parser.document.data.join)
+          end
+
+          it "overrides the ISO-8859-1 document's encoding when set via initializer" do
+            if Nokogiri.uses_libxml?("< 2.12.0") # gnome/libxml2@ec7be506
+              skip("older libxml2 encoding detection is sus")
+            end
+
+            # broken encoding!
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse(xml_encoding_broken)
+
+            assert_equal("BÃ¶hnhardt", parser.document.data.join)
+
+            # override the encoding
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new, "UTF-8")
+            parser.parse(xml_encoding_broken)
+
+            assert_equal("Böhnhardt", parser.document.data.join)
+          end
+
+          it "overrides the UTF-8 document's encoding when set via initializer" do
+            if Nokogiri.uses_libxml?(">= 2.13.0")
+              # broken encoding!
+              parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+              parser.parse(xml_encoding_broken2)
+
+              assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+            end
+
+            # override the encoding
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new, "ISO-8859-1")
+            parser.parse(xml_encoding_broken2)
+
+            assert_equal("Böhnhardt", parser.document.data.join)
+            refute(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+          end
+
+          it "can be set via parse_io" do
+            if Nokogiri.uses_libxml?("< 2.13.0")
+              skip("older libxml2 encoding detection is sus")
+            end
+
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse_io(StringIO.new(xml_encoding_broken), "UTF-8")
+
+            assert_equal("Böhnhardt", parser.document.data.join)
+
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse_io(StringIO.new(xml_encoding_broken2), "ISO-8859-1")
+
+            assert_equal("Böhnhardt", parser.document.data.join)
+          end
+
+          it "can be set via parse_memory" do
+            if Nokogiri.uses_libxml?("< 2.12.0") # gnome/libxml2@ec7be506
+              skip("older libxml2 encoding detection is sus")
+            end
+
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse_memory(xml_encoding_broken, "UTF-8")
+
+            assert_equal("Böhnhardt", parser.document.data.join) # here
+
+            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+            parser.parse_memory(xml_encoding_broken2, "ISO-8859-1")
+
+            assert_equal("Böhnhardt", parser.document.data.join)
+          end
         end
 
         it "error strings are UTF-8" do
@@ -292,11 +392,6 @@ module Nokogiri
             end
             assert(called)
           end
-        end
-
-        it "raises when given an invalid encoding name" do
-          assert_raises(ArgumentError) { Nokogiri::XML::SAX::Parser.new(Doc.new, "not an encoding") }
-          assert_raises(ArgumentError) { parser.parse_io(StringIO.new("<root/>"), "not an encoding") }
         end
 
         it "cdata_block is called when CDATA is parsed" do

@@ -4,16 +4,11 @@ module Nokogiri
   module HTML4
     module SAX
       ###
-      # Context for HTML SAX parsers. This class is usually not instantiated by the user. Instead,
-      # you should be looking at Nokogiri::HTML4::SAX::Parser
+      # Context object to invoke the HTML4 SAX parser on the SAX::Document handler.
+      #
+      # 💡 This class is usually not instantiated by the user. Use Nokogiri::HTML4::SAX::Parser
+      # instead.
       class ParserContext < Nokogiri::XML::SAX::ParserContext
-        def self.new(thing, encoding = "UTF-8")
-          if [:read, :close].all? { |x| thing.respond_to?(x) }
-            super
-          else
-            memory(thing, encoding)
-          end
-        end
       end
     end
   end

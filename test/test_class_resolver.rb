@@ -13,10 +13,12 @@ describe Nokogiri::ClassResolver do
         Nokogiri::HTML4::DocumentFragment,
         Nokogiri::HTML4::Document.new.related_class("DocumentFragment"),
       )
-      assert_equal(
-        Nokogiri::HTML5::DocumentFragment,
-        Nokogiri::HTML5::Document.new.related_class("DocumentFragment"),
-      )
+      if defined?(Nokogiri::HTML5)
+        assert_equal(
+          Nokogiri::HTML5::DocumentFragment,
+          Nokogiri::HTML5::Document.new.related_class("DocumentFragment"),
+        )
+      end
     end
   end
 
@@ -30,10 +32,12 @@ describe Nokogiri::ClassResolver do
         Nokogiri::HTML4::Document,
         Nokogiri::HTML4::Builder.new.related_class("Document"),
       )
-      assert_equal(
-        Nokogiri::HTML5::Document,
-        Nokogiri::HTML5::Builder.new.related_class("Document"),
-      )
+      if defined?(Nokogiri::HTML5)
+        assert_equal(
+          Nokogiri::HTML5::Document,
+          Nokogiri::HTML5::Builder.new.related_class("Document"),
+        )
+      end
     end
   end
 
