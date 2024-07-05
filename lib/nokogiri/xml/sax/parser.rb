@@ -31,6 +31,9 @@ module Nokogiri
       # For more information about SAX parsers, see Nokogiri::XML::SAX.  Also
       # see Nokogiri::XML::SAX::Document for the available events.
       class Parser
+        # to dynamically resolve ParserContext in inherited methods
+        include Nokogiri::ClassResolver
+
         class Attribute < Struct.new(:localname, :prefix, :uri, :value)
         end
 
