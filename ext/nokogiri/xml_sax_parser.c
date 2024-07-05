@@ -46,10 +46,10 @@ noko_xml_sax_parser_start_document_callback(void *ctx)
     VALUE encoding = Qnil ;
     VALUE standalone = Qnil;
     VALUE version;
-    /* TODO try using xmlGetActualEncoding */
+
     if (ctxt->encoding) {
       encoding = NOKOGIRI_STR_NEW2(ctxt->encoding) ;
-    } else if (ctxt->input && ctxt->input->encoding) {
+    } else if (ctxt->input && ctxt->input->encoding) { // unnecessary after v2.12.0 / gnome/libxml2@ec7be506
       encoding = NOKOGIRI_STR_NEW2(ctxt->input->encoding) ;
     }
 
