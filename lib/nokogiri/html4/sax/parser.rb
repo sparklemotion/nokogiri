@@ -27,9 +27,11 @@ module Nokogiri
       class Parser < Nokogiri::XML::SAX::Parser
         ###
         # Parse html stored in +data+ using +encoding+
-        def parse_memory(data, encoding = "UTF-8")
+        def parse_memory(data, encoding = @encoding)
           raise TypeError unless String === data
           return if data.empty?
+
+          check_encoding(encoding)
 
           ctx = ParserContext.memory(data, encoding)
           yield ctx if block_given?
@@ -38,9 +40,9 @@ module Nokogiri
 
         ###
         # Parse given +io+
-        def parse_io(io, encoding = "UTF-8")
+        def parse_io(io, encoding = @encoding)
           check_encoding(encoding)
-          @encoding = encoding
+
           ctx = ParserContext.io(io, ENCODINGS[encoding])
           yield ctx if block_given?
           ctx.parse_with(self)

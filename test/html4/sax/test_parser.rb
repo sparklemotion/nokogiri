@@ -59,15 +59,96 @@ module Nokogiri
           end
         end
 
-        it "parse_force_encoding" do
-          parser.parse_memory(<<-HTML, "UTF-8")
-          <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
-          Информация
+        describe "encoding" do
+          let(:html_encoding_iso8859) { <<~HTML }
+            <html><meta charset="ISO-8859-1">
+            <body>B\xF6hnhardt</body>
           HTML
-          assert_equal(
-            "Информация",
-            parser.document.data.join.strip,
-          )
+
+          # this input string is really UTF-8 but is marked as ISO-8859-1
+          let(:html_encoding_broken) { <<~HTML }
+            <html><meta charset="ISO-8859-1">
+            <body>Böhnhardt</body>
+          HTML
+
+          # this input string is really ISO-8859-1 but is marked as UTF-8
+          let(:html_encoding_broken2) { <<~HTML }
+            <html><meta charset="UTF-8">
+            <body>B\xF6hnhardt</body>
+          HTML
+
+          it "is nil by default to indicate encoding should be autodetected" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            assert_nil(parser.encoding)
+          end
+
+          it "can be set in the initializer" do
+            assert_equal("UTF-8", Nokogiri::HTML4::SAX::Parser.new(Doc.new, "UTF-8").encoding)
+            assert_equal("ISO-2022-JP", Nokogiri::HTML4::SAX::Parser.new(Doc.new, "ISO-2022-JP").encoding)
+          end
+
+          it "raises when given an invalid encoding name" do
+            assert_raises(ArgumentError) { Nokogiri::HTML4::SAX::Parser.new(Doc.new, "not an encoding") }
+            assert_raises(ArgumentError) { parser.parse_io(StringIO.new("<root/>"), "not an encoding") }
+            assert_raises(ArgumentError) { parser.parse_memory("<root/>", "not an encoding") }
+          end
+
+          it "autodetects the encoding if not overridden" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse(html_encoding_iso8859)
+
+            # correctly converted the input ISO-8859-1 to UTF-8 for the callback
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+          end
+
+          it "overrides the ISO-8859-1 document's encoding when set via initializer" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_memory(html_encoding_broken)
+
+            assert_equal("BÃ¶hnhardt", parser.document.data.join.strip)
+
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new, "UTF-8")
+            parser.parse_memory(html_encoding_broken)
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+          end
+
+          it "overrides the UTF-8 document's encoding when set via initializer" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_memory(html_encoding_broken2)
+
+            assert(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_memory(html_encoding_broken2, "ISO-8859-1")
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+            refute(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+          end
+
+          it "can be set via parse_io" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_io(StringIO.new(html_encoding_broken), "UTF-8")
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_io(StringIO.new(html_encoding_broken2), "ISO-8859-1")
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+          end
+
+          it "can be set via parse_memory" do
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_memory(html_encoding_broken, "UTF-8")
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+
+            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+            parser.parse_memory(html_encoding_broken2, "ISO-8859-1")
+
+            assert_equal("Böhnhardt", parser.document.data.join.strip)
+          end
         end
 
         it "parse_document" do
