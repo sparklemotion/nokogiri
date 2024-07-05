@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "rake/testtask"
+require "minitest/test_task"
 
 begin
   require "ruby_memcheck"
@@ -11,7 +11,7 @@ end
 #
 #  much of this was ripped out of hoe-debugging
 #
-class ValgrindTestTask < Rake::TestTask
+class ValgrindTestTask < Minitest::TestTask
   DEFAULT_DIRECTORY_NAME = "suppressions"
   ERROR_EXITCODE = 42 # the answer to life, the universe, and segfaulting.
   VALGRIND_OPTIONS = [
@@ -73,7 +73,7 @@ class ValgrindTestTask < Rake::TestTask
   end
 end
 
-class GdbTestTask < Rake::TestTask
+class GdbTestTask < Minitest::TestTask
   def ruby(*args, **options, &block)
     ENV["NCPU"] = nil
 
@@ -82,7 +82,7 @@ class GdbTestTask < Rake::TestTask
   end
 end
 
-class LldbTestTask < Rake::TestTask
+class LldbTestTask < Minitest::TestTask
   def ruby(*args, **options, &block)
     ENV["NCPU"] = nil
 
@@ -91,7 +91,7 @@ class LldbTestTask < Rake::TestTask
   end
 end
 
-class MemorySuiteTestTask < Rake::TestTask
+class MemorySuiteTestTask < Minitest::TestTask
   def ruby(*args, **options, &block)
     ENV["NCPU"] = nil
     ENV["NOKOGIRI_MEMORY_SUITE"] = "t"
@@ -109,6 +109,12 @@ if defined?(RubyMemcheck)
 
       super
     end
+
+    # RubyMemcheck::TestTask inherits from Rake::TestTask,
+    # let's make it emulate this aspect of Minitest::TestTask
+    def test_globs=(glob)
+      self.pattern = glob
+    end
   end
 end
 
@@ -119,41 +125,41 @@ end
 
 def nokogiri_test_case_configuration(t)
   nokogiri_test_task_configuration(t)
-  t.test_files = FileList[ENV["TESTGLOB"] || "test/**/test_*.rb"]
+  t.test_globs = ENV["TESTGLOB"] || "test/**/test_*.rb"
 end
 
 def nokogiri_test_bench_configuration(t)
   nokogiri_test_task_configuration(t)
-  t.test_files = FileList["test/**/bench_*.rb"]
+  t.test_globs = "test/**/bench_*.rb"
 end
 
 def nokogiri_test_memory_suite_configuration(t)
   nokogiri_test_task_configuration(t)
-  t.test_files = FileList["test/test_memory_usage.rb"]
+  t.test_globs = "test/test_memory_usage.rb"
 end
 
-Rake::TestTask.new do |t|
+Minitest::TestTask.create do |t|
   nokogiri_test_case_configuration(t)
 end
 
 namespace "test" do
-  Rake::TestTask.new("bench") do |t|
+  Minitest::TestTask.create("bench") do |t|
     nokogiri_test_bench_configuration(t)
   end
 
-  ValgrindTestTask.new("valgrind") do |t|
+  ValgrindTestTask.create("valgrind") do |t|
     nokogiri_test_case_configuration(t)
   end
 
-  GdbTestTask.new("gdb") do |t|
+  GdbTestTask.create("gdb") do |t|
     nokogiri_test_case_configuration(t)
   end
 
-  LldbTestTask.new("lldb") do |t|
+  LldbTestTask.create("lldb") do |t|
     nokogiri_test_case_configuration(t)
   end
 
-  MemorySuiteTestTask.new("memory_suite") do |t|
+  MemorySuiteTestTask.create("memory_suite") do |t|
     nokogiri_test_memory_suite_configuration(t)
   end
 
