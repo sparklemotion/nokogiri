@@ -41,9 +41,9 @@ module Nokogiri
         ###
         # Parse given +io+
         def parse_io(io, encoding = @encoding)
-          check_encoding(encoding)
+          encoding_id = encoding ? ENCODINGS[check_encoding(encoding)] : ENCODINGS["NONE"]
 
-          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          ctx = ParserContext.io(io, encoding_id)
           yield ctx if block_given?
           ctx.parse_with(self)
         end

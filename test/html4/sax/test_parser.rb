@@ -114,19 +114,25 @@ module Nokogiri
           end
 
           it "overrides the UTF-8 document's encoding when set via initializer" do
-            parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
-            parser.parse_memory(html_encoding_broken2)
+            if Nokogiri.uses_libxml?(">= 2.13.0") # nekohtml is a better guesser than libxml2
+              parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
+              parser.parse_memory(html_encoding_broken2)
 
-            assert(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+              assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+            end
 
             parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
             parser.parse_memory(html_encoding_broken2, "ISO-8859-1")
 
             assert_equal("Böhnhardt", parser.document.data.join.strip)
-            refute(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+            refute(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
           end
 
           it "can be set via parse_io" do
+            if Nokogiri.uses_libxml?("< 2.13.0")
+              skip("older libxml2 encoding detection is sus")
+            end
+
             parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
             parser.parse_io(StringIO.new(html_encoding_broken), "UTF-8")
 

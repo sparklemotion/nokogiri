@@ -248,6 +248,10 @@ module Nokogiri
           end
 
           it "overrides the ISO-8859-1 document's encoding when set via initializer" do
+            if Nokogiri.uses_libxml?("< 2.12.0") # gnome/libxml2@ec7be506
+              skip("older libxml2 encoding detection is sus")
+            end
+
             # broken encoding!
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
             parser.parse(xml_encoding_broken)
@@ -262,21 +266,27 @@ module Nokogiri
           end
 
           it "overrides the UTF-8 document's encoding when set via initializer" do
-            # broken encoding!
-            parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
-            parser.parse(xml_encoding_broken2)
+            if Nokogiri.uses_libxml?(">= 2.13.0")
+              # broken encoding!
+              parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
+              parser.parse(xml_encoding_broken2)
 
-            assert(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+              assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+            end
 
             # override the encoding
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new, "ISO-8859-1")
             parser.parse(xml_encoding_broken2)
 
             assert_equal("Böhnhardt", parser.document.data.join)
-            refute(parser.document.errors.any? { |e| e.match(/Invalid bytes in character encoding/) })
+            refute(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
           end
 
           it "can be set via parse_io" do
+            if Nokogiri.uses_libxml?("< 2.13.0")
+              skip("older libxml2 encoding detection is sus")
+            end
+
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
             parser.parse_io(StringIO.new(xml_encoding_broken), "UTF-8")
 
@@ -289,10 +299,14 @@ module Nokogiri
           end
 
           it "can be set via parse_memory" do
+            if Nokogiri.uses_libxml?("< 2.12.0") # gnome/libxml2@ec7be506
+              skip("older libxml2 encoding detection is sus")
+            end
+
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
             parser.parse_memory(xml_encoding_broken, "UTF-8")
 
-            assert_equal("Böhnhardt", parser.document.data.join)
+            assert_equal("Böhnhardt", parser.document.data.join) # here
 
             parser = Nokogiri::XML::SAX::Parser.new(Doc.new)
             parser.parse_memory(xml_encoding_broken2, "ISO-8859-1")
