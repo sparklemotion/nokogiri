@@ -356,9 +356,9 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
 
 ### Code
 
-I don't feel very strongly about code style, but this project follows [Shopify's Ruby Style Guide](https://shopify.github.io/ruby-style-guide/), and for C and Java code the project uses the `astyle` configuration laid out in `./rakelib/format.rake`.
+I don't feel very strongly about code style, but this project uses [Standard](https://github.com/standardrb/standard) for Ruby, and uses the `astyle` configuration laid out in `./rakelib/format.rake` for C and Java.
 
-You can auto-format the C, Java, and Ruby code with `rake format`.
+You can auto-format everything with `rake format`.
 
 There are some pending Rubocop rules in `.rubocop_todo.yml`. If you'd like to fix them up, I will happily merge your pull request.
 
