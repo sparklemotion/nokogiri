@@ -670,9 +670,9 @@ if arg_config("--prevent-strip")
 end
 
 # adopt environment config
-append_cflags(ENV["CFLAGS"].split) unless ENV["CFLAGS"].nil?
-append_cppflags(ENV["CPPFLAGS"].split) unless ENV["CPPFLAGS"].nil?
-append_ldflags(ENV["LDFLAGS"].split) unless ENV["LDFLAGS"].nil?
+append_cflags(ENV["CFLAGS"]) unless ENV["CFLAGS"].nil?
+append_cppflags(ENV["CPPFLAGS"]) unless ENV["CPPFLAGS"].nil?
+append_ldflags(ENV["LDFLAGS"]) unless ENV["LDFLAGS"].nil?
 $LIBS = concat_flags($LIBS, ENV["LIBS"])
 
 # libgumbo uses C90/C99 features, see #2302
