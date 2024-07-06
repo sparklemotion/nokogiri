@@ -8,8 +8,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated to [v2.13.1](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.1). [#3230] @flavorjones
-* [CRuby] Vendored libxslt is updated to [v1.1.41](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.41). [#3230] @flavorjones
+* [CRuby] Vendored libxml2 is updated to [v2.13.2](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.2). [#3230] @flavorjones
+* [CRuby] Vendored libxslt is updated to [v1.1.42](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.42). [#3230] @flavorjones
 * [CRuby] Minimum supported version of libxml2 raised to v2.7.7 (released 2010-03-15) from v2.6.21. [#3232] @flavorjones
 * [JRuby] Minimum supported versino of Java raised to 8 (released 2014-03-18) from 7. [#3134] @flavorjones 
 * [CRuby] Update to rake-compiler-dock v1.5.1 for building precompiled native gems. [#3216] @flavorjones
