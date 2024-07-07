@@ -43,6 +43,36 @@ noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
   return TypedData_Wrap_Struct(klass, &xml_sax_parser_context_type, c_context);
 }
 
+void
+noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE rb_encoding)
+{
+  if (!NIL_P(rb_encoding)) {
+    VALUE rb_encoding_name = rb_funcall(rb_encoding, rb_intern("name"), 0);
+
+    char *encoding_name = StringValueCStr(rb_encoding_name);
+    if (encoding_name) {
+      libxmlStructuredErrorHandlerState handler_state;
+      VALUE rb_errors = rb_ary_new();
+
+      noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
+
+      int result = xmlSwitchEncodingName(c_context, encoding_name);
+
+      noko__structured_error_func_restore(&handler_state);
+
+      if (result != 0) {
+        xmlFreeParserCtxt(c_context);
+
+        VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+        if (!NIL_P(exception)) {
+          rb_exc_raise(exception);
+        } else {
+          rb_raise(rb_eRuntimeError, "could not set encoding");
+        }
+      }
+    }
+  }
+}
 
 /*
  * call-seq:
