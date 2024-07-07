@@ -6,23 +6,23 @@ module Nokogiri
     # SAX Parsers are event-driven parsers.
     #
     # Two SAX parsers for XML are available, a parser that reads from a string or IO object as it
-    # feels necessary, and a parser that lets you spoon feed it XML. If you want to let Nokogiri
-    # deal with reading your XML, use the Nokogiri::XML::SAX::Parser. If you want to have fine grain
-    # control over the XML input, use the Nokogiri::XML::SAX::PushParser.
+    # feels necessary, and a parser that you explicitly feed XML in chunks. If you want to let
+    # Nokogiri deal with reading your XML, use the Nokogiri::XML::SAX::Parser. If you want to have
+    # fine grain control over the XML input, use the Nokogiri::XML::SAX::PushParser.
     #
-    # If you want to do SAX style parsing using HTML, check out Nokogiri::HTML4::SAX.
+    # If you want to do SAX style parsing of HTML, check out Nokogiri::HTML4::SAX.
     #
     # The basic way a SAX style parser works is by creating a parser, telling the parser about the
     # events we're interested in, then giving the parser some XML to process. The parser will notify
     # you when it encounters events you said you would like to know about.
     #
-    # To register for events, you simply subclass Nokogiri::XML::SAX::Document, and implement the
-    # methods for which you would like notification.
+    # To register for events, subclass Nokogiri::XML::SAX::Document and implement the methods for
+    # which you would like notification.
     #
     # For example, if I want to be notified when a document ends, and when an element starts, I
     # would write a class like this:
     #
-    #   class MyDocument < Nokogiri::XML::SAX::Document
+    #   class MyHandler < Nokogiri::XML::SAX::Document
     #     def end_document
     #       puts "the document has ended"
     #     end
@@ -35,7 +35,7 @@ module Nokogiri
     # Then I would instantiate a SAX parser with this document, and feed the parser some XML
     #
     #   # Create a new parser
-    #   parser = Nokogiri::XML::SAX::Parser.new(MyDocument.new)
+    #   parser = Nokogiri::XML::SAX::Parser.new(MyHandler.new)
     #
     #   # Feed the parser some XML
     #   parser.parse(File.open(ARGV[0]))

@@ -159,7 +159,7 @@ relink_namespace(xmlNodePtr reparented)
   /* reparent. */
   if (NULL == reparented->ns) { return; }
 
-  /* When a node gets reparented, walk it's children to make sure that */
+  /* When a node gets reparented, walk its children to make sure that */
   /* their namespaces are reparented as well. */
   child = reparented->children;
   while (NULL != child) {

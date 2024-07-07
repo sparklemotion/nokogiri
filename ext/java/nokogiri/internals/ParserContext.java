@@ -105,6 +105,33 @@ public abstract class ParserContext extends RubyObject
     source.setEncoding(java_encoding);
   }
 
+  public void
+  setStringInputSourceNoEnc(ThreadContext context, IRubyObject data, IRubyObject url)
+  {
+    source = new InputSource();
+    ParserContext.setUrl(context, source, url);
+
+    Ruby ruby = context.getRuntime();
+
+    if (data.isNil()) {
+      throw ruby.newTypeError("wrong argument type nil (expected String)");
+    }
+    if (!(data instanceof RubyString)) {
+      throw ruby.newTypeError("wrong argument type " + data.getMetaClass() + " (expected String)");
+    }
+
+    RubyString stringData = (RubyString) data;
+
+    ByteList bytes = stringData.getByteList();
+
+    stringDataSize = bytes.length() - bytes.begin();
+    if (stringDataSize == 0) {
+      throw context.runtime.newRuntimeError("input string cannot be empty");
+    }
+    ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
+    source.setByteStream(stream);
+  }
+
   public static void
   setUrl(ThreadContext context, InputSource source, IRubyObject url)
   {

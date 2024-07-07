@@ -43,39 +43,60 @@ noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context)
   return TypedData_Wrap_Struct(klass, &xml_sax_parser_context_type, c_context);
 }
 
-
-/*
- * call-seq:
- *   io(input, encoding_id)
- *
- * Create a parser context for an +input+ IO which will assume +encoding+
- *
- * [Parameters]
- * - +io+ (IO) The readable IO object from which to read input
- * - +encoding_id+ (Integer) The libxml2 encoding ID to use, see SAX::Parser::ENCODINGS
- *
- * [Returns] Nokogiri::XML::SAX::ParserContext
- *
- * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
- */
-static VALUE
-noko_xml_sax_parser_context_s_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding_id)
+void
+noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE rb_encoding)
 {
-  xmlParserCtxtPtr c_context;
-  xmlCharEncoding c_encoding = (xmlCharEncoding)NUM2INT(rb_encoding_id);
+  if (!NIL_P(rb_encoding)) {
+    VALUE rb_encoding_name = rb_funcall(rb_encoding, rb_intern("name"), 0);
 
+    char *encoding_name = StringValueCStr(rb_encoding_name);
+    if (encoding_name) {
+      libxmlStructuredErrorHandlerState handler_state;
+      VALUE rb_errors = rb_ary_new();
+
+      noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
+
+      int result = xmlSwitchEncodingName(c_context, encoding_name);
+
+      noko__structured_error_func_restore(&handler_state);
+
+      if (result != 0) {
+        xmlFreeParserCtxt(c_context);
+
+        VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+        if (!NIL_P(exception)) {
+          rb_exc_raise(exception);
+        } else {
+          rb_raise(rb_eRuntimeError, "could not set encoding");
+        }
+      }
+    }
+  }
+}
+
+/* :nodoc: */
+static VALUE
+noko_xml_sax_parser_context_s_native_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding)
+{
   if (!rb_respond_to(rb_io, id_read)) {
     rb_raise(rb_eTypeError, "argument expected to respond to :read");
   }
 
-  c_context = xmlCreateIOParserCtxt(NULL, NULL,
-                                    (xmlInputReadCallback)noko_io_read,
-                                    (xmlInputCloseCallback)noko_io_close,
-                                    (void *)rb_io, c_encoding);
+  if (!NIL_P(rb_encoding) && !rb_obj_is_kind_of(rb_encoding, rb_cEncoding)) {
+    rb_raise(rb_eTypeError, "argument must be an Encoding object");
+  }
+
+  xmlParserCtxtPtr c_context =
+    xmlCreateIOParserCtxt(NULL, NULL,
+                          (xmlInputReadCallback)noko_io_read,
+                          (xmlInputCloseCallback)noko_io_close,
+                          (void *)rb_io, XML_CHAR_ENCODING_NONE);
   if (!c_context) {
     rb_raise(rb_eRuntimeError, "failed to create xml sax parser context");
   }
 
+  noko_xml_sax_parser_context_set_encoding(c_context, rb_encoding);
+
   if (c_context->sax) {
     xmlFree(c_context->sax);
     c_context->sax = NULL;
@@ -84,23 +105,20 @@ noko_xml_sax_parser_context_s_io(VALUE rb_class, VALUE rb_io, VALUE rb_encoding_
   return noko_xml_sax_parser_context_wrap(rb_class, c_context);
 }
 
-/*
- * call-seq:
- *   file(path)
- *
- * Create a parser context for the file at +path+.
- *
- * [Parameters]
- * - +path+ (String) The path to the input file
- *
- * [Returns] Nokogiri::XML::SAX::ParserContext
- *
- * 💡 Calling Nokogiri::XML::SAX::Parser.parse_file is more convenient for most use cases.
- */
+/* :nodoc: */
 static VALUE
-noko_xml_sax_parser_context_s_file(VALUE rb_class, VALUE rb_path)
+noko_xml_sax_parser_context_s_native_file(VALUE rb_class, VALUE rb_path, VALUE rb_encoding)
 {
+  if (!NIL_P(rb_encoding) && !rb_obj_is_kind_of(rb_encoding, rb_cEncoding)) {
+    rb_raise(rb_eTypeError, "argument must be an Encoding object");
+  }
+
   xmlParserCtxtPtr c_context = xmlCreateFileParserCtxt(StringValueCStr(rb_path));
+  if (!c_context) {
+    rb_raise(rb_eRuntimeError, "failed to create xml sax parser context");
+  }
+
+  noko_xml_sax_parser_context_set_encoding(c_context, rb_encoding);
 
   if (c_context->sax) {
     xmlFree(c_context->sax);
@@ -110,32 +128,27 @@ noko_xml_sax_parser_context_s_file(VALUE rb_class, VALUE rb_path)
   return noko_xml_sax_parser_context_wrap(rb_class, c_context);
 }
 
-/*
- * call-seq:
- *   memory(input)
- *
- * Create a parser context for the +input+ String.
- *
- * [Parameters]
- * - +input+ (String) The input string to be parsed.
- *
- * [Returns] Nokogiri::XML::SAX::ParserContext
- *
- * 💡 Calling Nokogiri::XML::SAX::Parser.parse is more convenient for most use cases.
- */
+/* :nodoc: */
 static VALUE
-noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
+noko_xml_sax_parser_context_s_native_memory(VALUE rb_class, VALUE rb_input, VALUE rb_encoding)
 {
-  xmlParserCtxtPtr c_context;
-
   Check_Type(rb_input, T_STRING);
-
   if (!(int)RSTRING_LEN(rb_input)) {
     rb_raise(rb_eRuntimeError, "input string cannot be empty");
   }
 
-  c_context = xmlCreateMemoryParserCtxt(StringValuePtr(rb_input),
-                                        (int)RSTRING_LEN(rb_input));
+  if (!NIL_P(rb_encoding) && !rb_obj_is_kind_of(rb_encoding, rb_cEncoding)) {
+    rb_raise(rb_eTypeError, "argument must be an Encoding object");
+  }
+
+  xmlParserCtxtPtr c_context =
+    xmlCreateMemoryParserCtxt(StringValuePtr(rb_input), (int)RSTRING_LEN(rb_input));
+  if (!c_context) {
+    rb_raise(rb_eRuntimeError, "failed to create xml sax parser context");
+  }
+
+  noko_xml_sax_parser_context_set_encoding(c_context, rb_encoding);
+
   if (c_context->sax) {
     xmlFree(c_context->sax);
     c_context->sax = NULL;
@@ -149,6 +162,9 @@ noko_xml_sax_parser_context_s_memory(VALUE rb_class, VALUE rb_input)
  *  parse_with(sax_handler)
  *
  * Use +sax_handler+ and parse the current document
+ *
+ * 💡 Calling this method directly is discouraged. Use Nokogiri::XML::SAX::Parser methods which are
+ * more convenient for most use cases.
  */
 static VALUE
 noko_xml_sax_parser_context__parse_with(VALUE rb_context, VALUE rb_sax_parser)
@@ -353,9 +369,12 @@ noko_init_xml_sax_parser_context(void)
 
   rb_undef_alloc_func(cNokogiriXmlSaxParserContext);
 
-  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "io", noko_xml_sax_parser_context_s_io, 2);
-  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "memory", noko_xml_sax_parser_context_s_memory, 1);
-  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "file", noko_xml_sax_parser_context_s_file, 1);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "native_io",
+                             noko_xml_sax_parser_context_s_native_io, 2);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "native_memory",
+                             noko_xml_sax_parser_context_s_native_memory, 2);
+  rb_define_singleton_method(cNokogiriXmlSaxParserContext, "native_file",
+                             noko_xml_sax_parser_context_s_native_file, 2);
 
   rb_define_method(cNokogiriXmlSaxParserContext, "parse_with", noko_xml_sax_parser_context__parse_with, 1);
   rb_define_method(cNokogiriXmlSaxParserContext, "replace_entities=",

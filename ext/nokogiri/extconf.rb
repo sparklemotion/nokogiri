@@ -1134,6 +1134,7 @@ end
 
 have_func("xmlCtxtSetOptions") # introduced in libxml2 2.13.0
 have_func("xmlCtxtGetOptions") # introduced in libxml2 2.14.0
+have_func("xmlSwitchEncodingName") # introduced in libxml2 2.13.0
 have_func("rb_category_warning") # introduced in Ruby 3.0
 
 other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k, v| [k, v].join(":") }.join(",")

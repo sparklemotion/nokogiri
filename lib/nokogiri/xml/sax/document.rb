@@ -12,7 +12,7 @@ module Nokogiri
       #
       # To only be notified about start and end element events, write a class like this:
       #
-      #     class MyDocument < Nokogiri::XML::SAX::Document
+      #     class MyHandler < Nokogiri::XML::SAX::Document
       #       def start_element name, attrs = []
       #         puts "#{name} started!"
       #       end

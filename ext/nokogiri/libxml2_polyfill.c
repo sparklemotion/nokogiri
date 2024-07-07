@@ -95,3 +95,20 @@ xmlCtxtGetOptions(xmlParserCtxtPtr ctxt)
   return (ctxt->options);
 }
 #endif
+
+#ifndef HAVE_XMLSWITCHENCODINGNAME
+int
+xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding)
+{
+  if (ctxt == NULL) {
+    return (-1);
+  }
+
+  xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler(encoding);
+  if (handler == NULL) {
+    return (-1);
+  }
+
+  return (xmlSwitchToEncoding(ctxt, handler));
+}
+#endif

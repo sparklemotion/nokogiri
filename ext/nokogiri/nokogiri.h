@@ -63,6 +63,9 @@ int xmlCtxtSetOptions(xmlParserCtxtPtr ctxt, int options);
 #ifndef HAVE_XMLCTXTGETOPTIONS
 int xmlCtxtGetOptions(xmlParserCtxtPtr ctxt);
 #endif
+#ifndef HAVE_XMLSWITCHENCODINGNAME
+int xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding);
+#endif
 
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
@@ -205,6 +208,7 @@ xmlParserCtxtPtr noko_xml_sax_push_parser_unwrap(VALUE rb_parser);
 
 VALUE noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context);
 xmlParserCtxtPtr noko_xml_sax_parser_context_unwrap(VALUE rb_context);
+void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE rb_encoding);
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
