@@ -7,10 +7,9 @@ module XSD
     ###
     # Nokogiri XML parser for soap4r.
     #
-    # Nokogiri may be used as the XML parser in soap4r.  Simply require
-    # 'xsd/xmlparser/nokogiri' in your soap4r applications, and soap4r
-    # will use Nokogiri as it's XML parser.  No other changes should be
-    # required to use Nokogiri as the XML parser.
+    # Nokogiri may be used as the XML parser in soap4r. Require 'xsd/xmlparser/nokogiri' in your
+    # soap4r applications, and soap4r will use Nokogiri as its XML parser. No other changes should
+    # be required to use Nokogiri as the XML parser.
     #
     # Example (using UW ITS Web Services):
     #

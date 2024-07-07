@@ -4,10 +4,9 @@ module Nokogiri
   module XML
     module SAX
       ###
-      # This parser is a SAX style parser that reads it's input as it
-      # deems necessary.  The parser takes a Nokogiri::XML::SAX::Document,
-      # an optional encoding, then given an XML input, sends messages to
-      # the Nokogiri::XML::SAX::Document.
+      # This parser is a SAX style parser that reads its input as it deems necessary. The parser
+      # takes a Nokogiri::XML::SAX::Document, an optional encoding, then given an XML input, sends
+      # messages to the Nokogiri::XML::SAX::Document.
       #
       # Here is an example of using this parser:
       #

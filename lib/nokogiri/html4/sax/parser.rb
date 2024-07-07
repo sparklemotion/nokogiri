@@ -10,7 +10,11 @@ module Nokogiri
     # For more information on SAX parsers, see Nokogiri::XML::SAX
     module SAX
       ###
-      # This class lets you perform SAX style parsing on HTML with HTML error correction.
+      # This parser is a SAX style parser that reads its input as it deems necessary. The parser
+      # takes a Nokogiri::XML::SAX::Document, an optional encoding, then given an HTML input, sends
+      # messages to the Nokogiri::XML::SAX::Document.
+      #
+      # ⚠ This is an HTML4 parser and so may not support some HTML5 features and behaviors.
       #
       # Here is a basic usage example:
       #

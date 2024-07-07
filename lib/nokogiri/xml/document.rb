@@ -362,7 +362,7 @@ module Nokogiri
       end
 
       ##
-      # Validate this Document against it's DTD.  Returns a list of errors on
+      # Validate this Document against its DTD.  Returns a list of errors on
       # the document or +nil+ when there is no DTD.
       def validate
         return unless internal_subset
