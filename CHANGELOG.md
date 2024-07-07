@@ -15,11 +15,39 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.5.1 for building precompiled native gems. [#3216] @flavorjones
 
 
+### Notable changes
+
+#### SAX Parsers
+
+The XML and HTML4 SAX parsers have received a lot of attention in this release, and we've fixed multiple long-standing bugs with encoding and entity handling. In addition, libxml2 v2.13 has also made some underlying fixes and improvements to encoding and entity handling.
+
+We're shipping these fixes in a minor release because we firmly believe the resulting behavior is correct and standards-compliant, however applications that have been depending on the buggy behavior may be impacted.
+
+If your application relies on the SAX parsers, and in particular if you're SAX-parsing documents with parsed entities or incorrect encoding declarations, please read the changelog below carefully.
+
+
+#### Fragment parsing
+
+Document fragment parsing has been improved, particularly with respect to handling malformed fragments or fragments with implicit namespace prefixes. Namespace reconciliation still isn't where we want it to be, but it's an improvement.
+
+HTML5 fragment parsing now allows the context node to be specified as a keyword argument to the `HTML5::DocumentFragment.parse` and `.new` methods, which in particular should allow for more flexible sanitization and support for the [draft HTML Sanitizer API](https://wicg.github.io/sanitizer-api/) in downstream libraries.
+
+
+#### Error handling
+
+In scenarios where multiple errors could be reported by the underlying parser, the errors will be aggregated into a single `Nokogiri::XML::SyntaxError` that is raised. Previously only the final error reported by libxml2 was raised which was often misleading if it was only a warning and not the fatal error.
+
+
+#### Schema validation
+
+We've resolved many long-standing bugs in the various schema classes, validation methods, and their error reporting. Behavior is now consistent across schema types and input types, as well as parser backends (Xerces and libxml2).
+
+
 ### Added
 
 * Introduce support for a new SAX callback `XML::SAX::Document#reference`, which is called to report some parsed XML entities when `XML::SAX::ParserContext#replace_entities` is set to the default value `false`. This is necessary functionality for some applications that were previously relying on incorrect entity error reporting which has been fixed (see below). For more information, read the docs for `Nokogiri::XML::SAX::Document`. [#1926] @flavorjones
-* `XML::SAX::Parser#parse_memory` and `#parse_file` now accept an optional `encoding` argument. When not provided, the parser will fall back to the encoding passed to the initializer, and then fall back to autodetection. [#3282] @flavorjones
-* `XML::SAX::ParserContext.memory` now accepts an optional `encoding` argument. When not provided, the encoding will be autodetected. [#3282] @flavorjones
+* `XML::SAX::Parser#parse_memory` and `#parse_file` now accept an optional `encoding` argument. When not provided, the parser will fall back to the encoding passed to the initializer, and then fall back to autodetection. [#3288] @flavorjones
+* `XML::SAX::ParserContext.memory` now accepts an optional `encoding` argument. When not provided, the encoding will be autodetected. [#3288] @flavorjones
 * [CRuby] `Nokogiri::HTML5::Builder` is similar to `HTML4::Builder` but returns an `HTML5::Document`. [#3119] @flavorjones
 * [CRuby] Attributes in an HTML5 document can be serialized individually, something that has always been supported by the HTML4 serializer. [#3125, #3127] @flavorjones
 * [CRuby] Introduce a compile-time option, `--disable-xml2-legacy`, to remove from libxml2 its dependencies on `zlib` and `liblzma` and disable implicit `HTTP` network requests. These all remain enabled by default, and are present in the precompiled native gems. This option is a precursor for removing these libraries in a future major release, but may be interesting for the security-minded who do not need features like automatic decompression and would like to remove these dependencies. You can read more and give feedback on these plans in #3168. [#3247] @flavorjones
@@ -30,7 +58,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * Documentation has been improved for `CSS.xpath_for`. [#3224] @flavorjones
 * Documentation for the SAX parsing classes has been greatly improved, including encoding overrides and the complex entity-handling behavior. [#3265] @flavorjones
 * `XML::Schema#read_memory` and `XML::RelaxNG#read_memory` are now Ruby methods that call `#from_document`. Previously these were native functions, but they were buggy on both CRuby and JRuby (but worse on JRuby) and so this is now useful, comparable in performance, and simpler code that is easier to maintain. [#2113, #2115] @flavorjones
-* `XML::SAX::ParserContext.io`'s `encoding` argument is now optional, and can now be an `Encoding` or an encoding name. When not provided will default to autodetecting the encoding. [#3282] @flavorjones
+* `XML::SAX::ParserContext.io`'s `encoding` argument is now optional, and can now be an `Encoding` or an encoding name. When not provided will default to autodetecting the encoding. [#3288] @flavorjones
 * [CRuby] When compiling packaged libraries from source, allow users' `AR` and `LD` environment variables to set the archiver and linker commands, respectively. This augments the existing `CC` environment variable to set the compiler command. [#3165] @ziggythehamster
 * [CRuby] The HTML5 parse methods accept a `:parse_noscript_content_as_text` keyword argument which will emulate the parsing behavior of a browser which has scripting enabled. [#3178, #3231] @stevecheckoway
 * [CRuby] `HTML5::DocumentFragment.parse` and `.new` accept a `:context` keyword argument that is the parse context node or element name. Previously this could only be passed in as a positional argument to `.new` and not at all to `.parse`. @flavorjones
