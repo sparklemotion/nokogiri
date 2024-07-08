@@ -24,7 +24,7 @@ group :development do
   gem "simplecov", "= 0.21.2"
 
   # rubocop
-  gem "standard", "1.39.0", require: false
+  gem "standard", "1.39.1", require: false
   gem "rubocop", "1.64.1", require: false
   gem "rubocop-minitest", "0.35.0", require: false
   gem "rubocop-packaging", "0.5.2", require: false
