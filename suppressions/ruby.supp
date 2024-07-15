@@ -98,26 +98,25 @@
   fun:evaluate
 }
 {
-  https://github.com/sparklemotion/nokogiri/actions/runs/4845701723/jobs/8634781681
-  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 408 of 452
-  #   malloc (at /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-  #   objspace_xmalloc0 (gc.c:12617)
-  #  *xmlNewElem (tree.c:2084)
-  #  *xmlNewDocNodeEatName (tree.c:2188)
-  #  *xmlSAX2StartElementNs (SAX2.c:2129)
-  #  *xmlParseStartTag2.constprop.0 (parser.c:9455)
-  #  *xmlParseElementStart (parser.c:9851)
-  #  *xmlParseContentInternal (parser.c:9693)
-  #  *xmlParseElement (parser.c:9789)
-  #  *xmlParseDocument (parser.c:10573)
-  #  *xmlCtxtParseDocument (parser.c:13687)
-  #  *xmlReadMemory (parser.c:13822)
-  #  *noko_xml_document_s_read_memory (xml_document.c:427)
-  #   vm_call_cfunc_with_frame_ (vm_insnhelper.c:3490)
+  https://github.com/sparklemotion/nokogiri/actions/runs/9935752042/job/27442553528
+  # 240 (120 direct, 120 indirect) bytes in 1 blocks are definitely lost in loss record 385 of 419
+  #  malloc (at /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+  #  rb_gc_impl_malloc (default.c:8579)
+  # *xmlNewElem (tree.c:2084)
+  # *xmlNewDocNodeEatName (tree.c:2188)
+  # *xmlSAX2StartElementNs (SAX2.c:2145)
+  # *xmlParseStartTag2.constprop.0 (parser.c:9473)
+  # *xmlParseElementStart (parser.c:9869)
+  # *xmlParseContentInternal (parser.c:9711)
+  # *xmlParseElement (parser.c:9807)
+  # *xmlParseDocument (parser.c:10591)
+  # *xmlCtxtParseDocument (parser.c:13711)
+  # *xmlReadMemory (parser.c:13846)
+  # *noko_xml_document_s_read_memory (xml_document.c:427)
   Memcheck:Leak
   fun:malloc
-  fun:objspace_xmalloc0
   ...
+  fun:xmlNewElem
   fun:xmlNewDocNodeEatName
   fun:xmlSAX2StartElementNs
   ...
