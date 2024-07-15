@@ -12,14 +12,6 @@
 # - NOKOGIRI_MEMORY_SUITE: read more in test/test_memory_usage.rb
 #
 
-unless ENV["RUBY_MEMCHECK_RUNNING"] || ENV["NCPU"]
-  require "simplecov"
-  SimpleCov.start do
-    add_filter "/test/"
-    enable_coverage :branch
-  end
-end
-
 $VERBOSE = true
 
 require "fileutils"

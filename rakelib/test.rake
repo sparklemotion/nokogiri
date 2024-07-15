@@ -121,6 +121,7 @@ end
 def nokogiri_test_task_configuration(t)
   t.libs << "test"
   t.verbose = true if ENV["TESTGLOB"]
+  t.test_prelude = 'require "simplecov_prelude"' if t.respond_to?(:test_prelude)
 end
 
 def nokogiri_test_case_configuration(t)
