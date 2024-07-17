@@ -37,7 +37,8 @@ int SanityCheckPointers(const char* input, size_t input_length, const GumboNode*
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  if (size < 10)
+  /* arbitrary upper size limit to avoid "out-of-memory in parse_fuzzer" reports */
+  if (size < 10 | size > 100000)
   {
       return 0;
   }
