@@ -104,6 +104,13 @@ We've resolved many long-standing bugs in the various schema classes, validation
 * Passing libxml2 encoding IDs to `SAX::ParserContext` methods is now deprecated and will generate a warning. The use of `SAX::Parser::ENCODINGS` is also deprecaed. Use `Encoding` objects or encoding names instead.
 
 
+## v1.16.7 / 2024-07-27
+
+## Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.12.9](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.9), which the upstream release notes state is a security release to address CVE-2024-40896. Nokogiri's maintainers believe this vulnerability does not affect users of Nokogiri, but we advise upgrading at your earliest convenience anyway.
+
+
 ## v1.16.6 / 2024-06-13
 
 ## Dependencies
