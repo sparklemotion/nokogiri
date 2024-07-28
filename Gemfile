@@ -11,7 +11,7 @@ group :development do
 
   # building extensions
   gem "rake-compiler", "1.2.7"
-  gem "rake-compiler-dock", "1.5.2"
+  gem "rake-compiler-dock", "1.6.0.dev"
 
   # parser generator
   gem "rexical", "1.0.8"
