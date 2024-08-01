@@ -270,6 +270,15 @@ module Nokogiri
           assert_instance_of(Nokogiri::HTML4::DocumentFragment, duplicate)
         end
 
+        def test_parse_with_io
+          fragment = Nokogiri::HTML4::DocumentFragment.parse(StringIO.new("<div>hello</div>"), "UTF-8")
+          assert_instance_of(HTML4::DocumentFragment, fragment)
+          assert_equal("<div>hello</div>", fragment.to_s)
+
+          fragment = Nokogiri::HTML4::DocumentFragment.parse(StringIO.new("<div>hello</div>"))
+          assert_equal("<div>hello</div>", fragment.to_s)
+        end
+
         describe "encoding" do
           describe "#fragment" do
             it "parses an encoded string" do

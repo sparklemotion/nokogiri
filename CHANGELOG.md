@@ -85,6 +85,7 @@ We've resolved many long-standing bugs in the various schema classes, validation
 * [JRuby] SAX parsing now respects the `#replace_entities` attribute, which defaults to `false`. Previously this flag defaulted to `true` and was completely ignored. [#614] @flavorjones
 * [JRuby] The SAX callback `Document#start_element_namespace` received a blank string for the URI when a namespace was not present. It now receives `nil` (as does the CRuby impl). [#3265] @flavorjones
 * [JRuby] `Reader#outer_xml` and `#inner_xml` encode entities properly. [#1523] @flavorjones
+* `HTML4::DocumentFragment.parse` can now handle IO objects. Previously, it would raise a `TypeError`. [#2069] @sharvy
 
 
 ### Changed

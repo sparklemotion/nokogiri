@@ -4,9 +4,52 @@ module Nokogiri
   module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
+      # Parse HTML fragment. +tags+ may be a String, or any object that
+      # responds to _read_ and _close_ such as an IO, or StringIO.
+      #
+      # +encoding+ is the encoding that should be used when processing the document.
+      # If not specified, it will be automatically detected.
+      #
+      # +options+ is a number that sets options in the parser, such as
+      # Nokogiri::XML::ParseOptions::DEFAULT_HTML. See the constants in
+      # Nokogiri::XML::ParseOptions.
+      #
+      # This method returns a new DocumentFragment. If a block is given, it will be
+      # passed to the new DocumentFragment as an argument.
+      #
+      # Examples:
+      #   fragment = DocumentFragment.parse("<div>Hello World</div>")
+      #
+      #   file = File.open("fragment.html")
+      #   fragment = DocumentFragment.parse(file)
+      #
+      #   fragment = DocumentFragment.parse("<div>こんにちは世界</div>", "UTF-8")
+      #
+      #   DocumentFragment.parse("<div>Hello World") do |fragment|
+      #     puts fragment.at_css("div").content
+      #   end
       def self.parse(tags, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
         doc = HTML4::Document.new
+
+        if tags.respond_to?(:read)
+          # Handle IO-like objects (IO, File, StringIO, etc.)
+          # The _read_ method of these objects doesn't accept an +encoding+ parameter.
+          # Encoding is usually set when the IO object is created or opened,
+          # or by using the _set_encoding_ method.
+          #
+          # 1. If +encoding+ is provided and the object supports _set_encoding_,
+          #    set the encoding before reading.
+          # 2. Read the content from the IO-like object.
+          #
+          # Note: After reading, the content's encoding will be:
+          # - The encoding set by _set_encoding_ if it was called
+          # - The default encoding of the IO object otherwise
+          #
+          # For StringIO specifically, _set_encoding_ affects only the internal string,
+          # not how the data is read out.
+          tags.set_encoding(encoding) if encoding && tags.respond_to?(:set_encoding)
+          tags = tags.read
+        end
 
         encoding ||= if tags.respond_to?(:encoding)
           encoding = tags.encoding
