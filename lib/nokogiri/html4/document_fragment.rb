@@ -3,10 +3,71 @@
 module Nokogiri
   module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment
-      ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
+      #
+      # :call-seq:
+      #   parse(tags) => DocumentFragment
+      #   parse(tags, encoding) => DocumentFragment
+      #   parse(tags, encoding, options) => DocumentFragment
+      #   parse(tags, encoding) { |options| ... } => DocumentFragment
+      #
+      # Parse an HTML4 fragment.
+      #
+      # [Parameters]
+      # - +tags+ (optional String, or any object that responds to +#read+ such as an IO, or
+      #   StringIO)
+      # - +encoding+ (optional String) the name of the encoding that should be used when processing
+      #   the document.  (default +nil+ for auto-detection)
+      # - +options+ (optional) configuration object that sets options during parsing, such as
+      #   Nokogiri::XML::ParseOptions::RECOVER. See Nokogiri::XML::ParseOptions for more
+      #   information.
+      #
+      # [Yields] If present, the block will be passed a Nokogiri::XML::ParseOptions object to modify
+      #   before the fragment is parsed. See Nokogiri::XML::ParseOptions for more information.
+      #
+      # [Returns] DocumentFragment
+      #
+      # *Example:* Parsing a string
+      #
+      #   fragment = DocumentFragment.parse("<div>Hello World</div>")
+      #
+      # *Example:* Parsing an IO
+      #
+      #   fragment = File.open("fragment.html") do |file|
+      #     DocumentFragment.parse(file)
+      #   end
+      #
+      # *Example:* Specifying encoding
+      #
+      #   fragment = DocumentFragment.parse(input, "EUC-JP")
+      #
+      # *Example:* Setting parse options dynamically
+      #
+      #   DocumentFragment.parse("<div>Hello World") do |options|
+      #     options.huge.pedantic
+      #   end
+      #
       def self.parse(tags, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
         doc = HTML4::Document.new
+
+        if tags.respond_to?(:read)
+          # Handle IO-like objects (IO, File, StringIO, etc.)
+          # The _read_ method of these objects doesn't accept an +encoding+ parameter.
+          # Encoding is usually set when the IO object is created or opened,
+          # or by using the _set_encoding_ method.
+          #
+          # 1. If +encoding+ is provided and the object supports _set_encoding_,
+          #    set the encoding before reading.
+          # 2. Read the content from the IO-like object.
+          #
+          # Note: After reading, the content's encoding will be:
+          # - The encoding set by _set_encoding_ if it was called
+          # - The default encoding of the IO object otherwise
+          #
+          # For StringIO specifically, _set_encoding_ affects only the internal string,
+          # not how the data is read out.
+          tags.set_encoding(encoding) if encoding && tags.respond_to?(:set_encoding)
+          tags = tags.read
+        end
 
         encoding ||= if tags.respond_to?(:encoding)
           encoding = tags.encoding
@@ -24,6 +85,8 @@ module Nokogiri
         new(doc, tags, nil, options, &block)
       end
 
+      # It's recommended to use either DocumentFragment.parse or XML::Node#parse rather than call this
+      # method directly.
       def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
