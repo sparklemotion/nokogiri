@@ -3,31 +3,49 @@
 module Nokogiri
   module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment
-      ####
-      # Parse HTML fragment. +tags+ may be a String, or any object that
-      # responds to _read_ and _close_ such as an IO, or StringIO.
       #
-      # +encoding+ is the encoding that should be used when processing the document.
-      # If not specified, it will be automatically detected.
+      # :call-seq:
+      #   parse(tags) => DocumentFragment
+      #   parse(tags, encoding) => DocumentFragment
+      #   parse(tags, encoding, options) => DocumentFragment
+      #   parse(tags, encoding) { |options| ... } => DocumentFragment
       #
-      # +options+ is a number that sets options in the parser, such as
-      # Nokogiri::XML::ParseOptions::DEFAULT_HTML. See the constants in
-      # Nokogiri::XML::ParseOptions.
+      # Parse an HTML4 fragment.
       #
-      # This method returns a new DocumentFragment. If a block is given, it will be
-      # passed to the new DocumentFragment as an argument.
+      # [Parameters]
+      # - +tags+ (optional String, or any object that responds to +#read+ such as an IO, or
+      #   StringIO)
+      # - +encoding+ (optional String) the name of the encoding that should be used when processing
+      #   the document.  (default +nil+ for auto-detection)
+      # - +options+ (optional) configuration object that sets options during parsing, such as
+      #   Nokogiri::XML::ParseOptions::RECOVER. See Nokogiri::XML::ParseOptions for more
+      #   information.
       #
-      # Examples:
+      # [Yields] If present, the block will be passed a Nokogiri::XML::ParseOptions object to modify
+      #   before the fragment is parsed. See Nokogiri::XML::ParseOptions for more information.
+      #
+      # [Returns] DocumentFragment
+      #
+      # *Example:* Parsing a string
+      #
       #   fragment = DocumentFragment.parse("<div>Hello World</div>")
       #
-      #   file = File.open("fragment.html")
-      #   fragment = DocumentFragment.parse(file)
+      # *Example:* Parsing an IO
       #
-      #   fragment = DocumentFragment.parse("<div>こんにちは世界</div>", "UTF-8")
-      #
-      #   DocumentFragment.parse("<div>Hello World") do |fragment|
-      #     puts fragment.at_css("div").content
+      #   fragment = File.open("fragment.html") do |file|
+      #     DocumentFragment.parse(file)
       #   end
+      #
+      # *Example:* Specifying encoding
+      #
+      #   fragment = DocumentFragment.parse(input, "EUC-JP")
+      #
+      # *Example:* Setting parse options dynamically
+      #
+      #   DocumentFragment.parse("<div>Hello World") do |options|
+      #     options.huge.pedantic
+      #   end
+      #
       def self.parse(tags, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
         doc = HTML4::Document.new
 
@@ -67,6 +85,8 @@ module Nokogiri
         new(doc, tags, nil, options, &block)
       end
 
+      # It's recommended to use either DocumentFragment.parse or XML::Node#parse rather than call this
+      # method directly.
       def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
