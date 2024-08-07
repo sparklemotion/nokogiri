@@ -12,8 +12,8 @@ require "pathname"
 
 # helpful constants
 PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."))
-REQUIRED_LIBXML_VERSION = "2.7.7"
-RECOMMENDED_LIBXML_VERSION = "2.9.3"
+REQUIRED_LIBXML_VERSION = "2.9.2"
+RECOMMENDED_LIBXML_VERSION = "2.12.0"
 
 REQUIRED_MINI_PORTILE_VERSION = "~> 2.8.2" # keep this version in sync with the one in the gemspec
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
