@@ -117,6 +117,10 @@ Requirements:
 - Ruby >= 3.0
 - JRuby >= 9.4.0.0
 
+If you are compiling the native extension against a system version of libxml2:
+
+- libxml2 >= 2.9.2 (recommended >= 2.12.0)
+
 
 ### Native Gems: Faster, more reliable installation
 

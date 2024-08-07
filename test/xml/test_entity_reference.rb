@@ -377,15 +377,14 @@ module Nokogiri
         xml = File.read(xml_document)
         reader = Nokogiri::XML::Reader(xml, path, &:default_xml)
 
-        if Nokogiri.uses_libxml?(">= 2.9.0")
-          # Unknown entity is not fatal in libxml2 >= 2.9
-          assert_equal 8, reader.count
+        if Nokogiri.uses_libxml?
+          assert_equal(8, reader.count)
         else
           assert_raises(Nokogiri::XML::SyntaxError) do
             reader.count
           end
         end
-        assert_operator reader.errors.size, :>, 0
+        assert_operator(reader.errors.size, :>, 0)
       end
     end
   end
