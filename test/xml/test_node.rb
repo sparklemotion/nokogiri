@@ -105,9 +105,19 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>")
 
-          assert_equal(1, doc.errors.length)
-          assert_equal(1, nodeset.length)
-          assert_equal("<div></div>", nodeset.to_s)
+          if Nokogiri.uses_libxml?(">= 2.14.0")
+            assert_empty(doc.errors)
+            assert_pattern do
+              nodeset => [
+                { name: "div", attributes: [{name: "<", value: ""}, { name: "div", value: ""}] },
+              ]
+            end
+          else
+            assert_equal(1, doc.errors.length)
+            assert_equal(1, nodeset.length)
+            assert_equal("<div></div>", nodeset.to_s)
+          end
+
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.first.document)
         end
@@ -117,14 +127,25 @@ module Nokogiri
           context_node = doc.at_css("div")
           nodeset = context_node.parse("<div </div>", &:recover)
 
-          assert_equal(1, doc.errors.length)
-          assert_equal(1, nodeset.length)
-          assert_equal("<div></div>", nodeset.to_s)
+          if Nokogiri.uses_libxml?(">= 2.14.0")
+            assert_empty(doc.errors)
+            assert_pattern do
+              nodeset => [
+                { name: "div", attributes: [{name: "<", value: ""}, { name: "div", value: ""}] },
+              ]
+            end
+          else
+            assert_equal(1, doc.errors.length)
+            assert_equal(1, nodeset.length)
+            assert_equal("<div></div>", nodeset.to_s)
+          end
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.document)
           assert_instance_of(Nokogiri::HTML4::Document, nodeset.first.document)
         end
 
         def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
+          skip("libxml2 2.14.0 no longer raises this error") if Nokogiri.uses_libxml?(">= 2.14.0")
+
           doc = HTML4.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           assert_raises(Nokogiri::XML::SyntaxError) do

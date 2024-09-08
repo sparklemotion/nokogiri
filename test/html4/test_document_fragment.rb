@@ -188,7 +188,29 @@ module Nokogiri
 
         def test_malformed_fragment_is_corrected
           fragment = Nokogiri::HTML4::DocumentFragment.parse("<div </div>")
-          assert_equal("<div></div>", fragment.to_s)
+
+          if Nokogiri.uses_libxml?(">= 2.14.0")
+            assert_pattern do
+              fragment => [
+                { name: "div", attributes: [
+                    { name: "<", value: ""},
+                    { name: "div", value: ""},
+                  ]}
+              ]
+            end
+          else
+            assert_equal("<div></div>", fragment.to_s)
+          end
+        end
+
+        def test_malformed_html5_fragment_serializes_like_gumbo
+          skip_unless_libxml2(">= 2.14.0")
+
+          fragment = Nokogiri::HTML4::DocumentFragment.parse("<div </div>")
+
+          pending "libxml2 does not serialize HTML5 like gumbo (yet)" do
+            assert_equal('<div <="" div=""></div>', fragment.to_s)
+          end
         end
 
         def test_unclosed_script_tag

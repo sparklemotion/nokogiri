@@ -734,6 +734,8 @@ module Nokogiri
           doc = Nokogiri::HTML4::Document.parse(html)
           expected = if Nokogiri.jruby?
             [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::PI_NODE]
+          elsif Nokogiri.uses_libxml?(">= 2.14.0")
+            [Nokogiri::XML::Node::COMMENT_NODE, Nokogiri::XML::Node::COMMENT_NODE]
           elsif Nokogiri.uses_libxml?(">= 2.10.0")
             [Nokogiri::XML::Node::COMMENT_NODE]
           else

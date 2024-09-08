@@ -96,7 +96,19 @@ module Nokogiri
         let(:doc) { Nokogiri::HTML4(html) }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          it "behaves as if the comment is closed immediately before the end of the input stream" do # COMPLIANT
+            assert_pattern do
+              subject => {
+                name: "div",
+                attributes: [{ name: "id", value: "under-test" }],
+                children: [
+                  { name: "comment", content: "start of unterminated comment" }
+                ]
+              }
+            end
+          end
+        elsif Nokogiri.uses_libxml?
           it "behaves as if the comment is unterminated and doesn't exist" do # NON-COMPLIANT
             assert_equal 0, subject.children.length
             assert_equal 1, doc.errors.length
@@ -132,8 +144,12 @@ module Nokogiri
             assert_equal inner_div, subject.children[1]
             assert_predicate subject.children[2], :comment?
             assert_equal "bar", subject.children[2].content
-            assert_equal 1, doc.errors.length
-            assert_match(/Comment incorrectly closed/, doc.errors.first.to_s)
+            if Nokogiri.uses_libxml?(">= 2.14.0")
+              assert_empty doc.errors
+            else
+              assert_equal 1, doc.errors.length
+              assert_match(/Comment incorrectly closed/, doc.errors.first.to_s)
+            end
           end
         else # jruby, or libxml2 system lib less than 2.9.11
           it "behaves as if the comment encompasses the inner div" do # NON-COMPLIANT
@@ -161,7 +177,22 @@ module Nokogiri
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?("= 2.9.14")
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          it "parses as comments" do # COMPLIANT
+            assert_pattern do
+              body.children => [
+                {
+                  name: "div",
+                  children: [
+                    { name: "comment", content: " comment <div id=do-i-exist" },
+                    { name: "text", content: "inner content" },
+                  ]
+                },
+                { name: "text", content: "-->hello" },
+              ]
+            end
+          end
+        elsif Nokogiri.uses_libxml?("= 2.9.14")
           it "parses as PCDATA" do # NON-COMPLIANT
             assert_equal 1, body.children.length
             assert_equal subject, body.children.first
@@ -212,7 +243,21 @@ module Nokogiri
         let(:body) { doc.at_css("body") }
         let(:subject) { doc.at_css("div#under-test") }
 
-        if Nokogiri.uses_libxml?("= 2.9.14")
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          it "parses the <! tags as comments" do
+            assert_pattern do
+              body.children => [
+                {
+                  name: "div", children: [
+                    { name: "comment", content: "[if foo]" },
+                    { name: "div", attributes: [{name: "id", value: "do-i-exist"}] },
+                    { name: "comment", content: "[endif]" },
+                  ]
+                }
+              ]
+            end
+          end
+        elsif Nokogiri.uses_libxml?("= 2.9.14")
           it "parses the <! tags as PCDATA" do
             assert_equal(1, body.children.length)
             assert_equal(subject, body.children.first)
