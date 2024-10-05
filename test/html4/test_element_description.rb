@@ -58,7 +58,9 @@ module Nokogiri
 
       def test_subelements
         sub_elements = ElementDescription["body"].sub_elements
-        if Nokogiri.uses_libxml?
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          assert_equal(0, sub_elements.length)
+        elsif Nokogiri.uses_libxml?
           assert_equal(65, sub_elements.length)
         else
           assert_equal(105, sub_elements.length)
@@ -66,7 +68,12 @@ module Nokogiri
       end
 
       def test_default_sub_element
-        assert_equal("div", ElementDescription["body"].default_sub_element)
+        sub_element = ElementDescription["body"].default_sub_element
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          assert_nil(sub_element)
+        else
+          assert_equal("div", sub_element)
+        end
       end
 
       def test_null_default_sub_element
@@ -86,7 +93,11 @@ module Nokogiri
       def test_deprecated_attributes
         attrs = ElementDescription["table"].deprecated_attributes
         assert(attrs)
-        assert_equal(2, attrs.length)
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          assert_equal(0, attrs.length)
+        else
+          assert_equal(2, attrs.length)
+        end
       end
 
       def test_required_attributes

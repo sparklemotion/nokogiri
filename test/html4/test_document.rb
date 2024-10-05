@@ -363,10 +363,8 @@ module Nokogiri
           html = Nokogiri::HTML4(<<~HTML)
             <html>
               <body>
-                <div awesome="asdf>
-                  <p>inside div tag</p>
-                </div>
-                <p>outside div tag</p>
+                <div>
+                </foo>
               </body>
             </html>
           HTML
@@ -660,14 +658,14 @@ module Nokogiri
 
         def test_capturing_nonparse_errors_during_node_copy_between_docs
           # Errors should be emitted while parsing only, and should not change when moving nodes.
-          doc1 = Nokogiri::HTML4("<html><body><diva id='unique'>one</diva></body></html>")
-          doc2 = Nokogiri::HTML4("<html><body><dive id='unique'>two</dive></body></html>")
+          doc1 = Nokogiri::HTML4("<html><body><div id='unique'>one</foo1></body></html>")
+          doc2 = Nokogiri::HTML4("<html><body><div id='unique'>two</foo2></body></html>")
           node1 = doc1.at_css("#unique")
           node2 = doc2.at_css("#unique")
           original_errors1 = doc1.errors.dup
           original_errors2 = doc2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s.include?("Tag diva invalid") }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s.include?("Tag dive invalid") }, "it should complain about the tag name")
+          assert(original_errors1.any? { |e| e.to_s.include?("foo1") }, "it should complain about the tag name")
+          assert(original_errors2.any? { |e| e.to_s.include?("foo2") }, "it should complain about the tag name")
 
           node1.add_child(node2)
 
@@ -804,7 +802,7 @@ module Nokogiri
           end
 
           describe "read memory" do
-            let(:input) { "<html><body><div" }
+            let(:input) { "<html><body><div></foo>" }
 
             describe "strict parsing" do
               let(:parse_options) { html_strict }
@@ -826,7 +824,7 @@ module Nokogiri
           end
 
           describe "read io" do
-            let(:input) { StringIO.new("<html><body><div") }
+            let(:input) { StringIO.new("<html><body><div></foo>") }
 
             describe "strict parsing" do
               let(:parse_options) { html_strict }
