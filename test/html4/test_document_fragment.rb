@@ -220,31 +220,31 @@ module Nokogiri
         end
 
         def test_error_propagation_on_fragment_parse
-          frag = Nokogiri::HTML4::DocumentFragment.parse("<hello>oh, hello there.</hello>")
-          assert(frag.errors.any? { |err| err.to_s.include?("Tag hello invalid") }, "errors should be copied to the fragment")
+          frag = Nokogiri::HTML4::DocumentFragment.parse("<hello>oh, hello there</goodbye>")
+          assert(frag.errors.any? { |err| err.to_s.include?("Unexpected end tag") }, "errors should be copied to the fragment")
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context
           doc = Nokogiri::HTML4::Document.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
-          frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
+          frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there</goodbye>", context_node)
           assert(
             frag.errors.any? do |err|
-              err.to_s.include?("Tag hello invalid")
+              err.to_s.include?("Unexpected end tag")
             end,
             "errors should be on the context node's document",
           )
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
-          doc = Nokogiri::HTML4::Document.parse("<html><body><div></div><jimmy></jimmy></body></html>")
+          doc = Nokogiri::HTML4::Document.parse("<html><body><div></div></jimmy></body></html>")
           assert(doc.errors.any? { |err| err.to_s.include?("jimmy") }, "assert on setup")
 
           context_node = doc.at_css("div")
-          frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</hello>", context_node)
+          frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</goodbye>", context_node)
           assert(
             frag.errors.any? do |err|
-              err.to_s.include?("Tag hello invalid")
+              err.to_s.include?("goodbye")
             end,
             "errors should be on the context node's document",
           )
@@ -267,14 +267,14 @@ module Nokogiri
 
         def test_capturing_nonparse_errors_during_node_copy_between_fragments
           # Errors should be emitted while parsing only, and should not change when moving nodes.
-          frag1 = Nokogiri::HTML4.fragment("<diva id='unique'>one</diva>")
-          frag2 = Nokogiri::HTML4.fragment("<dive id='unique'>two</dive>")
+          frag1 = Nokogiri::HTML4.fragment("<div id='unique'>one</foo1>")
+          frag2 = Nokogiri::HTML4.fragment("<div id='unique'>two</foo2>")
           node1 = frag1.at_css("#unique")
           node2 = frag2.at_css("#unique")
           original_errors1 = frag1.errors.dup
           original_errors2 = frag2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s.include?("Tag diva invalid") }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s.include?("Tag dive invalid") }, "it should complain about the tag name")
+          assert(original_errors1.any? { |e| e.to_s.include?("Unexpected end tag") })
+          assert(original_errors2.any? { |e| e.to_s.include?("Unexpected end tag") })
 
           node1.add_child(node2)
 
@@ -363,106 +363,101 @@ module Nokogiri
             Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML).norecover
           end
 
-          let(:input) { "<div>foo</div" }
+          let(:input) { "<div>foo</div>" }
 
           it "sets the test up correctly" do
             assert_predicate(html4_strict, :strict?)
           end
 
           describe "HTML4.fragment" do
-            it "has sane defaults" do
+            it "has reasonable defaults" do
               frag = Nokogiri::HTML4.fragment(input)
+
               assert_equal("<div>foo</div>", frag.to_html)
-              refute_empty(frag.errors)
+              assert_equal(html4_default, frag.parse_options)
             end
 
             it "accepts options" do
-              frag = Nokogiri::HTML4.fragment(input, nil, html4_default)
-              assert_equal("<div>foo</div>", frag.to_html)
-              refute_empty(frag.errors)
+              frag = Nokogiri::HTML4.fragment(input, nil, html4_strict)
 
-              assert_raises(Nokogiri::SyntaxError) do
-                Nokogiri::HTML4.fragment(input, nil, html4_strict)
-              end
+              assert_equal("<div>foo</div>", frag.to_html)
+              assert_equal(html4_strict, frag.parse_options)
             end
 
             it "takes a config block" do
               default_config = nil
-              Nokogiri::HTML4.fragment(input) do |config|
-                default_config = config
+              frag = Nokogiri::HTML4.fragment(input) do |config|
+                default_config = config.dup
+                config.strict
               end
-              refute_predicate(default_config, :strict?)
 
-              assert_raises(Nokogiri::SyntaxError) do
-                Nokogiri::HTML4.fragment(input, &:norecover)
-              end
+              assert_equal(html4_default, default_config)
+              refute_predicate(default_config, :strict?)
+              assert_predicate(frag.parse_options, :strict?)
             end
           end
 
           describe "HTML4::DocumentFragment.parse" do
-            it "has sane defaults" do
+            it "has reasonable defaults" do
               frag = Nokogiri::HTML4::DocumentFragment.parse(input)
+
               assert_equal("<div>foo</div>", frag.to_html)
-              refute_empty(frag.errors)
+              assert_equal(html4_default, frag.parse_options)
             end
 
             it "accepts options" do
-              frag = Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_default)
-              assert_equal("<div>foo</div>", frag.to_html)
-              refute_empty(frag.errors)
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_strict)
 
-              assert_raises(Nokogiri::SyntaxError) do
-                Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_strict)
-              end
+              assert_equal("<div>foo</div>", frag.to_html)
+              assert_equal(html4_strict, frag.parse_options)
             end
 
             it "takes a config block" do
               default_config = nil
-              Nokogiri::HTML4::DocumentFragment.parse(input) do |config|
-                default_config = config
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input) do |config|
+                default_config = config.dup
+                config.strict
               end
-              refute_predicate(default_config, :strict?)
 
-              assert_raises(Nokogiri::SyntaxError) do
-                Nokogiri::HTML4::DocumentFragment.parse(input, &:norecover)
-              end
+              assert_equal(html4_default, default_config)
+              refute_predicate(default_config, :strict?)
+              assert_predicate(frag.parse_options, :strict?)
             end
           end
 
           describe "HTML4::DocumentFragment.new" do
             describe "without a context node" do
-              it "has sane defaults" do
+              it "has reasonable defaults" do
                 frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input)
+
                 assert_equal("<div>foo</div>", frag.to_html)
-                refute_empty(frag.errors)
+                assert_equal(html4_default, frag.parse_options)
               end
 
               it "accepts options" do
-                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_default)
-                assert_equal("<div>foo</div>", frag.to_html)
-                refute_empty(frag.errors)
+                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_strict)
 
-                assert_raises(Nokogiri::SyntaxError) do
-                  Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_strict)
-                end
+                assert_equal("<div>foo</div>", frag.to_html)
+                assert_equal(html4_strict, frag.parse_options)
               end
 
               it "takes a config block" do
                 default_config = nil
-                Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input) do |config|
-                  default_config = config
+                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input) do |config|
+                  default_config = config.dup
+                  config.strict
                 end
-                refute_predicate(default_config, :strict?)
 
-                assert_raises(Nokogiri::SyntaxError) do
-                  Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, &:norecover)
-                end
+                assert_equal(html4_default, default_config)
+                refute_predicate(default_config, :strict?)
+                assert_predicate(frag.parse_options, :strict?)
               end
             end
 
             describe "with a context node" do
               let(:document) { Nokogiri::HTML4::Document.parse("<context></context>") }
               let(:context_node) { document.at_css("context") }
+              let(:input) { "<div>foo</div" }
 
               it "has sane defaults" do
                 frag = Nokogiri::HTML4::DocumentFragment.new(document, input, context_node)

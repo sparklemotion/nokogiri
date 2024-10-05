@@ -4,6 +4,11 @@
 module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
+      # The options used to parse the document fragment. Returns the value of any options that were
+      # passed into the constructor as a parameter or set in a config block, else the default
+      # options for the specific subclass.
+      attr_reader :parse_options
+
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       def self.parse(tags, options = ParseOptions::DEFAULT_XML, &block)
@@ -20,6 +25,7 @@ module Nokogiri
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
+        @parse_options = options
         yield options if block_given?
 
         children = if ctx

@@ -91,6 +91,7 @@ module Nokogiri
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
+        @parse_options = options
         yield options if block_given?
 
         if ctx
