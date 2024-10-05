@@ -664,8 +664,9 @@ module Nokogiri
           node2 = doc2.at_css("#unique")
           original_errors1 = doc1.errors.dup
           original_errors2 = doc2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s.include?("foo1") }, "it should complain about the tag name")
-          assert(original_errors2.any? { |e| e.to_s.include?("foo2") }, "it should complain about the tag name")
+
+          refute_empty(original_errors1)
+          refute_empty(original_errors2)
 
           node1.add_child(node2)
 

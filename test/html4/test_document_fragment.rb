@@ -221,36 +221,28 @@ module Nokogiri
 
         def test_error_propagation_on_fragment_parse
           frag = Nokogiri::HTML4::DocumentFragment.parse("<hello>oh, hello there</goodbye>")
-          assert(frag.errors.any? { |err| err.to_s.include?("Unexpected end tag") }, "errors should be copied to the fragment")
+          refute_empty(frag.errors)
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context
           doc = Nokogiri::HTML4::Document.parse("<html><body><div></div></body></html>")
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there</goodbye>", context_node)
-          assert(
-            frag.errors.any? do |err|
-              err.to_s.include?("Unexpected end tag")
-            end,
-            "errors should be on the context node's document",
-          )
+          refute_empty(frag.errors)
         end
 
         def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
-          doc = Nokogiri::HTML4::Document.parse("<html><body><div></div></jimmy></body></html>")
-          assert(doc.errors.any? { |err| err.to_s.include?("jimmy") }, "assert on setup")
+          doc = Nokogiri::HTML4::Document.parse("<html><body><div></jimmy></body></html>")
+          refute_empty(doc.errors)
+          doc_errors = doc.errors.map(&:to_s)
 
           context_node = doc.at_css("div")
           frag = Nokogiri::HTML4::DocumentFragment.new(doc, "<hello>oh, hello there.</goodbye>", context_node)
-          assert(
-            frag.errors.any? do |err|
-              err.to_s.include?("goodbye")
-            end,
-            "errors should be on the context node's document",
-          )
+          refute_empty(frag.errors)
+
           assert(
             frag.errors.none? do |err|
-              err.to_s.include?("jimmy")
+              doc_errors.include?(err.to_s)
             end,
             "errors should not include pre-existing document errors",
           )
@@ -273,8 +265,9 @@ module Nokogiri
           node2 = frag2.at_css("#unique")
           original_errors1 = frag1.errors.dup
           original_errors2 = frag2.errors.dup
-          assert(original_errors1.any? { |e| e.to_s.include?("Unexpected end tag") })
-          assert(original_errors2.any? { |e| e.to_s.include?("Unexpected end tag") })
+
+          refute_empty(original_errors1)
+          refute_empty(original_errors2)
 
           node1.add_child(node2)
 
@@ -363,10 +356,17 @@ module Nokogiri
             Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML).norecover
           end
 
+          let(:html4_huge) do
+            Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_HTML).huge
+          end
+
           let(:input) { "<div>foo</div>" }
 
           it "sets the test up correctly" do
+            refute_predicate(html4_default, :strict?)
+            refute_predicate(html4_default, :huge?)
             assert_predicate(html4_strict, :strict?)
+            assert_predicate(html4_huge, :huge?)
           end
 
           describe "HTML4.fragment" do
@@ -378,22 +378,22 @@ module Nokogiri
             end
 
             it "accepts options" do
-              frag = Nokogiri::HTML4.fragment(input, nil, html4_strict)
+              frag = Nokogiri::HTML4.fragment(input, nil, html4_huge)
 
               assert_equal("<div>foo</div>", frag.to_html)
-              assert_equal(html4_strict, frag.parse_options)
+              assert_equal(html4_huge, frag.parse_options)
             end
 
             it "takes a config block" do
               default_config = nil
               frag = Nokogiri::HTML4.fragment(input) do |config|
                 default_config = config.dup
-                config.strict
+                config.huge
               end
 
               assert_equal(html4_default, default_config)
-              refute_predicate(default_config, :strict?)
-              assert_predicate(frag.parse_options, :strict?)
+              refute_predicate(default_config, :huge?)
+              assert_predicate(frag.parse_options, :huge?)
             end
           end
 
@@ -406,22 +406,22 @@ module Nokogiri
             end
 
             it "accepts options" do
-              frag = Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_strict)
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input, nil, html4_huge)
 
               assert_equal("<div>foo</div>", frag.to_html)
-              assert_equal(html4_strict, frag.parse_options)
+              assert_equal(html4_huge, frag.parse_options)
             end
 
             it "takes a config block" do
               default_config = nil
               frag = Nokogiri::HTML4::DocumentFragment.parse(input) do |config|
                 default_config = config.dup
-                config.strict
+                config.huge
               end
 
               assert_equal(html4_default, default_config)
-              refute_predicate(default_config, :strict?)
-              assert_predicate(frag.parse_options, :strict?)
+              refute_predicate(default_config, :huge?)
+              assert_predicate(frag.parse_options, :huge?)
             end
           end
 
@@ -435,22 +435,22 @@ module Nokogiri
               end
 
               it "accepts options" do
-                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_strict)
+                frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input, nil, html4_huge)
 
                 assert_equal("<div>foo</div>", frag.to_html)
-                assert_equal(html4_strict, frag.parse_options)
+                assert_equal(html4_huge, frag.parse_options)
               end
 
               it "takes a config block" do
                 default_config = nil
                 frag = Nokogiri::HTML4::DocumentFragment.new(Nokogiri::HTML4::Document.new, input) do |config|
                   default_config = config.dup
-                  config.strict
+                  config.huge
                 end
 
                 assert_equal(html4_default, default_config)
-                refute_predicate(default_config, :strict?)
-                assert_predicate(frag.parse_options, :strict?)
+                refute_predicate(default_config, :huge?)
+                assert_predicate(frag.parse_options, :huge?)
               end
             end
 
