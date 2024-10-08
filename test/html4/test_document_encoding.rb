@@ -148,7 +148,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         end
 
         describe "error handling" do
-          RAW = "<html><body><div"
+          RAW = "<html><body><div></foo>"
 
           { "read_memory" => RAW, "read_io" => StringIO.new(RAW) }.each do |flavor, input|
             it "#{flavor} should handle errors" do
