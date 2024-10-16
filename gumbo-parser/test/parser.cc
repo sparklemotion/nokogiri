@@ -1068,12 +1068,7 @@ TEST_F(GumboParserTest, DoubleSelect) {
   EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select1));
   ASSERT_EQ(0, GetChildCount(select1));
 
-  GumboNode* select2 = GetChild(body, 1);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, select2->type);
-  EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select2));
-  ASSERT_EQ(1, GetChildCount(select2));
-
-  GumboNode* div = GetChild(select2, 0);
+  GumboNode* div = GetChild(body, 1);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, div->type);
   EXPECT_EQ(GUMBO_TAG_DIV, GetTag(div));
   ASSERT_EQ(0, GetChildCount(div));
