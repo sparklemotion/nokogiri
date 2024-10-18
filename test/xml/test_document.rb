@@ -1087,9 +1087,10 @@ module Nokogiri
               let(:parse_options) { xml_strict }
 
               it "raises exception on parse error" do
-                assert_raises Nokogiri::SyntaxError do
+                error = assert_raises Nokogiri::SyntaxError do
                   Nokogiri::XML.parse(input, nil, nil, parse_options)
                 end
+                assert_nil(error.path)
               end
             end
 

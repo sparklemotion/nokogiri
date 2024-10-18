@@ -159,6 +159,17 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
 
         assert(errors = xsd.validate(doc))
         assert_equal(2, errors.length)
+        if Nokogiri.uses_libxml?
+          assert_equal(
+            ["/purchaseOrder/billTo/state", "/purchaseOrder/shipTo/state"],
+            errors.map(&:path).sort,
+          )
+        else
+          assert_equal(
+            [nil, nil],
+            errors.map(&:path).sort,
+          )
+        end
       end
 
       it "validate_invalid_file" do
@@ -171,6 +182,10 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
 
         assert(errors = xsd.validate(tempfile.path))
         assert_equal(2, errors.length)
+        assert_equal(
+          [nil, nil],
+          errors.map(&:path).sort,
+        )
       end
 
       it "validate_non_document" do

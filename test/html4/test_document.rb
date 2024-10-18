@@ -813,6 +813,7 @@ module Nokogiri
                   Nokogiri::HTML4.parse(input, nil, nil, parse_options)
                 end
                 assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
+                assert_nil(exception.path)
               end
             end
 
@@ -835,6 +836,7 @@ module Nokogiri
                   Nokogiri::HTML4.parse(input, nil, "UTF-8", parse_options)
                 end
                 assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
+                assert_nil(exception.path)
               end
             end
 

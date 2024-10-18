@@ -24,6 +24,15 @@ module Nokogiri
       attr_reader :level
       attr_reader :file
       attr_reader :line
+
+      # The XPath path of the node that caused the error when validating a `Nokogiri::XML::Document`.
+      #
+      # This attribute will only be non-nil when the error is emitted by `Schema#validate` on
+      # Document objects. It will return `nil` for DOM parsing errors and for errors emitted during
+      # Schema validation of files.
+      #
+      # ⚠ `#path` is not supported on JRuby, where it will always return `nil`.
+      attr_reader :path
       attr_reader :str1
       attr_reader :str2
       attr_reader :str3

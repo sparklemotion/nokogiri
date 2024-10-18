@@ -58,5 +58,6 @@ describe Nokogiri::XML::SyntaxError do
       assert_nil error.column
       assert_nil error.level
     end
+    assert_nil error.path
   end
 end
