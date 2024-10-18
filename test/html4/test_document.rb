@@ -24,7 +24,6 @@ module Nokogiri
           refute_empty(errors, "has errors")
           errors.each do |error|
             assert_equal(error.to_s.chomp, error.to_s)
-            assert_nil(error.path)
           end
         end
 

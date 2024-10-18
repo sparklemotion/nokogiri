@@ -19,23 +19,18 @@ module Nokogiri
         end
       end
 
-      # What part of libxml2 raised this error (enum xmlErrorDomain)
       attr_reader :domain
-      # libxml2 error code (enum xmlParserErrors)
       attr_reader :code
-      # libxml2 error level (enum xmlErrorLevel)
       attr_reader :level
       attr_reader :file
       attr_reader :line
-      # libxml2 path of the node in the tree that caused the error
+      # ⚠ path functionality is not available when running JRuby.
+      #
+      # path of the node that caused the error when validating a `Nokogiri::XML::Document`
       attr_reader :path
-      # libxml2 extra string information
       attr_reader :str1
-      # libxml2 extra string information
       attr_reader :str2
-      # libxml2 extra string information
       attr_reader :str3
-      # libxml2 extra extra number information
       attr_reader :int1
       attr_reader :column
 
