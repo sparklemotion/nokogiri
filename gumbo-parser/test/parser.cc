@@ -1017,17 +1017,29 @@ TEST_F(GumboParserTest, ComplicatedSelect) {
 
   GumboNode* body;
   GetAndAssertBody(root_, &body);
-  ASSERT_EQ(2, GetChildCount(body));
+  ASSERT_EQ(1, GetChildCount(body));
 
   GumboNode* select = GetChild(body, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, select->type);
   EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select));
-  ASSERT_EQ(1, GetChildCount(select));
+  ASSERT_EQ(2, GetChildCount(select));
 
-  GumboNode* optgroup = GetChild(select, 0);
+  GumboNode* div = GetChild(select, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, div->type);
+  EXPECT_EQ(GUMBO_TAG_DIV, GetTag(div));
+
+  GumboVector* attributes = &div->v.element.attributes;
+  ASSERT_EQ(1, attributes->length);
+
+  GumboAttribute* klass = static_cast<GumboAttribute*>(attributes->data[0]);
+  EXPECT_EQ(GUMBO_ATTR_NAMESPACE_NONE, klass->attr_namespace);
+  EXPECT_STREQ("class", klass->name);
+  EXPECT_STREQ("foo", klass->value);
+
+  GumboNode* optgroup = GetChild(select, 1);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, optgroup->type);
   EXPECT_EQ(GUMBO_TAG_OPTGROUP, GetTag(optgroup));
-  ASSERT_EQ(1, GetChildCount(optgroup));
+  ASSERT_EQ(2, GetChildCount(optgroup));
 
   GumboNode* option = GetChild(optgroup, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, option->type);
@@ -1038,7 +1050,7 @@ TEST_F(GumboParserTest, ComplicatedSelect) {
   ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
   EXPECT_STREQ("Option", text->v.text.text);
 
-  GumboNode* input = GetChild(body, 1);
+  GumboNode* input = GetChild(optgroup, 1);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, input->type);
   EXPECT_EQ(GUMBO_TAG_INPUT, GetTag(input));
   ASSERT_EQ(0, GetChildCount(input));
@@ -1051,12 +1063,17 @@ TEST_F(GumboParserTest, DoubleSelect) {
   GetAndAssertBody(root_, &body);
   ASSERT_EQ(2, GetChildCount(body));
 
-  GumboNode* select = GetChild(body, 0);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, select->type);
-  EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select));
-  ASSERT_EQ(0, GetChildCount(select));
+  GumboNode* select1 = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, select1->type);
+  EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select1));
+  ASSERT_EQ(0, GetChildCount(select1));
 
-  GumboNode* div = GetChild(body, 1);
+  GumboNode* select2 = GetChild(body, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, select2->type);
+  EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select2));
+  ASSERT_EQ(1, GetChildCount(select2));
+
+  GumboNode* div = GetChild(select2, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, div->type);
   EXPECT_EQ(GUMBO_TAG_DIV, GetTag(div));
   ASSERT_EQ(0, GetChildCount(div));
@@ -1067,19 +1084,19 @@ TEST_F(GumboParserTest, InputInSelect) {
 
   GumboNode* body;
   GetAndAssertBody(root_, &body);
-  ASSERT_EQ(3, GetChildCount(body));
+  ASSERT_EQ(1, GetChildCount(body));
 
   GumboNode* select = GetChild(body, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, select->type);
   EXPECT_EQ(GUMBO_TAG_SELECT, GetTag(select));
-  ASSERT_EQ(0, GetChildCount(select));
+  ASSERT_EQ(2, GetChildCount(select));
 
-  GumboNode* input = GetChild(body, 1);
+  GumboNode* input = GetChild(select, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, input->type);
   EXPECT_EQ(GUMBO_TAG_INPUT, GetTag(input));
   ASSERT_EQ(0, GetChildCount(input));
 
-  GumboNode* div = GetChild(body, 2);
+  GumboNode* div = GetChild(select, 1);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, div->type);
   EXPECT_EQ(GUMBO_TAG_DIV, GetTag(div));
   ASSERT_EQ(0, GetChildCount(div));
