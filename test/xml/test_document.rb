@@ -1101,6 +1101,13 @@ module Nokogiri
                 end
                 assert_nil(error.path)
               end
+
+              it "raises exception on parse error with kwargs" do
+                error = assert_raises Nokogiri::SyntaxError do
+                  Nokogiri::XML.parse(input, options: parse_options)
+                end
+                assert_nil(error.path)
+              end
             end
 
             describe "default options" do
@@ -1120,6 +1127,12 @@ module Nokogiri
               it "raises exception on parse error" do
                 assert_raises Nokogiri::SyntaxError do
                   Nokogiri::XML.parse(input, nil, nil, parse_options)
+                end
+              end
+
+              it "raises exception on parse error with kwargs" do
+                assert_raises Nokogiri::SyntaxError do
+                  Nokogiri::XML.parse(input, options: parse_options)
                 end
               end
             end

@@ -2,8 +2,7 @@
 
 module Nokogiri
   class << self
-    ###
-    # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
+    # Convenience method for Nokogiri::XML::Document.parse
     def XML(...)
       Nokogiri::XML::Document.parse(...)
     end
@@ -23,10 +22,9 @@ module Nokogiri
         Reader.new(...)
       end
 
-      ###
-      # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
-      def parse(thing, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block)
-        Document.parse(thing, url, encoding, options, &block)
+      # Convenience method for Nokogiri::XML::Document.parse
+      def parse(...)
+        Document.parse(...)
       end
 
       ####
