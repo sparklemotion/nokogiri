@@ -398,8 +398,28 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
             assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
           end
 
+          it "XML::Schema parsing attempts to access external DTDs with kwargs" do
+            doc = Nokogiri::XML::Schema.new(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
+            errors = doc.errors.map(&:to_s)
+            assert_empty(
+              errors.grep(/Attempt to load network entity/),
+              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
+            )
+            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
+          end
+
           it "XML::Schema parsing of memory attempts to access external DTDs" do
             doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
+            errors = doc.errors.map(&:to_s)
+            assert_empty(
+              errors.grep(/ERROR: Attempt to load network entity/),
+              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
+            )
+            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
+          end
+
+          it "XML::Schema parsing of memory attempts to access external DTDs with kwargs" do
+            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
             errors = doc.errors.map(&:to_s)
             assert_empty(
               errors.grep(/ERROR: Attempt to load network entity/),
@@ -429,8 +449,18 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
             assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
           end
 
+          it "XML::Schema parsing attempts to access external DTDs with kwargs" do
+            doc = Nokogiri::XML::Schema.new(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
+            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+          end
+
           it "XML::Schema parsing of memory attempts to access external DTDs" do
             doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
+            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+          end
+
+          it "XML::Schema parsing of memory attempts to access external DTDs with kwargs" do
+            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: :XML::ParseOptions.new.nononet)
             assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
           end
         end

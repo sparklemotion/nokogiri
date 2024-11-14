@@ -17,8 +17,8 @@ module Nokogiri
       # - +parse_options+ (Nokogiri::XML::ParseOptions)
       # [Returns] Nokogiri::XML::Schema
       #
-      def Schema(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
-        Schema.new(input, parse_options)
+      def Schema(...)
+        Schema.new(...)
       end
     end
 
@@ -67,8 +67,8 @@ module Nokogiri
       #
       # [Returns] Nokogiri::XML::Schema
       #
-      def self.new(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
-        read_memory(input, parse_options)
+      def self.new(...)
+        read_memory(...)
       end
 
       # :call-seq:
@@ -86,7 +86,7 @@ module Nokogiri
       #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
       #
       # [Returns] Nokogiri::XML::Schema
-      def self.read_memory(input, parse_options = ParseOptions::DEFAULT_SCHEMA)
+      def self.read_memory(input, parse_options_ = ParseOptions::DEFAULT_SCHEMA, parse_options: parse_options_)
         from_document(Nokogiri::XML::Document.parse(input), parse_options)
       end
 
