@@ -29,10 +29,9 @@ module Nokogiri
         Document.parse(thing, url, encoding, options, &block)
       end
 
-      ####
-      # Parse a fragment from +string+ in to a NodeSet.
-      def fragment(string, options = ParseOptions::DEFAULT_XML, &block)
-        XML::DocumentFragment.parse(string, options, &block)
+      # Convenience method for Nokogiri::XML::DocumentFragment.parse
+      def fragment(...)
+        XML::DocumentFragment.parse(...)
       end
     end
   end
