@@ -700,6 +700,11 @@ module Nokogiri
           assert_equal(XML_FILE, xml.url)
         end
 
+        def test_url_kwarg
+          xml = Nokogiri::XML::Document.parse(File.read(XML_FILE), url: XML_FILE)
+          assert_equal(XML_FILE, xml.url)
+        end
+
         def test_document_parent
           xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
           assert_raises(NoMethodError) do
