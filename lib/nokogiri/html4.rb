@@ -3,12 +3,9 @@
 
 module Nokogiri
   class << self
-    # :call-seq:
-    #   HTML4(input, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block) → Nokogiri::HTML4::Document
-    #
     # Parse HTML. Convenience method for Nokogiri::HTML4::Document.parse
-    def HTML4(input, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
-      Nokogiri::HTML4::Document.parse(input, url, encoding, options, &block)
+    def HTML4(...)
+      Nokogiri::HTML4::Document.parse(...)
     end
   end
 
@@ -20,14 +17,14 @@ module Nokogiri
     class << self
       ###
       # Parse HTML. Convenience method for Nokogiri::HTML4::Document.parse
-      def parse(input, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
-        Document.parse(input, url, encoding, options, &block)
+      def parse(...)
+        Document.parse(...)
       end
 
       ####
       # Parse a fragment from +string+ in to a NodeSet.
-      def fragment(string, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
-        HTML4::DocumentFragment.parse(string, encoding, options, &block)
+      def fragment(...)
+        HTML4::DocumentFragment.parse(...)
       end
     end
 

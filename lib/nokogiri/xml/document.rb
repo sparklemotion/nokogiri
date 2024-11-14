@@ -24,32 +24,40 @@ module Nokogiri
       private_constant :OBJECT_DUP_METHOD, :OBJECT_CLONE_METHOD
 
       class << self
-        # Parse an XML file.
+        # call-seq:
+        #   parse(input, url: nil, encoding: nil, options: DEFAULT_XML) { |options| } => Nokogiri::XML::Document
         #
-        # +string_or_io+ may be a String, or any object that responds to
-        # _read_ and _close_ such as an IO, or StringIO.
+        # Parse XML input from a String or IO object, and return a new Document object.
         #
-        # +url+ (optional) is the URI where this document is located.
+        # By default, Nokogiri treats documents as untrusted, and so does not attempt to load DTDs
+        # or access the network. See Nokogiri::XML::ParseOptions for a complete list of options; and
+        # that module's DEFAULT_XML constant for what's set (and not set) by default.
         #
-        # +encoding+ (optional) is the encoding that should be used when processing
-        # the document.
+        # See also: Nokogiri.XML() which is a convenience method which will call this method.
         #
-        # +options+ (optional) is a configuration object that sets options during
-        # parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
-        # Nokogiri::XML::ParseOptions for more information.
+        # [Parameters]
+        # - +input+ (String, IO) The content to be parsed.
         #
-        # +block+ (optional) is passed a configuration object on which
-        # parse options may be set.
+        # [Keyword arguments]
+        # - +url:+ (String) The URI where this document is located.
         #
-        # By default, Nokogiri treats documents as untrusted, and so
-        # does not attempt to load DTDs or access the network. See
-        # Nokogiri::XML::ParseOptions for a complete list of options;
-        # and that module's DEFAULT_XML constant for what's set (and not
-        # set) by default.
+        # - +encoding:+ (String) The name of the encoding that should be used when processing the
+        #   document. (default +nil+ means that the encoding will be determined based on the
+        #   document content)
         #
-        # Nokogiri.XML() is a convenience method which will call this method.
+        # - +options+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+        #   behaviors during parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
+        #   Nokogiri::XML::ParseOptions for more information.
         #
-        def parse(string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML)
+        # [Yields]
+        #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+        #   can be configured before parsing.  See Nokogiri::XML::ParseOptions for more information.
+        #
+        def parse(
+          string_or_io,
+          url_ = nil, encoding_ = nil, options_ = XML::ParseOptions::DEFAULT_XML,
+          url: url_, encoding: encoding_, options: options_
+        )
           options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
           yield options if block_given?
 
