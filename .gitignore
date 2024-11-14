@@ -44,3 +44,6 @@ tags
 # directories or files named after issues, and debugging
 /issues
 /*.log
+
+# rbenv
+.ruby-version
