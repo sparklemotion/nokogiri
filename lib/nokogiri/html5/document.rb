@@ -77,7 +77,7 @@ module Nokogiri
         #
         # [Returns] Nokogiri::HTML5::Document
         #
-        def parse(string_or_io, url = nil, encoding = nil, **options, &block)
+        def parse(string_or_io, url_ = nil, encoding_ = nil, url: url_, encoding: encoding_, **options, &block)
           yield options if block
           string_or_io = "" unless string_or_io
 
@@ -98,7 +98,7 @@ module Nokogiri
         # Create a new document from an IO object.
         #
         # 💡 Most users should prefer Document.parse to this method.
-        def read_io(io, url = nil, encoding = nil, **options)
+        def read_io(io, url_ = nil, encoding_ = nil, url: url_, encoding: encoding_, **options)
           raise ArgumentError, "io object doesn't respond to :read" unless io.respond_to?(:read)
 
           do_parse(io, url, encoding, **options)
@@ -107,7 +107,7 @@ module Nokogiri
         # Create a new document from a String.
         #
         # 💡 Most users should prefer Document.parse to this method.
-        def read_memory(string, url = nil, encoding = nil, **options)
+        def read_memory(string, url_ = nil, encoding_ = nil, url: url_, encoding: encoding_, **options)
           raise ArgumentError, "string object doesn't respond to :to_str" unless string.respond_to?(:to_str)
 
           do_parse(string, url, encoding, **options)

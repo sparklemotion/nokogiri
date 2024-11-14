@@ -42,6 +42,22 @@ class TestHtml5API < Nokogiri::TestCase
 
     doc = Nokogiri::HTML5(html, url, max_errors: 1)
     assert_equal(url, doc.errors[0].file)
+
+    # with keyword args
+    doc = Nokogiri::HTML5::Document.parse(html, url: nil)
+    assert_nil(doc.url)
+
+    doc = Nokogiri::HTML5::Document.parse(html, url: url)
+    assert_equal(url, doc.url)
+
+    doc = Nokogiri::HTML5::Document.parse(html, url: url, max_errors: 1)
+    assert_equal(url, doc.errors[0].file)
+
+    doc = Nokogiri::HTML5.parse(html, url: url, max_errors: 1)
+    assert_equal(url, doc.errors[0].file)
+
+    doc = Nokogiri::HTML5(html, url: url, max_errors: 1)
+    assert_equal(url, doc.errors[0].file)
   end
 
   def test_parse_encoding
