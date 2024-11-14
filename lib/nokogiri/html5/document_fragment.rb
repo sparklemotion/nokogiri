@@ -50,7 +50,7 @@ module Nokogiri
         # [Returns]
         # - [Nokogiri::XML::NodeSet] A node set containing the root nodes of the parsed fragment.
         #
-        def parse(tags, encoding = nil, positional_options_hash = nil, **options)
+        def parse(tags, encoding_ = nil, positional_options_hash = nil, encoding: encoding_, **options)
           unless positional_options_hash.nil?
             warn("Nokogiri::HTML5::DocumentFragment.parse: Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
             options.merge!(positional_options_hash)
@@ -62,7 +62,7 @@ module Nokogiri
           document.encoding = "UTF-8"
           tags = HTML5.read_and_encode(tags, encoding)
 
-          new(document, tags, context, options)
+          new(document, tags, context, **options)
         end
       end
 
@@ -77,11 +77,17 @@ module Nokogiri
       attr_reader :quirks_mode
 
       # Create a document fragment.
-      def initialize(doc, tags = nil, context = nil, options = {}) # rubocop:disable Lint/MissingSuper
+      def initialize(doc, tags_ = nil, context_ = nil, positional_options_hash = nil, tags: tags_, context: context_, **options) # rubocop:disable Lint/MissingSuper
+        unless positional_options_hash.nil?
+          warn("Nokogiri::HTML5::DocumentFragment.new: Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
+          options.merge!(positional_options_hash)
+        end
+
         @document = doc
         @errors = []
         return self unless tags
 
+        # TODO: Accept encoding as an argument to this method
         tags = Nokogiri::HTML5.read_and_encode(tags, nil)
 
         context = options.delete(:context) if options.key?(:context)
