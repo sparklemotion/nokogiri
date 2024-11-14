@@ -1102,7 +1102,7 @@ module Nokogiri
       # Parse +string_or_io+ as a document fragment within the context of
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
-      def parse(string_or_io, options = nil)
+      def parse(string_or_io, options_ = nil, options: options_)
         ##
         # When the current node is unparented and not an element node, use the
         # document as the parsing context instead. Otherwise, the in-context
