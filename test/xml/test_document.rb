@@ -682,6 +682,10 @@ module Nokogiri
           end
 
           assert_raises(Nokogiri::XML::SyntaxError) do
+            Nokogiri::XML("<foo><bar></foo>", options: 0)
+          end
+
+          assert_raises(Nokogiri::XML::SyntaxError) do
             Nokogiri::XML("<foo><bar></foo>", &:strict)
           end
 
