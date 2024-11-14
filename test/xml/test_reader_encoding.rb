@@ -55,7 +55,7 @@ module Nokogiri
         #  and 2.12, so the testing here is superficial -- asserting on the reported encoding, but
         #  not asserting on the bytes in the document or the serialized nodes.
         #
-        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
+        reader = Nokogiri::XML::Reader(<<~XML, encoding: "UTF-8")
           <?xml version="1.0" encoding="ISO-8859-1"?>
           <foo>asdf</foo>
         XML
@@ -114,7 +114,7 @@ module Nokogiri
         end
 
         # https://github.com/sparklemotion/nokogiri/issues/2891
-        reader = Nokogiri::XML::Reader(<<~XML, nil, "UTF-8")
+        reader = Nokogiri::XML::Reader(<<~XML, encoding: "UTF-8")
           <?xml version="1.0"?>
           <anotación tipo="inspiración">INSPIRACIÓN</anotación>
         XML
@@ -135,7 +135,7 @@ module Nokogiri
           <?xml version="1.0"?>
           <test>\u{82B1}\u{82F1}</test>
         XML
-        reader = Nokogiri::XML::Reader(xml, nil, "Shift_JIS")
+        reader = Nokogiri::XML::Reader(xml, encoding: "Shift_JIS")
 
         assert_equal("Shift_JIS", reader.encoding)
 
@@ -216,7 +216,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
+        reader = Nokogiri::XML::Reader(xml, encoding: "UTF-8")
         reader.each do |node|
           next unless (prefix = node.prefix)
 
@@ -230,7 +230,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
+        reader = Nokogiri::XML::Reader(xml, encoding: "UTF-8")
         reader.each do |node|
           next unless (uri = node.namespace_uri)
 
@@ -244,7 +244,7 @@ module Nokogiri
             <edi:foo>hello</edi:foo>
           </x>
         eoxml
-        reader = Nokogiri::XML::Reader(xml, nil, "UTF-8")
+        reader = Nokogiri::XML::Reader(xml, encoding: "UTF-8")
         reader.each do |node|
           next unless (lname = node.local_name)
 
