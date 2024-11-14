@@ -28,8 +28,8 @@ module Nokogiri
   # ⚠ HTML5 functionality is not available when running JRuby.
   #
   # Parse an HTML5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
-  def self.HTML5(input, url = nil, encoding = nil, **options, &block)
-    Nokogiri::HTML5::Document.parse(input, url, encoding, **options, &block)
+  def self.HTML5(...)
+    Nokogiri::HTML5::Document.parse(...)
   end
 
   # == Usage
@@ -268,14 +268,14 @@ module Nokogiri
   module HTML5
     class << self
       # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
-      def parse(string, url = nil, encoding = nil, **options, &block)
-        Document.parse(string, url, encoding, **options, &block)
+      def parse(...)
+        Document.parse(...)
       end
 
       # Parse a fragment from +string+. Convenience method for
       # Nokogiri::HTML5::DocumentFragment.parse.
-      def fragment(string, encoding = nil, **options)
-        DocumentFragment.parse(string, encoding, **options)
+      def fragment(...)
+        DocumentFragment.parse(...)
       end
 
       # :nodoc:
