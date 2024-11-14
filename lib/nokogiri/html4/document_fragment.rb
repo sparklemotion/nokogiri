@@ -87,7 +87,7 @@ module Nokogiri
 
       # It's recommended to use either DocumentFragment.parse or XML::Node#parse rather than call this
       # method directly.
-      def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML) # rubocop:disable Lint/MissingSuper
+      def initialize(document, tags_ = nil, ctx_ = nil, options_ = XML::ParseOptions::DEFAULT_HTML, tags: tags_, ctx: ctx_, options: options_) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
