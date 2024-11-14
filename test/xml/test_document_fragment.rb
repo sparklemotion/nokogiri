@@ -416,6 +416,16 @@ module Nokogiri
               end
             end
 
+            it "accepts kwargs" do
+              frag = Nokogiri::XML::DocumentFragment.parse(input, options: xml_default)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML::DocumentFragment.parse(input, options: xml_strict)
+              end
+            end
+
             it "takes a config block" do
               default_config = nil
               Nokogiri::XML::DocumentFragment.parse(input) do |config|

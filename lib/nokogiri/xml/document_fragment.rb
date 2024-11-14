@@ -13,7 +13,7 @@ module Nokogiri
 
       class << self
         # Create a Nokogiri::XML::DocumentFragment from +tags+
-        def parse(tags, options = ParseOptions::DEFAULT_XML, &block)
+        def parse(tags, options_ = ParseOptions::DEFAULT_XML, options: options_, &block)
           new(XML::Document.new, tags, nil, options, &block)
         end
 
