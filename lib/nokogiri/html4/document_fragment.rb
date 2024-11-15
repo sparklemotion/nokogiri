@@ -4,12 +4,6 @@ module Nokogiri
   module HTML4
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       #
-      # :call-seq:
-      #   parse(tags) => DocumentFragment
-      #   parse(tags, encoding) => DocumentFragment
-      #   parse(tags, encoding, options) => DocumentFragment
-      #   parse(tags, encoding) { |options| ... } => DocumentFragment
-      #
       # Parse an HTML4 fragment.
       #
       # [Parameters]
@@ -38,7 +32,7 @@ module Nokogiri
       #
       # *Example:* Specifying encoding
       #
-      #   fragment = DocumentFragment.parse(input, "EUC-JP")
+      #   fragment = DocumentFragment.parse(input, encoding: "EUC-JP")
       #
       # *Example:* Setting parse options dynamically
       #
@@ -46,7 +40,7 @@ module Nokogiri
       #     options.huge.pedantic
       #   end
       #
-      def self.parse(tags, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
+      def self.parse(tags, encoding_ = nil, options_ = XML::ParseOptions::DEFAULT_HTML, encoding: encoding_, options: options_, &block)
         doc = HTML4::Document.new
 
         if tags.respond_to?(:read)
