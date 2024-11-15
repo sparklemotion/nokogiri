@@ -928,7 +928,8 @@ else
     end
 
     if darwin? && !cross_build_p
-      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+      recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
+      recipe.configure_options << "AR=/usr/bin/ar" unless ENV.key?("AR")
     end
 
     if windows?
@@ -969,7 +970,8 @@ else
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
     if darwin? && !cross_build_p
-      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+      recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
+      recipe.configure_options << "AR=/usr/bin/ar" unless ENV.key?("AR")
     end
 
     if windows?
