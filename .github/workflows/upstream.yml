@@ -42,7 +42,7 @@ jobs:
           NOCONFIGURE: t
         shell: bash
         run: |
-          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
+          git clone --depth=1 https://github.com/gnome/libxml2
           cd libxml2
           git log -n1
           ./autogen.sh
@@ -51,7 +51,7 @@ jobs:
           NOCONFIGURE: t
         shell: bash
         run: |
-          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
+          git clone --depth=1 https://github.com/gnome/libxslt
           cd libxslt
           git log -n1
           ./autogen.sh
@@ -72,7 +72,7 @@ jobs:
         env:
           NOCONFIGURE: t
         run: |
-          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxml2
+          git clone --depth=1 https://github.com/gnome/libxml2
           cd libxml2
           git log -n1
           ./autogen.sh
@@ -80,7 +80,7 @@ jobs:
         env:
           NOCONFIGURE: t
         run: |
-          git clone --depth=1 https://gitlab.gnome.org/GNOME/libxslt
+          git clone --depth=1 https://github.com/gnome/libxslt
           cd libxslt
           git log -n1
           ./autogen.sh
