@@ -3,8 +3,91 @@
 
 module Nokogiri
   module XML
-    # Options that control the parsing behavior for XML::Document, XML::DocumentFragment,
-    # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+    # :markup: markdown
+    #
+    # \Class to house parsing options.
+    #
+    # ## Methods That Use XML::ParseOptions:
+    #
+    # - Nokogiri.parse (but only when _not_ parsing HTML5).
+    # - HTML4.parse.
+    # - HTML4.parse.
+    # - HTML4::Document.parse.
+    # - HTML4::DocumentFragment.parse.
+    # - XML.parse.
+    # - XML::Document.parse.
+    # - XML::DocumentFragment.parse.
+    #
+    # Certain other parsing methods use different options;
+    # see HTML5.
+    #
+    # ## How to Set Options
+    #
+    # There are three ways to set options for an instance of this class:
+    #
+    # - Passing argument `options` with ::new.
+    # - Calling option methods on instance.
+    # - Giving a block with a parsing method.
+    #
+    # ### Passing Argument `options` with ::new
+    #
+    # Each of the methods listed above takes an optional argument `options`
+    # whose value is an integer.
+    #
+    # You can use bitmask constants to construct a suitable integer for the options you want:
+    #
+    # ```
+    # COMPACT                   # One option.
+    # COMPACT | DTDVALID        # Two options.
+    # COMPACT | DTDVALID | HUGE # Three options.
+    # ```
+    #
+    # The option bitmasks are:
+    #
+    # | Constant | Default | Meaning |
+    # |------|:-------:|---------|
+    # | BIG_LINES | On | Store big lines numbers in text PSVI field. |
+    # | COMPACT | Off | Compact small text nodes; no modification of the tree allowed afterwards (will possibly crash if you try to modify the tree). |
+    # | DTDATTR | See Note 1. | Default DTD attributes. |
+    # | DTDLOAD | See Note 1. | Load the external subset. |
+    # | DTDVALID | Off | Validate with the DTD. |
+    # | HUGE | Off | Relax any hardcoded limit from the parser. |
+    # | NOBASEFIX | Off | Do not fixup XINCLUDE xml:base uris. |
+    # | NOBLANKS | Off | Remove blank nodes. |
+    # | NOCDATA | See Note 1. | Merge CDATA as text nodes. |
+    # | NODICT | Off | Do not reuse the context dictionary. |
+    # | NOENT | Off | Substitute entities. |
+    # | NOERROR | On | Suppress error reports. |
+    # | NONET | See Note 2. | Forbid network access. |
+    # | NOWARNING | On | Suppress warning reports. |
+    # | NOXINCNODE | Off | Do not generate XINCLUDE START/END nodes. |
+    # | NSCLEAN | Off | Remove redundant namespaces declarations. |
+    # | OLD10 | Off| Parse using XML-1.0 before update 5. |
+    # | PEDANTIC | Off | Pedantic error reporting. |
+    # | RECOVER | See Note 2. | Recover on errors. |
+    # | SAX1 | Off | Use the SAX1 interface internally. |
+    # | XINCLUDE | Off | Implement XInclude substitution. |
+    #
+    # <br>
+    #
+    # Notes:
+    #
+    # 1. On only for XSML::Stylesheet; off otherwise.
+    # 2. On by default for XML::Document, XML::DocumentFragment, HTML4::Document,
+    #    HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema; off otherwise.
+    #
+    #
+    # | STRICT | Off | Strict parsing. |
+    #
+    # - DEFAULT_HTML
+    # - DEFAULT_SCHEMA
+    # - DEFAULT_XML
+    # - DEFAULT_XSLT
+    #
+    #
+    # ### Calling Option Methods on Instance
+    #
+    # ### Giving a Block with a Parsing Method
     #
     # These options directly expose libxml2's parse options, which are all boolean in the sense that
     # an option is "on" or "off".
@@ -15,7 +98,7 @@ module Nokogiri
     # ⚠ Not all parse options are supported on JRuby. Nokogiri will attempt to invoke the equivalent
     # behavior in Xerces/NekoHTML on JRuby when it's possible.
     #
-    # == Setting and unsetting parse options
+    # ## Setting and unsetting parse options
     #
     # You can build your own combinations of parse options by using any of the following methods:
     #
