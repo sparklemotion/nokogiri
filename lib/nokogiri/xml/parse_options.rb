@@ -5,7 +5,7 @@ module Nokogiri
   module XML
     # :markup: markdown
     #
-    # \Class to house parsing options.
+    # \Class to house options for parsing \XML or \HTML4 (but not \HTML5).
     #
     # ## About the Examples
     #
@@ -23,70 +23,104 @@ module Nokogiri
     #
     # ## Methods That Use \XML::ParseOptions
     #
-    # These methods use \XML::ParseOptions:
+    # Each of the methods listed below accepts an optional argument `options`,
+    # whose value may be either:
     #
-    # - Nokogiri.HTML
-    # - Nokogiri.HTML4
-    # - Nokogiri.XML
-    # - Nokogiri.make
-    # - Nokogiri.parse
-    # - Nokogiri::HTML.fragment
-    # - Nokogiri::HTML4.fragment
-    # - Nokogiri::HTML4.parse
-    # - Nokogiri::HTML4::Document.parse
-    # - Nokogiri::HTML4::DocumentFragment.new
-    # - Nokogiri::HTML4::DocumentFragment.parse
-    # - Nokogiri::XML.Reader
-    # - Nokogiri::XML.fragment
-    # - Nokogiri::XML.parse
-    # - Nokogiri::XML::Document.parse
-    # - Nokogiri::XML::Document.read_io (no block)
-    # - Nokogiri::XML::Document.read_memory (no block)
-    # - Nokogiri::XML::Document.read_memory (no block)
-    # - Nokogiri::XML::DocumentFragment.new
-    # - Nokogiri::XML::DocumentFragment.parse
-    # - Nokogiri::XML::Node#parse
-    # - Nokogiri::XML::ParseOptions.new (no block)
-    # - Nokogiri::XML::Reader.from_io (no block)
-    # - Nokogiri::XML::Reader.from_memory (no block)
-    # - Nokogiri::XML::RelaxNG.new (no block)
-    # - Nokogiri::XML::RelaxNG.read_memory (no block)
-    # - Nokogiri::XML::Schema.new (no block)
-    # - XSD::XMLParser::Nokogiri.new (no block)
+    # - An integer: see [Bitmap Constants](rdoc-ref:ParseOptions@Bitmap+Constants).
+    # - An instance of \ParseOptions: see ParseOptions.new.
+    #
+    # In addition (except as noted), each of the methods accepts a block:
+    # see [Options-Setting Blocks](rdoc-ref:ParseOptions@Options-Setting+Blocks).
+    #
+    # The methods:
+    #
+    # - Nokogiri.HTML.
+    # - Nokogiri.HTML4.
+    # - Nokogiri.XML.
+    # - Nokogiri.make.
+    # - Nokogiri.parse.
+    # - Nokogiri::HTML.fragment.
+    # - Nokogiri::HTML4.fragment.
+    # - Nokogiri::HTML4.parse.
+    # - Nokogiri::HTML4::Document.parse.
+    # - Nokogiri::HTML4::DocumentFragment.new.
+    # - Nokogiri::HTML4::DocumentFragment.parse.
+    # - Nokogiri::XML.Reader.
+    # - Nokogiri::XML.fragment.
+    # - Nokogiri::XML.parse.
+    # - Nokogiri::XML::Document.parse.
+    # - Nokogiri::XML::Document.read_io (no block).
+    # - Nokogiri::XML::Document.read_memory (no block).
+    # - Nokogiri::XML::Document.read_memory (no block).
+    # - Nokogiri::XML::DocumentFragment.new.
+    # - Nokogiri::XML::DocumentFragment.parse.
+    # - Nokogiri::XML::Node#parse.
+    # - Nokogiri::XML::ParseOptions.new (no block).
+    # - Nokogiri::XML::Reader.from_io (no block).
+    # - Nokogiri::XML::Reader.from_memory (no block).
+    # - Nokogiri::XML::RelaxNG.new (no block).
+    # - Nokogiri::XML::RelaxNG.read_memory (no block).
+    # - Nokogiri::XML::Schema.new (no block).
+    # - XSD::XMLParser::Nokogiri.new (no block).
     #
     # Certain other parsing methods use different options;
     # see HTML5.
     #
-    # ## How to Set Options
+    # ## Bitmap Constants
     #
-    # There are three ways to set options for an instance of this class:
-    #
-    # - Calling setter methods on instance (recommended).
-    # - Passing argument `options` with ::new.
-    # - Giving a block with a parsing method.
-    #
-    # ### Calling Setter Methods on Instance (Recommended)
-    #
-    # ### Passing Argument `options` with ::new
-    #
-    # Each of the methods that use \XML::ParseOptions takes an optional argument `options`
-    # whose value is an integer.
-    #
-    # You can use bitmask constants to construct a suitable integer for the options you want;
-    # use logical OR to combine multiple constants:
+    # Except for `STRICT` (see note below),
+    # each of the bitmap constants has a non-zero value
+    # that represents a bit;
+    # here we display a few constants in binary format (base 2):
     #
     # ```
-    # options = ParseOptions::COMPACT
-    # ParseOptions.new(options)
-    # # => #<Nokogiri::XML::ParseOptions: ... strict, compact>
-    # options = ParseOptions::COMPACT | ParseOptions::NOBLANKS
-    # ParseOptions.new(options)
-    # # => #<Nokogiri::XML::ParseOptions: ... strict, noblanks, compact>
+    # ParseOptions::RECOVER.to_s(2)  # => "1"
+    # ParseOptions::NOENT.to_s(2)    # => "10"
+    # ParseOptions::DTDLOAD.to_s(2)  # => "100"
+    # ParseOptions::DTDATTR.to_s(2)  # => "1000"
+    # ParseOptions::DTDVALID.to_s(2) # => "10000"
     # ```
+    #
+    # Any of these constants may be used alone to specify a single option:
+    #
+    # ```
+    # ParseOptions.new(ParseOptions::DTDLOAD)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, dtdload>
+    # ParseOptions.new(ParseOptions::DTDATTR)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, dtdattr>
+    # ```
+    #
+    # Multiple constants may be ORed together to specify multiple options:
+    #
+    # ```
+    # options = ParseOptions::BIG_LINES | ParseOptions::COMPACT | ParseOptions::NOCDATA
+    # ParseOptions.new(options)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, nocdata, compact, big_lines>
     #
     # The bitmask constants are:
     #
-    #
+    # - BIG_LINES.
+    # - COMPACT.
+    # - DTDATTR.
+    # - DTDLOAD.
+    # - DTDVALID.
+    # - HUGE.
+    # - NOBASEFIX.
+    # - NOBLANKS.
+    # - NOCDATA.
+    # - NODICT.
+    # - NOENT.
+    # - NOERROR.
+    # - NONET.
+    # - NOWARNING.
+    # - NOXINCNODE.
+    # - NSCLEAN.
+    # - OLD10.
+    # - PEDANTIC.
+    # - RECOVER.
+    # - SAX1.
+    # - STRICT.
+    # - XINCLUDE.
     #
     # There are also several "shorthand" constants that can set multiple options:
     #
@@ -101,16 +135,7 @@ module Nokogiri
     # # => #<Nokogiri::XML::ParseOptions: ... recover, noent, dtdload, dtdattr, nonet, nocdata, big_lines, default_xslt, default_schema, default_xml>    #
     # ```
     #
-    # ### Giving a Block with a Parsing Method
-    #
-    # These options directly expose libxml2's parse options, which are all boolean in the sense that
-    # an option is "on" or "off".
-    #
-    # 💡 Note that HTML5 parsing has a separate, orthogonal set of options due to the nature of the
-    # HTML5 specification. See Nokogiri::HTML5.
-    #
-    # ⚠ Not all parse options are supported on JRuby. Nokogiri will attempt to invoke the equivalent
-    # behavior in Xerces/NekoHTML on JRuby when it's possible.
+    # ## Options-Setting Blocks
     #
     # ## Convenience Methods
     #
