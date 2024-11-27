@@ -86,45 +86,7 @@ module Nokogiri
     #
     # The bitmask constants are:
     #
-    # | Constant | Default | Meaning |
-    # |------|:-------:|---------|
-    # | BIG_LINES | **On** | Store big lines numbers in text PSVI field. |
-    # | COMPACT | **Off** | Compact small text nodes; no modification of the tree allowed afterwards (will possibly crash if you try to modify the tree). |
-    # | DTDATTR | See Note 1. | Default DTD attributes. |
-    # | DTDLOAD | See Note 1. | Load the external subset. |
-    # | DTDVALID | **Off** | Validate with the DTD. |
-    # | HUGE | **Off** | Relax any hardcoded limit from the parser. |
-    # | NOBASEFIX | **Off** | Do not fixup XINCLUDE xml:base uris. |
-    # | NOBLANKS | **Off** | Remove blank nodes. |
-    # | NOCDATA | See Note 1. | Merge CDATA as text nodes. |
-    # | NODICT | **Off** | Do not reuse the context dictionary. |
-    # | NOENT | **Off** | Substitute entities. |
-    # | NOERROR | **On** | Suppress error reports. |
-    # | NONET | See Note 2. | Forbid network access. |
-    # | NOWARNING | **On** | Suppress warning reports. |
-    # | NOXINCNODE | **Off** | Do not generate XINCLUDE START/END nodes. |
-    # | NSCLEAN | **Off** | Remove redundant namespaces declarations. |
-    # | OLD10 | Off| Parse using XML-1.0 before update 5. |
-    # | PEDANTIC | **Off** | Pedantic error reporting. |
-    # | RECOVER | See Note 2. | Recover from errors in input; no strict parsing. |
-    # | SAX1 | **Off** | Use the SAX1 interface internally. |
-    # | STRICT | **Off** | Use strict parsing; do not recover from errors in input. See Note 3. |
-    # | XINCLUDE | **Off** | Implement XInclude substitution. |
     #
-    # <br>
-    #
-    # Notes:
-    #
-    # 1. **On** only for XSLT::Stylesheet; **off** otherwise.
-    # 2. **On** by default for XML::Document, XML::DocumentFragment, HTML4::Document,
-    #    HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema; **off** otherwise.
-    # 3. The numeric value of constant `STRICT` is zero.
-    #    Therefore using it alone sets all options to **off**;
-    #    ORing it with other non-zero constants is useless:
-    #
-    #    ```
-    #
-    #    ```
     #
     # There are also several "shorthand" constants that can set multiple options:
     #
@@ -190,7 +152,7 @@ module Nokogiri
     #     options.strict?  # => false
     #     ```
     #
-    # Each setter and unsetter method returns +self+,
+    # Each setter and unsetter method returns `self`,
     # so the methods may be chained:
     #
     # ```
@@ -218,103 +180,112 @@ module Nokogiri
     class ParseOptions
       # :markup: markdown
       #
-      # Strict parsing; all options (including `recover`) **off**.
+      # Strict parsing; do not recover from errors in input.
       STRICT      = 0
 
-      # Recover from errors. On by default for XML::Document, XML::DocumentFragment,
-      # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Recover from errors in input; no strict parsing.
       RECOVER     = 1 << 0
 
-      # Substitute entities. Off by default.
+      # Substitute entities.
       #
       # ⚠ This option enables entity substitution, contrary to what the name implies.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       NOENT       = 1 << 1
 
-      # Load external subsets. On by default for XSLT::Stylesheet.
+      # Load external subsets.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       DTDLOAD     = 1 << 2
 
-      # Default DTD attributes. On by default for XSLT::Stylesheet.
+      # Default DTD attributes.
       DTDATTR     = 1 << 3
 
-      # Validate with the DTD. Off by default.
+      # Validate with the DTD.
       DTDVALID    = 1 << 4
 
-      # Suppress error reports. On by default for HTML4::Document and HTML4::DocumentFragment
+      # Suppress error reports.
       NOERROR     = 1 << 5
 
-      # Suppress warning reports. On by default for HTML4::Document and HTML4::DocumentFragment
+      # Suppress warning reports.
       NOWARNING   = 1 << 6
 
-      # Enable pedantic error reporting. Off by default.
+      # Enable pedantic error reporting.
       PEDANTIC    = 1 << 7
 
-      # Remove blank nodes. Off by default.
+      # Remove blank nodes.
       NOBLANKS    = 1 << 8
 
-      # Use the SAX1 interface internally. Off by default.
+      # Use the SAX1 interface internally.
       SAX1        = 1 << 9
 
-      # Implement XInclude substitution. Off by default.
+      # Implement XInclude substitution.
       XINCLUDE    = 1 << 10
 
-      # Forbid network access. On by default for XML::Document, XML::DocumentFragment,
-      # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Forbid network access.
       #
       # ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
-      # Do not reuse the context dictionary. Off by default.
+      # Do not reuse the context dictionary.
       NODICT      = 1 << 12
 
-      # Remove redundant namespaces declarations. Off by default.
+      # Remove redundant namespaces declarations.
       NSCLEAN     = 1 << 13
 
-      # Merge CDATA as text nodes. On by default for XSLT::Stylesheet.
+      # Merge CDATA as text nodes.
       NOCDATA     = 1 << 14
 
-      # Do not generate XInclude START/END nodes. Off by default.
+      # Do not generate XInclude START/END nodes.
       NOXINCNODE  = 1 << 15
 
-      # Compact small text nodes. Off by default.
+      # Compact small text nodes.
       #
-      # ⚠ No modification of the DOM tree is allowed after parsing. libxml2 may crash if you try to
-      # modify the tree.
+      # ⚠ No modification of the DOM tree is allowed after parsing.
       COMPACT     = 1 << 16
 
-      # Parse using XML-1.0 before update 5. Off by default
+      # Parse using XML-1.0 before update 5.
       OLD10       = 1 << 17
 
-      # Do not fixup XInclude xml:base uris. Off by default
+      # Do not fixup XInclude xml:base URIs.
       NOBASEFIX   = 1 << 18
 
-      # Relax any hardcoded limit from the parser. Off by default.
+      # Relax any hardcoded limit from the parser.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       HUGE        = 1 << 19
 
-      # Support line numbers up to <code>long int</code> (default is a <code>short int</code>). On
-      # by default for for XML::Document, XML::DocumentFragment, HTML4::Document,
-      # HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Support line numbers up to `long int` (default is a `short int`).
       BIG_LINES   = 1 << 22
 
-      # The options mask used by default for parsing XML::Document and XML::DocumentFragment
+      # Shorthand options mask useful for parsing XML:
+      # sets RECOVER,  NONET,  BIG_LINES.
       DEFAULT_XML  = RECOVER | NONET | BIG_LINES
 
-      # The options mask used by default used for parsing XSLT::Stylesheet
+      # Shorthand options mask useful for parsing XSLT stylesheets:
+      # sets RECOVER, NONET, NOENT, DTDLOAD, DTDATTR, NOCDATA, BIG_LINES.
       DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA | BIG_LINES
 
-      # The options mask used by default used for parsing HTML4::Document and HTML4::DocumentFragment
+      # Shorthand options mask useful for parsing HTML4:
+      # sets RECOVER, NOERROR, NOWARNING, NONET, BIG_LINES.
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET | BIG_LINES
 
-      # The options mask used by default used for parsing XML::Schema
+      # Shorthand options mask useful for parsing \XML schemas:
+      # sets NONET, BIG_LINES.
       DEFAULT_SCHEMA = NONET | BIG_LINES
 
       attr_accessor :options
 
+      # :markup: markdown
+      #
+      # Returns a new \ParseOptions object with all options off
+      # (`strict` means `norecover`):
+      #
+      # ```
+      # ParseOptions.new
+      # # => #<Nokogiri::XML::ParseOptions: ... strict>
+      # ```
+      #
       def initialize(options = STRICT)
         @options = options
       end
@@ -339,18 +310,29 @@ module Nokogiri
         RUBY
       end
 
-      # :nodoc:
-      def strict
+      def strict # :nodoc:
         @options &= ~RECOVER
         self
       end
 
-      # :nodoc:
-      def strict?
+      def strict? # :nodoc:
         @options & RECOVER == STRICT
       end
 
-      # :doc:
+      # :markup: markdown
+      #
+      # :call-seq:
+      #    self == object
+      #
+      # Returns whether `object` is equal to `self` (`object.to_i == to_i`):
+      #
+      # ```
+      # options = ParseOptions.new
+      # # => #<Nokogiri::XML::ParseOptions: ... strict>
+      # options == options.dup         # => true
+      # options == options.dup.recover # => false
+      # ```
+      #
       def ==(other)
         other.to_i == to_i
       end
@@ -358,6 +340,9 @@ module Nokogiri
       alias_method :to_i, :options
 
       # :markup: markdown
+      #
+      # :call-seq:
+      #    inspect
       #
       # Returns a string representation of +self+ that includes
       # the numeric value of `@options`:
