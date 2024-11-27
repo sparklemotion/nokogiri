@@ -7,22 +7,6 @@ module Nokogiri
     #
     # \Class to house parsing options.
     #
-    # ## Methods That Use \XML::ParseOptions
-    #
-    # These methods use \XML::ParseOptions:
-    #
-    # - Nokogiri.parse (but only when _not_ parsing HTML5).
-    # - HTML4.parse.
-    # - HTML4.parse.
-    # - HTML4::Document.parse.
-    # - HTML4::DocumentFragment.parse.
-    # - XML.parse.
-    # - XML::Document.parse.
-    # - XML::DocumentFragment.parse.
-    #
-    # Certain other parsing methods use different options;
-    # see HTML5.
-    #
     # ## About the Examples
     #
     # Examples on this page assume that the following code has been executed:
@@ -36,6 +20,42 @@ module Nokogiri
     #
     # Examples executed via `IRB` (interactive Ruby) display \ParseOptions instances
     # using method #inspect.
+    #
+    # ## Methods That Use \XML::ParseOptions
+    #
+    # These methods use \XML::ParseOptions:
+    #
+    # - Nokogiri.HTML
+    # - Nokogiri.HTML4
+    # - Nokogiri.XML
+    # - Nokogiri.make
+    # - Nokogiri.parse
+    # - Nokogiri::HTML.fragment
+    # - Nokogiri::HTML4.fragment
+    # - Nokogiri::HTML4.parse
+    # - Nokogiri::HTML4::Document.parse
+    # - Nokogiri::HTML4::DocumentFragment.new
+    # - Nokogiri::HTML4::DocumentFragment.parse
+    # - Nokogiri::XML.Reader
+    # - Nokogiri::XML.fragment
+    # - Nokogiri::XML.parse
+    # - Nokogiri::XML::Document.parse
+    # - Nokogiri::XML::Document.read_io (no block)
+    # - Nokogiri::XML::Document.read_memory (no block)
+    # - Nokogiri::XML::Document.read_memory (no block)
+    # - Nokogiri::XML::DocumentFragment.new
+    # - Nokogiri::XML::DocumentFragment.parse
+    # - Nokogiri::XML::Node#parse
+    # - Nokogiri::XML::ParseOptions.new (no block)
+    # - Nokogiri::XML::Reader.from_io (no block)
+    # - Nokogiri::XML::Reader.from_memory (no block)
+    # - Nokogiri::XML::RelaxNG.new (no block)
+    # - Nokogiri::XML::RelaxNG.read_memory (no block)
+    # - Nokogiri::XML::Schema.new (no block)
+    # - XSD::XMLParser::Nokogiri.new (no block)
+    #
+    # Certain other parsing methods use different options;
+    # see HTML5.
     #
     # ## How to Set Options
     #
@@ -58,10 +78,10 @@ module Nokogiri
     # ```
     # options = ParseOptions::COMPACT
     # ParseOptions.new(options)
-    # # => #<Nokogiri::XML::ParseOptions:0x00000198119ca3d8 ... strict, compact>
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, compact>
     # options = ParseOptions::COMPACT | ParseOptions::NOBLANKS
     # ParseOptions.new(options)
-    # # => #<Nokogiri::XML::ParseOptions:0x0000019811d5f098 ... strict, noblanks, compact>
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, noblanks, compact>
     # ```
     #
     # The bitmask constants are:
@@ -118,11 +138,6 @@ module Nokogiri
     # ParseOptions.new(ParseOptions::DEFAULT_XSLT)
     # # => #<Nokogiri::XML::ParseOptions: ... recover, noent, dtdload, dtdattr, nonet, nocdata, big_lines, default_xslt, default_schema, default_xml>    #
     # ```
-    # - DEFAULT_HTML
-    # - DEFAULT_SCHEMA
-    # - DEFAULT_XML
-    # - DEFAULT_XSLT
-    #
     #
     # ### Giving a Block with a Parsing Method
     #
@@ -135,37 +150,53 @@ module Nokogiri
     # ⚠ Not all parse options are supported on JRuby. Nokogiri will attempt to invoke the equivalent
     # behavior in Xerces/NekoHTML on JRuby when it's possible.
     #
-    # ## Setting and unsetting parse options
+    # ## Convenience Methods
     #
-    # You can build your own combinations of parse options by using any of the following methods:
+    # A \ParseOptions object has three sets of convenience methods,
+    # each based on the name of one of the constants:
     #
-    # [ParseOptions method chaining]
+    # - **Setters**: each is the downcase of an option name, and turns on an option:
     #
-    #   Every option has an equivalent method in lowercase. You can chain these methods together to
-    #   set various combinations.
+    #     ```
+    #     options = ParseOptions.new
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict>
+    #     options.big_lines
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, big_lines>
+    #     options.compact
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+    #     ```
     #
-    #     # Set the HUGE & PEDANTIC options
-    #     po = Nokogiri::XML::ParseOptions.new.huge.pedantic
-    #     doc = Nokogiri::XML::Document.parse(xml, nil, nil, po)
+    # - **Unsetters**: each begins with `no`, and turns off an option.
+    #   Note that there is no unsetter `nostrict`;
+    #   the setter `recover` serves the same purpose:
     #
-    #   Every option has an equivalent <code>no{option}</code> method in lowercase. You can call these
-    #   methods on an instance of ParseOptions to unset the option.
+    #     ```
+    #     options.nobig_lines
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, compact>
+    #     options.nocompact
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict>
+    #     options.recover # Functionally equivalent to nostrict.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover>
+    #     options.noent   # Set NOENT.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover, noent>
+    #     options.nonoent # Unset NOENT.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover>
+    #     ```
     #
-    #     # Set the HUGE & PEDANTIC options
-    #     po = Nokogiri::XML::ParseOptions.new.huge.pedantic
+    # - **Queries**: each ends with `?`, and returns whether an option is on or off:
     #
-    #     # later we want to modify the options
-    #     po.nohuge # Unset the HUGE option
-    #     po.nopedantic # Unset the PEDANTIC option
+    #     ```
+    #     options.recover? # => true
+    #     options.strict?  # => false
+    #     ```
     #
-    #   💡 Note that some options begin with "no" leading to the logical but perhaps unintuitive
-    #   double negative:
+    # Each setter and unsetter method returns +self+,
+    # so the methods may be chained:
     #
-    #     po.nocdata # Set the NOCDATA parse option
-    #     po.nonocdata # Unset the NOCDATA parse option
-    #
-    #   💡 Note that negation is not available for STRICT, which is itself a negation of all other
-    #   features.
+    # ```
+    # options.compact.big_lines
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+    # ```
     #
     #
     # [Using Ruby Blocks]
@@ -308,15 +339,18 @@ module Nokogiri
         RUBY
       end
 
+      # :nodoc:
       def strict
         @options &= ~RECOVER
         self
       end
 
+      # :nodoc:
       def strict?
         @options & RECOVER == STRICT
       end
 
+      # :doc:
       def ==(other)
         other.to_i == to_i
       end
@@ -350,7 +384,7 @@ module Nokogiri
       # ```
       # options.norecover
       # options.inspect
-      # # => "#<Nokogiri::XML::ParseOptions:0x0000020700c199f0 @options=4194304 strict, big_lines>"
+      # # => "#<Nokogiri::XML::ParseOptions: @options=4194304 strict, big_lines>"
       # ```
       #
       def inspect
