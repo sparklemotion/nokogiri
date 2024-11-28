@@ -228,23 +228,6 @@ module Nokogiri
     # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
     # ```
     #
-    #
-    # [Using Ruby Blocks]
-    #
-    #   Most parsing methods will accept a block for configuration of parse options, and we
-    #   recommend chaining the setter methods:
-    #
-    #     doc = Nokogiri::XML::Document.parse(xml) { |config| config.huge.pedantic }
-    #
-    #
-    # [ParseOptions constants]
-    #
-    #   You can also use the constants declared under Nokogiri::XML::ParseOptions to set various
-    #   combinations. They are bits in a bitmask, and so can be combined with bitwise operators:
-    #
-    #     po = Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::HUGE | Nokogiri::XML::ParseOptions::PEDANTIC)
-    #     doc = Nokogiri::XML::Document.parse(xml, nil, nil, po)
-    #
     class ParseOptions
 
       # Strict parsing; do not recover from errors in input.
@@ -341,6 +324,16 @@ module Nokogiri
       # sets NONET, BIG_LINES.
       DEFAULT_SCHEMA = NONET | BIG_LINES
 
+      # Returns or sets and returns the integer value of `self`:
+      #
+      # ```
+      # options = ParseOptions.new(ParseOptions::DEFAULT_HTML)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, nowarning, nonet, big_...
+      # options.options # => 4196449
+      # options.options = ParseOptions::STRICT
+      # options.options # => 0
+      # ```
+      #
       attr_accessor :options
 
       # :markup: markdown
@@ -418,7 +411,7 @@ module Nokogiri
 
       # :call-seq:
       #   strict?
-      # 
+      #
       # Returns whether option `strict` is on:
       #
       # ```
