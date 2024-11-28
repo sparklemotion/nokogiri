@@ -23,14 +23,18 @@ module Nokogiri
     #
     # ## Methods That Use \XML::ParseOptions
     #
-    # Each of the methods listed below accepts an optional argument `options`,
-    # whose value may be either:
+    # Each of the methods listed below performs parsing for an \XML or \HTML4 source.
+    # Each accepts an optional argument `options`
+    # that specifies parsing options;
+    # the argument's value may be either:
     #
     # - An integer: see [Bitmap Constants](rdoc-ref:ParseOptions@Bitmap+Constants).
     # - An instance of \ParseOptions: see ParseOptions.new.
     #
-    # In addition (except as noted), each of the methods accepts a block:
-    # see [Options-Setting Blocks](rdoc-ref:ParseOptions@Options-Setting+Blocks).
+    # In addition (except as noted), each of the methods:
+    #
+    # - Accepts a block that specifies parsing options;
+    #   see [Options-Setting Blocks](rdoc-ref:ParseOptions@Options-Setting+Blocks).
     #
     # The methods:
     #
@@ -55,7 +59,6 @@ module Nokogiri
     # - Nokogiri::XML::DocumentFragment.new.
     # - Nokogiri::XML::DocumentFragment.parse.
     # - Nokogiri::XML::Node#parse.
-    # - Nokogiri::XML::ParseOptions.new (no block).
     # - Nokogiri::XML::Reader.from_io (no block).
     # - Nokogiri::XML::Reader.from_memory (no block).
     # - Nokogiri::XML::RelaxNG.new (no block).
@@ -99,29 +102,28 @@ module Nokogiri
     # ```
     #
     # The bitmask constants are:
-    #
-    # - BIG_LINES.
-    # - COMPACT.
-    # - DTDATTR.
-    # - DTDLOAD.
-    # - DTDVALID.
-    # - HUGE.
-    # - NOBASEFIX.
-    # - NOBLANKS.
-    # - NOCDATA.
-    # - NODICT.
-    # - NOENT.
-    # - NOERROR.
-    # - NONET.
-    # - NOWARNING.
-    # - NOXINCNODE.
-    # - NSCLEAN.
-    # - OLD10.
-    # - PEDANTIC.
-    # - RECOVER.
-    # - SAX1.
-    # - STRICT.
-    # - XINCLUDE.
+    # BIG_LINES,
+    # COMPACT,
+    # DTDATTR,
+    # DTDLOAD,
+    # DTDVALID,
+    # HUGE,
+    # NOBASEFIX,
+    # NOBLANKS,
+    # NOCDATA,
+    # NODICT,
+    # NOENT,
+    # NOERROR,
+    # NONET,
+    # NOWARNING,
+    # NOXINCNODE,
+    # NSCLEAN,
+    # OLD10,
+    # PEDANTIC,
+    # RECOVER,
+    # SAX1,
+    # STRICT,
+    # XINCLUDE.
     #
     # There are also several "shorthand" constants that can set multiple options:
     #
@@ -336,12 +338,34 @@ module Nokogiri
         RUBY
       end
 
-      def strict # :nodoc:
+      # :markup: markdown
+      #
+      # Turns off option `recover`:
+      #
+      # ```
+      # options = ParseOptions.new.recover.compact.big_lines
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # options.strict
+      # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+      # ```
+      def strict
         @options &= ~RECOVER
         self
       end
 
-      def strict? # :nodoc:
+      # :markup: markdown
+      #
+      # Returns whether option `strict` is on:
+      #
+      # ```
+      # options = ParseOptions.new.recover.compact.big_lines
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # options.strict? # => false
+      # options.strict
+      # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+      # options.strict? # => true
+      # ```
+      def strict?
         @options & RECOVER == STRICT
       end
 
