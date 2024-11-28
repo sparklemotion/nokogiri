@@ -257,6 +257,36 @@ jobs:
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
+  darwin-nix:
+    needs: ["basic"]
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: ["enable", "disable"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-24.11
+      - run: nix-shell --packages ruby bundler --run 'bundle install'
+      - if: matrix.sys == 'disable'
+        run: nix-shell --packages ruby bundler --run 'bundle exec rake compile -- --disable-system-libraries --disable-xml2-legacy'
+      - if: matrix.sys == 'disable'
+        run: nix-shell --packages ruby bundler --run 'bundle exec rake test'
+      # libxml2 headers are in a subdirectory for some reason so we need to add it to NIX_CFLAGS_COMPILE manually.
+      # there are a bunch of examples of other packages doing this in nixpkgs so this seems to be expected.
+      - if: matrix.sys == 'enable'
+        run: |
+          nix-shell \
+            --expr 'with import <nixpkgs> {}; mkShell { buildInputs = [ ruby bundler libxml2 libxslt ]; env.NIX_CFLAGS_COMPILE = "-I ${libxml2.dev}/include/libxml2"; }' \
+            --run 'bundle exec rake compile -- --enable-system-libraries --disable-xml2-legacy'
+      - if: matrix.sys == 'enable'
+        run: |
+          nix-shell --packages ruby bundler libxml2 libxslt --run 'bundle exec rake test'
+
   windows:
     needs: ["basic"]
     strategy:
