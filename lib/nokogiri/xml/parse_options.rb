@@ -306,7 +306,14 @@ module Nokogiri
 
       # :markup: markdown
       #
-      # Returns a new \ParseOptions object with all options off
+      # :call-seq:
+      #   ParseOptions.new(options = ParseOptions::STRICT)
+      #
+      # Returns a new \ParseOptions object with options as specified by integer argument `options`.
+      # The value of `options` may be constructed
+      # using [Bitmap Constants](rdoc-ref:ParseOptions@Bitmap+Constants).
+      #
+      # With the simple constant `ParseOptions::STRICT` (the default), all options are off
       # (`strict` means `norecover`):
       #
       # ```
@@ -314,6 +321,22 @@ module Nokogiri
       # # => #<Nokogiri::XML::ParseOptions: ... strict>
       # ```
       #
+      # With a different simple constant, one option may be set:
+      #
+      # ```
+      # ParseOptions.new(ParseOptions::RECOVER)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover>
+      # ParseOptions.new(ParseOptions::COMPACT)
+      # # => #<Nokogiri::XML::ParseOptions:  ... strict, compact>
+      # ```
+      #
+      # With multiple ORed constants, multiple options may be set:
+      #
+      # ```
+      # options = ParseOptions::COMPACT | ParseOptions::RECOVER | ParseOptions::BIG_LINES
+      # ParseOptions.new(options)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # ```
       def initialize(options = STRICT)
         @options = options
       end
