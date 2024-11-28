@@ -71,10 +71,15 @@ module Nokogiri
     #
     # ## Bitmap Constants
     #
+    # Each of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # discussed here accept an integer argument `options` that specifies parsing options.
+    #
+    # That integer value may be constructed using the bitmap constants defined in \ParseOptions.
+    #
     # Except for `STRICT` (see note below),
     # each of the bitmap constants has a non-zero value
-    # that represents a bit;
-    # here we display a few constants in binary format (base 2):
+    # that represents a bit in an integer value;
+    # to illustrate, here are a few of the constants, displayed in binary format (base 2):
     #
     # ```
     # ParseOptions::RECOVER.to_s(2)  # => "1"
@@ -99,6 +104,17 @@ module Nokogiri
     # options = ParseOptions::BIG_LINES | ParseOptions::COMPACT | ParseOptions::NOCDATA
     # ParseOptions.new(options)
     # # => #<Nokogiri::XML::ParseOptions: ... strict, nocdata, compact, big_lines>
+    # ```
+    #
+    # Note:
+    # The value of constant `STRICT` is zero;
+    # it may be used alone to turn all options off:
+    #
+    # ```
+    # XML.parse('<root />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nonet, big_lines, default_schema, default_xml>
+    # XML.parse('<root />', nil, nil, ParseOptions::STRICT) {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: strict>
     # ```
     #
     # The bitmask constants are:
