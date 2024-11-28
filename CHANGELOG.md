@@ -67,6 +67,7 @@ We've resolved many long-standing bugs in the various schema classes, validation
 * [CRuby] The update to libxml v2.13 improves "in context" fragment parsing recovery. We removed our hacky workaround for recovery that led to silently-degraded functionality when parsing fragments with parse errors. Specifically, malformed XML fragments that used implicit namespace prefixes will now "link up" to the namespaces in the parent document or node, where previously they did not. [#2092] @flavorjones
 * [CRuby] When multiple errors could be detected by the parser and there's no obvious document to save them in (for example, when parsing a document with the recovery parse option turned off), the libxml2 errors are aggregated into a single `Nokogiri::XML::SyntaxError`. Previously, only the last error recorded by libxml2 was raised, which might be misleading if it's merely a warning and not the fatal error preventing the operation. [#2562] @flavorjones
 * [CRuby] The SAX parser context and handler implementation has been simplified and now takes advantage of some of libxml2's default SAX handlers for entities and DTD management. [#3265] @flavorjones
+* [CRuby] When building from source on MacOS, environment variables AR and RANLIB are now respected when set instead of being overridden to /usr/bin/{ar,ranlib} (which is still the default). [#3338] @joshheinrichs-shopify
 
 
 ### Fixed
