@@ -96,6 +96,7 @@ module Nokogiri
     # options = ParseOptions::BIG_LINES | ParseOptions::COMPACT | ParseOptions::NOCDATA
     # ParseOptions.new(options)
     # # => #<Nokogiri::XML::ParseOptions: ... strict, nocdata, compact, big_lines>
+    # ```
     #
     # The bitmask constants are:
     #
