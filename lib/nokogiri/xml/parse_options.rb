@@ -140,6 +140,29 @@ module Nokogiri
     #
     # ## Options-Setting Blocks
     #
+    # Many of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # discussed here accept an options-setting block.
+    #
+    # The block is called with a new instance of \ParseOptions
+    # created with the defaults for the specific method:
+    #
+    # ```
+    # XML::parse('<root />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nonet, big_lines, default_schema, default_xml>
+    # HTML4::parse('<html />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nowarning, nonet, big_lines, default_schema, noerror, default_html, default_xml>
+    # ```
+    #
+    # When the block returns, the parsing is performed using those `options`.
+    #
+    # The block may modify those options, which affects parsing:
+    #
+    # ```
+    # xml = '<root>'                              # Invalid XML (tag not closed).
+    # XML::parse(xml)                             # Parsing works okay because `recover` is on.
+    # XML::parse(xml) {|options| options.strict } # Turns strict on; parsing raises SyntaxError.
+    # ```
+    #
     # ## Convenience Methods
     #
     # A \ParseOptions object has three sets of convenience methods,
