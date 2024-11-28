@@ -1,9 +1,10 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+# :markup: markdown
+
 module Nokogiri
   module XML
-    # :markup: markdown
     #
     # \Class to house options for parsing \XML or \HTML4 (but not \HTML5).
     #
@@ -245,8 +246,7 @@ module Nokogiri
     #     doc = Nokogiri::XML::Document.parse(xml, nil, nil, po)
     #
     class ParseOptions
-      # :markup: markdown
-      #
+
       # Strict parsing; do not recover from errors in input.
       STRICT      = 0
 
@@ -400,7 +400,8 @@ module Nokogiri
         RUBY
       end
 
-      # :markup: markdown
+      # :call-seq:
+      #   strict
       #
       # Turns off option `recover`:
       #
@@ -415,8 +416,9 @@ module Nokogiri
         self
       end
 
-      # :markup: markdown
-      #
+      # :call-seq:
+      #   strict?
+      # 
       # Returns whether option `strict` is on:
       #
       # ```
@@ -431,8 +433,6 @@ module Nokogiri
         @options & RECOVER == STRICT
       end
 
-      # :markup: markdown
-      #
       # :call-seq:
       #    self == object
       #
@@ -451,8 +451,6 @@ module Nokogiri
 
       alias_method :to_i, :options
 
-      # :markup: markdown
-      #
       # :call-seq:
       #    inspect
       #
