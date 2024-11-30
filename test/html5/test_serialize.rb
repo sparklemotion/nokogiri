@@ -553,4 +553,20 @@ class TestHtml5Serialize < Nokogiri::TestCase
     refute(fragment.send(:prepend_newline?))
     assert_equal("<div>hello</div>goodbye", fragment.to_html)
   end
+
+  describe "foreign content style tag serialization is escaped" do
+    it "with svg parent" do
+      input = %{<svg><style>&lt;img src>}
+      expected = %{<svg><style>&lt;img src&gt;</style></svg>}
+
+      assert_equal(expected, Nokogiri::HTML5.fragment(input).to_html)
+    end
+
+    it "with math parent" do
+      input = %{<math><style>&lt;img src>}
+      expected = %{<math><style>&lt;img src&gt;</style></math>}
+
+      assert_equal(expected, Nokogiri::HTML5.fragment(input).to_html)
+    end
+  end
 end if Nokogiri.uses_gumbo?
