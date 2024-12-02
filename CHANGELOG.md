@@ -108,6 +108,13 @@ We've resolved many long-standing bugs in the various schema classes, validation
 * Passing libxml2 encoding IDs to `SAX::ParserContext` methods is now deprecated and will generate a warning. The use of `SAX::Parser::ENCODINGS` is also deprecated. Use `Encoding` objects or encoding names instead.
 
 
+## v1.16.8 / 2024-12-02
+
+### Fixed
+
+* [CRuby] When serializing HTML5 documents, properly escape foreign content "style" elements. Normally, a "style" tag contains  raw text that does not need entity-escaping, but when it appears in either SVG or MathML foreign content, the "style" tag is now correctly escaped when serialized. @flavorjones
+
+
 ## v1.16.7 / 2024-07-27
 
 ## Dependencies
@@ -257,6 +264,13 @@ The following people and organizations were kind enough to sponsor @flavorjones 
 * Frank Groeneveld @frenkel
 
 We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
+
+
+## 1.15.7 / 2024-12-02
+
+### Fixed
+
+* [CRuby] When serializing HTML5 documents, properly escape foreign content "style" elements. Normally, a "style" tag contains  raw text that does not need entity-escaping, but when it appears in either SVG or MathML foreign content, the "style" tag is now correctly escaped when serialized. @flavorjones
 
 
 ## 1.15.6 / 2024-03-16
