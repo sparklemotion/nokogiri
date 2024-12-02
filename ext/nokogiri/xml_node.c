@@ -1853,13 +1853,19 @@ is_one_of(xmlNodePtr node, char const *const *tagnames, size_t num_tagnames)
   if (name == NULL) { // fragments don't have a name
     return false;
   }
+
+  if (node->ns != NULL) {
+    // if the node has a namespace, it's in a foreign context and is not one of the HTML tags we're
+    // matching against.
+    return false;
+  }
+
   for (size_t idx = 0; idx < num_tagnames; ++idx) {
     if (!strcmp(name, tagnames[idx])) {
       return true;
     }
   }
   return false;
-
 }
 
 static void
