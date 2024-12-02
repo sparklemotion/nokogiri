@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [CRuby] When serializing HTML5 documents, properly escape foreign content "style" elements. Normally, a "style" tag contains  raw text that does not need entity-escaping, but when it appears in either SVG or MathML foreign content, the "style" tag is now correctly escaped when serialized. @flavorjones
+
+
 ## v1.16.7 / 2024-07-27
 
 ## Dependencies
