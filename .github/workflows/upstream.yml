@@ -33,7 +33,7 @@ jobs:
         with:
           ruby-version: "3.3"
           apt-get: "autogen libtool shtool"
-          brew: "automake autogen libtool shtool"
+          brew: "_upgrade_ automake autogen libtool shtool" # _upgrade_ needed because of the pkg-config → pkgconf migration https://github.com/Homebrew/homebrew-core/commit/0c357945611d988fe65e46aeb092cbb6ca7492bd
           mingw: "autotools xz"
           bundler-cache: true
           bundler: latest
