@@ -15,6 +15,20 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
       it ".read_memory" do
         xsd = Nokogiri::XML::Schema.read_memory(File.read(PO_SCHEMA_FILE))
         assert_instance_of(Nokogiri::XML::Schema, xsd)
+
+        doc = Nokogiri::XML(File.read(PO_XML_FILE))
+        assert(xsd.valid?(doc))
+      end
+
+      it ".read_memory given an IO" do
+        xsd = nil
+        File.open(PO_SCHEMA_FILE) do |f|
+          xsd = Nokogiri::XML::Schema.read_memory(f)
+        end
+        assert_instance_of(Nokogiri::XML::Schema, xsd)
+
+        doc = Nokogiri::XML(File.read(PO_XML_FILE))
+        assert(xsd.valid?(doc))
       end
 
       it ".from_document" do

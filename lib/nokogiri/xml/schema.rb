@@ -7,44 +7,43 @@ module Nokogiri
       #   Schema(input) → Nokogiri::XML::Schema
       #   Schema(input, parse_options) → Nokogiri::XML::Schema
       #
-      # Parse an XSD schema definition and create a new {Schema} object. This is a convenience
-      # method for Nokogiri::XML::Schema.new
-      #
-      # See related: Nokogiri::XML::Schema.new
-      #
-      # [Parameters]
-      # - +input+ (String, IO) XSD schema definition
-      # - +parse_options+ (Nokogiri::XML::ParseOptions)
-      # [Returns] Nokogiri::XML::Schema
-      #
+      # Convenience method for Nokogiri::XML::Schema.new
       def Schema(...)
         Schema.new(...)
       end
     end
 
-    # Nokogiri::XML::Schema is used for validating XML against an XSD schema definition.
+    # Nokogiri::XML::Schema is used for validating \XML against an \XSD schema definition.
     #
-    # *Example:* Determine whether an XML document is valid.
-    #
-    #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
-    #   doc = Nokogiri::XML(File.read(XML_FILE))
-    #   schema.valid?(doc) # Boolean
-    #
-    # *Example:* Validate an XML document against a Schema, and capture any errors that are found.
-    #
-    #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
-    #   doc = Nokogiri::XML(File.read(XML_FILE))
-    #   errors = schema.validate(doc) # Array<SyntaxError>
-    #
-    # ⚠ As of v1.11.0, Schema treats inputs as *untrusted* by default, and so external entities are
+    # ⚠ Since v1.11.0, Schema treats inputs as *untrusted* by default, and so external entities are
     # not resolved from the network (+http://+ or +ftp://+). When parsing a trusted document, the
     # caller may turn off the +NONET+ option via the ParseOptions to (re-)enable external entity
     # resolution over a network connection.
     #
-    # Previously, documents were "trusted" by default during schema parsing which was counter to
-    # Nokogiri's "untrusted by default" security policy.
+    # 🛡 Before v1.11.0, documents were "trusted" by default during schema parsing which was counter
+    # to Nokogiri's "untrusted by default" security policy.
+    #
+    # *Example:* Determine whether an \XML document is valid.
+    #
+    #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
+    #   doc = Nokogiri::XML::Document.parse(File.read(XML_FILE))
+    #   schema.valid?(doc) # Boolean
+    #
+    # *Example:* Validate an \XML document against an \XSD schema, and capture any errors that are found.
+    #
+    #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
+    #   doc = Nokogiri::XML::Document.parse(File.read(XML_FILE))
+    #   errors = schema.validate(doc) # Array<SyntaxError>
+    #
+    # *Example:* Validate an \XML document using a Document containing an \XSD schema definition.
+    #
+    #   schema_doc = Nokogiri::XML::Document.parse(File.read(RELAX_NG_FILE))
+    #   schema = Nokogiri::XML::Schema.from_document(schema_doc)
+    #   doc = Nokogiri::XML::Document.parse(File.read(XML_FILE))
+    #   schema.valid?(doc) # Boolean
+    #
     class Schema
-      # The errors found while parsing the XSD
+      # The errors found while parsing the \XSD
       #
       # [Returns] Array<Nokogiri::XML::SyntaxError>
       attr_accessor :errors
@@ -58,36 +57,27 @@ module Nokogiri
       #   new(input) → Nokogiri::XML::Schema
       #   new(input, parse_options) → Nokogiri::XML::Schema
       #
-      # Parse an XSD schema definition and create a new Nokogiri::XML:Schema object.
+      # Parse an \XSD schema definition from a String or IO to create a new Nokogiri::XML::Schema
       #
       # [Parameters]
-      # - +input+ (String, IO) XSD schema definition
+      # - +input+ (String | IO) \XSD schema definition
       # - +parse_options+ (Nokogiri::XML::ParseOptions)
       #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
       #
       # [Returns] Nokogiri::XML::Schema
       #
-      def self.new(...)
-        read_memory(...)
+      def self.new(input, parse_options_ = ParseOptions::DEFAULT_SCHEMA, parse_options: parse_options_)
+        from_document(Nokogiri::XML::Document.parse(input), parse_options)
       end
 
       # :call-seq:
       #   read_memory(input) → Nokogiri::XML::Schema
       #   read_memory(input, parse_options) → Nokogiri::XML::Schema
       #
-      # Parse an XSD schema definition and create a new Schema object.
-      #
-      # 💡 Note that the limitation of this method relative to Schema.new is that +input+ must be type
-      # String, whereas Schema.new also supports IO types.
-      #
-      # [parameters]
-      # - +input+ (String) XSD schema definition
-      # - +parse_options+ (Nokogiri::XML::ParseOptions)
-      #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
-      #
-      # [Returns] Nokogiri::XML::Schema
-      def self.read_memory(input, parse_options_ = ParseOptions::DEFAULT_SCHEMA, parse_options: parse_options_)
-        from_document(Nokogiri::XML::Document.parse(input), parse_options)
+      # Convenience method for Nokogiri::XML::Schema.new
+      def self.read_memory(...)
+        # TODO deprecate this method
+        new(...)
       end
 
       #
@@ -96,20 +86,19 @@ module Nokogiri
       # Validate +input+ and return any errors that are found.
       #
       # [Parameters]
-      # - +input+ (Nokogiri::XML::Document, String)
-      #
+      # - +input+ (Nokogiri::XML::Document | String)
       #   A parsed document, or a string containing a local filename.
       #
       # [Returns] Array<SyntaxError>
       #
-      # *Example:* Validate an existing Document +document+, and capture any errors that are found.
+      # *Example:* Validate an existing XML::Document, and capture any errors that are found.
       #
-      #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
+      #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
       #   errors = schema.validate(document)
       #
-      # *Example:* Validate an XML document on disk, and capture any errors that are found.
+      # *Example:* Validate an \XML document on disk, and capture any errors that are found.
       #
-      #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
+      #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
       #   errors = schema.validate("/path/to/file.xml")
       #
       def validate(input)
@@ -128,20 +117,19 @@ module Nokogiri
       # Validate +input+ and return a Boolean indicating whether the document is valid
       #
       # [Parameters]
-      # - +input+ (Nokogiri::XML::Document, String)
-      #
+      # - +input+ (Nokogiri::XML::Document | String)
       #   A parsed document, or a string containing a local filename.
       #
       # [Returns] Boolean
       #
-      # *Example:* Validate an existing XML::Document +document+
+      # *Example:* Validate an existing XML::Document
       #
-      #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
+      #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
       #   return unless schema.valid?(document)
       #
-      # *Example:* Validate an XML document on disk
+      # *Example:* Validate an \XML document on disk
       #
-      #   schema = Nokogiri::XML::Schema(File.read(XSD_FILE))
+      #   schema = Nokogiri::XML::Schema.new(File.read(XSD_FILE))
       #   return unless schema.valid?("/path/to/file.xml")
       #
       def valid?(input)
