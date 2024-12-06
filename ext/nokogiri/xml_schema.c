@@ -154,13 +154,13 @@ xml_schema_parse_schema(
 
 /*
  * :call-seq:
- *   from_document(document) → Nokogiri::XML::Schema
- *   from_document(document, parse_options) → Nokogiri::XML::Schema
+ *   from_document(input) → Nokogiri::XML::Schema
+ *   from_document(input, parse_options) → Nokogiri::XML::Schema
  *
- * Create a Schema from an already-parsed XSD schema definition document.
+ * Parse an \XSD schema definition from a Document to create a new Nokogiri::XML::Schema
  *
  * [Parameters]
- * - +document+ (XML::Document) A document object representing the parsed XSD
+ * - +input+ (XML::Document) A document containing the \XSD schema definition
  * - +parse_options+ (Nokogiri::XML::ParseOptions)
  *   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA
  *
@@ -169,6 +169,8 @@ xml_schema_parse_schema(
 static VALUE
 noko_xml_schema_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 {
+  /* TODO: deprecate this method and put file-or-string logic into .new so that becomes the
+   * preferred entry point, and this can become a private method */
   VALUE rb_document;
   VALUE rb_parse_options;
   VALUE rb_schema;

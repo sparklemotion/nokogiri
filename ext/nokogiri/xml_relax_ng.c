@@ -105,11 +105,12 @@ _noko_xml_relax_ng_parse_schema(
  *   from_document(document) → Nokogiri::XML::RelaxNG
  *   from_document(document, parse_options) → Nokogiri::XML::RelaxNG
  *
- * Parse a RELAX NG schema definition from a Document to create a new Schema.
+ * Parse a RELAX NG schema definition from a Document to create a new Nokogiri::XML::RelaxNG.
  *
  * [Parameters]
- * - +document+ (XML::Document) RELAX NG schema definition
- * - +parse_options+ (Nokogiri::XML::ParseOptions) ⚠ Unused
+ * - +document+ (XML::Document) A document containing the RELAX NG schema definition
+ * - +parse_options+ (Nokogiri::XML::ParseOptions)
+ *   Defaults to ParseOptions::DEFAULT_SCHEMA ⚠ Unused
  *
  * [Returns] Nokogiri::XML::RelaxNG
  *
@@ -119,6 +120,8 @@ _noko_xml_relax_ng_parse_schema(
 static VALUE
 noko_xml_relax_ng_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 {
+  /* TODO: deprecate this method and put file-or-string logic into .new so that becomes the
+   * preferred entry point, and this can become a private method */
   VALUE rb_document;
   VALUE rb_parse_options;
   xmlDocPtr c_document;

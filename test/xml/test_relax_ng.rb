@@ -16,19 +16,25 @@ module Nokogiri
         assert_equal(0, schema.errors.length)
       end
 
-      def test_new
-        assert(schema = Nokogiri::XML::RelaxNG.new(
-          File.read(ADDRESS_SCHEMA_FILE),
-        ))
+      def test_new_with_string
+        schema = Nokogiri::XML::RelaxNG.new(File.read(ADDRESS_SCHEMA_FILE))
         assert_instance_of(Nokogiri::XML::RelaxNG, schema)
+        assert_equal(0, schema.errors.length)
+
+        doc = Nokogiri::XML(File.read(ADDRESS_XML_FILE))
+        assert(schema.valid?(doc))
       end
 
-      def test_parse_with_io
-        xsd = nil
+      def test_new_with_io
+        schema = nil
         File.open(ADDRESS_SCHEMA_FILE, "rb") do |f|
-          assert(xsd = Nokogiri::XML::RelaxNG(f))
+          schema = Nokogiri::XML::RelaxNG.new(f)
         end
-        assert_equal(0, xsd.errors.length)
+        assert_instance_of(Nokogiri::XML::RelaxNG, schema)
+        assert_equal(0, schema.errors.length)
+
+        doc = Nokogiri::XML(File.read(ADDRESS_XML_FILE))
+        assert(schema.valid?(doc))
       end
 
       def test_constructor_method_with_parse_options
