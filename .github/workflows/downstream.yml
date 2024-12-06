@@ -23,6 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        ok_to_fail: [false]
         include:
           - url: https://github.com/flavorjones/loofah
             name: loofah
@@ -36,6 +37,7 @@ jobs:
             name: sanitize
             command: "bundle exec rake test"
             ruby: "3.3"
+            ok_to_fail: true # pending a fix for https://github.com/sparklemotion/nokogiri/pull/3348
           - url: https://github.com/ebeigarts/signer
             name: signer
             command: "bundle exec rake spec"
@@ -86,6 +88,7 @@ jobs:
       - run: bundle exec rake compile
       - run: git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
       - name: ${{matrix.name}} test suite
+        continue-on-error: ${{matrix.ok_to_fail}}
         working-directory: ${{matrix.name}}
         run: |
           bundle remove nokogiri || true
