@@ -73,6 +73,11 @@ class TestHtml5API < Nokogiri::TestCase
     assert_match(/おはようございます/, Nokogiri::HTML5(raw, nil, Encoding::SHIFT_JIS).to_s)
     assert_match(/おはようございます/, Nokogiri::HTML5.parse(raw, nil, Encoding::SHIFT_JIS).to_s)
     assert_match(/おはようございます/, Nokogiri::HTML5::Document.parse(raw, nil, Encoding::SHIFT_JIS).to_s)
+
+    # with kwargs
+    assert_match(/おはようございます/, Nokogiri::HTML5(raw, encoding: Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5.parse(raw, encoding: Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5::Document.parse(raw, encoding: Encoding::SHIFT_JIS).to_s)
   end
 
   def test_fragment_encoding
