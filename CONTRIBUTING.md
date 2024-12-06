@@ -344,14 +344,22 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
   - name all the aliases of a method
   - indicate block/yield usage of a method
 - Briefly explain the purpose of the method, what it returns, and what side effects it has
-- Use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
-- Use a `[Returns]` definition to note the return type
-- Use a `[Yields]` definition to note the block parameters
-- Use a `⚠` character to warn the user about tricky usage
-- Use a `💡` character to call attention to important notes
-- `See also:` should be used to call out related methods
-- `Since` should be used to indicate the version in which the code was introduced
-- Prefer to **show** nuanced behavior in code examples, rather than try to explain it in prose.
+- Method signatures
+  - Use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
+  - Use a `[Returns]` definition to note the return type
+  - Use a `[Yields]` definition to note the block parameters
+  - use RBS syntax whenever possible to declare variable types
+- Callouts
+  - Use a `🛡` character for security-related notes
+  - Use a `⚠` character to warn the user about tricky usage
+  - Use a `💡` character to call attention to other important notes
+- Examples
+  - Prefer to **show** nuanced behavior in code examples, rather than try to explain it in prose.
+  - Use the line `*Example:* <Brief explanation>` to name examples and visually separate them
+  - Indent two extra columns to get code-block formatting
+- Metadata
+  - `See also:` should be used to call out related methods
+  - `Since` should be used to indicate the version in which the code was introduced
 
 
 ### Code
@@ -502,17 +510,20 @@ The `Rakefile` used to be a big fat mess. It's now decomposed into a small set o
 
 ## Making a release
 
-A quick checklist:
+A quick checklist for releasing Nokogiri:
 
-- [ ] make sure CI is green!
-- [ ] update `CHANGELOG.md` and `lib/nokogiri/version/constant.rb`
-- [ ] create a git tag
-- [ ] run `scripts/build-gems` and make sure it completes and all the tests pass
-- [ ] `for g in gems/*.gem ; do gem push $g ; done`
-- [ ] create a release at https://github.com/sparklemotion/nokogiri/releases and provide sha2 checksums
-- if security-related,
+- Prechecks
+  - [ ] make sure CI is green!
+  - [ ] update `CHANGELOG.md` and `lib/nokogiri/version/constant.rb`
+  - [ ] commit and create a git tag
+  - [ ] run `scripts/build-gems` and make sure it completes and all the tests pass
+- Release
+  - [ ] `git push && git push --tags`
+  - [ ] `for g in gems/*.gem ; do gem push $g ; done`
+  - [ ] create a release at https://github.com/sparklemotion/nokogiri/releases and provide sha2 checksums
+- If the release has security fixes ...
   - [ ] publish a GHSA
   - [ ] email ruby-security-ann@googlegroups.com and ruby-talk@ruby-lang.org
-  - [ ] submit a PR to https://github.com/rubysec/ruby-advisory-db
-- [ ] update nokogiri.org
-- [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
+- Post-release
+  - [ ] update nokogiri.org
+  - [ ] bump `lib/nokogiri/version/constant.rb` to a prerelease version like `v1.14.0.dev`
