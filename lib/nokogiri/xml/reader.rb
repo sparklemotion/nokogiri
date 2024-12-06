@@ -3,32 +3,33 @@
 module Nokogiri
   module XML
     ###
-    # Nokogiri::XML::Reader parses an XML document similar to the way a cursor would move. The
-    # Reader is given an XML document, and yields nodes to an each block.
+    # The Reader parser allows you to effectively pull parse an \XML document.  Once instantiated,
+    # call Nokogiri::XML::Reader#each to iterate over each node.
     #
-    # The Reader parser might be good for when you need the speed and low memory usage of the SAX
-    # parser, but do not want to write a Document handler.
+    # Nokogiri::XML::Reader parses an \XML document similar to the way a cursor would move. The
+    # Reader is given an \XML document, and yields nodes to an each block.
+    #
+    # The Reader parser might be good for when you need the speed and low memory usage of a \SAX
+    # parser, but do not want to write a SAX::Document handler.
     #
     # Here is an example of usage:
     #
-    #     reader = Nokogiri::XML::Reader(<<-eoxml)
+    #     reader = Nokogiri::XML::Reader.new <<~XML
     #       <x xmlns:tenderlove='http://tenderlovemaking.com/'>
     #         <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     #       </x>
-    #     eoxml
+    #     XML
     #
     #     reader.each do |node|
-    #
     #       # node is an instance of Nokogiri::XML::Reader
     #       puts node.name
-    #
     #     end
     #
     # ⚠ Nokogiri::XML::Reader#each can only be called once! Once the cursor moves through the entire
     # document, you must parse the document again. It may be better to capture all information you
     # need during a single iteration.
     #
-    # ⚠ libxml2 does not support error recovery in the Reader parser. The `RECOVER` ParseOption is
+    # ⚠ libxml2 does not support error recovery in the Reader parser. The +RECOVER+ ParseOption is
     # ignored. If a syntax error is encountered during parsing, an exception will be raised.
     class Reader
       include Enumerable
@@ -66,13 +67,13 @@ module Nokogiri
       TYPE_END_ELEMENT = 15
       # Entity end node type
       TYPE_END_ENTITY = 16
-      # XML Declaration node type
+      # \XML Declaration node type
       TYPE_XML_DECLARATION = 17
 
       # A list of errors encountered while parsing
       attr_accessor :errors
 
-      # The XML source
+      # The \XML source
       attr_reader :source
 
       alias_method :self_closing?, :empty_element?
