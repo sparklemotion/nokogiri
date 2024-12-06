@@ -474,7 +474,7 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
           end
 
           it "XML::Schema parsing of memory attempts to access external DTDs with kwargs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: :XML::ParseOptions.new.nononet)
+            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
             assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
           end
         end
