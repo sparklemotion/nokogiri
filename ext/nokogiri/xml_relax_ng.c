@@ -3,7 +3,7 @@
 VALUE cNokogiriXmlRelaxNG;
 
 static void
-xml_relax_ng_deallocate(void *data)
+_noko_xml_relax_ng_deallocate(void *data)
 {
   xmlRelaxNGPtr schema = data;
   xmlRelaxNGFree(schema);
@@ -12,7 +12,7 @@ xml_relax_ng_deallocate(void *data)
 static const rb_data_type_t xml_relax_ng_type = {
   .wrap_struct_name = "xmlRelaxNG",
   .function = {
-    .dfree = xml_relax_ng_deallocate,
+    .dfree = _noko_xml_relax_ng_deallocate,
   },
   .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
@@ -51,7 +51,7 @@ noko_xml_relax_ng__validate_document(VALUE self, VALUE document)
 }
 
 static VALUE
-xml_relax_ng_parse_schema(
+_noko_xml_relax_ng_parse_schema(
   VALUE rb_class,
   xmlRelaxNGParserCtxtPtr c_parser_context,
   VALUE rb_parse_options
@@ -105,10 +105,10 @@ xml_relax_ng_parse_schema(
  *   from_document(document) → Nokogiri::XML::RelaxNG
  *   from_document(document, parse_options) → Nokogiri::XML::RelaxNG
  *
- * Create a Schema from an already-parsed RELAX NG schema definition document.
+ * Parse a RELAX NG schema definition from a Document to create a new Schema.
  *
  * [Parameters]
- * - +document+ (XML::Document) A XML::Document object representing the parsed RELAX NG
+ * - +document+ (XML::Document) RELAX NG schema definition
  * - +parse_options+ (Nokogiri::XML::ParseOptions) ⚠ Unused
  *
  * [Returns] Nokogiri::XML::RelaxNG
@@ -131,7 +131,7 @@ noko_xml_relax_ng_s_from_document(int argc, VALUE *argv, VALUE rb_class)
 
   c_parser_context = xmlRelaxNGNewDocParserCtxt(c_document);
 
-  return xml_relax_ng_parse_schema(rb_class, c_parser_context, rb_parse_options);
+  return _noko_xml_relax_ng_parse_schema(rb_class, c_parser_context, rb_parse_options);
 }
 
 void
