@@ -3,7 +3,7 @@
 
 module Nokogiri
   class << self
-    # Parse HTML. Convenience method for Nokogiri::HTML4::Document.parse
+    # Convenience method for Nokogiri::HTML4::Document.parse
     def HTML4(...)
       Nokogiri::HTML4::Document.parse(...)
     end
@@ -15,14 +15,12 @@ module Nokogiri
   # for parsing HTML.
   module HTML4
     class << self
-      ###
-      # Parse HTML. Convenience method for Nokogiri::HTML4::Document.parse
+      # Convenience method for Nokogiri::HTML4::Document.parse
       def parse(...)
         Document.parse(...)
       end
 
-      ####
-      # Parse a fragment from +string+ in to a NodeSet.
+      # Convenience method for Nokogiri::HTML4::DocumentFragment.parse
       def fragment(...)
         HTML4::DocumentFragment.parse(...)
       end
