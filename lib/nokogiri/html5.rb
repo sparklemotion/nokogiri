@@ -46,16 +46,22 @@ module Nokogiri
   # The document and fragment parsing methods support options that are different from
   # Nokogiri::HTML4::Document or Nokogiri::XML::Document.
   #
-  # - <tt>Nokogiri.HTML5(html, url = nil, encoding = nil, **options)</tt>
-  # - <tt>Nokogiri::HTML5.parse(html, url = nil, encoding = nil, **options)</tt>
-  # - <tt>Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil, **options)</tt>
-  # - <tt>Nokogiri::HTML5.fragment(html, encoding = nil, **options)</tt>
-  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, **options)</tt>
+  # - <tt>Nokogiri.HTML5(html, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5.parse(html, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5::Document.parse(html, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5.fragment(html, encoding = nil, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, **parse_options)</tt>
   #
-  # The four currently supported options are +:max_errors+, +:max_tree_depth+, +:max_attributes+,
-  # and +:parse_noscript_content_as_text+ described below.
+  # The four currently supported parse options are
   #
-  # === Error reporting
+  # - +max_errors:+ (Integer, default 0) Maximum number of parse errors to report in HTML5::Document#errors.
+  # - +max_tree_depth:+ (Integer, default +Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH+) Maximum tree depth to parse.
+  # - +max_attributes:+ (Integer, default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+) Maximum number of attributes to parse per element.
+  # - +parse_noscript_content_as_text:+ (Boolean, default false) When enabled, parse +noscript+ tag content as text, mimicking the behavior of web browsers.
+  #
+  # These options are explained in the following sections.
+  #
+  # === Error reporting: +max_errors:+
   #
   # Nokogiri contains an experimental HTML5 parse error reporting facility. By default, no parse
   # errors are reported but this can be configured by passing the +:max_errors+ option to
@@ -112,7 +118,7 @@ module Nokogiri
   # are not part of Nokogiri's public API. That is, these are subject to change without Nokogiri's
   # major version number changing. These may be stabilized in the future.
   #
-  # === Maximum tree depth
+  # === Maximum tree depth: +max_tree_depth:+
   #
   # The maximum depth of the DOM tree parsed by the various parsing methods is configurable by the
   # +:max_tree_depth+ option. If the depth of the tree would exceed this limit, then an
@@ -126,7 +132,7 @@ module Nokogiri
   #   # raises ArgumentError: Document tree depth limit exceeded
   #   doc = Nokogiri.HTML5(html, max_tree_depth: -1)
   #
-  # === Attribute limit per element
+  # === Attribute limit per element: +max_attributes:+
   #
   # The maximum number of attributes per DOM element is configurable by the +:max_attributes+
   # option. If a given element would exceed this limit, then an +ArgumentError+ is thrown.
@@ -142,7 +148,7 @@ module Nokogiri
   #   doc = Nokogiri.HTML5(html, max_attributes: -1)
   #   # parses successfully
   #
-  # === Parse +noscript+ elements' content as text
+  # === Parse +noscript+ elements' content as text: +parse_noscript_content_as_text:+
   #
   # By default, the content of +noscript+ elements is parsed as HTML elements. Browsers that
   # support scripting parse the content of +noscript+ elements as raw text.

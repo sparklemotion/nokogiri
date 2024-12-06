@@ -43,41 +43,54 @@ module Nokogiri
 
       # Get the parser's quirks mode value. See HTML5::QuirksMode.
       #
-      # This method returns `nil` if the parser was not invoked (e.g., `Nokogiri::HTML5::Document.new`).
+      # This method returns +nil+ if the parser was not invoked (e.g., Nokogiri::HTML5::Document.new).
       #
       # Since v1.14.0
       attr_reader :quirks_mode
 
       class << self
         # :call-seq:
-        #   parse(input)
-        #   parse(input, url=nil, encoding=nil, **options)
-        #   parse(input, url=nil, encoding=nil) { |options| ... }
+        #   parse(input) { |parse_options| ... }
+        #   parse(input, url:, encoding:, **parse_options)
         #
-        # Parse HTML5 input.
+        # Parse \HTML input with a parser compliant with the HTML5 spec. This method uses the
+        # encoding of +input+ if it can be determined, or else falls back to the +encoding:+
+        # parameter.
         #
-        # [Parameters]
-        # - +input+ may be a String, or any object that responds to _read_ and _close_ such as an
-        #   IO, or StringIO.
+        # [Required Parameters]
+        # - +input+ (String | IO) the \HTML content to be parsed.
         #
-        # - +url+ (optional) is a String indicating the canonical URI where this document is located.
+        # [Optional Parameters]
+        # - +url:+ (String) the base URI of the document.
+        # - +encoding+ (Encoding) The encoding that should be used when processing the
+        #   document. This option is only used as a fallback when the encoding of +input+ cannot be
+        #   determined.
+        # - +parse_options+ (Hash) represents keywords arguments that control the behavior of the
+        #   parser. See rdoc-ref:HTML5@Parsing+options for a list of available options.
         #
-        # - +encoding+ (optional) is the encoding that should be used when processing
-        #   the document.
+        # [Yields]
+        #   If present, the block will be passed a Hash object to modify with parse options before the
+        #   input is parsed. See rdoc-ref:HTML5@Parsing+options for a list of available options.
         #
-        # - +options+ (optional) is a configuration Hash (or keyword arguments) to set options
-        #   during parsing. The three currently supported options are +:max_errors+,
-        #   +:max_tree_depth+ and +:max_attributes+, described at Nokogiri::HTML5.
-        #
-        #   ⚠ Note that these options are different than those made available by
-        #   Nokogiri::XML::Document and Nokogiri::HTML4::Document.
-        #
-        # - +block+ (optional) is passed a configuration Hash on which parse options may be set. See
-        #   Nokogiri::HTML5 for more information and usage.
+        #   ⚠ Note that +url:+ and +encoding:+ cannot be set by the configuration block.
         #
         # [Returns] Nokogiri::HTML5::Document
         #
-        def parse(string_or_io, url_ = nil, encoding_ = nil, url: url_, encoding: encoding_, **options, &block)
+        # *Example:* Parse a string with a specific encoding and custom max errors limit.
+        #
+        #   Nokogiri::HTML5::Document.parse(socket, encoding: "ISO-8859-1", max_errors: 10)
+        #
+        # *Example:* Parse a string setting the +:parse_noscript_content_as_text+ option using the
+        # configuration block parameter.
+        #
+        #   Nokogiri::HTML5::Document.parse(input) { |c| c[:parse_noscript_content_as_text] = true }
+        #
+        def parse(
+          string_or_io,
+          url_ = nil, encoding_ = nil,
+          url: url_, encoding: encoding_,
+          **options, &block
+        )
           yield options if block
           string_or_io = "" unless string_or_io
 
@@ -144,7 +157,8 @@ module Nokogiri
       # - +markup+ (String) The HTML5 markup fragment to be parsed
       #
       # [Returns]
-      #   Nokogiri::HTML5::DocumentFragment. This object's children will be empty if `markup` is not passed, is empty, or is `nil`.
+      #   Nokogiri::HTML5::DocumentFragment. This object's children will be empty if +markup+ is not
+      #   passed, is empty, or is +nil+.
       #
       def fragment(markup = nil)
         DocumentFragment.new(self, markup)
