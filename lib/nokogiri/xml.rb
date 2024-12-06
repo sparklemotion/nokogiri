@@ -16,19 +16,11 @@ module Nokogiri
     XML_C14N_EXCLUSIVE_1_0 = 1
     # C14N 1.1 spec canonicalization
     XML_C14N_1_1 = 2
+
     class << self
-      ###
-      # Parse an XML document using the Nokogiri::XML::Reader API.  See
-      # Nokogiri::XML::Reader for more information
-      def Reader(string_or_io, url = nil, encoding = nil, options = ParseOptions::STRICT)
-        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-        yield options if block_given?
-
-        if string_or_io.respond_to?(:read)
-          return Reader.from_io(string_or_io, url, encoding, options.to_i)
-        end
-
-        Reader.from_memory(string_or_io, url, encoding, options.to_i)
+      # Convenience method for Nokogiri::XML::Reader.new
+      def Reader(...)
+        Reader.new(...)
       end
 
       ###

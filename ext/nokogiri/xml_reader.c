@@ -608,11 +608,13 @@ outer_xml(VALUE self)
  * call-seq:
  *   from_memory(string, url = nil, encoding = nil, options = 0)
  *
- * Create a new reader that parses +string+
+ * Create a new Reader to parse a String.
  */
 static VALUE
 from_memory(int argc, VALUE *argv, VALUE klass)
 {
+  /* TODO: deprecate this method, since Reader.new can handle both memory and IO. It can then
+   * become private. */
   VALUE rb_buffer, rb_url, encoding, rb_options;
   xmlTextReaderPtr reader;
   const char *c_url      = NULL;
@@ -653,11 +655,13 @@ from_memory(int argc, VALUE *argv, VALUE klass)
  * call-seq:
  *   from_io(io, url = nil, encoding = nil, options = 0)
  *
- * Create a new reader that parses +io+
+ * Create a new Reader to parse an IO stream.
  */
 static VALUE
 from_io(int argc, VALUE *argv, VALUE klass)
 {
+  /* TODO: deprecate this method, since Reader.new can handle both memory and IO. It can then
+   * become private. */
   VALUE rb_io, rb_url, encoding, rb_options;
   xmlTextReaderPtr reader;
   const char *c_url      = NULL;
@@ -739,11 +743,6 @@ rb_xml_reader_encoding(VALUE rb_reader)
 void
 noko_init_xml_reader(void)
 {
-  /*
-   * The Reader parser allows you to effectively pull parse an XML document.
-   * Once instantiated, call Nokogiri::XML::Reader#each to iterate over each
-   * node.  Note that you may only iterate over the document once!
-   */
   cNokogiriXmlReader = rb_define_class_under(mNokogiriXml, "Reader", rb_cObject);
 
   rb_undef_alloc_func(cNokogiriXmlReader);
