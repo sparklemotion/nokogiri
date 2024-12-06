@@ -1,20 +1,21 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+# This file includes code from the Nokogumbo project, whose license follows.
 #
-#  Copyright 2013-2021 Sam Ruby, Stephen Checkoway
+#   Copyright 2013-2021 Sam Ruby, Stephen Checkoway
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 #
 
 require_relative "html5/document"
@@ -23,30 +24,27 @@ require_relative "html5/node"
 require_relative "html5/builder"
 
 module Nokogiri
-  # Since v1.12.0
-  #
-  # ⚠ HTML5 functionality is not available when running JRuby.
-  #
-  # Parse an HTML5 document. Convenience method for {Nokogiri::HTML5::Document.parse}
+  # Convenience method for Nokogiri::HTML5::Document.parse
   def self.HTML5(...)
     Nokogiri::HTML5::Document.parse(...)
   end
 
   # == Usage
   #
-  # ⚠ HTML5 functionality is not available when running JRuby.
-  #
   # Parse an HTML5 document:
   #
-  #   doc = Nokogiri.HTML5(string)
+  #   doc = Nokogiri.HTML5(input)
   #
   # Parse an HTML5 fragment:
   #
-  #   fragment = Nokogiri::HTML5.fragment(string)
+  #   fragment = Nokogiri::HTML5.fragment(input)
+  #
+  # ⚠ HTML5 functionality is not available when running JRuby.
   #
   # == Parsing options
   #
-  # The document and fragment parsing methods support options that are different from Nokogiri's.
+  # The document and fragment parsing methods support options that are different from
+  # Nokogiri::HTML4::Document or Nokogiri::XML::Document.
   #
   # - <tt>Nokogiri.HTML5(html, url = nil, encoding = nil, **options)</tt>
   # - <tt>Nokogiri::HTML5.parse(html, url = nil, encoding = nil, **options)</tt>
@@ -267,13 +265,12 @@ module Nokogiri
   # Since v1.12.0
   module HTML5
     class << self
-      # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
+      # Convenience method for Nokogiri::HTML5::Document.parse
       def parse(...)
         Document.parse(...)
       end
 
-      # Parse a fragment from +string+. Convenience method for
-      # Nokogiri::HTML5::DocumentFragment.parse.
+      # Convenience method for Nokogiri::HTML5::DocumentFragment.parse
       def fragment(...)
         DocumentFragment.parse(...)
       end
