@@ -205,8 +205,10 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
     assert_raises(ArgumentError) { Nokogiri::HTML5.fragment(html) }
   end
 
+  TWO_ERROR_DOC = "<!DOCTYPE html><html><!-- <!-- --></a>"
+
   def test_parse_errors
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- <!-- --></a>", max_errors: 10)
+    doc = Nokogiri::HTML5(TWO_ERROR_DOC, max_errors: 10)
     assert_equal(2, doc.errors.length)
     doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 10)
     assert_empty(doc.errors)
@@ -214,10 +216,16 @@ class TestHtml5Nokogumbo < Nokogiri::TestCase
 
   def test_max_errors
     # This document contains 2 parse errors, but we force limit to 1.
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_errors: 1)
+    doc = Nokogiri::HTML5(TWO_ERROR_DOC, max_errors: 1)
     assert_equal(1, doc.errors.length)
     doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 1)
     assert_empty(doc.errors)
+  end
+
+  def test_max_errors_with_config_block
+    # This document contains 2 parse errors, but we force limit to 1.
+    doc = Nokogiri::HTML5(TWO_ERROR_DOC) { |c| c[:max_errors] = 1 }
+    assert_equal(1, doc.errors.length)
   end
 
   def test_default_max_errors
