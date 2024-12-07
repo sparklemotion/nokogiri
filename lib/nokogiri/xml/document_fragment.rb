@@ -3,16 +3,28 @@
 
 module Nokogiri
   module XML
+    # DocumentFragment represents a fragment of an \XML document. It provides the same functionality
+    # exposed by XML::Node and can be used to contain one or more \XML subtrees.
     class DocumentFragment < Nokogiri::XML::Node
       # The options used to parse the document fragment. Returns the value of any options that were
       # passed into the constructor as a parameter or set in a config block, else the default
       # options for the specific subclass.
       attr_reader :parse_options
 
-      ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def self.parse(tags, options = ParseOptions::DEFAULT_XML, &block)
-        new(XML::Document.new, tags, nil, options, &block)
+      class << self
+        # Create a Nokogiri::XML::DocumentFragment from +tags+
+        def parse(tags, options = ParseOptions::DEFAULT_XML, &block)
+          new(XML::Document.new, tags, nil, options, &block)
+        end
+
+        # Wrapper method to separate the concerns of:
+        # - the native object allocator's parameter (it only requires `document`)
+        # - the initializer's parameters
+        def new(document, ...) # :nodoc:
+          instance = native_new(document)
+          instance.send(:initialize, document, ...)
+          instance
+        end
       end
 
       ##

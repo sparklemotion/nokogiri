@@ -2,31 +2,18 @@
 
 VALUE cNokogiriXmlDocumentFragment;
 
-/*
- * call-seq:
- *  new(document)
- *
- * Create a new DocumentFragment element on the +document+
- */
+/* :nodoc: */
 static VALUE
-new (int argc, VALUE *argv, VALUE klass)
+noko_xml_document_fragment_s_native_new(VALUE klass, VALUE rb_doc)
 {
-  xmlDocPtr xml_doc;
-  xmlNodePtr node;
-  VALUE document;
-  VALUE rest;
+  xmlDocPtr c_doc;
+  xmlNodePtr c_node;
   VALUE rb_node;
 
-  rb_scan_args(argc, argv, "1*", &document, &rest);
-
-  xml_doc = noko_xml_document_unwrap(document);
-
-  node = xmlNewDocFragment(xml_doc->doc);
-
-  noko_xml_document_pin_node(node);
-
-  rb_node = noko_xml_node_wrap(klass, node);
-  rb_obj_call_init(rb_node, argc, argv);
+  c_doc = noko_xml_document_unwrap(rb_doc);
+  c_node = xmlNewDocFragment(c_doc->doc);
+  noko_xml_document_pin_node(c_node);
+  rb_node = noko_xml_node_wrap(klass, c_node);
 
   return rb_node;
 }
@@ -35,10 +22,8 @@ void
 noko_init_xml_document_fragment(void)
 {
   assert(cNokogiriXmlNode);
-  /*
-   * DocumentFragment represents a DocumentFragment node in an xml document.
-   */
+
   cNokogiriXmlDocumentFragment = rb_define_class_under(mNokogiriXml, "DocumentFragment", cNokogiriXmlNode);
 
-  rb_define_singleton_method(cNokogiriXmlDocumentFragment, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlDocumentFragment, "native_new", noko_xml_document_fragment_s_native_new, 1);
 }
