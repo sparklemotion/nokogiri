@@ -1,167 +1,374 @@
 # coding: utf-8
 # frozen_string_literal: true
 
+# :markup: markdown
+
 module Nokogiri
   module XML
-    # Options that control the parsing behavior for XML::Document, XML::DocumentFragment,
-    # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
     #
-    # These options directly expose libxml2's parse options, which are all boolean in the sense that
-    # an option is "on" or "off".
+    # \Class to house options for parsing \XML or \HTML4 (but not \HTML5).
     #
-    # 💡 Note that HTML5 parsing has a separate, orthogonal set of options due to the nature of the
-    # HTML5 specification. See Nokogiri::HTML5.
+    # ## About the Examples
     #
-    # ⚠ Not all parse options are supported on JRuby. Nokogiri will attempt to invoke the equivalent
-    # behavior in Xerces/NekoHTML on JRuby when it's possible.
+    # Examples on this page assume that the following code has been executed:
     #
-    # == Setting and unsetting parse options
+    # ```
+    # require 'nokogiri' # Make Nokogiri available.
+    # include Nokogiri   # Allow omitting leading 'Nokogiri::'.
+    # include XML        # Allow omitting leading 'XML::'.
+    # xml = '<root />'   # Example XML string.
+    # ```
     #
-    # You can build your own combinations of parse options by using any of the following methods:
+    # Examples executed via `IRB` (interactive Ruby) display \ParseOptions instances
+    # using method #inspect.
     #
-    # [ParseOptions method chaining]
+    # ## Methods That Use \XML::ParseOptions
     #
-    #   Every option has an equivalent method in lowercase. You can chain these methods together to
-    #   set various combinations.
+    # Each of the methods listed below performs parsing for an \XML or \HTML4 source.
+    # Each accepts an optional argument `options`
+    # that specifies parsing options;
+    # the argument's value may be either:
     #
-    #     # Set the HUGE & PEDANTIC options
-    #     po = Nokogiri::XML::ParseOptions.new.huge.pedantic
-    #     doc = Nokogiri::XML::Document.parse(xml, nil, nil, po)
+    # - An integer: see [Bitmap Constants](rdoc-ref:ParseOptions@Bitmap+Constants).
+    # - An instance of \ParseOptions: see ParseOptions.new.
     #
-    #   Every option has an equivalent <code>no{option}</code> method in lowercase. You can call these
-    #   methods on an instance of ParseOptions to unset the option.
+    # In addition (except as noted), each of the methods:
     #
-    #     # Set the HUGE & PEDANTIC options
-    #     po = Nokogiri::XML::ParseOptions.new.huge.pedantic
+    # - Accepts a block that specifies parsing options;
+    #   see [Options-Setting Blocks](rdoc-ref:ParseOptions@Options-Setting+Blocks).
     #
-    #     # later we want to modify the options
-    #     po.nohuge # Unset the HUGE option
-    #     po.nopedantic # Unset the PEDANTIC option
+    # The methods:
     #
-    #   💡 Note that some options begin with "no" leading to the logical but perhaps unintuitive
-    #   double negative:
+    # - Nokogiri.HTML.
+    # - Nokogiri.HTML4.
+    # - Nokogiri.XML.
+    # - Nokogiri.make.
+    # - Nokogiri.parse.
+    # - Nokogiri::HTML.fragment.
+    # - Nokogiri::HTML4.fragment.
+    # - Nokogiri::HTML4.parse.
+    # - Nokogiri::HTML4::Document.parse.
+    # - Nokogiri::HTML4::DocumentFragment.new.
+    # - Nokogiri::HTML4::DocumentFragment.parse.
+    # - Nokogiri::XML.Reader.
+    # - Nokogiri::XML.fragment.
+    # - Nokogiri::XML.parse.
+    # - Nokogiri::XML::Document.parse.
+    # - Nokogiri::XML::Document.read_io (no block).
+    # - Nokogiri::XML::Document.read_memory (no block).
+    # - Nokogiri::XML::Document.read_memory (no block).
+    # - Nokogiri::XML::DocumentFragment.new.
+    # - Nokogiri::XML::DocumentFragment.parse.
+    # - Nokogiri::XML::Node#parse.
+    # - Nokogiri::XML::Reader.from_io (no block).
+    # - Nokogiri::XML::Reader.from_memory (no block).
+    # - Nokogiri::XML::RelaxNG.new (no block).
+    # - Nokogiri::XML::RelaxNG.read_memory (no block).
+    # - Nokogiri::XML::Schema.new (no block).
+    # - XSD::XMLParser::Nokogiri.new (no block).
     #
-    #     po.nocdata # Set the NOCDATA parse option
-    #     po.nonocdata # Unset the NOCDATA parse option
+    # Certain other parsing methods use different options;
+    # see HTML5.
     #
-    #   💡 Note that negation is not available for STRICT, which is itself a negation of all other
-    #   features.
+    # ## Bitmap Constants
     #
+    # Each of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # discussed here accept an integer argument `options` that specifies parsing options.
     #
-    # [Using Ruby Blocks]
+    # That integer value may be constructed using the bitmap constants defined in \ParseOptions.
     #
-    #   Most parsing methods will accept a block for configuration of parse options, and we
-    #   recommend chaining the setter methods:
+    # Except for `STRICT` (see note below),
+    # each of the bitmap constants has a non-zero value
+    # that represents a bit in an integer value;
+    # to illustrate, here are a few of the constants, displayed in binary format (base 2):
     #
-    #     doc = Nokogiri::XML::Document.parse(xml) { |config| config.huge.pedantic }
+    # ```
+    # ParseOptions::RECOVER.to_s(2)  # => "1"
+    # ParseOptions::NOENT.to_s(2)    # => "10"
+    # ParseOptions::DTDLOAD.to_s(2)  # => "100"
+    # ParseOptions::DTDATTR.to_s(2)  # => "1000"
+    # ParseOptions::DTDVALID.to_s(2) # => "10000"
+    # ```
     #
+    # Any of these constants may be used alone to specify a single option:
     #
-    # [ParseOptions constants]
+    # ```
+    # ParseOptions.new(ParseOptions::DTDLOAD)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, dtdload>
+    # ParseOptions.new(ParseOptions::DTDATTR)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, dtdattr>
+    # ```
     #
-    #   You can also use the constants declared under Nokogiri::XML::ParseOptions to set various
-    #   combinations. They are bits in a bitmask, and so can be combined with bitwise operators:
+    # Multiple constants may be ORed together to specify multiple options:
     #
-    #     po = Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::HUGE | Nokogiri::XML::ParseOptions::PEDANTIC)
-    #     doc = Nokogiri::XML::Document.parse(xml, nil, nil, po)
+    # ```
+    # options = ParseOptions::BIG_LINES | ParseOptions::COMPACT | ParseOptions::NOCDATA
+    # ParseOptions.new(options)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, nocdata, compact, big_lines>
+    # ```
+    #
+    # Note:
+    # The value of constant `STRICT` is zero;
+    # it may be used alone to turn all options off:
+    #
+    # ```
+    # XML.parse('<root />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nonet, big_lines, default_schema, default_xml>
+    # XML.parse('<root />', nil, nil, ParseOptions::STRICT) {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: strict>
+    # ```
+    #
+    # The bitmask constants are:
+    # BIG_LINES,
+    # COMPACT,
+    # DTDATTR,
+    # DTDLOAD,
+    # DTDVALID,
+    # HUGE,
+    # NOBASEFIX,
+    # NOBLANKS,
+    # NOCDATA,
+    # NODICT,
+    # NOENT,
+    # NOERROR,
+    # NONET,
+    # NOWARNING,
+    # NOXINCNODE,
+    # NSCLEAN,
+    # OLD10,
+    # PEDANTIC,
+    # RECOVER,
+    # SAX1,
+    # STRICT,
+    # XINCLUDE.
+    #
+    # There are also several "shorthand" constants that can set multiple options:
+    #
+    # ```
+    # ParseOptions.new(ParseOptions::DEFAULT_HTML)
+    # # => #<Nokogiri::XML::ParseOptions: ... recover, nowarning, nonet, big_lines, default_schema, noerror, default_html, default_xml>
+    # ParseOptions.new(ParseOptions::DEFAULT_SCHEMA)
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, nonet, big_lines, default_schema>
+    # ParseOptions.new(ParseOptions::DEFAULT_XML)
+    # # => #<Nokogiri::XML::ParseOptions: ... recover, nonet, big_lines, default_schema, default_xml>
+    # ParseOptions.new(ParseOptions::DEFAULT_XSLT)
+    # # => #<Nokogiri::XML::ParseOptions: ... recover, noent, dtdload, dtdattr, nonet, nocdata, big_lines, default_xslt, default_schema, default_xml>    #
+    # ```
+    #
+    # ## Options-Setting Blocks
+    #
+    # Many of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # discussed here accept an options-setting block.
+    #
+    # The block is called with a new instance of \ParseOptions
+    # created with the defaults for the specific method:
+    #
+    # ```
+    # XML::parse('<root />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nonet, big_lines, default_schema, default_xml>
+    # HTML4::parse('<html />') {|options| puts options.inspect }
+    # #<Nokogiri::XML::ParseOptions: recover, nowarning, nonet, big_lines, default_schema, noerror, default_html, default_xml>
+    # ```
+    #
+    # When the block returns, the parsing is performed using those `options`.
+    #
+    # The block may modify those options, which affects parsing:
+    #
+    # ```
+    # xml = '<root>'                              # Invalid XML (tag not closed).
+    # XML::parse(xml)                             # Parsing works okay because `recover` is on.
+    # XML::parse(xml) {|options| options.strict } # Turns strict on; parsing raises SyntaxError.
+    # ```
+    #
+    # ## Convenience Methods
+    #
+    # A \ParseOptions object has three sets of convenience methods,
+    # each based on the name of one of the constants:
+    #
+    # - **Setters**: each is the downcase of an option name, and turns on an option:
+    #
+    #     ```
+    #     options = ParseOptions.new
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict>
+    #     options.big_lines
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, big_lines>
+    #     options.compact
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+    #     ```
+    #
+    # - **Unsetters**: each begins with `no`, and turns off an option.
+    #   Note that there is no unsetter `nostrict`;
+    #   the setter `recover` serves the same purpose:
+    #
+    #     ```
+    #     options.nobig_lines
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict, compact>
+    #     options.nocompact
+    #     # => #<Nokogiri::XML::ParseOptions: ... strict>
+    #     options.recover # Functionally equivalent to nostrict.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover>
+    #     options.noent   # Set NOENT.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover, noent>
+    #     options.nonoent # Unset NOENT.
+    #     # => #<Nokogiri::XML::ParseOptions: ... recover>
+    #     ```
+    #
+    # - **Queries**: each ends with `?`, and returns whether an option is on or off:
+    #
+    #     ```
+    #     options.recover? # => true
+    #     options.strict?  # => false
+    #     ```
+    #
+    # Each setter and unsetter method returns `self`,
+    # so the methods may be chained:
+    #
+    # ```
+    # options.compact.big_lines
+    # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+    # ```
     #
     class ParseOptions
-      # Strict parsing
+
+      # Strict parsing; do not recover from errors in input.
       STRICT      = 0
 
-      # Recover from errors. On by default for XML::Document, XML::DocumentFragment,
-      # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Recover from errors in input; no strict parsing.
       RECOVER     = 1 << 0
 
-      # Substitute entities. Off by default.
+      # Substitute entities.
       #
       # ⚠ This option enables entity substitution, contrary to what the name implies.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       NOENT       = 1 << 1
 
-      # Load external subsets. On by default for XSLT::Stylesheet.
+      # Load external subsets.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       DTDLOAD     = 1 << 2
 
-      # Default DTD attributes. On by default for XSLT::Stylesheet.
+      # Default DTD attributes.
       DTDATTR     = 1 << 3
 
-      # Validate with the DTD. Off by default.
+      # Validate with the DTD.
       DTDVALID    = 1 << 4
 
-      # Suppress error reports. On by default for HTML4::Document and HTML4::DocumentFragment
+      # Suppress error reports.
       NOERROR     = 1 << 5
 
-      # Suppress warning reports. On by default for HTML4::Document and HTML4::DocumentFragment
+      # Suppress warning reports.
       NOWARNING   = 1 << 6
 
-      # Enable pedantic error reporting. Off by default.
+      # Enable pedantic error reporting.
       PEDANTIC    = 1 << 7
 
-      # Remove blank nodes. Off by default.
+      # Remove blank nodes.
       NOBLANKS    = 1 << 8
 
-      # Use the SAX1 interface internally. Off by default.
+      # Use the SAX1 interface internally.
       SAX1        = 1 << 9
 
-      # Implement XInclude substitution. Off by default.
+      # Implement XInclude substitution.
       XINCLUDE    = 1 << 10
 
-      # Forbid network access. On by default for XML::Document, XML::DocumentFragment,
-      # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Forbid network access.
       #
       # ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
-      # Do not reuse the context dictionary. Off by default.
+      # Do not reuse the context dictionary.
       NODICT      = 1 << 12
 
-      # Remove redundant namespaces declarations. Off by default.
+      # Remove redundant namespaces declarations.
       NSCLEAN     = 1 << 13
 
-      # Merge CDATA as text nodes. On by default for XSLT::Stylesheet.
+      # Merge CDATA as text nodes.
       NOCDATA     = 1 << 14
 
-      # Do not generate XInclude START/END nodes. Off by default.
+      # Do not generate XInclude START/END nodes.
       NOXINCNODE  = 1 << 15
 
-      # Compact small text nodes. Off by default.
+      # Compact small text nodes.
       #
-      # ⚠ No modification of the DOM tree is allowed after parsing. libxml2 may crash if you try to
-      # modify the tree.
+      # ⚠ No modification of the DOM tree is allowed after parsing.
       COMPACT     = 1 << 16
 
-      # Parse using XML-1.0 before update 5. Off by default
+      # Parse using XML-1.0 before update 5.
       OLD10       = 1 << 17
 
-      # Do not fixup XInclude xml:base uris. Off by default
+      # Do not fixup XInclude xml:base URIs.
       NOBASEFIX   = 1 << 18
 
-      # Relax any hardcoded limit from the parser. Off by default.
+      # Relax any hardcoded limit from the parser.
       #
       # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       HUGE        = 1 << 19
 
-      # Support line numbers up to <code>long int</code> (default is a <code>short int</code>). On
-      # by default for for XML::Document, XML::DocumentFragment, HTML4::Document,
-      # HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
+      # Support line numbers up to `long int` (default is a `short int`).
       BIG_LINES   = 1 << 22
 
-      # The options mask used by default for parsing XML::Document and XML::DocumentFragment
+      # Shorthand options mask useful for parsing XML:
+      # sets RECOVER,  NONET,  BIG_LINES.
       DEFAULT_XML  = RECOVER | NONET | BIG_LINES
 
-      # The options mask used by default used for parsing XSLT::Stylesheet
+      # Shorthand options mask useful for parsing XSLT stylesheets:
+      # sets RECOVER, NONET, NOENT, DTDLOAD, DTDATTR, NOCDATA, BIG_LINES.
       DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA | BIG_LINES
 
-      # The options mask used by default used for parsing HTML4::Document and HTML4::DocumentFragment
+      # Shorthand options mask useful for parsing HTML4:
+      # sets RECOVER, NOERROR, NOWARNING, NONET, BIG_LINES.
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET | BIG_LINES
 
-      # The options mask used by default used for parsing XML::Schema
+      # Shorthand options mask useful for parsing \XML schemas:
+      # sets NONET, BIG_LINES.
       DEFAULT_SCHEMA = NONET | BIG_LINES
 
+      # Returns or sets and returns the integer value of `self`:
+      #
+      # ```
+      # options = ParseOptions.new(ParseOptions::DEFAULT_HTML)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, nowarning, nonet, big_...
+      # options.options # => 4196449
+      # options.options = ParseOptions::STRICT
+      # options.options # => 0
+      # ```
+      #
       attr_accessor :options
 
+      # :markup: markdown
+      #
+      # :call-seq:
+      #   ParseOptions.new(options = ParseOptions::STRICT)
+      #
+      # Returns a new \ParseOptions object with options as specified by integer argument `options`.
+      # The value of `options` may be constructed
+      # using [Bitmap Constants](rdoc-ref:ParseOptions@Bitmap+Constants).
+      #
+      # With the simple constant `ParseOptions::STRICT` (the default), all options are off
+      # (`strict` means `norecover`):
+      #
+      # ```
+      # ParseOptions.new
+      # # => #<Nokogiri::XML::ParseOptions: ... strict>
+      # ```
+      #
+      # With a different simple constant, one option may be set:
+      #
+      # ```
+      # ParseOptions.new(ParseOptions::RECOVER)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover>
+      # ParseOptions.new(ParseOptions::COMPACT)
+      # # => #<Nokogiri::XML::ParseOptions:  ... strict, compact>
+      # ```
+      #
+      # With multiple ORed constants, multiple options may be set:
+      #
+      # ```
+      # options = ParseOptions::COMPACT | ParseOptions::RECOVER | ParseOptions::BIG_LINES
+      # ParseOptions.new(options)
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # ```
       def initialize(options = STRICT)
         @options = options
       end
@@ -186,21 +393,88 @@ module Nokogiri
         RUBY
       end
 
+      # :call-seq:
+      #   strict
+      #
+      # Turns off option `recover`:
+      #
+      # ```
+      # options = ParseOptions.new.recover.compact.big_lines
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # options.strict
+      # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+      # ```
       def strict
         @options &= ~RECOVER
         self
       end
 
+      # :call-seq:
+      #   strict?
+      #
+      # Returns whether option `strict` is on:
+      #
+      # ```
+      # options = ParseOptions.new.recover.compact.big_lines
+      # # => #<Nokogiri::XML::ParseOptions: ... recover, compact, big_lines>
+      # options.strict? # => false
+      # options.strict
+      # # => #<Nokogiri::XML::ParseOptions: ... strict, compact, big_lines>
+      # options.strict? # => true
+      # ```
       def strict?
         @options & RECOVER == STRICT
       end
 
+      # :call-seq:
+      #    self == object
+      #
+      # Returns whether `object` is equal to `self` (`object.to_i == to_i`):
+      #
+      # ```
+      # options = ParseOptions.new
+      # # => #<Nokogiri::XML::ParseOptions: ... strict>
+      # options == options.dup         # => true
+      # options == options.dup.recover # => false
+      # ```
+      #
       def ==(other)
         other.to_i == to_i
       end
 
       alias_method :to_i, :options
 
+      # :call-seq:
+      #    inspect
+      #
+      # Returns a string representation of +self+ that includes
+      # the numeric value of `@options`:
+      #
+      # ```
+      # options = ParseOptions.new
+      # options.inspect
+      # # => "#<Nokogiri::XML::ParseOptions: @options=0 strict>"
+      #
+      # ```
+      #
+      # In general, the returned string also includes the (downcased) names of the options
+      # that are **on** (but omits the names of those that are **off**):
+      #
+      # ```
+      # options.recover.big_lines
+      # options.inspect
+      # # => "#<Nokogiri::XML::ParseOptions: @options=4194305 recover, big_lines>"
+      # ```
+      #
+      # The exception is that always either `recover` (i.e, *not strict*)
+      # or the pseudo-option `strict` is reported:
+      #
+      # ```
+      # options.norecover
+      # options.inspect
+      # # => "#<Nokogiri::XML::ParseOptions: @options=4194304 strict, big_lines>"
+      # ```
+      #
       def inspect
         options = []
         self.class.constants.each do |k|
