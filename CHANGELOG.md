@@ -105,9 +105,9 @@ Special thanks to those contributors who participated in the RubyConf 2024 Hack 
 
 * [CRuby] `Nokogiri::XML::CData.new` no longer accepts `nil` as the content argument, making `CData` behave like other character data classes (like `Comment` and `Text`). This change was necessitated by behavioral changes in libxml2 v2.13.0. If you wish to create an empty CDATA node, pass an empty string. [#3156] @flavorjones
 * Internals:
-  * The internal `CSS::XPathVisitor` class now accepts the xpath prefix and the context namespaces as constructor arguments. The `prefix:` and `ns:` keyword arguments to `CSS.xpath_for` cannot be specified if the `visitor:` keyword argument is also used. `CSS::XPathVisitor` now exposes `#builtins`, `#doctype`, `#prefix`, and `#namespaces` attributes. [#3225] @flavorjones
-  * The internal CSS selector cache has been extracted into a distinct class, `CSS::SelectorCache`. Previously it was part of the `CSS::Parser` class. [#3226] @flavorjones
-  * The internal `Gumbo.parse` and `Gumbo.fragment` methods now take keyword arguments instead of positional arguments. [#3199] @flavorjones
+    * The internal `CSS::XPathVisitor` class now accepts the xpath prefix and the context namespaces as constructor arguments. The `prefix:` and `ns:` keyword arguments to `CSS.xpath_for` cannot be specified if the `visitor:` keyword argument is also used. `CSS::XPathVisitor` now exposes `#builtins`, `#doctype`, `#prefix`, and `#namespaces` attributes. [#3225] @flavorjones
+    * The internal CSS selector cache has been extracted into a distinct class, `CSS::SelectorCache`. Previously it was part of the `CSS::Parser` class. [#3226] @flavorjones
+    * The internal `Gumbo.parse` and `Gumbo.fragment` methods now take keyword arguments instead of positional arguments. [#3199] @flavorjones
 
 
 ### Deprecated
@@ -122,42 +122,42 @@ Special thanks to those contributors who participated in the RubyConf 2024 Hack 
 The following people and organizations were kind enough to sponsor @flavorjones or the Nokogiri project during the development of v1.17.0:
 
 * via Github sponsors
-  * renuo @renuo
-  * Ajaya Agrawalla @ajaya
-  * Rob Stringer @Mycobee
-  * Better Stack Community @betterstack-community
-  * Prowly @prowlycom
-  * Maxime Gauthier @biximilien
-  * Harry Lascelles @hlascelles
-  * Evil Martians @evilmartians
-  * Typesense @typesense
-  * YOSHIDA Katsuhiko @kyoshidajp
-  * Quan Nguyen @qu8n
-  * Sentry @getsentry
-  * Codecov @codecov
-  * Frank Groeneveld @frenkel
-  * Hiroshi SHIBATA @hsbt
-  * Nando Vieira @fnando
-  * Orien Madgwick @orien
-  * Avo @avo-hq
-  * Zoran Pesic @zokioki
-  * @zzak
-  * Graham Watts @GingerGraham
-  * Nandang Permana Kusuma @nandangpk
-  * Mr. Henry @mrhenry
-  * Götz Görisch @GoetzGoerisch
-  * Andrew Nesbitt @andrew
+    * renuo @renuo
+    * Ajaya Agrawalla @ajaya
+    * Rob Stringer @Mycobee
+    * Better Stack Community @betterstack-community
+    * Prowly @prowlycom
+    * Maxime Gauthier @biximilien
+    * Harry Lascelles @hlascelles
+    * Evil Martians @evilmartians
+    * Typesense @typesense
+    * YOSHIDA Katsuhiko @kyoshidajp
+    * Quan Nguyen @qu8n
+    * Sentry @getsentry
+    * Codecov @codecov
+    * Frank Groeneveld @frenkel
+    * Hiroshi SHIBATA @hsbt
+    * Nando Vieira @fnando
+    * Orien Madgwick @orien
+    * Avo @avo-hq
+    * Zoran Pesic @zokioki
+    * @zzak
+    * Graham Watts @GingerGraham
+    * Nandang Permana Kusuma @nandangpk
+    * Mr. Henry @mrhenry
+    * Götz Görisch @GoetzGoerisch
+    * Andrew Nesbitt @andrew
 * via Thanks.dev
-  * Sentry @getsentry
-  * Codecov @codecov
-  * Keygen @keygen-sh
-  * Keith Bauson @kwbauson
-  * Nicco Kunzmann @niccokunzmann
-  * timhaynes @timhaynes
+    * Sentry @getsentry
+    * Codecov @codecov
+    * Keygen @keygen-sh
+    * Keith Bauson @kwbauson
+    * Nicco Kunzmann @niccokunzmann
+    * timhaynes @timhaynes
 * via Open Collective
-  * Airbnb @airbnb
-  * Nemo @captn3m0
-  * Velocity Labs @velocity-labs
+    * Airbnb @airbnb
+    * Nemo @captn3m0
+    * Velocity Labs @velocity-labs
 
 We'd also like to thank @github who donate a ton of compute time for our CI pipelines!
 
@@ -269,10 +269,10 @@ Documentation on what can be matched:
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to v2.12.3 from v2.11.6. (@flavorjones)
-  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.0
-  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.1
-  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.2
-  * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.3
+    * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.0
+    * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.1
+    * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.2
+    * https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.12.3
 
 
 ### Fixed
