@@ -3,15 +3,9 @@
 
 module Nokogiri
   class << self
-    ###
-    # Create a Nokogiri::XSLT::Stylesheet with +stylesheet+.
-    #
-    # Example:
-    #
-    #   xslt = Nokogiri::XSLT(File.read(ARGV[0]))
-    #
-    def XSLT(stylesheet, modules = {})
-      XSLT.parse(stylesheet, modules)
+    # Convenience method for Nokogiri::XSLT.parse
+    def XSLT(...)
+      XSLT.parse(...)
     end
   end
 
