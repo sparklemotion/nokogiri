@@ -12,9 +12,28 @@ module Nokogiri
       attr_reader :parse_options
 
       class << self
-        # Create a Nokogiri::XML::DocumentFragment from +tags+
+        # :call-seq:
+        #   parse(input) { |options| ... } → XML::DocumentFragment
+        #   parse(input, options:) → XML::DocumentFragment
+        #
+        # Parse \XML fragment input from a String, and return a new XML::DocumentFragment. This
+        # method creates a new, empty XML::Document to contain the fragment.
+        #
+        # [Required Parameters]
+        # - +input+ (String) The content to be parsed.
+        #
+        # [Optional Keyword Arguments]
+        # - +options+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+        #   behaviors during parsing. See ParseOptions for more information. The default value is
+        #   +ParseOptions::DEFAULT_XML+.
+        #
+        # [Yields]
+        #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+        #   can be configured before parsing. See Nokogiri::XML::ParseOptions for more information.
+        #
+        # [Returns] Nokogiri::XML::DocumentFragment
         def parse(tags, options_ = ParseOptions::DEFAULT_XML, options: options_, &block)
-          new(XML::Document.new, tags, nil, options, &block)
+          new(XML::Document.new, tags, options: options, &block)
         end
 
         # Wrapper method to separate the concerns of:
@@ -27,26 +46,60 @@ module Nokogiri
         end
       end
 
-      ##
-      #  Create a new DocumentFragment from +tags+.
+      # :call-seq:
+      #   new(document, input=nil) { |options| ... } → DocumentFragment
+      #   new(document, input=nil, context:, options:) → DocumentFragment
       #
-      #  If +ctx+ is present, it is used as a context node for the
-      #  subtree created, e.g., namespaces will be resolved relative
-      #  to +ctx+.
-      def initialize(document, tags = nil, ctx = nil, options = ParseOptions::DEFAULT_XML) # rubocop:disable Lint/MissingSuper
+      # Parse \XML fragment input from a String, and return a new DocumentFragment that is
+      # associated with the given +document+.
+      #
+      # 💡 It's recommended to use either XML::DocumentFragment.parse or Node#parse rather than call
+      # this method directly.
+      #
+      # [Required Parameters]
+      # - +document+ (XML::Document) The parent document to associate the returned fragment with.
+      #
+      # [Optional Parameters]
+      # - +input+ (String) The content to be parsed.
+      #
+      # [Optional Keyword Arguments]
+      # - +context:+ (Nokogiri::XML::Node) The <b>context node</b> for the subtree created. See
+      #   below for more information.
+      #
+      # - +options:+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+      #   behaviors during parsing. See ParseOptions for more information. The default value is
+      #   +ParseOptions::DEFAULT_XML+.
+      #
+      # [Yields]
+      #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+      #   can be configured before parsing. See ParseOptions for more information.
+      #
+      # [Returns] XML::DocumentFragment
+      #
+      # === Context \Node
+      #
+      # If a context node is specified using +context:+, then the fragment will be created by
+      # calling Node#parse on that node, so the parser will behave as if that Node is the parent of
+      # the fragment subtree, and will resolve namespaces relative to that node.
+      #
+      def initialize(
+        document, tags = nil,
+        context_ = nil, options_ = ParseOptions::DEFAULT_XML,
+        context: context_, options: options_
+      ) # rubocop:disable Lint/MissingSuper
         return self unless tags
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         @parse_options = options
         yield options if block_given?
 
-        children = if ctx
+        children = if context
           # Fix for issue#490
           if Nokogiri.jruby?
             # fix for issue #770
-            ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>", options).children
+            context.parse("<root #{namespace_declarations(context)}>#{tags}</root>", options).children
           else
-            ctx.parse(tags, options)
+            context.parse(tags, options)
           end
         else
           wrapper_doc = XML::Document.parse("<root>#{tags}</root>", nil, nil, options)
