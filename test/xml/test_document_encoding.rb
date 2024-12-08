@@ -29,6 +29,11 @@ module Nokogiri
             encoding = "Shift_JIS"
             assert_equal(encoding, Nokogiri::XML(nil, nil, encoding).encoding)
           end
+
+          it "applies the specified kwargs encoding even if on empty documents" do
+            encoding = "Shift_JIS"
+            assert_equal(encoding, Nokogiri::XML(nil, encoding: encoding).encoding)
+          end
         end
 
         describe "#encoding=" do
