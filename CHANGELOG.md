@@ -104,7 +104,6 @@ We've resolved many long-standing bugs in the various schema classes, validation
 
 * The undocumented and unused method `Nokogiri::CSS.parse` is now deprecated and will generate a warning. The AST returned by this method is private and subject to change and removal in future versions of Nokogiri. This method will be removed in a future version of Nokogiri.
 * Passing an options hash to `CSS.xpath_for` is now deprecated and will generate a warning. Use keyword arguments instead. This will become an error in a future version of Nokogiri.
-* Passing an options hash to `HTML5::DocumentFragment.parse` is now deprecated and will generate a warning. Use keyword arguments instead. This will become an error in a future version of Nokogiri.
 * Passing libxml2 encoding IDs to `SAX::ParserContext` methods is now deprecated and will generate a warning. The use of `SAX::Parser::ENCODINGS` is also deprecated. Use `Encoding` objects or encoding names instead.
 
 

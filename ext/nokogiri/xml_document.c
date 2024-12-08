@@ -370,6 +370,8 @@ noko_xml_document_s_read_io(VALUE rb_class,
                             VALUE rb_encoding,
                             VALUE rb_options)
 {
+  /* TODO: deprecate this method, parse should be the preferred entry point. then we can make this
+     private. */
   libxmlStructuredErrorHandlerState handler_state;
   VALUE rb_errors = rb_ary_new();
 
@@ -417,6 +419,8 @@ noko_xml_document_s_read_memory(VALUE rb_class,
                                 VALUE rb_encoding,
                                 VALUE rb_options)
 {
+  /* TODO: deprecate this method, parse should be the preferred entry point. then we can make this
+     private. */
   VALUE rb_errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
 
@@ -444,9 +448,9 @@ noko_xml_document_s_read_memory(VALUE rb_class,
 
 /*
  * call-seq:
- *  new(version = default)
+ *  new(version = "1.0")
  *
- * Create a new document with +version+ (defaults to "1.0")
+ * Create a new empty document declaring XML version +version+.
  */
 static VALUE
 new (int argc, VALUE *argv, VALUE klass)
@@ -756,9 +760,7 @@ void
 noko_init_xml_document(void)
 {
   assert(cNokogiriXmlNode);
-  /*
-   * Nokogiri::XML::Document wraps an xml document.
-   */
+
   cNokogiriXmlDocument = rb_define_class_under(mNokogiriXml, "Document", cNokogiriXmlNode);
 
   rb_define_alloc_func(cNokogiriXmlDocument, _xml_document_alloc);

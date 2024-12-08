@@ -161,52 +161,73 @@ module Nokogiri
       end
 
       class << self
-        ###
-        # Parse HTML.  +string_or_io+ may be a String, or any object that
-        # responds to _read_ and _close_ such as an IO, or StringIO.
-        # +url+ is resource where this document is located.  +encoding+ is the
-        # encoding that should be used when processing the document. +options+
-        # is a number that sets options in the parser, such as
-        # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
-        # Nokogiri::XML::ParseOptions.
-        def parse(string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML)
+        # :call-seq:
+        #   parse(input) { |options| ... } => Nokogiri::HTML4::Document
+        #   parse(input, url:, encoding:, options:) => Nokogiri::HTML4::Document
+        #
+        # Parse \HTML4 input from a String or IO object, and return a new HTML4::Document.
+        #
+        # [Required Parameters]
+        # - +input+ (String | IO) The content to be parsed.
+        #
+        # [Optional Keyword Arguments]
+        # - +url:+ (String) The base URI for this document.
+        #
+        # - +encoding:+ (String) The name of the encoding that should be used when processing the
+        #   document. When not provided, the encoding will be determined based on the document
+        #   content.
+        #
+        # - +options:+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+        #   behaviors during parsing. See ParseOptions for more information. The default value is
+        #   +ParseOptions::DEFAULT_HTML+.
+        #
+        # [Yields]
+        #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+        #   can be configured before parsing. See Nokogiri::XML::ParseOptions for more information.
+        #
+        # [Returns] Nokogiri::HTML4::Document
+        def parse(
+          input,
+          url_ = nil, encoding_ = nil, options_ = XML::ParseOptions::DEFAULT_HTML,
+          url: url_, encoding: encoding_, options: options_
+        )
           options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
           yield options if block_given?
 
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+          url ||= input.respond_to?(:path) ? input.path : nil
 
-          if string_or_io.respond_to?(:encoding)
-            unless string_or_io.encoding == Encoding::ASCII_8BIT
-              encoding ||= string_or_io.encoding.name
+          if input.respond_to?(:encoding)
+            unless input.encoding == Encoding::ASCII_8BIT
+              encoding ||= input.encoding.name
             end
           end
 
-          if string_or_io.respond_to?(:read)
-            if string_or_io.is_a?(Pathname)
+          if input.respond_to?(:read)
+            if input.is_a?(Pathname)
               # resolve the Pathname to the file and open it as an IO object, see #2110
-              string_or_io = string_or_io.expand_path.open
-              url ||= string_or_io.path
+              input = input.expand_path.open
+              url ||= input.path
             end
 
             unless encoding
-              string_or_io = EncodingReader.new(string_or_io)
+              input = EncodingReader.new(input)
               begin
-                return read_io(string_or_io, url, encoding, options.to_i)
+                return read_io(input, url, encoding, options.to_i)
               rescue EncodingReader::EncodingFound => e
                 encoding = e.found_encoding
               end
             end
-            return read_io(string_or_io, url, encoding, options.to_i)
+            return read_io(input, url, encoding, options.to_i)
           end
 
           # read_memory pukes on empty docs
-          if string_or_io.nil? || string_or_io.empty?
+          if input.nil? || input.empty?
             return encoding ? new.tap { |i| i.encoding = encoding } : new
           end
 
-          encoding ||= EncodingReader.detect_encoding(string_or_io)
+          encoding ||= EncodingReader.detect_encoding(input)
 
-          read_memory(string_or_io, url, encoding, options.to_i)
+          read_memory(input, url, encoding, options.to_i)
         end
       end
     end

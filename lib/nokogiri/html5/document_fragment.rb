@@ -27,32 +27,51 @@ module Nokogiri
     class DocumentFragment < Nokogiri::HTML4::DocumentFragment
       class << self
         # :call-seq:
-        #   parse(tags, **options)
-        #   parse(tags, encoding = nil, **options)
+        #   parse(input, **options) → HTML5::DocumentFragment
         #
-        # Parse an HTML5 document fragment from +tags+, returning a Nodeset.
+        # Parse \HTML5 fragment input from a String, and return a new HTML5::DocumentFragment. This
+        # method creates a new, empty HTML5::Document to contain the fragment.
         #
         # [Parameters]
-        # - +tags+ [String, IO] The HTML5 document fragment to parse.
-        # - +encoding+ [String] The name of the encoding to use when parsing the document fragment. (default +nil+)
+        # - +input+ (String | IO) The HTML5 document fragment to parse.
         #
-        # Also see Nokogiri::HTML5 for a longer explanation of how encoding is handled by the parser.
+        # [Optional Keyword Arguments]
+        # - +encoding:+ (String | Encoding) The encoding, or name of the encoding, that should be
+        #   used when processing the document. When not provided, the encoding will be determined
+        #   based on the document content. Also see Nokogiri::HTML5 for a longer explanation of how
+        #   encoding is handled by the parser.
         #
-        # [Options]
-        # - +:context+ [String, Nokogiri::XML::Node] The context in which to parse the document fragment. (default +"body"+)
-        # - +:max_errors+ [Integer] The maximum number of parse errors to record. (default +Nokogiri::Gumbo::DEFAULT_MAX_ERRORS+ which is currently 0)
-        # - +:max_tree_depth+ [Integer] The maximum depth of the parse tree. (default +Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH+)
-        # - +:max_attributes+ [Integer] The maximum number of attributes allowed on an element. (default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+)
-        # - +:parse_noscript_content_as_text+ [Boolean] Whether to parse the content of +noscript+ elements as text. (default +false+)
+        # - +context:+ (String | Nokogiri::XML::Node) The node, or the name of an HTML5 element, "in
+        #   context" of which to parse the document fragment. See below for more
+        #   information. (default +"body"+)
         #
-        # Also see Nokogiri::HTML5 for a longer explanation of the options.
+        # - +max_errors:+ (Integer) The maximum number of parse errors to record. (default
+        #   +Nokogiri::Gumbo::DEFAULT_MAX_ERRORS+ which is currently 0)
         #
-        # [Returns]
-        # - [Nokogiri::XML::NodeSet] A node set containing the root nodes of the parsed fragment.
+        # - +max_tree_depth:+ (Integer) The maximum depth of the parse tree. (default
+        #   +Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH+)
         #
-        def parse(tags, encoding = nil, positional_options_hash = nil, **options)
-          unless positional_options_hash.nil?
-            warn("Nokogiri::HTML5::DocumentFragment.parse: Passing options as an explicit hash is deprecated. Use keyword arguments instead. This will become an error in a future release.", uplevel: 1, category: :deprecated)
+        # - +max_attributes:+ (Integer) The maximum number of attributes allowed on an
+        #   element. (default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+)
+        #
+        # - +parse_noscript_content_as_text:+ (Boolean) Whether to parse the content of +noscript+
+        #   elements as text. (default +false+)
+        #
+        # See rdoc-ref:HTML5@Parsing+options for a complete description of these parsing options.
+        #
+        # [Returns] Nokogiri::HTML5::DocumentFragment
+        #
+        # === Context \Node
+        #
+        # If a context node is specified using +context:+, then the parser will behave as if that
+        # Node, or a hypothetical tag named as specified, is the parent of the fragment subtree.
+        #
+        def parse(
+          input,
+          encoding_ = nil, positional_options_hash = nil,
+          encoding: encoding_, **options
+        )
+          unless positional_options_hash.nil? || positional_options_hash.empty?
             options.merge!(positional_options_hash)
           end
 
@@ -60,9 +79,9 @@ module Nokogiri
 
           document = HTML5::Document.new
           document.encoding = "UTF-8"
-          tags = HTML5.read_and_encode(tags, encoding)
+          input = HTML5.read_and_encode(input, encoding)
 
-          new(document, tags, context, options)
+          new(document, input, context, options)
         end
       end
 
@@ -71,18 +90,72 @@ module Nokogiri
 
       # Get the parser's quirks mode value. See HTML5::QuirksMode.
       #
-      # This method returns `nil` if the parser was not invoked (e.g., `Nokogiri::HTML5::DocumentFragment.new(doc)`).
+      # This method returns `nil` if the parser was not invoked (e.g.,
+      # `Nokogiri::HTML5::DocumentFragment.new(doc)`).
       #
       # Since v1.14.0
       attr_reader :quirks_mode
 
-      # Create a document fragment.
-      def initialize(doc, tags = nil, context = nil, options = {}) # rubocop:disable Lint/MissingSuper
+      #
+      # :call-seq:
+      #   new(document, input, **options) → HTML5::DocumentFragment
+      #
+      # Parse \HTML5 fragment input from a String, and return a new HTML5::DocumentFragment.
+      #
+      # 💡 It's recommended to use either HTML5::DocumentFragment.parse or HTML5::Node#fragment
+      # rather than call this method directly.
+      #
+      # [Required Parameters]
+      # - +document+ (HTML5::Document) The parent document to associate the returned fragment with.
+      #
+      # [Optional Parameters]
+      # - +input+ (String) The content to be parsed.
+      #
+      # [Optional Keyword Arguments]
+      # - +encoding:+ (String | Encoding) The encoding, or name of the encoding, that should be
+      #   used when processing the document. When not provided, the encoding will be determined
+      #   based on the document content. Also see Nokogiri::HTML5 for a longer explanation of how
+      #   encoding is handled by the parser.
+      #
+      # - +context:+ (String | Nokogiri::XML::Node) The node, or the name of an HTML5 element, in
+      #   which to parse the document fragment. (default +"body"+)
+      #
+      # - +max_errors:+ (Integer) The maximum number of parse errors to record. (default
+      #   +Nokogiri::Gumbo::DEFAULT_MAX_ERRORS+ which is currently 0)
+      #
+      # - +max_tree_depth:+ (Integer) The maximum depth of the parse tree. (default
+      #   +Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH+)
+      #
+      # - +max_attributes:+ (Integer) The maximum number of attributes allowed on an
+      #   element. (default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+)
+      #
+      # - +parse_noscript_content_as_text:+ (Boolean) Whether to parse the content of +noscript+
+      #   elements as text. (default +false+)
+      #
+      # See rdoc-ref:HTML5@Parsing+options for a complete description of these parsing options.
+      #
+      # [Returns] HTML5::DocumentFragment
+      #
+      # === Context \Node
+      #
+      # If a context node is specified using +context:+, then the parser will behave as if that
+      # Node, or a hypothetical tag named as specified, is the parent of the fragment subtree.
+      #
+      def initialize(
+        doc, input = nil,
+        context_ = nil, positional_options_hash = nil,
+        context: context_,
+        **options
+      ) # rubocop:disable Lint/MissingSuper
+        unless positional_options_hash.nil? || positional_options_hash.empty?
+          options.merge!(positional_options_hash)
+        end
+
         @document = doc
         @errors = []
-        return self unless tags
+        return self unless input
 
-        tags = Nokogiri::HTML5.read_and_encode(tags, nil)
+        input = Nokogiri::HTML5.read_and_encode(input, nil)
 
         context = options.delete(:context) if options.key?(:context)
 
@@ -90,7 +163,7 @@ module Nokogiri
         options[:max_errors] ||= options.delete(:max_parse_errors) || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
         options[:max_tree_depth] ||= Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
 
-        Nokogiri::Gumbo.fragment(self, tags, context, **options)
+        Nokogiri::Gumbo.fragment(self, input, context, **options)
       end
 
       def serialize(options = {}, &block) # :nodoc:

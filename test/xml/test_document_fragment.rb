@@ -386,6 +386,16 @@ module Nokogiri
               end
             end
 
+            it "accepts kwargs" do
+              frag = Nokogiri::XML.fragment(input, options: xml_default)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML.fragment(input, options: xml_strict)
+              end
+            end
+
             it "takes a config block" do
               default_config = nil
               Nokogiri::XML.fragment(input) do |config|
@@ -413,6 +423,16 @@ module Nokogiri
 
               assert_raises(Nokogiri::SyntaxError) do
                 Nokogiri::XML::DocumentFragment.parse(input, xml_strict)
+              end
+            end
+
+            it "accepts kwargs" do
+              frag = Nokogiri::XML::DocumentFragment.parse(input, options: xml_default)
+              assert_equal("<a>foo</a>", frag.to_html)
+              refute_empty(frag.errors)
+
+              assert_raises(Nokogiri::SyntaxError) do
+                Nokogiri::XML::DocumentFragment.parse(input, options: xml_strict)
               end
             end
 
@@ -444,6 +464,16 @@ module Nokogiri
 
                 assert_raises(Nokogiri::SyntaxError) do
                   Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, nil, xml_strict)
+                end
+              end
+
+              it "accepts options as kwargs" do
+                frag = Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, options: xml_default)
+                assert_equal("<a>foo</a>", frag.to_html)
+                refute_empty(frag.errors)
+
+                assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::XML::DocumentFragment.new(Nokogiri::XML::Document.new, input, options: xml_strict)
                 end
               end
 
@@ -500,9 +530,9 @@ module Nokogiri
             Class.new(Nokogiri::XML::DocumentFragment) do
               attr_accessor :initialized_with, :initialized_count
 
-              def initialize(*args)
+              def initialize(*args, **kwargs)
                 super
-                @initialized_with = args
+                @initialized_with = [args, kwargs]
                 @initialized_count ||= 0
                 @initialized_count += 1
               end
@@ -521,8 +551,11 @@ module Nokogiri
             end
 
             it "passes args to #initialize" do
-              fragment = klass.new(xml, "<div>a</div>")
-              assert_equal([xml, "<div>a</div>"], fragment.initialized_with)
+              fragment = klass.new(xml, "<div>a</div>", options: ParseOptions::DEFAULT_XML)
+              assert_equal(
+                [[xml, "<div>a</div>"], { options: ParseOptions::DEFAULT_XML }],
+                fragment.initialized_with,
+              )
             end
           end
 

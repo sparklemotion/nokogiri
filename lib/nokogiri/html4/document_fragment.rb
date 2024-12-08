@@ -5,51 +5,60 @@ module Nokogiri
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       #
       # :call-seq:
-      #   parse(tags) => DocumentFragment
-      #   parse(tags, encoding) => DocumentFragment
-      #   parse(tags, encoding, options) => DocumentFragment
-      #   parse(tags, encoding) { |options| ... } => DocumentFragment
+      #   parse(input) { |options| ... } → HTML4::DocumentFragment
+      #   parse(input, encoding:, options:) { |options| ... } → HTML4::DocumentFragment
       #
-      # Parse an HTML4 fragment.
+      # Parse \HTML4 fragment input from a String, and return a new HTML4::DocumentFragment. This
+      # method creates a new, empty HTML4::Document to contain the fragment.
       #
-      # [Parameters]
-      # - +tags+ (optional String, or any object that responds to +#read+ such as an IO, or
-      #   StringIO)
-      # - +encoding+ (optional String) the name of the encoding that should be used when processing
-      #   the document.  (default +nil+ for auto-detection)
-      # - +options+ (optional) configuration object that sets options during parsing, such as
-      #   Nokogiri::XML::ParseOptions::RECOVER. See Nokogiri::XML::ParseOptions for more
-      #   information.
+      # [Required Parameters]
+      # - +input+ (String | IO) The content to be parsed.
       #
-      # [Yields] If present, the block will be passed a Nokogiri::XML::ParseOptions object to modify
-      #   before the fragment is parsed. See Nokogiri::XML::ParseOptions for more information.
+      # [Optional Keyword Arguments]
+      # - +encoding:+ (String) The name of the encoding that should be used when processing the
+      #   document. When not provided, the encoding will be determined based on the document
+      #   content.
       #
-      # [Returns] DocumentFragment
+      # - +options:+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+      #   behaviors during parsing. See ParseOptions for more information. The default value is
+      #   +ParseOptions::DEFAULT_HTML+.
+      #
+      # [Yields]
+      #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+      #   can be configured before parsing. See ParseOptions for more information.
+      #
+      # [Returns] HTML4::DocumentFragment
       #
       # *Example:* Parsing a string
       #
-      #   fragment = DocumentFragment.parse("<div>Hello World</div>")
+      #   fragment = HTML4::DocumentFragment.parse("<div>Hello World</div>")
       #
       # *Example:* Parsing an IO
       #
       #   fragment = File.open("fragment.html") do |file|
-      #     DocumentFragment.parse(file)
+      #     HTML4::DocumentFragment.parse(file)
       #   end
       #
       # *Example:* Specifying encoding
       #
-      #   fragment = DocumentFragment.parse(input, "EUC-JP")
+      #   fragment = HTML4::DocumentFragment.parse(input, encoding: "EUC-JP")
       #
       # *Example:* Setting parse options dynamically
       #
-      #   DocumentFragment.parse("<div>Hello World") do |options|
+      #   HTML4::DocumentFragment.parse("<div>Hello World") do |options|
       #     options.huge.pedantic
       #   end
       #
-      def self.parse(tags, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block)
+      def self.parse(
+        input,
+        encoding_ = nil, options_ = XML::ParseOptions::DEFAULT_HTML,
+        encoding: encoding_, options: options_,
+        &block
+      )
+        # TODO: this method should take a context node.
         doc = HTML4::Document.new
 
-        if tags.respond_to?(:read)
+        if input.respond_to?(:read)
           # Handle IO-like objects (IO, File, StringIO, etc.)
           # The _read_ method of these objects doesn't accept an +encoding+ parameter.
           # Encoding is usually set when the IO object is created or opened,
@@ -65,12 +74,12 @@ module Nokogiri
           #
           # For StringIO specifically, _set_encoding_ affects only the internal string,
           # not how the data is read out.
-          tags.set_encoding(encoding) if encoding && tags.respond_to?(:set_encoding)
-          tags = tags.read
+          input.set_encoding(encoding) if encoding && input.respond_to?(:set_encoding)
+          input = input.read
         end
 
-        encoding ||= if tags.respond_to?(:encoding)
-          encoding = tags.encoding
+        encoding ||= if input.respond_to?(:encoding)
+          encoding = input.encoding
           if encoding == ::Encoding::ASCII_8BIT
             "UTF-8"
           else
@@ -82,32 +91,71 @@ module Nokogiri
 
         doc.encoding = encoding
 
-        new(doc, tags, nil, options, &block)
+        new(doc, input, options: options, &block)
       end
 
-      # It's recommended to use either DocumentFragment.parse or XML::Node#parse rather than call this
-      # method directly.
-      def initialize(document, tags = nil, ctx = nil, options = XML::ParseOptions::DEFAULT_HTML) # rubocop:disable Lint/MissingSuper
-        return self unless tags
+      #
+      # :call-seq:
+      #   new(document) { |options| ... } → HTML4::DocumentFragment
+      #   new(document, input) { |options| ... } → HTML4::DocumentFragment
+      #   new(document, input, context:, options:) { |options| ... } → HTML4::DocumentFragment
+      #
+      # Parse \HTML4 fragment input from a String, and return a new HTML4::DocumentFragment.
+      #
+      # 💡 It's recommended to use either HTML4::DocumentFragment.parse or XML::Node#parse rather
+      # than call this method directly.
+      #
+      # [Required Parameters]
+      # - +document+ (HTML4::Document) The parent document to associate the returned fragment with.
+      #
+      # [Optional Parameters]
+      # - +input+ (String) The content to be parsed.
+      #
+      # [Optional Keyword Arguments]
+      # - +context:+ (Nokogiri::XML::Node) The <b>context node</b> for the subtree created. See
+      #   below for more information.
+      #
+      # - +options:+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+      #   behaviors during parsing. See ParseOptions for more information. The default value is
+      #   +ParseOptions::DEFAULT_HTML+.
+      #
+      # [Yields]
+      #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
+      #   can be configured before parsing. See ParseOptions for more information.
+      #
+      # [Returns] HTML4::DocumentFragment
+      #
+      # === Context \Node
+      #
+      # If a context node is specified using +context:+, then the fragment will be created by
+      # calling XML::Node#parse on that node, so the parser will behave as if that Node is the
+      # parent of the fragment subtree.
+      #
+      def initialize(
+        document, input = nil,
+        context_ = nil, options_ = XML::ParseOptions::DEFAULT_HTML,
+        context: context_, options: options_
+      ) # rubocop:disable Lint/MissingSuper
+        return self unless input
 
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         @parse_options = options
         yield options if block_given?
 
-        if ctx
+        if context
           preexisting_errors = document.errors.dup
-          node_set = ctx.parse("<div>#{tags}</div>", options)
+          node_set = context.parse("<div>#{input}</div>", options)
           node_set.first.children.each { |child| child.parent = self } unless node_set.empty?
           self.errors = document.errors - preexisting_errors
         else
           # This is a horrible hack, but I don't care
-          path = if /^\s*?<body/i.match?(tags)
+          path = if /^\s*?<body/i.match?(input)
             "/html/body"
           else
             "/html/body/node()"
           end
 
-          temp_doc = HTML4::Document.parse("<html><body>#{tags}", nil, document.encoding, options)
+          temp_doc = HTML4::Document.parse("<html><body>#{input}", nil, document.encoding, options)
           temp_doc.xpath(path).each { |child| child.parent = self }
           self.errors = temp_doc.errors
         end
