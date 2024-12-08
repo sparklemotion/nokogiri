@@ -326,6 +326,14 @@ module Nokogiri
               assert_equal("hello world", fragment.content)
             end
 
+            it "returns a string matching an encoding passed with kwargs" do
+              input = "<div>hello world</div>"
+
+              fragment = Nokogiri::HTML4::DocumentFragment.parse(input, encoding: "ISO-8859-1")
+              assert_equal("ISO-8859-1", fragment.document.encoding)
+              assert_equal("hello world", fragment.content)
+            end
+
             it "respects encoding for empty strings" do
               fragment = Nokogiri::HTML::DocumentFragment.parse("", "UTF-8")
               assert_equal "UTF-8", fragment.to_html.encoding.to_s
@@ -379,6 +387,13 @@ module Nokogiri
 
             it "accepts options" do
               frag = Nokogiri::HTML4.fragment(input, nil, html4_huge)
+
+              assert_equal("<div>foo</div>", frag.to_html)
+              assert_equal(html4_huge, frag.parse_options)
+            end
+
+            it "accepts options as kwargs" do
+              frag = Nokogiri::HTML4::DocumentFragment.parse(input, options: html4_huge)
 
               assert_equal("<div>foo</div>", frag.to_html)
               assert_equal(html4_huge, frag.parse_options)
@@ -495,9 +510,9 @@ module Nokogiri
             Class.new(Nokogiri::HTML4::DocumentFragment) do
               attr_accessor :initialized_with, :initialized_count
 
-              def initialize(*args)
+              def initialize(*args, **kwargs)
                 super
-                @initialized_with = args
+                @initialized_with = [args, kwargs]
                 @initialized_count ||= 0
                 @initialized_count += 1
               end
@@ -516,8 +531,11 @@ module Nokogiri
             end
 
             it "passes args to #initialize" do
-              fragment = klass.new(html, "<div>a</div>")
-              assert_equal([html, "<div>a</div>"], fragment.initialized_with)
+              fragment = klass.new(html, "<div>a</div>", options: 1)
+              assert_equal(
+                [[html, "<div>a</div>"], { options: 1 }],
+                fragment.initialized_with,
+              )
             end
           end
 
