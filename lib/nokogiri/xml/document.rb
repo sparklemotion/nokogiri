@@ -5,12 +5,12 @@ require "pathname"
 
 module Nokogiri
   module XML
-    # Nokogiri::XML::Document is the main entry point for dealing with XML documents.  The Document
-    # is created by parsing an XML document.  See Nokogiri::XML::Document.parse for more information
-    # on parsing.
+    # Nokogiri::XML::Document is the main entry point for dealing with \XML documents. The Document
+    # is created by parsing \XML content from a String or an IO object. See
+    # Nokogiri::XML::Document.parse for more information on parsing.
     #
-    # For searching a Document, see Nokogiri::XML::Searchable#css and
-    # Nokogiri::XML::Searchable#xpath
+    # Document inherits a great deal of functionality from its superclass Nokogiri::XML::Node, so
+    # please read that class's documentation as well.
     class Document < Nokogiri::XML::Node
       # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details. Note that we're not
       # attempting to handle unicode characters partly because libxml2 doesn't handle unicode
@@ -25,34 +25,34 @@ module Nokogiri
 
       class << self
         # call-seq:
-        #   parse(input, url: nil, encoding: nil, options: DEFAULT_XML) { |options| } => Nokogiri::XML::Document
+        #   parse(input) { |options| ... } => Nokogiri::XML::Document
+        #   parse(input, url:, encoding:, options:) => Nokogiri::XML::Document
         #
-        # Parse XML input from a String or IO object, and return a new Document object.
+        # Parse \XML input from a String or IO object, and return a new XML::Document.
         #
-        # By default, Nokogiri treats documents as untrusted, and so does not attempt to load DTDs
+        # 🛡 By default, Nokogiri treats documents as untrusted, and so does not attempt to load DTDs
         # or access the network. See Nokogiri::XML::ParseOptions for a complete list of options; and
         # that module's DEFAULT_XML constant for what's set (and not set) by default.
         #
-        # See also: Nokogiri.XML() which is a convenience method which will call this method.
+        # [Required Parameters]
+        # - +input+ (String | IO) The content to be parsed.
         #
-        # [Parameters]
-        # - +input+ (String, IO) The content to be parsed.
-        #
-        # [Keyword arguments]
-        # - +url:+ (String) The URI where this document is located.
+        # [Optional Keyword Arguments]
+        # - +url:+ (String) The base URI for this document.
         #
         # - +encoding:+ (String) The name of the encoding that should be used when processing the
-        #   document. (default +nil+ means that the encoding will be determined based on the
-        #   document content)
+        #   document. When not provided, the encoding will be determined based on the document
+        #   content.
         #
-        # - +options+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
-        #   behaviors during parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
-        #   Nokogiri::XML::ParseOptions for more information.
+        # - +options:+ (Nokogiri::XML::ParseOptions) Configuration object that determines some
+        #   behaviors during parsing. See ParseOptions for more information. The default value is
+        #   +ParseOptions::DEFAULT_XML+.
         #
         # [Yields]
         #   If a block is given, a Nokogiri::XML::ParseOptions object is yielded to the block which
-        #   can be configured before parsing.  See Nokogiri::XML::ParseOptions for more information.
+        #   can be configured before parsing. See Nokogiri::XML::ParseOptions for more information.
         #
+        # [Returns] Nokogiri::XML::Document
         def parse(
           string_or_io,
           url_ = nil, encoding_ = nil, options_ = XML::ParseOptions::DEFAULT_XML,
@@ -72,6 +72,7 @@ module Nokogiri
           end
 
           doc = if string_or_io.respond_to?(:read)
+            # TODO: should we instead check for respond_to?(:to_path) ?
             if string_or_io.is_a?(Pathname)
               # resolve the Pathname to the file and open it as an IO object, see #2110
               string_or_io = string_or_io.expand_path.open

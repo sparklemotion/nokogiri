@@ -46,11 +46,11 @@ module Nokogiri
   # The document and fragment parsing methods support options that are different from
   # Nokogiri::HTML4::Document or Nokogiri::XML::Document.
   #
-  # - <tt>Nokogiri.HTML5(html, url:, encoding:, **parse_options)</tt>
-  # - <tt>Nokogiri::HTML5.parse(html, url:, encoding:, **parse_options)</tt>
-  # - <tt>Nokogiri::HTML5::Document.parse(html, url:, encoding:, **parse_options)</tt>
-  # - <tt>Nokogiri::HTML5.fragment(html, encoding = nil, **parse_options)</tt>
-  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, **parse_options)</tt>
+  # - <tt>Nokogiri.HTML5(input, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5.parse(input, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5::Document.parse(input, url:, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5.fragment(input, encoding:, **parse_options)</tt>
+  # - <tt>Nokogiri::HTML5::DocumentFragment.parse(input, encoding:, **parse_options)</tt>
   #
   # The four currently supported parse options are
   #

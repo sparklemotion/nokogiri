@@ -185,8 +185,8 @@ Init_nokogiri(void)
 {
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");
-  mNokogiriHtml4     = rb_define_module_under(mNokogiri, "HTML4");
-  mNokogiriHtml4Sax  = rb_define_module_under(mNokogiriHtml4, "SAX");
+  mNokogiriHtml4    = rb_define_module_under(mNokogiri, "HTML4");
+  mNokogiriHtml4Sax = rb_define_module_under(mNokogiriHtml4, "SAX");
   mNokogiriHtml5    = rb_define_module_under(mNokogiri, "HTML5");
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");

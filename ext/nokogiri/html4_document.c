@@ -7,9 +7,9 @@ static ID id_to_s;
 
 /*
  * call-seq:
- *  new
+ *  new(uri=nil, external_id=nil) → HTML4::Document
  *
- * Create a new document
+ * Create a new empty document with base URI +uri+ and external ID +external_id+.
  */
 static VALUE
 rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)

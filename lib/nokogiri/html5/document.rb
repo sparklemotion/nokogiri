@@ -50,8 +50,9 @@ module Nokogiri
 
       class << self
         # :call-seq:
-        #   parse(input) { |parse_options| ... }
-        #   parse(input, url:, encoding:, **parse_options)
+        #   parse(input) { |options| ... } → HTML5::Document
+        #   parse(input, url: encoding:) { |options| ... } → HTML5::Document
+        #   parse(input, **options) → HTML5::Document
         #
         # Parse \HTML input with a parser compliant with the HTML5 spec. This method uses the
         # encoding of +input+ if it can be determined, or else falls back to the +encoding:+
@@ -62,11 +63,25 @@ module Nokogiri
         #
         # [Optional Parameters]
         # - +url:+ (String) the base URI of the document.
-        # - +encoding+ (Encoding) The encoding that should be used when processing the
-        #   document. This option is only used as a fallback when the encoding of +input+ cannot be
-        #   determined.
-        # - +parse_options+ (Hash) represents keywords arguments that control the behavior of the
-        #   parser. See rdoc-ref:HTML5@Parsing+options for a list of available options.
+        #
+        # [Optional Keyword Arguments]
+        # - +encoding:+ (Encoding) The name of the encoding that should be used when processing the
+        #   document. When not provided, the encoding will be determined based on the document
+        #   content.
+        #
+        # - +max_errors:+ (Integer) The maximum number of parse errors to record. (default
+        #   +Nokogiri::Gumbo::DEFAULT_MAX_ERRORS+ which is currently 0)
+        #
+        # - +max_tree_depth:+ (Integer) The maximum depth of the parse tree. (default
+        #   +Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH+)
+        #
+        # - +max_attributes:+ (Integer) The maximum number of attributes allowed on an
+        #   element. (default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+)
+        #
+        # - +parse_noscript_content_as_text:+ (Boolean) Whether to parse the content of +noscript+
+        #   elements as text. (default +false+)
+        #
+        # See rdoc-ref:HTML5@Parsing+options for a complete description of these parsing options.
         #
         # [Yields]
         #   If present, the block will be passed a Hash object to modify with parse options before the
