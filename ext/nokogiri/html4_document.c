@@ -151,6 +151,12 @@ rb_html_document_type(VALUE self)
 void
 noko_init_html_document(void)
 {
+  /* this is here so that rdoc doesn't ignore this file. */
+  /*
+    mNokogiri         = rb_define_module("Nokogiri");
+    mNokogiriHtml4    = rb_define_module_under(mNokogiri, "HTML4");
+  */
+
   assert(cNokogiriXmlDocument);
   cNokogiriHtml4Document = rb_define_class_under(mNokogiriHtml4, "Document", cNokogiriXmlDocument);
 
