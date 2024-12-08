@@ -92,6 +92,10 @@ class TestHtml5API < Nokogiri::TestCase
 
     assert_match(/おはようございます/, Nokogiri::HTML5.fragment(raw, Encoding::SHIFT_JIS).to_s)
     assert_match(/おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, Encoding::SHIFT_JIS).to_s)
+
+    # with kwargs
+    assert_match(/おはようございます/, Nokogiri::HTML5.fragment(raw, encoding: Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, encoding: Encoding::SHIFT_JIS).to_s)
   end
 
   def test_fragment_serialization_encoding
@@ -432,15 +436,13 @@ class TestHtml5API < Nokogiri::TestCase
 
       describe "to DocumentFragment.parse" do
         it "as an options hash" do
-          assert_output(nil, /Passing options as an explicit hash is deprecated/) do
-            fragment = Nokogiri::HTML5::DocumentFragment.parse(
-              "<body><div>foo</div></body>",
-              nil,
-              { context: "html" },
-            )
-            assert_match(/<body>/, fragment.to_s)
-            assert_match(/<head>/, fragment.to_s)
-          end
+          fragment = Nokogiri::HTML5::DocumentFragment.parse(
+            "<body><div>foo</div></body>",
+            nil,
+            { context: "html" },
+          )
+          assert_match(/<body>/, fragment.to_s)
+          assert_match(/<head>/, fragment.to_s)
         end
 
         it "as keyword argument" do
@@ -462,9 +464,9 @@ class TestHtml5API < Nokogiri::TestCase
         Class.new(Nokogiri::HTML5::DocumentFragment) do
           attr_accessor :initialized_with, :initialized_count
 
-          def initialize(*args)
+          def initialize(*args, **kwargs)
             super
-            @initialized_with = args
+            @initialized_with = [args, **kwargs]
             @initialized_count ||= 0
             @initialized_count += 1
           end
@@ -484,8 +486,11 @@ class TestHtml5API < Nokogiri::TestCase
         end
 
         it "passes args to #initialize" do
-          fragment = klass.new(html, "<div>a</div>")
-          assert_equal([html, "<div>a</div>"], fragment.initialized_with)
+          fragment = klass.new(html, "<div>a</div>", max_errors: 1)
+          assert_equal(
+            [[html, "<div>a</div>"], { max_errors: 1 }],
+            fragment.initialized_with,
+          )
         end
       end
 
