@@ -65,6 +65,12 @@ module Nokogiri
           assert_equal("http://foobar.example.com/", doc.url)
         end
 
+        def test_document_parse_method_with_url_kwarg
+          doc = Nokogiri::HTML4("<html></html>", url: "http://foobar.example.com/", encoding: "UTF-8")
+          refute_empty(doc.to_s, "Document should not be empty")
+          assert_equal("http://foobar.example.com/", doc.url)
+        end
+
         ###
         # Nokogiri::HTML4 returns an empty Document when given a blank string GH#11
         def test_empty_string_returns_empty_doc
@@ -231,7 +237,7 @@ module Nokogiri
 
         def test_meta_encoding_without_head
           encoding = "EUC-JP"
-          html = Nokogiri::HTML4("<html><body>foo</body></html>", nil, encoding)
+          html = Nokogiri::HTML4("<html><body>foo</body></html>", encoding: encoding)
 
           assert_nil(html.meta_encoding)
 
@@ -246,7 +252,7 @@ module Nokogiri
 
         def test_html5_meta_encoding_without_head
           encoding = "EUC-JP"
-          html = Nokogiri::HTML4("<!DOCTYPE html><html><body>foo</body></html>", nil, encoding)
+          html = Nokogiri::HTML4("<!DOCTYPE html><html><body>foo</body></html>", encoding: encoding)
 
           assert_nil(html.meta_encoding)
 
@@ -722,7 +728,7 @@ module Nokogiri
           html_fragment = <<~HTML
             <img width="16" height="16" src="images/icon.gif" border="0" alt="Inactive hide details for &quot;User&quot; ---19/05/2015 12:55:29---Provvediamo subito nell&#8217;integrare">
           HTML
-          doc = Nokogiri::HTML4(html_fragment, nil, "ISO-8859-1")
+          doc = Nokogiri::HTML4(html_fragment, encoding: "ISO-8859-1")
           html = doc.to_html
           assert html.index("src=\"images/icon.gif\"")
           assert_equal "ISO-8859-1", html.encoding.name
@@ -815,6 +821,14 @@ module Nokogiri
                 assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
                 assert_nil(exception.path)
               end
+
+              it "raises exception on parse error using kwarg" do
+                exception = assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4.parse(input, options: parse_options)
+                end
+                assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
+                assert_nil(exception.path)
+              end
             end
 
             describe "default options" do
@@ -838,11 +852,24 @@ module Nokogiri
                 assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
                 assert_nil(exception.path)
               end
+
+              it "raises exception on parse error using kwargs" do
+                exception = assert_raises(Nokogiri::SyntaxError) do
+                  Nokogiri::HTML4.parse(input, encoding: "UTF-8", options: parse_options)
+                end
+                assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
+                assert_nil(exception.path)
+              end
             end
 
             describe "default options" do
               it "does not raise exception on parse error" do
                 doc = Nokogiri::HTML4.parse(input, nil, "UTF-8")
+                assert_operator(doc.errors.length, :>, 0)
+              end
+
+              it "does not raise exception on parse error using kwarg" do
+                doc = Nokogiri::HTML4.parse(input, encoding: "UTF-8")
                 assert_operator(doc.errors.length, :>, 0)
               end
             end
