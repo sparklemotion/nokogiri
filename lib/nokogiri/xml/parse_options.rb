@@ -13,18 +13,18 @@ module Nokogiri
     # Examples on this page assume that the following code has been executed:
     #
     # ```
-    # require 'nokogiri' # Make Nokogiri available.
-    # include Nokogiri   # Allow omitting leading 'Nokogiri::'.
-    # xml_s = "<root />\n"
-    # File.write('t.xml', xml_s)
-    # html_s = "<html />\n"
-    # File.write('t.html', html_s)
+    # require 'nokogiri'           # Make Nokogiri available.
+    # include Nokogiri             # Allow omitting leading 'Nokogiri::'.
+    # xml_s = "<root />\n"         # String containing XML.
+    # File.write('t.xml', xml_s)   # File containing XML.
+    # html_s = "<html />\n"        # String containing HTML.
+    # File.write('t.html', html_s) # File containing HTML.
     # ```
     #
     # Examples executed via `IRB` (interactive Ruby) display \ParseOptions instances
     # using method #inspect.
     #
-    # ## Methods That Use \XML::ParseOptions
+    # ## Parsing Methods
     #
     # Each of the methods listed below performs parsing for an \XML or \HTML4 source:
     #
@@ -70,13 +70,17 @@ module Nokogiri
     # - Nokogiri.XML.
     # - Nokogiri.make.
     # - Nokogiri.parse.
+    # - Nokogiri::HTML.
     # - Nokogiri::HTML.fragment.
+    # - Nokogiri::HTML4.
     # - Nokogiri::HTML4.fragment.
     # - Nokogiri::HTML4.parse.
     # - Nokogiri::HTML4::Document.parse.
     # - Nokogiri::HTML4::DocumentFragment.new.
     # - Nokogiri::HTML4::DocumentFragment.parse.
     # - Nokogiri::XML.Reader.
+    # - Nokogiri::XML::Reader.from_io (no block; input must be IO; options must be integer).
+    # - Nokogiri::XML::Reader.from_memory (no block; input must be string; options must be integer).
     # - Nokogiri::XML.fragment.
     # - Nokogiri::XML.parse (block does not get options).
     # - Nokogiri::XML::Document.parse.
@@ -88,8 +92,11 @@ module Nokogiri
     # - Nokogiri::XML::Reader.from_io (no block; input must be IO; options must be integer).
     # - Nokogiri::XML::Reader.from_memory (no block; input must be string; options must be integer).
     # - Nokogiri::XML::RelaxNG.new (no block).
-    # - Nokogiri::XML::RelaxNG.read_memory (no block).
+    # - Nokogiri::XML::RelaxNG.from_document (no block; input must be document).
+    # - Nokogiri::XML::RelaxNG.read_memory (no block, input must be string; options must be integer).
+    # - Nokogiri::XML::Schema.from_document (no block; input must be document).
     # - Nokogiri::XML::Schema.new (no block).
+    # - Nokogiri::XML::Schema.read_memory (no block).
     # - XSD::XMLParser::Nokogiri.new (no block).
     #
     # Certain other parsing methods use different options;
@@ -97,7 +104,7 @@ module Nokogiri
     #
     # ## Bitmap Constants
     #
-    # Each of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # Each of the [parsing methods](rdoc-ref:ParseOptions@Parsing+Methods)
     # discussed here accept an integer argument `options` that specifies parsing options.
     #
     # That integer value may be constructed using the bitmap constants defined in \ParseOptions.
@@ -171,7 +178,7 @@ module Nokogiri
     # DEFAULT_HTML,
     # DEFAULT_SCHEMA,
     # DEFAULT_XML,
-    # DEFAULT_XSLT
+    # DEFAULT_XSLT.
     #
     # Examples:
     #
@@ -188,7 +195,7 @@ module Nokogiri
     #
     # ## Options-Setting Blocks
     #
-    # Many of the [parsing methods](rdoc-ref:ParseOptions@Methods+That+Use+XML-3A-3AParseOptions)
+    # Many of the [parsing methods](rdoc-ref:ParseOptions@Parsing+Methods)
     # discussed here accept an options-setting block.
     #
     # The block is called with a new instance of \ParseOptions
