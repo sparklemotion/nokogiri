@@ -178,6 +178,8 @@ jobs:
 
   jruby-head:
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITHOUT: "rdoc"
     steps:
       - uses: actions/checkout@v4
         with:
