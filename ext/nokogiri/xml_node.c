@@ -969,6 +969,7 @@ rb_xml_node_initialize_copy_with_args(VALUE rb_self, VALUE rb_other, VALUE rb_le
   xmlNodePtr c_self, c_other;
   int c_level;
   xmlDocPtr c_new_parent_doc;
+  VALUE rb_node_cache;
 
   Noko_Node_Get_Struct(rb_other, xmlNode, c_other);
   c_level = (int)NUM2INT(rb_level);
@@ -979,6 +980,10 @@ rb_xml_node_initialize_copy_with_args(VALUE rb_self, VALUE rb_other, VALUE rb_le
 
   _xml_node_data_ptr_set(rb_self, c_self);
   noko_xml_document_pin_node(c_self);
+
+  rb_node_cache = DOC_NODE_CACHE(c_new_parent_doc);
+  rb_ary_push(rb_node_cache, rb_self);
+  rb_funcall(rb_new_parent_doc, id_decorate, 1, rb_self);
 
   return rb_self;
 }

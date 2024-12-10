@@ -243,15 +243,20 @@ module Nokogiri
           doc1 = XML::Document.parse("<root><div><p>hello</p></div></root>")
           doc2 = XML::Document.parse("<div></div>")
 
+          x = Module.new { def awesome!; end }
+          doc2.decorators(XML::Node) << x
+          doc2.decorate!
+
           div = doc1.at_css("div")
           copy = div.dup(1, doc2)
 
           assert_same(doc2, copy.document)
-          assert_equal(1, copy.children.length) # deep copy
+          assert_equal(1, copy.children.length, "expected a deep copy")
+          assert_respond_to(copy, :awesome!, "expected decorators to be copied")
 
           copy = div.dup(0, doc2)
 
-          assert_equal(0, copy.children.length) # shallow copy
+          assert_equal(0, copy.children.length, "expected a shallow copy")
         end
 
         def test_subclass_dup
