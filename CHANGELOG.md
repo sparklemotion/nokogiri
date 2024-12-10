@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.17.1 / 2024-12-10
+
+### Fixed
+
+* Fixed a potential segfault when using `Node#dup` and `DocumentFragment#dup`. [#3359] @byroot @flavorjones
+* `Node#dup` and `Node#clone` now correctly decorate the new node with the document's `Node` decorators. [#3363] @flavorjones
+
+
 ## v1.17.0 / 2024-12-08
 
 ### Dependencies
