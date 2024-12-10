@@ -19,7 +19,14 @@ set -u -x
 # avoid the pernicious "fatal: detected dubious ownership in repository" errors
 git config --global --add safe.directory $(realpath $(dirname $0)/..)
 
+# RCD_VERSION is an env var that should be set in CI
+if [[ "${RCD_VERSION:-}" = "snapshot" ]] ; then
+  bundle remove rake-compiler-dock
+  bundle add rake-compiler-dock --github rake-compiler/rake-compiler-dock --branch main --skip-install
+fi
+
 bundle
+bundle show --paths
 
 bundle exec rake set-version-to-timestamp
 
