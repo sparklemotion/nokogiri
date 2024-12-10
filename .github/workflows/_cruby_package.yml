@@ -1,0 +1,44 @@
+on:
+  workflow_call:
+    inputs:
+      rcd_image_version:
+        description: The version of the rake-compiler-dock image to use
+        required: true
+        type: string
+
+jobs:
+  cruby-package:
+    name: ${{ matrix.plat }}
+    strategy:
+      fail-fast: false
+      matrix:
+        plat:
+          - "aarch64-linux"
+          - "arm-linux"
+          - "arm64-darwin"
+          - "x64-mingw-ucrt"
+          - "x64-mingw32"
+          - "x86-linux"
+          - "x86-mingw32" # github actions does not support this runtime as of 2022-12, but let's build anyway
+          - "x86_64-darwin"
+          - "x86_64-linux"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/cache@v4
+        with:
+          path: ports/archives
+          key: tarballs-ubuntu-${{ hashFiles('dependencies.yml', 'patches/**/*.patch') }}
+      - env:
+          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{ inputs.rcd_image_version }}-mri-${{ matrix.plat }}"
+        run: |
+          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            ${DOCKER_IMAGE} \
+            ./scripts/test-gem-build gems ${{ matrix.plat }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "cruby-${{ matrix.plat }}-gem"
+          path: gems
+          retention-days: 1
