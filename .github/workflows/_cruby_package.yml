@@ -23,6 +23,8 @@ jobs:
           - "x86_64-darwin"
           - "x86_64-linux"
     runs-on: ubuntu-latest
+    env:
+      RCD_VERSION: ${{ inputs.rcd_image_version }}
     steps:
       - uses: actions/checkout@v4
         with:
