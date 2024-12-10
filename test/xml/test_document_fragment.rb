@@ -301,6 +301,20 @@ module Nokogiri
           assert_equal(original.to_html, duplicate.to_html)
         end
 
+        def test_dup_creates_tree_with_identical_structure_stress
+          # https://github.com/sparklemotion/nokogiri/issues/3359
+          skip_unless_libxml2("this is testing CRuby GC behavior")
+
+          original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+          duplicate = original.dup
+
+          stress_memory_while do
+            duplicate.to_html
+          end
+
+          assert_equal(original.to_html, duplicate.to_html)
+        end
+
         def test_dup_creates_mutable_tree
           original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
           duplicate = original.dup
