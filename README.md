@@ -114,7 +114,7 @@ You can help sponsor the maintainers of this software through one of these organ
 
 Requirements:
 
-- Ruby >= 3.0
+- Ruby >= 3.1
 - JRuby >= 9.4.0.0
 
 If you are compiling the native extension against a system version of libxml2:
