@@ -72,9 +72,17 @@ CrossRuby = Struct.new(:version, :platform) do
      when "x86-mingw32"
        "i686-w64-mingw32-"
      when "x86_64-linux"
-       "x86_64-redhat-linux-gnu-"
+       if RakeCompilerDock::IMAGE_VERSION >= "1.6"
+         "x86_64-linux-gnu-"
+       else
+         "x86_64-redhat-linux-gnu-"
+       end
      when "x86-linux"
-       "i686-redhat-linux-gnu-"
+       if RakeCompilerDock::IMAGE_VERSION >= "1.6"
+         "i686-linux-gnu-"
+       else
+         "i686-redhat-linux-gnu-"
+       end
      when "aarch64-linux"
        "aarch64-linux-gnu-"
      when "x86_64-darwin"
@@ -204,7 +212,11 @@ CrossRuby = Struct.new(:version, :platform) do
   def dll_ref_versions
     case platform
     when X86_LINUX_PLATFORM_REGEX
-      { "GLIBC" => "2.17" }
+      if RakeCompilerDock::IMAGE_VERSION >= "1.6"
+        { "GLIBC" => "2.29" }
+      else
+        { "GLIBC" => "2.17" }
+      end
     when AARCH_LINUX_PLATFORM_REGEX, ARM_LINUX_PLATFORM_REGEX
       { "GLIBC" => "2.29" }
     else
