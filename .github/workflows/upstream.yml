@@ -211,3 +211,8 @@ jobs:
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --disable-system-libraries
       - run: bundle exec rake test
+
+  rake-compiler-dock:
+    uses: ./.github/workflows/_cruby_package.yml
+    with:
+      rcd_image_version: snapshot
