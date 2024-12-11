@@ -90,15 +90,41 @@ jobs:
       - run: bundle exec rake test
 
   #
+  #  SECTION meta - control variables
+  #
+  ruby_versions:
+    needs: ["basic"]
+    outputs:
+      minors: "['3.1', '3.2', '3.3']"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "generating rubies ..."
+
+  rcd_image_version:
+    needs: ["basic"]
+    runs-on: ubuntu-latest
+    outputs:
+      rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          bundler: latest
+      - id: rcd_image_version
+        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "rcd_image_version=#{RakeCompilerDock::IMAGE_VERSION}"' >> $GITHUB_OUTPUT
+
+  #
   #  SECTION run the test suite across a broad matrix of rubies, configs, and systems
   #
   linux:
-    needs: ["basic"]
+    needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -117,12 +143,12 @@ jobs:
       - run: bundle exec rake test:bench
 
   valgrind:
-    needs: ["linux"]
+    needs: ["linux", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
         mem: ["ruby"]
         include:
           - sys: "disable"
@@ -233,12 +259,12 @@ jobs:
       - run: bundle exec rake test:valgrind
 
   osx:
-    needs: ["basic"]
+    needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -288,12 +314,12 @@ jobs:
           nix-shell --packages ruby bundler libxml2 libxslt --run 'bundle exec rake test'
 
   windows:
-    needs: ["basic"]
+    needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: windows-2022
     steps:
       - name: configure git crlf
@@ -442,21 +468,6 @@ jobs:
   #
   #  SECTION the end-to-end gem installation tests
   #
-  rcd_image_version:
-    needs: ["basic"]
-    runs-on: ubuntu-latest
-    outputs:
-      rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.3"
-          bundler-cache: true
-          bundler: latest
-      - id: rcd_image_version
-        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "rcd_image_version=#{RakeCompilerDock::IMAGE_VERSION}"' >> $GITHUB_OUTPUT
-
   generic-package:
     needs: ["rcd_image_version"]
     name: "generic-package"
@@ -482,12 +493,12 @@ jobs:
           retention-days: 1
 
   generic-linux-install:
-    needs: ["generic-package"]
+    needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -504,12 +515,12 @@ jobs:
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
   generic-darwin-install:
-    needs: ["generic-package"]
+    needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -525,12 +536,12 @@ jobs:
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
   generic-windows-install:
-    needs: ["generic-package"]
+    needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -584,11 +595,11 @@ jobs:
           retention-days: 1
 
   cruby-x86-linux-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -606,11 +617,11 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-aarch64-linux-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -628,11 +639,11 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-arm-linux-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -650,11 +661,11 @@ jobs:
             ./scripts/test-gem-install gems
 
   cruby-x86_64-linux-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -687,11 +698,11 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-x86_64-darwin-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
@@ -707,11 +718,11 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-arm64-darwin-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -727,11 +738,11 @@ jobs:
       - run: ./scripts/test-gem-install gems
 
   cruby-x64-mingw-ucrt-install:
-    needs: ["cruby-package"]
+    needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.1", "3.2", "3.3"]
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
