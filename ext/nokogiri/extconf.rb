@@ -1117,14 +1117,7 @@ else
           end
           env["RANLIB"] = "#{host}-ranlib"
           if windows?
-            # NOTE: that in any particular windows gem package, we only ever compile against either
-            # msvcrt (ruby <= 3.0) or ucrt (ruby > 3.0), so even though this gets evaluated only once
-            # per gem (and not per-version-of-ruby), it's OK.
-            env["CFLAGS"] = if RbConfig::CONFIG["RUBY_SO_NAME"].include?("msvcrt")
-              concat_flags(env["CFLAGS"], "-D_RUBY_MSVCRT")
-            else
-              concat_flags(env["CFLAGS"], "-D_RUBY_UCRT")
-            end
+            concat_flags(env["CFLAGS"], "-D_RUBY_UCRT")
           end
         end
 
@@ -1141,7 +1134,7 @@ end
 have_func("xmlCtxtSetOptions") # introduced in libxml2 2.13.0
 have_func("xmlCtxtGetOptions") # introduced in libxml2 2.14.0
 have_func("xmlSwitchEncodingName") # introduced in libxml2 2.13.0
-have_func("rb_category_warning") # introduced in Ruby 3.0
+have_func("rb_category_warning") # introduced in Ruby 3.0 but had trouble resolving this symbol in truffleruby
 
 other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k, v| [k, v].join(":") }.join(",")
 append_cppflags(%[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\"#{other_library_versions_string}\\""])

@@ -1,4 +1,4 @@
-FROM ruby:alpine3.12
+FROM ruby:alpine3.21
 
 # prelude
 RUN apk update

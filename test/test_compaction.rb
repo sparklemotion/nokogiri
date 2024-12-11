@@ -4,7 +4,6 @@ require "helper"
 
 describe "compaction" do
   def skip_compaction_tests
-    # supported in CRuby >= 3.0
     !GC.respond_to?(:verify_compaction_references)
   end
 

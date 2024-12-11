@@ -34,14 +34,14 @@ test_script:
 
 environment:
   matrix:
-    - ruby_version: 32
+    - ruby_version: 33
       INSTALL_PACKAGES: "mingw-w64-i686-libyaml"
-    - ruby_version: 32
+    - ruby_version: 33
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt mingw-w64-i686-libyaml"
       EXTCONF_PARAMS: "--use-system-libraries"
 
-    - ruby_version: 30
+    - ruby_version: 31
       INSTALL_PACKAGES: "mingw-w64-i686-libyaml"
-    - ruby_version: 30
+    - ruby_version: 31
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt mingw-w64-i686-libyaml"
       EXTCONF_PARAMS: "--use-system-libraries"
