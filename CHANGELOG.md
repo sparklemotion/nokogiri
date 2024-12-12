@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.17.2 / 2024-12-12
+
+### Fixed
+
+* [JRuby] Fixed an issue where `Node#dup` when called with the `new_parent_doc` parameter was not decorating the node with the document's `Node` decorators. [#3372] @flavorjones
+
+
 ## v1.17.1 / 2024-12-10
 
 ### Fixed
