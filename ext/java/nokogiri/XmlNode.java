@@ -978,10 +978,11 @@ public class XmlNode extends RubyObject
 
   @JRubyMethod(visibility = Visibility.PROTECTED)
   public IRubyObject
-  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level, IRubyObject _ignored)
+  initialize_copy_with_args(ThreadContext context, IRubyObject other, IRubyObject level, IRubyObject document)
   {
     boolean deep = level instanceof RubyInteger && RubyFixnum.fix2int(level) != 0;
     this.node = asXmlNode(context, other).node.cloneNode(deep);
+    setDocument(context, (XmlDocument)document);
     return this;
   }
 

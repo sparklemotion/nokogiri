@@ -238,8 +238,6 @@ module Nokogiri
         end
 
         def test_dup_different_parent_document
-          skip_unless_libxml2("Node.dup with new_parent arg is only implemented on CRuby")
-
           doc1 = XML::Document.parse("<root><div><p>hello</p></div></root>")
           doc2 = XML::Document.parse("<div></div>")
 
