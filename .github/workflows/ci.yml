@@ -569,8 +569,6 @@ jobs:
           - "arm-linux"
           - "arm64-darwin"
           - "x64-mingw-ucrt"
-          - "x86-linux"
-          - "x86-mingw32" # github actions does not support this runtime as of 2022-12, but let's build anyway
           - "x86_64-darwin"
           - "x86_64-linux"
     runs-on: ubuntu-latest
@@ -593,28 +591,6 @@ jobs:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
           retention-days: 1
-
-  cruby-x86-linux-install:
-    needs: ["cruby-package", "ruby_versions"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/download-artifact@v4
-        with:
-          name: cruby-x86-linux-gem
-          path: gems
-      - run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            --platform=linux/386 \
-            ruby:${{matrix.ruby}} \
-            ./scripts/test-gem-install gems
 
   cruby-aarch64-linux-install:
     needs: ["cruby-package", "ruby_versions"]

@@ -6,7 +6,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-### ...
+### Notable Changes
+
+#### Ruby
+
+This release ends support for Ruby 3.0, for which [upstream support ended 2024-04-23](https://www.ruby-lang.org/en/downloads/branches/).
+
+This release drops precompiled native platform gems for `x86-linux` and `x86-mingw32`. **These platforms are still supported.** Users on these platforms must install the "ruby platform" gem which requires a compiler toolchain. See [Installing the `ruby` platform gem](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-the-ruby-platform-gem) in the installation docs. (#3369, #3081)
 
 
 ## v1.17.1 / 2024-12-10

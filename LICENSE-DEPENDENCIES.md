@@ -10,9 +10,9 @@ Note that this document is broken into multiple sections, each of which describe
 
 - [Platform Releases](#platform-releases)
   * [Default platform release ("ruby")](#default-platform-release-ruby)
-  * [Native LinuxⓇ platform releases ("x86_64-linux", "arm64-linux", "aarch64-linux", and "arm-linux")](#native-linux%E2%93%A1-platform-releases-x86_64-linux-arm64-linux-aarch64-linux-and-arm-linux)
+  * [Native LinuxⓇ platform releases ("x86_64-linux", "aarch64-linux", and "arm-linux")](#native-linux%E2%93%A1-platform-releases-x86_64-linux-aarch64-linux-and-arm-linux)
   * [Native Darwin (macOSⓇ) platform releases ("x86_64-darwin" and "arm64-darwin")](#native-darwin-macos%E2%93%A1-platform-releases-x86_64-darwin-and-arm64-darwin)
-  * [Native WindowsⓇ platform releases ("x86-mingw32" and "x64-mingw32")](#native-windows%E2%93%A1-platform-releases-x86-mingw32-and-x64-mingw32)
+  * [Native WindowsⓇ platform releases ("x64-mingw-ucrt")](#native-windows%E2%93%A1-platform-releases-x64-mingw-ucrt)
   * [JavaⓇ (JRuby) platform release ("java")](#java%E2%93%A1-jruby-platform-release-java)
 - [Appendix: Dependencies' License Texts](#appendix-dependencies-license-texts)
   * [libgumbo](#libgumbo)
@@ -51,7 +51,7 @@ The default platform release distributes the following dependencies in source fo
 This distribution can be identified by inspecting the included Gem::Specification, which will have the value "ruby" for its "platform" attribute.
 
 
-### Native LinuxⓇ platform releases ("x86_64-linux", "arm64-linux", "aarch64-linux", and "arm-linux")
+### Native LinuxⓇ platform releases ("x86_64-linux", "aarch64-linux", and "arm-linux")
 
 The native LinuxⓇ platform release distributes the following dependencies in source form:
 
@@ -60,7 +60,7 @@ The native LinuxⓇ platform release distributes the following dependencies in s
 * [libgumbo](#libgumbo)
 * [zlib](#zlib)
 
-This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-linux" or "arm64-linux" for its "platform.cpu" attribute.
+This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-linux" or "aarch64-linux" for its "platform.cpu" attribute.
 
 
 ### Native Darwin (macOSⓇ) platform releases ("x86_64-darwin" and "arm64-darwin")
@@ -76,7 +76,7 @@ The native Darwin platform release distributes the following dependencies in sou
 This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-darwin" or "arm64-darwin" for its "platform.cpu" attribute. Darwin is also known more familiarly as "OSX" or "macOSⓇ" and is the operating system for many AppleⓇ computers.
 
 
-### Native WindowsⓇ platform releases ("x86-mingw32" and "x64-mingw32")
+### Native WindowsⓇ platform releases ("x64-mingw-ucrt")
 
 The native WindowsⓇ platform release distributes the following dependencies in source form:
 
@@ -86,7 +86,7 @@ The native WindowsⓇ platform release distributes the following dependencies in
 * [zlib](#zlib)
 * [libiconv](#libiconv)
 
-This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x64-mingw32" or "x86-mingw32" for its "platform.cpu" attribute.
+This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x64-mingw-ucrt" for its "platform.cpu" attribute.
 
 
 ### JavaⓇ (JRuby) platform release ("java")
