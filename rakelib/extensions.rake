@@ -64,7 +64,7 @@ CrossRuby = Struct.new(:version, :platform) do
      when "x64-mingw-ucrt"
        "x86_64-w64-mingw32-"
      when "x86_64-linux"
-       "x86_64-redhat-linux-gnu-"
+       "x86_64-linux-gnu-"
      when "aarch64-linux"
        "aarch64-linux-gnu-"
      when "x86_64-darwin"
@@ -185,9 +185,7 @@ CrossRuby = Struct.new(:version, :platform) do
 
   def dll_ref_versions
     case platform
-    when X86_LINUX_PLATFORM_REGEX
-      { "GLIBC" => "2.17" }
-    when AARCH_LINUX_PLATFORM_REGEX, ARM_LINUX_PLATFORM_REGEX
+    when AARCH_LINUX_PLATFORM_REGEX, ARM_LINUX_PLATFORM_REGEX, X86_LINUX_PLATFORM_REGEX
       { "GLIBC" => "2.29" }
     else
       raise "CrossRuby.dll_ref_versions: unmatched platform: #{platform}"
