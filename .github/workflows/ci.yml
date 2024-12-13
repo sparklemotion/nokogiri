@@ -480,11 +480,9 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - env:
-          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux-gnu"
-        run: |
+      - run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            ${DOCKER_IMAGE} \
+            ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux-gnu \
             ./scripts/test-gem-build gems ruby
       - uses: actions/upload-artifact@v4
         with:
@@ -583,11 +581,9 @@ jobs:
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - env:
-          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-${{matrix.plat}}"
-        run: |
+      - run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            ${DOCKER_IMAGE} \
+            ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-${{matrix.plat}} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
       - uses: actions/upload-artifact@v4
         with:
@@ -595,51 +591,7 @@ jobs:
           path: gems
           retention-days: 1
 
-  cruby-aarch64-linux-gnu-install:
-    needs: ["cruby-package", "ruby_versions"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/download-artifact@v4
-        with:
-          name: cruby-aarch64-linux-gnu-gem
-          path: gems
-      - run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            --platform=linux/arm64/v8 \
-            ruby:${{matrix.ruby}} \
-            ./scripts/test-gem-install gems
-
-  cruby-arm-linux-gnu-install:
-    needs: ["cruby-package", "ruby_versions"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/download-artifact@v4
-        with:
-          name: cruby-arm-linux-gnu-gem
-          path: gems
-      - run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            --platform=linux/arm/v7 \
-            ruby:${{matrix.ruby}} \
-            ./scripts/test-gem-install gems
-
-  cruby-x86_64-linux-gnu-install:
+  cruby-install-with-setup-ruby:
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -659,60 +611,73 @@ jobs:
           path: gems
       - run: ./scripts/test-gem-install gems
 
-  cruby-x86_64-linux-musl-install:
-    needs: ["cruby-package"]
+  cruby-linux-install-matrix:
+    needs: ["cruby-package", "ruby_versions"]
+    name: "cruby-${{ matrix.platform }}-install (${{ matrix.ruby }})"
     strategy:
       fail-fast: false
+      matrix:
+        platform:
+          - aarch64-linux-gnu
+          - aarch64-linux-musl
+          - arm-linux-gnu
+          - arm-linux-musl
+          - x86_64-linux-gnu
+          - x86_64-linux-musl
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        include:
+          # declare docker image for each platform
+          - { platform: aarch64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          - { platform: arm-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          - { platform: x86_64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          # declare docker platform for each platform
+          - { platform: aarch64-linux-gnu, docker_platform: "--platform=linux/arm64/v8" }
+          - { platform: aarch64-linux-musl, docker_platform: "--platform=linux/arm64/v8" }
+          - { platform: arm-linux-gnu, docker_platform: "--platform=linux/arm/v7" }
+          - { platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-x86_64-linux-musl-gem
+          name: cruby-${{ matrix.platform }}-gem
           path: gems
-      - run: ./scripts/test-gem-install gems
+      - run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker run --rm -v $PWD:/nokogiri -w /nokogiri \
+            ${{ matrix.docker_platform }} ruby:${{ matrix.ruby }}${{ matrix.docker_tag }} \
+            sh -c "
+              ${{ matrix.bootstrap }}
+              ${{ matrix.rubyenv }}
+              ./scripts/test-gem-install gems
+            "
 
-  cruby-x86_64-darwin-install:
+  cruby-darwin-install-matrix:
     needs: ["cruby-package", "ruby_versions"]
+    name: "cruby-${{ matrix.platform }}-install (${{ matrix.ruby }})"
     strategy:
       fail-fast: false
       matrix:
+        platform:
+          - arm64-darwin
+          - x86_64-darwin
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
-    runs-on: macos-13
+        include:
+          - { platform: arm64-darwin, os: macos-14 }
+          - { platform: x86_64-darwin, os: macos-13 }
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "${{matrix.ruby}}"
+          ruby-version: "${{ matrix.ruby }}"
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-x86_64-darwin-gem
-          path: gems
-      - run: ./scripts/test-gem-install gems
-
-  cruby-arm64-darwin-install:
-    needs: ["cruby-package", "ruby_versions"]
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v4
-        with:
-          name: cruby-arm64-darwin-gem
+          name: cruby-${{ matrix.platform }}-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
@@ -771,6 +736,6 @@ jobs:
           name: jruby-gem
           path: gems
       - run: |
-          docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+          docker run --rm -v "$PWD:/nokogiri" -w /nokogiri \
             jruby:${{matrix.jruby}}-jre${{matrix.jre}} \
             ./scripts/test-gem-install gems
