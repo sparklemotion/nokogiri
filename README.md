@@ -131,9 +131,8 @@ If you are compiling the native extension against a system version of libxml2:
 Nokogiri ships pre-compiled, "native" gems for the following platforms:
 
 - Linux:
-  - `x86_64-linux` (req: `glibc >= 2.17`)
-  - `aarch64-linux` and `arm-linux` (req: `glibc >= 2.29`)
-  - Note that musl platforms like Alpine **are** supported
+  - `x86_64-linux-gnu`, `aarch64-linux-gnu`, and `arm-linux-gnu` (req: `glibc >= 2.29`)
+  - `x86_64-linux-musl`, `aarch64-linux-musl`, and `arm-linux-musl`
 - Darwin/MacOS: `x86_64-darwin` and `arm64-darwin`
 - Windows: `x64-mingw-ucrt`
 - Java: any platform running JRuby 9.4 or higher

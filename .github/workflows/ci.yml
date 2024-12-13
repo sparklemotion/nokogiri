@@ -481,7 +481,7 @@ jobs:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
       - env:
-          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux"
+          DOCKER_IMAGE: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux-gnu"
         run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ${DOCKER_IMAGE} \
@@ -565,12 +565,15 @@ jobs:
       fail-fast: false
       matrix:
         plat:
-          - "aarch64-linux"
-          - "arm-linux"
+          - "aarch64-linux-gnu"
+          - "aarch64-linux-musl"
+          - "arm-linux-gnu"
+          - "arm-linux-musl"
           - "arm64-darwin"
           - "x64-mingw-ucrt"
           - "x86_64-darwin"
-          - "x86_64-linux"
+          - "x86_64-linux-gnu"
+          - "x86_64-linux-musl"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -592,7 +595,7 @@ jobs:
           path: gems
           retention-days: 1
 
-  cruby-aarch64-linux-install:
+  cruby-aarch64-linux-gnu-install:
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -605,7 +608,7 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-aarch64-linux-gem
+          name: cruby-aarch64-linux-gnu-gem
           path: gems
       - run: |
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -614,7 +617,7 @@ jobs:
             ruby:${{matrix.ruby}} \
             ./scripts/test-gem-install gems
 
-  cruby-arm-linux-install:
+  cruby-arm-linux-gnu-install:
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -627,7 +630,7 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-arm-linux-gem
+          name: cruby-arm-linux-gnu-gem
           path: gems
       - run: |
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -636,7 +639,7 @@ jobs:
             ruby:${{matrix.ruby}} \
             ./scripts/test-gem-install gems
 
-  cruby-x86_64-linux-install:
+  cruby-x86_64-linux-gnu-install:
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -652,11 +655,11 @@ jobs:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-x86_64-linux-gem
+          name: cruby-x86_64-linux-gnu-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
-  cruby-x86_64-musl-install:
+  cruby-x86_64-linux-musl-install:
     needs: ["cruby-package"]
     strategy:
       fail-fast: false
@@ -669,7 +672,7 @@ jobs:
           submodules: true
       - uses: actions/download-artifact@v4
         with:
-          name: cruby-x86_64-linux-gem
+          name: cruby-x86_64-linux-musl-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
