@@ -10,7 +10,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 #### Ruby
 
+This release introduces native gem support for Ruby 3.4.
+
 This release ends support for Ruby 3.0, for which [upstream support ended 2024-04-23](https://www.ruby-lang.org/en/downloads/branches/).
+
+This release ships separate precompiled GNU and Musl gems for all linux platforms. Previously both GNU and Musl target systems could use and install the same gem, e.g., the platform gem for `x86_64-linux`. Now, however, the precompiled gem platforms would be `x86_64-linux-gnu` and `x86_64-linux-musl`. So long as you're on `bundler >= 2.5.6` this should be seamless other than perhaps needing to update the platforms in your "Gemfile.lock".
 
 This release drops precompiled native platform gems for `x86-linux` and `x86-mingw32`. **These platforms are still supported.** Users on these platforms must install the "ruby platform" gem which requires a compiler toolchain. See [Installing the `ruby` platform gem](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-the-ruby-platform-gem) in the installation docs. (#3369, #3081)
 

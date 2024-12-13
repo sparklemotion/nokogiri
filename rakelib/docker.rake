@@ -8,8 +8,8 @@ module DockerHelper
   IMAGE_DIR = "oci-images/nokogiri-test"
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
-    # engine → array of ruby minor versions
-    mri: File.read(".cross_rubies").lines.map { _1.split(":").first }.uniq.map { _1.split(".").take(2).join(".") },
+    # engine → array of ruby minor version docker tags
+    mri: ["3.1", "3.2", "3.3", "3.4-rc"],
   }
 
   class << self
