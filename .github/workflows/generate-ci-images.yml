@@ -35,3 +35,5 @@ jobs:
           push: true
           tags: ghcr.io/sparklemotion/nokogiri-test:${{matrix.tag}}
           file: oci-images/nokogiri-test/${{matrix.tag}}.dockerfile
+          cache-from: type=registry,ref=ghcr.io/sparklemotion/nokogiri-test:${{ matrix.tag }}-cache
+          cache-to: type=registry,ref=ghcr.io/sparklemotion/nokogiri-test:${{ matrix.tag }}-cache,mode=max

@@ -87,6 +87,8 @@ module DockerHelper
                   push: true
                   tags: #{IMAGE_NAME}:${{matrix.tag}}
                   file: #{IMAGE_DIR}/${{matrix.tag}}.dockerfile
+                  cache-from: type=registry,ref=ghcr.io/sparklemotion/nokogiri-test:${{ matrix.tag }}-cache
+                  cache-to: type=registry,ref=ghcr.io/sparklemotion/nokogiri-test:${{ matrix.tag }}-cache,mode=max
       YAML
 
       puts "writing #{filename} ..."
