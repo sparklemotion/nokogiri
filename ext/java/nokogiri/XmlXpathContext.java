@@ -179,7 +179,7 @@ public class XmlXpathContext extends RubyObject
     final NokogiriXPathFunctionResolver fnResolver = NokogiriXPathFunctionResolver.create(handler);
     try {
       return tryGetNodeSet(context, expr, fnResolver);
-    } catch (TransformerException ex) {
+    } catch (TransformerException | RuntimeException ex) {
       throw XmlSyntaxError.createXMLXPathSyntaxError(context.runtime,
           (expr + ": " + ex.toString()),
           ex).toThrowable();
