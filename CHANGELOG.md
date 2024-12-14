@@ -19,6 +19,13 @@ This release ships separate precompiled GNU and Musl gems for all linux platform
 This release drops precompiled native platform gems for `x86-linux` and `x86-mingw32`. **These platforms are still supported.** Users on these platforms must install the "ruby platform" gem which requires a compiler toolchain. See [Installing the `ruby` platform gem](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-the-ruby-platform-gem) in the installation docs. (#3369, #3081)
 
 
+## v1.17.2 / 2024-12-12
+
+### Fixed
+
+* [JRuby] Fixed an issue where `Node#dup` when called with the `new_parent_doc` parameter was not decorating the node with the document's `Node` decorators. [#3372] @flavorjones
+
+
 ## v1.17.1 / 2024-12-10
 
 ### Fixed
