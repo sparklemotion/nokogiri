@@ -132,12 +132,7 @@ rb_xml_xpath_context_register_ns(VALUE rb_context, VALUE prefix, VALUE uri)
 {
   xmlXPathContextPtr c_context;
 
-  TypedData_Get_Struct(
-    rb_context,
-    xmlXPathContext,
-    &xml_xpath_context_type,
-    c_context
-  );
+  TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
 
   xmlXPathRegisterNs(c_context,
                      (const xmlChar *)StringValueCStr(prefix),
@@ -160,12 +155,7 @@ rb_xml_xpath_context_register_variable(VALUE rb_context, VALUE name, VALUE value
   xmlXPathContextPtr c_context;
   xmlXPathObjectPtr xmlValue;
 
-  TypedData_Get_Struct(
-    rb_context,
-    xmlXPathContext,
-    &xml_xpath_context_type,
-    c_context
-  );
+  TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
 
   xmlValue = xmlXPathNewCString(StringValueCStr(value));
 
@@ -428,34 +418,29 @@ rb_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
 static VALUE
 rb_xml_xpath_context_new(VALUE klass, VALUE rb_node)
 {
-  xmlNodePtr node;
+  xmlNodePtr c_node;
   xmlXPathContextPtr c_context;
   VALUE rb_context;
 
-  Noko_Node_Get_Struct(rb_node, xmlNode, node);
+  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
 #if LIBXML_VERSION < 21000
   /* deprecated in 40483d0 */
   xmlXPathInit();
 #endif
 
-  c_context = xmlXPathNewContext(node->doc);
-  c_context->node = node;
+  c_context = xmlXPathNewContext(c_node->doc);
+  c_context->node = c_node;
 
   xmlXPathRegisterNs(c_context, NOKOGIRI_PREFIX, NOKOGIRI_URI);
   xmlXPathRegisterNs(c_context, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
-  xmlXPathRegisterFuncNS(
-    c_context,
-    (const xmlChar *)"css-class",
-    NOKOGIRI_BUILTIN_URI,
-    xpath_builtin_css_class
-  );
-  xmlXPathRegisterFuncNS(
-    c_context,
-    (const xmlChar *)"local-name-is",
-    NOKOGIRI_BUILTIN_URI,
-    xpath_builtin_local_name_is
-  );
+
+  xmlXPathRegisterFuncNS(c_context,
+                         (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
+                         xpath_builtin_css_class);
+  xmlXPathRegisterFuncNS(c_context,
+                         (const xmlChar *)"local-name-is", NOKOGIRI_BUILTIN_URI,
+                         xpath_builtin_local_name_is);
 
   rb_context = TypedData_Wrap_Struct(
                  klass,
