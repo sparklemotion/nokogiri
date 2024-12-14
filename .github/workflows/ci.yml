@@ -95,7 +95,9 @@ jobs:
   ruby_versions:
     needs: ["basic"]
     outputs:
-      minors: "['3.1', '3.2', '3.3']"
+      setup_ruby: "['3.1', '3.2', '3.3', '3.4.0-rc1']"
+      setup_ruby_windows: "['3.1', '3.2', '3.3', 'head']"
+      nokogiri_test_image: "['3.1', '3.2', '3.3', '3.4-rc']"
     runs-on: ubuntu-latest
     steps:
       - run: echo "generating rubies ..."
@@ -124,7 +126,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.nokogiri_test_image) }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
@@ -148,7 +150,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.nokogiri_test_image) }}
         mem: ["ruby"]
         include:
           - sys: "disable"
@@ -264,7 +266,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -319,7 +321,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_windows) }}
     runs-on: windows-2022
     steps:
       - name: configure git crlf
@@ -496,7 +498,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -518,7 +520,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -539,7 +541,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["enable", "disable"]
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_windows) }}
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -596,7 +598,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -624,7 +626,7 @@ jobs:
           - arm-linux-musl
           - x86_64-linux-gnu
           - x86_64-linux-musl
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
         include:
           # declare docker image for each platform
           - { platform: aarch64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
@@ -663,7 +665,7 @@ jobs:
         platform:
           - arm64-darwin
           - x86_64-darwin
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
         include:
           - { platform: arm64-darwin, os: macos-14 }
           - { platform: x86_64-darwin, os: macos-13 }
@@ -686,7 +688,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ${{ fromJSON(needs.ruby_versions.outputs.minors) }}
+        ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_windows) }}
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
