@@ -698,6 +698,57 @@ module Nokogiri
           assert_equal(3, doc.xpath("//self::*:child").length)
         end
       end
+
+      describe "compiled" do
+        let(:doc) {
+          Nokogiri::XML::Document.parse(<<~XML)
+            <root xmlns="http://nokogiri.org/default" xmlns:ns1="http://nokogiri.org/ns1">
+              <child>default</child>
+              <ns1:child>ns1</ns1:child>
+            </root>
+          XML
+        }
+
+        describe "XPath expressions" do
+          it "works" do
+            expr = Nokogiri::XML::XPath.expression("//xmlns:child")
+
+            result = doc.xpath(expr)
+            assert_equal(doc.xpath("//xmlns:child"), result)
+            assert_pattern do
+              result => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+          end
+
+          it "can be evaluated in different documents"
+
+          it "work with function handlers"
+
+          it "work with variable bindings"
+
+          it "work with namespace bindings"
+        end
+
+        describe "CSS selectors" do
+          it "works" do
+            expr = Nokogiri::CSS.selector("child")
+
+            result = doc.css(expr)
+            assert_equal(doc.css("child"), result)
+            assert_pattern do
+              result => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+          end
+
+          it "can be evaluated in different documents"
+
+          it "work with function handlers"
+
+          it "work with variable bindings"
+
+          it "work with namespace bindings"
+        end
+      end
     end
   end
 end
