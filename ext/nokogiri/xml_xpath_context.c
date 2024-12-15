@@ -368,6 +368,7 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   VALUE rb_expression = Qnil;
   VALUE rb_function_lookup_handler = Qnil;
   xmlChar *c_expression_str = NULL;
+  xmlXPathCompExprPtr c_expression_comp = NULL;
   VALUE rb_errors = rb_ary_new();
   xmlXPathObjectPtr c_xpath_object;
   VALUE rb_xpath_object = Qnil;
@@ -376,7 +377,11 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
 
   rb_scan_args(argc, argv, "11", &rb_expression, &rb_function_lookup_handler);
 
-  c_expression_str = (xmlChar *)StringValueCStr(rb_expression);
+  if (rb_obj_is_kind_of(rb_expression, cNokogiriXmlXpathExpression)) {
+    c_expression_comp = noko_xml_xpath_expression_unwrap(rb_expression);
+  } else {
+    c_expression_str = (xmlChar *)StringValueCStr(rb_expression);
+  }
 
   if (Qnil != rb_function_lookup_handler) {
     /* FIXME: not sure if this is the correct place to shove private data. */
@@ -392,7 +397,11 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   xmlSetGenericErrorFunc((void *)rb_errors, _noko_xml_xpath_context__generic_exception_pusher);
 
-  c_xpath_object = xmlXPathEvalExpression(c_expression_str, c_context);
+  if (c_expression_comp) {
+    c_xpath_object = xmlXPathCompiledEval(c_expression_comp, c_context);
+  } else {
+    c_xpath_object = xmlXPathEvalExpression(c_expression_str, c_context);
+  }
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
