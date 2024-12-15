@@ -327,7 +327,7 @@ method_caller(xmlXPathParserContextPtr ctxt, int argc)
 }
 
 static xmlXPathFunction
-handler_lookup(void *data, const xmlChar *c_name, const xmlChar *c_ns_uri)
+_noko_xml_xpath_context_handler_lookup(void *data, const xmlChar *c_name, const xmlChar *c_ns_uri)
 {
   VALUE rb_handler = (VALUE)data;
   if (rb_respond_to(rb_handler, rb_intern((const char *)c_name))) {
@@ -376,59 +376,54 @@ generic_exception_pusher(void *data, const char *msg, ...)
  * a +Float+, or a boolean.
  */
 static VALUE
-rb_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
+noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
 {
-  VALUE search_path, xpath_handler;
-  VALUE retval = Qnil;
   xmlXPathContextPtr c_context;
-  xmlXPathObjectPtr xpath;
-  xmlChar *query;
-  VALUE errors = rb_ary_new();
+  VALUE rb_expression = Qnil;
+  VALUE rb_function_lookup_handler = Qnil;
+  xmlChar *c_expression_str = NULL;
+  VALUE rb_errors = rb_ary_new();
+  xmlXPathObjectPtr c_xpath_object;
+  VALUE rb_xpath_object = Qnil;
 
-  TypedData_Get_Struct(
-    rb_context,
-    xmlXPathContext,
-    &xml_xpath_context_type,
-    c_context
-  );
+  TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
 
-  if (rb_scan_args(argc, argv, "11", &search_path, &xpath_handler) == 1) {
-    xpath_handler = Qnil;
-  }
+  rb_scan_args(argc, argv, "11", &rb_expression, &rb_function_lookup_handler);
 
-  query = (xmlChar *)StringValueCStr(search_path);
+  c_expression_str = (xmlChar *)StringValueCStr(rb_expression);
 
-  if (Qnil != xpath_handler) {
+  if (Qnil != rb_function_lookup_handler) {
     /* FIXME: not sure if this is the correct place to shove private data. */
-    c_context->userData = (void *)xpath_handler;
+    c_context->userData = (void *)rb_function_lookup_handler;
     xmlXPathRegisterFuncLookup(
       c_context,
-      handler_lookup,
-      (void *)xpath_handler
+      _noko_xml_xpath_context_handler_lookup,
+      (void *)rb_function_lookup_handler
     );
   }
 
-  xmlSetStructuredErrorFunc((void *)errors, noko__error_array_pusher);
-  xmlSetGenericErrorFunc((void *)errors, generic_exception_pusher);
+  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
+  xmlSetGenericErrorFunc((void *)rb_errors, generic_exception_pusher);
 
-  xpath = xmlXPathEvalExpression(query, c_context);
+  c_xpath_object = xmlXPathEvalExpression(c_expression_str, c_context);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+
   xmlXPathRegisterFuncLookup(c_context, NULL, NULL);
 
-  if (xpath == NULL) {
-    rb_exc_raise(rb_ary_entry(errors, 0));
+  if (c_xpath_object == NULL) {
+    rb_exc_raise(rb_ary_entry(rb_errors, 0));
   }
 
-  retval = xpath2ruby(xpath, c_context);
-  if (retval == Qundef) {
-    retval = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(c_context->doc));
+  rb_xpath_object = xpath2ruby(c_xpath_object, c_context);
+  if (rb_xpath_object == Qundef) {
+    rb_xpath_object = noko_xml_node_set_wrap(NULL, DOC_RUBY_OBJECT(c_context->doc));
   }
 
-  xmlXPathFreeNodeSetList(xpath);
+  xmlXPathFreeNodeSetList(c_xpath_object);
 
-  return retval;
+  return rb_xpath_object;
 }
 
 /*
@@ -505,7 +500,7 @@ noko_init_xml_xpath_context(void)
 
   rb_define_singleton_method(cNokogiriXmlXpathContext, "new", rb_xml_xpath_context_new, 1);
 
-  rb_define_method(cNokogiriXmlXpathContext, "evaluate", rb_xml_xpath_context_evaluate, -1);
+  rb_define_method(cNokogiriXmlXpathContext, "evaluate", noko_xml_xpath_context_evaluate, -1);
   rb_define_method(cNokogiriXmlXpathContext, "register_variable", rb_xml_xpath_context_register_variable, 2);
   rb_define_method(cNokogiriXmlXpathContext, "register_ns", rb_xml_xpath_context_register_ns, 2);
   rb_define_method(cNokogiriXmlXpathContext, "node=", rb_xml_xpath_context_set_node, 1);
