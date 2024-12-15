@@ -146,6 +146,7 @@ NOKOPUBVAR VALUE cNokogiriXmlSchema;
 NOKOPUBVAR VALUE cNokogiriXmlSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXmlText ;
 NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
+NOKOPUBVAR VALUE cNokogiriXmlXpathExpression;
 NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 
