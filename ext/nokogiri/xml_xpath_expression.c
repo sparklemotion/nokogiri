@@ -27,15 +27,30 @@ static const rb_data_type_t _noko_xml_xpath_expression_type = {
 static VALUE
 noko_xml_xpath_expression_s_new(VALUE klass, VALUE rb_input)
 {
-  xmlXPathCompExprPtr c_expr;
+  xmlXPathCompExprPtr c_expr = NULL;
   VALUE rb_expr = Qnil;
+  VALUE rb_errors = rb_ary_new();
+
+  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
 
   c_expr = xmlXPathCompile((const xmlChar *)StringValueCStr(rb_input));
-  if (c_expr) {
-    rb_expr = TypedData_Wrap_Struct(klass, &_noko_xml_xpath_expression_type, c_expr);
+
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  if (c_expr == NULL) {
+    rb_exc_raise(rb_ary_entry(rb_errors, 0));
   }
 
+  rb_expr = TypedData_Wrap_Struct(klass, &_noko_xml_xpath_expression_type, c_expr);
   return rb_expr;
+}
+
+xmlXPathCompExprPtr
+noko_xml_xpath_expression_unwrap(VALUE rb_expression)
+{
+  xmlXPathCompExprPtr c_expression;
+  TypedData_Get_Struct(rb_expression, xmlXPathCompExpr, &_noko_xml_xpath_expression_type, c_expression);
+  return c_expression;
 }
 
 void
