@@ -261,13 +261,36 @@ module Nokogiri
       end
 
       def xpath_impl(node, path, handler, ns, binds)
-        ctx = XPathContext.new(node)
-        ctx.register_namespaces(ns)
-        ctx.register_variables(binds)
+        get_xpath_context(node) do |context|
+          context.register_namespaces(ns)
+          context.register_variables(binds)
 
-        path = path.gsub("xmlns:", " :") unless Nokogiri.uses_libxml?
+          path = path.gsub("xmlns:", " :") unless Nokogiri.uses_libxml?
 
-        ctx.evaluate(path, handler)
+          context.evaluate(path, handler)
+        end
+      end
+
+      if Nokogiri.uses_libxml? && ENV["NOKOGIRI_DEOPTIMIZE_XPATH"].nil? # env var is an escape hatch
+        # optimized path
+        def get_xpath_context(node)
+          context = Thread.current.thread_variable_get(:nokogiri_xpath_context)
+          if context
+            context.node = node
+          else
+            context = Thread.current.thread_variable_set(:nokogiri_xpath_context, XPathContext.new(node))
+          end
+
+          begin
+            yield context
+          ensure
+            context.reset
+          end
+        end
+      else
+        def get_xpath_context(node)
+          yield XPathContext.new(node)
+        end
       end
     end
   end

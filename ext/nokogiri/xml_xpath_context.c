@@ -124,6 +124,7 @@ xpath_builtin_local_name_is(xmlXPathParserContextPtr ctxt, int nargs)
  *   register_ns(prefix, uri) → Nokogiri::XML::XPathContext
  *
  * Register the namespace with +prefix+ and +uri+ for use in future queries.
+ * Passing a uri of +nil+ will unregister the namespace.
  *
  * [Returns] +self+
  */
@@ -131,13 +132,25 @@ static VALUE
 rb_xml_xpath_context_register_ns(VALUE rb_context, VALUE prefix, VALUE uri)
 {
   xmlXPathContextPtr c_context;
+  const xmlChar *ns_uri;
 
   TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
 
-  xmlXPathRegisterNs(c_context,
-                     (const xmlChar *)StringValueCStr(prefix),
-                     (const xmlChar *)StringValueCStr(uri)
-                    );
+  if (NIL_P(uri)) {
+    ns_uri = NULL;
+  } else {
+    ns_uri = (const xmlChar *)StringValueCStr(uri);
+  }
+
+  xmlXPathRegisterNs(c_context, (const xmlChar *)StringValueCStr(prefix), ns_uri);
+
+  VALUE registered_namespaces = rb_iv_get(rb_context, "@registered_namespaces");
+  if (NIL_P(uri)) {
+    rb_hash_delete(registered_namespaces, prefix);
+  } else {
+    rb_hash_aset(registered_namespaces, prefix, Qtrue);
+  }
+
   return rb_context;
 }
 
@@ -146,6 +159,7 @@ rb_xml_xpath_context_register_ns(VALUE rb_context, VALUE prefix, VALUE uri)
  *   register_variable(name, value) → Nokogiri::XML::XPathContext
  *
  * Register the variable +name+ with +value+ for use in future queries.
+ * Passing a value of +nil+ will unregister the variable.
  *
  * [Returns] +self+
  */
@@ -157,13 +171,20 @@ rb_xml_xpath_context_register_variable(VALUE rb_context, VALUE name, VALUE value
 
   TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
 
-  xmlValue = xmlXPathNewCString(StringValueCStr(value));
+  if (NIL_P(value)) {
+    xmlValue = NULL;
+  } else {
+    xmlValue = xmlXPathNewCString(StringValueCStr(value));
+  }
 
-  xmlXPathRegisterVariable(
-    c_context,
-    (const xmlChar *)StringValueCStr(name),
-    xmlValue
-  );
+  xmlXPathRegisterVariable(c_context, (const xmlChar *)StringValueCStr(name), xmlValue);
+
+  VALUE registered_variables = rb_iv_get(rb_context, "@registered_variables");
+  if (NIL_P(value)) {
+    rb_hash_delete(registered_variables, name);
+  } else {
+    rb_hash_aset(registered_variables, name, Qtrue);
+  }
 
   return rb_context;
 }
@@ -394,6 +415,7 @@ rb_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+  xmlXPathRegisterFuncLookup(c_context, NULL, NULL);
 
   if (xpath == NULL) {
     rb_exc_raise(rb_ary_entry(errors, 0));
@@ -447,7 +469,28 @@ rb_xml_xpath_context_new(VALUE klass, VALUE rb_node)
                  &xml_xpath_context_type,
                  c_context
                );
+
+  rb_iv_set(rb_context, "@registered_namespaces", rb_hash_new());
+  rb_iv_set(rb_context, "@registered_variables", rb_hash_new());
+
   return rb_context;
+}
+
+
+/* :nodoc: */
+static VALUE
+rb_xml_xpath_context_set_node(VALUE rb_context, VALUE rb_node)
+{
+  xmlNodePtr c_node;
+  xmlXPathContextPtr c_context;
+
+  TypedData_Get_Struct(rb_context, xmlXPathContext, &xml_xpath_context_type, c_context);
+  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
+
+  c_context->doc = c_node->doc;
+  c_context->node = c_node;
+
+  return rb_node;
 }
 
 void
@@ -465,4 +508,5 @@ noko_init_xml_xpath_context(void)
   rb_define_method(cNokogiriXmlXpathContext, "evaluate", rb_xml_xpath_context_evaluate, -1);
   rb_define_method(cNokogiriXmlXpathContext, "register_variable", rb_xml_xpath_context_register_variable, 2);
   rb_define_method(cNokogiriXmlXpathContext, "register_ns", rb_xml_xpath_context_register_ns, 2);
+  rb_define_method(cNokogiriXmlXpathContext, "node=", rb_xml_xpath_context_set_node, 1);
 }
