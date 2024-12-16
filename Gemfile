@@ -34,5 +34,5 @@ end
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
 group :rdoc do
-  gem "rdoc", "6.8.1"
+  gem "rdoc", "6.9.0"
 end
