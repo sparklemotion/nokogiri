@@ -847,7 +847,7 @@ else
         # The libiconv configure script doesn't accept "arm64" host string but "aarch64"
         recipe.host = recipe.host.gsub("arm64-apple-darwin", "aarch64-apple-darwin")
 
-        cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+        cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
 
         recipe.configure_options += [
           "--disable-dependency-tracking",
@@ -911,7 +911,7 @@ else
     end
 
     cppflags = concat_flags(ENV["CPPFLAGS"])
-    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
 
     if cross_build_p
       cppflags = concat_flags(cppflags, "-DNOKOGIRI_PRECOMPILED_LIBRARIES")
@@ -971,7 +971,7 @@ else
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxslt", "*.patch")].sort
     end
 
-    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
 
     if darwin? && !cross_build_p
       recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
