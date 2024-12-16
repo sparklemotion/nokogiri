@@ -4,7 +4,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## 1.18.0.rc1 / 2024-12-16
 
 ### Notable Changes
 
@@ -21,7 +21,7 @@ This release drops precompiled native platform gems for `x86-linux` and `x86-min
 
 ### Improved
 
-* CSS and XPath queries are faster now that `Node#xpath`, `Node#css`, and related functions are re-using the underlying xpath context object (which is expensive to initialize). We benchmarked a 2.8x improvement for a 6kb file, and a more modest 1.3x improvement for a 70kb file. (#3378) @flavorjones
+* [CRuby] CSS and XPath queries are faster now that `Node#xpath`, `Node#css`, and related functions are re-using the underlying xpath context object (which is expensive to initialize). We benchmarked a 2.8x improvement for a 6kb file, and a more modest 1.3x improvement for a 70kb file. (#3378) @flavorjones
 
 
 ## v1.17.2 / 2024-12-12
