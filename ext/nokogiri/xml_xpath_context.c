@@ -402,6 +402,7 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
     );
   }
 
+  /* TODO: use xmlXPathSetErrorHandler (as of 2.13.0) */
   xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   xmlSetGenericErrorFunc((void *)rb_errors, _noko_xml_xpath_context__generic_exception_pusher);
 
