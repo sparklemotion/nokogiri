@@ -412,6 +412,78 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   return rb_xpath_object;
 }
 
+static xmlXPathContextPtr
+_noko_xml_xpath_context_initialize(void)
+{
+  xmlXPathContextPtr c_context = xmlXPathNewContext(NULL);
+
+  xmlXPathRegisterNs(c_context, NOKOGIRI_PREFIX, NOKOGIRI_URI);
+  xmlXPathRegisterNs(c_context, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
+
+  xmlXPathRegisterFuncNS(c_context,
+                         (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
+                         noko_xml_xpath_context_xpath_func_css_class);
+  xmlXPathRegisterFuncNS(c_context,
+                         (const xmlChar *)"local-name-is", NOKOGIRI_BUILTIN_URI,
+                         noko_xml_xpath_context_xpath_func_local_name_is);
+
+  return c_context;
+}
+
+static VALUE
+_noko_xml_xpath_context_protocontext(void)
+{
+  VALUE rb_context = rb_iv_get(cNokogiriXmlXpathContext, "@protocontext");
+
+  if (NIL_P(rb_context)) {
+    xmlXPathContextPtr c_context = _noko_xml_xpath_context_initialize();
+    rb_context = TypedData_Wrap_Struct(cNokogiriXmlXpathContext, &_noko_xml_xpath_context_type, c_context);
+    rb_iv_set(cNokogiriXmlXpathContext, "@protocontext", rb_context);
+  }
+
+  return rb_context;
+}
+
+static void *
+_noko_xml_xpath_context__xmlHashCopyPtr(void *payload, const xmlChar *name)
+{
+  return payload;
+}
+
+static void *
+_noko_xml_xpath_context__xmlHashCopyString(void *payload, const xmlChar *name)
+{
+  return xmlStrdup(payload);
+}
+
+static xmlHashTablePtr
+_noko_xml_xpath_context_copy_nsHash(xmlHashTablePtr hash)
+{
+  return xmlHashCopy(hash, _noko_xml_xpath_context__xmlHashCopyString);
+}
+
+static xmlHashTablePtr
+_noko_xml_xpath_context_copy_funcHash(xmlHashTablePtr hash)
+{
+  return xmlHashCopy(hash, _noko_xml_xpath_context__xmlHashCopyPtr);
+}
+
+static xmlXPathContextPtr
+_noko_xml_xpath_context_fast_initialize(void)
+{
+  xmlXPathContextPtr c_protocontext;
+  VALUE rb_protocontext = _noko_xml_xpath_context_protocontext();
+  TypedData_Get_Struct(rb_protocontext, xmlXPathContext, &_noko_xml_xpath_context_type, c_protocontext);
+
+  xmlXPathContextPtr c_context = xmlMalloc(sizeof(xmlXPathContext));
+  memcpy(c_context, c_protocontext, sizeof(xmlXPathContext));
+
+  c_context->funcHash = _noko_xml_xpath_context_copy_funcHash(c_protocontext->funcHash);
+  c_context->nsHash = _noko_xml_xpath_context_copy_nsHash(c_protocontext->nsHash);
+
+  return c_context;
+}
+
 /*
  * call-seq:
  *   new(node)
@@ -431,18 +503,9 @@ noko_xml_xpath_context_new(VALUE klass, VALUE rb_node)
   xmlXPathInit(); /* deprecated in 40483d0 */
 #endif
 
-  c_context = xmlXPathNewContext(c_node->doc);
+  c_context = _noko_xml_xpath_context_fast_initialize();
+  c_context->doc = c_node->doc;
   c_context->node = c_node;
-
-  xmlXPathRegisterNs(c_context, NOKOGIRI_PREFIX, NOKOGIRI_URI);
-  xmlXPathRegisterNs(c_context, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
-
-  xmlXPathRegisterFuncNS(c_context,
-                         (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
-                         noko_xml_xpath_context_xpath_func_css_class);
-  xmlXPathRegisterFuncNS(c_context,
-                         (const xmlChar *)"local-name-is", NOKOGIRI_BUILTIN_URI,
-                         noko_xml_xpath_context_xpath_func_local_name_is);
 
   rb_context = TypedData_Wrap_Struct(klass, &_noko_xml_xpath_context_type, c_context);
 
@@ -475,6 +538,8 @@ noko_init_xml_xpath_context(void)
   cNokogiriXmlXpathContext = rb_define_class_under(mNokogiriXml, "XPathContext", rb_cObject);
 
   rb_undef_alloc_func(cNokogiriXmlXpathContext);
+
+  rb_iv_set(cNokogiriXmlXpathContext, "@protocontext", Qnil);
 
   rb_define_singleton_method(cNokogiriXmlXpathContext, "new", noko_xml_xpath_context_new, 1);
 
