@@ -699,83 +699,27 @@ module Nokogiri
         end
       end
 
-      describe "re-using XPathContext objects within a thread" do
-        # see https://github.com/sparklemotion/nokogiri/issues/3266
-        # this optimization is CRuby-only, but we run the tests on JRuby for consistency
-        let(:doc) {
-          Nokogiri::XML::Document.parse(<<~XML)
-            <root xmlns="http://nokogiri.org/default" xmlns:ns1="http://nokogiri.org/ns1">
-              <child>default</child>
-              <ns1:child>ns1</ns1:child>
-            </root>
-          XML
-        }
-
-        it "clears registered namespaces" do
-          # make sure the thread-local XPathContext is initialized
-          doc.xpath("//xmlns:child")
-
-          # do namespaces behave the way we expect?
-          node = doc.at_xpath("//ns:child", { "ns" => "http://nokogiri.org/ns1" })
-          assert_equal("ns1", node.text)
-
-          assert_raises(XPath::SyntaxError) {
-            doc.at_xpath("//ns:child")
-          }
-
-          node = doc.at_xpath("//child")
-          assert_nil(node)
-
-          # make sure the nokogiri and nokogiri-builting namespaces are re-registered
-          doc.xpath("//xmlns:child[nokogiri:thing(.)]", @handler)
-          assert_equal(1, @handler.things.length)
-
-          if Nokogiri.uses_libxml?
-            nodes = doc.xpath("//xmlns:child[nokogiri-builtin:local-name-is('child')]")
-            assert_equal(1, nodes.length)
+      it "handles recursion OK" do
+        handler = Class.new do
+          def has_sizzle(node)
+            node.css("foo.sizzle").any?
           end
         end
 
-        it "clears registered handlers and functions" do
-          # make sure the thread-local XPathContext is initialized
-          doc.xpath("//xmlns:child")
+        doc = Nokogiri::XML::Document.parse(<<~XML)
+          <root>
+            <target id="1"><foo></foo></target>
+            <target id="2"><bar></bar></target>
+            <target id="3"><bar><foo class="sizzle"/></bar></target>
+          </root>
+        XML
 
-          doc.xpath("//xmlns:child[nokogiri:thing(.)]", @handler)
-          assert_equal(1, @handler.things.length)
+        result = doc.xpath("//target[nokogiri:has_sizzle(.)]", handler.new)
 
-          assert_raises(XPath::SyntaxError) {
-            doc.xpath("//xmlns:child[nokogiri:thing(.)]")
-          }
-
-          doc.xpath("//xmlns:child[nokogiri:thing(.)]", @handler)
-          assert_equal(2, @handler.things.length)
-
-          if Nokogiri.uses_libxml?
-            nodes = doc.xpath("//xmlns:child[nokogiri-builtin:local-name-is('child')]")
-            assert_equal(1, nodes.length)
-          end
-        end
-
-        it "clears registered variables" do
-          # make sure the thread-local XPathContext is initialized
-          doc.xpath("//xmlns:child")
-
-          nodes = @xml.xpath("//address[@domestic=$value]", nil, value: "Yes")
-          assert_equal(4, nodes.length)
-
-          assert_raises(XPath::SyntaxError) {
-            @xml.xpath("//address[@domestic=$value]")
-          }
-
-          nodes = @xml.xpath("//address[@domestic=$value]", nil, value: "Qwerty")
-          assert_empty(nodes)
-
-          assert_raises(XPath::SyntaxError) {
-            @xml.xpath("//address[@domestic=$value]")
-          }
-
-          nodes = @xml.xpath("//address[@domestic=$value]", nil, value: "Yes")
-          assert_equal(4, nodes.length)
+        assert_pattern do
+          result => [
+            {name: "target", attributes: [{ name: "id", value: "3" }] },
+          ]
         end
       end
     end
