@@ -480,6 +480,17 @@ noko_xml_xpath_context_set_node(VALUE rb_context, VALUE rb_node)
   c_context->doc = c_node->doc;
   c_context->node = c_node;
 
+  /* Note from @nwellnof in https://github.com/sparklemotion/nokogiri/pull/3378#issuecomment-2557001734:
+   *
+   * > Note that if you use a single XPath context and support custom XPath extension functions, a
+   * > custom function could evaluate XPath expressions recursively which will lead to corruption of
+   * > context variables. This is mostly due to some design mistakes in libxml2.
+   *
+   * So let's set these context variables back to their default.
+   */
+  c_context->contextSize = -1;
+  c_context->proximityPosition = -1;
+
   return rb_node;
 }
 
