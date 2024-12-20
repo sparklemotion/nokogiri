@@ -44,8 +44,8 @@ const unsigned char _gumbo_ascii_table[0x80] = {
 };
 
 // Table generation code.
-// clang -DGUMBO_GEN_TABLE=1 ascii.c && ./a.out && rm a.out
-#if GUMBO_GEN_TABLE
+// clang -DGUMBO_GEN_TABLE ascii.c && ./a.out && rm a.out
+#ifdef GUMBO_GEN_TABLE
 #include <stdio.h>
 
 int main() {

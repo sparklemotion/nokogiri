@@ -318,7 +318,7 @@ static GumboNode* create_node(GumboNodeType type) {
   return node;
 }
 
-static GumboNode* new_document_node() {
+static GumboNode* new_document_node(void) {
   GumboNode* document_node = create_node(GUMBO_NODE_DOCUMENT);
   document_node->parse_flags = GUMBO_INSERTION_BY_PARSER;
   gumbo_vector_init(1, &document_node->v.document.children);
@@ -1997,7 +1997,7 @@ static void adjust_svg_tag(GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   if (token->v.start_tag.tag == GUMBO_TAG_FOREIGNOBJECT) {
     assert(token->v.start_tag.name == NULL);
-    token->v.start_tag.name = "foreignObject";
+    token->v.start_tag.name = (char *)"foreignObject";
   } else if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN) {
     assert(token->v.start_tag.name);
     const StringReplacement *replacement = gumbo_get_svg_tag_replacement(
