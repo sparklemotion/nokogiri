@@ -144,13 +144,6 @@ noko_xml_xpath_context_register_ns(VALUE rb_context, VALUE prefix, VALUE uri)
 
   xmlXPathRegisterNs(c_context, (const xmlChar *)StringValueCStr(prefix), ns_uri);
 
-  VALUE registered_namespaces = rb_iv_get(rb_context, "@registered_namespaces");
-  if (NIL_P(uri)) {
-    rb_hash_delete(registered_namespaces, prefix);
-  } else {
-    rb_hash_aset(registered_namespaces, prefix, Qtrue);
-  }
-
   return rb_context;
 }
 
@@ -178,13 +171,6 @@ noko_xml_xpath_context_register_variable(VALUE rb_context, VALUE name, VALUE val
   }
 
   xmlXPathRegisterVariable(c_context, (const xmlChar *)StringValueCStr(name), xmlValue);
-
-  VALUE registered_variables = rb_iv_get(rb_context, "@registered_variables");
-  if (NIL_P(value)) {
-    rb_hash_delete(registered_variables, name);
-  } else {
-    rb_hash_aset(registered_variables, name, Qtrue);
-  }
 
   return rb_context;
 }
@@ -460,9 +446,6 @@ noko_xml_xpath_context_new(VALUE klass, VALUE rb_node)
                          noko_xml_xpath_context_xpath_func_local_name_is);
 
   rb_context = TypedData_Wrap_Struct(klass, &_noko_xml_xpath_context_type, c_context);
-
-  rb_iv_set(rb_context, "@registered_namespaces", rb_hash_new());
-  rb_iv_set(rb_context, "@registered_variables", rb_hash_new());
 
   return rb_context;
 }
