@@ -58,6 +58,7 @@ task :check_manifest, [:verbose] do |_, args|
     appveyor.yml
     **/compile_commands.json
     gumbo-parser/fuzzer/*
+    gumbo-parser/googletest/*
     gumbo-parser/test/*
     gumbo-parser/gperf-filter.sed
     lib/nokogiri/**/nokogiri.{jar,so}
