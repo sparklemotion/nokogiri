@@ -22,28 +22,6 @@ module Nokogiri
           register_variable(key, value)
         end
       end
-
-      if Nokogiri.uses_libxml?
-        def reset
-          return unless
-
-          @registered_namespaces.each do |key, _|
-            register_ns(key, nil)
-          end
-          unless @registered_namespaces.empty?
-            warn "Nokogiri::XML::XPathContext#reset: unexpected registered namespaces: #{@registered_namespaces.keys}"
-            @registered_namespaces.clear
-          end
-
-          @registered_variables.each do |key, _|
-            register_variable(key, nil)
-          end
-          unless @registered_variables.empty?
-            warn "Nokogiri::XML::XPathContext#reset: unexpected registered variables: #{@registered_variables.keys}"
-            @registered_variables.clear
-          end
-        end
-      end
     end
   end
 end
