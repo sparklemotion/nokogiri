@@ -1156,6 +1156,7 @@ unless config_system_libraries?
   end
 end
 
+$LIBPATH = []
 create_makefile("nokogiri/nokogiri")
 
 if config_clean?
