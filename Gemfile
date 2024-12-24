@@ -35,4 +35,5 @@ end
 # Then re-run `bundle install`.
 group :rdoc do
   gem "rdoc", "6.10.0"
+  gem "jar-dependencies", "0.4.1" if RUBY_PLATFORM == "java" # https://github.com/jruby/jruby/issues/7262
 end
