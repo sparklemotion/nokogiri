@@ -34,4 +34,10 @@ public class NokogiriXPathVariableResolver implements XPathVariableResolver
   {
     variables.put(new QName(name), value);
   }
+  public void
+  deregisterVariable(String name)
+  {
+    variables.remove(new QName(name));
+  }
+
 }

@@ -16,19 +16,19 @@ module Nokogiri
         xc = XPathContext.new(doc)
 
         assert_raises(XPath::SyntaxError) do
-          xc.evaluate("//xmlns:child")
+          xc.evaluate("//foo:child")
         end
 
-        xc.register_namespaces({ "xmlns" => "http://nokogiri.org/default" })
+        xc.register_namespaces({ "foo" => "http://nokogiri.org/default" })
         assert_pattern do
-          xc.evaluate("//xmlns:child") => [
+          xc.evaluate("//foo:child") => [
             { name: "child", namespace: { href: "http://nokogiri.org/default" } }
           ]
         end
 
-        xc.register_namespaces({ "xmlns" => nil })
+        xc.register_namespaces({ "foo" => nil })
         assert_raises(XPath::SyntaxError) do
-          xc.evaluate("//xmlns:child")
+          xc.evaluate("//foo:child")
         end
       end
 

@@ -154,7 +154,11 @@ public class XmlXpathContext extends RubyObject
   public IRubyObject
   register_ns(IRubyObject prefix, IRubyObject uri)
   {
-    nsContext.registerNamespace(prefix.asJavaString(), uri.asJavaString());
+    if (uri.isNil()) {
+      nsContext.deregisterNamespace(prefix.asJavaString());
+    } else {
+      nsContext.registerNamespace(prefix.asJavaString(), uri.asJavaString());
+    }
     return this;
   }
 
@@ -169,9 +173,22 @@ public class XmlXpathContext extends RubyObject
       variableResolver = NokogiriXPathVariableResolver.create();
       this.variableResolver = variableResolver;
     }
-    variableResolver.registerVariable(name.asJavaString(), value.asJavaString());
+    if (value.isNil()) {
+      variableResolver.deregisterVariable(name.asJavaString());
+    } else {
+      variableResolver.registerVariable(name.asJavaString(), value.asJavaString());
+    }
     return this;
   }
+
+  @JRubyMethod(name = "node=")
+  public IRubyObject
+  set_node(ThreadContext context, IRubyObject rb_node)
+  {
+    this.context = (XmlNode) rb_node;
+    return rb_node;
+  }
+
 
   private IRubyObject
   node_set(ThreadContext context, String expr, IRubyObject handler)

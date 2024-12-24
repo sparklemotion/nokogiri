@@ -107,4 +107,10 @@ public final class NokogiriNamespaceContext implements NamespaceContext
     register.put(prefix, uri);
   }
 
+  public void
+  deregisterNamespace(String prefix)
+  {
+    if ("xmlns".equals(prefix)) { prefix = ""; }
+    register.remove(prefix);
+  }
 }
