@@ -66,6 +66,9 @@ int xmlCtxtGetOptions(xmlParserCtxtPtr ctxt);
 #ifndef HAVE_XMLSWITCHENCODINGNAME
 int xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding);
 #endif
+#ifndef HAVE_XMLADDIDSAFE
+int xmlAddIDSafe(xmlAttrPtr attr, const xmlChar *value);
+#endif
 
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */

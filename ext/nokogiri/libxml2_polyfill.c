@@ -112,3 +112,15 @@ xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding)
   return (xmlSwitchToEncoding(ctxt, handler));
 }
 #endif
+
+#ifndef HAVE_XMLADDIDSAFE
+int
+xmlAddIDSafe(xmlAttrPtr attr, const xmlChar *value)
+{
+  xmlIDPtr id = xmlAddID(NULL, attr->doc, value, attr);
+  if (id) {
+    return 1;
+  }
+  return 0;
+}
+#endif

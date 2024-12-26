@@ -113,6 +113,71 @@ set_line(xmlNodePtr node, size_t line)
   }
 }
 
+// This function is essentially xmlNewNsProp, but we skip the full list traversal to append by
+// providing the last property in the linked list as a parameter.
+static xmlAttrPtr
+append_property(xmlNodePtr node, xmlNsPtr ns, const xmlChar *name, const xmlChar *value, xmlAttrPtr last_prop)
+{
+  xmlAttrPtr cur = (xmlAttrPtr) xmlMalloc(sizeof(xmlAttr));
+  if (cur == NULL) {
+    return NULL;
+  }
+  memset(cur, 0, sizeof(xmlAttr));
+  cur->type = XML_ATTRIBUTE_NODE;
+  cur->parent = node;
+  xmlDocPtr doc = node->doc;
+  cur->doc = doc;
+  cur->ns = ns;
+
+  if ((doc != NULL) && (doc->dict != NULL)) {
+    cur->name = (xmlChar *) xmlDictLookup(doc->dict, name, -1);
+  } else {
+    cur->name = xmlStrdup(name);
+  }
+  if (cur->name == NULL) {
+    goto error;
+  }
+
+  if (value != NULL) {
+    cur->children = xmlNewDocText(doc, value);
+    if (cur->children == NULL) {
+      goto error;
+    }
+    cur->last = NULL;
+    xmlNodePtr tmp = cur->children;
+    while (tmp != NULL) {
+      tmp->parent = (xmlNodePtr) cur;
+      if (tmp->next == NULL) {
+        cur->last = tmp;
+      }
+      tmp = tmp->next;
+    }
+
+    if (doc != NULL) {
+      int res = xmlIsID(doc, node, cur);
+      if (res < 0) {
+        goto error;
+      }
+      if ((res == 1) && (xmlAddIDSafe(cur, value) < 0)) {
+        goto error;
+      }
+    }
+  }
+
+  if (node->properties == NULL) {
+    node->properties = cur;
+  } else {
+    last_prop->next = cur;
+    cur->prev = last_prop;
+  }
+
+  return cur;
+
+error:
+  xmlFreeProp(cur);
+  return (NULL);
+}
+
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
 // at gumbo_node.
 static void
@@ -200,6 +265,7 @@ build_tree(
         xmlAddChild(xml_node, xml_child);
 
         // Add the attributes.
+        xmlAttrPtr last_prop = NULL;
         const GumboVector *attrs = &gumbo_child->v.element.attributes;
         for (size_t i = 0; i < attrs->length; i++) {
           const GumboAttribute *attr = attrs->data[i];
@@ -220,7 +286,9 @@ build_tree(
             default:
               ns = NULL;
           }
-          xmlNewNsProp(xml_child, ns, (const xmlChar *)attr->name, (const xmlChar *)attr->value);
+
+          // We micromanage the attribute list for performance reasons.
+          last_prop = append_property(xml_child, ns, (const xmlChar *)attr->name, (const xmlChar *)attr->value, last_prop);
         }
 
         // Add children for this element.
