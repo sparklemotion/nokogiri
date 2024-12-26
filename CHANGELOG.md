@@ -159,6 +159,10 @@ This release is focused on changes to Ruby version support, and is otherwise fun
 ### Fixed
 
 * [CRuby] XML::SAX::ParserContext keeps a reference to the input to avoid a potential use-after-free issue that's existed since v1.4.0 (2009). (#3395) @flavorjones
+### Improved
+
+* [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
+
 
 
 ## v1.18.0 / 2024-12-25

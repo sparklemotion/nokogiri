@@ -58,6 +58,10 @@
 #include "utf8.h"
 #include "util.h"
 #include "vector.h"
+#include "string_set.h"
+
+// Tuned this based on benchmark in https://github.com/sparklemotion/nokogiri/issues/2568
+#define GUMBO_ATTRIBUTES_LOOKUP_MIN_SIZE 16
 
 // Compared against _temporary_buffer to determine if we're in
 // double-escaped script mode.
@@ -99,6 +103,7 @@ typedef struct GumboInternalTagState {
   // attributes are added as soon as their attribute name state is complete, and
   // values are filled in by operating on _attributes.data[attributes.length-1].
   GumboVector /* GumboAttribute */ _attributes;
+  GumboStringSet* _attributes_lookup;
 
   // If true, the next attribute value to be finished should be dropped. This
   // happens if a duplicate attribute name is encountered - we want to consume
@@ -440,11 +445,9 @@ static StateResult emit_doctype(GumboParser* parser, GumboToken* output) {
   return EMIT_TOKEN;
 }
 
-// Debug-only function that explicitly sets the attribute vector data to NULL so
-// it can be asserted on tag creation, verifying that there are no memory leaks.
 static void mark_tag_state_as_empty(GumboTagState* tag_state) {
-  UNUSED_IF_NDEBUG(tag_state);
   tag_state->_name = NULL;
+  tag_state->_attributes_lookup = NULL;
 #ifndef NDEBUG
   tag_state->_attributes = kGumboEmptyVector;
 #endif
@@ -461,6 +464,7 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
     output->v.start_tag.attributes = tag_state->_attributes;
     output->v.start_tag.is_self_closing = tag_state->_is_self_closing;
     tag_state->_last_start_tag = tag_state->_tag;
+    gumbo_string_set_free(tag_state->_attributes_lookup);
     mark_tag_state_as_empty(tag_state);
     gumbo_debug(
         "Emitted start tag %s.\n", gumbo_normalized_tagname(tag_state->_tag));
@@ -480,6 +484,7 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
       gumbo_destroy_attribute(tag_state->_attributes.data[i]);
     }
     gumbo_free(tag_state->_attributes.data);
+    gumbo_string_set_free(tag_state->_attributes_lookup);
     mark_tag_state_as_empty(tag_state);
     gumbo_debug(
         "Emitted end tag %s.\n", gumbo_normalized_tagname(tag_state->_tag));
@@ -508,6 +513,7 @@ static void abandon_current_tag(GumboParser* parser) {
   }
   gumbo_free(tag_state->_name);
   gumbo_free(tag_state->_attributes.data);
+  gumbo_string_set_free(tag_state->_attributes_lookup);
   mark_tag_state_as_empty(tag_state);
   gumbo_string_buffer_destroy(&tag_state->_buffer);
   gumbo_debug("Abandoning current tag.\n");
@@ -786,6 +792,8 @@ static void finish_attribute_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
   GumboVector* /* GumboAttribute* */ attributes = &tag_state->_attributes;
+  GumboStringSet* attributes_lookup = tag_state->_attributes_lookup;
+  char* attr_name = NULL;
 
   int max_attributes = parser->_options->max_attributes;
   if (unlikely(max_attributes >= 0 && attributes->length >= (unsigned int) max_attributes)) {
@@ -796,32 +804,42 @@ static void finish_attribute_name(GumboParser* parser) {
     return;
   }
 
+  if (attributes->length >= GUMBO_ATTRIBUTES_LOOKUP_MIN_SIZE && tag_state->_attributes_lookup == NULL) {
+    // build the hash table of attributes
+    attributes_lookup = tag_state->_attributes_lookup = gumbo_string_set_new(GUMBO_ATTRIBUTES_LOOKUP_MIN_SIZE * 2);
+    for (unsigned int i = 0; i < attributes->length; ++i) {
+      GumboAttribute* attr = attributes->data[i];
+      gumbo_string_set_insert(attributes_lookup, attr->name);
+    }
+  }
+
   // May've been set by a previous attribute without a value; reset it here.
   tag_state->_drop_next_attr_value = false;
   assert(tag_state->_attributes.data);
   assert(tag_state->_attributes.capacity);
 
-  for (unsigned int i = 0; i < attributes->length; ++i) {
-    GumboAttribute* attr = attributes->data[i];
-    if (
-      strlen(attr->name) == tag_state->_buffer.length
-      && 0 == memcmp (
-        attr->name,
-        tag_state->_buffer.data,
-        tag_state->_buffer.length
-      )
-    ) {
-      // Identical attribute; bail.
-      add_duplicate_attr_error(parser);
-      reinitialize_tag_buffer(parser);
-      tag_state->_drop_next_attr_value = true;
-      return;
+  if (!attributes_lookup) {
+    for (unsigned int i = 0; i < attributes->length; ++i) {
+      GumboAttribute* attr = attributes->data[i];
+      if (strlen(attr->name) == tag_state->_buffer.length
+          && 0 == memcmp(attr->name, tag_state->_buffer.data, tag_state->_buffer.length)) {
+        goto duplicate_attribute;
+      }
+    }
+  } else {
+    attr_name = gumbo_string_buffer_to_string(&tag_state->_buffer);
+    if (gumbo_string_set_contains(attributes_lookup, attr_name)) {
+      goto duplicate_attribute;
     }
   }
 
   GumboAttribute* attr = gumbo_alloc(sizeof(GumboAttribute));
   attr->attr_namespace = GUMBO_ATTR_NAMESPACE_NONE;
-  copy_over_tag_buffer(parser, &attr->name);
+  if (attr_name) {
+    attr->name = attr_name;
+  } else {
+    copy_over_tag_buffer(parser, &attr->name);
+  }
   copy_over_original_tag_text (
     parser,
     &attr->original_name,
@@ -836,7 +854,19 @@ static void finish_attribute_name(GumboParser* parser) {
     &attr->name_end
   );
   gumbo_vector_add(attr, attributes);
+  if (attributes_lookup) {
+    gumbo_string_set_insert(attributes_lookup, attr->name);
+  }
   reinitialize_tag_buffer(parser);
+  return;
+
+duplicate_attribute:
+  // Identical attribute; bail.
+  gumbo_free(attr_name);
+  add_duplicate_attr_error(parser);
+  reinitialize_tag_buffer(parser);
+  tag_state->_drop_next_attr_value = true;
+  return;
 }
 
 // Finishes an attribute value. This sets the value of the most recently added
