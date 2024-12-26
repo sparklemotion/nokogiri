@@ -31,7 +31,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: "3.4"
           apt-get: "autogen libtool shtool"
           brew: "automake autogen libtool shtool"
           mingw: "autotools xz"
@@ -63,7 +63,7 @@ jobs:
   xmlsoft-head-valgrind:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
     steps:
       - uses: actions/checkout@v4
         with:
@@ -193,7 +193,7 @@ jobs:
   html5lib-tests:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.3
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
     steps:
       - uses: actions/checkout@v4
         with:
@@ -201,7 +201,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ports
-          key: ports-ubuntu-3.3-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
+          key: ports-ubuntu-3.4-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - name: Update html5lib-tests
         run: |
           cd test/html5lib-tests

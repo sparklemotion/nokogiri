@@ -9,7 +9,7 @@ module DockerHelper
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
     # engine → array of ruby minor version docker tags
-    mri: ["3.1", "3.2", "3.3", "3.4-rc"],
+    mri: ["3.1", "3.2", "3.3", "3.4"],
   }
 
   class << self

@@ -1,4 +1,4 @@
-FROM ruby:3.4-rc
+FROM ruby:3.4
 
 # include_file debian-prelude.step
 # -*- dockerfile -*-
@@ -9,16 +9,10 @@ RUN apt-get upgrade -y
 RUN apt-get install -y apt-utils
 
 
-# include_file valgrind-from-source.step
+# include_file debian-valgrind.step
 # -*- dockerfile -*-
 
-RUN apt-get install -y libc6-dbg
-RUN wget https://sourceware.org/pub/valgrind/valgrind-3.21.0.tar.bz2 && \
-    tar -xf valgrind-3.21.0.tar.bz2 && \
-    cd valgrind-3.21.0 && \
-    ./configure && \
-    make && \
-    make install
+RUN apt-get install -y valgrind
 
 
 # include_file debian-libxml-et-al.step
