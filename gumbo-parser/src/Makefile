@@ -13,9 +13,11 @@ gumbo_objs := \
 	char_ref.o \
 	error.o \
 	foreign_attrs.o \
+	hashmap.o \
 	parser.o \
 	string_buffer.o \
 	string_piece.o \
+	string_set.o \
 	svg_attrs.o \
 	svg_tags.o \
 	tag.o \

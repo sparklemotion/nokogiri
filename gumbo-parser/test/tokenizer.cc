@@ -4684,6 +4684,42 @@ TEST_F(GumboTokenizerTest, Data_MultipleAttributes) {
   NextChar('z');
 }
 
+TEST_F(GumboTokenizerTest, Data_DuplicateAttributes) {
+  SetInput("<span foo='123' bar='456' foo='789' baz='abc'>");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+
+  Error(GUMBO_ERR_DUPLICATE_ATTRIBUTE);
+  ASSERT_EQ(3, token_.v.start_tag.attributes.length);
+
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("123", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[1]);
+  EXPECT_STREQ("bar", attr->name);
+  EXPECT_STREQ("456", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[2]);
+  EXPECT_STREQ("baz", attr->name);
+  EXPECT_STREQ("abc", attr->value);
+}
+
+TEST_F(GumboTokenizerTest, Data_DuplicateAttributesWithHashtable) {
+  SetInput("<span a='1' b='1' c='1' d='1' e='1' f='1' g='1' h='1' i='1' j='1' k='1' l='1' m='1' n='1' o='1' p='1' q='1' r='1' s='1' t='1' u='1' v='1' w='1' x='1' y='1' z='1' a='1'>");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+
+  Error(GUMBO_ERR_DUPLICATE_ATTRIBUTE);
+  ASSERT_EQ(26, token_.v.start_tag.attributes.length);
+
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("a", attr->name);
+  EXPECT_STREQ("1", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[25]);
+  EXPECT_STREQ("z", attr->name);
+  EXPECT_STREQ("1", attr->value);
+}
+
 TEST_F(GumboTokenizerTest, Data_LT_Alpha_Slash_GT) {
   SetInput("<br/>z");
   NextStartTag(GUMBO_TAG_BR);
