@@ -33,7 +33,8 @@ end
 # If Psych doesn't build, you can disable this group locally by running
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
-group :rdoc do
-  gem "rdoc", "6.10.0"
-  gem "jar-dependencies", "0.4.1" if RUBY_PLATFORM == "java" # https://github.com/jruby/jruby/issues/7262
+unless RUBY_PLATFORM == "java" # see #3391 and https://github.com/jruby/jruby/issues/7262
+  group :rdoc do
+    gem "rdoc", "6.10.0"
+  end
 end
