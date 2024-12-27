@@ -31,7 +31,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          ruby-version: "3.4"
+          ruby-version: "3.3"
           apt-get: "autogen libtool shtool"
           brew: "automake autogen libtool shtool"
           mingw: "autotools xz"
