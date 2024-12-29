@@ -313,5 +313,29 @@ class TestMemoryUsage < Nokogiri::TestCase
         # Expected error. This comment makes rubocop happy.
       end
     end
+
+    it "XML::SAX::ParserContext.io holds a reference to IO input" do
+      content = File.read(XML_ATOM_FILE)
+
+      memwatch(__method__) do
+        pc = Nokogiri::XML::SAX::ParserContext.io(StringIO.new(content), "ISO-8859-1")
+        parser = Nokogiri::XML::SAX::Parser.new(Nokogiri::SAX::TestCase::Doc.new)
+        GC.stress
+        pc.parse_with(parser)
+
+        assert_equal(472, parser.document.data.length)
+      end
+    end
+
+    it "XML::SAX::ParserContext.memory holds a reference to string input" do
+      memwatch(__method__) do
+        pc = Nokogiri::XML::SAX::ParserContext.memory(File.read(XML_ATOM_FILE), "ISO-8859-1")
+        parser = Nokogiri::XML::SAX::Parser.new(Nokogiri::SAX::TestCase::Doc.new)
+        GC.stress
+        pc.parse_with(parser)
+
+        assert_equal(472, parser.document.data.length)
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
