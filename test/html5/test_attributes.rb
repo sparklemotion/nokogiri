@@ -15,4 +15,16 @@ class TestHtml5Attributes < Nokogiri::TestCase
     assert_equal('id="foo"', id_attr.to_html)
     assert_equal('class="bar baz"', class_attr.to_html)
   end
+
+  def test_duplicate_attributes
+    html = +"<span "
+    ("aa".."zz").each do |attr|
+      html << "#{attr}='1' "
+    end
+    html << " bb='2' >"
+    span = Nokogiri::HTML5::DocumentFragment.parse(html, max_attributes: 1000).at_css("span")
+
+    assert_equal(676, span.attributes.length, "duplicate attribute should be silently ignored")
+    assert_equal("1", span["bb"], "bb attribute should hold the value of the first occurrence")
+  end
 end if Nokogiri.uses_gumbo?

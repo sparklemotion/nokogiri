@@ -15,6 +15,7 @@ Note that this document is broken into multiple sections, each of which describe
   * [Native WindowsⓇ platform releases ("x64-mingw-ucrt")](#native-windows%E2%93%A1-platform-releases-x64-mingw-ucrt)
   * [JavaⓇ (JRuby) platform release ("java")](#java%E2%93%A1-jruby-platform-release-java)
 - [Appendix: Dependencies' License Texts](#appendix-dependencies-license-texts)
+  * [hashmap.c](#hashmapc)
   * [libgumbo](#libgumbo)
   * [libxml2](#libxml2)
   * [libxslt](#libxslt)
@@ -110,6 +111,34 @@ This distribution can be identified by inspecting the included Gem::Specificatio
 This section contains a subsection for each potentially-distributed dependency, which includes the name of the license and the license text.
 
 Please see previous sections to understand which of these potential dependencies is actually distributed in the gem file you're downloading and using.
+
+
+### hashmap.c
+
+MIT
+
+https://github.com/tidwall/hashmap.c/blob/master/LICENSE
+
+    The MIT License (MIT)
+
+    Copyright (c) 2020 Joshua J Baker
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+    the Software, and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 ### libgumbo
