@@ -102,7 +102,10 @@ noko_xml_sax_parser_context_s_native_io(VALUE rb_class, VALUE rb_io, VALUE rb_en
     c_context->sax = NULL;
   }
 
-  return noko_xml_sax_parser_context_wrap(rb_class, c_context);
+  VALUE rb_context = noko_xml_sax_parser_context_wrap(rb_class, c_context);
+  rb_iv_set(rb_context, "@input", rb_io);
+
+  return rb_context;
 }
 
 /* :nodoc: */
@@ -154,7 +157,10 @@ noko_xml_sax_parser_context_s_native_memory(VALUE rb_class, VALUE rb_input, VALU
     c_context->sax = NULL;
   }
 
-  return noko_xml_sax_parser_context_wrap(rb_class, c_context);
+  VALUE rb_context = noko_xml_sax_parser_context_wrap(rb_class, c_context);
+  rb_iv_set(rb_context, "@input", rb_input);
+
+  return rb_context;
 }
 
 /*
