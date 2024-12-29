@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.18.1 / unreleased
+
+### Fixed
+
+* [CRuby] XML::SAX::ParserContext keeps a reference to the input to avoid a potential use-after-free issue that's existed since v1.4.0 (2009). (#3395) @flavorjones
+
+
 ## v1.18.0 / 2024-12-25
 
 ### Notable Changes
