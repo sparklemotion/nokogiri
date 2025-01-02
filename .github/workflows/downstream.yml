@@ -32,11 +32,10 @@ jobs:
             name: rails-html-sanitizer
             command: "bundle exec rake test"
             ruby: "3.4"
-          # # pending a fix for https://github.com/sparklemotion/nokogiri/pull/3348
-          # - url: https://github.com/rgrove/sanitize
-          #   name: sanitize
-          #   command: "bundle exec rake test"
-          #   ruby: "3.4"
+          - url: https://github.com/rgrove/sanitize
+            name: sanitize
+            command: "bundle exec rake test"
+            ruby: "3.4"
           - url: https://github.com/ebeigarts/signer
             name: signer
             command: "bundle exec rake spec"
