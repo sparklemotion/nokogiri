@@ -319,21 +319,6 @@ const char* gumbo_normalized_tagname(GumboTag tag);
 void gumbo_tag_from_original_text(GumboStringPiece* text);
 
 /**
- * Fixes the case of SVG elements that are not all lowercase. This is
- * not done at parse time because there's no place to store a mutated
- * tag name. `tag_name` is an enum (which will be `TAG_UNKNOWN` for most
- * SVG tags without special handling), while `original_tag_name` is a
- * pointer into the original buffer. Instead, we provide this helper
- * function that clients can use to rename SVG tags as appropriate.
- * Returns the case-normalized SVG tagname if a replacement is found, or
- * `NULL` if no normalization is called for. The return value is static
- * data and owned by the library.
- *
- * @see https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inforeign
- */
-const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tagname);
-
-/**
  * Converts a tag name string (which may be in upper or mixed case) to a
  * tag enum.
  */
