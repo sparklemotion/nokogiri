@@ -1962,14 +1962,6 @@ static void merge_attributes (
 #endif
 }
 
-const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
-  const StringReplacement *replacement = gumbo_get_svg_tag_replacement (
-    tag->data,
-    tag->length
-  );
-  return replacement ? replacement->to : NULL;
-}
-
 // https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
 // This destructively modifies any matching attributes on the token and sets the
 // namespace appropriately.
