@@ -10,7 +10,7 @@ group :development do
   gem "rake", "13.2.1"
 
   # building extensions
-  gem "rake-compiler", "1.2.8"
+  gem "rake-compiler", "1.2.9"
   gem "rake-compiler-dock", "1.8.0"
 
   # parser generator
