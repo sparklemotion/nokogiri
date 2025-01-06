@@ -11,6 +11,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
 
 
+### Dependencies
+
+* [CRuby] Update to rake-compiler-dock v1.8.0 for building precompiled native gems. (#3404) @flavorjones
+
+
 ## v1.18.1 / 2024-12-29
 
 ### Fixed
@@ -36,6 +41,11 @@ This release drops precompiled native platform gems for `x86-linux` and `x86-min
 ### Improved
 
 * [CRuby] CSS and XPath queries are faster now that `Node#xpath`, `Node#css`, and related functions are using a faster XPathContext initialization process. We benchmarked a 1.9x improvement for a 6kb file. Big thanks to @nwellnhof for helping with this one. (#3378, superseded by #3389) @flavorjones
+
+
+### Dependencies
+
+* [CRuby] Update to rake-compiler-dock v1.7.0 for building precompiled native gems. (#3375, #3392) @flavorjones
 
 
 ## v1.17.2 / 2024-12-12
