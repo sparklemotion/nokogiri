@@ -627,7 +627,7 @@ end
 def needs_darwin_linker_hack
   config_cross_build? &&
     darwin? &&
-    Gem::Requirement.new("~> 3.2").satisfied_by?(Gem::Version.new(RbConfig::CONFIG["ruby_version"].split("+").first))
+    RbConfig::MAKEFILE_CONFIG["EXTDLDFLAGS"].include?("-bundle_loader")
 end
 
 #
@@ -763,10 +763,6 @@ else
 
   cross_build_p = config_cross_build?
   message "Cross build is #{cross_build_p ? "enabled" : "disabled"}.\n"
-
-  if needs_darwin_linker_hack
-    append_ldflags("-Wl,-flat_namespace")
-  end
 
   require "yaml"
   dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
