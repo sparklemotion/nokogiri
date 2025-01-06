@@ -124,9 +124,12 @@ module Nokogiri
 
                 # no final newline on jruby. descriptive, not prescriptive.
                 expected_length = Nokogiri.jruby? ? xml.bytesize - 1 : xml.bytesize
-
-                assert_equal(Encoding::UTF_8, output.encoding)
                 assert_equal(expected_length, output.bytesize)
+
+                # Note: I dropped the assertion on the encoding of the string return from io.read
+                # because this behavior has changed back and forth in rubyzip versions 2.4.1 and
+                # 3.0.0.dev, and it's not relevant to the original bug report which was about an
+                # exception during writing.
               end
             end
           end
