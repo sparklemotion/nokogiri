@@ -32,7 +32,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "3.3"
-          apt-get: "autogen libtool shtool"
+          apt-get: "autogen libtool shtool liblzma-dev"
           brew: "automake autogen libtool shtool"
           mingw: "autotools xz"
           bundler-cache: true
