@@ -16,8 +16,8 @@ rescue LoadError => e
 
         If that's the case, then please install Nokogiri via the `ruby` platform gem:
             gem install nokogiri --platform=ruby
-        or:
-            bundle config set force_ruby_platform true
+        or, in your Gemfile:
+            gem "nokogiri", force_ruby_platform: true
 
         Please visit https://nokogiri.org/tutorials/installing_nokogiri.html for more help.
 
