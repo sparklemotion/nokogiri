@@ -164,6 +164,13 @@ describe Nokogiri::CSS::XPathVisitor do
         )
       end
 
+      it "default namespace is not applied to wildcard selectors" do
+        assert_equal(
+          ["//xmlns:a//*"],
+          Nokogiri::CSS.xpath_for("a *", ns: ns, cache: false),
+        )
+      end
+
       it "intentionally-empty namespace omits the default xmlns" do
         # An intentionally-empty namespace
         assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns, cache: false))

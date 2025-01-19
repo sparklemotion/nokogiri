@@ -283,7 +283,8 @@ module Nokogiri
           else
             node.value.join(":")
           end
-        elsif @namespaces&.key?("xmlns") # apply the default namespace if it's declared
+        elsif node.value.first != "*" && @namespaces&.key?("xmlns")
+          # apply the default namespace (if one is present) to a non-wildcard selector
           "xmlns:#{node.value.first}"
         else
           node.value.first
