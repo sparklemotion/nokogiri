@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.18.2 / 2024-01-19
+
+### Fixed
+
+* When performing a CSS selector query, an XML document's root namespace declarations should not be applied to wildcard selectors (`"*"`). Fixes a bug introduced in v1.17.0. (#3411) @flavorjones
+
+
 ## v1.18.1 / 2024-12-29
 
 ### Fixed
