@@ -4,7 +4,7 @@ require "rdoc/task"
 
 def rdoc_nokogiri_common_options(rdoc)
   rdoc.rdoc_files
-    .include("README.md", "lib/**/*.rb", "ext/**/*.c")
+    .include("README.md", "lib/**/*.rb", "ext/**/*.c", "doc/*md")
     .exclude("ext/nokogiri/test_global_handlers.c")
   rdoc.options << "--embed-mixins"
   rdoc.options << "--main=README.md"

@@ -59,6 +59,7 @@ Gem::Specification.new do |spec|
     "README.md",
     "bin/nokogiri",
     "dependencies.yml",
+    "doc/keyword_arguments.md",
     "ext/java/nokogiri/Html4Document.java",
     "ext/java/nokogiri/Html4ElementDescription.java",
     "ext/java/nokogiri/Html4EntityLookup.java",
