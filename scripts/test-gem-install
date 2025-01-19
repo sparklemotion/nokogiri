@@ -28,6 +28,7 @@ popd
 # 2.3.21 because https://github.com/rubygems/rubygems/issues/5914
 # 2.3.22 because https://github.com/rubygems/rubygems/issues/5940
 gem install bundler -v "~> 2.2, != 2.3.21, != 2.3.22"
+bundle config set --local without rdoc
 bundle install --local || bundle install
 
 rm -rf lib ext # ensure we don't use the local files

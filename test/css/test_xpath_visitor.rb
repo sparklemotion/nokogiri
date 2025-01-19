@@ -143,12 +143,45 @@ describe Nokogiri::CSS::XPathVisitor do
       )
     end
 
-    it "# id" do
-      assert_xpath("//*[@id='foo']", "#foo")
-      assert_xpath("//*[@id='escape:needed,']", "#escape\\:needed\\,")
-      assert_xpath("//*[@id='escape:needed,']", '#escape\3Aneeded\,')
-      assert_xpath("//*[@id='escape:needed,']", '#escape\3A needed\2C')
-      assert_xpath("//*[@id='escape:needed']", '#escape\00003Aneeded')
+    describe "namespaces" do
+      let(:ns) do
+        {
+          "xmlns" => "http://default.example.com/",
+          "hoge" => "http://hoge.example.com/",
+        }
+      end
+
+      it "basic mechanics" do
+        assert_xpath("//a[@flavorjones:href]", "a[flavorjones|href]")
+        assert_xpath("//a[@href]", "a[|href]")
+        assert_xpath("//*[@flavorjones:href]", "*[flavorjones|href]")
+      end
+
+      it "default namespace is applied to elements but not attributes" do
+        assert_equal(
+          ["//xmlns:a[@class='bar']"],
+          Nokogiri::CSS.xpath_for("a[class='bar']", ns: ns, cache: false),
+        )
+      end
+
+      it "default namespace is not applied to wildcard selectors" do
+        assert_equal(
+          ["//xmlns:a//*"],
+          Nokogiri::CSS.xpath_for("a *", ns: ns, cache: false),
+        )
+      end
+
+      it "intentionally-empty namespace omits the default xmlns" do
+        # An intentionally-empty namespace
+        assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns, cache: false))
+      end
+
+      it "explicit namespaces are applied to attributes" do
+        assert_equal(
+          ["//xmlns:a[@hoge:class='bar']"],
+          Nokogiri::CSS.xpath_for("a[hoge|class='bar']", ns: ns, cache: false),
+        )
+      end
     end
 
     describe "attribute" do
@@ -159,36 +192,18 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//h1[@a='test']", %q{h1[a=\te\st]})
       end
 
+      it "#id escaping" do
+        assert_xpath("//*[@id='foo']", "#foo")
+        assert_xpath("//*[@id='escape:needed,']", "#escape\\:needed\\,")
+        assert_xpath("//*[@id='escape:needed,']", '#escape\3Aneeded\,')
+        assert_xpath("//*[@id='escape:needed,']", '#escape\3A needed\2C')
+        assert_xpath("//*[@id='escape:needed']", '#escape\00003Aneeded')
+      end
+
       it "parses leading @ (extended-syntax)" do
         assert_xpath("//a[@id='Boing']", "a[@id='Boing']")
         assert_xpath("//a[@id='Boing']", "a[@id = 'Boing']")
         assert_xpath("//a[@id='Boing']//div", "a[@id='Boing'] div")
-      end
-
-      it "namespacing" do
-        assert_xpath("//a[@flavorjones:href]", "a[flavorjones|href]")
-        assert_xpath("//a[@href]", "a[|href]")
-        assert_xpath("//*[@flavorjones:href]", "*[flavorjones|href]")
-
-        ns = {
-          "xmlns" => "http://default.example.com/",
-          "hoge" => "http://hoge.example.com/",
-        }
-
-        # An intentionally-empty namespace means "don't use the default xmlns"
-        assert_equal(["//a"], Nokogiri::CSS.xpath_for("|a", ns: ns, cache: false))
-
-        # The default namespace is not applied to attributes (just elements)
-        assert_equal(
-          ["//xmlns:a[@class='bar']"],
-          Nokogiri::CSS.xpath_for("a[class='bar']", ns: ns, cache: false),
-        )
-
-        # We can explicitly apply a namespace to an attribue
-        assert_equal(
-          ["//xmlns:a[@hoge:class='bar']"],
-          Nokogiri::CSS.xpath_for("a[hoge|class='bar']", ns: ns, cache: false),
-        )
       end
 
       it "rhs with quotes" do
