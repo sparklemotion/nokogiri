@@ -5,13 +5,6 @@ require "helper"
 module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
-      #
-      # Note that many of these tests vary for jruby because custom xpath functions in JRuby require
-      # a namespace, and libxml2 (and the original implementation of Nokogiri) do not.
-      #
-      # Ideally we should change this to always require a namespace.
-      # See https://github.com/sparklemotion/nokogiri/issues/2147
-      #
       def setup
         super
 
