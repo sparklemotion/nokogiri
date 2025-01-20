@@ -38,7 +38,6 @@ task :check_manifest, [:verbose] do |_, args|
     [0-9]*
   }
   ignore_files = %w[
-    .cross_rubies
     .editorconfig
     .gitignore
     .gitmodules
