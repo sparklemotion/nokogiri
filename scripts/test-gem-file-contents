@@ -16,8 +16,10 @@ require "bundler/inline"
 gemfile do
   source "https://rubygems.org"
   gem "minitest"
+  gem "rake-compiler-dock", ">= 1.9.1"
 end
 
+require "rake_compiler_dock"
 require "yaml"
 
 def usage_and_exit(message = nil)
@@ -68,22 +70,10 @@ require "minitest/autorun"
 
 puts "Testing '#{gemfile}' (#{gemspec.platform})"
 describe File.basename(gemfile) do
-  let(:cross_rubies_path) { File.join(File.dirname(__FILE__), "..", ".cross_rubies") }
+  let(:native_config) { YAML.load_file(File.join(__dir__, "..", "misc", "native.yml")) }
 
-  let(:platform_supported_ruby_versions) do
-    File.read(cross_rubies_path).split("\n").filter_map do |line|
-      ver, plat = line.split(":")
-      next if plat != gemspec.platform.to_s
-
-      ver.split(".").take(2).join(".") # ugh
-    end.uniq.sort
-  end
-
-  let(:all_supported_ruby_versions) do
-    File.read(cross_rubies_path).split("\n").map do |line|
-      ver, _ = line.split(":")
-      ver.split(".").take(2).join(".") # ugh
-    end.uniq.sort
+  let(:supported_ruby_versions) do
+    native_config["rubies"]
   end
 
   describe "setup" do
@@ -194,7 +184,7 @@ describe File.basename(gemfile) do
     end
 
     it "contains expected shared library files " do
-      platform_supported_ruby_versions.each do |version|
+      supported_ruby_versions.each do |version|
         actual = gemfile_contents.find do |p|
           File.fnmatch?("lib/nokogiri/#{version}/nokogiri.{so,bundle}", p, File::FNM_EXTGLOB)
         end
@@ -210,15 +200,16 @@ describe File.basename(gemfile) do
         File.fnmatch?("lib/nokogiri/**/*.{so,bundle}", p, File::FNM_EXTGLOB)
       end
       assert_equal(
-        platform_supported_ruby_versions.length,
+        supported_ruby_versions.length,
         actual.length,
         "did not expect extra shared library files",
       )
     end
 
     it "sets required_ruby_version appropriately" do
-      unsupported_versions = all_supported_ruby_versions - platform_supported_ruby_versions
-      platform_supported_ruby_versions.each do |v|
+      all_supported_ruby_versions = RakeCompilerDock.cross_rubies.keys
+      unsupported_versions = all_supported_ruby_versions - supported_ruby_versions
+      supported_ruby_versions.each do |v|
         assert(
           gemspec.required_ruby_version.satisfied_by?(Gem::Version.new(v)),
           "required_ruby_version='#{gemspec.required_ruby_version}' should support ruby #{v}",

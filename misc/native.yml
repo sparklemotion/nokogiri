@@ -1,0 +1,16 @@
+# configuration file for precompiled native gem packaging
+platforms:
+  - aarch64-linux-gnu
+  - aarch64-linux-musl
+  - arm64-darwin
+  - arm-linux-gnu
+  - arm-linux-musl
+  - x64-mingw-ucrt
+  - x86_64-darwin
+  - x86_64-linux-gnu
+  - x86_64-linux-musl
+rubies:
+  - "3.4"
+  - "3.3"
+  - "3.2"
+  - "3.1"

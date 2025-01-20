@@ -2,6 +2,8 @@
 
 require "rbconfig"
 require "shellwords"
+require "rake_compiler_dock"
+require "yaml"
 
 CrossRuby = Struct.new(:version, :platform) do
   LINUX_PLATFORM_REGEX = /linux/
@@ -166,16 +168,14 @@ CrossRuby = Struct.new(:version, :platform) do
   end
 end
 
-CROSS_RUBIES = File.read(".cross_rubies").split("\n").filter_map do |line|
-  case line
-  when /\A([^#]+):([^#]+)/
-    CrossRuby.new(Regexp.last_match(1), Regexp.last_match(2))
+native_config = YAML.load_file("misc/native.yml")
+CROSS_RUBIES = native_config["platforms"].flat_map do |platform|
+  native_config["rubies"].map do |minor|
+    version = RakeCompilerDock.cross_rubies[minor]
+    CrossRuby.new(version, platform)
   end
 end
-
-ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
-
-require "rake_compiler_dock"
+RakeCompilerDock.set_ruby_cc_version(*native_config["rubies"])
 
 def java?
   RUBY_PLATFORM.include?("java")
@@ -375,7 +375,6 @@ if java?
   end
 else
   require "rake/extensiontask"
-  require "yaml"
 
   dependencies = YAML.load_file("dependencies.yml")
 
