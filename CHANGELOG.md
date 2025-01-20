@@ -13,7 +13,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Dependencies
 
-* [CRuby] Update to rake-compiler-dock v1.8.0 for building precompiled native gems. (#3404) @flavorjones
+* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
 ## v1.18.1 / 2024-12-29
