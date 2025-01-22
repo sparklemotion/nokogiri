@@ -6,7 +6,10 @@
 module Nokogiri
   module XML
     #
-    # \Class to house options for parsing \XML or \HTML4 (but not \HTML5).
+    # \Class to contain options for parsing \XML or \HTML4 (but not \HTML5).
+    #
+    # 💡 Note that \HTML5 parsing has a separate, orthogonal set of options due to the nature of the
+    # \HTML5 specification. See Nokogiri::HTML5.
     #
     # ## About the Examples
     #
@@ -26,7 +29,7 @@ module Nokogiri
     #
     # ## Parsing Methods
     #
-    # Each of the methods listed below performs parsing for an \XML or \HTML4 source:
+    # Each of the parsing methods performs parsing for an \XML or \HTML4 source:
     #
     # - Each requires a leading argument that specifies the source of the text to be parsed;
     #   except as noted, the argument's value may be either:
@@ -63,44 +66,12 @@ module Nokogiri
     # - Each (except as noted) accepts a block that allows parsing options to be specified;
     #   see [Options-Setting Blocks](rdoc-ref:ParseOptions@Options-Setting+Blocks).
     #
-    # The methods:
-    #
-    # - Nokogiri.HTML.
-    # - Nokogiri.HTML4.
-    # - Nokogiri.XML.
-    # - Nokogiri.make.
-    # - Nokogiri.parse.
-    # - Nokogiri::HTML.
-    # - Nokogiri::HTML.fragment.
-    # - Nokogiri::HTML4.
-    # - Nokogiri::HTML4.fragment.
-    # - Nokogiri::HTML4.parse.
-    # - Nokogiri::HTML4::Document.parse.
-    # - Nokogiri::HTML4::DocumentFragment.new.
-    # - Nokogiri::HTML4::DocumentFragment.parse.
-    # - Nokogiri::XML.Reader.
-    # - Nokogiri::XML::Reader.from_io (no block; input must be IO; options must be integer).
-    # - Nokogiri::XML::Reader.from_memory (no block; input must be string; options must be integer).
-    # - Nokogiri::XML.fragment.
-    # - Nokogiri::XML.parse (block does not get options).
-    # - Nokogiri::XML::Document.parse.
-    # - Nokogiri::XML::Document.read_io (no block; input must be IO; options must be integer).
-    # - Nokogiri::XML::Document.read_memory (no block; input must be string; options must be integer).
-    # - Nokogiri::XML::DocumentFragment.new.
-    # - Nokogiri::XML::DocumentFragment.parse.
-    # - Nokogiri::XML::Node#parse.
-    # - Nokogiri::XML::Reader.from_io (no block; input must be IO; options must be integer).
-    # - Nokogiri::XML::Reader.from_memory (no block; input must be string; options must be integer).
-    # - Nokogiri::XML::RelaxNG.new (no block).
-    # - Nokogiri::XML::RelaxNG.from_document (no block; input must be document).
-    # - Nokogiri::XML::RelaxNG.read_memory (no block, input must be string; options must be integer).
-    # - Nokogiri::XML::Schema.from_document (no block; input must be document).
-    # - Nokogiri::XML::Schema.new (no block).
-    # - Nokogiri::XML::Schema.read_memory (no block).
-    # - XSD::XMLParser::Nokogiri.new (no block).
-    #
     # Certain other parsing methods use different options;
-    # see HTML5.
+    # see \HTML5.
+    #
+    # ⚠ Not all parse options are supported on JRuby.
+    # \Nokogiri attempts to invoke the equivalent
+    # behavior in Xerces/NekoHTML on JRuby when it's possible.
     #
     # ## Bitmap Constants
     #
@@ -193,6 +164,9 @@ module Nokogiri
     # # => #<Nokogiri::XML::ParseOptions: ... recover, noent, dtdload, dtdattr, nonet, nocdata, big_lines, default_xslt, default_schema, default_xml>    #
     # ```
     #
+    # \Nokogiri itself uses these shorthand constants for its parsing,
+    # and they are generally most suitable for \Nokogiri users' code.
+    #
     # ## Options-Setting Blocks
     #
     # Many of the [parsing methods](rdoc-ref:ParseOptions@Parsing+Methods)
@@ -235,6 +209,7 @@ module Nokogiri
     #     ```
     #
     # - **Unsetters**: each begins with `no`, and turns **off** an option.
+    #
     #   Note that there is no unsetter `nostrict`,
     #   but the setter `recover` serves the same purpose:
     #
@@ -250,6 +225,14 @@ module Nokogiri
     #     options.nonoent # Unset NOENT.
     #     # => #<Nokogiri::XML::ParseOptions: ... recover>
     #     ```
+    #
+    # 💡 Note that some options begin with `no`, leading to the logical but perhaps unintuitive
+    #  double negative:
+    #
+    # ```
+    # po.nocdata # Set the NOCDATA parse option
+    # po.nonocdata # Unset the NOCDATA parse option
+    # ```
     #
     # - **Queries**: each ends with `?`, and returns whether an option is **on** or **off**:
     #
@@ -274,70 +257,74 @@ module Nokogiri
       # Recover from errors in input; no strict parsing.
       RECOVER     = 1 << 0
 
-      # Substitute entities.
+      # Substitute entities. Off by default.
       #  ⚠ This option enables entity substitution, contrary to what the name implies.
       #  ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       NOENT       = 1 << 1
 
-      # Load external subsets.
+      # Load external subsets. On by default for XSLT::Stylesheet.
       #  ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       DTDLOAD     = 1 << 2
 
-      # Default DTD attributes.
+      # Default DTD attributes. On by default for XSLT::Stylesheet.
       DTDATTR     = 1 << 3
 
-      # Validate with the DTD.
+      # Validate with the DTD. Off by default.
       DTDVALID    = 1 << 4
 
-      # Suppress error reports.
+      # Suppress error reports. On by default for HTML4::Document and HTML4::DocumentFragment.
       NOERROR     = 1 << 5
 
-      # Suppress warning reports.
+      # Suppress warning reports.  On by default for HTML4::Document and HTML4::DocumentFragment.
       NOWARNING   = 1 << 6
 
-      # Enable pedantic error reporting.
+      # Enable pedantic error reporting. Off by default.
       PEDANTIC    = 1 << 7
 
-      # Remove blank nodes.
+      # Remove blank nodes. Off by default.
       NOBLANKS    = 1 << 8
 
-      # Use the SAX1 interface internally.
+      # Use the SAX1 interface internally. Off by default.
       SAX1        = 1 << 9
 
-      # Implement XInclude substitution.
+      # Implement XInclude substitution. Off by default.
       XINCLUDE    = 1 << 10
 
       # Forbid network access.
+      # On by default for XML::Document, XML::DocumentFragment,
+      # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
       #  ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
-      # Do not reuse the context dictionary.
+      # Do not reuse the context dictionary. Off by default.
       NODICT      = 1 << 12
 
-      # Remove redundant namespaces declarations.
+      # Remove redundant namespaces declarations. Off by default.
       NSCLEAN     = 1 << 13
 
-      # Merge CDATA as text nodes.
+      # Merge CDATA as text nodes. On by default for XSLT::Stylesheet.
       NOCDATA     = 1 << 14
 
-      # Do not generate XInclude START/END nodes.
+      # Do not generate XInclude START/END nodes. Off by default.
       NOXINCNODE  = 1 << 15
 
-      # Compact small text nodes.
+      # Compact small text nodes. Off by default.
       #  ⚠ No modification of the DOM tree is allowed after parsing.
       COMPACT     = 1 << 16
 
-      # Parse using XML-1.0 before update 5.
+      # Parse using XML-1.0 before update 5. Off by default.
       OLD10       = 1 << 17
 
-      # Do not fixup XInclude xml:base URIs.
+      # Do not fixup XInclude xml:base URIs. Off by default.
       NOBASEFIX   = 1 << 18
 
-      # Relax any hardcoded limit from the parser.
+      # Relax any hardcoded limit from the parser. Off by default.
       #  ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       HUGE        = 1 << 19
 
       # Support line numbers up to `long int` (default is a `short int`).
+      # On by default for for XML::Document, XML::DocumentFragment, HTML4::Document,
+      # HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
       BIG_LINES   = 1 << 22
 
       # Shorthand options mask useful for parsing XML:
@@ -461,7 +448,7 @@ module Nokogiri
       # :call-seq:
       #    self == object
       #
-      # Returns whether `object` is equal to `self` (`object.to_i == to_i`):
+      # Returns true if the same options are set in `self` and `object`.
       #
       # ```
       # options = ParseOptions.new
