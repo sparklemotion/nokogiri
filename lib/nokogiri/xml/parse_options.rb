@@ -5,7 +5,6 @@
 
 module Nokogiri
   module XML
-    #
     # \Class to contain options for parsing \XML or \HTML4 (but not \HTML5).
     #
     # 💡 Note that \HTML5 parsing has a separate, orthogonal set of options due to the nature of the
