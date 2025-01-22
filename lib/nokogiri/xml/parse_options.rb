@@ -7,8 +7,8 @@ module Nokogiri
   module XML
     # \Class to contain options for parsing \XML or \HTML4 (but not \HTML5).
     #
-    # 💡 Note that \HTML5 parsing has a separate, orthogonal set of options due to the nature of the
-    # \HTML5 specification. See Nokogiri::HTML5.
+    # 💡 Note that \HTML5 parsing has a separate, orthogonal set of options due to the API of the
+    # \HTML5 library used. See Nokogiri::HTML5.
     #
     # ## About the Examples
     #
@@ -209,8 +209,8 @@ module Nokogiri
     #
     # - **Unsetters**: each begins with `no`, and turns **off** an option.
     #
-    #   Note that there is no unsetter `nostrict`,
-    #   but the setter `recover` serves the same purpose:
+    #     Note that there is no unsetter `nostrict`,
+    #     but the setter `recover` serves the same purpose:
     #
     #     ```
     #     options.nobig_lines
@@ -225,13 +225,13 @@ module Nokogiri
     #     # => #<Nokogiri::XML::ParseOptions: ... recover>
     #     ```
     #
-    # 💡 Note that some options begin with `no`, leading to the logical but perhaps unintuitive
-    #  double negative:
+    #     💡 Note that some options begin with `no`, leading to the logical but perhaps unintuitive
+    #     double negative:
     #
-    # ```
-    # po.nocdata # Set the NOCDATA parse option
-    # po.nonocdata # Unset the NOCDATA parse option
-    # ```
+    #     ```
+    #     po.nocdata # Set the NOCDATA parse option
+    #     po.nonocdata # Unset the NOCDATA parse option
+    #     ```
     #
     # - **Queries**: each ends with `?`, and returns whether an option is **on** or **off**:
     #
@@ -249,7 +249,6 @@ module Nokogiri
     # ```
     #
     class ParseOptions
-
       # Strict parsing; do not recover from errors in input.
       STRICT      = 0
 
