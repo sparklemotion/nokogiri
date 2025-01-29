@@ -5,7 +5,7 @@ require "stringio"
 
 module Nokogiri
   module XML
-    # \Module XML::Node defines many methods and constants
+    # \Class XML::Node defines many methods and constants
     # that are important for working with an XML::Document.
     #
     # XML::Node itself includes other modules,
@@ -14,7 +14,7 @@ module Nokogiri
     # - Nokogiri::XML::Searchable
     # - Ruby core's {Enumerable}[https://docs.ruby-lang.org/en/master/Enumerable.html]
     #
-    # Each of the following classes includes module XML::Node,
+    # Each of the following classes is a subclass of XML::Node,
     # and so inherit all the methods and constants mentioned above:
     #
     # - Nokogiri::XML::Attr
