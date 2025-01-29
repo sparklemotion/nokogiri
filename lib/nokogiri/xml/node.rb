@@ -8,8 +8,7 @@ module Nokogiri
     # \Class XML::Node defines many methods and constants
     # that are important for working with an XML::Document.
     #
-    # XML::Node itself includes other modules,
-    # adding still more methods and constants:
+    # XML::Node itself includes modules that add still more methods and constants:
     #
     # - Nokogiri::XML::Searchable
     # - Ruby core's {Enumerable}[https://docs.ruby-lang.org/en/master/Enumerable.html]
