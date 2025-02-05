@@ -1346,8 +1346,18 @@ module Nokogiri
         visitor.visit(self)
       end
 
-      ###
-      # Test to see if this Node is equal to +other+
+      # :call-seq:
+      #   self == object => true or false
+      #
+      # Returns whether +self+ and +object+ have the same #pointer_id.
+      #
+      # Returns +true+ if all of the following are true:
+      #
+      # - +object+ is truthy (not +false+ or +nil+).
+      # - +object+ responds to #pointer_id.
+      # - <tt>self+.pointer_id == object.pointer_id</tt>.
+      #
+      # Returns +false+ otherwise.
       def ==(other)
         return false unless other
         return false unless other.respond_to?(:pointer_id)
