@@ -13,6 +13,8 @@ module Nokogiri
     # - Nokogiri::XML::Searchable
     # - Ruby core's {Enumerable}[https://docs.ruby-lang.org/en/master/Enumerable.html]
     #
+    # == Subclasses
+    #
     # Each of the following classes is a subclass of XML::Node,
     # and so inherits all the methods and constants mentioned above:
     #
@@ -301,15 +303,36 @@ module Nokogiri
         self
       end
 
-      ###
-      # Add +node_or_tags+ as a child of this Node.
+      # :call-seq:
+      #   self << object -> self
       #
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
-      # containing markup.
+      # Adds a child to +self+ as the last child;
+      # returns +self+.
       #
-      # Returns +self+, to support chaining of calls (e.g., root << child1 << child2)
+      # If +object+ is a string, parses it into a new \XML::Node
+      # and adds that node as the last child:
       #
-      # Also see related method +add_child+.
+      #   node_foo = XML::Node.new('foo', doc)
+      #   node_foo << '<bat />'
+      #   # => #(Element:0x10bf30 { name = "foo", children = [ #(Element:0x10e294 { name = "bat" })] })
+      #
+      # If +object+ is an XML::NodeSet
+      # or any kind of \XML::Node (see {Subclasses}[rdoc-ref:XML::Node@Subclasses]),
+      # adds it as the last child:
+      #
+      #   node_foo = XML::Node.new('foo', doc)
+      #   node_bar = XML::Node.new('bar', doc)
+      #   node_baz = XML::Node.new('baz', doc)
+      #   node_foo << node_bar << node_baz # Note the chained method calls.
+      #   # =>
+      #   #(Element:0xe2c70 {
+      #     name = "foo",
+      #     children = [ #(Element:0xe833c { name = "bar" }), #(Element:0xeda08 { name = "baz" })]
+      #     })
+      #
+      # Raises +ArgumentError+ if +object+ is not a string, an XML::Node, or an XML::NodeSet.
+      #
+      # Related: #add_child.
       def <<(node_or_tags)
         add_child(node_or_tags)
         self
