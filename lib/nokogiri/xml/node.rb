@@ -5,7 +5,28 @@ require "stringio"
 
 module Nokogiri
   module XML
-    # Nokogiri::XML::Node is the primary API you'll use to interact with your Document.
+    # \Class XML::Node defines many methods and constants
+    # that are important for working with an \XML document.
+    #
+    # XML::Node itself includes modules that add still more methods and constants:
+    #
+    # - Nokogiri::XML::Searchable
+    # - Ruby core's {Enumerable}[https://docs.ruby-lang.org/en/master/Enumerable.html]
+    #
+    # Each of the following classes is a subclass of XML::Node,
+    # and so inherits all the methods and constants mentioned above:
+    #
+    # - Nokogiri::XML::Attr
+    # - Nokogiri::XML::AttributeDecl
+    # - Nokogiri::XML::CharacterData
+    # - Nokogiri::XML::DTD
+    # - Nokogiri::XML::Document
+    # - Nokogiri::XML::DocumentFragment
+    # - Nokogiri::XML::Element
+    # - Nokogiri::XML::ElementDecl
+    # - Nokogiri::XML::EntityDecl
+    # - Nokogiri::XML::EntityReference
+    # - Nokogiri::XML::ProcessingInstruction
     #
     # == Attributes
     #
