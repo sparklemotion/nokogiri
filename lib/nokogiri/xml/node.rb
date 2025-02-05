@@ -28,6 +28,31 @@ module Nokogiri
     # - Nokogiri::XML::EntityReference
     # - Nokogiri::XML::ProcessingInstruction
     #
+    # == About the Examples
+    #
+    # Many examples here use the W3Schools example \XML
+    # {books.xml}[https://www.w3schools.com/xml/books.xml];
+    # the examples assume that the code below has been executed to create:
+    #
+    # - Variable `str`, containing \XML text.
+    # - Variable `doc`, containing an XML::Document derived from that text.
+    #
+    # The code:
+    #
+    #   # Require Nokogiri and allow omitting leading 'Nokogiri::'.
+    #   require 'nokogiri'
+    #   include Nokogiri
+    #   # Put XML inro a string.
+    #   require 'open-uri'
+    #   str = URI.open('https://www.w3schools.com/xml/books.xml').read
+    #   # Parse XML into an XML::Document.
+    #   doc = XML::Document.parse(str)
+    #
+    # Many of the examples operate on +doc+ (an XML::Document);
+    # keep in mind, however that _all_ of the classes listed above
+    # are subclasses of \XML::Node, and so may use its methods
+    # (both those locally defined and those in the included modules).
+    #
     # == Attributes
     #
     # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
@@ -123,27 +148,29 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      #
       # :call-seq:
-      #   new(name, document) -> Nokogiri::XML::Node
-      #   new(name, document) { |node| ... } -> Nokogiri::XML::Node
+      #   new(name, document) -> XML::Node
+      #   new(name, document) {|node| ... } -> XML::Node
       #
-      # Create a new node with +name+ that belongs to +document+.
+      # Returns a new XML::Node object whose name and document
+      # are the given +name+ (a string) and +document+ (an XML::Document):
       #
-      # If you intend to add a node to a document tree, it's likely that you will prefer one of the
-      # Nokogiri::XML::Node methods like #add_child, #add_next_sibling, #replace, etc. which will
-      # both create an element (or subtree) and place it in the document tree.
+      #   node = XML::Node.new('foo', doc) # => #(Element:0x388b0 { name = "foo" })
+      #   node.name                        # => "foo"
+      #   node.document == doc             #  => true
       #
-      # Another alternative, if you are concerned about performance, is
-      # Nokogiri::XML::Document#create_element which accepts additional arguments for contents or
-      # attributes but (like this method) avoids parsing markup.
+      # With no block given, creates and returns the node, as above.
       #
-      # [Parameters]
-      # - +name+ (String)
-      # - +document+ (Nokogiri::XML::Document) The document to which the the returned node will belong.
-      # [Yields] Nokogiri::XML::Node
-      # [Returns] Nokogiri::XML::Node
+      # With a block given, creates the node and passes it to the block,
+      # which may modify the node before it is returned.
       #
+      # Note that the created node is not in the document tree.
+      # Therefore you may prefer a method that does place a node in the tree
+      # (e.g., #add_child, #add_next_sibling, #replace).
+      #
+      # If performance is a concern, you may prefer method XML::Document#create_element,
+      # which accepts additional arguments for contents or attributes,
+      # but avoids parsing markup.
       def initialize(name, document)
         # This is intentionally empty, and sets the method signature for subclasses.
       end
