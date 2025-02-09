@@ -40,6 +40,7 @@ import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import nokogiri.internals.NokogiriXsltErrorListener;
 
@@ -185,7 +186,23 @@ public class XsltStylesheet extends RubyObject
 
     java.util.Properties props = this.sheet.getOutputProperties();
     if (props.getProperty(OutputKeys.METHOD) == null) {
-      props.setProperty(OutputKeys.METHOD, org.apache.xml.serializer.Method.UNKNOWN);
+      Node rootNode = xmlDoc.getNode().getFirstChild();
+
+      if (rootNode != null && rootNode.getNodeType() == Node.ELEMENT_NODE) {
+        String firstChildLocalName = rootNode.getLocalName();
+
+        if (firstChildLocalName.equalsIgnoreCase("html") && rootNode.getNamespaceURI() == null) {
+          Node textNode = rootNode.getPreviousSibling();
+
+          if (textNode == null || (textNode.getNodeType() == Node.TEXT_NODE && textNode.getTextContent().trim().isEmpty())) {
+            props.setProperty(OutputKeys.METHOD, "html");
+          }
+        }
+      }
+
+      if (props.getProperty(OutputKeys.METHOD) == null) {
+        props.setProperty(OutputKeys.METHOD, "xml");
+      }
     }
 
     Serializer serializer = SerializerFactory.getSerializer(props);
@@ -194,6 +211,7 @@ public class XsltStylesheet extends RubyObject
 
     return context.getRuntime().newString(writer.toString());
   }
+
 
   @JRubyMethod(rest = true, required = 1, optional = 2)
   public IRubyObject
