@@ -28,6 +28,12 @@ module Nokogiri
     # - Nokogiri::XML::EntityReference
     # - Nokogiri::XML::ProcessingInstruction
     #
+    # == About the Examples
+    #
+    # Examples on this page may assume that certain setup code has been executed.
+    #
+    #   :include: doc/examples/bookstore_setup.rb
+    #
     # == Attributes
     #
     # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
@@ -192,16 +198,47 @@ module Nokogiri
 
       # :section: Manipulating Document Structure
 
-      ###
-      # Add +node_or_tags+ as a child of this Node.
+      # :call-seq:
+      #   add_child(object) -> object
       #
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
-      # containing markup.
+      # Appends one or more children (as specified by the given +object+) to +self+;
+      # returns +object+.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
-      # a DocumentFragment, NodeSet, or String).
+      # When +object+ is an XML::Node of any kind,
+      # adds the node as the last child of +self+;
+      # sets the parent of that node as +self+:
       #
-      # Also see related method +<<+.
+      #   doc = XML::Document.new
+      #   doc.children.size      # => 0
+      #   root_ele = XML::Element.new('root', doc)
+      #   root_ele.parent        # => nil
+      #   doc.add_child(root_ele)
+      #   doc.children.size      # => 1
+      #   root_ele.parent == doc # => true
+      #
+      # When +object+ is an XML::NodeSet,
+      # appends each node in the nodeset to the children of +self+, as above:
+      #
+      #   other_doc = XML::Document.new
+      #   root_ele = XML::Element.new('other', other_doc)
+      #   other_doc.add_child(root_ele)
+      #   # Move all book nodes from bookstore_doc to other_doc.root.
+      #   bookstore_doc = fresh_bookstore_doc
+      #   book_nodes = bookstore_doc.search('//book')
+      #   other_doc.root.add_child(book_nodes)
+      #   bookstore_doc.search('//book').size # => 0
+      #   other_doc.search('//book').size     # => 4
+      #
+      # When +object+ is a string,
+      # creates a new XML::Node from the string
+      # and adds the node as the last child of +self+:
+      #
+      #   root_xml = fresh_bookstore_doc.root.to_xml
+      #   other_doc = XML::Document.new
+      #   other_doc.add_child(root_xml)
+      #   other_doc.search('//book').size # => 4
+      #
+      # Raises ArgumentError if +object+ is not an XML::Node, XML::NodeSet, or string.
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
