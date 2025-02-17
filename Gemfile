@@ -25,7 +25,7 @@ group :development do
 
   # rubocop
   gem "standard", "1.45.0"
-  gem "rubocop-minitest", "0.36.0"
+  gem "rubocop-minitest", "0.37.0"
   gem "rubocop-packaging", "0.5.2"
   gem "rubocop-rake", "0.6.0"
 end

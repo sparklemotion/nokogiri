@@ -83,7 +83,7 @@ describe File.basename(gemfile) do
     end
 
     it "gemspec is a Gem::Specification" do
-      assert_equal(Gem::Specification, gemspec.class)
+      assert_instance_of(Gem::Specification, gemspec)
     end
   end
 

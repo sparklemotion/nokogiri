@@ -74,11 +74,11 @@ describe gemspec.full_name do
 
     describe "native platform" do
       it "declares packaged, precompiled libraries" do
-        assert(Nokogiri::VersionInfo.instance.libxml2_using_packaged?)
+        assert_predicate(Nokogiri::VersionInfo.instance, :libxml2_using_packaged?)
         assert(Nokogiri::VERSION_INFO["libxml"].key?("source"))
         assert_equal("packaged", Nokogiri::VERSION_INFO["libxml"]["source"])
 
-        assert(Nokogiri::VersionInfo.instance.libxml2_precompiled?)
+        assert_predicate(Nokogiri::VersionInfo.instance, :libxml2_precompiled?)
         assert(Nokogiri::VERSION_INFO["libxml"].key?("precompiled"))
         assert(Nokogiri::VERSION_INFO["libxml"]["precompiled"])
       end
