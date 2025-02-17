@@ -9,7 +9,6 @@ module Nokogiri
       # defined there.
 
       Desc = Struct.new(
-        "HTMLElementDescription",
         :name,
         :startTag,
         :endTag,
