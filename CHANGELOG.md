@@ -10,6 +10,10 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
 
+### Changed
+
+* The constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+
 
 ### Dependencies
 
