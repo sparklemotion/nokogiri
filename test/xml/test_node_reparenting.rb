@@ -88,13 +88,13 @@ module Nokogiri
                   it "unlinks the Node from its previous position" do
                     @doc.at_xpath(params[:target]).send(method, @other_node)
                     result = @other_doc.at_xpath("/root/a2")
-                    _(result).must_be_nil
+                    assert_nil(result)
                   end
 
                   it "inserts the Node in the proper position" do
                     @doc.at_xpath(params[:target]).send(method, @other_node)
                     result = @doc.at_xpath("/root/a1/a2")
-                    _(result).wont_be_nil
+                    refute_nil(result)
                   end
 
                   it "returns the expected value" do
@@ -103,9 +103,9 @@ module Nokogiri
                     if !params.key?(:returns_self)
                       assert(method.to_s.end_with?("="))
                     elsif params[:returns_self]
-                      _(result).must_equal(sendee)
+                      assert_equal(sendee, result)
                     else
-                      _(result).must_equal(@other_node)
+                      assert_equal(@other_node, result)
                     end
                   end
                 end
@@ -115,7 +115,7 @@ module Nokogiri
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment_string)
                 result = @doc.xpath("/root/a1/node()").collect(&:name)
-                _(result).must_equal(params[:children_tags])
+                assert_equal(params[:children_tags], result)
               end
 
               it "returns the expected value" do
@@ -124,10 +124,10 @@ module Nokogiri
                 if !params.key?(:returns_self)
                   assert(method.to_s.end_with?("="))
                 elsif params[:returns_self]
-                  _(result).must_equal(sendee)
+                  assert_equal(sendee, result)
                 else
-                  _(result).must_be_kind_of(Nokogiri::XML::NodeSet)
-                  _(result.to_html).must_equal(@fragment_string)
+                  assert_kind_of(Nokogiri::XML::NodeSet, result)
+                  assert_equal(@fragment_string, result.to_html)
                 end
               end
             end
@@ -135,7 +135,7 @@ module Nokogiri
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment)
                 result = @doc.xpath("/root/a1/node()").collect(&:name)
-                _(result).must_equal(params[:children_tags])
+                assert_equal(params[:children_tags], result)
               end
             end
             describe "passed a document" do
@@ -152,7 +152,7 @@ module Nokogiri
               it "inserts each member of the NodeSet in the proper order" do
                 @doc.at_xpath(params[:target]).send(method, @node_set)
                 result = @doc.xpath("/root/a1/node()").collect(&:name)
-                _(result).must_equal(params[:children_tags])
+                assert_equal(params[:children_tags], result)
               end
             end
           end
@@ -163,7 +163,7 @@ module Nokogiri
             it "merges the Text node with adjacent Text nodes" do
               @doc.at_xpath("/root/a1").add_child(Nokogiri::XML::Text.new("hello", @doc))
               result = @doc.at_xpath("/root/a1/text()").content
-              _(result).must_equal("First nodehello")
+              assert_equal("First nodehello", result)
             end
           end
 
@@ -171,7 +171,7 @@ module Nokogiri
             it "merges the Text node with adjacent Text nodes" do
               @doc.at_xpath("/root/a3/bx").replace(Nokogiri::XML::Text.new("hello", @doc))
               result = @doc.at_xpath("/root/a3/text()").content
-              _(result).must_equal("Third hellonode")
+              assert_equal("Third hellonode", result)
             end
           end
         end

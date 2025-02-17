@@ -193,134 +193,159 @@ module Nokogiri
           end
 
           describe "setup" do
-            it { _(node.get_attribute("noob")).must_be_nil }
+            it { assert_nil(node.get_attribute("noob")) }
           end
 
           describe "#kwattr_values" do
             it "returns an array of space-delimited values" do
-              _(node.kwattr_values("blargh")).must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"])
+              assert_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"], node.kwattr_values("blargh"))
             end
 
             describe "when no attribute exists" do
               it "returns an empty array" do
-                _(node.kwattr_values("noob")).must_equal([])
+                assert_empty(node.kwattr_values("noob"))
               end
             end
 
             describe "when an empty attribute exists" do
               it "returns an empty array" do
                 node.set_attribute("noob", "")
-                _(node.kwattr_values("noob")).must_equal([])
+                assert_empty(node.kwattr_values("noob"))
 
                 node.set_attribute("noob", "  ")
-                _(node.kwattr_values("noob")).must_equal([])
+                assert_empty(node.kwattr_values("noob"))
               end
             end
           end
 
           describe "kwattr_add" do
             it "returns the node for chaining" do
-              _(node.kwattr_add("noob", "asdf")).must_be_same_as(node)
+              assert_same(node, node.kwattr_add("noob", "asdf"))
             end
 
             it "creates a new attribute when necessary" do
-              _(node.kwattr_add("noob", "asdf").get_attribute("noob")).wont_be_nil
+              refute_nil(node.kwattr_add("noob", "asdf").get_attribute("noob"))
             end
 
             it "adds a new bare keyword string" do
-              _(node.kwattr_add("blargh", "jimmy").kwattr_values("blargh"))
-                .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"])
+              assert_equal(
+                ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"],
+                node.kwattr_add("blargh", "jimmy").kwattr_values("blargh"),
+              )
             end
 
             it "does not add a repeated bare keyword string" do
-              _(node.kwattr_add("blargh", "foo").kwattr_values("blargh"))
-                .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"])
+              assert_equal(
+                ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"],
+                node.kwattr_add("blargh", "foo").kwattr_values("blargh"),
+              )
             end
 
             describe "given a string of keywords" do
               it "adds new keywords and ignores existing keywords" do
-                _(node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-                  .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy", "johnny"])
+                assert_equal(
+                  ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy", "johnny"],
+                  node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"),
+                )
               end
             end
 
             describe "given an array of keywords" do
               it "adds new keywords and ignores existing keywords" do
-                _(node.kwattr_add("blargh", ["foo", "jimmy"]).kwattr_values("blargh"))
-                  .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"])
+                assert_equal(
+                  ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"],
+                  node.kwattr_add("blargh", ["foo", "jimmy"]).kwattr_values("blargh"),
+                )
               end
             end
           end
 
           describe "kwattr_append" do
             it "returns the node for chaining" do
-              _(node.kwattr_append("noob", "asdf")).must_be_same_as(node)
+              assert_same(node, node.kwattr_append("noob", "asdf"))
             end
 
             it "creates a new attribute when necessary" do
-              _(node.kwattr_append("noob", "asdf").get_attribute("noob")).wont_be_nil
+              refute_nil(node.kwattr_append("noob", "asdf").get_attribute("noob"))
             end
 
             it "adds a new bare keyword string" do
-              _(node.kwattr_append("blargh", "jimmy").kwattr_values("blargh"))
-                .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"])
+              assert_equal(
+                ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "jimmy"],
+                node.kwattr_append("blargh", "jimmy").kwattr_values("blargh"),
+              )
             end
 
             it "adds a repeated bare keyword string" do
-              _(node.kwattr_append("blargh", "foo").kwattr_values("blargh"))
-                .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo"])
+              assert_equal(
+                ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo"],
+                node.kwattr_append("blargh", "foo").kwattr_values("blargh"),
+              )
             end
 
             describe "given a string of keywords" do
               it "adds new keywords and existing keywords" do
-                _(node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-                  .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo", "jimmy", "johnny"])
+                assert_equal(
+                  ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo", "jimmy", "johnny"],
+                  node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"),
+                )
               end
             end
 
             describe "given an array of keywords" do
               it "adds new keywords and existing keywords" do
-                _(node.kwattr_append("blargh", ["foo", "jimmy"]).kwattr_values("blargh"))
-                  .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo", "jimmy"])
+                assert_equal(
+                  ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx", "foo", "jimmy"],
+                  node.kwattr_append("blargh", ["foo", "jimmy"]).kwattr_values("blargh"),
+                )
               end
             end
           end
 
           describe "kwattr_remove" do
             it "returns the node for chaining" do
-              _(node.kwattr_remove("noob", "asdf")).must_be_same_as(node)
+              assert_same(node, node.kwattr_remove("noob", "asdf"))
             end
 
             it "gracefully handles a non-existent attribute" do
-              _(node.kwattr_remove("noob", "asdf").get_attribute("noob")).must_be_nil
+              assert_nil(node.kwattr_remove("noob", "asdf").get_attribute("noob"))
             end
 
             it "removes an existing bare keyword string" do
-              _(node.kwattr_remove("blargh", "foo").kwattr_values("blargh"))
-                .must_equal(["bar", "baz", "bar", "quux", "manx"])
+              assert_equal(
+                ["bar", "baz", "bar", "quux", "manx"],
+                node.kwattr_remove("blargh", "foo").kwattr_values("blargh"),
+              )
             end
 
             it "gracefully ignores a non-existent bare keyword string" do
-              _(node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh"))
-                .must_equal(["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"])
+              assert_equal(
+                ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"],
+                node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh"),
+              )
             end
 
             describe "given a string of keywords" do
               it "removes existing keywords and ignores other keywords" do
-                _(node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"))
-                  .must_equal(["bar", "baz", "bar", "quux", "manx"])
+                assert_equal(
+                  ["bar", "baz", "bar", "quux", "manx"],
+                  node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh"),
+                )
               end
             end
 
             describe "given an array of keywords" do
               it "adds new keywords and existing keywords" do
-                _(node.kwattr_remove("blargh", ["foo", "jimmy"]).kwattr_values("blargh"))
-                  .must_equal(["bar", "baz", "bar", "quux", "manx"])
+                assert_equal(
+                  ["bar", "baz", "bar", "quux", "manx"],
+                  node.kwattr_remove("blargh", ["foo", "jimmy"]).kwattr_values("blargh"),
+                )
               end
             end
 
             it "removes the attribute when no values are left" do
-              _(node.kwattr_remove("blargh", ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"]).get_attribute("blargh")).must_be_nil
+              node.kwattr_remove("blargh", ["foo", "bar", "baz", "bar", "foo", "quux", "foo", "manx"])
+              assert_nil(node.get_attribute("blargh"))
             end
           end
         end
