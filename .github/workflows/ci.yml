@@ -17,6 +17,9 @@ on:
     branches:
       - '*'
 
+env:
+  NOKOGIRI_USE_CANONICAL_GNOME_SOURCE: t
+
 jobs:
   #
   #  SECTION pre-checks for fast feedback loops, and to gate the rest of the suite
@@ -409,6 +412,7 @@ jobs:
           submodules: true
       - uses: vmactions/freebsd-vm@v1
         with:
+          envs: NOKOGIRI_USE_CANONICAL_GNOME_SOURCE
           usesh: true
           copyback: false
           prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git
