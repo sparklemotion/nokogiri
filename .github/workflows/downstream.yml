@@ -16,6 +16,8 @@ on:
     types: [opened, synchronize]
     branches:
       - '*'
+env:
+  NOKOGIRI_USE_CANONICAL_GNOME_SOURCE: t
 
 jobs:
   downstream:
