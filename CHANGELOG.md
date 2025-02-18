@@ -8,7 +8,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Security
 
-* [CRuby] Vendored libxml2 is updated [v2.13.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.6) to address CVE-2025-24928 and CVE-2024-56171. Nokogiri's maintainers believe these vulnerabilities do not affect users of Nokogiri, but we advise upgrading at your earliest convenience anyway.
+* [CRuby] Vendored libxml2 is updated [v2.13.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.6) to address CVE-2025-24928 and CVE-2024-56171. See [GHSA-vvfq-8hwr-qm4m](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vvfq-8hwr-qm4m) for more information.
 
 
 ## v1.18.2 / 2024-01-19
