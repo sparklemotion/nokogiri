@@ -7,6 +7,9 @@ RUN apk add bash build-base git
 # valgrind
 RUN apk add valgrind
 
+# psych
+RUN apk add yaml-dev
+
 # libxml-et-al
 RUN apk add libxml2-dev libxslt-dev pkgconfig
 
