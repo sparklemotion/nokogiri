@@ -20,6 +20,20 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
+## v1.18.3 / 2025-02-18
+
+### Security
+
+* [CRuby] Vendored libxml2 is updated [v2.13.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.6) to address CVE-2025-24928 and CVE-2024-56171. See [GHSA-vvfq-8hwr-qm4m](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vvfq-8hwr-qm4m) for more information.
+
+
+## v1.18.2 / 2024-01-19
+
+### Fixed
+
+* When performing a CSS selector query, an XML document's root namespace declarations should not be applied to wildcard selectors (`"*"`). Fixes a bug introduced in v1.17.0. (#3411) @flavorjones
+
+
 ## v1.18.1 / 2024-12-29
 
 ### Fixed
