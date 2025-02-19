@@ -1340,7 +1340,7 @@ module Nokogiri
         yield(self)
       end
 
-      ###
+      # :nodoc:
       # Accept a visitor.  This method calls "visit" on +visitor+ with self.
       def accept(visitor)
         visitor.visit(self)
