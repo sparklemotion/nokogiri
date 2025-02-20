@@ -28,6 +28,12 @@ module Nokogiri
     # - Nokogiri::XML::EntityReference
     # - Nokogiri::XML::ProcessingInstruction
     #
+    # == About the Examples
+    #
+    # Examples on this page may assume that certain setup code has been executed.
+    #
+    #   :include: doc/examples/bookstore_setup.rb
+    #
     # == Attributes
     #
     # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
@@ -192,16 +198,57 @@ module Nokogiri
 
       # :section: Manipulating Document Structure
 
-      ###
-      # Add +node_or_tags+ as a child of this Node.
+      # :call-seq:
+      #   add_child(object) -> node or nodeset
       #
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
-      # containing markup.
+      # Appends child nodes to +self+.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
-      # a DocumentFragment, NodeSet, or String).
+      # Argument +object+ is one of:
       #
-      # Also see related method +<<+.
+      # - A Nokogiri::XML::Node (of any kind).
+      # - A Nokogiri::XML::NodeSet.
+      # - A string.
+      #
+      # When +object+ is a Nokogiri::XML::Node,
+      # adds the node as the last child of +self+;
+      # sets the parent of that node to +self+;
+      # returns the node:
+      #
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   ele = Nokogiri::XML::Element.new('foo', doc)
+      #   doc.root.add_child(ele) # => #(Element: { name = "foo" })
+      #   doc.root.children.to_a  # => [#(Element: { name = "foo" })]
+      #   ele.parent == doc.root  # => true
+      #
+      # When +object+ is a Nokogiri::XML::NodeSet,
+      # appends each of its nodes to the children of +self+;
+      # returns the nodeset:
+      #
+      #   doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
+      #   book_nodes = doc.search('//book')
+      #   other_doc = Nokogiri::XML::Document.parse('<other/>')
+      #   # Move all book nodes from doc to other_doc.root.
+      #   other_doc.root.add_child(book_nodes)
+      #   doc.search('//book').size       # => 0
+      #   other_doc.search('//book').size # => 4
+      #
+      # When +object+ is a string,
+      # creates a Nokogiri::XML::NodeSet object from the string;
+      # appends each of its nodes to the children of +self+;
+      # returns the nodeset:
+      #
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   doc.root.add_child('<foo>FOO</foo>')
+      #   doc.root.children.to_a
+      #   # => [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] })]
+      #   doc.root.add_child('<bar>BAR</bar><baz>BAZ</baz>')
+      #   doc.root.children.to_a
+      #   # =>
+      #   [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] }),
+      #    #(Element:0x5992dc { name = "bar", children = [ #(Text "BAR")] }),
+      #    #(Element:0x5994bc { name = "baz", children = [ #(Text "BAZ")] })]
+      #
+      # Raises ArgumentError if +object+ is not a node, a nodeset, or a string.
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
