@@ -199,46 +199,50 @@ module Nokogiri
       # :section: Manipulating Document Structure
 
       # :call-seq:
-      #   add_child(object) -> object
+      #   add_child(object) -> node or nodeset
       #
-      # Appends one or more children (as specified by the given +object+) to +self+;
-      # returns +object+.
+      # Appends child nodes to +self+.
       #
-      # When +object+ is an XML::Node of any kind,
+      # When +object+ is a Nokogiri::XML::Node (of any kind),
       # adds the node as the last child of +self+;
-      # sets the parent of that node as +self+:
+      # sets the parent of that node to +self+;
+      # returns the node:
       #
-      #   doc = XML::Document.new
-      #   doc.children.size      # => 0
-      #   root_ele = XML::Element.new('root', doc)
-      #   root_ele.parent        # => nil
-      #   doc.add_child(root_ele)
-      #   doc.children.size      # => 1
-      #   root_ele.parent == doc # => true
+      #   doc = XML::Document.parse('<root/>')
+      #   ele = XML::Element.new('foo', doc)
+      #   doc.root.add_child(ele) # => #(Element: { name = "foo" })
+      #   doc.root.children.size  # => 1
+      #   ele.parent == doc.root  # => true
       #
-      # When +object+ is an XML::NodeSet,
-      # appends each node in the nodeset to the children of +self+, as above:
+      # When +object+ is a Nokogiri::XML::NodeSet,
+      # appends each of its nodes to the children of +self+, as above;
+      # returns the nodeset:
       #
-      #   other_doc = XML::Document.new
-      #   root_ele = XML::Element.new('other', other_doc)
-      #   other_doc.add_child(root_ele)
-      #   # Move all book nodes from bookstore_doc to other_doc.root.
-      #   bookstore_doc = fresh_bookstore_doc
-      #   book_nodes = bookstore_doc.search('//book')
+      #   doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
+      #   book_nodes = doc.search('//book')
+      #   other_doc = Nokogiri::XML::Document.parse('<other/>')
+      #   # Move all book nodes from doc to other_doc.root.
       #   other_doc.root.add_child(book_nodes)
-      #   bookstore_doc.search('//book').size # => 0
-      #   other_doc.search('//book').size     # => 4
-      #
-      # When +object+ is a string,
-      # creates a new XML::Node from the string
-      # and adds the node as the last child of +self+:
-      #
-      #   root_xml = fresh_bookstore_doc.root.to_xml
-      #   other_doc = XML::Document.new
-      #   other_doc.add_child(root_xml)
+      #   doc.search('//book').size       # => 0
       #   other_doc.search('//book').size # => 4
       #
-      # Raises ArgumentError if +object+ is not an XML::Node, XML::NodeSet, or string.
+      # When +object+ is a string,
+      # creates a Nokogiri::XML::NodeSet object from the string;
+      # appends each of its nodes to the children of +self+, as above;
+      # returns the nodeset:
+      #
+      #   doc = XML::Document.parse('<root/>')
+      #   doc.root.add_child('<foo>FOO</foo>')
+      #   doc.root.children.to_a
+      #   # => [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] })]
+      #   doc.root.add_child('<bar>BAR</bar><baz>BAZ</baz>')
+      #   doc.root.children.to_a
+      #   # =>
+      #   [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] }),
+      #    #(Element:0x5992dc { name = "bar", children = [ #(Text "BAR")] }),
+      #    #(Element:0x5994bc { name = "baz", children = [ #(Text "BAZ")] })]
+      #
+      # Raises ArgumentError if +object+ is not a node, a nodeset, or a string.
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)

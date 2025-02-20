@@ -1,6 +1,5 @@
 require 'nokogiri'          # Make nokogiri available.
-include Nokogiri            # Allow omitting leading Nokogiri::.
-BookstoreXml = <<-BOOKSTORE # Bookstore XML as a string.
+BOOKSTORE_XML = <<-BOOKSTORE # Bookstore XML as a string.
 <bookstore>
 <book category="cooking">
   <title lang="en">Everyday Italian</title>
@@ -32,6 +31,3 @@ BookstoreXml = <<-BOOKSTORE # Bookstore XML as a string.
 </book>
 </bookstore>
 BOOKSTORE
-def fresh_bookstore_doc # Return pristine bookstore document.
-  XML::Document.parse(BookstoreXml)
-end
