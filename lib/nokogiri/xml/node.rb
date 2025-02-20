@@ -203,7 +203,13 @@ module Nokogiri
       #
       # Appends child nodes to +self+.
       #
-      # When +object+ is a Nokogiri::XML::Node (of any kind),
+      # Argument +object+ is one of:
+      #
+      # - A Nokogiri::XML::Node (of any kind).
+      # - A Nokogiri::XML::NodeSet.
+      # - A string.
+      #
+      # When +object+ is a Nokogiri::XML::Node,
       # adds the node as the last child of +self+;
       # sets the parent of that node to +self+;
       # returns the node:
