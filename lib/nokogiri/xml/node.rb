@@ -208,14 +208,14 @@ module Nokogiri
       # sets the parent of that node to +self+;
       # returns the node:
       #
-      #   doc = XML::Document.parse('<root/>')
-      #   ele = XML::Element.new('foo', doc)
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   ele = Nokogiri::XML::Element.new('foo', doc)
       #   doc.root.add_child(ele) # => #(Element: { name = "foo" })
-      #   doc.root.children.size  # => 1
+      #   doc.root.children.to_a  # => [#(Element: { name = "foo" })]
       #   ele.parent == doc.root  # => true
       #
       # When +object+ is a Nokogiri::XML::NodeSet,
-      # appends each of its nodes to the children of +self+, as above;
+      # appends each of its nodes to the children of +self+;
       # returns the nodeset:
       #
       #   doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
@@ -228,10 +228,10 @@ module Nokogiri
       #
       # When +object+ is a string,
       # creates a Nokogiri::XML::NodeSet object from the string;
-      # appends each of its nodes to the children of +self+, as above;
+      # appends each of its nodes to the children of +self+;
       # returns the nodeset:
       #
-      #   doc = XML::Document.parse('<root/>')
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
       #   doc.root.add_child('<foo>FOO</foo>')
       #   doc.root.children.to_a
       #   # => [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] })]
