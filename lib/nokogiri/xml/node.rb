@@ -199,43 +199,94 @@ module Nokogiri
       # :section: Manipulating Document Structure
 
       # :call-seq:
-      #   add_child(object) -> node or nodeset
+      #   add_child(object) -> Node or NodeSet
       #
-      # Appends child nodes to +self+.
+      # Appends zero or more +Node+ objects to the children of +self+.
       #
-      # Argument +object+ is one of:
+      # *Arguments*
       #
-      # - A Nokogiri::XML::Node (of any kind).
-      # - A Nokogiri::XML::NodeSet.
-      # - A string.
+      # - +object+ (required): a +Node+, +NodeSet+, +DocumentFragment+, or +String+.
+      #
+      # *Returns*
+      #
+      # - The given +object+, if +object+ is a +Node+ or a +NodeSet+
+      # - A new +NodeSet+, if +object+ is a +DocumentFragment+ or +String+.
+      #
+      # *Raises*:
+      #
+      # - +ArgumentError+, unless +object+ is a +Node+, +NodeSet+, +DocumentFragment+, or +String+.
       #
       # When +object+ is a Nokogiri::XML::Node,
-      # adds the node as the last child of +self+;
-      # sets the parent of that node to +self+;
-      # returns the node:
+      # adds it as the last child of +self+;
+      # sets its parent to +self+;
+      # returns the +object+:
       #
-      #   doc = Nokogiri::XML::Document.parse('<root/>')
-      #   ele = Nokogiri::XML::Element.new('foo', doc)
-      #   doc.root.add_child(ele) # => #(Element: { name = "foo" })
-      #   doc.root.children.to_a  # => [#(Element: { name = "foo" })]
-      #   ele.parent == doc.root  # => true
+      #   xml = '<root><src_parent><src_child/></src_parent><dst_parent><dst_child/></dst_paren></root>'
+      #   doc = Nokogiri::XML::Document.parse(xml)
+      #
+      #   # Node src_parent_node has one child, src_child_node.
+      #   src_parent_node = doc.at_css('src_parent')
+      #   src_parent_node.children
+      #   # => [#<Nokogiri::XML::Element:0x6be02c name="src_child">]
+      #   src_child_node = doc.at_css('src_child')
+      #   src_child_node.parent == src_parent_node  # => true
+      #
+      #   # Node dst_parent node has one child, dst_child_node.
+      #   dst_parent_node = doc.at_css('dst_parent')
+      #   dst_parent_node.children
+      #   # => [#<Nokogiri::XML::Element: name="dst_child">]
+      #
+      #   # Move src_child_node; removes it from src_parent_node, adds it to dst_parent_node.
+      #   dst_parent_node.add_child(src_child_node) # => #(Element: { name = "src_child" })
+      #   # Now src_parent_node has no children.
+      #   src_parent_node.children                  # => []
+      #   # Now dst_parent_node has two children, dst_child_node and src_child_node.
+      #   dst_parent_node.children
+      #   # => [#<Nokogiri::XML::Element: name="dst_child">, #<Nokogiri::XML::Element: name="src_child">]
+      #   # Now src_child_node has a new parent, dst_parent_node.
+      #   src_child_node.parent == dst_parent_node  # => true
+      #
+      # Note: The destination node may be in a different +Document+ or +DocumentFragment+.
       #
       # When +object+ is a Nokogiri::XML::NodeSet,
       # appends each of its nodes to the children of +self+;
-      # returns the nodeset:
+      # returns +object+:
       #
-      #   doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
-      #   book_nodes = doc.search('//book')
-      #   other_doc = Nokogiri::XML::Document.parse('<other/>')
-      #   # Move all book nodes from doc to other_doc.root.
-      #   other_doc.root.add_child(book_nodes)
-      #   doc.search('//book').size       # => 0
-      #   other_doc.search('//book').size # => 4
+      #   doc = Nokogiri::XML::Document.parse('<root><foo/></root>')
+      #   doc.root.children.size              # => 1
+      #   bookstore_doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
+      #   book_nodeset = bookstore_doc.search('//book')
+      #   book_nodeset.size                   # => 4
+      #   # Add nodeset to doc.
+      #   doc.root.add_child(book_nodeset)
+      #   bookstore_doc.search('//book').size # => 0 ## All four moved.
+      #   doc.root.children.size              # => 5 ## All four added.
       #
-      # When +object+ is a string,
-      # creates a Nokogiri::XML::NodeSet object from the string;
+      # When +object+ is a Nokogiri::XML::DocumentFragment,
+      # creates a +NodeSet+ object from the +DocumentFragment+;
       # appends each of its nodes to the children of +self+;
-      # returns the nodeset:
+      # returns the +NodeSet+:
+      #
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<foo>FOO</foo>')
+      #   doc.root.add_child(doc_frag)
+      #   doc.root.children.to_a
+      #   # => [#(Element: { name = "foo", children = [ #(Text "FOO")] })]
+      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<bar>BAR</bar><baz>BAZ</baz>')
+      #   doc.root.children.to_a
+      #   # => [#(Element: { name = "foo", children = [ #(Text "FOO")] })]
+      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<bar>BAR</bar><baz>BAZ</baz>')
+      #   doc.root.add_child(doc_frag)
+      #   doc.root.children.to_a
+      #   # =>
+      #   [#(Element: { name = "foo", children = [ #(Text "FOO")] }),
+      #    #(Element: { name = "bar", children = [ #(Text "BAR")] }),
+      #    #(Element: { name = "baz", children = [ #(Text "BAZ")] })]
+      #
+      # When +object+ is a +String+,
+      # creates a +NodeSet+ object from the string;
+      # appends each of its nodes to the children of +self+;
+      # returns the +NodeSet+:
       #
       #   doc = Nokogiri::XML::Document.parse('<root/>')
       #   doc.root.add_child('<foo>FOO</foo>')
@@ -248,7 +299,7 @@ module Nokogiri
       #    #(Element:0x5992dc { name = "bar", children = [ #(Text "BAR")] }),
       #    #(Element:0x5994bc { name = "baz", children = [ #(Text "BAZ")] })]
       #
-      # Raises ArgumentError if +object+ is not a node, a nodeset, or a string.
+      # Related: #after, #before, #children=, #prepend_child.
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
