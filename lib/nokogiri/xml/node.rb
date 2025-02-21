@@ -246,7 +246,7 @@ module Nokogiri
       #   # Now src_child_node has a new parent, dst_parent_node.
       #   src_child_node.parent == dst_parent_node  # => true
       #
-      # Note: The destination node may be in a different +Document+ or +DocumentFragment+.
+      # Note: nodes +self+ and +object+ may not be in the same +Document+ or +DocumentFragment+.
       #
       # When +object+ is a Nokogiri::XML::NodeSet,
       # appends each of its nodes to the children of +self+;
