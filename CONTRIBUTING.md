@@ -329,13 +329,36 @@ If you'd like to learn more about libfuzzer please give https://github.com/googl
 
 ### Documentation
 
-We use `rdoc` to build Nokogiri's documentation. Run `rake rdoc` to build into the `./html` directory, and see the rdoc tasks in [rakelib/rdoc.rake](rakelib/rdoc.rake).
+If you submit pull requests that improve documentation,
+**I will happily merge them** and credit you in the CHANGELOG.
 
-Previously we made some effort to move towards `yard` but that work was stopped (and the decision record can be found at [RFC: convert to use `yard` for documentation](https://github.com/sparklemotion/nokogiri/issues/1996)).
+We use `rdoc` to build Nokogiri's documentation.
 
-Docstrings should be in `RDoc::Markup` format, though simple docstrings may be in Markdown (using `:markup: markdown`).
+If you have [set up the development environment](rdoc-ref:@How+to+set+up+your+local+development+environment),
+you can use the `rake` utility to build the documentation into the `./html` directory:
 
-If you submit pull requests that improve documentation, **I will happily merge them** and credit you in the CHANGELOG.
+```
+$ rake rdoc
+```
+
+Otherwise, you can build the documentation with with the `rdoc` utility:
+
+```
+$ rdoc --op html visibility=private . # Note the trailing period.
+```
+
+For docstrings embedded in Ruby or C source files (files with `.rb` or `.c` file extensions):
+
+- Most should be in markup format (the default).
+- A simple docstring may be in markdown (using RDoc directive `:markup: markdown`);
+  see [Directive for Specifying RDoc Source Format](https://docs.ruby-lang.org/en/master/RDoc/MarkupReference.html#class-RDoc::MarkupReference-label-Directive+for+Specifying+RDoc+Source+Format).
+
+A free-standing documentation file may be:
+
+- An RDoc file (`.rdoc` file extension), which uses markup format;
+  see [RDoc::MarkupReference](https://docs.ruby-lang.org/en/master/RDoc/MarkupReference.html).
+- A markdown file (`.md` file extension), which uses markdown format;
+  see [RDoc::Markdown](https://docs.ruby-lang.org/en/3.0/RDoc/Markdown.html).
 
 Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [ext/nokogiri/xml/node.c](ext/nokogiri/xml/node.c) for examples):
 
