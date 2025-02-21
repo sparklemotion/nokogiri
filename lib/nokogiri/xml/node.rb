@@ -287,7 +287,7 @@ module Nokogiri
       #   doc.root.children
       #   # => [#<Nokogiri::XML::Element: name="foo">, #<Nokogiri::XML::Element: name="bar">]
       #
-      # Related: #after, #before, #children=, #prepend_child.
+      # **Related:** #after, #before, #children=, #prepend_child.
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
