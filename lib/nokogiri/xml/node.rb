@@ -203,23 +203,23 @@ module Nokogiri
       #
       # Appends zero or more +Node+ objects to the children of +self+.
       #
-      # *Arguments*
+      # *Arguments:*
       #
       # - +object+ (required): a +Node+, +NodeSet+, +DocumentFragment+, or +String+.
       #
-      # *Returns*
+      # *Returns:*
       #
       # - The given +object+, if +object+ is a +Node+ or a +NodeSet+
       # - A new +NodeSet+, if +object+ is a +DocumentFragment+ or +String+.
       #
-      # *Raises*:
+      # *Raises:*
       #
-      # - +ArgumentError+, unless +object+ is a +Node+, +NodeSet+, +DocumentFragment+, or +String+.
+      # - +ArgumentError+, if +object+ is not a +Node+, +NodeSet+, +DocumentFragment+, or +String+.
       #
       # When +object+ is a Nokogiri::XML::Node,
       # adds it as the last child of +self+;
       # sets its parent to +self+;
-      # returns the +object+:
+      # returns +object+:
       #
       #   xml = '<root><src_parent><src_child/></src_parent><dst_parent><dst_child/></dst_paren></root>'
       #   doc = Nokogiri::XML::Document.parse(xml)
@@ -227,7 +227,7 @@ module Nokogiri
       #   # Node src_parent_node has one child, src_child_node.
       #   src_parent_node = doc.at_css('src_parent')
       #   src_parent_node.children
-      #   # => [#<Nokogiri::XML::Element:0x6be02c name="src_child">]
+      #   # => [#<Nokogiri::XML::Element: name="src_child">]
       #   src_child_node = doc.at_css('src_child')
       #   src_child_node.parent == src_parent_node  # => true
       #
@@ -246,7 +246,7 @@ module Nokogiri
       #   # Now src_child_node has a new parent, dst_parent_node.
       #   src_child_node.parent == dst_parent_node  # => true
       #
-      # Note: nodes +self+ and +object+ may not be in the same +Document+ or +DocumentFragment+.
+      # Note: +self+ and +object+ may not be in the same +Document+ or +DocumentFragment+.
       #
       # When +object+ is a Nokogiri::XML::NodeSet,
       # appends each of its nodes to the children of +self+;
@@ -262,26 +262,19 @@ module Nokogiri
       #   bookstore_doc.search('//book').size # => 0 ## All four moved.
       #   doc.root.children.size              # => 5 ## All four added.
       #
+      # Note: +self+ and +object+ may not be in the same +Document+ or +DocumentFragment+.
+      #
       # When +object+ is a Nokogiri::XML::DocumentFragment,
       # creates a +NodeSet+ object from the +DocumentFragment+;
       # appends each of its nodes to the children of +self+;
       # returns the +NodeSet+:
       #
       #   doc = Nokogiri::XML::Document.parse('<root/>')
-      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<foo>FOO</foo>')
+      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<foo/><bar/>')
       #   doc.root.add_child(doc_frag)
-      #   doc.root.children.to_a
-      #   # => [#(Element: { name = "foo", children = [ #(Text "FOO")] })]
-      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<bar>BAR</bar><baz>BAZ</baz>')
-      #   doc.root.children.to_a
-      #   # => [#(Element: { name = "foo", children = [ #(Text "FOO")] })]
-      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<bar>BAR</bar><baz>BAZ</baz>')
-      #   doc.root.add_child(doc_frag)
-      #   doc.root.children.to_a
-      #   # =>
-      #   [#(Element: { name = "foo", children = [ #(Text "FOO")] }),
-      #    #(Element: { name = "bar", children = [ #(Text "BAR")] }),
-      #    #(Element: { name = "baz", children = [ #(Text "BAZ")] })]
+      #   # => [#<Nokogiri::XML::Element: name="foo">, #<Nokogiri::XML::Element: name="bar">]
+      #   doc.root.children
+      #   # => [#<Nokogiri::XML::Element: name="foo">, #<Nokogiri::XML::Element: name="bar">]
       #
       # When +object+ is a +String+,
       # creates a +NodeSet+ object from the string;
@@ -289,15 +282,10 @@ module Nokogiri
       # returns the +NodeSet+:
       #
       #   doc = Nokogiri::XML::Document.parse('<root/>')
-      #   doc.root.add_child('<foo>FOO</foo>')
-      #   doc.root.children.to_a
-      #   # => [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] })]
-      #   doc.root.add_child('<bar>BAR</bar><baz>BAZ</baz>')
-      #   doc.root.children.to_a
-      #   # =>
-      #   [#(Element:0x593990 { name = "foo", children = [ #(Text "FOO")] }),
-      #    #(Element:0x5992dc { name = "bar", children = [ #(Text "BAR")] }),
-      #    #(Element:0x5994bc { name = "baz", children = [ #(Text "BAZ")] })]
+      #   doc.root.add_child('<foo/><bar/>')
+      #   # => [#<Nokogiri::XML::Element: name="foo">, #<Nokogiri::XML::Element: name="bar">]
+      #   doc.root.children
+      #   # => [#<Nokogiri::XML::Element: name="foo">, #<Nokogiri::XML::Element: name="bar">]
       #
       # Related: #after, #before, #children=, #prepend_child.
       def add_child(node_or_tags)
