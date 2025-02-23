@@ -130,7 +130,6 @@ module Nokogiri
     # NOBASEFIX,
     # NOBLANKS,
     # NOCDATA,
-    # NODICT,
     # NOENT,
     # NOERROR,
     # NONET,
@@ -140,7 +139,6 @@ module Nokogiri
     # OLD10,
     # PEDANTIC,
     # RECOVER,
-    # SAX1,
     # STRICT,
     # XINCLUDE.
     #
@@ -282,6 +280,7 @@ module Nokogiri
       # Remove blank nodes. Off by default.
       NOBLANKS    = 1 << 8
 
+      # :nodoc:
       # Use the SAX1 interface internally. Off by default.
       SAX1        = 1 << 9
 
@@ -294,6 +293,7 @@ module Nokogiri
       #  ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
+      # :nodoc:
       # Do not reuse the context dictionary. Off by default.
       NODICT      = 1 << 12
 
