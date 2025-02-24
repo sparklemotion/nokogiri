@@ -5,8 +5,8 @@ begin
 
   def rdoc_nokogiri_common_options(rdoc)
     rdoc.rdoc_files
-      .include("README.md", "lib/**/*.rb", "ext/**/*.c", "doc/*md")
-      .exclude("ext/nokogiri/test_global_handlers.c")
+      .include("*.md", "lib/**/*.rb", "ext/**/*.c", "doc/*md")
+      .exclude("CHANGELOG.md", "ext/nokogiri/test_global_handlers.c")
     rdoc.options << "--embed-mixins"
     rdoc.options << "--main=README.md"
   end
