@@ -130,7 +130,6 @@ module Nokogiri
     # NOBASEFIX,
     # NOBLANKS,
     # NOCDATA,
-    # NODICT,
     # NOENT,
     # NOERROR,
     # NONET,
@@ -140,7 +139,6 @@ module Nokogiri
     # OLD10,
     # PEDANTIC,
     # RECOVER,
-    # SAX1,
     # STRICT,
     # XINCLUDE.
     #
@@ -283,7 +281,7 @@ module Nokogiri
       NOBLANKS    = 1 << 8
 
       # Use the SAX1 interface internally. Off by default.
-      SAX1        = 1 << 9
+      SAX1        = 1 << 9 # :nodoc:
 
       # Implement XInclude substitution. Off by default.
       XINCLUDE    = 1 << 10
@@ -295,7 +293,7 @@ module Nokogiri
       NONET       = 1 << 11
 
       # Do not reuse the context dictionary. Off by default.
-      NODICT      = 1 << 12
+      NODICT      = 1 << 12 # :nodoc:
 
       # Remove redundant namespaces declarations. Off by default.
       NSCLEAN     = 1 << 13
