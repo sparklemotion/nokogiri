@@ -280,9 +280,8 @@ module Nokogiri
       # Remove blank nodes. Off by default.
       NOBLANKS    = 1 << 8
 
-      # :nodoc:
       # Use the SAX1 interface internally. Off by default.
-      SAX1        = 1 << 9
+      SAX1        = 1 << 9 # :nodoc:
 
       # Implement XInclude substitution. Off by default.
       XINCLUDE    = 1 << 10
@@ -293,9 +292,8 @@ module Nokogiri
       #  ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
-      # :nodoc:
       # Do not reuse the context dictionary. Off by default.
-      NODICT      = 1 << 12
+      NODICT      = 1 << 12 # :nodoc:
 
       # Remove redundant namespaces declarations. Off by default.
       NSCLEAN     = 1 << 13
