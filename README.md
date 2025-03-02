@@ -71,7 +71,7 @@ Please use the "Bug Report" or "Installation Difficulties" templates.
 
 Please report vulnerabilities at https://hackerone.com/nokogiri
 
-See SECURITY.md for full information and description of our security policy.
+See [SECURITY.md](SECURITY.md) for full information and description of our security policy.
 
 
 ### Semantic Versioning Policy
@@ -83,7 +83,6 @@ We bump `Major.Minor.Patch` versions following this guidance:
 `Major`: (we've never done this)
 
 - Significant backwards-incompatible changes to the public API that would require rewriting existing application code.
-- See ROADMAP.md or examples of backwards-incompatible changes we might someday consider for a Major release.
 
 `Minor`:
 
@@ -242,7 +241,7 @@ These dependencies are met by default by Nokogiri's packaged versions of the lib
 
 We provide native gems by pre-compiling libxml2 and libxslt (and potentially zlib and libiconv) and packaging them into the gem file. In this case, no compilation is necessary at installation time, which leads to faster and more reliable installation.
 
-See LICENSE-DEPENDENCIES.md for more information on which dependencies are provided in which native and source gems.
+See [LICENSE-DEPENDENCIES.md](LICENSE-DEPENDENCIES.md) for more information on which dependencies are provided in which native and source gems.
 
 
 ### JRuby
@@ -251,31 +250,31 @@ The Java (a.k.a. JRuby) implementation is a Java extension that depends primaril
 
 These dependencies are provided by pre-compiled jar files packaged in the `java` platform gem.
 
-See LICENSE-DEPENDENCIES.md
+See [LICENSE-DEPENDENCIES.md](LICENSE-DEPENDENCIES.md)
 for more information on which dependencies are provided in which native and source gems.
 
 
 ## Contributing
 
-See CONTRIBUTING.md for an intro guide to developing Nokogiri.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for an intro guide to developing Nokogiri.
 
 
 ## Code of Conduct
 
-See the CODE_OF_CONDUCT.md)
+See the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 
 ## License
 
 This project is licensed under the terms of the MIT license.
 
-See LICENSE.md.
+See [LICENSE.md](LICENSE.md).
 
 
 ### Dependencies
 
 Some additional libraries may be distributed with your version of Nokogiri.
-See LICENSE-DEPENDENCIES.md for a discussion of the variations as well as the licenses thereof.
+See [LICENSE-DEPENDENCIES.md](LICENSE-DEPENDENCIES.md) for a discussion of the variations as well as the licenses thereof.
 
 
 ## Authors
