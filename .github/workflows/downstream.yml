@@ -16,7 +16,6 @@ on:
     types: [opened, synchronize]
     branches:
       - '*'
-
 jobs:
   downstream:
     name: downstream-${{matrix.name}}
