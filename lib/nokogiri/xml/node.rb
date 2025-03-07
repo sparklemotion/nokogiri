@@ -28,7 +28,13 @@ module Nokogiri
     # - Nokogiri::XML::EntityReference
     # - Nokogiri::XML::ProcessingInstruction
     #
-    # == Attributes
+    # == About the Examples
+    #
+    # Examples on this page may assume that certain setup code has been executed.
+    #
+    #   :include: doc/examples/bookstore_setup.rb
+    #
+    #    # == Attributes
     #
     # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
     # example:
@@ -191,17 +197,70 @@ module Nokogiri
       end
 
       # :section: Manipulating Document Structure
-
-      ###
-      # Add +node_or_tags+ as a child of this Node.
+      0
+      # :call-seq:
+      #   add_child(object) -> Node or NodeSet
       #
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
-      # containing markup.
+      # Appends specified Nodes to the children of +self+;
+      # each appended Node has +self+ as its #parent value,
+      # and <tt>self.document</tt> as its #document value.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
-      # a DocumentFragment, NodeSet, or String).
+      # [Arguments]
       #
-      # Also see related method +<<+.
+      # - +object+ (Node, NodeSet, DocumentFragment, String):
+      #   specifies the Node objects to be appended;
+      #   specified Nodes may be in the same Document or DocumentFragment as +self+,
+      #   or in a different one.
+      #
+      # [Returns]
+      #
+      # - The given +object+, if +object+ is a Node or a NodeSet
+      # - A new NodeSet, if +object+ is a DocumentFragment or String.
+      #
+      # When +object+ is a +Node+,
+      # adds it as the last child of +self+;
+      # returns +object+:
+      #
+      #   xml = '<root><src_parent><src_child/></src_parent><dst_parent><dst_child/></dst_paren></root>'
+      #   doc = Nokogiri::XML::Document.parse(xml)
+      #   src_child_node = doc.at_css('src_child')
+      #   dst_parent_node = doc.at_css('dst_parent')
+      #   dst_parent_node.add_child(src_child_node)
+      #
+      # When +object+ is a NodeSet (see {About the Examples}[Node.html#class-Nokogiri::XML::Node-label-About+the+Examples]),
+      # appends each of its nodes to the children of +self+;
+      # returns +object+:
+      #
+      #   bookstore_doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
+      #   book_nodeset = bookstore_doc.search('//book')
+      #   doc = Nokogiri::XML::Document.parse('<root><foo/></root>')
+      #   doc.root.add_child(book_nodeset)
+      #
+      # When +object+ is a +DocumentFragment+,
+      # creates a NodeSet object from the +DocumentFragment+;
+      # appends each of its nodes to the children of +self+;
+      # returns the +NodeSet+:
+      #
+      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<foo/><bar/>')
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   doc.root.add_child(doc_frag)
+      #
+      # When +object+ is a String,
+      # creates a +NodeSet+ object from the string;
+      # appends each of its nodes to the children of +self+;
+      # returns the +NodeSet+:
+      #
+      #   doc = Nokogiri::XML::Document.parse('<root/>')
+      #   doc.root.add_child('<foo/><bar/>')
+      #
+      # [Related]
+      #
+      # - #<<: Appends Nodes (like #add_child), but returns +self+.
+      # - #after: Inserts Nodes after +self+.
+      # - #before: Inserts Nodes before +self+.
+      # - #children=: Replaces +self+ with Nodes.
+      # - #prepend_child: Prepends Nodes to the children of +self+.
+      #
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -1340,7 +1399,7 @@ module Nokogiri
         yield(self)
       end
 
-      # :nodoc:
+      ###
       # Accept a visitor.  This method calls "visit" on +visitor+ with self.
       def accept(visitor)
         visitor.visit(self)
