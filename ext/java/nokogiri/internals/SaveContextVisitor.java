@@ -493,12 +493,9 @@ public class SaveContextVisitor
     return true;
   }
 
-  private void
+  private Map<String, String>
   pushNamespaceStack() {
-    if (!asXml || namespaceStack == null) {
-      return;
-    }
-
+    if (!asXml || namespaceStack == null) { return null; }
     Map<String, String> newContext;
     if (namespaceStack.isEmpty()) {
       newContext = new HashMap<String, String>();
@@ -506,16 +503,19 @@ public class SaveContextVisitor
       Map<String, String> parentContext = namespaceStack.peek();
       newContext = new HashMap<String, String>(parentContext);
     }
-    namespaceStack.push(newContext);
+    return namespaceStack.push(newContext);
   }
 
-  private void
+  private Map<String, String>
   popNamespaceStack() {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
-      return;
-    }
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) { return null; }
+    return namespaceStack.pop();
+  }
 
-    namespaceStack.pop();
+  private Map<String, String>
+  peekNamespaceStack() {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) { return null; }
+    return namespaceStack.peek();
   }
 
   private boolean
@@ -551,10 +551,11 @@ public class SaveContextVisitor
     NamedNodeMap attrs = element.getAttributes();
     if (!canonical) {
       if (attrs == null || attrs.getLength() == 0) { return new Attr[0]; }
+      Map<String, String> namespaceContext = peekNamespaceStack();
       List<Attr> filteredAttrs = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
         Attr attr = (Attr) attrs.item(i);
-        if (attr.getSpecified() && !attrIsRedundantNamespace(attr)) {
+        if (attr.getSpecified() && !attrIsRedundantNamespace(namespaceContext, attr)) {
           filteredAttrs.add(attr);
         }
       }
@@ -590,14 +591,11 @@ public class SaveContextVisitor
   }
 
   private boolean
-  attrIsRedundantNamespace(Attr attr) {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
-      return false;
-    }
+  attrIsRedundantNamespace(Map<String, String> namespaceContext, Attr attr) {
+    if (namespaceContext == null) { return false; }
 
     String xmlnsPrefix = null;
     String attrName = attr.getNodeName();
-
     if (attrName.equals("xmlns")) {
       xmlnsPrefix = "";
     } else if (attrName.startsWith("xmlns:")) {
@@ -605,26 +603,15 @@ public class SaveContextVisitor
     }
 
     if (xmlnsPrefix != null) {
-      String attrValue = attr.getNodeValue();
-      if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
+      String xmlnsUri = attr.getNodeValue();
+      if (namespaceContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(namespaceContext.get(xmlnsPrefix))) {
         return true;
       } else {
-        namespaceStack.peek().put(xmlnsPrefix, attrValue);
+        namespaceContext.put(xmlnsPrefix, xmlnsUri);
       }
     }
 
     return false;
-  }
-
-  private boolean
-  isRedundantNamespace(String xmlnsPrefix, String xmlnsUri) {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
-      return false;
-    }
-
-    // Check if this namespace is already declared in the current namespace context
-    Map<String, String> currentContext = namespaceStack.peek();
-    return currentContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(currentContext.get(xmlnsPrefix));
   }
 
   private void
