@@ -58,7 +58,7 @@ public class SaveContextVisitor
   private final Deque<Attr[]> c14nNamespaceStack;
   private final Deque<Attr[]> c14nAttrStack;
   //private List<String> c14nExclusiveInclusivePrefixes = null;
-  private final Stack<Map<String, String>> namespaceStack;
+  private final Stack<Map<String, String>> xmlnsNamespaceStack;
 
   /*
    * U can't touch this.
@@ -118,13 +118,7 @@ public class SaveContextVisitor
     if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) { indent = "  "; } // default, two spaces
     indentString = indent;
     if (!asXml && !asHtml && !asXhtml && !asBuilder) { asXml = true; }
-
-    if (asXml) {
-      namespaceStack = new Stack<Map<String, String>>();
-      namespaceStack.push(new HashMap<String, String>());
-    } else {
-      namespaceStack = null;
-    }
+    xmlnsNamespaceStack = asXml ? new Stack<Map<String, String>>() : null;
   }
 
   @Override
@@ -440,7 +434,7 @@ public class SaveContextVisitor
   public boolean
   enter(Element element)
   {
-    pushNamespaceStack();
+    pushXmlnsNamespaceStack();
 
     if (canonical) {
       c14nNodeList.add(element);
@@ -494,28 +488,28 @@ public class SaveContextVisitor
   }
 
   private Map<String, String>
-  pushNamespaceStack() {
-    if (!asXml || namespaceStack == null) { return null; }
+  pushXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null) { return null; }
     Map<String, String> newContext;
-    if (namespaceStack.isEmpty()) {
+    if (xmlnsNamespaceStack.isEmpty()) {
       newContext = new HashMap<String, String>();
     } else {
-      Map<String, String> parentContext = namespaceStack.peek();
+      Map<String, String> parentContext = xmlnsNamespaceStack.peek();
       newContext = new HashMap<String, String>(parentContext);
     }
-    return namespaceStack.push(newContext);
+    return xmlnsNamespaceStack.push(newContext);
   }
 
   private Map<String, String>
-  popNamespaceStack() {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) { return null; }
-    return namespaceStack.pop();
+  popXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
+    return xmlnsNamespaceStack.pop();
   }
 
   private Map<String, String>
-  peekNamespaceStack() {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) { return null; }
-    return namespaceStack.peek();
+  peekXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
+    return xmlnsNamespaceStack.peek();
   }
 
   private boolean
@@ -551,11 +545,11 @@ public class SaveContextVisitor
     NamedNodeMap attrs = element.getAttributes();
     if (!canonical) {
       if (attrs == null || attrs.getLength() == 0) { return new Attr[0]; }
-      Map<String, String> namespaceContext = peekNamespaceStack();
+      Map<String, String> xmlnsContext = peekXmlnsNamespaceStack();
       List<Attr> filteredAttrs = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
         Attr attr = (Attr) attrs.item(i);
-        if (attr.getSpecified() && !attrIsRedundantNamespace(namespaceContext, attr)) {
+        if (attr.getSpecified() && !attrIsRedundantNamespace(xmlnsContext, attr)) {
           filteredAttrs.add(attr);
         }
       }
@@ -591,8 +585,8 @@ public class SaveContextVisitor
   }
 
   private boolean
-  attrIsRedundantNamespace(Map<String, String> namespaceContext, Attr attr) {
-    if (namespaceContext == null) { return false; }
+  attrIsRedundantNamespace(Map<String, String> xmlnsContext, Attr attr) {
+    if (xmlnsContext == null) { return false; }
 
     String xmlnsPrefix = null;
     String attrName = attr.getNodeName();
@@ -604,10 +598,10 @@ public class SaveContextVisitor
 
     if (xmlnsPrefix != null) {
       String xmlnsUri = attr.getNodeValue();
-      if (namespaceContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(namespaceContext.get(xmlnsPrefix))) {
+      if (xmlnsContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(xmlnsContext.get(xmlnsPrefix))) {
         return true;
       } else {
-        namespaceContext.put(xmlnsPrefix, xmlnsUri);
+        xmlnsContext.put(xmlnsPrefix, xmlnsUri);
       }
     }
 
@@ -720,7 +714,7 @@ public class SaveContextVisitor
   public void
   leave(Element element)
   {
-    popNamespaceStack();
+    popXmlnsNamespaceStack();
 
     if (canonical) {
       c14nNamespaceStack.poll();
