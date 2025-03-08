@@ -437,19 +437,11 @@ public class SaveContextVisitor
     // no-op
   }
 
-  private boolean isRedundantNamespace(String xmlnsPrefix, String uri) {
-    if (namespaceStack == null || namespaceStack.isEmpty()) {
-      return false;
-    }
-    
-    // Check if this namespace is already declared in the current namespace context
-    Map<String, String> currentContext = namespaceStack.peek();
-    return currentContext.containsKey(xmlnsPrefix) && uri.equals(currentContext.get(xmlnsPrefix));
-  }
-
   public boolean
   enter(Element element)
   {
+    pushNamespaceStack();
+
     if (canonical) {
       c14nNodeList.add(element);
       if (element == element.getOwnerDocument().getDocumentElement()) {
@@ -464,41 +456,11 @@ public class SaveContextVisitor
     String name = element.getTagName();
     buffer.append('<').append(name);
 
-    // Push a new namespace context for XML serialization if we're tracking namespaces
-    if (namespaceStack != null) {
-      Map<String, String> parentContext = namespaceStack.peek();
-      Map<String, String> newContext = new HashMap<String, String>(parentContext);
-      namespaceStack.push(newContext);
-    }
-
     // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
-      if (!attr.getSpecified()) {
+      if (!attr.getSpecified() || detectRedundantNamespace(attr)) {
         continue;
-      }
-
-      String attrName = attr.getNodeName();
-      String xmlnsPrefix = null;
-
-      // Check if this is an XML namespace declaration
-      if (asXml && namespaceStack != null) {
-        if (attrName.equals("xmlns")) {
-          xmlnsPrefix = "";
-        } else if (attrName.startsWith("xmlns:")) {
-          xmlnsPrefix = attrName.substring(6);
-        }
-      }
-
-      // Skip xmlns attributes if they are redundant,
-      // otherwise add them to namespaceStack
-      if (xmlnsPrefix != null) {
-        String attrValue = attr.getNodeValue();
-        if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
-          continue;
-        } else {
-          namespaceStack.peek().put(xmlnsPrefix, attrValue);
-        }
       }
 
       buffer.append(' ');
@@ -530,6 +492,69 @@ public class SaveContextVisitor
       buffer.append('\n');
     }
     return true;
+  }
+
+  private void
+  pushNamespaceStack() {
+    if (!asXml || namespaceStack == null) {
+      return;
+    }
+
+    Map<String, String> newContext;
+    if (namespaceStack.isEmpty()) {
+      newContext = new HashMap<String, String>();
+    } else {
+      Map<String, String> parentContext = namespaceStack.peek();
+      newContext = new HashMap<String, String>(parentContext);
+    }
+    namespaceStack.push(newContext);
+  }
+
+  private void
+  popNamespaceStack() {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
+      return;
+    }
+
+    namespaceStack.pop();
+  }
+
+  private boolean
+  detectRedundantNamespace(Attr attr) {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
+      return false;
+    }
+
+    String xmlnsPrefix = null;
+    String attrName = attr.getNodeName();
+
+    if (attrName.equals("xmlns")) {
+      xmlnsPrefix = "";
+    } else if (attrName.startsWith("xmlns:")) {
+      xmlnsPrefix = attrName.substring(6);
+    }
+
+    if (xmlnsPrefix != null) {
+      String attrValue = attr.getNodeValue();
+      if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
+        return true;
+      } else {
+        namespaceStack.peek().put(xmlnsPrefix, attrValue);
+      }
+    }
+
+    return false;
+  }
+
+  private boolean
+  isRedundantNamespace(String xmlnsPrefix, String uri) {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
+      return false;
+    }
+
+    // Check if this namespace is already declared in the current namespace context
+    Map<String, String> currentContext = namespaceStack.peek();
+    return currentContext.containsKey(xmlnsPrefix) && uri.equals(currentContext.get(xmlnsPrefix));
   }
 
   private boolean
@@ -707,10 +732,7 @@ public class SaveContextVisitor
   public void
   leave(Element element)
   {
-    // Pop the namespace context when leaving an element for XML serialization
-    if (namespaceStack != null) {
-      namespaceStack.pop();
-    }
+    popNamespaceStack();
 
     if (canonical) {
       c14nNamespaceStack.poll();
