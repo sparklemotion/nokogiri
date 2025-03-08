@@ -483,27 +483,27 @@ public class SaveContextVisitor
 
       // Check if this is an XML namespace declaration
       if (asXml && namespaceStack != null) {
-        if (attrName.equals('xmlns')) {
-          xmlnsPrefix = '';
-        } else if (attrName.startsWith('xmlns:')) {
+        if (attrName.equals("xmlns")) {
+          xmlnsPrefix = "";
+        } else if (attrName.startsWith("xmlns:")) {
           xmlnsPrefix = attrName.substring(6);
         }
       }
 
+      // Skip xmlns attributes if they are redundant,
+      // otherwise add them to namespaceStack
       if (xmlnsPrefix != null) {
-        // Only add xmlns attributes if the are not redundant
         String attrValue = attr.getNodeValue();
-        if (!isRedundantNamespace(xmlnsPrefix, attrValue)) {
-          buffer.append(' ').append(attrName).append('="');
-                .append(serializeAttrTextContent(attrValue, htmlDoc)).append('"');
+        if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
+          continue;
+        } else {
           namespaceStack.peek().put(xmlnsPrefix, attrValue);
         }
-      } else {
-        // Regular attribute or namespace but not in XML mode
-        buffer.append(' ');
-        enter(attr);
-        leave(attr);
       }
+
+      buffer.append(' ');
+      enter(attr);
+      leave(attr);
     }
 
     if (element.hasChildNodes()) {
