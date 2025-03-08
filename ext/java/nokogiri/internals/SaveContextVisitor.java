@@ -452,7 +452,6 @@ public class SaveContextVisitor
     String name = element.getTagName();
     buffer.append('<').append(name);
 
-    // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
       if (attr.getSpecified()) {
@@ -548,14 +547,14 @@ public class SaveContextVisitor
     if (!canonical) {
       if (attrs == null || attrs.getLength() == 0) { return new Attr[0]; }
       Map<String, String> xmlnsContext = peekXmlnsNamespaceStack();
-      List<Attr> filteredAttrs = new ArrayList<Attr>();
+      List<Attr> filteredAttrsAndNamespaces = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
         Attr attr = (Attr) attrs.item(i);
         if (!attrIsRedundantNamespace(xmlnsContext, attr)) {
-          filteredAttrs.add(attr);
+          filteredAttrsAndNamespaces.add(attr);
         }
       }
-      return filteredAttrs.toArray(new Attr[0]);
+      return filteredAttrsAndNamespaces.toArray(new Attr[0]);
     } else {
       List<Attr> namespaces = new ArrayList<Attr>();
       List<Attr> attributes = new ArrayList<Attr>();
