@@ -448,22 +448,22 @@ public class SaveContextVisitor
         c14nNodeList.add(element.getOwnerDocument());
       }
     }
+
     String current = indentation.peek();
     buffer.append(current);
     if (needIndent(element)) {
       indentation.push(current + indentString);
     }
+
     String name = element.getTagName();
     buffer.append('<').append(name);
 
     // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
-      if (attr.getSpecified() && !attrIsRedundantNamespace(attr)) {
-        buffer.append(' ');
-        enter(attr);
-        leave(attr);
-      }
+      buffer.append(' ');
+      enter(attr);
+      leave(attr);
     }
 
     if (element.hasChildNodes()) {
@@ -486,6 +486,7 @@ public class SaveContextVisitor
     } else {
       buffer.append("/>");
     }
+
     if (needBreakInOpening(element)) {
       buffer.append('\n');
     }
@@ -515,44 +516,6 @@ public class SaveContextVisitor
     }
 
     namespaceStack.pop();
-  }
-
-  private boolean
-  attrIsRedundantNamespace(Attr attr) {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
-      return false;
-    }
-
-    String xmlnsPrefix = null;
-    String attrName = attr.getNodeName();
-
-    if (attrName.equals("xmlns")) {
-      xmlnsPrefix = "";
-    } else if (attrName.startsWith("xmlns:")) {
-      xmlnsPrefix = attrName.substring(6);
-    }
-
-    if (xmlnsPrefix != null) {
-      String attrValue = attr.getNodeValue();
-      if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
-        return true;
-      } else {
-        namespaceStack.peek().put(xmlnsPrefix, attrValue);
-      }
-    }
-
-    return false;
-  }
-
-  private boolean
-  isRedundantNamespace(String xmlnsPrefix, String uri) {
-    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
-      return false;
-    }
-
-    // Check if this namespace is already declared in the current namespace context
-    Map<String, String> currentContext = namespaceStack.peek();
-    return currentContext.containsKey(xmlnsPrefix) && uri.equals(currentContext.get(xmlnsPrefix));
   }
 
   private boolean
@@ -588,11 +551,14 @@ public class SaveContextVisitor
     NamedNodeMap attrs = element.getAttributes();
     if (!canonical) {
       if (attrs == null || attrs.getLength() == 0) { return new Attr[0]; }
-      Attr[] attrsAndNamespaces = new Attr[attrs.getLength()];
+      List<Attr> filteredAttrs = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
-        attrsAndNamespaces[i] = (Attr) attrs.item(i);
+        Attr attr = (Attr) attrs.item(i);
+        if (attr.getSpecified() && !attrIsRedundantNamespace(attr)) {
+          filteredAttrs.add(attr);
+        }
       }
-      return attrsAndNamespaces;
+      return filteredAttrs.toArray(new Attr[0]);
     } else {
       List<Attr> namespaces = new ArrayList<Attr>();
       List<Attr> attributes = new ArrayList<Attr>();
@@ -621,7 +587,44 @@ public class SaveContextVisitor
       c14nAttrStack.push(attributeArray);
       return allAttrs;
     }
+  }
 
+  private boolean
+  attrIsRedundantNamespace(Attr attr) {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
+      return false;
+    }
+
+    String xmlnsPrefix = null;
+    String attrName = attr.getNodeName();
+
+    if (attrName.equals("xmlns")) {
+      xmlnsPrefix = "";
+    } else if (attrName.startsWith("xmlns:")) {
+      xmlnsPrefix = attrName.substring(6);
+    }
+
+    if (xmlnsPrefix != null) {
+      String attrValue = attr.getNodeValue();
+      if (isRedundantNamespace(xmlnsPrefix, attrValue)) {
+        return true;
+      } else {
+        namespaceStack.peek().put(xmlnsPrefix, attrValue);
+      }
+    }
+
+    return false;
+  }
+
+  private boolean
+  isRedundantNamespace(String xmlnsPrefix, String xmlnsUri) {
+    if (!asXml || namespaceStack == null || namespaceStack.isEmpty()) {
+      return false;
+    }
+
+    // Check if this namespace is already declared in the current namespace context
+    Map<String, String> currentContext = namespaceStack.peek();
+    return currentContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(currentContext.get(xmlnsPrefix));
   }
 
   private void
