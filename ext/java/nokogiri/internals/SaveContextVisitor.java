@@ -459,13 +459,11 @@ public class SaveContextVisitor
     // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
-      if (!attr.getSpecified() || detectRedundantNamespace(attr)) {
-        continue;
+      if (attr.getSpecified() && !detectRedundantNamespace(attr)) {
+        buffer.append(' ');
+        enter(attr);
+        leave(attr);
       }
-
-      buffer.append(' ');
-      enter(attr);
-      leave(attr);
     }
 
     if (element.hasChildNodes()) {
