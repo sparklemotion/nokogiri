@@ -455,9 +455,11 @@ public class SaveContextVisitor
     // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
-      buffer.append(' ');
-      enter(attr);
-      leave(attr);
+      if (attr.getSpecified()) {
+        buffer.append(' ');
+        enter(attr);
+        leave(attr);
+      }
     }
 
     if (element.hasChildNodes()) {
@@ -549,7 +551,7 @@ public class SaveContextVisitor
       List<Attr> filteredAttrs = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
         Attr attr = (Attr) attrs.item(i);
-        if (attr.getSpecified() && !attrIsRedundantNamespace(xmlnsContext, attr)) {
+        if (!attrIsRedundantNamespace(xmlnsContext, attr)) {
           filteredAttrs.add(attr);
         }
       }
@@ -586,7 +588,7 @@ public class SaveContextVisitor
 
   private boolean
   attrIsRedundantNamespace(Map<String, String> xmlnsContext, Attr attr) {
-    if (xmlnsContext == null) { return false; }
+    if (xmlnsContext == null || !attr.getSpecified()) { return false; }
 
     String xmlnsPrefix = null;
     String attrName = attr.getNodeName();
