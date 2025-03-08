@@ -58,6 +58,7 @@ public class SaveContextVisitor
   private final Deque<Attr[]> c14nNamespaceStack;
   private final Deque<Attr[]> c14nAttrStack;
   //private List<String> c14nExclusiveInclusivePrefixes = null;
+  private final Stack<Map<String, String>> namespaceStack;
 
   /*
    * U can't touch this.
@@ -117,6 +118,13 @@ public class SaveContextVisitor
     if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) { indent = "  "; } // default, two spaces
     indentString = indent;
     if (!asXml && !asHtml && !asXhtml && !asBuilder) { asXml = true; }
+
+    if (asXml) {
+      namespaceStack = new Stack<Map<String, String>>();
+      namespaceStack.push(new HashMap<String, String>());
+    } else {
+      namespaceStack = null;
+    }
   }
 
   @Override
@@ -429,6 +437,16 @@ public class SaveContextVisitor
     // no-op
   }
 
+  private boolean isRedundantNamespace(String xmlnsPrefix, String uri) {
+    if (namespaceStack == null || namespaceStack.isEmpty()) {
+      return false;
+    }
+    
+    // Check if this namespace is already declared in the current namespace context
+    Map<String, String> currentContext = namespaceStack.peek();
+    return currentContext.containsKey(xmlnsPrefix) && uri.equals(currentContext.get(xmlnsPrefix));
+  }
+
   public boolean
   enter(Element element)
   {
@@ -445,19 +463,55 @@ public class SaveContextVisitor
     }
     String name = element.getTagName();
     buffer.append('<').append(name);
+
+    // Push a new namespace context for XML serialization if we're tracking namespaces
+    if (namespaceStack != null) {
+      Map<String, String> parentContext = namespaceStack.peek();
+      Map<String, String> newContext = new HashMap<String, String>(parentContext);
+      namespaceStack.push(newContext);
+    }
+
+    // Process all attributes, handling namespaces specially for XML serialization
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
-      if (attr.getSpecified()) {
+      if (!attr.getSpecified()) {
+        continue;
+      }
+
+      String attrName = attr.getNodeName();
+      String xmlnsPrefix = null;
+
+      // Check if this is an XML namespace declaration
+      if (asXml && namespaceStack != null) {
+        if (attrName.equals('xmlns')) {
+          xmlnsPrefix = '';
+        } else if (attrName.startsWith('xmlns:')) {
+          xmlnsPrefix = attrName.substring(6);
+        }
+      }
+
+      if (xmlnsPrefix != null) {
+        // Only add xmlns attributes if the are not redundant
+        String attrValue = attr.getNodeValue();
+        if (!isRedundantNamespace(xmlnsPrefix, attrValue)) {
+          buffer.append(' ').append(attrName).append('="');
+                .append(serializeAttrTextContent(attrValue, htmlDoc)).append('"');
+          namespaceStack.peek().put(xmlnsPrefix, attrValue);
+        }
+      } else {
+        // Regular attribute or namespace but not in XML mode
         buffer.append(' ');
         enter(attr);
         leave(attr);
       }
     }
+
     if (element.hasChildNodes()) {
       buffer.append('>');
       if (needBreakInOpening(element)) { buffer.append('\n'); }
       return true;
     }
+
     // no child
     if (asHtml) {
       buffer.append('>');
@@ -653,6 +707,11 @@ public class SaveContextVisitor
   public void
   leave(Element element)
   {
+    // Pop the namespace context when leaving an element for XML serialization
+    if (namespaceStack != null) {
+      namespaceStack.pop();
+    }
+
     if (canonical) {
       c14nNamespaceStack.poll();
       c14nAttrStack.poll();
