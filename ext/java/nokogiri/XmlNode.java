@@ -438,25 +438,24 @@ public class XmlNode extends RubyObject
       if (ns_inherit.isTrue()) {
         set_namespace(context, ((XmlNode)parent(context)).namespace(context));
       }
-      return;
-    }
+    } else {
+      String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
+      String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
+      boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
 
-    String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
-    String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
-    boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
-
-    // add xmlns attribute if this is a new root node or if the node's
-    // namespace isn't a default namespace in the new document
-    if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
-      // this is the root node, so we must set the namespaces attributes anyway
-      e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
-    } else if (prefix == null) {
-      // this is a default namespace but isn't the default where this node is being added
-      if (!isDefault) { e.setAttribute("xmlns", nsURI); }
-    } else if (!prefix.equals(currentPrefix) || nsURI.equals(currentURI)) {
-      // this is a prefixed namespace
-      // but doesn't have the same prefix or the prefix is set to a different URI
-      e.setAttribute("xmlns:" + prefix, nsURI);
+      // add xmlns attribute if this is a new root node or if the node's
+      // namespace isn't a default namespace in the new document
+      if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
+        // this is the root node, so we must set the namespaces attributes anyway
+        e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
+      } else if (prefix == null) {
+        // this is a default namespace but isn't the default where this node is being added
+        if (!isDefault) { e.setAttribute("xmlns", nsURI); }
+      } else if (!prefix.equals(currentPrefix) || !nsURI.equals(currentURI)) {
+        // this is a prefixed namespace
+        // but doesn't have the same prefix or the prefix is set to a different URI
+        e.setAttribute("xmlns:" + prefix, nsURI);
+      }
     }
 
     if (e.hasAttributes()) {
@@ -488,6 +487,32 @@ public class XmlNode extends RubyObject
           XmlNamespace.createFromAttr(context.runtime, attr);
         }
         NokogiriHelpers.renameNode(attr, nsUri, nodeName);
+      }
+    }
+
+    // if this namespace is a duplicate of what's already in the document, remove it.
+    // a "duplicate" here is if the prefix and the URI both match what resolves in the parent.
+    if (e.getParentNode().getNodeType() == Node.ELEMENT_NODE) {
+      RubyArray<?> nsdefs = this.namespace_definitions(context);
+      for (int j = 0 ; j < nsdefs.getLength() ; j++) {
+        XmlNamespace ns = (XmlNamespace)nsdefs.get(j);
+
+        String selfPrefix = ns.getPrefix();
+        String selfURI = ns.getHref();
+        String parentPrefix = e.getParentNode().lookupPrefix(selfURI);
+        String parentURI = e.getParentNode().lookupNamespaceURI(selfPrefix);
+
+        boolean prefixMatch = ((selfPrefix == null && parentPrefix == null) ||
+                               (selfPrefix != null && selfPrefix.equals(parentPrefix)));
+        boolean uriMatch = ((selfURI == null && parentURI == null) ||
+                            (selfURI != null && selfURI.equals(parentURI)));
+
+        if (prefixMatch && uriMatch) {
+          String attrName = "xmlns";
+          if (selfPrefix != null && !selfPrefix.isEmpty()) { attrName = attrName + ':' + selfPrefix; }
+
+          e.removeAttribute(attrName);
+        }
       }
     }
 
@@ -1175,28 +1200,21 @@ public class XmlNode extends RubyObject
   public RubyArray<?>
   namespace_definitions(ThreadContext context)
   {
-    // don't use namespace_definitions cache anymore since
-    // namespaces might be deleted. Reflecting the result of
-    // namespace removals is complicated, so the cache might not be
-    // updated.
+    // don't use namespace_definitions cache anymore since namespaces might be deleted. Reflecting
+    // the result of namespace removals is complicated, so the cache might not be updated.
     final XmlDocument doc = document(context.runtime);
     if (doc == null) { return context.runtime.newEmptyArray(); }
     if (doc instanceof Html4Document) { return context.runtime.newEmptyArray(); }
 
-    List<XmlNamespace> namespaces = doc.getNamespaceCache().get(node);
-    return RubyArray.newArray(context.runtime, namespaces);
-
-    // // TODO: I think this implementation would be better but there are edge cases
-    // // See https://github.com/sparklemotion/nokogiri/issues/2543
-    // RubyArray<?> nsdefs = RubyArray.newArray(context.getRuntime());
-    // NamedNodeMap attrs = node.getAttributes();
-    // for (int j = 0 ; j < attrs.getLength() ; j++) {
-    //   Attr attr = (Attr)attrs.item(j);
-    //   if ("http://www.w3.org/2000/xmlns/" == attr.getNamespaceURI()) {
-    //     nsdefs.append(XmlNamespace.createFromAttr(context.getRuntime(), attr));
-    //   }
-    // }
-    // return nsdefs;
+    RubyArray<?> nsdefs = RubyArray.newArray(context.getRuntime());
+    NamedNodeMap attrs = node.getAttributes();
+    for (int j = 0 ; j < attrs.getLength() ; j++) {
+      Attr attr = (Attr)attrs.item(j);
+      if ("http://www.w3.org/2000/xmlns/" == attr.getNamespaceURI()) {
+        nsdefs.append(XmlNamespace.createFromAttr(context.getRuntime(), attr));
+      }
+    }
+    return nsdefs;
   }
 
   /**
