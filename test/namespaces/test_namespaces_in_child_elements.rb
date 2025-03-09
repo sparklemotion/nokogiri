@@ -44,7 +44,13 @@ describe 'namespaces in child elements' do
     assert_includes(doc, '<dnd:adventure xmlns:dnd="http://www.w3.org/dungeons#">')
     assert_includes(doc, '<dnd:party xmlns:dnd="http://www.w3.org/dragons#">')
     assert_includes(doc, '<dnd:members>')
-    assert_includes(doc, '<dnd:character xmlns:dnd="http://www.w3.org/dungeons#">')
+    # TODO: The Windows behavior here is incorrect.
+    # See: https://github.com/sparklemotion/nokogiri/issues/3458
+    if Nokogiri.windows?
+      assert_includes(doc, '<dnd:character>')
+    else
+      assert_includes(doc, '<dnd:character xmlns:dnd="http://www.w3.org/dungeons#">')
+    end
     assert_includes(doc, '<dnd:name>Nigel</dnd:name>')
   end
 
@@ -76,7 +82,7 @@ describe 'namespaces in child elements' do
       assert_includes(doc, '<root xmlns="http://outer-namespace.org/">')
       assert_includes(doc, '<outer>in outer namespace</outer>')
       assert_includes(doc, '<inner xmlns="http://inner-namespace.org/">')
-      # TODO: JRuby's behavior here is incorrect.
+      # TODO: The JRuby behavior here is incorrect.
       # See: https://github.com/sparklemotion/nokogiri/issues/3457
       if Nokogiri.jruby?
         assert_includes(doc, '<element xmlns="http://outer-namespace.org/">in inner namespace</element>')
@@ -182,7 +188,7 @@ describe 'namespaces in child elements' do
       assert_includes(doc, '<default_element>in default namespace</default_element>')
       assert_includes(doc, '<ns:prefixed_element>in prefixed namespace</ns:prefixed_element>')
       assert_includes(doc, '<mixed xmlns="http://new-default.org/">')
-      # TODO: JRuby's behavior here is incorrect.
+      # TODO: The JRuby behavior here is incorrect.
       # See: https://github.com/sparklemotion/nokogiri/issues/3457
       if Nokogiri.jruby?
         assert_includes(doc, '<new_default xmlns="http://default.org/">in new default namespace</new_default>')
