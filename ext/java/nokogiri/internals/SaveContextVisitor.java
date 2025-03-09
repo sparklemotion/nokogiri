@@ -550,7 +550,7 @@ public class SaveContextVisitor
       List<Attr> filteredAttrsAndNamespaces = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
         Attr attr = (Attr) attrs.item(i);
-        if (!attrIsRedundantNamespace(xmlnsContext, attr)) {
+        if (!findOrAddRedundantNamespaceAttr(xmlnsContext, attr)) {
           filteredAttrsAndNamespaces.add(attr);
         }
       }
@@ -585,8 +585,19 @@ public class SaveContextVisitor
     }
   }
 
+  /**
+   * Detects whether a given attribute is a redundant namespace already
+   * present within xmlnsContext. As a side-effect, if attribute is a
+   * non-redundant namespace, it is added to the xmlnsContext, so that
+   * it can considered redundant for subsequent checks.
+   *
+   * @param xmlnsContext The namespace context, which should be the top object
+   *   of xmlnsNamespaceStack.
+   * @param attr The attribute to check.
+   * @return True if the object is redundant, false otherwise.
+   */
   private boolean
-  attrIsRedundantNamespace(Map<String, String> xmlnsContext, Attr attr) {
+  findOrAddRedundantNamespaceAttr(Map<String, String> xmlnsContext, Attr attr) {
     if (xmlnsContext == null || !attr.getSpecified()) { return false; }
 
     String xmlnsPrefix = null;
@@ -600,8 +611,10 @@ public class SaveContextVisitor
     if (xmlnsPrefix != null) {
       String xmlnsUri = attr.getNodeValue();
       if (xmlnsContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(xmlnsContext.get(xmlnsPrefix))) {
+        // Redundant namespace detected
         return true;
       } else {
+        // Add non-redundant namespace to the top of xmlnsNamespaceStack
         xmlnsContext.put(xmlnsPrefix, xmlnsUri);
       }
     }
