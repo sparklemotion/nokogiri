@@ -586,10 +586,12 @@ public class SaveContextVisitor
   }
 
   /**
-   * Detects whether a given attribute is a redundant namespace already
-   * present within xmlnsContext. As a side-effect, if attribute is a
-   * non-redundant namespace, it is added to the xmlnsContext, so that
-   * it can considered redundant for subsequent checks.
+   * Detects whether a given attribute is a redundant xmlns namespace
+   * already present within xmlnsContext.
+   *
+   * As a side-effect, if the attribute is a non-redundant namespace,
+   * it is added to the xmlnsContext, so that it will be considered redundant
+   * for subsequent checks.
    *
    * @param xmlnsContext The namespace context, which should be the top object
    *   of xmlnsNamespaceStack.
