@@ -314,7 +314,7 @@ module Nokogiri
 
         @context = nil
         @arity = nil
-        @ns = nil
+        @ns_prefix = nil
 
         options = DEFAULT_DOCUMENT_OPTIONS.merge(options)
         options.each do |k, v|
@@ -355,20 +355,8 @@ module Nokogiri
       ###
       # Build a tag that is associated with namespace +ns+.  Raises an
       # ArgumentError if +ns+ has not been defined higher in the tree.
-      def [](ns)
-        if @parent != @doc
-          @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
-        end
-        return self if @ns
-
-        @parent.ancestors.each do |a|
-          next if a == doc
-
-          @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
-          return self if @ns
-        end
-
-        @ns = { pending: ns.to_s }
+      def [](ns_prefix)
+        @ns_prefix = ns_prefix.to_s
         self
       end
 
@@ -395,28 +383,32 @@ module Nokogiri
         if @context&.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) do |n|
-            # Set up the namespace
-            if @ns.is_a?(Nokogiri::XML::Namespace)
-              n.namespace = @ns
-              @ns = nil
-            end
-          end
-
-          if @ns.is_a?(Hash)
-            node.namespace = node.namespace_definitions.find { |x| x.prefix == @ns[:pending] }
-            if node.namespace.nil?
-              raise ArgumentError, "Namespace #{@ns[:pending]} has not been defined"
-            end
-
-            @ns = nil
-          end
-
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args)
+          bind_ns(node)
           insert(node, &block)
         end
       end
 
       private
+
+      def bind_ns(node)
+        return if @ns_prefix.nil?
+
+        ancestors = [node, parent, parent.ancestors].flatten
+        ancestors.each do |ancestor|
+          break if ancestor.nil? || ancestor == @doc
+
+          if (ns = ancestor.namespace_definitions.find { |x| x.prefix == @ns_prefix })
+            @ns_prefix = nil
+            node.namespace = ns
+            break
+          end
+        end
+
+        return if @ns_prefix.nil?
+
+        raise ArgumentError, "Namespace prefix #{@ns_prefix.inspect} has not been defined"
+      end
 
       ###
       # Insert +node+ as a child of the current Node
