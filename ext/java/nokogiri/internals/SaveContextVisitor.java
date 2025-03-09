@@ -602,26 +602,26 @@ public class SaveContextVisitor
   findOrAddRedundantNamespaceAttr(Map<String, String> xmlnsContext, Attr attr) {
     if (xmlnsContext == null || !attr.getSpecified()) { return false; }
 
-    String xmlnsPrefix = null;
+    String xmlnsPrefix;
     String attrName = attr.getNodeName();
     if (attrName.equals("xmlns")) {
       xmlnsPrefix = "";
     } else if (attrName.startsWith("xmlns:")) {
       xmlnsPrefix = attrName.substring(6);
+    } else {
+      // Not a namespace attribute
+      return false;
     }
 
-    if (xmlnsPrefix != null) {
-      String xmlnsUri = attr.getNodeValue();
-      if (xmlnsContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(xmlnsContext.get(xmlnsPrefix))) {
-        // Redundant namespace detected
-        return true;
-      } else {
-        // Add non-redundant namespace to the top of xmlnsNamespaceStack
-        xmlnsContext.put(xmlnsPrefix, xmlnsUri);
-      }
+    String xmlnsUri = attr.getNodeValue();
+    if (xmlnsContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(xmlnsContext.get(xmlnsPrefix))) {
+      // Redundant namespace detected
+      return true;
+    } else {
+      // Add non-redundant namespace to the top of xmlnsNamespaceStack
+      xmlnsContext.put(xmlnsPrefix, xmlnsUri);
+      return false;
     }
-
-    return false;
   }
 
   private void
