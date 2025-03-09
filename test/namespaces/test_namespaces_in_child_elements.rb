@@ -76,9 +76,10 @@ describe 'namespaces in child elements' do
       assert_includes(doc, '<root xmlns="http://outer-namespace.org/">')
       assert_includes(doc, '<outer>in outer namespace</outer>')
       assert_includes(doc, '<inner xmlns="http://inner-namespace.org/">')
-      # assert_includes(doc, '<element>in inner namespace</element>')
-      # TODO: THE NEXT LINE IS WRONG!!
-      assert_includes(doc, '<element xmlns="http://outer-namespace.org/">in inner namespace</element>')
+      # TODO: THE NEXT LINE FAILS ON JRUBY!!
+      assert_includes(doc, '<element>in inner namespace</element>')
+      # TODO: THE NEXT LINE PASSES ON JRUBY, BUT SHOULD FAIL!!
+      # assert_includes(doc, '<element xmlns="http://outer-namespace.org/">in inner namespace</element>')
       assert_includes(doc, '<another>back in outer namespace</another>')
     end
   end
@@ -128,14 +129,10 @@ describe 'namespaces in child elements' do
 
       assert_includes(doc, '<root xmlns:top="http://top-namespace.org/">')
       assert_includes(doc, '<top:level1>')
-      # assert_includes(doc, '<middle xmlns:mid1="http://middle1-namespace.org/" xmlns:mid2="http://middle2-namespace.org/">')
-      # TODO: THE NEXT LINE IS WRONG!!
       assert_includes(doc, '<top:middle xmlns:mid1="http://middle1-namespace.org/" xmlns:mid2="http://middle2-namespace.org/">')
       assert_includes(doc, '<mid1:item>using middle1 namespace</mid1:item>')
       assert_includes(doc, '<mid2:item>using middle2 namespace</mid2:item>')
       assert_includes(doc, '<top:item>still using top namespace</top:item>')
-      # assert_includes(doc, '<bottom xmlns:bot="http://bottom-namespace.org/">')
-      # TODO: THE NEXT LINE IS WRONG!!
       assert_includes(doc, '<top:bottom xmlns:bot="http://bottom-namespace.org/">')
       assert_includes(doc, '<bot:item>using bottom namespace</bot:item>')
       assert_includes(doc, '<mid1:item>still using middle1 namespace</mid1:item>')
