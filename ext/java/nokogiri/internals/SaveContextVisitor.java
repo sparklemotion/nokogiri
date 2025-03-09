@@ -58,6 +58,7 @@ public class SaveContextVisitor
   private final Deque<Attr[]> c14nNamespaceStack;
   private final Deque<Attr[]> c14nAttrStack;
   //private List<String> c14nExclusiveInclusivePrefixes = null;
+  private final Stack<Map<String, String>> xmlnsNamespaceStack;
 
   /*
    * U can't touch this.
@@ -117,6 +118,7 @@ public class SaveContextVisitor
     if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) { indent = "  "; } // default, two spaces
     indentString = indent;
     if (!asXml && !asHtml && !asXhtml && !asBuilder) { asXml = true; }
+    xmlnsNamespaceStack = asXml ? new Stack<Map<String, String>>() : null;
   }
 
   @Override
@@ -432,19 +434,24 @@ public class SaveContextVisitor
   public boolean
   enter(Element element)
   {
+    pushXmlnsNamespaceStack();
+
     if (canonical) {
       c14nNodeList.add(element);
       if (element == element.getOwnerDocument().getDocumentElement()) {
         c14nNodeList.add(element.getOwnerDocument());
       }
     }
+
     String current = indentation.peek();
     buffer.append(current);
     if (needIndent(element)) {
       indentation.push(current + indentString);
     }
+
     String name = element.getTagName();
     buffer.append('<').append(name);
+
     Attr[] attrs = getAttrsAndNamespaces(element);
     for (Attr attr : attrs) {
       if (attr.getSpecified()) {
@@ -453,11 +460,13 @@ public class SaveContextVisitor
         leave(attr);
       }
     }
+
     if (element.hasChildNodes()) {
       buffer.append('>');
       if (needBreakInOpening(element)) { buffer.append('\n'); }
       return true;
     }
+
     // no child
     if (asHtml) {
       buffer.append('>');
@@ -472,10 +481,36 @@ public class SaveContextVisitor
     } else {
       buffer.append("/>");
     }
+
     if (needBreakInOpening(element)) {
       buffer.append('\n');
     }
     return true;
+  }
+
+  private Map<String, String>
+  pushXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null) { return null; }
+    Map<String, String> newContext;
+    if (xmlnsNamespaceStack.isEmpty()) {
+      newContext = new HashMap<String, String>();
+    } else {
+      Map<String, String> parentContext = xmlnsNamespaceStack.peek();
+      newContext = new HashMap<String, String>(parentContext);
+    }
+    return xmlnsNamespaceStack.push(newContext);
+  }
+
+  private Map<String, String>
+  popXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
+    return xmlnsNamespaceStack.pop();
+  }
+
+  private Map<String, String>
+  peekXmlnsNamespaceStack() {
+    if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
+    return xmlnsNamespaceStack.peek();
   }
 
   private boolean
@@ -511,11 +546,15 @@ public class SaveContextVisitor
     NamedNodeMap attrs = element.getAttributes();
     if (!canonical) {
       if (attrs == null || attrs.getLength() == 0) { return new Attr[0]; }
-      Attr[] attrsAndNamespaces = new Attr[attrs.getLength()];
+      Map<String, String> xmlnsContext = peekXmlnsNamespaceStack();
+      List<Attr> filteredAttrsAndNamespaces = new ArrayList<Attr>();
       for (int i = 0; i < attrs.getLength(); i++) {
-        attrsAndNamespaces[i] = (Attr) attrs.item(i);
+        Attr attr = (Attr) attrs.item(i);
+        if (!findOrAddRedundantNamespaceAttr(xmlnsContext, attr)) {
+          filteredAttrsAndNamespaces.add(attr);
+        }
       }
-      return attrsAndNamespaces;
+      return filteredAttrsAndNamespaces.toArray(new Attr[0]);
     } else {
       List<Attr> namespaces = new ArrayList<Attr>();
       List<Attr> attributes = new ArrayList<Attr>();
@@ -544,7 +583,45 @@ public class SaveContextVisitor
       c14nAttrStack.push(attributeArray);
       return allAttrs;
     }
+  }
 
+  /**
+   * Detects whether a given attribute is a redundant xmlns namespace
+   * already present within xmlnsContext.
+   *
+   * As a side-effect, if the attribute is a non-redundant namespace,
+   * it is added to the xmlnsContext, so that it will be considered redundant
+   * for subsequent checks.
+   *
+   * @param xmlnsContext The namespace context, which should be the top object
+   *   of xmlnsNamespaceStack.
+   * @param attr The attribute to check.
+   * @return True if the object is redundant, false otherwise.
+   */
+  private boolean
+  findOrAddRedundantNamespaceAttr(Map<String, String> xmlnsContext, Attr attr) {
+    if (xmlnsContext == null || !attr.getSpecified()) { return false; }
+
+    String xmlnsPrefix;
+    String attrName = attr.getNodeName();
+    if (attrName.equals("xmlns")) {
+      xmlnsPrefix = "";
+    } else if (attrName.startsWith("xmlns:")) {
+      xmlnsPrefix = attrName.substring(6);
+    } else {
+      // Not a namespace attribute
+      return false;
+    }
+
+    String xmlnsUri = attr.getNodeValue();
+    if (xmlnsContext.containsKey(xmlnsPrefix) && xmlnsUri.equals(xmlnsContext.get(xmlnsPrefix))) {
+      // Redundant namespace detected
+      return true;
+    } else {
+      // Add non-redundant namespace to the top of xmlnsNamespaceStack
+      xmlnsContext.put(xmlnsPrefix, xmlnsUri);
+      return false;
+    }
   }
 
   private void
@@ -653,6 +730,8 @@ public class SaveContextVisitor
   public void
   leave(Element element)
   {
+    popXmlnsNamespaceStack();
+
     if (canonical) {
       c14nNamespaceStack.poll();
       c14nAttrStack.poll();
