@@ -44,12 +44,12 @@ describe 'namespaces in child elements' do
     assert_includes(doc, '<dnd:adventure xmlns:dnd="http://www.w3.org/dungeons#">')
     assert_includes(doc, '<dnd:party xmlns:dnd="http://www.w3.org/dragons#">')
     assert_includes(doc, '<dnd:members>')
-    # TODO: The Windows behavior here is incorrect.
+    # TODO: The MRI (non-JRuby) behavior here is incorrect.
     # See: https://github.com/sparklemotion/nokogiri/issues/3458
-    if Nokogiri.windows?
-      assert_includes(doc, '<dnd:character>')
-    else
+    if Nokogiri.jruby?
       assert_includes(doc, '<dnd:character xmlns:dnd="http://www.w3.org/dungeons#">')
+    else
+      assert_includes(doc, '<dnd:character>')
     end
     assert_includes(doc, '<dnd:name>Nigel</dnd:name>')
   end
