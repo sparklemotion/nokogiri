@@ -266,19 +266,19 @@ module Nokogiri
       document.decorate!
     end
 
-    def pending(msg)
+    def pending(msg, extra_uplevel = 0)
       begin
         yield
       rescue Minitest::Assertion
-        skip("pending #{msg} [#{caller(2..2).first}]")
+        skip("pending #{msg} [#{caller(2 + extra_uplevel, 1).first}]")
       end
-      flunk("pending test unexpectedly passed: #{msg} [#{caller(1..1).first}]")
+      flunk("pending test unexpectedly passed: #{msg} [#{caller(1 + extra_uplevel, 1).first}]")
     end
 
     def pending_if(msg, pend_eh, &block)
       return yield unless pend_eh
 
-      pending(msg, &block)
+      pending(msg, 1, &block)
     end
 
     # returns the page size in bytes
