@@ -1336,6 +1336,19 @@ module Nokogiri
           assert_match(/xmlns="bar"/, subject.to_xml)
         end
 
+        # https://github.com/sparklemotion/nokogiri/issues/3459
+        def test_namespace_set_on_unparented_node_also_sets_a_definition
+          doc = Nokogiri::XML(%{<root xmlns:foo="http://example.com/foo"></root>})
+          ns = doc.root.namespace_definitions.first
+
+          node = doc.create_element("other")
+          node.namespace = ns
+
+          assert_pattern do
+            node.namespace_definitions => [ { prefix: "foo", href: "http://example.com/foo" } ]
+          end
+        end
+
         # issue 771
         def test_format_noblank
           content = <<~XML
