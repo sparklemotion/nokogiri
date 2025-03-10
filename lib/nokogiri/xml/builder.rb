@@ -200,7 +200,7 @@ module Nokogiri
     # === Namespace inheritance
     #
     # In the Builder context, children will inherit their parent's namespace. This is the same
-    # behavior as if the underlying {XML::Document} set +namespace_inheritance+ to +true+:
+    # behavior as if the underlying XML::Document set +namespace_inheritance+ to +true+:
     #
     #   result = Nokogiri::XML::Builder.new do |xml|
     #     xml["soapenv"].Envelope("xmlns:soapenv" => "http://schemas.xmlsoap.org/soap/envelope/") do
@@ -229,7 +229,7 @@ module Nokogiri
     #   #      <soapenv:Body/>
     #   #    </soapenv:Envelope>
     #
-    # For more information on namespace inheritance, please see {XML::Document#namespace_inheritance}
+    # For more information on namespace inheritance, please see XML::Document#namespace_inheritance
     #
     #
     # == Document Types
