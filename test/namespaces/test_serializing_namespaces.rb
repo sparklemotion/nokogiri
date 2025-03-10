@@ -47,11 +47,7 @@ describe "serializing namespaces" do
     assert_includes(doc, '<dnd:adventure xmlns:dnd="http://www.w3.org/dungeons#">')
     assert_includes(doc, '<dnd:party xmlns:dnd="http://www.w3.org/dragons#">')
     assert_includes(doc, "<dnd:members>")
-    pending_if("https://github.com/sparklemotion/nokogiri/issues/3458", !Nokogiri.jruby?) do
-      # Here MRI Ruby is incorrectly omitting the xmlns namespace declaration, i.e.:
-      # '<dnd:character>'
-      assert_includes(doc, '<dnd:character xmlns:dnd="http://www.w3.org/dungeons#">')
-    end
+    assert_includes(doc, '<dnd:character xmlns:dnd="http://www.w3.org/dungeons#">')
     assert_includes(doc, "<dnd:name>Nigel</dnd:name>")
   end
 
