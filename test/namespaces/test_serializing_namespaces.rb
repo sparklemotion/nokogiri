@@ -80,11 +80,7 @@ describe "serializing namespaces" do
       assert_includes(doc, '<root xmlns="http://outer-namespace.org/">')
       assert_includes(doc, "<outer>in outer namespace</outer>")
       assert_includes(doc, '<inner xmlns="http://inner-namespace.org/">')
-      pending_if("https://github.com/sparklemotion/nokogiri/issues/3457", Nokogiri.jruby?) do
-        # Here JRuby is incorrectly adding the xmlns namespace declaration, i.e.:
-        # '<element xmlns="http://outer-namespace.org/">in inner namespace</element>'
-        assert_includes(doc, "<element>in inner namespace</element>")
-      end
+      assert_includes(doc, "<element>in inner namespace</element>")
       assert_includes(doc, "<another>back in outer namespace</another>")
     end
   end
@@ -184,11 +180,7 @@ describe "serializing namespaces" do
       assert_includes(doc, "<default_element>in default namespace</default_element>")
       assert_includes(doc, "<ns:prefixed_element>in prefixed namespace</ns:prefixed_element>")
       assert_includes(doc, '<mixed xmlns="http://new-default.org/">')
-      pending_if("https://github.com/sparklemotion/nokogiri/issues/3457", Nokogiri.jruby?) do
-        # Here JRuby is incorrectly adding the xmlns namespace declaration, i.e.:
-        # '<new_default xmlns="http://default.org/">in new default namespace</new_default>'
-        assert_includes(doc, "<new_default>in new default namespace</new_default>")
-      end
+      assert_includes(doc, "<new_default>in new default namespace</new_default>")
       assert_includes(doc, "<ns:still_prefixed>still using original prefixed namespace</ns:still_prefixed>")
     end
   end
