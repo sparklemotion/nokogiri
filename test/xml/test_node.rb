@@ -153,6 +153,36 @@ module Nokogiri
           end
         end
 
+        def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected_keyword
+          skip("libxml2 2.14.0 no longer raises this error") if Nokogiri.uses_libxml?(">= 2.14.0")
+
+          doc = HTML4.parse("<html><body><div></div></body></html>")
+          context_node = doc.at_css("div")
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            context_node.parse("<div </div>", options: ParseOptions.new)
+          end
+        end
+
+        def test_node_context_parsing_of_malformed_xml_fragment_without_recover_is_not_corrected
+          skip("libxml2 2.14.0 no longer raises this error") if Nokogiri.uses_libxml?(">= 2.14.0")
+
+          doc = XML.parse("<root><body><div></div></body></roo")
+          context_node = doc.at_css("div")
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            context_node.parse("<div </div>", &:strict)
+          end
+        end
+
+        def test_node_context_parsing_of_malformed_xml_fragment_without_recover_is_not_corrected_keyword
+          skip("libxml2 2.14.0 no longer raises this error") if Nokogiri.uses_libxml?(">= 2.14.0")
+
+          doc = XML.parse("<root><body><div></div></body></roo")
+          context_node = doc.at_css("div")
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            context_node.parse("<div </div>", options: ParseOptions.new)
+          end
+        end
+
         def test_node_context_parsing_of_malformed_xml_fragment_uses_the_right_class_to_recover
           doc = XML.parse("<root><body><div></div></body></root>")
           context_node = doc.at_css("div")
