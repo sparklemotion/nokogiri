@@ -44,8 +44,6 @@ the mkmf.log file contents go here
 
 What is the output from `ruby -v`?
 
-What is the output from `gem -v`?
-
 What is the output from `gem env`?
 
 ```
@@ -53,12 +51,10 @@ the output of "gem env" output goes here
 ```
 
 
-If you're using Bundler:
-- what is the output from `bundle version`?
-- what is the output from `bundle config`? (Take care to redact any credentials)
+If you're installing using Bundler, what is the output from `bundle env`? (Take care to redact any credentials)
 
 ```
-the output of "bundle config" goes here
+the output of "bundle env" goes here
 ```
 
 If you're on MacOS, please note:
