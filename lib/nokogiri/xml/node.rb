@@ -13,12 +13,17 @@ module Nokogiri
     # - Nokogiri::XML::Searchable
     # - Ruby core's {Enumerable}[https://docs.ruby-lang.org/en/master/Enumerable.html]
     #
-    # Each of the following classes is a subclass of XML::Node,
+    # == Node Hierarchy
+    #
+    # Each of the following classes is, directly or indirectly, a subclass of XML::Node,
     # and so inherits all the methods and constants mentioned above:
     #
     # - Nokogiri::XML::Attr
     # - Nokogiri::XML::AttributeDecl
     # - Nokogiri::XML::CharacterData
+    #   - Nokogiri::XML::Comment
+    #   - Nokogiri::XML::Text
+    #     - Nokogiri::XML::CDATA
     # - Nokogiri::XML::DTD
     # - Nokogiri::XML::Document
     # - Nokogiri::XML::DocumentFragment
