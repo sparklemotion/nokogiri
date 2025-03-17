@@ -181,6 +181,14 @@ def java?
   RUBY_PLATFORM.include?("java")
 end
 
+def java_min_version
+  if java? && JRUBY_VERSION.start_with?("10.")
+    "21"
+  else
+    "1.8"
+  end
+end
+
 def add_file_to_gem(relative_source_path)
   if relative_source_path.nil? || !File.exist?(relative_source_path)
     raise "Cannot find file '#{relative_source_path}'"
@@ -331,8 +339,8 @@ if java?
 
     ext.ext_dir = "ext/java"
     ext.lib_dir = "lib/nokogiri"
-    ext.source_version = "1.8"
-    ext.target_version = "1.8"
+    ext.source_version = java_min_version
+    ext.target_version = java_min_version
     ext.classpath = ext.gem_spec.files.select { |path| File.fnmatch?("**/*.jar", path) }.join(":")
     ext.debug = true if ENV["JAVA_DEBUG"]
   end
