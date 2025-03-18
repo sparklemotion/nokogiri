@@ -30,6 +30,8 @@ public class XmlCdata extends XmlText
     super(ruby, rubyClass);
   }
 
+  // unused
+  @Deprecated
   public
   XmlCdata(Ruby ruby, RubyClass rubyClass, Node node)
   {
@@ -41,16 +43,19 @@ public class XmlCdata extends XmlText
   init(ThreadContext context, IRubyObject[] args)
   {
     if (args.length < 2) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw getRuntime().newArgumentError(args.length, 2);
     }
     IRubyObject rbDocument = args[0];
     content = args[1];
 
     if (content.isNil()) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError("expected second parameter to be a String, received NilClass");
     }
     if (!(rbDocument instanceof XmlNode)) {
       String msg = "expected first parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError(msg);
     }
     if (!(rbDocument instanceof XmlDocument)) {

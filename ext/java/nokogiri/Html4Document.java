@@ -52,7 +52,7 @@ public class Html4Document extends XmlDocument
     super(ruby, klazz, doc);
   }
 
-  @JRubyMethod(name = "new", meta = true, rest = true, required = 0)
+  @JRubyMethod(name = "new", meta = true, rest = true)
   public static IRubyObject
   rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {

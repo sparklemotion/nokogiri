@@ -23,6 +23,8 @@ public class XmlComment extends XmlNode
 {
   private static final long serialVersionUID = 1L;
 
+  // unused
+  @Deprecated
   public
   XmlComment(Ruby ruby, RubyClass rubyClass, Node node)
   {
@@ -40,6 +42,7 @@ public class XmlComment extends XmlNode
   init(ThreadContext context, IRubyObject[] args)
   {
     if (args.length < 2) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw getRuntime().newArgumentError(args.length, 2);
     }
 

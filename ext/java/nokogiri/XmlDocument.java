@@ -41,7 +41,6 @@ import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 import nokogiri.internals.c14n.CanonicalFilter;
-import nokogiri.internals.c14n.CanonicalizationException;
 import nokogiri.internals.c14n.Canonicalizer;
 
 /**
@@ -70,9 +69,6 @@ public class XmlDocument extends XmlNode
 
   private static final ByteList DOCUMENT = ByteList.create("document");
   static { DOCUMENT.setEncoding(USASCIIEncoding.INSTANCE); }
-
-  private static boolean substituteEntities = false;
-  private static boolean loadExternalSubset = false; // TODO: Verify this.
 
   /** cache variables */
   protected IRubyObject encoding;
@@ -273,7 +269,7 @@ public class XmlDocument extends XmlNode
    *
    * Create a new document with +version+ (defaults to "1.0")
    */
-  @JRubyMethod(name = "new", meta = true, rest = true, required = 0)
+  @JRubyMethod(name = "new", meta = true, rest = true)
   public static IRubyObject
   rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
   {
@@ -281,6 +277,7 @@ public class XmlDocument extends XmlNode
     XmlDocument xmlDocument;
     try {
       Document docNode = createNewDocument(runtime);
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       if ("Nokogiri::HTML4::Document".equals(((RubyClass)klazz).getName())) {
         xmlDocument = new Html4Document(context.runtime, (RubyClass) klazz, docNode);
       } else {
@@ -344,7 +341,6 @@ public class XmlDocument extends XmlNode
   public static IRubyObject
   load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject value)
   {
-    XmlDocument.loadExternalSubset = value.isTrue();
     return context.nil;
   }
 
@@ -395,8 +391,8 @@ public class XmlDocument extends XmlNode
       }
     }
     IRubyObject[] nodes = xmlNode.getChildren();
-    for (int i = 0; i < nodes.length; i++) {
-      XmlNode childNode = (XmlNode) nodes[i];
+    for (IRubyObject iRubyObject : nodes) {
+      XmlNode childNode = (XmlNode) iRubyObject;
       removeNamespaceRecursively(childNode);
     }
   }
@@ -471,7 +467,6 @@ public class XmlDocument extends XmlNode
   public static IRubyObject
   substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject value)
   {
-    XmlDocument.substituteEntities = value.isTrue();
     return context.nil;
   }
 
@@ -631,16 +626,18 @@ public class XmlDocument extends XmlNode
   {
     int mode = 0;
     String inclusive_namespace = null;
-    Boolean with_comments = false;
+    boolean with_comments = false;
     if (args.length > 0 && !(args[0].isNil())) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       mode = RubyFixnum.fix2int(args[0]);
     }
     if (args.length > 1) {
       if (!args[1].isNil() && !(args[1] instanceof List)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("Expected array");
       }
       if (!args[1].isNil()) {
-        inclusive_namespace = ((RubyArray)args[1])
+        inclusive_namespace = ((RubyArray<?>)args[1])
                               .join(context, context.runtime.newString(" "))
                               .asString()
                               .asJavaString(); // OMG I wish I knew JRuby better, this is ugly

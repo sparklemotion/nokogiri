@@ -138,7 +138,7 @@ public class XmlDtd extends XmlNode
    * <code>doc</code>.  The attached dtd must be the tree from
    * NekoDTD. The owner document of the returned tree will be
    * <code>doc</doc>.
-   *
+   * <p>
    * NekoDTD parser returns a new document node containing elements
    * representing the dtd declarations. The plan is to get the root
    * element and adopt it into the correct document, stripping the
@@ -332,6 +332,7 @@ public class XmlDtd extends XmlNode
   public IRubyObject
   validate(ThreadContext context, IRubyObject doc)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyArray<?> errors = RubyArray.newArray(context.getRuntime());
     if (doc instanceof XmlDocument) {
       errors = (RubyArray)((XmlDocument)doc).getInstanceVariable("@errors");
@@ -450,7 +451,7 @@ public class XmlDtd extends XmlNode
    * The <code>node</code> is either the first child of the root dtd
    * node (as returned by getInternalSubset()) or the first child of
    * the external subset node (as returned by getExternalSubset()).
-   *
+   * <p>
    * This recursive function will not descend into an
    * 'externalSubset' node, thus for an internal subset it only
    * extracts nodes in the internal subset, and for an external
@@ -460,7 +461,7 @@ public class XmlDtd extends XmlNode
   protected IRubyObject[]
   extractDecls(ThreadContext context, Node node)
   {
-    List<IRubyObject> decls = new ArrayList<IRubyObject>();
+    List<IRubyObject> decls = new ArrayList<>();
     while (node != null) {
       if (isExternalSubset(node)) {
         break;
