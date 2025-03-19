@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next
+
+### Fixed
+
+* [JRuby] Update JRuby's XML serialization so it outputs namespaces exactly like CRuby. (#3455, #3456) @johnnyshields
+
+
 ## v1.18.4 / 2025-03-14
 
 ### Security
