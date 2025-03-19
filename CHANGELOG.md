@@ -9,8 +9,6 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Improved
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
-* [JRuby] Update JRuby's XML serialization so it outputs namespaces exactly like CRuby. (#3455, #3456) @johnnyshields
-
 
 ### Changed
 
@@ -28,6 +26,20 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Dependencies
 
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
+
+
+## v1.18.5 / 2025-03-19
+
+### Fixed
+
+* [JRuby] Update JRuby's XML serialization so it outputs namespaces exactly like CRuby. (#3455, #3456) @johnnyshields
+
+
+## v1.18.4 / 2025-03-14
+
+### Security
+
+* [CRuby] Vendored libxslt is updated to [v1.1.43](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.43) to address CVE-2025-24855 and CVE-2024-55549. See [GHSA-mrxw-mxhj-p664](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-mrxw-mxhj-p664) for more information.
 
 
 ## v1.18.3 / 2025-02-18
