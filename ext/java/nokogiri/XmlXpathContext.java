@@ -17,7 +17,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.SafePropertyAccessor;
@@ -121,7 +120,6 @@ public class XmlXpathContext extends RubyObject
 
       while (xpathFunctionCalls.find()) {
         namespacedQuery.append(query.subSequence(jchar, xpathFunctionCalls.start()));
-        jchar = xpathFunctionCalls.start();
 
         if (methodNames.contains(xpathFunctionCalls.group())) {
           namespacedQuery.append(NokogiriNamespaceContext.NOKOGIRI_PREFIX);
@@ -198,7 +196,7 @@ public class XmlXpathContext extends RubyObject
       return tryGetNodeSet(context, expr, fnResolver);
     } catch (TransformerException | RuntimeException ex) {
       throw XmlSyntaxError.createXMLXPathSyntaxError(context.runtime,
-          (expr + ": " + ex.toString()),
+          (expr + ": " + ex),
           ex).toThrowable();
     }
   }

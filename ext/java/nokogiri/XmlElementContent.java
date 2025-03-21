@@ -325,7 +325,7 @@ public class XmlElementContent extends RubyObject
    * moves to the parent of previous sibling).  The null position is
    * used to indicate the end of a list.
    */
-  protected static class NodeIter
+  public static class NodeIter
   {
     protected Node pre;
     protected Node cur;

@@ -83,8 +83,9 @@ public class XsltStylesheet extends RubyObject
     if (parameters instanceof RubyHash) {
       setHashParameters(transf, (RubyHash)parameters);
     } else if (parameters instanceof RubyArray) {
-      setArrayParameters(transf, context, (RubyArray)parameters);
+      setArrayParameters(transf, context, (RubyArray<?>)parameters);
     } else {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.getRuntime().newTypeError("parameters should be given either Array or Hash");
     }
   }
@@ -170,8 +171,9 @@ public class XsltStylesheet extends RubyObject
   ensureDocumentHasNoError(ThreadContext context, XmlDocument xmlDoc)
   {
     Ruby runtime = context.getRuntime();
-    RubyArray<?> errors_of_xmlDoc = (RubyArray) xmlDoc.getInstanceVariable("@errors");
+    RubyArray<?> errors_of_xmlDoc = (RubyArray<?>) xmlDoc.getInstanceVariable("@errors");
     if (!errors_of_xmlDoc.isEmpty()) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw runtime.newRuntimeError(errors_of_xmlDoc.first().asString().asJavaString());
     }
   }
@@ -212,11 +214,7 @@ public class XsltStylesheet extends RubyObject
       if (result.getNode().getFirstChild() == null) {
         stringResult = retryXsltTransformation(context, args, domSource, elistener); // StreamResult
       }
-    } catch (TransformerConfigurationException ex) {
-      throw runtime.newRuntimeError(ex.getMessage());
-    } catch (TransformerException ex) {
-      throw runtime.newRuntimeError(ex.getMessage());
-    } catch (IOException ex) {
+    } catch (TransformerException | IOException ex) {
       throw runtime.newRuntimeError(ex.getMessage());
     }
 
@@ -230,7 +228,7 @@ public class XsltStylesheet extends RubyObject
     }
 
     if (stringResult == null) {
-      return createDocumentFromDomResult(context, runtime, result);
+      return createDocumentFromDomResult(context, result);
     } else {
       return createDocumentFromString(context, runtime, stringResult);
     }
@@ -291,7 +289,7 @@ public class XsltStylesheet extends RubyObject
   }
 
   private IRubyObject
-  createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult)
+  createDocumentFromDomResult(ThreadContext context, DOMResult domResult)
   {
     if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
       return new Html4Document(context.runtime, (Document) domResult.getNode());
@@ -329,15 +327,17 @@ public class XsltStylesheet extends RubyObject
     args[2] = runtime.getNil();  // encoding
     RubyClass parse_options = (RubyClass)runtime.getClassFromPath("Nokogiri::XML::ParseOptions");
     if (htmlish) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       args[3] = parse_options.getConstant("DEFAULT_HTML");
       RubyClass htmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::HTML4::Document");
       return Helpers.invoke(context, htmlDocumentClass, "parse", args);
     } else {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       args[3] = parse_options.getConstant("DEFAULT_XML");
       RubyClass xmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::XML::Document");
       XmlDocument xmlDocument = (XmlDocument) Helpers.invoke(context, xmlDocumentClass, "parse", args);
       if (((Document)xmlDocument.getNode()).getDocumentElement() == null) {
-        RubyArray<?> errors = (RubyArray) xmlDocument.getInstanceVariable("@errors");
+        RubyArray<?> errors = (RubyArray<?>) xmlDocument.getInstanceVariable("@errors");
         Helpers.invoke(context, errors, "<<", args[0]);
       }
       return xmlDocument;

@@ -32,7 +32,7 @@ public class XmlAttributeDecl extends XmlNode
   /**
    * Initialize based on an attributeDecl node from a NekoDTD parsed
    * DTD.
-   *
+   * <p>
    * Internally, XmlAttributeDecl combines these into a single node.
    */
   public
@@ -102,17 +102,19 @@ public class XmlAttributeDecl extends XmlNode
   {
     final String atype = ((Element) node).getAttribute("atype");
 
-    if (atype != null && atype.length() != 0 && atype.charAt(0) == '(') {
+    if (!atype.isEmpty() && atype.charAt(0) == '(') {
       // removed enclosing parens
       String valueStr = atype.substring(1, atype.length() - 1);
       String[] values = valueStr.split("\\|");
       RubyArray<?> enumVals = RubyArray.newArray(context.runtime, values.length);
-      for (int i = 0; i < values.length; i++) {
-        enumVals.append(context.runtime.newString(values[i]));
+      for (String value : values) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
+        enumVals.append(context.runtime.newString(value));
       }
       return enumVals;
     }
 
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     return context.runtime.newEmptyArray();
   }
 

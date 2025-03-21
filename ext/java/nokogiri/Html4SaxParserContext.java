@@ -1,6 +1,5 @@
 package nokogiri;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.apache.xerces.parsers.AbstractSAXParser;
@@ -8,8 +7,6 @@ import net.sourceforge.htmlunit.cyberneko.parsers.SAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyEncoding;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -17,7 +14,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXException;
 
 import nokogiri.internals.NokogiriHandler;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import static org.jruby.runtime.Helpers.invoke;
 
@@ -65,7 +61,7 @@ public class Html4SaxParserContext extends XmlSaxParserContext
       return parser;
     } catch (SAXException ex) {
       throw new SAXException(
-        "Problem while creating HTML4 SAX Parser: " + ex.toString());
+        "Problem while creating HTML4 SAX Parser: " + ex);
     }
   }
 
@@ -76,9 +72,10 @@ public class Html4SaxParserContext extends XmlSaxParserContext
     String java_encoding = null;
     if (encoding != context.runtime.getNil()) {
       if (!(encoding instanceof RubyEncoding)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klazz);
@@ -98,9 +95,10 @@ public class Html4SaxParserContext extends XmlSaxParserContext
     String java_encoding = null;
     if (encoding != context.runtime.getNil()) {
       if (!(encoding instanceof RubyEncoding)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klass);
@@ -118,15 +116,17 @@ public class Html4SaxParserContext extends XmlSaxParserContext
   parse_io(ThreadContext context, IRubyObject klazz, IRubyObject data, IRubyObject encoding)
   {
     if (!invoke(context, data, "respond_to?", context.runtime.newSymbol("read")).isTrue()) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError("argument expected to respond to :read");
     }
 
     String java_encoding = null;
     if (encoding != context.runtime.getNil()) {
       if (!(encoding instanceof RubyEncoding)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     Html4SaxParserContext ctx = Html4SaxParserContext.newInstance(context.runtime, (RubyClass) klazz);

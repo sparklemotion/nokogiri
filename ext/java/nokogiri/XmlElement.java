@@ -4,7 +4,6 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -27,6 +26,8 @@ public class XmlElement extends XmlNode
     super(runtime, klazz);
   }
 
+  // unused
+  @Deprecated
   public
   XmlElement(Ruby runtime, RubyClass klazz, Node element)
   {

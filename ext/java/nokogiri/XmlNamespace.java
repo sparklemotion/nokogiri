@@ -106,7 +106,8 @@ public class XmlNamespace extends RubyObject
     Document document = owner.getOwnerDocument();
     XmlDocument xmlDocument = (XmlDocument) getCachedNodeOrCreate(runtime, document);
 
-    assert xmlDocument.getNamespaceCache().get(prefixStr, hrefStr) == null;
+    XmlNamespace cachedNamespace = xmlDocument.getNamespaceCache().get(prefixStr, hrefStr);
+    assert cachedNamespace == null;
 
     // creating XmlNamespace instance
     String attrName = "xmlns";

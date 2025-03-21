@@ -2,7 +2,6 @@ package nokogiri;
 
 import static nokogiri.XmlNode.setDocumentAndDecorate;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 
 import java.util.Arrays;
 
@@ -151,11 +150,9 @@ public class XmlNodeSet extends RubyObject implements NodeList
 
     int last = 0;
     outer:
-    for (int i = 0; i < curr.length; i++) {
-      IRubyObject n = curr[i];
-
-      for (int j = 0; j < other.length; j++) {
-        if (other[j] == n) {
+    for (IRubyObject n : curr) {
+      for (IRubyObject iRubyObject : other) {
+        if (iRubyObject == n) {
           result[last++] = n;
           continue outer;
         }
@@ -182,9 +179,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
 
     int last = 0;
 
-    for (int i = 0; i < orig.length; i++) {
-      IRubyObject n = orig[i];
-
+    for (IRubyObject n : orig) {
       if (n == nodeOrNamespace) {
         continue;
       }
@@ -223,8 +218,8 @@ public class XmlNodeSet extends RubyObject implements NodeList
   public IRubyObject
   include_p(ThreadContext context, IRubyObject node_or_namespace)
   {
-    for (int i = 0; i < nodes.length; i++) {
-      if (nodes[i] == node_or_namespace) {
+    for (IRubyObject node : nodes) {
+      if (node == node_or_namespace) {
         return context.tru;
       }
     }
@@ -259,11 +254,9 @@ public class XmlNodeSet extends RubyObject implements NodeList
 
     int last = 0;
     outer:
-    for (int i = 0; i < curr.length; i++) {
-      IRubyObject n = curr[i];
-
-      for (int j = 0; j < other.length; j++) {
-        if (other[j] == n) {
+    for (IRubyObject n : curr) {
+      for (IRubyObject iRubyObject : other) {
+        if (iRubyObject == n) {
           continue outer;
         }
       }
@@ -283,6 +276,8 @@ public class XmlNodeSet extends RubyObject implements NodeList
     IRubyObject[] otherNodes = getNodes(context, nodeSet);
 
     if (nodes.length == 0) {
+      // TODO: switch to interface method when it has been in 9.4 for a year.
+      //       The "useless" cast here on JRuby 10 is necessary on 9.4 for now.
       return ((XmlNodeSet) nodeSet).dup(context);
     }
 
@@ -296,11 +291,9 @@ public class XmlNodeSet extends RubyObject implements NodeList
 
     int last = curr.length;
     outer:
-    for (int i = 0; i < other.length; i++) {
-      IRubyObject n = other[i];
-
-      for (int j = 0; j < curr.length; j++) {
-        if (curr[j] == n) {
+    for (IRubyObject n : other) {
+      for (IRubyObject iRubyObject : curr) {
+        if (iRubyObject == n) {
           continue outer;
         }
       }
@@ -329,6 +322,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
   rangeBeginLength(ThreadContext context, IRubyObject rangeMaybe, int len, int[] begLen)
   {
     RubyRange range = (RubyRange) rangeMaybe;
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     int min = range.begin(context).convertToInteger().getIntValue();
     int max = range.end(context).convertToInteger().getIntValue();
 
@@ -358,6 +352,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
   slice(ThreadContext context, IRubyObject indexOrRange)
   {
     if (indexOrRange instanceof RubyFixnum) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       return slice(context, ((RubyFixnum) indexOrRange).getIntValue());
     }
     if (indexOrRange instanceof RubyRange) {
@@ -367,6 +362,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
       int max = begLen[1];
       return subseq(context, min, max - min);
     }
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     throw context.runtime.newTypeError("index must be an Integer or a Range");
   }
 
@@ -388,6 +384,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
   public IRubyObject
   slice(ThreadContext context, IRubyObject start, IRubyObject length)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     int s = ((RubyFixnum) start).getIntValue();
     int l = ((RubyFixnum) length).getIntValue();
 
@@ -422,6 +419,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
   public RubyArray<?>
   to_a(ThreadContext context)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     return context.runtime.newArrayNoCopy(nodes);
   }
 

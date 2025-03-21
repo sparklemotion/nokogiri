@@ -24,7 +24,6 @@ import static org.jruby.runtime.Helpers.invoke;
 /**
  * Class for Nokogiri::HTML4::SAX::PushParser
  *
- * @author
  * @author Piotr Szmielew <p.szmielew@ava.waw.pl> - based on Nokogiri::XML::SAX::PushParser
  */
 @JRubyClass(name = "Nokogiri::HTML4::SAX::PushParser")
@@ -93,6 +92,7 @@ public class Html4SaxPushParser extends RubyObject
   setOptions(ThreadContext context, IRubyObject opts)
   {
     invoke(context, parse_options(context), "options=", opts);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     options = new ParserContext.Options(opts.convertToInteger().getLongValue());
     return getOptions(context);
   }
@@ -148,14 +148,11 @@ public class Html4SaxPushParser extends RubyObject
       assert saxParser != null : "saxParser null";
       parserTask = new ParserTask(context, saxParser, stream);
       futureTask = new FutureTask<Html4SaxParserContext>((Callable) parserTask);
-      executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-          Thread t = new Thread(r);
-          t.setName("Html4SaxPushParser");
-          t.setDaemon(true);
-          return t;
-        }
+      executor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setName("Html4SaxPushParser");
+        t.setDaemon(true);
+        return t;
       });
       executor.submit(futureTask);
     }
@@ -168,8 +165,6 @@ public class Html4SaxPushParser extends RubyObject
 
     try {
       terminateImpl();
-    } catch (InterruptedException e) {
-      throw runtime.newRuntimeError(e.toString());
     } catch (Exception e) {
       throw runtime.newRuntimeError(e.toString());
     }

@@ -1,6 +1,5 @@
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContextVisitor;
 
@@ -31,6 +30,8 @@ public class XmlEntityReference extends XmlNode
     super(ruby, klazz);
   }
 
+  // unused
+  @Deprecated
   public
   XmlEntityReference(Ruby ruby, RubyClass klass, Node node)
   {
@@ -41,6 +42,7 @@ public class XmlEntityReference extends XmlNode
   init(ThreadContext context, IRubyObject[] args)
   {
     if (args.length < 2) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newArgumentError(args.length, 2);
     }
 

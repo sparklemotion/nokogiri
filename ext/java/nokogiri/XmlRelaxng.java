@@ -1,15 +1,12 @@
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -63,6 +60,7 @@ public class XmlRelaxng extends XmlSchema
       parseOptions = defaultParseOptions(context.getRuntime());
     }
 
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
     xmlRelaxng.setInstanceVariable("@parse_options", parseOptions);
 
@@ -89,27 +87,16 @@ public class XmlRelaxng extends XmlSchema
       StreamResult result = new StreamResult(xmlAsWriter);
       try {
         TransformerFactory.newInstance().newTransformer().transform(ds, result);
-      } catch (TransformerConfigurationException ex) {
-        throw context.getRuntime()
-        .newRuntimeError("Could not parse document: " + ex.getMessage());
       } catch (TransformerException ex) {
         throw context.getRuntime()
         .newRuntimeError("Could not parse document: " + ex.getMessage());
       }
-      try {
-        is = new ByteArrayInputStream(xmlAsWriter.toString().getBytes("UTF-8"));
-      } catch (UnsupportedEncodingException ex) {
-        throw context.getRuntime()
-        .newRuntimeError("Could not parse document: " + ex.getMessage());
-      }
+      is = new ByteArrayInputStream(xmlAsWriter.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     try {
       return factory.compileSchema(is);
-    } catch (VerifierConfigurationException ex) {
-      throw context.getRuntime()
-      .newRuntimeError("Could not parse document: " + ex.getMessage());
-    } catch (SAXException ex) {
+    } catch (VerifierConfigurationException | SAXException ex) {
       throw context.getRuntime()
       .newRuntimeError("Could not parse document: " + ex.getMessage());
     } catch (IOException ex) {

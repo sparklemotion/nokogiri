@@ -93,7 +93,7 @@ public class XmlReader extends RubyObject
   public void
   init(Ruby runtime)
   {
-    nodeQueue = new LinkedList<ReaderNode>();
+    nodeQueue = new LinkedList<>();
     nodeQueue.add(new ReaderNode.EmptyNode(runtime));
   }
 
@@ -181,8 +181,8 @@ public class XmlReader extends RubyObject
     ensureNodeClosed(context);
 
     if (readerNode == null) { return context.getRuntime().getNil(); }
-    if (!(readerNode instanceof ElementNode)) { context.getRuntime().getFalse(); }
-    return RubyBoolean.newBoolean(context.getRuntime(), !readerNode.hasChildren);
+    if (!(readerNode instanceof ElementNode)) { return context.getRuntime().getFalse(); }
+    return RubyBoolean.newBoolean(context, !readerNode.hasChildren);
   }
 
   @JRubyMethod
@@ -210,6 +210,7 @@ public class XmlReader extends RubyObject
                        "Nokogiri::XML::Reader"));
     reader.init(runtime);
     reader.setInstanceVariable("@source", args[0]);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     reader.setInstanceVariable("@errors", runtime.newArray());
     IRubyObject url = context.nil;
     if (args.length > 1) { url = args[1]; }
@@ -241,6 +242,7 @@ public class XmlReader extends RubyObject
                        "Nokogiri::XML::Reader"));
     reader.init(runtime);
     reader.setInstanceVariable("@source", args[0]);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     reader.setInstanceVariable("@errors", runtime.newArray());
     IRubyObject url = context.nil;
     if (args.length > 1) { url = args[1]; }
@@ -280,7 +282,7 @@ public class XmlReader extends RubyObject
   {
     if (current.depth < 0) { return null; }
     if (!current.hasChildren) { return null; }
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = current.startOffset + 1; i <= current.endOffset - 1; i++) {
       sb.append(nodeQueue.get(i).getString());
     }
@@ -396,8 +398,9 @@ public class XmlReader extends RubyObject
     final ReaderNode currentNode = currentNode();
     if (currentNode == null) { return runtime.getNil(); }
     if (currentNode.isError()) {
-      RubyArray<?> errors = (RubyArray) getInstanceVariable("@errors");
+      RubyArray<?> errors = (RubyArray<?>) getInstanceVariable("@errors");
       IRubyObject error = currentNode.toSyntaxError();
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       errors.append(error);
       setInstanceVariable("@errors", errors);
 
@@ -492,9 +495,9 @@ public class XmlReader extends RubyObject
     startDocument(XMLLocator locator, String encoding, NamespaceContext context, Augmentations augs)
     {
       depth = 0;
-      langStack = new Stack<String>();
-      xmlBaseStack = new Stack<String>();
-      elementStack = new Stack<ReaderNode.ElementNode>();
+      langStack = new Stack<>();
+      xmlBaseStack = new Stack<>();
+      elementStack = new Stack<>();
     }
 
     @Override
@@ -552,7 +555,7 @@ public class XmlReader extends RubyObject
       String qName = element.rawname;
       String uri = element.uri;
       String localName = element.localpart;
-      ReaderNode readerNode = ReaderNode.createElementNode(ruby, uri, localName, qName, attrs, depth, langStack,
+      ElementNode readerNode = ReaderNode.createElementNode(ruby, uri, localName, qName, attrs, depth, langStack,
                               xmlBaseStack);
       if (!elementStack.isEmpty()) {
         ElementNode parent = elementStack.peek();
@@ -564,7 +567,7 @@ public class XmlReader extends RubyObject
         depth++;
         if (readerNode.lang != null) { langStack.push(readerNode.lang); }
         if (readerNode.xmlBase != null) { xmlBaseStack.push(readerNode.xmlBase); }
-        elementStack.push((ReaderNode.ElementNode)readerNode);
+        elementStack.push(readerNode);
       } else {
         readerNode.endOffset = readerNode.startOffset;
         readerNode.hasChildren = false;

@@ -89,6 +89,7 @@ public class XmlSaxPushParser extends RubyObject
   setOptions(ThreadContext context, IRubyObject opts)
   {
     invoke(context, parse_options(context), "options=", opts);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     options = new ParserContext.Options(opts.convertToInteger().getLongValue());
     return getOptions(context);
   }
@@ -169,15 +170,12 @@ public class XmlSaxPushParser extends RubyObject
 
       assert saxParser != null : "saxParser null";
       parserTask = new ParserTask(context, saxParser, stream);
-      futureTask = new FutureTask<XmlSaxParserContext>(parserTask);
-      executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-          Thread t = new Thread(r);
-          t.setName("XmlSaxPushParser");
-          t.setDaemon(true);
-          return t;
-        }
+      futureTask = new FutureTask<>(parserTask);
+      executor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setName("XmlSaxPushParser");
+        t.setDaemon(true);
+        return t;
       });
       executor.submit(futureTask);
     }
@@ -190,8 +188,6 @@ public class XmlSaxPushParser extends RubyObject
 
     try {
       terminateImpl();
-    } catch (InterruptedException e) {
-      throw runtime.newRuntimeError(e.toString());
     } catch (Exception e) {
       throw runtime.newRuntimeError(e.toString());
     }

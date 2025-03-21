@@ -27,6 +27,8 @@ public class XmlAttr extends XmlNode
 {
   private static final long serialVersionUID = 1L;
 
+  // unused
+  @Deprecated
   public static final String[] HTML_BOOLEAN_ATTRS = {
     "checked", "compact", "declare", "defer", "disabled", "ismap",
     "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
@@ -45,6 +47,8 @@ public class XmlAttr extends XmlNode
     super(ruby, rubyClass);
   }
 
+  // unused
+  @Deprecated
   public
   XmlAttr(Ruby ruby, RubyClass rubyClass, Node attr)
   {
@@ -56,6 +60,7 @@ public class XmlAttr extends XmlNode
   init(ThreadContext context, IRubyObject[] args)
   {
     if (args.length < 2) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newArgumentError(args.length, 2);
     }
 

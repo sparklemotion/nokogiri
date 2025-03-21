@@ -6,21 +6,17 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-import nokogiri.internals.IgnoreSchemaErrorsErrorHandler;
 import nokogiri.internals.SchemaErrorHandler;
 import nokogiri.internals.XmlDomParserContext;
 import nokogiri.internals.ParserContext;
-import nokogiri.internals.ParserContext.Options;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -29,7 +25,6 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -106,14 +101,16 @@ public class XmlSchema extends RubyObject
     if (parseOptions == null) {
       parseOptions = defaultParseOptions(context.getRuntime());
     }
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     long intParseOptions = RubyFixnum.fix2long(Helpers.invoke(context, parseOptions, "to_i"));
 
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
     xmlSchema.setInstanceVariable("@parse_options", parseOptions);
 
     try {
       SchemaErrorHandler errorHandler =
-        new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
+        new SchemaErrorHandler(context.getRuntime(), (RubyArray<?>)xmlSchema.getInstanceVariable("@errors"));
       Schema schema =
         xmlSchema.getSchema(source,
                             context.getRuntime().getCurrentDirectory(),
@@ -130,7 +127,7 @@ public class XmlSchema extends RubyObject
   protected static IRubyObject
   defaultParseOptions(Ruby runtime)
   {
-    return ((RubyClass)runtime.getClassFromPath("Nokogiri::XML::ParseOptions")).getConstant("DEFAULT_SCHEMA");
+    return runtime.getClassFromPath("Nokogiri::XML::ParseOptions").getConstant("DEFAULT_SCHEMA");
   }
 
   /*
@@ -151,6 +148,7 @@ public class XmlSchema extends RubyObject
 
     if (!(rbDocument instanceof XmlNode)) {
       String msg = "expected parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError(msg);
     }
     if (!(rbDocument instanceof XmlDocument)) {
@@ -159,8 +157,9 @@ public class XmlSchema extends RubyObject
 
     XmlDocument doc = ((XmlDocument)((XmlNode) rbDocument).document(context));
 
-    RubyArray<?> errors = (RubyArray) doc.getInstanceVariable("@errors");
+    RubyArray<?> errors = (RubyArray<?>) doc.getInstanceVariable("@errors");
     if (!errors.isEmpty()) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw((XmlSyntaxError) errors.first()).toThrowable();
     }
 
@@ -178,6 +177,7 @@ public class XmlSchema extends RubyObject
   private static IRubyObject
   getSchema(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     String moduleName = klazz.getName();
     if ("Nokogiri::XML::Schema".equals(moduleName)) {
       return XmlSchema.createSchemaInstance(context, klazz, source, parseOptions);
@@ -206,9 +206,11 @@ public class XmlSchema extends RubyObject
       XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(runtime, "Nokogiri::XML::Document"), context.nil);
       return validate_document_or_file(context, xmlDocument);
     } catch (Exception ex) {
-      RubyArray errors = (RubyArray)context.runtime.newEmptyArray();
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
+      RubyArray<?> errors = context.runtime.newEmptyArray();
       XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
       xmlSyntaxError.setException(ex);
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       errors.append(xmlSyntaxError);
       return errors;
     }
@@ -217,7 +219,8 @@ public class XmlSchema extends RubyObject
   IRubyObject
   validate_document_or_file(ThreadContext context, XmlDocument xmlDocument)
   {
-    RubyArray errors = context.runtime.newEmptyArray();
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
+    RubyArray<?> errors = context.runtime.newEmptyArray();
     ErrorHandler errorHandler = new SchemaErrorHandler(context.runtime, errors);
     setErrorHandler(errorHandler);
 
@@ -226,6 +229,7 @@ public class XmlSchema extends RubyObject
     } catch (SAXException ex) {
       XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
       xmlSyntaxError.setException(ex);
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       errors.append(xmlSyntaxError);
     } catch (IOException ex) {
       throw context.runtime.newIOError(ex.getMessage());
@@ -291,7 +295,7 @@ public class XmlSchema extends RubyObject
         }
         try {
           this.errorHandler.warning(new SAXParseException(String.format("Attempt to load network entity '%s'", systemId), null));
-        } catch (SAXException ex) {
+        } catch (SAXException ignored) {
         }
       } else {
         String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
@@ -303,7 +307,7 @@ public class XmlSchema extends RubyObject
     }
   }
 
-  private class SchemaLSInput implements LSInput
+  private static class SchemaLSInput implements LSInput
   {
     protected String fPublicId;
     protected String fSystemId;
