@@ -5,12 +5,14 @@ inherit_mode:
 
 require:
   - standard
+  - rubocop-packaging
+  - rubocop-rake
+
+plugins:
   - standard-custom
   - standard-performance
   - rubocop-performance
   - rubocop-minitest
-  - rubocop-packaging
-  - rubocop-rake
 
 inherit_gem:
   standard: config/base.yml

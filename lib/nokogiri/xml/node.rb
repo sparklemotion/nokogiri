@@ -1610,6 +1610,8 @@ module Nokogiri
         EOERR
       end
 
+      IMPLIED_XPATH_CONTEXTS = [".//"].freeze # :nodoc:
+
       private
 
       def keywordify(keywords)
@@ -1659,8 +1661,6 @@ module Nokogiri
       def inspect_attributes
         [:name, :namespace, :attribute_nodes, :children]
       end
-
-      IMPLIED_XPATH_CONTEXTS = [".//"].freeze
 
       def add_child_node_and_reparent_attrs(node)
         add_child_node(node)

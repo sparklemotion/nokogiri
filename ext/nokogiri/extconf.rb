@@ -461,7 +461,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
     yield recipe
 
     env = Hash.new do |hash, key|
-      hash[key] = (ENV[key]).to_s
+      hash[key] = ENV[key].to_s
     end
 
     recipe.configure_options.flatten!
