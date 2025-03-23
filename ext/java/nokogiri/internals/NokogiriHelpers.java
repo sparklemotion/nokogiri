@@ -741,7 +741,7 @@ public class NokogiriHelpers
     if (ruby_encoding == null) { return str; }
     Charset encoding = Charset.forName(ruby_encoding);
     if (Charset.forName(parsed_encoding).compareTo(encoding) == 0) { return str; }
-    if (str.isEmpty()) { return str; } // no need to convert
+    if (str.length() == 0) { return str; } // no need to convert
     return NokogiriHelpers.nkf(context, encoding, str);
   }
 
