@@ -502,9 +502,9 @@ module Nokogiri
         { root: root }
       end
 
-      private
-
       IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:
+
+      private
 
       def inspect_attributes
         [:name, :children]
