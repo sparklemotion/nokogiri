@@ -1339,7 +1339,7 @@ module Nokogiri
       end
 
       ####
-      # Yields self and all children to +block+ recursively.
+      # Yields all children to +block+ recursively, then yields self.
       def traverse(&block)
         children.each { |j| j.traverse(&block) }
         yield(self)
