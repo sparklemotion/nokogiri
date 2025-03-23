@@ -13,6 +13,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * The constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+* `Document` objects now respond to `#parent`, which will always return `nil`. Previously, the method was `undef`ed from its parent class `Node`. #3466
 
 
 ### Fixed
