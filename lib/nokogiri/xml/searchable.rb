@@ -50,6 +50,10 @@ module Nokogiri
       #   }.new
       #   node.search('.//title[nokogiri:regex(., "\w+")]', 'div.employee:regex("[0-9]+")', handler)
       #
+      # ⚠ NOTE that the `search` function provides incomplete XPath support, and certain complex XPath 
+      # selectors may not work as expected. If you know your query is an XPath selector, consider using 
+      # the Searchable#xpath function directly, as it provides more complete XPath support.
+      #
       # See Searchable#xpath and Searchable#css for further usage help.
       def search(*args)
         paths, handler, ns, binds = extract_params(args)
