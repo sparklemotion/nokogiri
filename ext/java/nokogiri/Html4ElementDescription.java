@@ -33,7 +33,7 @@ public class Html4ElementDescription extends RubyObject
   static
   {
     Map<Short, List<String>> _subElements =
-      new HashMap<Short, List<String>>();
+      new HashMap<>();
     subElements = Collections.synchronizedMap(_subElements);
   }
 
@@ -56,7 +56,7 @@ public class Html4ElementDescription extends RubyObject
     List<String> subs = subElements.get(elem.code);
 
     if (subs == null) {
-      subs = new ArrayList<String>();
+      subs = new ArrayList<>();
 
       /*
        * A bit of a hack.  NekoHtml source code shows that
@@ -127,6 +127,7 @@ public class Html4ElementDescription extends RubyObject
       ary[i] = ruby.newString(subs.get(i));
     }
 
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     return ruby.newArray(ary);
   }
 

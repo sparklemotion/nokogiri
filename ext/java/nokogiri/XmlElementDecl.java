@@ -31,6 +31,7 @@ public class XmlElementDecl extends XmlNode
   XmlElementDecl(Ruby runtime, RubyClass klazz)
   {
     super(runtime, klazz);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     attrDecls = RubyArray.newArray(runtime);
     contentModel = runtime.getNil();
   }
@@ -49,6 +50,7 @@ public class XmlElementDecl extends XmlNode
   setNode(Ruby runtime, Node node)
   {
     super.setNode(runtime, node);
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     attrDecls = RubyArray.newArray(runtime);
     contentModel = runtime.getNil();
   }
@@ -136,6 +138,7 @@ public class XmlElementDecl extends XmlNode
   public void
   appendAttrDecl(XmlAttributeDecl decl)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     attrDecls.append(decl);
   }
 

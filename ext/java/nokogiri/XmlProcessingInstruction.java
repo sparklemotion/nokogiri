@@ -65,6 +65,8 @@ public class XmlProcessingInstruction extends XmlNode
     return self;
   }
 
+  // unused
+  @Deprecated
   @Override
   public boolean
   isProcessingInstruction() { return true; }

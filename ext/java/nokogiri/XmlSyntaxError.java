@@ -91,6 +91,8 @@ public class XmlSyntaxError extends RubyException
     return xmlSyntaxError;
   }
 
+  // unused
+  @Deprecated
   public static XmlSyntaxError
   createFatalError(Ruby runtime, SAXParseException e)
   {

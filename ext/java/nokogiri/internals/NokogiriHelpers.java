@@ -40,6 +40,8 @@ import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 import nokogiri.XmlXpathContext;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * A class for various utility methods.
  *
@@ -59,6 +61,8 @@ public class NokogiriHelpers
     return (XmlNode) node.getUserData(CACHED_NODE);
   }
 
+  // unused
+  @Deprecated
   public static void
   clearCachedNode(Node node)
   {
@@ -221,7 +225,7 @@ public class NokogiriHelpers
   public static IRubyObject
   nonEmptyStringOrNil(Ruby runtime, String s)
   {
-    if (s == null || s.length() == 0) { return runtime.getNil(); }
+    if (s == null || s.isEmpty()) { return runtime.getNil(); }
     return RubyString.newString(runtime, s);
   }
 
@@ -287,7 +291,7 @@ public class NokogiriHelpers
 
     Node cur, tmp, next;
 
-    String buffer = "";
+    StringBuilder buffer = new StringBuilder();
 
     cur = node;
 
@@ -295,10 +299,10 @@ public class NokogiriHelpers
       String name = "";
       String sep = "?";
       int occur = 0;
-      boolean generic = false;
+      boolean generic;
 
       if (cur.getNodeType() == Node.DOCUMENT_NODE) {
-        if (buffer.startsWith("/")) { break; }
+        if (buffer.toString().startsWith("/")) { break; }
 
         sep = "/";
         next = null;
@@ -471,18 +475,20 @@ public class NokogiriHelpers
       }
 
       if (occur == 0) {
-        buffer = sep + name + buffer;
+        buffer.insert(0, sep + name);
       } else {
-        buffer = sep + name + "[" + occur + "]" + buffer;
+        buffer.insert(0, sep + name + "[" + occur + "]");
       }
 
       cur = next;
 
     } while (cur != null);
 
-    return buffer;
+    return buffer.toString();
   }
 
+  // unused
+  @Deprecated
   static boolean
   compareTwoNodes(Node m, Node n)
   {
@@ -494,7 +500,7 @@ public class NokogiriHelpers
   nodesAreEqual(Object a, Object b)
   {
     return (((a == null) && (b == null)) ||
-            ((a != null) && (b != null) && (b.equals(a))));
+            ((b != null) && (b.equals(a))));
   }
 
   private static boolean
@@ -505,7 +511,7 @@ public class NokogiriHelpers
 
   private static final Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
   private static final String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
-  private static final Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
+  private static final Pattern decoded_pattern = Pattern.compile("[&><\r]");
   private static final String[] decoded = {"&", ">", "<", "\r"};
 
   private static StringBuffer
@@ -555,6 +561,8 @@ public class NokogiriHelpers
     return (nodeName.startsWith("xmlns"));
   }
 
+  // unused
+  @Deprecated
   public static boolean
   isNonDefaultNamespace(Node node)
   {
@@ -591,6 +599,8 @@ public class NokogiriHelpers
     return str.isEmpty() || isBlank((CharSequence) str);
   }
 
+  // unused
+  @Deprecated
   public static boolean
   isNullOrEmpty(String str)
   {
@@ -649,8 +659,9 @@ public class NokogiriHelpers
   nodeArrayToRubyArray(Ruby ruby, Node[] nodes)
   {
     RubyArray<?> n = RubyArray.newArray(ruby, nodes.length);
-    for (int i = 0; i < nodes.length; i++) {
-      n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]));
+    for (Node node : nodes) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
+      n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, node));
     }
     return n;
   }
@@ -690,7 +701,7 @@ public class NokogiriHelpers
   private static String
   resolveSystemId(String baseName, String systemId)
   {
-    if (baseName == null || baseName.length() < 1) { return null; }
+    if (baseName == null || baseName.isEmpty()) { return null; }
     String parentName;
     baseName = baseName.replace("%20", " ");
     File base = new File(baseName);
@@ -703,15 +714,13 @@ public class NokogiriHelpers
     return null;
   }
 
-  private static final Charset UTF8 = Charset.forName("UTF-8");
-
   public static boolean
   isUTF8(String encoding)
   {
     if (encoding == null) { return true; } // no need to convert encoding
 
     if ("UTF-8".equals(encoding)) { return true; }
-    return UTF8.aliases().contains(encoding);
+    return UTF_8.aliases().contains(encoding);
   }
 
   public static ByteBuffer
@@ -720,6 +729,8 @@ public class NokogiriHelpers
     return output_charset.encode(CharBuffer.wrap(input_string)); // does replace implicitly on un-mappable characters
   }
 
+  // unused
+  @Deprecated
   public static CharSequence
   convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str)
   {
@@ -766,15 +777,8 @@ public class NokogiriHelpers
       RubyString r_str =
         (RubyString)nkf_method.invoke(null, context, null, runtime.newString(opt), runtime.newString(str.toString()));
       return NokogiriHelpers.rubyStringToString(r_str);
-    } catch (SecurityException e) {
-      return str;
-    } catch (NoSuchMethodException e) {
-      return str;
-    } catch (IllegalArgumentException e) {
-      return str;
-    } catch (IllegalAccessException e) {
-      return str;
-    } catch (InvocationTargetException e) {
+    } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
+             InvocationTargetException e) {
       return str;
     }
   }

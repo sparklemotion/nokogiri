@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
@@ -33,13 +32,14 @@ public class NokogiriService implements BasicLibraryService
   public static Map<String, RubyClass>
   getNokogiriClassCache(Ruby ruby)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     return (Map<String, RubyClass>) ruby.getModule("Nokogiri").getInternalVariable("cache");
   }
 
   private static Map<String, RubyClass>
   populateNokogiriClassCache(Ruby ruby)
   {
-    Map<String, RubyClass> nokogiriClassCache = new HashMap<String, RubyClass>();
+    Map<String, RubyClass> nokogiriClassCache = new HashMap<>();
     nokogiriClassCache.put("Nokogiri::HTML4::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::Document"));
     nokogiriClassCache.put("Nokogiri::HTML4::ElementDescription",
                            (RubyClass)ruby.getClassFromPath("Nokogiri::HTML4::ElementDescription"));
@@ -78,6 +78,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   init(Ruby ruby)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyModule nokogiri = ruby.defineModule("Nokogiri");
     RubyModule xmlModule = nokogiri.defineModuleUnder("XML");
     RubyModule xmlSaxModule = xmlModule.defineModuleUnder("SAX");
@@ -97,6 +98,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   createSyntaxErrors(Ruby ruby, RubyModule nokogiri, RubyModule xmlModule)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass syntaxError = nokogiri.defineClassUnder("SyntaxError", ruby.getStandardError(),
                             ruby.getStandardError().getAllocator());
     RubyClass xmlSyntaxError = xmlModule.defineClassUnder("SyntaxError", syntaxError, XML_SYNTAXERROR_ALLOCATOR);
@@ -106,6 +108,7 @@ public class NokogiriService implements BasicLibraryService
   private RubyClass
   createXmlModule(Ruby ruby, RubyModule xmlModule)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass node = xmlModule.defineClassUnder("Node", ruby.getObject(), XML_NODE_ALLOCATOR);
     node.defineAnnotatedMethods(XmlNode.class);
 
@@ -183,6 +186,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   createHtmlModule(Ruby ruby, RubyModule htmlModule)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass htmlElemDesc = htmlModule.defineClassUnder("ElementDescription", ruby.getObject(),
                              HTML_ELEMENT_DESCRIPTION_ALLOCATOR);
     htmlElemDesc.defineAnnotatedMethods(Html4ElementDescription.class);
@@ -195,6 +199,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   createDocuments(Ruby ruby, RubyModule xmlModule, RubyModule htmlModule, RubyClass node)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass xmlDocument = xmlModule.defineClassUnder("Document", node, XML_DOCUMENT_ALLOCATOR);
     xmlDocument.defineAnnotatedMethods(XmlDocument.class);
 
@@ -206,6 +211,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   createSaxModule(Ruby ruby, RubyModule xmlSaxModule, RubyModule htmlSaxModule)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass xmlSaxParserContext = xmlSaxModule.defineClassUnder("ParserContext", ruby.getObject(),
                                     XML_SAXPARSER_CONTEXT_ALLOCATOR);
     xmlSaxParserContext.defineAnnotatedMethods(XmlSaxParserContext.class);
@@ -225,6 +231,7 @@ public class NokogiriService implements BasicLibraryService
   private void
   createXsltModule(Ruby ruby, RubyModule xsltModule)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     RubyClass stylesheet = xsltModule.defineClassUnder("Stylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
     stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
   }
@@ -259,21 +266,9 @@ public class NokogiriService implements BasicLibraryService
     }
   };
 
-  private static ObjectAllocator HTML_ELEMENT_DESCRIPTION_ALLOCATOR =
-    new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new Html4ElementDescription(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator HTML_ELEMENT_DESCRIPTION_ALLOCATOR = Html4ElementDescription::new;
 
-  private static ObjectAllocator HTML_ENTITY_LOOKUP_ALLOCATOR =
-    new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new Html4EntityLookup(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator HTML_ENTITY_LOOKUP_ALLOCATOR = Html4EntityLookup::new;
 
   public static final ObjectAllocator XML_ATTR_ALLOCATOR = new ObjectAllocator()
   {
@@ -486,25 +481,12 @@ public class NokogiriService implements BasicLibraryService
     }
   };
 
-  private static ObjectAllocator XML_ATTRIBUTE_DECL_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new XmlAttributeDecl(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator XML_ATTRIBUTE_DECL_ALLOCATOR = XmlAttributeDecl::new;
 
-  private static ObjectAllocator XML_ENTITY_DECL_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new XmlEntityDecl(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator XML_ENTITY_DECL_ALLOCATOR = XmlEntityDecl::new;
 
-  private static ObjectAllocator XML_ELEMENT_CONTENT_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      throw runtime.newNotImplementedError("not implemented");
-    }
+  private static final ObjectAllocator XML_ELEMENT_CONTENT_ALLOCATOR = (runtime, klazz) -> {
+    throw runtime.newNotImplementedError("not implemented");
   };
 
   public static final ObjectAllocator XML_RELAXNG_ALLOCATOR = new ObjectAllocator()
@@ -537,19 +519,9 @@ public class NokogiriService implements BasicLibraryService
     }
   };
 
-  private static final ObjectAllocator XML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new XmlSaxPushParser(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator XML_SAXPUSHPARSER_ALLOCATOR = XmlSaxPushParser::new;
 
-  private static final ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new Html4SaxPushParser(runtime, klazz);
-    }
-  };
+  private static final ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = Html4SaxPushParser::new;
 
   public static final ObjectAllocator XML_SCHEMA_ALLOCATOR = new ObjectAllocator()
   {
@@ -566,12 +538,7 @@ public class NokogiriService implements BasicLibraryService
     }
   };
 
-  public static final ObjectAllocator XML_SYNTAXERROR_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new XmlSyntaxError(runtime, klazz);
-    }
-  };
+  public static final ObjectAllocator XML_SYNTAXERROR_ALLOCATOR = XmlSyntaxError::new;
 
   public static final ObjectAllocator XML_TEXT_ALLOCATOR = new ObjectAllocator()
   {
@@ -588,12 +555,7 @@ public class NokogiriService implements BasicLibraryService
     }
   };
 
-  public static final ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator()
-  {
-    public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-      return new XmlXpathContext(runtime, klazz);
-    }
-  };
+  public static final ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = XmlXpathContext::new;
 
   public static ObjectAllocator XSLT_STYLESHEET_ALLOCATOR = new ObjectAllocator()
   {

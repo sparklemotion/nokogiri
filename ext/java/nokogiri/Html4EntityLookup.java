@@ -29,7 +29,7 @@ public class Html4EntityLookup extends RubyObject
 
   /**
    * Looks up an HTML entity <code>key</code>.
-   *
+   * <p>
    * The description is a bit lacking.
    */
   @JRubyMethod()
@@ -53,11 +53,10 @@ public class Html4EntityLookup extends RubyObject
 
     IRubyObject edClass =
       ruby.getClassFromPath("Nokogiri::HTML4::EntityDescription");
-    IRubyObject edObj = invoke(context, edClass, "new",
+
+    return invoke(context, edClass, "new",
                                ruby.newFixnum(val), ruby.newString(name),
                                ruby.newString(name + " entity"));
-
-    return edObj;
   }
 
 }

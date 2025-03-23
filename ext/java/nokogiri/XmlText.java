@@ -47,6 +47,7 @@ public class XmlText extends XmlNode
   init(ThreadContext context, IRubyObject[] args)
   {
     if (args.length < 2) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newArgumentError(args.length, 2);
     }
 
@@ -55,6 +56,7 @@ public class XmlText extends XmlNode
 
     if (!(rbDocument instanceof XmlNode)) {
       String msg = "expected second parameter to be a Nokogiri::XML::Document, received " + rbDocument.getMetaClass();
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError(msg);
     }
     if (!(rbDocument instanceof XmlDocument)) {

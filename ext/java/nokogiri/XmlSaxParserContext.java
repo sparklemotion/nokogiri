@@ -1,14 +1,12 @@
 package nokogiri;
 
 import nokogiri.internals.*;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyEncoding;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
@@ -18,7 +16,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -104,7 +101,7 @@ public class XmlSaxParserContext extends ParserContext
       if (!(encoding instanceof RubyEncoding)) {
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     XmlSaxParserContext ctx = newInstance(context.runtime, (RubyClass) klazz);
@@ -129,9 +126,10 @@ public class XmlSaxParserContext extends ParserContext
     String java_encoding = null;
     if (encoding != context.runtime.getNil()) {
       if (!(encoding instanceof RubyEncoding)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     XmlSaxParserContext ctx = newInstance(context.runtime, (RubyClass) klazz);
@@ -156,15 +154,17 @@ public class XmlSaxParserContext extends ParserContext
   parse_io(ThreadContext context, IRubyObject klazz, IRubyObject data, IRubyObject encoding)
   {
     if (!invoke(context, data, "respond_to?", context.runtime.newSymbol("read")).isTrue()) {
+      // TODO: switch to common undeprecated API when 9.4 adds 10 methods
       throw context.runtime.newTypeError("argument expected to respond to :read");
     }
 
     String java_encoding = null;
     if (encoding != context.runtime.getNil()) {
       if (!(encoding instanceof RubyEncoding)) {
+        // TODO: switch to common undeprecated API when 9.4 adds 10 methods
         throw context.runtime.newTypeError("encoding must be kind_of Encoding");
       }
-      java_encoding = ((RubyEncoding)encoding).toString();
+      java_encoding = encoding.toString();
     }
 
     XmlSaxParserContext ctx = newInstance(context.runtime, (RubyClass) klazz);
@@ -236,9 +236,10 @@ public class XmlSaxParserContext extends ParserContext
   protected static Options
   defaultParseOptions(ThreadContext context)
   {
+    // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     return new ParserContext.Options(
              RubyFixnum.fix2long(Helpers.invoke(context,
-                                 ((RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"))
+                                 context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions")
                                  .getConstant("DEFAULT_XML"),
                                  "to_i"))
            );
@@ -272,7 +273,7 @@ public class XmlSaxParserContext extends ParserContext
       parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
       parser.setProperty("http://xml.org/sax/properties/declaration-handler", handler);
     } catch (Exception ex) {
-      throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
+      throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex);
     }
 
     try {
