@@ -23,7 +23,15 @@ module Nokogiri
 
       def test_attr
         node = @html.at("div.baz")
-        assert_equal(node["class"], node.attr("class"))
+        assert_equal("baz", node["class"])
+        assert_equal("baz", node.attr("class"))
+      end
+
+      def test_attribute
+        # https://github.com/sparklemotion/nokogiri/issues/3487
+        node = @html.at("div.baz")
+        refute_nil(node.attribute("class"))
+        assert_equal("baz", node.attribute("class").value)
       end
 
       def test_get_attribute
