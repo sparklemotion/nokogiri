@@ -27,7 +27,7 @@ group :development do
   gem "standard", "1.47.0"
   gem "rubocop-minitest", "0.37.0"
   gem "rubocop-packaging", "0.5.2"
-  gem "rubocop-rake", "0.6.0"
+  gem "rubocop-rake", "0.7.1"
 end
 
 # If Psych doesn't build, you can disable this group locally by running
