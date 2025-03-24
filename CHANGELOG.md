@@ -28,6 +28,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
+## v1.18.6 / 2025-03-24
+
+### Fixed
+
+* [JRuby] In HTML documents, `Node#attribute` now returns the correct attribute. This has been broken, and returning `nil`, since v1.17.0. (#3487) @flavorjones
+
+
 ## v1.18.5 / 2025-03-19
 
 ### Fixed
