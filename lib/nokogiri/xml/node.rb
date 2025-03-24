@@ -285,7 +285,7 @@ module Nokogiri
       # creates a NodeSet object from the string;
       # appends each of its nodes to the children of +self+;
       # returns the NodeSet:
-      # 
+      #
       #   src_xml = '<foo/><bar/>'
       #   dst_xml = '<dst_root><baz/></dst_root>'
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
