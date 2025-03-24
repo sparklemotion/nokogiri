@@ -129,6 +129,23 @@ module Nokogiri
           end
         end
 
+        it "#attr on XML gets attribute from first node" do
+          doc = Nokogiri::XML("<root><child name='ruby' /><child name='python' /></root>")
+          children = doc.css("child")
+
+          refute_nil(children.attr("name"))
+          assert_equal(children.first.attribute("name"), children.attr("name"))
+        end
+
+        it "#attr on HTML gets attribute from first node" do
+          # https://github.com/sparklemotion/nokogiri/issues/3487
+          doc = Nokogiri::HTML("<root><child name='ruby' /><child name='python' /></root>")
+          children = doc.css("child")
+
+          refute_nil(children.attr("name"))
+          assert_equal(children.first.attribute("name"), children.attr("name"))
+        end
+
         it "#attribute with no args gets attribute from first node" do
           list.first["foo"] = "bar"
           assert_equal(list.first.attribute("foo"), list.attribute("foo"))
