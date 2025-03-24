@@ -205,13 +205,11 @@ module Nokogiri
       # each appended Node has +self+ as its #parent value,
       # and <tt>self.document</tt> as its #document value.
       #
-      # The Nodes are either moved or copied, depending on the type of +object+.
-      #
       # [Arguments]
       #
       # - +object+ (Node, NodeSet, DocumentFragment, String):
-      #   specifies the Node objects to be appended;
-      #   specified Nodes may be in the same Document or DocumentFragment as +self+,
+      #   Specifies the Node objects to be appended;
+      #   the Nodes may be in the same Document or DocumentFragment as +self+,
       #   or in a different one.
       #
       # [Returns]
@@ -223,21 +221,6 @@ module Nokogiri
       # moves it to become the last child of +self+;
       # returns +object+:
       #
-      #   # Move node within a document.
-      #   xml = '<root><src_parent><src_child/></src_parent><dst_parent><dst_child/></dst_parent></root>'
-      #   doc = Nokogiri::XML::Document.parse(xml)
-      #   src_parent_node = doc.at_xpath('//src_parent')
-      #   dst_parent_node = doc.at_xpath('//dst_parent')
-      #   node_to_move = doc.at_xpath('//src_child')
-      #   src_parent_node.children.map {|child| child.name } # => ["src_child"]
-      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child"]
-      #   node_to_move.parent.name                           # => "src_parent"
-      #   dst_parent_node.add_child(node_to_move)            # Move node within doc, re-parenting.
-      #   src_parent_node.children.map {|child| child.name } # => []
-      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child", "src_child"]
-      #   node_to_move.parent.name                           # => "dst_parent"
-      #
-      #   # Move node between documents.
       #   src_xml = '<root><src_parent><src_child/></src_parent></root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
       #   src_parent_node = src_doc.at_xpath('//src_parent')
@@ -245,50 +228,74 @@ module Nokogiri
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
       #   dst_parent_node = dst_doc.root
       #   node_to_move = src_doc.at_xpath('//src_child')
+      #   # Before.
       #   src_parent_node.children.map {|child| child.name } # => ["src_child"]
       #   dst_parent_node.children.map {|child| child.name } # => ["dst_parent"]
       #   node_to_move.parent.name                           # => "src_parent"
+      #   # Move the node.
       #   dst_parent_node.add_child(node_to_move)
+      #   # After.
       #   src_parent_node.children.map {|child| child.name } # => []
       #   dst_parent_node.children.map {|child| child.name } # => ["dst_parent", "src_child"]
       #   node_to_move.parent.name                           # => "root"
       #
-      #
-      # When +object+ is a NodeSet (see {About the Examples}[Node.html#class-Nokogiri::XML::Node-label-About+the+Examples]),
+      # When +object+ is a NodeSet,
       # appends each of its nodes to the children of +self+;
       # returns +object+:
       #
       #   src_doc = Nokogiri::XML::Document.parse(BOOKSTORE_XML)
-      #   src_nodeset = src_doc.xpath('//book')
-      #   src_nodeset.size # => 4
-      #   src_nodeset.map {|node| node.parent.name }
+      #   nodeset_to_move = src_doc.xpath('//book')
+      #   dst_doc = Nokogiri::XML::Document.parse('<root><foo/></root>')
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   nodeset_to_move.map {|node| node.children[3].text }
+      #   # => ["Giada De Laurentiis", "J K. Rowling", "James McGovern", "Erik T. Ray"]
+      #   nodeset_to_move.map {|node| node.parent.name }
       #   # => ["bookstore", "bookstore", "bookstore", "bookstore"]
-      #   dst_doc = Nokogiri::XML::Document.parse('<root/>')
-      #   dst_node = dst_doc.at_xpath('//root')
-      #   dst_node.children.size # => 0
-      #   dst_node.add_child(src_nodeset) # Move nodes from src_nodeset to dst_node, re-parenting.
-      #   dst_node.children.size # => 4
-      #   dst_node.children.map {|child| child.name }
-      #   # => ["book", "book", "book", "book"]
-      #   dst_node.children.map {|child| child.parent.name }
-      #   # => ["root", "root", "root", "root"]
+      #   dst_node.children.map {|child| child.name }         # => ["foo"]
+      #   # Move the nodeset.
+      #   dst_node.add_child(nodeset_to_move)
+      #   # After.
+      #   src_doc.xpath('//book')                             # => []
+      #   dst_node.children.map {|child| child.name }         # Child names after move.
+      #   # => ["foo", "book", "book", "book", "book"]
+      #   dst_doc.xpath('//book').map {|node| node.children[3].text }
+      #   # => ["Giada De Laurentiis", "J K. Rowling", "James McGovern", "Erik T. Ray"]
       #
-      # When +object+ is a +DocumentFragment+,
-      # creates a NodeSet object from the +DocumentFragment+;
+      # When +object+ is a DocumentFragment,
+      # creates a NodeSet object from the DocumentFragment;
       # appends each of its nodes to the children of +self+;
-      # returns the +NodeSet+:
+      # returns the NodeSet:
       #
-      #   doc_frag = Nokogiri::XML::DocumentFragment.parse('<foo/><bar/>')
-      #   doc = Nokogiri::XML::Document.parse('<root/>')
-      #   doc.root.add_child(doc_frag)
+      #   src_xml = '<foo/><bar/>'
+      #   src_frag = Nokogiri::XML::DocumentFragment.parse(src_xml)
+      #   dst_xml = '<root><baz/></root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   src_frag.children.map {|child| child.name } # => ["foo", "bar"]
+      #   dst_node.children.map {|child| child.name } # => ["baz"]
+      #   # Move the fragment.
+      #   dst_node.add_child(src_frag)
+      #   # After.
+      #   src_frag.children.map {|child| child.name } # => []
+      #   dst_node.children.map {|child| child.name } # => ["baz", "foo", "bar"]
       #
       # When +object+ is a String,
-      # creates a +NodeSet+ object from the string;
+      # creates a NodeSet object from the string;
       # appends each of its nodes to the children of +self+;
-      # returns the +NodeSet+:
+      # returns the NodeSet:
       #
-      #   doc = Nokogiri::XML::Document.parse('<root/>')
-      #   doc.root.add_child('<foo/><bar/>')
+      #   src_xml = '<foo/><bar/>'
+      #   dst_xml = '<root><baz/></root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   dst_node.children.map {|child| child.name } # => ["baz"]
+      #   # Add the NodeSet created from src_xml.
+      #   dst_node.add_child(src_xml)
+      #   # After.
+      #   dst_node.children.map {|child| child.name } # => ["baz", "foo", "bar"]
       #
       # Related: #<<, #after, #before, #children=, #prepend_child.
       #
