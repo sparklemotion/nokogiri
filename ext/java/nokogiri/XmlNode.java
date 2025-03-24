@@ -652,7 +652,7 @@ public class XmlNode extends RubyObject
       Node attribute = attributes.item(j);
       String localName = attribute.getLocalName();
       if (localName == null) {
-        continue;
+        localName = attribute.getNodeName();
       }
       if (localName.equals(name)) {
         return getCachedNodeOrCreate(context.runtime, attribute);
