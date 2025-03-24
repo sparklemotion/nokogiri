@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.18.6 / 2025-03-24
+
+### Fixed
+
+* [JRuby] In HTML documents, `Node#attribute` now returns the correct attribute. This has been broken, and returnin `nil`, since v1.17.0. (#3487) @flavorjones
+
+
 ## v1.18.5 / 2025-03-19
 
 ### Fixed
