@@ -222,7 +222,7 @@ module Nokogiri
       # When +object+ is a Node,
       # moves it to become the last child of +self+;
       # returns +object+:
-      # 
+      #
       #   # Move node within a document.
       #   xml = '<root><src_parent><src_child/></src_parent><dst_parent><dst_child/></dst_parent></root>'
       #   doc = Nokogiri::XML::Document.parse(xml)
