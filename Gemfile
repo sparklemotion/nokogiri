@@ -24,10 +24,12 @@ group :development do
   gem "simplecov", "0.22.0"
 
   # rubocop
-  gem "standard", "1.47.0"
-  gem "rubocop-minitest", "0.37.1"
-  gem "rubocop-packaging", "0.6.0"
-  gem "rubocop-rake", "0.7.1"
+  unless RUBY_PLATFORM == "java"
+    gem "standard", "1.47.0"
+    gem "rubocop-minitest", "0.37.1"
+    gem "rubocop-packaging", "0.6.0"
+    gem "rubocop-rake", "0.7.1"
+  end
 end
 
 # If Psych doesn't build, you can disable this group locally by running
