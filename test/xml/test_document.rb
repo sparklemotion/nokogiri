@@ -711,9 +711,8 @@ module Nokogiri
 
         def test_document_parent
           xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
-          assert_raises(NoMethodError) do
-            xml.parent
-          end
+
+          assert_nil(xml.parent)
         end
 
         def test_document_name
