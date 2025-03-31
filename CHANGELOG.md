@@ -28,6 +28,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
+## v1.18.7 / 2025-03-31
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.13.7](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.7), which is a bugfix release.
+
+
 ## v1.18.6 / 2025-03-24
 
 ### Fixed
