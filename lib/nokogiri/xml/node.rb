@@ -33,7 +33,13 @@ module Nokogiri
     # - Nokogiri::XML::EntityReference
     # - Nokogiri::XML::ProcessingInstruction
     #
-    # == Attributes
+    # == About the Examples
+    #
+    # Examples on this page may assume that certain setup code has been executed.
+    #
+    #   :include: doc/examples/bookstore_setup.rb
+    #
+    #    # == Attributes
     #
     # A Nokogiri::XML::Node may be treated similarly to a hash with regard to attributes. For
     # example:
@@ -197,16 +203,109 @@ module Nokogiri
 
       # :section: Manipulating Document Structure
 
-      ###
-      # Add +node_or_tags+ as a child of this Node.
+      # :call-seq:
+      #   add_child(object) -> Node or NodeSet
       #
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a String
-      # containing markup.
+      # Appends specified Nodes to the children of +self+;
+      # each appended Node has +self+ as its #parent value,
+      # and <tt>self.document</tt> as its #document value.
       #
-      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is
-      # a DocumentFragment, NodeSet, or String).
+      # [Arguments]
       #
-      # Also see related method +<<+.
+      # - +object+ (Node, NodeSet, DocumentFragment, String):
+      #   Specifies the Node objects to be appended;
+      #   the Nodes may be in the same Document or DocumentFragment as +self+,
+      #   or in a different one.
+      #
+      # [Returns]
+      #
+      # - The given +object+, if +object+ is a Node or a NodeSet
+      # - A new NodeSet, if +object+ is a DocumentFragment or String.
+      #
+      # When +object+ is a Node,
+      # moves it to become the last child of +self+;
+      # returns +object+:
+      #
+      #   src_xml = '<src_root><src_parent><src_child/></src_parent></src_root>'
+      #   src_doc = Nokogiri::XML::Document.parse(src_xml)
+      #   src_parent_node = src_doc.at_xpath('//src_parent')
+      #   dst_xml = '<dst_root><dst_parent><dst_child/></dst_parent></dst_root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_parent_node = dst_doc.root
+      #   node_to_move = src_doc.at_xpath('//src_child')
+      #   # Before.
+      #   src_parent_node.children.map {|child| child.name } # => ["src_child"]
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_parent"]
+      #   node_to_move.parent.name                           # => "src_parent"
+      #   # Move the node.
+      #   dst_parent_node.add_child(node_to_move)
+      #   # After.
+      #   src_parent_node.children.map {|child| child.name } # => []
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_parent", "src_child"]
+      #   node_to_move.parent.name                           # => "dst_root"
+      #
+      # When +object+ is a NodeSet,
+      # appends each of its nodes to the children of +self+;
+      # returns +object+:
+      #
+      #   src_xml = '<src_root><foo/><bar/></src_root>'
+      #   src_doc = Nokogiri::XML::Document.parse(src_xml)
+      #   nodeset_to_move = src_doc.root.children
+      #   nodeset_to_move.class                          # => Nokogiri::XML::NodeSet
+      #   dst_doc = Nokogiri::XML::Document.parse('<dst_root><baz/></dst_root>')
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   nodeset_to_move.map {|node| node.name }        # => ["foo", "bar"]
+      #   nodeset_to_move.map {|node| node.parent.name } # => ["src_root", "src_root"]
+      #   dst_node.children.map {|child| child.name }    # => ["baz"]
+      #   # Move the nodeset.
+      #   dst_node.add_child(nodeset_to_move)
+      #   # After.
+      #   nodeset_to_move.map {|node| node.name }        # => ["foo", "bar"]
+      #   nodeset_to_move.map {|node| node.parent.name } # => ["dst_root", "dst_root"]
+      #   dst_node.children.map {|child| child.name }    # => ["baz", "foo", "bar"]
+      #
+      # When +object+ is a DocumentFragment,
+      # creates a NodeSet object from the DocumentFragment;
+      # appends each of its nodes to the children of +self+;
+      # returns the NodeSet:
+      #
+      #   src_xml = '<foo/><bar/>'
+      #   src_frag = Nokogiri::XML::DocumentFragment.parse(src_xml)
+      #   dst_xml = '<dst_root><baz/></dst_root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   src_frag.children.map {|child| child.name }        # => ["foo", "bar"]
+      #   src_frag.children.map {|child| child.parent.name } # => ["#document-fragment", "#document-fragment"]
+      #   dst_node.children.map {|child| child.name }        # => ["baz"]
+      #   # Move the fragment.
+      #   dst_node.add_child(src_frag)
+      #   # After.
+      #   src_frag.children.map {|child| child.name }        # => []
+      #   dst_node.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
+      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
+      #
+      # When +object+ is a String,
+      # creates a NodeSet object from the string;
+      # appends each of its nodes to the children of +self+;
+      # returns the NodeSet:
+      #
+      #   src_xml = '<foo/><bar/>'
+      #   dst_xml = '<dst_root><baz/></dst_root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_node = dst_doc.root
+      #   # Before.
+      #   dst_node.children.map {|child| child.name }        # => ["baz"]
+      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root"]
+      #   # Add the NodeSet created from src_xml.
+      #   dst_node.add_child(src_xml)
+      #   # After.
+      #   dst_node.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
+      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
+      #
+      # Related: #<<, #after, #before, #children=, #prepend_child.
+      #
       def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -1345,7 +1444,7 @@ module Nokogiri
         yield(self)
       end
 
-      # :nodoc:
+      ###
       # Accept a visitor.  This method calls "visit" on +visitor+ with self.
       def accept(visitor)
         visitor.visit(self)
