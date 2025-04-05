@@ -188,6 +188,14 @@ module Nokogiri
           assert_equal("1", elm["a"])
         end
 
+        # https://github.com/sparklemotion/nokogiri/issues/3457
+        def test_create_element_doc_default_namespace_not_automatically_applied
+          doc = Nokogiri::XML(%(<root xmlns='http://example.org/default'>))
+          node = doc.create_element("child")
+
+          assert_nil(node.namespace)
+        end
+
         def test_create_element_with_namespace
           elm = xml.create_element("foo", "xmlns:foo": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:foo"])
