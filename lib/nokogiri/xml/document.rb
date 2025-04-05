@@ -322,6 +322,13 @@ module Nokogiri
         self
       end
 
+      # call-seq: parent => nil
+      #
+      # For a Document, parent always returns +nil+
+      def parent
+        nil
+      end
+
       # :call-seq:
       #   collect_namespaces() → Hash<String(Namespace#prefix) ⇒ String(Namespace#href)>
       #
@@ -430,7 +437,7 @@ module Nokogiri
         DocumentFragment.new(self, tags, root)
       end
 
-      undef_method :swap, :parent, :namespace, :default_namespace=
+      undef_method :swap, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
 
