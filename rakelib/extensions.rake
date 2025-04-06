@@ -110,27 +110,24 @@ CrossRuby = Struct.new(:version, :platform) do
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
         "libm.so.6",
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+        "libpthread.so.0",
+      ]
     when AARCH64_LINUX_GNU_PLATFORM_REGEX
       [
         "ld-linux-aarch64.so.1",
         "libc.so.6",
         "libdl.so.2", # on old dists only - now in libc
         "libm.so.6",
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+        "libpthread.so.0",
+      ]
     when ARM_LINUX_GNU_PLATFORM_REGEX
       [
         "ld-linux-armhf.so.3",
         "libc.so.6", "libc.so", # glibc and musl
         "libdl.so.2",
         "libm.so.6",
-      ].tap do |dlls|
-        dlls << "libpthread.so.0" if ver >= "3.2.0"
-      end
+        "libpthread.so.0",
+      ]
     when MINGWUCRT_PLATFORM_REGEX
       [
         "advapi32.dll",
