@@ -111,6 +111,27 @@ doc
 
 ### Comments
 
+Nokogiri parses a comment into a Nokogiri::XML::Comment object.
+
+A comment may be in a document or in a tag:
+
+```
+xml = '<!-- Comment. --><root><!-- Another comment. --></root>'
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0xa04c0 {
+  name = "document",
+  children = [
+    #(Comment " Comment. "),
+    #(Element:0xa0560 {
+      name = "root",
+      children = [ #(Comment " Another comment. ")]
+      })]
+  })
+```
+
+
 ### CDATA Sections
 
 ### DocTypes
