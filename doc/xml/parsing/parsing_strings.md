@@ -87,7 +87,8 @@ doc
           }),
         #(Text "Five")]
       })]
-  })  ```
+  })
+```
 
 A tag may have nested markup of other types (such as comments):
 
@@ -105,6 +106,31 @@ doc
         #(Element: { name = "foo" }),
         #(Comment " Comment text. "),
         #(Element: { name = "bar" })]
+      })]
+  })
+```
+
+### Tag Attributes
+
+Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object.
+
+```
+xml = '<root foo="0" bar="1"/>'
+# => "<root foo=\"0\" bar=\"1\"/>"
+doc = Nokogiri::XML.parse(xml)
+# =>
+#(Document:0xa5d30 {
+...
+doc
+# =>
+#(Document:0xa5d30 {
+  name = "document",
+  children = [
+    #(Element:0xa5da8 {
+      name = "root",
+      attribute_nodes = [
+        #(Attr:0xa5e20 { name = "foo", value = "0" }),
+        #(Attr:0xa5ec8 { name = "bar", value = "1" })]
       })]
   })
 ```
