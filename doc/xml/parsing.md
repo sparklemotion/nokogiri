@@ -1,4 +1,4 @@
-# Parsing Strings
+# Parsing
 
 This page shows how Nokogiri parses an XML string into Nokogiri objects.
 The string has text consisting of character data and markup.
