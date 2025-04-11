@@ -1,19 +1,65 @@
 # Parsing
 
-This page shows how Nokogiri parses an XML string into Nokogiri objects.
+This page shows how \Nokogiri parses an XML string into \Nokogiri objects.
 The string has text consisting of character data and markup.
-For Nokogiri parsing, the string is given either by a String object
-or by an IO object (which is read as a string).
+For a \Nokogiri parsing method, the string is passed
+either as a [String](https://docs.ruby-lang.org/en/master/String.html) object
+or as an [IO](https://docs.ruby-lang.org/en/master/IO.html) object
+from which the string is to be read.
 
-On this page, each example uses method Nokogiri::XML.parse
-to parse a string into a tree of Nokogiri objects.
-The topmost object is a Nokogiri::XML::Document object,
-which we will usually refer to as a document;
-the document may have other objects as children.
+On this page, each example uses either:
+
+- Method Nokogiri::XML::parse (shorthand for Nokogiri::XML::Document.parse)
+  to parse a string into a tree of \Nokogiri objects.
+  The topmost object is a Nokogiri::XML::Document object,
+  which we will usually refer to as a document;
+  the document may have other objects as children.
+
+- Method Nokogiri::XML::DocumentFragment.parse
+  to parse a string into a tree of \Nokogiri objects.
+  The topmost object is a Nokogiri::XML::DocumentFragment object,
+  which we will usually refer to as a fragment;
+  the fragment may have other objects as children.
 
 ## Text
 
+The string to be parsed is text, consisting of character data and markup.
+
+## Character Data
+
+All text that is not markup it character data.
+
 ## Markup
+
+### Comments
+
+\Nokogiri parses a comment into a Nokogiri::XML::Comment object.
+
+A comment may be in the document itself or in a tag:
+
+```
+xml = '<!-- Comment. --><root><!-- Another comment. --></root>'
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0xa04c0 {
+  name = "document",
+  children = [
+    #(Comment " Comment. "),
+    #(Element:0xa0560 {
+      name = "root",
+      children = [ #(Comment " Another comment. ")]
+      })]
+  })
+```
+
+### Processing Instructions
+
+### CDATA Sections
+
+### Prolog (XML Declaration)
+
+### Document Type Declaration
 
 ### Tags
 
@@ -110,7 +156,7 @@ doc
   })
 ```
 
-### Tag Attributes
+#### Tag Attributes
 
 Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object.
 
@@ -135,41 +181,18 @@ doc
   })
 ```
 
-### Comments
+#### Element Type Declarations
 
-Nokogiri parses a comment into a Nokogiri::XML::Comment object.
+#### Attribute-List Declarations
 
-A comment may be in a document or in a tag:
-
-```
-xml = '<!-- Comment. --><root><!-- Another comment. --></root>'
-doc = Nokogiri::XML.parse(xml)
-doc
-# =>
-#(Document:0xa04c0 {
-  name = "document",
-  children = [
-    #(Comment " Comment. "),
-    #(Element:0xa0560 {
-      name = "root",
-      children = [ #(Comment " Another comment. ")]
-      })]
-  })
-```
-
-
-### CDATA Sections
-
-### DocTypes
-
-### Processing Instructions
-
-### XML Declarations
-
-### Text Declarations
-
-### Entity References
+#### Element Type Declarations
 
 ### Character References
 
+### Entity References
 
+#### Entity Declarations
+
+#### Text Declaration
+
+## Document Fragments
