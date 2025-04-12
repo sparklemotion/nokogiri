@@ -42,11 +42,11 @@ xml = '<!-- Comment. --><root><!-- Another comment. --></root>'
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0xa04c0 {
+#(Document: {
   name = "document",
   children = [
     #(Comment " Comment. "),
-    #(Element:0xa0560 {
+    #(Element: {
       name = "root",
       children = [ #(Comment " Another comment. ")]
       })]
@@ -59,17 +59,13 @@ doc
 
 ```
 xml = '<?xml-stylesheet type="text/xsl" href="style.xsl"?>'
-# => "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>"
 doc = Nokogiri::XML.parse(xml)
-# =>
-#(Document:0x4da8 {
-...
 doc
 # =>
-#(Document:0x4da8 {
+#(Document: {
   name = "document",
   children = [
-    #(ProcessingInstruction:0x4e20 {
+    #(ProcessingInstruction: {
       name = "xml-stylesheet"
       })]
   })
@@ -84,10 +80,10 @@ xml = '<root><![CDATA[<greeting>Hello, world!</greeting>]]></root>'
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x8dd8 {
+#(Document: {
   name = "document",
   children = [
-    #(Element:0x8e50 {
+    #(Element: {
       name = "root",
       children = [
         #(CDATA "<greeting>Hello, world!</greeting>")]
@@ -102,8 +98,6 @@ doc
 ```
 xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 doc = Nokogiri::XML.parse(xml)
-doc
-# => #(Document:0x17300 { name = "document" })
 doc.version  # => "1.0"
 doc.encoding # => "UTF-8"
 ```
@@ -117,9 +111,9 @@ xml = '<!DOCTYPE greeting SYSTEM "hello.dtd">'
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x32a38 {
+#(Document: {
   name = "document",
-  children = [ #(DTD:0x32ab0 { name = "greeting" })]
+  children = [ #(DTD: { name = "greeting" })]
   })
   ```
 
@@ -224,21 +218,17 @@ Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object.
 
 ```
 xml = '<root foo="0" bar="1"/>'
-# => "<root foo=\"0\" bar=\"1\"/>"
 doc = Nokogiri::XML.parse(xml)
-# =>
-#(Document:0xa5d30 {
-...
 doc
 # =>
-#(Document:0xa5d30 {
+#(Document: {
   name = "document",
   children = [
-    #(Element:0xa5da8 {
+    #(Element: {
       name = "root",
       attribute_nodes = [
-        #(Attr:0xa5e20 { name = "foo", value = "0" }),
-        #(Attr:0xa5ec8 { name = "bar", value = "1" })]
+        #(Attr: { name = "foo", value = "0" }),
+        #(Attr: { name = "bar", value = "1" })]
       })]
   })
 ```
@@ -260,22 +250,24 @@ DOCTYPE
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x2a330 {
+#(Document: {
   name = "document",
   children = [
-    #(DTD:0x2a3a8 {
+    #(DTD: {
       name = "note",
       children = [
-        #(ElementDecl:0x2a420 { "<!ELEMENT note (to , from , heading , body)>\n" }),
-        #(ElementDecl:0x2a460 { "<!ELEMENT to (#PCDATA)>\n" }),
-        #(ElementDecl:0x2a4a0 { "<!ELEMENT from (#PCDATA)>\n" }),
-        #(ElementDecl:0x2a4e0 { "<!ELEMENT heading (#PCDATA)>\n" }),
-        #(ElementDecl:0x2a520 { "<!ELEMENT body (#PCDATA)>\n" })]
+        #(ElementDecl: { "<!ELEMENT note (to , from , heading , body)>\n" }),
+        #(ElementDecl: { "<!ELEMENT to (#PCDATA)>\n" }),
+        #(ElementDecl: { "<!ELEMENT from (#PCDATA)>\n" }),
+        #(ElementDecl: { "<!ELEMENT heading (#PCDATA)>\n" }),
+        #(ElementDecl: { "<!ELEMENT body (#PCDATA)>\n" })]
       })]
   })
   ```
 
 ### Attribute-List Declarations
+
+Nokogiri parses an attribute-list declaration into a Nokogiri::XML::AttributeDecl object.
 
 ```
 xml = <<DOCTYPE
@@ -287,19 +279,21 @@ DOCTYPE
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x4a430 {
+#(Document: {
   name = "document",
   children = [
-    #(DTD:0x4a4a8 {
+    #(DTD: {
       name = "note",
       children = [
-        #(ElementDecl:0x4a520 { "<!ELEMENT payment (#PCDATA)>\n" }),
-        #(AttributeDecl:0x4a560 { "<!ATTLIST payment type CDATA \"check\">\n" })]
+        #(ElementDecl: { "<!ELEMENT payment (#PCDATA)>\n" }),
+        #(AttributeDecl: { "<!ATTLIST payment type CDATA \"check\">\n" })]
       })]
   })
 ```
 
 ### Conditional Sections
+
+Nokogiri parses a conditional section into a Nokogiri::XML::EntityDecl object.
 
 ```
 xml = <<DOCTYPE
@@ -307,19 +301,15 @@ xml = <<DOCTYPE
 <!ENTITY % draft 'INCLUDE' >
 ]>
 DOCTYPE
-# => "<!DOCTYPE note [\n<!ENTITY % draft 'INCLUDE' >\n]>\n"
 doc = Nokogiri::XML.parse(xml)
-# =>
-#(Document:0x4f8d0 {
-...
 doc
 # =>
-#(Document:0x4f8d0 {
+#(Document: {
   name = "document",
   children = [
-    #(DTD:0x4f948 {
+    #(DTD: {
       name = "note",
-      children = [ #(EntityDecl:0x4f9c0 { "<!ENTITY % draft \"INCLUDE\">\n" })]
+      children = [ #(EntityDecl: { "<!ENTITY % draft \"INCLUDE\">\n" })]
       })]
   })
 ```
@@ -340,22 +330,22 @@ ELE
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x513f0 {
+#(Document: {
   name = "document",
   children = [
-    #(Element:0x51468 {
+    #(Element: {
       name = "root",
       children = [
         #(Text "\n  "),
-        #(Element:0x51508 {
+        #(Element: {
           name = "name",
           children = [
             #(Text "\n    "),
-            #(Element:0x515a8 { name = "vorname", children = [ #(Text "Marie")] }),
+            #(Element: { name = "vorname", children = [ #(Text "Marie")] }),
             #(Text "\n    "),
-            #(Element:0x51690 { name = "nachname", children = [ #(Text "Müller")] }),
+            #(Element: { name = "nachname", children = [ #(Text "Müller")] }),
             #(Text "\n    "),
-            #(Element:0x51778 { name = "geschlecht", children = [ #(Text "♀")] }),
+            #(Element: { name = "geschlecht", children = [ #(Text "♀")] }),
             #(Text "\n  ")]
           }),
         #(Text "\n")]
@@ -371,10 +361,10 @@ xml = '<root>An entity reference is needed for the less-than character (&lt;).</
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x78298 {
+#(Document: {
   name = "document",
   children = [
-    #(Element:0x78310 {
+    #(Element: {
       name = "root",
       children = [ #(Text "An entity reference is needed for the less-than character (<).")]
       })]
@@ -393,12 +383,12 @@ DTD
 doc = Nokogiri::XML.parse(xml)
 doc
 # =>
-#(Document:0x53228 {
+#(Document: {
   name = "document",
   children = [
-    #(DTD:0x532a0 {
+    #(DTD: {
       name = "note",
-      children = [ #(EntityDecl:0x53318 { "<!ENTITY company \"Example Corp\">\n" })]
+      children = [ #(EntityDecl: { "<!ENTITY company \"Example Corp\">\n" })]
       })]
   })
 ```
