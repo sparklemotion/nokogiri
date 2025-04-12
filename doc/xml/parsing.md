@@ -77,9 +77,51 @@ doc
 
 ### CDATA Sections
 
+\Nokogiri parses a CDATA section into a Nokogiri::XML::CDATA object:
+
+```
+xml = '<root><![CDATA[<greeting>Hello, world!</greeting>]]></root>'
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x8dd8 {
+  name = "document",
+  children = [
+    #(Element:0x8e50 {
+      name = "root",
+      children = [
+        #(CDATA "<greeting>Hello, world!</greeting>")]
+      })]
+  })
+```
+
 ### Prolog (XML Declaration)
 
+\Nokogiri parses an XML declaration into values put onto the parsed document:
+
+```
+xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+doc = Nokogiri::XML.parse(xml)
+doc
+# => #(Document:0x17300 { name = "document" })
+doc.version  # => "1.0"
+doc.encoding # => "UTF-8"
+```
+
 ### Document Type Declaration
+
+\Nokogiri parses a document type declaration into a Nokogiri::XML::DTD object:
+
+```
+xml = '<!DOCTYPE greeting SYSTEM "hello.dtd">'
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x32a38 {
+  name = "document",
+  children = [ #(DTD:0x32ab0 { name = "greeting" })]
+  })
+  ```
 
 ### Tags
 
@@ -201,11 +243,63 @@ doc
   })
 ```
 
-#### Element Type Declarations
+### Element Type Declarations
 
-#### Attribute-List Declarations
+\Nokogiri parses an element type declaration into a Nokogiri::XML::ElementDecl object:
 
-#### Element Type Declarations
+```
+xml = <<DOCTYPE
+<!DOCTYPE note [
+<!ELEMENT note (to,from,heading,body)>
+<!ELEMENT to (#PCDATA)>
+<!ELEMENT from (#PCDATA)>
+<!ELEMENT heading (#PCDATA)>
+<!ELEMENT body (#PCDATA)>
+]>
+DOCTYPE
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x2a330 {
+  name = "document",
+  children = [
+    #(DTD:0x2a3a8 {
+      name = "note",
+      children = [
+        #(ElementDecl:0x2a420 { "<!ELEMENT note (to , from , heading , body)>\n" }),
+        #(ElementDecl:0x2a460 { "<!ELEMENT to (#PCDATA)>\n" }),
+        #(ElementDecl:0x2a4a0 { "<!ELEMENT from (#PCDATA)>\n" }),
+        #(ElementDecl:0x2a4e0 { "<!ELEMENT heading (#PCDATA)>\n" }),
+        #(ElementDecl:0x2a520 { "<!ELEMENT body (#PCDATA)>\n" })]
+      })]
+  })
+  ```
+
+### Attribute-List Declarations
+
+```
+xml = <<DOCTYPE
+<!DOCTYPE note [
+<!ELEMENT payment (#PCDATA)>
+<!ATTLIST payment type CDATA "check">
+]>
+DOCTYPE
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x4a430 {
+  name = "document",
+  children = [
+    #(DTD:0x4a4a8 {
+      name = "note",
+      children = [
+        #(ElementDecl:0x4a520 { "<!ELEMENT payment (#PCDATA)>\n" }),
+        #(AttributeDecl:0x4a560 { "<!ATTLIST payment type CDATA \"check\">\n" })]
+      })]
+  })
+```
+
+### Conditional Sections
 
 ### Character References
 
