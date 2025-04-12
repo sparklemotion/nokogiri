@@ -367,30 +367,16 @@ doc
 
 
 ```
-xml = <<XML
-<!DOCTYPE note [
-  <!ENTITY company "Example Corp">
-]>
-<root>&company;</root>
-XML
-# => "<!DOCTYPE note [\n  <!ENTITY company \"Example Corp\">\n]>\n<root>&company;</root>\n"
-
+xml = '<root>An entity reference is needed for the less-than character (&lt;).</root>'
 doc = Nokogiri::XML.parse(xml)
-# =>
-#(Document:0x5d890 {
-...
 doc
 # =>
-#(Document:0x5d890 {
+#(Document:0x78298 {
   name = "document",
   children = [
-    #(DTD:0x5d908 {
-      name = "note",
-      children = [ #(EntityDecl:0x5d980 { "<!ENTITY company \"Example Corp\">\n" })]
-      }),
-    #(Element:0x5d9e0 {
+    #(Element:0x78310 {
       name = "root",
-      children = [ #(EntityReference:0x5da58 { "company" })]
+      children = [ #(Text "An entity reference is needed for the less-than character (<).")]
       })]
   })
 ```
@@ -417,7 +403,14 @@ doc
   })
 ```
 
+### Text Declarations
 
-### Text Declaration
+\Nokogiri parses a text declaration into a value put onto the parsed document:
+
+```
+xml = '<?xml encoding="KOI8-R"?>'
+doc = Nokogiri::XML.parse(xml)
+doc.encoding # => "KOI8-R"
+```
 
 ## Document Fragments
