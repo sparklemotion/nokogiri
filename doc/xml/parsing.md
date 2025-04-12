@@ -55,6 +55,26 @@ doc
 
 ### Processing Instructions
 
+\Nokogiri parses a processing instruction into a Nokogiri::XML::ProcessingInstruction object:
+
+```
+xml = '<?xml-stylesheet type="text/xsl" href="style.xsl"?>'
+# => "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>"
+doc = Nokogiri::XML.parse(xml)
+# =>
+#(Document:0x4da8 {
+...
+doc
+# =>
+#(Document:0x4da8 {
+  name = "document",
+  children = [
+    #(ProcessingInstruction:0x4e20 {
+      name = "xml-stylesheet"
+      })]
+  })
+```
+
 ### CDATA Sections
 
 ### Prolog (XML Declaration)
