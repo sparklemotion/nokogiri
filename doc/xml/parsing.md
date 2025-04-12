@@ -119,7 +119,7 @@ doc
 
 ### Tags
 
-Nokogiri parses a tag into a Nokogiri::XML::Element object.
+\Nokogiri parses a tag into a Nokogiri::XML::Element object.
 
 In this example, a single tag is parsed into a document whose only child
 is the root element parsed from the tag:
@@ -214,7 +214,7 @@ doc
 
 ### Tag Attributes
 
-Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object.
+\Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object:
 
 ```
 xml = '<root foo="0" bar="1"/>'
@@ -267,7 +267,7 @@ doc
 
 ### Attribute-List Declarations
 
-Nokogiri parses an attribute-list declaration into a Nokogiri::XML::AttributeDecl object.
+\Nokogiri parses an attribute-list declaration into a Nokogiri::XML::AttributeDecl object:
 
 ```
 xml = <<DOCTYPE
@@ -293,7 +293,7 @@ doc
 
 ### Conditional Sections
 
-Nokogiri parses a conditional section into a Nokogiri::XML::EntityDecl object.
+\Nokogiri parses a conditional section into a Nokogiri::XML::EntityDecl object:
 
 ```
 xml = <<DOCTYPE
@@ -316,6 +316,8 @@ doc
 
 ### Character References
 
+\Nokogiri parses a character reference (such as <tt>&#9792;</tt>)
+and replaces it with a character such as (<tt>'♀'</tt>):
 
 ```
 xml = <<ELE
@@ -355,6 +357,8 @@ doc
 
 ### Entity References
 
+\Nokogiri parses an entity reference (such as <tt>&lt;</tt>)
+and replaces it with text such as (<tt>'<'</tt>):
 
 ```
 xml = '<root>An entity reference is needed for the less-than character (&lt;).</root>'
@@ -373,6 +377,7 @@ doc
 
 ### Entity Declarations
 
+\Nokogiri parses an entity declaration into a Nokogiri::XML::EntityDecl object:
 
 ```
 xml = <<DTD
