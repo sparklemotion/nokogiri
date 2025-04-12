@@ -218,7 +218,7 @@ doc
   })
 ```
 
-#### Tag Attributes
+### Tag Attributes
 
 Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object.
 
@@ -301,12 +301,35 @@ doc
 
 ### Conditional Sections
 
+```
+xml = <<DOCTYPE
+<!DOCTYPE note [
+<!ENTITY % draft 'INCLUDE' >
+]>
+DOCTYPE
+# => "<!DOCTYPE note [\n<!ENTITY % draft 'INCLUDE' >\n]>\n"
+doc = Nokogiri::XML.parse(xml)
+# =>
+#(Document:0x4f8d0 {
+...
+doc
+# =>
+#(Document:0x4f8d0 {
+  name = "document",
+  children = [
+    #(DTD:0x4f948 {
+      name = "note",
+      children = [ #(EntityDecl:0x4f9c0 { "<!ENTITY % draft \"INCLUDE\">\n" })]
+      })]
+  })
+```
+
 ### Character References
 
 ### Entity References
 
-#### Entity Declarations
+### Entity Declarations
 
-#### Text Declaration
+### Text Declaration
 
 ## Document Fragments
