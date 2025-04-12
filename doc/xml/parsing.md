@@ -427,4 +427,78 @@ doc = Nokogiri::XML.parse(xml)
 doc.encoding # => "KOI8-R"
 ```
 
-## Document Fragment
+## Document Fragments
+
+When an XML string has more than one top-level tag,
+\Nokogiri *document parsing* captures only the first top-level tag
+(which becomes the root element)
+and ignores other top-level tags (and their children);
+this may not be the desired result:
+
+```
+xml = <<FRAGMENT
+<top0>
+  <ele0/>
+  <ele1/>
+</top0>
+<top1/>
+<top2/>
+FRAGMENT
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document: {
+  name = "document",
+  children = [
+    #(Element: {
+      name = "top0",
+      children = [
+        #(Text "\n  "),
+        #(Element: { name = "ele0" }),
+        #(Text "\n  "),
+        #(Element: { name = "ele1" }),
+        #(Text "\n")]
+      })]
+  })```
+
+To capture all top-level tags, use \Nokogiri *fragment parsing*
+via method Nokogiri::XML::DocumentFragment.parse:
+
+```
+xml = <<FRAGMENT
+<top0>
+  <ele0/>
+  <ele1/>
+</top0>
+<top1/>
+<top2/>
+FRAGMENT
+fragment = Nokogiri::XML::DocumentFragment.parse(xml)
+fragment
+# =>
+#(DocumentFragment: {
+  name = "#document-fragment",
+  children = [
+    #(Element: {
+      name = "top0",
+      children = [
+        #(Text "\n  "),
+        #(Element: { name = "ele0" }),
+        #(Text "\n  "),
+        #(Element: { name = "ele1" }),
+        #(Text "\n")]
+      }),
+    #(Text "\n"),
+    #(Element: { name = "top1" }),
+    #(Text "\n"),
+    #(Element: { name = "top2" }),
+    #(Text "\n")]
+  })
+```
+
+Note that:
+
+- The returned object is a Nokogiri::XML::DocumentFragment object
+  (not a Nokigiri::XML::Document object).
+- The fragment has three children of class Nokogiri::XML::Element
+  (which in a document is not allowed).
