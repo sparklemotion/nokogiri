@@ -7,6 +7,10 @@ either as a [String](https://docs.ruby-lang.org/en/master/String.html) object
 or as an [IO](https://docs.ruby-lang.org/en/master/IO.html) object
 from which the string is to be read.
 
+Most of the sections below link to a relevant section in the W3C document
+[Extensible Markup Language (XML) 1.0 (Fifth Edition)](https://www.w3.org/TR/REC-xml/).
+
+
 On this page, each example uses either:
 
 - Method Nokogiri::XML::parse (shorthand for Nokogiri::XML::Document.parse)
@@ -23,7 +27,8 @@ On this page, each example uses either:
 
 ## Text
 
-The string to be parsed is text, consisting of character data and markup.
+The string to be parsed is text, consisting of
+[character data and markup](https://www.w3.org/TR/REC-xml/#syntax).
 
 ## Character Data
 
@@ -33,7 +38,8 @@ All text that is not markup it character data.
 
 ### Comments
 
-\Nokogiri parses a comment into a Nokogiri::XML::Comment object.
+\Nokogiri parses an [XML comment](https://www.w3.org/TR/REC-xml/#sec-comments)
+into a Nokogiri::XML::Comment object.
 
 A comment may be in the document itself or in a tag:
 
@@ -55,7 +61,8 @@ doc
 
 ### Processing Instructions
 
-\Nokogiri parses a processing instruction into a Nokogiri::XML::ProcessingInstruction object:
+\Nokogiri parses an [XML processing instruction](https://www.w3.org/TR/REC-xml/#sec-pi)
+into a Nokogiri::XML::ProcessingInstruction object:
 
 ```
 xml = '<?xml-stylesheet type="text/xsl" href="style.xsl"?>'
@@ -73,7 +80,8 @@ doc
 
 ### CDATA Sections
 
-\Nokogiri parses a CDATA section into a Nokogiri::XML::CDATA object:
+\Nokogiri parses an [XML CDATA section](https://www.w3.org/TR/REC-xml/#sec-cdata-sect)
+into a Nokogiri::XML::CDATA object:
 
 ```
 xml = '<root><![CDATA[<greeting>Hello, world!</greeting>]]></root>'
@@ -93,7 +101,8 @@ doc
 
 ### Prolog (XML Declaration)
 
-\Nokogiri parses an XML declaration into values put onto the parsed document:
+\Nokogiri parses an [XML declaration](https://www.w3.org/TR/REC-xml/#sec-prolog-dtd)
+into values put onto the parsed document:
 
 ```
 xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -104,7 +113,8 @@ doc.encoding # => "UTF-8"
 
 ### Document Type Declaration
 
-\Nokogiri parses a document type declaration into a Nokogiri::XML::DTD object:
+\Nokogiri parses an [XML document type declaration](https://www.w3.org/TR/REC-xml/#sec-prolog-dtd)
+into a Nokogiri::XML::DTD object:
 
 ```
 xml = '<!DOCTYPE greeting SYSTEM "hello.dtd">'
@@ -119,7 +129,8 @@ doc
 
 ### Tags
 
-\Nokogiri parses a tag into a Nokogiri::XML::Element object.
+\Nokogiri parses an [XML tag](https://www.w3.org/TR/REC-xml/#sec-starttags)
+into a Nokogiri::XML::Element object.
 
 In this example, a single tag is parsed into a document whose only child
 is the root element parsed from the tag:
@@ -214,7 +225,8 @@ doc
 
 ### Tag Attributes
 
-\Nokogiri parses a tag attribute into a Nokogiri::XML::Attr object:
+\Nokogiri parses an [XML tag attribute](https://www.w3.org/TR/REC-xml/#NT-Attribute)
+into a Nokogiri::XML::Attr object:
 
 ```
 xml = '<root foo="0" bar="1"/>'
@@ -235,7 +247,8 @@ doc
 
 ### Element Type Declarations
 
-\Nokogiri parses an element type declaration into a Nokogiri::XML::ElementDecl object:
+\Nokogiri parses an [XML element type declaration](https://www.w3.org/TR/REC-xml/#elemdecls)
+into a Nokogiri::XML::ElementDecl object:
 
 ```
 xml = <<DOCTYPE
@@ -267,7 +280,8 @@ doc
 
 ### Attribute-List Declarations
 
-\Nokogiri parses an attribute-list declaration into a Nokogiri::XML::AttributeDecl object:
+\Nokogiri parses an [XML attribute-list declaration](https://www.w3.org/TR/REC-xml/#attdecls)
+into a Nokogiri::XML::AttributeDecl object:
 
 ```
 xml = <<DOCTYPE
@@ -293,7 +307,8 @@ doc
 
 ### Conditional Sections
 
-\Nokogiri parses a conditional section into a Nokogiri::XML::EntityDecl object:
+\Nokogiri parses an [XML conditional section](https://www.w3.org/TR/REC-xml/#sec-condition-sect)
+into a Nokogiri::XML::EntityDecl object:
 
 ```
 xml = <<DOCTYPE
@@ -316,7 +331,8 @@ doc
 
 ### Character References
 
-\Nokogiri parses a character reference (such as <tt>&#9792;</tt>)
+\Nokogiri parses an [XML character reference](https://www.w3.org/TR/REC-xml/#sec-references)
+(such as <tt>&#9792;</tt>)
 and replaces it with a character such as (<tt>'♀'</tt>):
 
 ```
@@ -357,7 +373,8 @@ doc
 
 ### Entity References
 
-\Nokogiri parses an entity reference (such as <tt>&lt;</tt>)
+\Nokogiri parses an [XML entity reference](https://www.w3.org/TR/REC-xml/#sec-references)
+(such as <tt>&lt;</tt>)
 and replaces it with text such as (<tt>'<'</tt>):
 
 ```
@@ -377,7 +394,8 @@ doc
 
 ### Entity Declarations
 
-\Nokogiri parses an entity declaration into a Nokogiri::XML::EntityDecl object:
+\Nokogiri parses an [XML entity declaration](https://www.w3.org/TR/REC-xml/#sec-entity-decl)
+into a Nokogiri::XML::EntityDecl object:
 
 ```
 xml = <<DTD
@@ -398,9 +416,10 @@ doc
   })
 ```
 
-### Text Declarations
+### Text Declaration
 
-\Nokogiri parses a text declaration into a value put onto the parsed document:
+\Nokogiri parses an [XML text declaration](https://www.w3.org/TR/REC-xml/#sec-TextDecl)
+into a value put onto the parsed document:
 
 ```
 xml = '<?xml encoding="KOI8-R"?>'
@@ -408,4 +427,4 @@ doc = Nokogiri::XML.parse(xml)
 doc.encoding # => "KOI8-R"
 ```
 
-## Document Fragments
+## Document Fragment
