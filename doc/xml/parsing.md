@@ -326,9 +326,97 @@ doc
 
 ### Character References
 
+
+```
+xml = <<ELE
+<root>
+  <name>
+    <vorname>Marie</vorname>
+    <nachname>M&#252;ller</nachname>
+    <geschlecht>&#9792;</geschlecht>
+  </name>
+</root>
+ELE
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x513f0 {
+  name = "document",
+  children = [
+    #(Element:0x51468 {
+      name = "root",
+      children = [
+        #(Text "\n  "),
+        #(Element:0x51508 {
+          name = "name",
+          children = [
+            #(Text "\n    "),
+            #(Element:0x515a8 { name = "vorname", children = [ #(Text "Marie")] }),
+            #(Text "\n    "),
+            #(Element:0x51690 { name = "nachname", children = [ #(Text "Müller")] }),
+            #(Text "\n    "),
+            #(Element:0x51778 { name = "geschlecht", children = [ #(Text "♀")] }),
+            #(Text "\n  ")]
+          }),
+        #(Text "\n")]
+      })]
+  })
+```
+
 ### Entity References
 
+
+```
+xml = <<XML
+<!DOCTYPE note [
+  <!ENTITY company "Example Corp">
+]>
+<root>&company;</root>
+XML
+# => "<!DOCTYPE note [\n  <!ENTITY company \"Example Corp\">\n]>\n<root>&company;</root>\n"
+
+doc = Nokogiri::XML.parse(xml)
+# =>
+#(Document:0x5d890 {
+...
+doc
+# =>
+#(Document:0x5d890 {
+  name = "document",
+  children = [
+    #(DTD:0x5d908 {
+      name = "note",
+      children = [ #(EntityDecl:0x5d980 { "<!ENTITY company \"Example Corp\">\n" })]
+      }),
+    #(Element:0x5d9e0 {
+      name = "root",
+      children = [ #(EntityReference:0x5da58 { "company" })]
+      })]
+  })
+```
+
 ### Entity Declarations
+
+
+```
+xml = <<DTD
+<!DOCTYPE note [
+  <!ENTITY company "Example Corp">
+]>
+DTD
+doc = Nokogiri::XML.parse(xml)
+doc
+# =>
+#(Document:0x53228 {
+  name = "document",
+  children = [
+    #(DTD:0x532a0 {
+      name = "note",
+      children = [ #(EntityDecl:0x53318 { "<!ENTITY company \"Example Corp\">\n" })]
+      })]
+  })
+```
+
 
 ### Text Declaration
 
