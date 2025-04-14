@@ -10,7 +10,7 @@ group :development do
   gem "rake", "13.2.1"
 
   # building extensions
-  gem "rake-compiler", "1.2.9"
+  gem "rake-compiler", "1.3.0"
   gem "rake-compiler-dock", "1.9.1"
 
   # parser generator
@@ -25,8 +25,8 @@ group :development do
 
   # rubocop
   unless RUBY_PLATFORM == "java"
-    gem "standard", "1.47.0"
-    gem "rubocop-minitest", "0.37.1"
+    gem "standard", "1.49.0"
+    gem "rubocop-minitest", "0.38.0"
     gem "rubocop-packaging", "0.6.0"
     gem "rubocop-rake", "0.7.1"
   end
