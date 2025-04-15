@@ -387,11 +387,11 @@ module Nokogiri
       #   src_xml = '<src_root><src_parent><src_child/></src_parent></src_root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
       #   src_parent_node = src_doc.at_xpath('//src_parent')
+      #   node_to_add = src_doc.at_xpath('//src_child')
       #   dst_xml = '<dst_root><dst_parent><dst_child/></dst_parent></dst_root>'
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
       #   dst_parent_node = dst_doc.at_xpath('//dst_parent')
       #   dst_child_node = dst_doc.at_xpath('//dst_child')
-      #   node_to_add = src_doc.at_xpath('//src_child')
       #   # Before the move.
       #   src_parent_node.children.map {|child| child.name } # => ["src_child"]
       #   dst_parent_node.children.map {|child| child.name } # => ["dst_child"]
@@ -409,19 +409,19 @@ module Nokogiri
       #   src_xml = '<src_root><foo/><bar/></src_root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
       #   nodeset_to_add = src_doc.root.children
-      #   nodeset_to_add.class                           # => Nokogiri::XML::NodeSet
+      #   nodeset_to_add.class                            # => Nokogiri::XML::NodeSet
       #   dst_doc = Nokogiri::XML::Document.parse('<dst_root><baz/></dst_root>')
-      #   dst_node = dst_doc.root
+      #   dst_node = dst_doc.at_xpath('//baz')
       #   # Before.
-      #   nodeset_to_move.map {|node| node.name }        # => ["foo", "bar"]
-      #   nodeset_to_move.map {|node| node.parent.name } # => ["src_root", "src_root"]
-      #   dst_node.children.map {|child| child.name }    # => ["baz"]
+      #   nodeset_to_add.map {|node| node.name }          # => ["foo", "bar"]
+      #   nodeset_to_add.map {|node| node.parent.name }   # => ["src_root", "src_root"]
+      #   dst_doc.root.children.map {|child| child.name } # => ["baz"]
       #   # Move the nodeset.
-      #   dst_node << nodeset_to_move
+      #   dst_node.after(nodeset_to_add)
       #   # After.
-      #   nodeset_to_move.map {|node| node.name }        # => ["foo", "bar"]
-      #   nodeset_to_move.map {|node| node.parent.name } # => ["dst_root", "dst_root"]
-      #   dst_node.children.map {|child| child.name }    # => ["baz", "foo", "bar"]
+      #   nodeset_to_add.map {|node| node.name }          # => ["foo", "bar"]
+      #   nodeset_to_add.map {|node| node.parent.name }   # => ["dst_root", "dst_root"]
+      #   dst_doc.root.children.map {|child| child.name } # => ["baz", "foo", "bar"]
       #
       # When +object+ is a DocumentFragment,
       # creates a NodeSet object from the DocumentFragment;
