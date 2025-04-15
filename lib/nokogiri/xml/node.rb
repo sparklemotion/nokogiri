@@ -450,15 +450,15 @@ module Nokogiri
       #   src_xml = '<foo/><bar/>'
       #   dst_xml = '<dst_root><baz/></dst_root>'
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
-      #   dst_node = dst_doc.root
+      #   dst_node = dst_doc.at_xpath('//baz')
       #   # Before.
-      #   dst_node.children.map {|child| child.name }        # => ["baz"]
-      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root"]
+      #   dst_doc.root.children.map {|child| child.name }        # => ["baz"]
+      #   dst_doc.root.children.map {|child| child.parent.name } # => ["dst_root"]
       #   # Add the NodeSet created from src_xml.
-      #   dst_node << src_xml
+      #   dst_node.after(src_xml)
       #   # After.
-      #   dst_node.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
-      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
+      #   dst_doc.root.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
+      #   dst_doc.root.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
       #
       # Related: #<<, #add_child, #before, #children=, #prepend_child.
       def after(node_or_tags)
