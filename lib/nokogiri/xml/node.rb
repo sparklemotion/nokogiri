@@ -320,7 +320,7 @@ module Nokogiri
       # - +self+, to support method chaining.
       #
       # When +object+ is a Node,
-      # moves it to become the last child of +self+.
+      # moves it to become the last child of +self+:
       #
       #   src_xml = '<src_root><src_parent><src_child/></src_parent></src_root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
@@ -341,7 +341,7 @@ module Nokogiri
       #   node_to_move.parent.name                           # => "dst_root"
       #
       # When +object+ is a NodeSet,
-      # appends each of its nodes to the children of +self+.
+      # appends each of its nodes to the children of +self+:
       #
       #   src_xml = '<src_root><foo/><bar/></src_root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
@@ -362,7 +362,7 @@ module Nokogiri
       #
       # When +object+ is a DocumentFragment,
       # creates a NodeSet object from the DocumentFragment;
-      # appends each of its nodes to the children of +self+.
+      # appends each of its nodes to the children of +self+:
       #
       #   src_xml = '<foo/><bar/>'
       #   src_frag = Nokogiri::XML::DocumentFragment.parse(src_xml)
@@ -382,7 +382,7 @@ module Nokogiri
       #
       # When +object+ is a String,
       # creates a NodeSet object from the string;
-      # appends each of its nodes to the children of +self+.
+      # appends each of its nodes to the children of +self+:
       #
       #   src_xml = '<foo/><bar/>'
       #   dst_xml = '<dst_root><baz/></dst_root>'
