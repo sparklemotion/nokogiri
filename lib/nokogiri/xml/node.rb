@@ -427,21 +427,21 @@ module Nokogiri
       # creates a NodeSet object from the DocumentFragment;
       # adds its nodes as the siblings immediately following +self+:
       #
-      #   src_xml = '<foo/><bar/>'s
+      #   src_xml = '<foo/><bar/>'
       #   src_frag = Nokogiri::XML::DocumentFragment.parse(src_xml)
       #   dst_xml = '<dst_root><baz/></dst_root>'
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
-      #   dst_node = dst_doc.root
+      #   dst_node = dst_doc.at_xpath('//baz')
       #   # Before.
-      #   src_frag.children.map {|child| child.name }        # => ["foo", "bar"]
-      #   src_frag.children.map {|child| child.parent.name } # => ["#document-fragment", "#document-fragment"]
-      #   dst_node.children.map {|child| child.name }        # => ["baz"]
+      #   src_frag.children.map {|child| child.name }            # => ["foo", "bar"]
+      #   src_frag.children.map {|child| child.parent.name }     # => ["#document-fragment", "#document-fragment"]
+      #   dst_doc.root.children.map {|child| child.name }        # => ["baz"]
       #   # Move the fragment.
-      #   dst_node << src_frag
+      #   dst_node.after(src_frag)
       #   # After.
-      #   src_frag.children.map {|child| child.name }        # => []
-      #   dst_node.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
-      #   dst_node.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
+      #   src_frag.children.map {|child| child.name }            # => []
+      #   dst_doc.root.children.map {|child| child.name }        # => ["baz", "foo", "bar"]
+      #   dst_doc.root.children.map {|child| child.parent.name } # => ["dst_root", "dst_root", "dst_root"]
       #
       # When +object+ is a String,
       # creates a NodeSet object from the string;
