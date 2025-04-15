@@ -388,40 +388,43 @@ module Nokogiri
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
       #   src_parent_node = src_doc.at_xpath('//src_parent')
       #   node_to_add = src_doc.at_xpath('//src_child')
-      #   dst_xml = '<dst_root><dst_parent><dst_child/></dst_parent></dst_root>'
+      #   dst_xml = '<dst_root><dst_parent><dst_child_0/><dst_child_1></dst_parent></dst_root>'
       #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
       #   dst_parent_node = dst_doc.at_xpath('//dst_parent')
-      #   dst_child_node = dst_doc.at_xpath('//dst_child')
+      #   dst_child_node = dst_doc.at_xpath('//dst_child_0')
       #   # Before the move.
       #   src_parent_node.children.map {|child| child.name } # => ["src_child"]
-      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child"]
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child_0", "dst_child_1"]
       #   node_to_add.parent.name                            # => "src_parent"
       #   # Add the node.
       #   dst_child_node.after(node_to_add)
       #   # After.
       #   src_parent_node.children.map {|child| child.name } # => []
-      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child", "src_child"]
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child_0", "src_child", "dst_child_1"]
       #   node_to_add.parent.name                            # => "dst_parent"
       #
       # When +object+ is a NodeSet,
       # adds its nodes as the siblings immediately following +self+:
       #
-      #   src_xml = '<src_root><foo/><bar/></src_root>'
+      #   src_xml = '<src_root><src_parent><src_child_0/><src_child_1/></src_parent></src_root>'
       #   src_doc = Nokogiri::XML::Document.parse(src_xml)
-      #   nodeset_to_add = src_doc.root.children
-      #   nodeset_to_add.class                            # => Nokogiri::XML::NodeSet
-      #   dst_doc = Nokogiri::XML::Document.parse('<dst_root><baz/></dst_root>')
-      #   dst_node = dst_doc.at_xpath('//baz')
+      #   src_parent_node = src_doc.at_xpath('//src_parent')
+      #   nodeset_to_add = src_parent_node.children
+      #   nodeset_to_add.class                               # => Nokogiri::XML::NodeSet
+      #   dst_xml = '<dst_root><dst_parent><dst_child_0/><dst_child_1></dst_parent></dst_root>'
+      #   dst_doc = Nokogiri::XML::Document.parse(dst_xml)
+      #   dst_parent_node = dst_doc.at_xpath('//dst_parent')
+      #   dst_child_node = dst_doc.at_xpath('//dst_child_0')
       #   # Before.
-      #   nodeset_to_add.map {|node| node.name }          # => ["foo", "bar"]
-      #   nodeset_to_add.map {|node| node.parent.name }   # => ["src_root", "src_root"]
-      #   dst_doc.root.children.map {|child| child.name } # => ["baz"]
+      #   nodeset_to_add.map {|node| node.name }             # => ["src_child_0", "src_child_1"]
+      #   nodeset_to_add.map {|node| node.parent.name }      # => ["src_parent", "src_parent"]
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child_0", "dst_child_1"]
       #   # Move the nodeset.
-      #   dst_node.after(nodeset_to_add)
+      #   dst_child_node.after(nodeset_to_add)
       #   # After.
-      #   nodeset_to_add.map {|node| node.name }          # => ["foo", "bar"]
-      #   nodeset_to_add.map {|node| node.parent.name }   # => ["dst_root", "dst_root"]
-      #   dst_doc.root.children.map {|child| child.name } # => ["baz", "foo", "bar"]
+      #   nodeset_to_add.map {|node| node.name }             # => ["src_child_0", "src_child_1"]
+      #   nodeset_to_add.map {|node| node.parent.name }      # => ["dst_parent", "dst_parent"]
+      #   dst_parent_node.children.map {|child| child.name } # => ["dst_child_0", "src_child_0", "src_child_1", "dst_child_1"]
       #
       # When +object+ is a DocumentFragment,
       # creates a NodeSet object from the DocumentFragment;
