@@ -367,8 +367,8 @@ module Nokogiri
       #   self.after(object) -> self
       #
       # Adds specified Nodes as siblings immediately following +self+;
-      # each added Node +node_to_add+ has <tt>node_to_add.parent</tt> as its #parent value,
-      # and <tt>node_to_add.document</tt> as its #document value.
+      # each added Node has <tt>self.parent</tt> as its #parent value,
+      # and <tt>self.document</tt> as its #document value.
       #
       # [Arguments]
       #
