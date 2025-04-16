@@ -247,7 +247,7 @@ module Nokogiri
       #   # Move the node.
       #   dst_parent_node.prepend_child(src_node)
       #   # After the move.
-      #   src_parent_node.children.map {|child| child.name }  # => ["BAR"]
+      #   src_parent_node.children.map {|child| child.name } # => ["BAR"]
       #   dst_parent_node.children.map {|child| child.name } # => ["FOO", "foo", "bar"]
       #   src_node.parent.name                               # => "parent"
       #
