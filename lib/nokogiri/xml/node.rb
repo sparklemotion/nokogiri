@@ -399,7 +399,6 @@ module Nokogiri
       #   src_parent_node = src_doc.at_xpath('//PARENT')
       #   dst_parent_node = dst_doc.at_xpath('//parent')
       #   src_nodeset = src_parent_node.children             # Nodeset to move.
-      #   src_nodeset.class
       #   dst_node = dst_doc.at_xpath('//bar')               # Node to place nodes before.
       #   # Before the move.
       #   src_nodeset.map {|node| node.name }                # => ["FOO", "BAR"]
