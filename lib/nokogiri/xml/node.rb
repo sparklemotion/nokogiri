@@ -336,7 +336,7 @@ module Nokogiri
       #   # Move the node.
       #   dst_parent_node << src_node
       #   # After the move.
-      #  src_parent_node.children.map {|child| child.name }  # => ["BAR"]
+      #   src_parent_node.children.map {|child| child.name } # => ["BAR"]
       #   dst_parent_node.children.map {|child| child.name } # => ["foo", "bar", "FOO"]
       #   src_node.parent.name                               # => "parent"
       #
