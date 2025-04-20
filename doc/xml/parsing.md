@@ -332,7 +332,7 @@ doc
 ### Character References
 
 \Nokogiri parses an [XML character reference](https://www.w3.org/TR/REC-xml/#sec-references)
-(such as <tt>&#9792;</tt>)
+(such as <tt>&amp;9792;</tt>)
 and replaces it with a character such as (<tt>'♀'</tt>):
 
 ```
@@ -374,7 +374,7 @@ doc
 ### Entity References
 
 \Nokogiri parses an [XML entity reference](https://www.w3.org/TR/REC-xml/#sec-references)
-(such as <tt>&lt;</tt>)
+(such as <tt>&amp;lt;</tt>)
 and replaces it with text such as (<tt>'<'</tt>):
 
 ```
