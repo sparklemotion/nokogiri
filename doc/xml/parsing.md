@@ -416,17 +416,6 @@ doc
   })
 ```
 
-### Text Declaration
-
-\Nokogiri parses an [XML text declaration](https://www.w3.org/TR/REC-xml/#sec-TextDecl)
-into a value put onto the parsed document:
-
-```
-xml = '<?xml encoding="KOI8-R"?>'
-doc = Nokogiri::XML.parse(xml)
-doc.encoding # => "KOI8-R"
-```
-
 ## Document Fragments
 
 When an XML string has more than one top-level tag,
