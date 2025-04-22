@@ -16,14 +16,18 @@ On this page, each example uses either:
 - Method Nokogiri::XML::parse (shorthand for Nokogiri::XML::Document.parse)
   to parse a string into a tree of \Nokogiri objects.
   The topmost object is a Nokogiri::XML::Document object,
-  which we will usually refer to as a document;
-  the document may have other objects as children.
+  which we will usually refer to as a document.
+
+  A document may be childless (i.e., it may have no immediate child object),
+  or it may have a single immediate child Nokogiri::XML::Element object -- its root.
 
 - Method Nokogiri::XML::DocumentFragment.parse
   to parse a string into a tree of \Nokogiri objects.
   The topmost object is a Nokogiri::XML::DocumentFragment object,
   which we will usually refer to as a fragment;
   the fragment may have other objects as children.
+
+  A document fragment may have multiple immediate child objects of various types.
 
 ## Text
 
