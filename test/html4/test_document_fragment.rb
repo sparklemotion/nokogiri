@@ -193,9 +193,9 @@ module Nokogiri
             assert_pattern do
               fragment => [
                 { name: "div", attributes: [
-                    { name: "<", value: ""},
-                    { name: "div", value: ""},
-                  ]}
+                    { name: "<", value: "" },
+                    { name: "div", value: "" },
+                  ] }
               ]
             end
           else

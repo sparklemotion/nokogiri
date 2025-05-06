@@ -109,7 +109,7 @@ module Nokogiri
             assert_empty(doc.errors)
             assert_pattern do
               nodeset => [
-                { name: "div", attributes: [{name: "<", value: ""}, { name: "div", value: ""}] },
+                { name: "div", attributes: [{ name: "<", value: "" }, { name: "div", value: "" }] },
               ]
             end
           else
@@ -131,7 +131,7 @@ module Nokogiri
             assert_empty(doc.errors)
             assert_pattern do
               nodeset => [
-                { name: "div", attributes: [{name: "<", value: ""}, { name: "div", value: ""}] },
+                { name: "div", attributes: [{ name: "<", value: "" }, { name: "div", value: "" }] },
               ]
             end
           else
@@ -461,7 +461,7 @@ module Nokogiri
 
         def test_spaceship
           nodes = xml.xpath("//employee")
-          assert_equal(-1, (nodes.first <=> nodes.last))
+          assert_equal(-1, nodes.first <=> nodes.last)
           list = [nodes.first, nodes.last].sort
           assert_equal(nodes.first, list.first)
           assert_equal(nodes.last, list.last)

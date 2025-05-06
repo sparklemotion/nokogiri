@@ -258,14 +258,14 @@ describe "experimental pattern matching" do
 
         it "finds node contents" do
           assert_pattern do
-            doc => { root: { children: [*, { children: [*, {name: "grandchild1", content: }, *] }, *] } }
+            doc => { root: { children: [*, { children: [*, { name: "grandchild1", content: }, *] }, *] } }
             assert_equal("hello & goodbye", content)
           end
         end
 
         it "finds node contents by attribute" do
           assert_pattern do
-            doc => { root: { children: [*, { children: [*, {attributes: [*, {name: "size", value: "small"}, *], content: }, *] }, *] } }
+            doc => { root: { children: [*, { children: [*, { attributes: [*, { name: "size", value: "small" }, *], content: }, *] }, *] } }
             assert_equal("hello & goodbye", content)
           end
         end
@@ -274,13 +274,13 @@ describe "experimental pattern matching" do
       describe "Fragment" do
         it "finds nodes" do
           assert_pattern do
-            frag => [{name: "child1"}, {name: "child2"}, {name: "child3"}, {content: "\n"}]
+            frag => [{ name: "child1" }, { name: "child2" }, { name: "child3" }, { content: "\n" }]
           end
         end
 
         it "finds attributes" do
           assert_pattern do
-            frag => [*, {name: "child2", attributes: }, *]
+            frag => [*, { name: "child2", attributes: }, *]
             assert_equal("foo", attributes.first.name)
           end
         end
@@ -289,7 +289,7 @@ describe "experimental pattern matching" do
       describe "Node" do
         it "finds nodes" do
           assert_pattern do
-            doc.root => { elements: [{name: "child1"}, {name: "child2"}, {name: "child3"}] }
+            doc.root => { elements: [{ name: "child1" }, { name: "child2" }, { name: "child3" }] }
           end
         end
       end

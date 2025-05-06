@@ -250,7 +250,7 @@ module Nokogiri
                 {
                   name: "div", children: [
                     { name: "comment", content: "[if foo]" },
-                    { name: "div", attributes: [{name: "id", value: "do-i-exist"}] },
+                    { name: "div", attributes: [{ name: "id", value: "do-i-exist" }] },
                     { name: "comment", content: "[endif]" },
                   ]
                 }

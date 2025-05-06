@@ -7,7 +7,7 @@ describe Nokogiri::HTML4::SAX::PushParser do
   let(:parser) { Nokogiri::HTML4::SAX::PushParser.new(Nokogiri::SAX::TestCase::Doc.new) }
 
   it :test_end_document_called do
-    parser << (<<~HTML)
+    parser << <<~HTML
       <p id="asdfasdf">
         <!-- This is a comment -->
         Paragraph 1
@@ -19,7 +19,7 @@ describe Nokogiri::HTML4::SAX::PushParser do
   end
 
   it :test_start_element do
-    parser << (<<~HTML)
+    parser << <<~HTML
       <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
       <html><head><body><p id="asdfasdf">
     HTML
@@ -29,7 +29,7 @@ describe Nokogiri::HTML4::SAX::PushParser do
       parser.document.start_elements,
     )
 
-    parser << (<<~HTML)
+    parser << <<~HTML
       <!-- This is a comment -->
       Paragraph 1
       </p></body></html>
@@ -39,11 +39,11 @@ describe Nokogiri::HTML4::SAX::PushParser do
   end
 
   it :test_chevron_partial_html do
-    parser << (<<~HTML)
+    parser << <<~HTML
       <p id="asdfasdf">
     HTML
 
-    parser << (<<-HTML)
+    parser << <<~HTML
         <!-- This is a comment -->
         Paragraph 1
       </p>
@@ -53,7 +53,7 @@ describe Nokogiri::HTML4::SAX::PushParser do
   end
 
   it :test_chevron do
-    parser << (<<~HTML)
+    parser << <<~HTML
       <p id="asdfasdf">
         <!-- This is a comment -->
         Paragraph 1
