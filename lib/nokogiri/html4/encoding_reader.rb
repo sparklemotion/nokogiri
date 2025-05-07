@@ -108,7 +108,7 @@ module Nokogiri
 
         ret = @firstchunk.slice!(0, len)
         if (len -= ret.length) > 0
-          (rest = @io.read(len)) && ret << (rest)
+          (rest = @io.read(len)) && ret << rest
         end
         if ret.empty?
           nil

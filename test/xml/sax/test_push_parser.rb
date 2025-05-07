@@ -88,7 +88,7 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_end_document_called do
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdfasdf">
         <!-- This is a comment -->
         Paragraph 1
@@ -100,14 +100,14 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_start_element do
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdfasdf">
     XML
 
     assert_equal [["p", [["id", "asdfasdf"]]]],
       parser.document.start_elements
 
-    parser << (<<~XML)
+    parser << <<~XML
         <!-- This is a comment -->
         Paragraph 1
       </p>
@@ -117,14 +117,14 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_start_element_with_namespaces do
-    parser << (<<~XML)
+    parser << <<~XML
       <p xmlns:foo="http://foo.example.com/">
     XML
 
     assert_equal [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
       parser.document.start_elements
 
-    parser << (<<~XML)
+    parser << <<~XML
         <!-- This is a comment -->
         Paragraph 1
       </p>
@@ -134,7 +134,7 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_start_element_ns do
-    parser << (<<~XML)
+    parser << <<~XML
       <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0' size='large'></stream:stream>
     XML
 
@@ -152,7 +152,7 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_end_element_ns do
-    parser << (<<~XML)
+    parser << <<~XML
       <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'></stream:stream>
     XML
 
@@ -162,11 +162,11 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_chevron_partial_xml do
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdfasdf">
     XML
 
-    parser << (<<~XML)
+    parser << <<~XML
         <!-- This is a comment -->
         Paragraph 1
       </p>
@@ -176,7 +176,7 @@ describe Nokogiri::XML::SAX::PushParser do
   end
 
   it :test_chevron do
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdfasdf">
         <!-- This is a comment -->
         Paragraph 1
@@ -192,7 +192,7 @@ describe Nokogiri::XML::SAX::PushParser do
 
   it :test_recover do
     parser.options |= Nokogiri::XML::ParseOptions::RECOVER
-    parser << (<<~XML)
+    parser << <<~XML
       <p>
         Foo
         <bar>
@@ -248,7 +248,7 @@ describe Nokogiri::XML::SAX::PushParser do
 
   it :test_untouched_entities do
     skip_unless_libxml2("entities are always replaced in pure Java version")
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdf&amp;asdf">
         <!-- This is a comment -->
         Paragraph 1 &amp; 2
@@ -261,7 +261,7 @@ describe Nokogiri::XML::SAX::PushParser do
 
   it :test_replaced_entities do
     parser.replace_entities = true
-    parser << (<<~XML)
+    parser << <<~XML
       <p id="asdf&amp;asdf">
         <!-- This is a comment -->
         Paragraph 1 &amp; 2
