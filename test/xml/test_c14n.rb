@@ -32,6 +32,13 @@ module Nokogiri
         assert_match(/Comment/, c14n)
         c14n = doc.canonicalize(nil, nil, false)
         refute_match(/Comment/, c14n)
+
+        # with keyword args
+        # TODO: when Document#canonicalize is updated to keyword args, these tests should pass
+        # c14n = doc.canonicalize(mode: nil, inclusive_namespaces: nil, with_comments: true)
+        # assert_match(/Comment/, c14n)
+        # c14n = doc.canonicalize(mode: nil, inclusive_namespaces: nil, with_comments: false)
+        # refute_match(/Comment/, c14n)
       end
 
       def test_exclude_block_params
@@ -199,6 +206,102 @@ module Nokogiri
         end
       end
 
+      def test_c14n_modes_with_keyword_args
+        # http://www.w3.org/TR/xml-exc-c14n/#sec-Enveloping
+
+        doc1 = Nokogiri.XML(<<~EOXML)
+          <n0:local xmlns:n0="http://foobar.org" xmlns:n3="ftp://example.org">
+            <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"/>
+            </n1:elem2>
+          </n0:local>
+        EOXML
+        node1 = doc1.at_xpath("//n1:elem2", { "n1" => "http://example.net" })
+
+        doc2 = Nokogiri.XML(<<~EOXML)
+          <n2:pdu xmlns:n1="http://example.com"
+                     xmlns:n2="http://foo.example"
+                     xmlns:n4="http://foo.example"
+                     xml:lang="fr"
+                     xml:space="retain">
+            <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"/>
+              <n4:stuff />
+            </n1:elem2>
+          </n2:pdu>
+        EOXML
+        node2 = doc2.at_xpath("//n1:elem2", { "n1" => "http://example.net" })
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n0="http://foobar.org" xmlns:n1="http://example.net" xmlns:n3="ftp://example.org" xml:lang="en">
+              <n3:stuff></n3:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node1.canonicalize
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en" xml:space="retain">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+              <n4:stuff></n4:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node2.canonicalize
+        assert_equal(expected, c14n)
+        c14n = node2.canonicalize(mode: XML::XML_C14N_1_0)
+        assert_equal(expected, c14n)
+        assert_raises(RuntimeError) do
+          node2.canonicalize(mode: XML::XML_C14N_1_0, inclusive_namespaces: ["n2"])
+        end
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node1.canonicalize(mode: XML::XML_C14N_EXCLUSIVE_1_0)
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+              <n4:stuff xmlns:n4="http://foo.example"></n4:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node2.canonicalize(mode: XML::XML_C14N_EXCLUSIVE_1_0)
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+              <n4:stuff xmlns:n4="http://foo.example"></n4:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node2.canonicalize(mode: XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces: ["n2"])
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+              <n4:stuff></n4:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node2.canonicalize(mode: XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces: ["n2", "n4"])
+        assert_equal(expected, c14n)
+
+        expected = <<~EOF.strip
+          <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en" xml:space="retain">
+              <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
+              <n4:stuff></n4:stuff>
+            </n1:elem2>
+        EOF
+        c14n = node2.canonicalize(mode: XML::XML_C14N_1_1)
+        assert_equal(expected, c14n)
+        assert_raises(RuntimeError) do
+          node2.canonicalize(mode: XML::XML_C14N_1_1, inclusive_namespaces: ["n2"])
+        end
+      end
+
       def test_wrong_params
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)
@@ -206,6 +309,10 @@ module Nokogiri
         assert_raises(TypeError) { doc.canonicalize(:wrong_type) }
         assert_raises(TypeError) { doc.canonicalize(nil, :wrong_type) }
         doc.canonicalize(nil, nil, :wrong_type)
+
+        # with keyword args
+        # assert_raises(TypeError) { doc.canonicalize(nil, inclusive_namespaces: :wrong_type) }
+        # doc.canonicalize(nil, inclusive_namespaces: nil, with_comments: :wrong_type)
       end
     end
   end
