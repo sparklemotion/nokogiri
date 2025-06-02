@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Dependencies
+
+* [CRuby] [Windows and MacOS] Vendored libiconv is updated to [v1.18](https://savannah.gnu.org/news/?id=10703)
+
+
 ### Improved
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
