@@ -924,10 +924,6 @@ else
       recipe.configure_options << "AR=/usr/bin/ar" unless ENV.key?("AR")
     end
 
-    if windows?
-      cflags = concat_flags(cflags, "-ULIBXML_STATIC", "-DIN_LIBXML")
-    end
-
     recipe.configure_options << if source_dir
       "--config-cache"
     else
@@ -963,11 +959,6 @@ else
     if darwin? && !cross_build_p
       recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
       recipe.configure_options << "AR=/usr/bin/ar" unless ENV.key?("AR")
-    end
-
-    if windows?
-      cflags = concat_flags(cflags, "-ULIBXSLT_STATIC", "-DIN_LIBXSLT")
-      cflags = concat_flags(cflags, "-ULIBEXSLT_STATIC", "-DIN_LIBEXSLT")
     end
 
     recipe.configure_options << if source_dir
