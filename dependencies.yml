@@ -15,28 +15,17 @@ zlib:
   # SHA-256 hash provided on http://zlib.net/
 
 libiconv:
-  version: "1.17"
-  sha256: "8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313"
-  # signature verified by following this path:
-  # - release announced at https://savannah.gnu.org/forum/forum.php?forum_id=10175
-  # - which links to https://savannah.gnu.org/users/haible as the releaser
-  # - which links to https://savannah.gnu.org/people/viewgpg.php?user_id=1871 as the gpg key
-  #
-  # So:
-  # - wget -q -O - https://savannah.gnu.org/people/viewgpg.php?user_id=1871 | gpg --import
-  #     gpg: key F5BE8B267C6A406D: 1 signature not checked due to a missing key
+  # $ gpg --keyserver keyserver.ubuntu.com --recv 9001B85AF9E1B83DF1BDA942F5BE8B267C6A406D
   #     gpg: key F5BE8B267C6A406D: public key "Bruno Haible (Open Source Development) <bruno@clisp.org>" imported
   #     gpg: Total number processed: 1
   #     gpg:               imported: 1
-  #     gpg: marginals needed: 3  completes needed: 1  trust model: pgp
-  #     gpg: depth: 0  valid:   4  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 4u
-  #     gpg: next trustdb check due at 2024-05-09
-  # - gpg --verify libiconv-1.17.tar.gz.sig ports/archives/libiconv-1.17.tar.gz
-  #     gpg: Signature made Sun 15 May 2022 11:26:42 AM EDT
+  # $ gpg --verify libiconv-1.18.tar.gz.sig ports/archives/libiconv-1.18.tar.gz
+  #     gpg: Signature made Sun 15 Dec 2024 07:26:18 AM EST
   #     gpg:                using RSA key 9001B85AF9E1B83DF1BDA942F5BE8B267C6A406D
-  #     gpg: Good signature from "Bruno Haible (Open Source Development) <bruno@clisp.org>" [unknown]
-  #     gpg: WARNING: This key is not certified with a trusted signature!
-  #     gpg:          There is no indication that the signature belongs to the owner.
+  #     gpg: Good signature from "Bruno Haible (Open Source Development) <bruno@clisp.org>" [expired]
+  #     gpg: Note: This key has expired!
   #     Primary key fingerprint: 9001 B85A F9E1 B83D F1BD  A942 F5BE 8B26 7C6A 406D
-  #
-  # And this sha256sum is calculated from that verified tarball.
+  # $ sha256sum ports/archives/libiconv-1.18.tar.gz
+  #     3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8  ports/archives/libiconv-1.18.tar.gz
+  version: "1.18"
+  sha256: "3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8"
