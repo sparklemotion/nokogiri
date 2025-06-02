@@ -7,7 +7,7 @@ gemspec
 group :development do
   # bootstrapping
   gem "bundler", "~> 2.3"
-  gem "rake", "13.2.1"
+  gem "rake", "13.3.0"
 
   # building extensions
   gem "rake-compiler", "1.3.0"
@@ -26,7 +26,7 @@ group :development do
   # rubocop
   unless RUBY_PLATFORM == "java"
     gem "standard", "1.50.0"
-    gem "rubocop-minitest", "0.38.0"
+    gem "rubocop-minitest", "0.38.1"
     gem "rubocop-packaging", "0.6.0"
     gem "rubocop-rake", "0.7.1"
   end
