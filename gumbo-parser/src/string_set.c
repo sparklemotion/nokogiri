@@ -8,12 +8,12 @@
 
 static int
 string_compare(const void *a, const void *b, void *udata) {
-  return strcmp((const char *)a, (const char *)b);
+  return strcmp(*(const char **)a, *(const char **)b);
 }
 
 static uint64_t
 string_hash(const void *item, uint64_t seed0, uint64_t seed1) {
-  const char *str = (const char *)item;
+  const char *str = *(const char **)item;
   return hashmap_xxhash3(str, strlen(str), seed0, seed1);
 }
 
@@ -31,11 +31,11 @@ void gumbo_string_set_free(GumboStringSet *set)
 void
 gumbo_string_set_insert(GumboStringSet *set, const char *str)
 {
-  hashmap_set(set, str);
+  hashmap_set(set, &str);
 }
 
 int
 gumbo_string_set_contains(GumboStringSet *set, const char *str)
 {
-  return hashmap_get(set, str) == NULL ? 0 : 1;
+  return hashmap_get(set, &str) == NULL ? 0 : 1;
 }
