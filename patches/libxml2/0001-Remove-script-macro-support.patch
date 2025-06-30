@@ -1,40 +1,40 @@
-From 27e4aa8d885e47a296ea78d114dbbe8fc7aa3508 Mon Sep 17 00:00:00 2001
-From: Kevin Solorio <soloriok@gmail.com>
-Date: Fri, 1 Feb 2019 14:32:42 -0800
-Subject: [PATCH] Revert-support-html-h-b-7-1
+commit fc1fed5d
+Author: Mike Dalessio <mike@37signals.com>
+Date:   2025-04-05 16:34:26 -0400
 
----
- entities.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+    patches/libxml2/0001-Remove-script-macro-support.patch
 
 diff --git a/entities.c b/entities.c
-index 43549bc5..82652f6d 100644
+index 0a32f0b4..c30814d0 100644
 --- a/entities.c
 +++ b/entities.c
-@@ -623,23 +623,6 @@ xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar *input, int attr) {
- 	    *out++ = 't';
- 	    *out++ = ';';
- 	} else if (*cur == '&') {
--	    /*
--	     * Special handling of &{...} construct from HTML 4, see
--	     * http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
--	     */
--	    if (html && attr && (cur[1] == '{') &&
--	        (strchr((const char *) cur, '}'))) {
--	        while (*cur != '}') {
--		    *out++ = *cur++;
--		    indx = out - buffer;
--		    if (indx + 100 > buffer_size) {
--			growBufferReentrant();
--			out = &buffer[indx];
--		    }
--		}
--		*out++ = *cur++;
--		continue;
--	    }
- 	    *out++ = '&';
- 	    *out++ = 'a';
- 	    *out++ = 'm';
--- 
-2.16.2
-
+@@ -689,29 +689,22 @@ xmlEscapeText(const xmlChar *text, int flags) {
+                 replSize = 4;
+             }
+ 	} else if (c == '>') {
+             repl = BAD_CAST "&gt;";
+             replSize = 4;
+ 	} else if (c == '&') {
+ 	    /*
+ 	     * Special handling of &{...} construct from HTML 4, see
+ 	     * http://www.w3.org/TR/html401/appendix/notes.html#h-B.7.1
+ 	     */
+-	    if ((flags & XML_ESCAPE_HTML) && (flags & XML_ESCAPE_ATTR) &&
+-                (cur[1] == '{') && (end = xmlStrchr(cur, '}'))) {
+-                chunkSize = (end - cur) + 1;
+-                repl = cur;
+-                replSize = chunkSize;
+-	    } else {
+                 repl = BAD_CAST "&amp;";
+                 replSize = 5;
+-            }
+ 	} else if ((flags & XML_ESCAPE_QUOT) && (c == '"')) {
+             repl = BAD_CAST "&quot;";
+             replSize = 6;
+ 	} else if (((flags & XML_ESCAPE_HTML) == 0) && (c == '\r')) {
+ 	    repl = BAD_CAST "&#13;";
+             replSize = 5;
+ 	} else if ((flags & XML_ESCAPE_NON_ASCII) && (c >= 0x80)) {
+             int val;
+ 
+             chunkSize = 4;
