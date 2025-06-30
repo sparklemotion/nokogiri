@@ -27,4 +27,20 @@ class TestHtml5Attributes < Nokogiri::TestCase
     assert_equal(676, span.attributes.length, "duplicate attribute should be silently ignored")
     assert_equal("1", span["bb"], "bb attribute should hold the value of the first occurrence")
   end
+
+  # Using long (longer than 8 bytes) attributes exercises the gumbo hashmap implementation.
+  # See https://github.com/sparklemotion/nokogiri/issues/3500
+  def test_duplicate_attributes_long
+    html = +"<span "
+    ("abcdefghijklmnopqrst00".."abcdefghijklmnopqrst99").each do |attr|
+      html << "#{attr}='1' "
+    end
+    ("abcdefghijklmnopqrst00".."abcdefghijklmnopqrst99").each do |attr|
+      html << "#{attr}='2' "
+    end
+    html << ">"
+    span = Nokogiri::HTML5::DocumentFragment.parse(html, max_attributes: 1000).at_css("span")
+
+    assert_equal(100, span.attributes.length, "duplicate attribute should be silently ignored")
+  end
 end if Nokogiri.uses_gumbo?
