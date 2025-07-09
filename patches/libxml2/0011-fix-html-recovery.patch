@@ -1,0 +1,26 @@
+From bc0bb67b57e0c10fa804e225d2e7a5b31e2fcb9f Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Thu, 10 Jul 2025 11:20:22 +0200
+Subject: [PATCH 1/2] html: Don't abort on encoding errors
+
+Always enable recovery mode when parsing HTML, so we don't raise fatal
+errors.
+
+Regressed with 462bf0b7. Fixes #947.
+
+diff --git a/HTMLparser.c b/HTMLparser.c
+index 2335e1b3..08e8f68c 100644
+--- a/HTMLparser.c
++++ b/HTMLparser.c
+@@ -5524,6 +5524,11 @@ htmlCtxtSetOptionsInternal(xmlParserCtxtPtr ctxt, int options, int keepMask)
+      */
+     ctxt->keepBlanks = (options & HTML_PARSE_NOBLANKS) ? 0 : 1;
+ 
++    /*
++     * Recover from character encoding errors
++     */
++    ctxt->recovery = 1;
++
+     /*
+      * Changing SAX callbacks is a bad idea. This should be fixed.
+      */
