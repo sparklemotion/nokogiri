@@ -1,18 +1,21 @@
-From 74c95ec5932c737d4fcb06b8646b0017364ada14 Mon Sep 17 00:00:00 2001
-From: Mike Dalessio <mike.dalessio@gmail.com>
-Date: Fri, 24 Dec 2021 19:08:01 -0500
-Subject: [PATCH] attempt to hack in wildcard namespaces to xpath
+commit db4c6d02 (HEAD -> flavorjones/nokogiri-patch-set)
+Author: Mike Dalessio <mike@37signals.com>
+Date:   2025-04-05 16:54:48 -0400
 
-I'm not confident this is a bulletproof patch.
----
- xpath.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+    patches/libxml2/0009-allow-wildcard-namespaces.patch
 
 diff --git a/xpath.c b/xpath.c
-index 1aa2f1a..c7f0885 100644
+index 7be6cfdc..7a3db312 100644
 --- a/xpath.c
 +++ b/xpath.c
-@@ -146,6 +146,9 @@
+@@ -118,20 +118,23 @@
+  */
+ #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+ #define XPATH_MAX_RECURSION_DEPTH 500
+ #elif defined(_WIN32)
+ /* Windows typically limits stack size to 1MB. */
+ #define XPATH_MAX_RECURSION_DEPTH 1000
+ #else
  #define XPATH_MAX_RECURSION_DEPTH 5000
  #endif
  
@@ -22,7 +25,21 @@ index 1aa2f1a..c7f0885 100644
  /*
   * TODO:
   * There are a few spots where some tests are done which depend upon ascii
-@@ -11073,12 +11076,15 @@ xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTestVal *test,
+  * data.  These should be enhanced for full UTF8 support (see particularly
+  * any use of the macros IS_ASCII_CHARACTER and IS_ASCII_DIGIT)
+  */
+ 
+ #if defined(LIBXML_XPATH_ENABLED)
+ 
+ static void
+@@ -9748,26 +9751,29 @@ xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTestVal *test,
+ 
+     if ((test == NULL) || (type == NULL) || (prefix == NULL)) {
+ 	return(NULL);
+     }
+     *type = (xmlXPathTypeVal) 0;
+     *test = (xmlXPathTestVal) 0;
+     *prefix = NULL;
      SKIP_BLANKS;
  
      if ((name == NULL) && (CUR == '*')) {
@@ -32,29 +49,57 @@ index 1aa2f1a..c7f0885 100644
  	NEXT;
 -	*test = NODE_TEST_ALL;
 -	return(NULL);
-+	if (CUR != ':') {
-+	    /*
-+	     * All elements
-+	     */
-+	    *test = NODE_TEST_ALL;
-+	    return(NULL);
-+	}
-+	name = xmlCharStrdup(WILDCARD_PREFIX);
++        if (CUR != ':') {
++            /*
++             * All elements
++             */
++            *test = NODE_TEST_ALL;
++            return(NULL);
++        }
++        name = xmlCharStrdup(WILDCARD_PREFIX);
      }
  
      if (name == NULL)
-@@ -11327,6 +11333,10 @@ xmlXPathCompStep(xmlXPathParserContextPtr ctxt) {
- 	}
- #endif
+ 	name = xmlXPathParseNCName(ctxt);
+     if (name == NULL) {
+ 	XP_ERRORNULL(XPATH_EXPR_ERROR);
+     }
+ 
+     blanks = IS_BLANK_CH(CUR);
+     SKIP_BLANKS;
+@@ -9957,20 +9963,24 @@ xmlXPathCompStep(xmlXPathParserContextPtr ctxt) {
+ 	SKIP_BLANKS;
+     } else {
+ 	xmlChar *name = NULL;
+ 	xmlChar *prefix = NULL;
+ 	xmlXPathTestVal test = (xmlXPathTestVal) 0;
+ 	xmlXPathAxisVal axis = (xmlXPathAxisVal) 0;
+ 	xmlXPathTypeVal type = (xmlXPathTypeVal) 0;
+ 	int op1;
+ 
  	if (CUR == '*') {
-+	    if (NXT(1) == ':') {
-+		NEXT;
-+		name = xmlCharStrdup(WILDCARD_PREFIX);
-+	    }
++            if (NXT(1) == ':') {
++                NEXT;
++                name = xmlCharStrdup(WILDCARD_PREFIX);
++            }
  	    axis = AXIS_CHILD;
  	} else {
  	    if (name == NULL)
-@@ -12030,7 +12040,7 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+ 		name = xmlXPathParseNCName(ctxt);
+ 	    if (name != NULL) {
+ 		axis = xmlXPathIsAxisName(name);
+ 		if (axis != 0) {
+ 		    SKIP_BLANKS;
+ 		    if ((CUR == ':') && (NXT(1) == ':')) {
+ 			SKIP(2);
+@@ -10418,21 +10428,21 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+     xmlXPathNodeSetMergeFunction mergeAndClear;
+     xmlNodePtr oldContextNode;
+     xmlXPathContextPtr xpctxt = ctxt->context;
+ 
+ 
+     CHECK_TYPE0(XPATH_NODESET);
+     obj = xmlXPathValuePop(ctxt);
      /*
      * Setup namespaces.
      */
@@ -63,7 +108,21 @@ index 1aa2f1a..c7f0885 100644
          URI = xmlXPathNsLookup(xpctxt, prefix);
          if (URI == NULL) {
  	    xmlXPathReleaseObject(xpctxt, obj);
-@@ -12369,6 +12379,8 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+             XP_ERROR0(XPATH_UNDEF_PREFIX_ERROR);
+ 	}
+     }
+     /*
+     * Setup axis.
+     *
+     * MAYBE FUTURE TODO: merging optimizations:
+@@ -10743,20 +10753,22 @@ xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt,
+ 			    break;
+ 		    }
+                     switch (cur->type) {
+                         case XML_ELEMENT_NODE:
+                             if (xmlStrEqual(name, cur->name)) {
+                                 if (prefix == NULL) {
+                                     if (cur->ns == NULL)
  				    {
  					XP_TEST_HIT
                                      }
@@ -72,6 +131,10 @@ index 1aa2f1a..c7f0885 100644
                                  } else {
                                      if ((cur->ns != NULL) &&
                                          (xmlStrEqual(URI, cur->ns->href)))
--- 
-2.31.0
-
+ 				    {
+ 					XP_TEST_HIT
+                                     }
+                                 }
+                             }
+                             break;
+                         case XML_ATTRIBUTE_NODE:{

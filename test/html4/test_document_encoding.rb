@@ -90,6 +90,33 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         assert_equal(encoding, Nokogiri::HTML4.parse(nil, nil, encoding).encoding)
       end
 
+      def test_bad_encoding_recovery
+        # https://gitlab.gnome.org/GNOME/libxml2/-/issues/543
+        skip if Nokogiri.uses_libxml?([">= 2.11.0", "< 2.12.0"])
+
+        # https://gitlab.gnome.org/GNOME/libxml2/-/issues/947
+        skip if Nokogiri.uses_libxml?("~> 2.14.0") && !Nokogiri.libxml2_patches.include?("0011-fix-html-recovery.patch")
+
+        html = <<~HTML
+          <html>
+            <head>
+              <title>テスト</title>
+              <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+            </head>
+            <body>
+              <div>hello</div>
+            </body>
+          </html>
+        HTML
+
+        refute_nil Nokogiri::HTML4.parse(html, encoding: "Shift_JIS")
+        if Nokogiri.uses_libxml?
+          assert_raises(Nokogiri::XML::SyntaxError) do
+            Nokogiri::HTML4.parse(html, encoding: "Shift_JIS", options: Nokogiri::XML::ParseOptions::STRICT)
+          end
+        end
+      end
+
       describe "Detection" do
         def binread(file)
           File.binread(file)
