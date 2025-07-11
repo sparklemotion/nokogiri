@@ -18,7 +18,7 @@ group :development do
 
   # tests
   gem "minitest", "5.25.5"
-  gem "minitest-parallel_fork", "2.0.0"
+  gem "minitest-parallel_fork", "2.1.0"
   gem "ruby_memcheck", "3.0.1"
   gem "rubyzip", "~> 2.4.1"
   gem "simplecov", "0.22.0"
@@ -36,5 +36,5 @@ end
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
 group :rdoc do
-  gem "rdoc", "6.14.1" unless RUBY_PLATFORM == "java" || ENV["CI"]
+  gem "rdoc", "6.14.2" unless RUBY_PLATFORM == "java" || ENV["CI"]
 end
