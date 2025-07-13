@@ -149,6 +149,7 @@ NOKOPUBVAR VALUE cNokogiriXmlSchema;
 NOKOPUBVAR VALUE cNokogiriXmlSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXmlText ;
 NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
+NOKOPUBVAR VALUE cNokogiriXmlXpathExpression;
 NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;
 
@@ -212,6 +213,8 @@ xmlParserCtxtPtr noko_xml_sax_push_parser_unwrap(VALUE rb_parser);
 VALUE noko_xml_sax_parser_context_wrap(VALUE klass, xmlParserCtxtPtr c_context);
 xmlParserCtxtPtr noko_xml_sax_parser_context_unwrap(VALUE rb_context);
 void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE rb_encoding);
+
+xmlXPathCompExprPtr noko_xml_xpath_expression_unwrap(VALUE rb_expression);
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) (((nokogiriTuplePtr)(x->_private))->doc)
