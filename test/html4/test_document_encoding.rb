@@ -95,7 +95,7 @@ class TestNokogiriHtmlDocument < Nokogiri::TestCase
         skip if Nokogiri.uses_libxml?([">= 2.11.0", "< 2.12.0"])
 
         # https://gitlab.gnome.org/GNOME/libxml2/-/issues/947
-        skip if Nokogiri.uses_libxml?("~> 2.14.0") && !Nokogiri.libxml2_patches.include?("0011-fix-html-recovery.patch")
+        skip if Nokogiri.uses_libxml?([">= 2.14.0", "< 2.14.5"])
 
         html = <<~HTML
           <html>

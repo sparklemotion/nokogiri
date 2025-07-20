@@ -8,7 +8,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Dependencies
 
-* [CRuby] Vendored libxml2 is updated to [v2.14.4](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.4), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
+* [CRuby] Vendored libxml2 is updated to [v2.14.5](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.5), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
 * [CRuby] [Windows and MacOS] Vendored libiconv is updated to [v1.18](https://savannah.gnu.org/news/?id=10703)
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
