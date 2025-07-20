@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Security
+
+* [CRuby] Applied upstream libxml2 patches to address CVE-2025-6021, CVE-2025-6170, CVE-2025-49794, CVE-2025-49795, and CVE-2025-49796. See [GHSA-353f-x4gh-cqq8](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-353f-x4gh-cqq8) for more information.
+
+
 ## v1.18.8 / 2025-04-21
 
 ### Security
