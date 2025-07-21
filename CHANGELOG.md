@@ -31,6 +31,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 
 
+## v1.18.9 / 2025-07-20
+
+### Security
+
+* [CRuby] Applied upstream libxml2 patches to address CVE-2025-6021, CVE-2025-6170, CVE-2025-49794, CVE-2025-49795, and CVE-2025-49796. See [GHSA-353f-x4gh-cqq8](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-353f-x4gh-cqq8) for more information.
+
+
 ## v1.18.8 / 2025-04-21
 
 ### Security
