@@ -15,3 +15,10 @@ rubies:
   - "3.3"
   - "3.2"
   - "3.1"
+exclude:
+  - platform: aarch64-mingw-ucrt
+    ruby: "3.1"
+  - platform: aarch64-mingw-ucrt
+    ruby: "3.2"
+  - platform: aarch64-mingw-ucrt
+    ruby: "3.3"
