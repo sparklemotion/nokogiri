@@ -550,7 +550,6 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
       chdir_for_build { recipe.cook }
       FileUtils.touch(checkpoint)
     end
-    recipe.activate
   end
 end
 
