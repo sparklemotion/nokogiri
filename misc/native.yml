@@ -2,6 +2,7 @@
 platforms:
   - aarch64-linux-gnu
   - aarch64-linux-musl
+  - aarch64-mingw-ucrt
   - arm64-darwin
   - arm-linux-gnu
   - arm-linux-musl
