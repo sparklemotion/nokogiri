@@ -710,6 +710,27 @@ jobs:
       - run: ./scripts/test-gem-install gems
         shell: bash
 
+  cruby-aarch64-mingw-ucrt-install:
+    needs: ["cruby-package", "ruby_versions"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.4", "4.0"]
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cruby-aarch64-mingw-ucrt-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+        shell: bash
+
   jruby-package:
     needs: ["rcd_image_version"]
     runs-on: ubuntu-latest
