@@ -543,7 +543,15 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
-    runs-on: windows-2022
+        os: windows-2022
+        include:
+          - os: windows-11-arm
+            sys: "enable"
+            ruby: "3.4"
+          - os: windows-11-arm
+            sys: "disable"
+            ruby: "3.4"
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -701,6 +709,27 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: cruby-x64-mingw-ucrt-gem
+          path: gems
+      - run: ./scripts/test-gem-install gems
+        shell: bash
+
+  cruby-aarch64-mingw-ucrt-install:
+    needs: ["cruby-package", "ruby_versions"]
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.4"]
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{matrix.ruby}}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cruby-aarch64-mingw-ucrt-gem
           path: gems
       - run: ./scripts/test-gem-install gems
         shell: bash
