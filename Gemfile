@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
+gem "debug"
 group :development do
   # bootstrapping
   gem "bundler", "~> 2.3"

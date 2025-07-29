@@ -96,6 +96,27 @@ module TestVersionInfoTests
     bug = Regexp.last_match(3).to_i
     assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxslt"]["loaded"])
   end
+
+  def test_version_info_for_xmlsec
+    skip_unless_libxml2("xmlsec is only used for CRuby")
+
+    if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
+      assert_equal("packaged", version_info["xmlsec"]["source"])
+      assert(version_info["xmlsec"]["patches"])
+      assert_equal(Nokogiri::VersionInfo.instance.libxml2_precompiled?, version_info["xmlsec"]["precompiled"])
+    end
+    if Nokogiri::VersionInfo.instance.libxml2_using_system?
+      assert_equal("system", version_info["xmlsec"]["source"])
+      refute(version_info["xmlsec"].key?("precompiled"))
+      refute(version_info["xmlsec"].key?("patches"))
+    end
+
+    assert_equal(Nokogiri::XMLSEC_COMPILED_VERSION, version_info["xmlsec"]["compiled"])
+    assert_match(VERSION_MATCH, version_info["xmlsec"]["compiled"])
+
+    assert_match(VERSION_MATCH, version_info["xmlsec"]["loaded"])
+    assert_equal(Nokogiri::XMLSEC_LOADED_VERSION, Nokogiri::VERSION_INFO["xmlsec"]["loaded"])
+  end
 end
 
 class TestVersionInfo

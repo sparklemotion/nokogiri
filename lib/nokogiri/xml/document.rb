@@ -504,6 +504,66 @@ module Nokogiri
 
       IMPLIED_XPATH_CONTEXTS = ["//"].freeze # :nodoc:
 
+      def decrypt(*args, **kwargs)
+        first_encrypted_node = root.at_xpath("//xenc:EncryptedData", "xenc" => "http://www.w3.org/2001/04/xmlenc#")
+        raise XMLSec::DecryptionError("start node not found") unless first_encrypted_node
+
+        first_encrypted_node.decrypt(*args, **kwargs)
+        self
+      end
+
+      def encrypt(*args, **kwargs)
+        root.encrypt(*args, **kwargs)
+        self
+      end
+
+      def sign(*args, **kwargs)
+        root.sign(*args, **kwargs)
+        self
+      end
+
+      #
+      #  :call-seq: verify(certificate: nil, certificates: nil, key: nil, keys: nil) → Boolean
+      #
+      #  Returns `true` if the signature is valid, `false` otherwise.
+      #
+      #  Examples:
+      #
+      #    # Try to validate with the given public or private key
+      #    doc.verify key: 'rsa-key'
+      #
+      #    # Try to validate with a set of keys. It will try to match
+      #    # based on the contents of the `KeyName` element.
+      #    doc.verify(keys: {
+      #      'key-name'         => 'x509 certificate',
+      #      'another-key-name' => 'rsa-public-key'
+      #    })
+      #
+      #    # Try to validate with a trusted certificate
+      #    doc.verify(certificate: 'certificate')
+      #
+      #    # Try to validate with a set of certificates, any one of which
+      #    # can match
+      #    doc.verify(certificates: ['cert1', 'cert2'])
+      #
+      #    # Validate the signature, checking the certificate validity as of
+      #    # a certain time (anything that's convertible to an integer, such as a Time)
+      #    doc.verify(certificate: 'certificate', verification_time: message_creation_timestamp)
+      #
+      #    # Validate the signature, but don't validate that the certificate is valid,
+      #    # or has a full trust chain
+      #    doc.verify(certificate: 'certificate', verify_certificates: false)
+      #
+      #    # Validate the signature using only certificates installed on the system.
+      #    doc.verify
+      #
+      def verify_signature(*args, **kwargs)
+        first_signature = root.at_xpath("//ds:Signature", "ds" => "http://www.w3.org/2000/09/xmldsig#")
+        raise XMLSec::VerificationError("start node not found") unless first_signature
+
+        first_signature.verify_signature(*args, **kwargs)
+      end
+
       private
 
       def inspect_attributes

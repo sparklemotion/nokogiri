@@ -59,6 +59,7 @@ module Nokogiri
 
           assert_equal(Encoding::UTF_8, Nokogiri::LIBXML_COMPILED_VERSION.encoding)
           assert_equal(Encoding::UTF_8, Nokogiri::LIBXSLT_COMPILED_VERSION.encoding)
+          assert_equal(Encoding::UTF_8, Nokogiri::XMLSEC_COMPILED_VERSION.encoding)
         end
 
         it "parses and serializes UTF-16 correctly" do

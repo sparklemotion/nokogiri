@@ -56,6 +56,8 @@
 
 #include <libexslt/exslt.h>
 
+#include <xmlsec/version.h>
+
 /* libxml2_polyfill.c */
 #ifndef HAVE_XMLCTXTSETOPTIONS
 int xmlCtxtSetOptions(xmlParserCtxtPtr ctxt, int options);
@@ -118,6 +120,7 @@ NOKOPUBVAR VALUE mNokogiriHtml4Sax ;
 NOKOPUBVAR VALUE mNokogiriHtml5 ;
 NOKOPUBVAR VALUE mNokogiriXml ;
 NOKOPUBVAR VALUE mNokogiriXmlSax ;
+NOKOPUBVAR VALUE mNokogiriXmlSecurity ;
 NOKOPUBVAR VALUE mNokogiriXmlXpath ;
 NOKOPUBVAR VALUE mNokogiriXslt ;
 
@@ -148,6 +151,11 @@ NOKOPUBVAR VALUE cNokogiriXmlSaxPushParser ;
 NOKOPUBVAR VALUE cNokogiriXmlSchema;
 NOKOPUBVAR VALUE cNokogiriXmlSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXmlText ;
+NOKOPUBVAR VALUE cNokogiriXmlXmlsecDecryptionError;
+NOKOPUBVAR VALUE cNokogiriXmlXmlsecEncryptionError;
+NOKOPUBVAR VALUE cNokogiriXmlXmlsecKeystoreError;
+NOKOPUBVAR VALUE cNokogiriXmlXmlsecSigningError;
+NOKOPUBVAR VALUE cNokogiriXmlXmlsecVerificationError;
 NOKOPUBVAR VALUE cNokogiriXmlXpathContext;
 NOKOPUBVAR VALUE cNokogiriXmlXpathSyntaxError;
 NOKOPUBVAR VALUE cNokogiriXsltStylesheet ;

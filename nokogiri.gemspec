@@ -303,6 +303,8 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/xml/sax/push_parser.rb",
     "lib/nokogiri/xml/schema.rb",
     "lib/nokogiri/xml/searchable.rb",
+    "lib/nokogiri/xml/security/error.rb",
+    "lib/nokogiri/xml/security/error_location.rb",
     "lib/nokogiri/xml/syntax_error.rb",
     "lib/nokogiri/xml/text.rb",
     "lib/nokogiri/xml/xpath.rb",

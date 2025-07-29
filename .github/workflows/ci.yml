@@ -283,7 +283,11 @@ jobs:
         with:
           path: ports
           key: ports-macos-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
-      - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
+      - if: matrix.sys == 'enable'
+        run: brew install xmlsec1
+      - run: |
+          # export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
+          bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
   darwin-nix:
@@ -305,16 +309,14 @@ jobs:
         run: nix-shell --packages ruby bundler --run 'bundle exec rake compile -- --disable-system-libraries --disable-xml2-legacy'
       - if: matrix.sys == 'disable'
         run: nix-shell --packages ruby bundler --run 'bundle exec rake test'
-      # libxml2 headers are in a subdirectory for some reason so we need to add it to NIX_CFLAGS_COMPILE manually.
-      # there are a bunch of examples of other packages doing this in nixpkgs so this seems to be expected.
       - if: matrix.sys == 'enable'
         run: |
           nix-shell \
-            --expr 'with import <nixpkgs> {}; mkShell { buildInputs = [ ruby bundler libxml2 libxslt ]; env.NIX_CFLAGS_COMPILE = "-I ${libxml2.dev}/include/libxml2"; }' \
+            --expr 'with import <nixpkgs> {}; mkShell { buildInputs = [ ruby bundler libtool libxml2 libxslt pkg-config xmlsec ]; }' \
             --run 'bundle exec rake compile -- --enable-system-libraries --disable-xml2-legacy'
       - if: matrix.sys == 'enable'
         run: |
-          nix-shell --packages ruby bundler libxml2 libxslt --run 'bundle exec rake test'
+          nix-shell --packages ruby bundler libxml2 libxslt xmlsec --run 'bundle exec rake test'
 
   windows:
     needs: ["basic", "ruby_versions"]
@@ -335,7 +337,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: "libxml2 libxslt"
+          mingw: "libxml2 libxslt xmlsec"
           bundler-cache: true
           bundler: latest
       - uses: actions/cache@v4
@@ -377,7 +379,7 @@ jobs:
           - "--enable-system-libraries"
         include:
           - flags: "--enable-system-libraries"
-            apt_packages: "libxml2-dev libxslt1-dev pkg-config"
+            apt_packages: "libxml2-dev libxmlsec1-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -411,7 +413,7 @@ jobs:
         with:
           usesh: true
           copyback: false
-          prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git
+          prepare: pkg install -y ruby devel/ruby-gems pkgconf libxml2 libxslt git xmlsec1
           run: |
             gem install bundler
             bundle install --local || bundle install
@@ -508,7 +510,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          apt-get: "libxml2-dev libxslt1-dev pkg-config"
+          apt-get: "libxml2-dev libxmlsec1-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v4
         with:
           name: generic-gem
@@ -534,6 +536,8 @@ jobs:
         with:
           name: generic-gem
           path: gems
+      - if: matrix.sys == 'enable'
+        run: brew install xmlsec1
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
   generic-windows-install:
@@ -551,7 +555,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: "libxml2 libxslt"
+          mingw: "libxml2 libxslt xmlsec"
       - uses: actions/download-artifact@v4
         with:
           name: generic-gem

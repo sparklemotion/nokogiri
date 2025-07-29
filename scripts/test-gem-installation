@@ -48,7 +48,7 @@ describe gemspec.full_name do
 
   # representative sample of the files
   let(:nokogiri_header_files) { ["nokogiri.h"] }
-  let(:packaged_library_header_files) { ["libxml2/libxml/tree.h", "libxslt/xslt.h", "libexslt/exslt.h"] }
+  let(:packaged_library_header_files) { ["libxml2/libxml/tree.h", "libxslt/xslt.h", "libexslt/exslt.h", "xmlsec/xmlsec.h"] }
 
   let(:headers_dirs) { Nokogiri::VERSION_INFO["nokogiri"]["cppflags"].map { |f| f.gsub(/^-I/, "") } }
 

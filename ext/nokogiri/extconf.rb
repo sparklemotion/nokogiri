@@ -127,6 +127,20 @@ NOKOGIRI_HELP_MESSAGE = <<~HELP
             Look for zlib headers in DIRECTORY.
 
 
+      Related to xmlsec1:
+
+        --with-xmlsec1-dir=DIRECTORY
+            Look for xmlsec1 headers and library in DIRECTORY.
+
+        --with-xmlsec1-lib=DIRECTORY
+            Look for xmlsec1 library in DIRECTORY.
+
+        --with-xmlsec1-include=DIRECTORY
+            Look for xmlsec1 headers in DIRECTORY.
+
+        --with-xmlsec1-source-dir=DIRECTORY
+            (dev only) Build xmlsec1 from the source code in DIRECTORY.
+
     Flags only used when building and using the packaged libraries:
 
       --disable-static
@@ -441,7 +455,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
   require "mini_portile2"
   message("Using mini_portile version #{MiniPortile::VERSION}\n")
 
-  unless ["libxml2", "libxslt"].include?(name)
+  unless ["libxml2", "libxslt", "xmlsec1"].include?(name)
     OTHER_LIBRARY_VERSIONS[name] = version
   end
 
@@ -675,7 +689,7 @@ $LIBS = concat_flags($LIBS, ENV["LIBS"])
 append_cflags(["-std=c99", "-Wno-declaration-after-statement"])
 
 # gumbo html5 serialization is slower with O3, let's make sure we use O2
-append_cflags("-O2")
+append_cflags("-O0")
 
 # always include debugging information
 append_cflags("-g")
@@ -740,6 +754,13 @@ if config_system_libraries?
     lib: "exslt",
     headers: "libexslt/exslt.h",
     func: "exsltFuncRegister",
+  )
+  ensure_package_configuration(
+    opt: "xmlsec",
+    pc: "xmlsec1",
+    lib: "xmlsec1",
+    headers: "xmlsec/xmlsec.h",
+    func: "xmlSecInit",
   )
 
   have_libxml_headers?(REQUIRED_LIBXML_VERSION) ||
@@ -985,12 +1006,45 @@ else
     ]
   end
 
+  xmlsec_recipe = process_recipe("xmlsec1", dependencies["xmlsec1"]["version"], static_p, cross_build_p) do |recipe|
+    source_dir = arg_config("--with-xmlsec-source-dir")
+    if source_dir
+      recipe.source_directory = source_dir
+    else
+      recipe.files = [{
+        url: "https://github.com/lsh123/xmlsec/releases/download/#{recipe.version}/xmlsec1-#{recipe.version}.tar.gz",
+        sha256: dependencies["xmlsec1"]["sha256"],
+      }]
+    end
+
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
+
+    if darwin? && !cross_build_p
+      recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
+      recipe.configure_options << "AR=/usr/bin/ar" unless ENV.key?("AR")
+    end
+
+    recipe.configure_options << if source_dir
+      "--config-cache"
+    else
+      "--disable-dependency-tracking"
+    end
+
+    recipe.configure_options += [
+      "--enable-debugging",
+      "--enable-static-linking",
+      "--with-libxml=#{sh_export_path(libxml2_recipe.path)}",
+      "--with-libxslt=#{sh_export_path(libxslt_recipe.path)}",
+      "CFLAGS=#{cflags}",
+    ]
+  end
+
   append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
   append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
 
   $libs = $libs.shellsplit.tap do |libs|
-    [libxml2_recipe, libxslt_recipe].each do |recipe|
-      libname = recipe.name[/\Alib(.+)\z/, 1]
+    [libxml2_recipe, libxslt_recipe, xmlsec_recipe].each do |recipe|
+      libname = recipe.name[/\A(?:lib)?(.+)\z/, 1]
       config_basename = "#{libname}-config"
       File.join(recipe.path, "bin", config_basename).tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
@@ -1008,28 +1062,27 @@ else
               $LIBPATH | [Regexp.last_match(1)]
             end
           when /\A-l./
-            libs.unshift(arg)
+            libs << arg
           else
             $LDFLAGS << " " << arg.shellescape
           end
         end
-      end
 
-      patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(" ")
-      append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\"#{patches_string}\\""])
+        patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(" ")
+        append_cppflags(%[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\"#{patches_string}\\""])
 
-      case libname
-      when "xml2"
-        # xslt-config --libs or pkg-config libxslt --libs does not include
-        # -llzma, so we need to add it manually when linking statically.
-        if static_p && preserving_globals { local_have_library("lzma") }
-          # Add it at the end; GH #988
-          libs << "-llzma"
+        case libname
+        when "xml2"
+          # xslt-config --libs or pkg-config libxslt --libs does not include
+          # -llzma, so we need to add it manually when linking statically.
+          if static_p && preserving_globals { local_have_library("lzma") }
+            libs << "-llzma"
+          end
+        when "xslt"
+          # xslt-config does not have a flag to emit options including
+          # -lexslt, so add it manually.
+          libs << "-lexslt"
         end
-      when "xslt"
-        # xslt-config does not have a flag to emit options including
-        # -lexslt, so add it manually.
-        libs.unshift("-lexslt")
       end
     end
   end.shelljoin
@@ -1042,6 +1095,8 @@ else
         static_archive_ld_flag + [File.join(libxml2_recipe.path, "lib", libflag_to_filename(arg))]
       when "-lxslt", "-lexslt"
         static_archive_ld_flag + [File.join(libxslt_recipe.path, "lib", libflag_to_filename(arg))]
+      when /^-lxmlsec(-[a-z]+)?/
+        static_archive_ld_flag + [File.join(xmlsec_recipe.path, "lib", libflag_to_filename(arg))]
       else
         arg
       end
@@ -1133,13 +1188,13 @@ unless config_system_libraries?
     # These are packaged up by the cross-compiling callback in the ExtensionTask
     copy_packaged_libraries_headers(
       to_path: File.join(PACKAGE_ROOT_DIR, "ext/nokogiri/include"),
-      from_recipes: [libxml2_recipe, libxslt_recipe],
+      from_recipes: [libxml2_recipe, libxslt_recipe, xmlsec_recipe],
     )
   else
     # When compiling during installation, install packaged libraries' header files into ext/nokogiri/include
     copy_packaged_libraries_headers(
       to_path: "include",
-      from_recipes: [libxml2_recipe, libxslt_recipe],
+      from_recipes: [libxml2_recipe, libxslt_recipe, xmlsec_recipe],
     )
     $INSTALLFILES << ["include/**/*.h", "$(rubylibdir)"]
   end

@@ -55,9 +55,18 @@ jobs:
           cd libxslt
           git log -n1
           ./autogen.sh
+      - name: Setup xmlsec
+        env:
+          NOCONFIGURE: t
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/lsh123/xmlsec
+          cd xmlsec
+          git log -n1
+          ./autogen.sh
       - name: "Compile against libxml2 and libxslt source directories"
         shell: bash
-        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt --with-xmlsec-source-dir=${GITHUB_WORKSPACE}/xmlsec"
       - run: "bundle exec rake test"
 
   xmlsoft-head-valgrind:
@@ -84,10 +93,19 @@ jobs:
           cd libxslt
           git log -n1
           ./autogen.sh
+      - name: Setup xmlsec
+        env:
+          NOCONFIGURE: t
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/lsh123/xmlsec
+          cd xmlsec
+          git log -n1
+          ./autogen.sh
       - name: "Run bundle install"
         run: "bundle install --local || bundle install"
       - name: "Compile against libxml2 and libxslt source directories"
-        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt --with-xmlsec-source-dir=${GITHUB_WORKSPACE}/xmlsec"
       - run: "bundle exec rake test:valgrind"
       - run: "bundle exec rake test:memcheck"
 
@@ -110,8 +128,8 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "head"
-          apt-get: "libxml2-dev libxslt1-dev pkg-config"
-          mingw: "_upgrade_ libxml2 libxslt pkgconf"
+          apt-get: "libxml2-dev libxmlsec1-dev libxslt1-dev pkg-config"
+          mingw: "_upgrade_ libxml2 libxslt pkgconf xmlsec"
           bundler-cache: true
           bundler: latest
       - uses: actions/cache@v4
@@ -135,7 +153,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "head"
-          apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
+          apt-get: "libxml2-dev libxmlsec1-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
           bundler: latest
       - uses: actions/cache@v4
@@ -157,7 +175,7 @@ jobs:
           - "--enable-system-libraries"
         include:
           - flags: "--enable-system-libraries"
-            apt_packages: "libxml2-dev libxslt1-dev pkg-config"
+            apt_packages: "libxml2-dev libxmlsec1-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

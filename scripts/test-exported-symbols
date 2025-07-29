@@ -4,8 +4,8 @@
 #
 #  examine the nokogiri dll for external symbols that shouldn't be there
 #
-#  this assumes that we're on a linux machine, and that nokogiri.so, libxml2.a, libxslt.a, and
-#  libexslt.a exist and can be found under the pwd.
+#  this assumes that we're on a linux machine, and that nokogiri.so, libxml2.a, libxslt.a,
+#  libexslt.a, libxmlsec.a, and libxmlsec1-openssl.a exist and can be found under the pwd.
 #
 
 require "set"
@@ -32,12 +32,16 @@ noko_so = find_that_file("lib/**/nokogiri.so")
 libxml2_archive = find_that_file("ports/**/libxml2.a")
 libxslt_archive = find_that_file("ports/**/libxslt.a")
 libexslt_archive = find_that_file("ports/**/libexslt.a")
+libxmlsec1_archive = find_that_file("ports/**/libxmlsec1.a")
+libxmlsec1_openssl_archive = find_that_file("ports/**/libxmlsec1-openssl.a")
 libgumbo_archive = find_that_file("tmp/**/libgumbo.a")
 
 symbols = external_symbols(noko_so)
 symbols -= external_symbols(libxml2_archive)
 symbols -= external_symbols(libxslt_archive)
 symbols -= external_symbols(libexslt_archive)
+symbols -= external_symbols(libxmlsec1_archive)
+symbols -= external_symbols(libxmlsec1_openssl_archive)
 symbols -= external_symbols(libgumbo_archive)
 
 puts "#{noko_so} exports the following surprising symbols:"
@@ -51,7 +55,57 @@ end
 
 symbols = local_symbols(noko_so)
 
+require_relative File.join("..", noko_so)
+
 puts "#{noko_so} has the following surprising local symbols:"
 symbols.to_a.sort.each do |symbol|
-  puts "- #{symbol}" if /^noko_|^Nokogiri_/.match?(symbol)
+  next unless /^noko_|^Nokogiri_/.match?(symbol)
+
+  # see if the symbol corresponds to a Ruby method
+  raw_symbol = symbol
+  symbol = symbol.delete_suffix(".cold")
+    .delete_prefix("noko_")
+    .delete_prefix("Nokogiri_")
+    .delete_suffix("_get")
+    .sub(/_set$/, "=")
+  if symbol.include?("_s_")
+    static = true
+    module_name, method_name = symbol.split("_s_", 2)
+  else
+    module_name, method_name = symbol.split("__", 2)
+  end
+  method_name ||= ""
+  mod = Nokogiri
+
+  names = module_name.split("_").map do |name|
+    case name
+    when "xmlsec" then "XMLSec"
+    when "xpath" then "XPath"
+    when "html4", "html5", "ng", "sax", "xml", "xslt" then name.upcase
+    else
+      name.capitalize
+    end
+  end
+  loop do
+    break if mod.nil? || names.empty?
+
+    const = nil
+    names.length.times.to_a.reverse_each do |i|
+      complete_name = names[0..i].join
+      break if complete_name.empty?
+
+      const = mod.const_get(complete_name.to_sym) if mod.const_defined?(complete_name.to_sym)
+      if const
+        names = names[(i + 1)..]
+        break
+      end
+    end
+    mod = const
+  end
+  if mod
+    methods = static ? (mod.methods + mod.private_methods) : (mod.instance_methods + mod.private_instance_methods)
+    next if !method_name.empty? && methods&.include?(method_name.to_sym)
+  end
+
+  puts "- #{raw_symbol}"
 end

@@ -1685,6 +1685,72 @@ module Nokogiri
         end
       end
 
+      if !Nokogiri.jruby?
+        # :section: XML Encryption
+
+        #  call-seq:
+        #    decrypt(key)
+        #
+        def decrypt(key_or_keys_manager)
+          if key_or_keys_manager.is_a?(Security::KeysManager)
+            keys_manager = key_or_keys_manager
+          else
+            keys_manager = Security::KeysManager.new
+            keys_manager.add_key("", key_or_keys_manager)
+          end
+
+          native_decrypt(keys_manager)
+        end
+
+        def encrypt(key,
+          block_encryption:, key_transport:,
+          key_name: nil,
+          certificate: nil)
+          key_name ||= ""
+          keys_manager = Security::KeysManager.new
+          keys_manager.add_key(key_name, key)
+
+          native_encrypt(keys_manager, key_name, certificate, block_encryption, key_transport)
+        end
+
+        # :section: XML Signature
+
+        def sign(key,
+          canonicalization_algorithm: "exc-c14n",
+          digest_algorithm: "sha256",
+          signature_algorithm: "rsa-sha256",
+          key_name: nil,
+          certificate: nil,
+          uri: nil)
+          native_sign(key,
+            key_name,
+            certificate,
+            canonicalization_algorithm,
+            digest_algorithm,
+            signature_algorithm,
+            uri)
+        end
+
+        def verify_signature(key_or_keys_manager,
+          verification_depth: nil,
+          verification_time: nil,
+          verify_certificates: true)
+          if key_or_keys_manager.is_a?(Security::KeysManager)
+            keys_manager = key_or_keys_manager
+            key = nil
+          else
+            keys_manager = nil
+            key = key_or_keys_manager
+          end
+
+          native_verify_signature(keys_manager,
+            key,
+            verification_depth,
+            verification_time,
+            verify_certificates)
+        end
+      end
+
       # :section:
 
       protected

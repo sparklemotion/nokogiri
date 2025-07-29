@@ -29,3 +29,21 @@ libiconv:
   #     3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8  ports/archives/libiconv-1.18.tar.gz
   version: "1.18"
   sha256: "3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8"
+
+xmlsec1:
+  # $ wget https://www.aleksey.com/xmlsec/download/aleksey%40aleksey.com.gpg
+  # $ gpg --import ~/Downloads/aleksey@aleksey.com.gpg 
+  # gpg: key E63ECDEF9E1D829E: public key "Aleksey Sanin <aleksey@aleksey.com>" imported
+  # gpg: Total number processed: 1
+  # gpg:               imported: 1
+  # $ gpg --verify xmlsec1-1.3.7.sig ports/archives/xmlsec1-1.3.7.tar.gz 
+  # gpg: Signature made Tue Feb 11 07:33:25 2025 MST
+  # gpg:                using RSA key 00FDD6A7DFB81C88F34B9BF0E63ECDEF9E1D829E
+  # gpg: Good signature from "Aleksey Sanin <aleksey@aleksey.com>" [unknown]
+  # gpg: WARNING: This key is not certified with a trusted signature!
+  # gpg:          There is no indication that the signature belongs to the owner.
+  # Primary key fingerprint: 00FD D6A7 DFB8 1C88 F34B  9BF0 E63E CDEF 9E1D 829E
+  # $ sha256sum ports/archives/xmlsec1-1.3.7.tar.gz 
+  # d82e93b69b8aa205a616b62917a269322bf63a3eaafb3775014e61752b2013ea  ports/archives/xmlsec1-1.3.7.tar.gz
+  version: 1.3.7
+  sha256: d82e93b69b8aa205a616b62917a269322bf63a3eaafb3775014e61752b2013ea

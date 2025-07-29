@@ -343,6 +343,32 @@ encoding(VALUE self)
 }
 
 /*
+ * call-seq: get_id(id) → Nokogiri::XML::Node
+ *
+ * [Returns] The corresponding node, or +nil+ if no node is registered with the given ID.
+ *
+ * [Parameters]
+ * - +id+ (String): The ID to look up.
+ *
+ * Get a node by its ID (registered via Node#set_id_attribute).
+ */
+static VALUE
+get_id(VALUE self, VALUE rb_id)
+{
+  xmlAttrPtr prop;
+  xmlDocPtr doc;
+
+  Check_Type(rb_id, T_STRING);
+  Noko_Node_Get_Struct(self, xmlDoc, doc);
+  prop = xmlGetID(doc, (const xmlChar *)StringValueCStr(rb_id));
+  if (prop) {
+    return noko_xml_node_wrap(Qnil, (xmlNodePtr)prop);
+  } else {
+    return Qnil;
+  }
+}
+
+/*
  * call-seq:
  *  version
  *
@@ -773,6 +799,7 @@ noko_init_xml_document(void)
   rb_define_method(cNokogiriXmlDocument, "root=", rb_xml_document_root_set, 1);
   rb_define_method(cNokogiriXmlDocument, "encoding", encoding, 0);
   rb_define_method(cNokogiriXmlDocument, "encoding=", set_encoding, 1);
+  rb_define_method(cNokogiriXmlDocument, "get_id", get_id, 1);
   rb_define_method(cNokogiriXmlDocument, "version", version, 0);
   rb_define_method(cNokogiriXmlDocument, "canonicalize", rb_xml_document_canonicalize, -1);
   rb_define_method(cNokogiriXmlDocument, "url", url, 0);

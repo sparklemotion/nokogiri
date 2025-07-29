@@ -119,6 +119,7 @@ Requirements:
 If you are compiling the native extension against a system version of libxml2:
 
 - libxml2 >= 2.9.2 (recommended >= 2.12.0)
+- xmlsec
 
 
 ### Native Gems: Faster, more reliable installation
@@ -235,11 +236,11 @@ Notably, despite all parsers being standards-compliant, there are behavioral inc
 
 ### CRuby
 
-The Ruby (a.k.a., CRuby, MRI, YARV) implementation is a C extension that depends on libxml2 and libxslt (which in turn depend on zlib and possibly libiconv).
+The Ruby (a.k.a., CRuby, MRI, YARV) implementation is a C extension that depends on libxml2, libxslt, and xmlsec (which in turn depend on zlib and possibly libiconv).
 
-These dependencies are met by default by Nokogiri's packaged versions of the libxml2 and libxslt source code, but a configuration option `--use-system-libraries` is provided to allow specification of alternative library locations. See [Installing Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html) for full documentation.
+These dependencies are met by default by Nokogiri's packaged versions of the libxml2, libxslt, and xmlsec source code, but a configuration option `--use-system-libraries` is provided to allow specification of alternative library locations. See [Installing Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html) for full documentation.
 
-We provide native gems by pre-compiling libxml2 and libxslt (and potentially zlib and libiconv) and packaging them into the gem file. In this case, no compilation is necessary at installation time, which leads to faster and more reliable installation.
+We provide native gems by pre-compiling libxml2, libxslt, and xmlsec (and potentially zlib and libiconv) and packaging them into the gem file. In this case, no compilation is necessary at installation time, which leads to faster and more reliable installation.
 
 See [LICENSE-DEPENDENCIES.md](LICENSE-DEPENDENCIES.md) for more information on which dependencies are provided in which native and source gems.
 

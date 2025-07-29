@@ -6,6 +6,15 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Notable Addition: XML Encryption and Signature Support (CRuby only)
+
+__XML Encryption and Signature support__ has been added (to CRuby only) by merging [nokogiri-xmlsec-instructure](https://github.com/instructure/nokogiri-xmlsec-instructure) into Nokogiri. The API for these methods has been maintained, but a smooth upgrade path is offered via the 0.12.0 minor release of the `nokogiri-xmlsec-instructure` gem. [#2902]
+
+Please note that XML Encryption and Signature support is not available for JRuby in this version. However, we feel it is important to think about JRuby and we hope to work on this in the future. If you're interested in helping with XML Encryption and Signature support on JRuby, please reach out to the maintainers by commenting on issue #<TBD>.
+
+Many thanks to Colin MacKenzie IV for creating the [nokogiri-xmlsec](https://github.com/sinisterchipmunk/xmlsec) gem, Albert J. Wong for continued maintenance on the [nokogiri-xmlsec-me-harder](https://github.com/awong-dev/nokogiri-xmlsec-me-harder) fork, and Cody Cutrer for maintaining the [nokogiri-xmlsec-instructure](https://github.com/instructure/nokogiri-xmlsec-instructure) fork that served as the basis for what was merged into Nokogiri.
+
+
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to [v2.14.5](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.5), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.

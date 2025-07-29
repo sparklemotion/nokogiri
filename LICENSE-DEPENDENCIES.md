@@ -19,6 +19,7 @@ Note that this document is broken into multiple sections, each of which describe
   * [libgumbo](#libgumbo)
   * [libxml2](#libxml2)
   * [libxslt](#libxslt)
+  * [xmlsec](#xmlsec)
   * [zlib](#zlib)
   * [libiconv](#libiconv)
   * [isorelax:isorelax](#isorelaxisorelax)
@@ -48,6 +49,7 @@ The default platform release distributes the following dependencies in source fo
 * [libxml2](#libxml2)
 * [libxslt](#libxslt)
 * [libgumbo](#libgumbo)
+* [xmlsec](#xmlsec)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have the value "ruby" for its "platform" attribute.
 
@@ -59,6 +61,7 @@ The native LinuxⓇ platform release distributes the following dependencies in s
 * [libxml2](#libxml2)
 * [libxslt](#libxslt)
 * [libgumbo](#libgumbo)
+* [xmlsec](#xmlsec)
 * [zlib](#zlib)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-linux" or "aarch64-linux" for its "platform.cpu" attribute.
@@ -71,6 +74,7 @@ The native Darwin platform release distributes the following dependencies in sou
 * [libxml2](#libxml2)
 * [libxslt](#libxslt)
 * [libgumbo](#libgumbo)
+* [xmlsec](#xmlsec)
 * [zlib](#zlib)
 * [libiconv](#libiconv)
 
@@ -84,6 +88,7 @@ The native WindowsⓇ platform release distributes the following dependencies in
 * [libxml2](#libxml2)
 * [libxslt](#libxslt)
 * [libgumbo](#libgumbo)
+* [xmlsec](#xmlsec)
 * [zlib](#zlib)
 * [libiconv](#libiconv)
 
@@ -416,6 +421,36 @@ http://xmlsoft.org/libxslt/
     be used in advertising or otherwise to promote the sale, use or other deal-
     ings in this Software without prior written authorization from him.
     ----------------------------------------------------------------------
+
+
+### xmlsec
+
+MIT
+
+https://www.aleksey.com/xmlsec/
+
+      Copyright (C) 2002-2024 Aleksey Sanin <aleksey@aleksey.com>. All Rights Reserved.
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is fur-
+      nished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FIT-
+      NESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+      ALEKSEY SANIN BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CON-
+      NECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+      Except as contained in this notice, the name of Aleksey Sanin shall not
+      be used in advertising or otherwise to promote the sale, use or other deal-
+      ings in this Software without prior written authorization from him.
 
 
 ### zlib

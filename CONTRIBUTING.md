@@ -422,7 +422,7 @@ The `ci.yml` pipeline includes jobs to:
 
 The `upstream.yml` pipeline includes jobs to:
 
-- run against libxml2 and libxslt head (linux), including a valgrind check
+- run against libxml2, libxslt, and xmlsec head (linux), including a valgrind check
 - run against CRuby head (linux, windows, macos) including a valgrind check
 - run against JRuby head
 - run html5lib-tests from that project's `origin/master`

@@ -1004,6 +1004,55 @@ unlink_node(VALUE self)
   return self;
 }
 
+/*
+ * :call-seq:
+ *   set_id_attribute(attr) → self
+ *
+ * Add an attribute to the document's ID table.
+ *
+ * Registering an attribute as an ID allows it to be used in xpointer(id())
+ * expressions that are internally used by XMLSec methods.
+ */
+static VALUE
+set_id_attribute(VALUE self, VALUE rb_attr_name)
+{
+  xmlNodePtr node = NULL;
+  xmlAttrPtr attr = NULL;
+  xmlAttrPtr tmp = NULL;
+  xmlChar *name = NULL;
+  const char *idName = NULL;
+
+  Noko_Node_Get_Struct(self, xmlNode, node);
+  Check_Type(rb_attr_name, T_STRING);
+  idName = StringValueCStr(rb_attr_name);
+
+  // find pointer to id attribute
+  attr = xmlHasProp(node, (const xmlChar*)idName);
+  if ((attr == NULL) || (attr->children == NULL)) {
+    rb_raise(rb_eRuntimeError, "Can't find attribute to register as ID");
+  }
+
+  // get the attribute (id) value
+  name = xmlNodeListGetString(node->doc, attr->children, 1);
+  if (name == NULL) {
+    rb_raise(rb_eRuntimeError, "Attribute %s has no value", idName);
+  }
+
+  // check that we don't have that id already registered
+  tmp = xmlGetID(node->doc, name);
+  if (tmp != NULL) {
+    xmlFree(name);
+    rb_raise(rb_eRuntimeError, "Attribute %s is already an ID", idName);
+  }
+
+  // finally register id
+  xmlAddID(NULL, node->doc, name, attr);
+
+  xmlFree(name);
+
+  return self;
+}
+
 
 /*
  * call-seq:
@@ -2435,6 +2484,7 @@ noko_init_xml_node(void)
   rb_define_method(cNokogiriXmlNode, "pointer_id", rb_xml_node_pointer_id, 0);
   rb_define_method(cNokogiriXmlNode, "previous_element", previous_element, 0);
   rb_define_method(cNokogiriXmlNode, "previous_sibling", previous_sibling, 0);
+  rb_define_method(cNokogiriXmlNode, "set_id_attribute", set_id_attribute, 1);
   rb_define_method(cNokogiriXmlNode, "unlink", unlink_node, 0);
 
   rb_define_protected_method(cNokogiriXmlNode, "initialize_copy_with_args", rb_xml_node_initialize_copy_with_args, 3);

@@ -122,6 +122,11 @@ describe File.basename(gemfile) do
         actual_ports.grep(/libxslt-\d+\.\d+\.\d+\.tar\.[gx]z/).length,
         "expected #{actual_ports} to include libxslt",
       )
+      assert_equal(
+        1,
+        actual_ports.grep(/xmlsec-\d+\.\d+\.\d+\.tar\.[gx]z/).length,
+        "expected #{actual_ports} to include xmlsec",
+      )
       assert_equal(2, actual_ports.length)
     end
 
@@ -172,6 +177,7 @@ describe File.basename(gemfile) do
       assert_includes(gemfile_contents, "ext/nokogiri/include/libxml2/libxml/tree.h")
       assert_includes(gemfile_contents, "ext/nokogiri/include/libxslt/xslt.h")
       assert_includes(gemfile_contents, "ext/nokogiri/include/libexslt/exslt.h")
+      assert_includes(gemfile_contents, "ext/nokogiri/include/xmlsec/xmlsec.h")
     end
 
     it "does not contain the gumbo parser source code" do

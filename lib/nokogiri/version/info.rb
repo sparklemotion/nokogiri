@@ -45,6 +45,14 @@ module Nokogiri
       Gem::Version.new(Nokogiri::LIBXSLT_COMPILED_VERSION)
     end
 
+    def loaded_xmlsec_version
+      Gem::Version.new(Nokogiri::XMLSEC_LOADED_VERSION)
+    end
+
+    def compiled_xmlsec_version
+      Gem::Version.new(Nokogiri::XMLSEC_COMPILED_VERSION)
+    end
+
     def libxml2?
       defined?(Nokogiri::LIBXML_COMPILED_VERSION)
     end
@@ -160,6 +168,18 @@ module Nokogiri
             libxslt["datetime_enabled"] = libxslt_has_datetime?
             libxslt["compiled"] = compiled_libxslt_version.to_s
             libxslt["loaded"] = loaded_libxslt_version.to_s
+          end
+
+          vi["xmlsec"] = {}.tap do |xmlsec|
+            if libxml2_using_packaged?
+              xmlsec["source"] = "packaged"
+              xmlsec["precompiled"] = libxml2_precompiled?
+              xmlsec["patches"] = Nokogiri::XMLSEC_PATCHES
+            else
+              xmlsec["source"] = "system"
+            end
+            xmlsec["compiled"] = compiled_xmlsec_version.to_s
+            xmlsec["loaded"] = loaded_xmlsec_version.to_s
           end
 
           vi["warnings"] = warnings

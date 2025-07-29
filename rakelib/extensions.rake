@@ -378,7 +378,7 @@ else
   task gem_build_path do # rubocop:disable Rake/Desc
     NOKOGIRI_SPEC.files.reject! { |path| File.fnmatch?("**/*.{java,jar}", path, File::FNM_EXTGLOB) }
 
-    ["libxml2", "libxslt"].each do |lib|
+    ["libxml2", "libxslt", "xmlsec1"].each do |lib|
       version = dependencies[lib]["version"]
       archive = Dir.glob(File.join("ports", "archives", "#{lib}-#{version}.tar.*")).first
       add_file_to_gem(archive)
@@ -413,7 +413,7 @@ else
       # (see scripts/test-gem-file-contents and scripts/test-gem-installation for tests)
       headers_dir = "ext/nokogiri/include"
 
-      ["libxml2", "libxslt"].each do |lib|
+      ["libxml2", "libxslt", "xmlsec"].each do |lib|
         unless File.directory?(File.join(headers_dir, lib))
           raise "#{lib} headers are not present in #{headers_dir}"
         end
