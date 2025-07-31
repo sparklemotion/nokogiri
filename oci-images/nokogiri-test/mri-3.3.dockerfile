@@ -24,7 +24,7 @@ RUN wget https://sourceware.org/pub/valgrind/valgrind-3.21.0.tar.bz2 && \
 # include_file debian-libxml-et-al.step
 # -*- dockerfile -*-
 
-RUN apt-get install -y libxslt-dev libxml2-dev zlib1g-dev pkg-config
+RUN apt-get install -y libxslt-dev libxml2-dev libxmlsec1-dev zlib1g-dev pkg-config
 RUN apt-get install -y libyaml-dev # for psych 5
 
 
