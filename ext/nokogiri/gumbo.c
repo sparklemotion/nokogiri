@@ -441,12 +441,21 @@ parse_continue(VALUE parse_args)
   } else {
     doc = new_html_doc(NULL, NULL, NULL);
   }
-  args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
+
+  // XXX This doesn't feel like the correct approach but seems to work.
+  // We're about to build the libxml2 data structure from the Gumbo data
+  // structure. If an exception is raised during tree building, control passes
+  // to `parse_cleanup()` which needs to free the newly allocated `xmlDoc`,
+  // `doc`. If the tree is successfully constructed, then
+  // `noko_xml_document_wrap()` will create a new Ruby object which will own
+  // `doc`. In that case, `parse_cleanup()` should not free `doc`.
+  args->doc = doc;
   build_tree(doc, (xmlNodePtr)doc, output->document);
+  args->doc = NULL;
   VALUE rdoc = noko_xml_document_wrap(args->klass, doc);
+
   rb_iv_set(rdoc, "@url", args->url_or_frag);
   rb_iv_set(rdoc, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
-  args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
 }
