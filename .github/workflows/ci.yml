@@ -271,7 +271,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
-    runs-on: macos-latest
+        include:
+          - { ruby: "3.1", os: macos-14 }
+    runs-on: ${{ matrix.os || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -526,7 +528,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
-    runs-on: macos-latest
+        include:
+          - { ruby: "3.1", os: macos-14 }
+    runs-on: ${{ matrix.os || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
