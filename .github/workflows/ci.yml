@@ -268,7 +268,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
-    runs-on: macos-latest
+        include:
+          - { ruby: "3.1", os: macos-14 }
+    runs-on: ${{ matrix.os || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -323,6 +325,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
+        exclude:
+          - sys: "enable"
+            ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
     runs-on: windows-2022
     steps:
       - name: configure git crlf
@@ -335,7 +340,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: "libxml2 libxslt"
+          mingw: ${{ matrix.ruby == '3.1' && ' ' || 'libxml2 libxslt' }} # '' is falsey, ' ' is truthy
           bundler-cache: true
           bundler: latest
       - uses: actions/cache@v4
@@ -522,7 +527,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
-    runs-on: macos-latest
+        include:
+          - { ruby: "3.1", os: macos-14 }
+    runs-on: ${{ matrix.os || 'macos-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -543,6 +550,9 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
+        exclude:
+          - sys: "enable"
+            ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -551,7 +561,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: "libxml2 libxslt"
+          mingw: ${{ matrix.ruby == '3.1' && ' ' || 'libxml2 libxslt' }} # '' is falsey, ' ' is truthy
       - uses: actions/download-artifact@v4
         with:
           name: generic-gem
@@ -648,7 +658,7 @@ jobs:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
       - run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker run --rm --privileged alekitto/qemu-user-static --reset -p yes
           docker run --rm -v $PWD:/nokogiri -w /nokogiri \
             ${{ matrix.docker_platform }} ruby:${{ matrix.ruby }}${{ matrix.docker_tag }} \
             sh -c "
