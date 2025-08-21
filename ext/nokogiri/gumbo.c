@@ -441,12 +441,20 @@ parse_continue(VALUE parse_args)
   } else {
     doc = new_html_doc(NULL, NULL, NULL);
   }
-  args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
+
+  // We're about to build the libxml2 tree structure from the Gumbo tree
+  // structure. If an exception is raised during tree building, control passes
+  // to `parse_cleanup()` which needs to free the newly allocated `xmlDoc`,
+  // `doc`. If the tree is successfully constructed, then
+  // `noko_xml_document_wrap()` will create a new Ruby object which will own
+  // `doc`. In that case, `parse_cleanup()` should not free `doc`.
+  args->doc = doc;
   build_tree(doc, (xmlNodePtr)doc, output->document);
+  args->doc = NULL;
   VALUE rdoc = noko_xml_document_wrap(args->klass, doc);
+
   rb_iv_set(rdoc, "@url", args->url_or_frag);
   rb_iv_set(rdoc, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
-  args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
 }
@@ -636,7 +644,7 @@ error:
     .output = output,
     .input = tags,
     .url_or_frag = doc_fragment,
-    .doc = (xmlDocPtr)extract_xml_node(doc),
+    .doc = NULL,
   };
   rb_ensure(fragment_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
   return Qnil;
@@ -648,9 +656,9 @@ fragment_continue(VALUE parse_args)
   ParseArgs *args = (ParseArgs *)parse_args;
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
-  xmlDocPtr xml_doc = args->doc;
+  VALUE doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
+  xmlDocPtr xml_doc = (xmlDocPtr)extract_xml_node(doc);
 
-  args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
   rb_iv_set(doc_fragment, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
