@@ -11,7 +11,7 @@ RUN apk add valgrind
 RUN apk add yaml-dev
 
 # libxml-et-al
-RUN apk add libxml2-dev libxslt-dev pkgconfig
+RUN apk add libxml2-dev libxslt-dev openssl-dev pkgconfig xmlsec-dev
 
 # include_file bundle-install.step
 # -*- dockerfile -*-
