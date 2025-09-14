@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.18.10 / 2025-09-15
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.13.9](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.9). Note that the security fixes published in v2.13.9 were already present in Nokogiri v1.18.9.
+* [CRuby] [Windows and MacOS] Vendored libiconv is updated to [v1.18](https://savannah.gnu.org/news/?id=10703)
+
+
 ## v1.18.9 / 2025-07-20
 
 ### Security
