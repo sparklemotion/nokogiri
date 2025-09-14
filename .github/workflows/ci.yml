@@ -329,8 +329,7 @@ jobs:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
         exclude:
-          - sys: "enable"
-            ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
+          - ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
     runs-on: windows-2022
     steps:
       - name: configure git crlf
@@ -343,7 +342,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: ${{ matrix.ruby == '3.1' && ' ' || 'libxml2 libxslt' }} # '' is falsey, ' ' is truthy
+          mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
       - uses: actions/cache@v4
@@ -555,8 +554,7 @@ jobs:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
         exclude:
-          - sys: "enable"
-            ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
+          - ruby: "3.1" # because Ruby 3.1 devkit is built with a version of GCC too old for modern msys2 2025-08
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -565,7 +563,7 @@ jobs:
       - uses: ruby/setup-ruby-pkgs@v1
         with:
           ruby-version: "${{matrix.ruby}}"
-          mingw: ${{ matrix.ruby == '3.1' && ' ' || 'libxml2 libxslt' }} # '' is falsey, ' ' is truthy
+          mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v4
         with:
           name: generic-gem
