@@ -832,7 +832,7 @@ else
         cross_build_p,
       ) do |recipe|
         recipe.files = [{
-          url: "https://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
+          url: "https://ftpmirror.gnu.org/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["libiconv"]["sha256"],
         }]
 
