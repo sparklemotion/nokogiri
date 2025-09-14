@@ -24,7 +24,7 @@ group :development do
   gem "simplecov", "0.22.0"
 
   # rubocop
-  unless RUBY_PLATFORM == "java"
+  unless RUBY_PLATFORM == "java" || ENV["APPVEYOR"]
     gem "standard", "1.50.0"
     gem "rubocop-minitest", "0.38.1"
     gem "rubocop-packaging", "0.6.0"
