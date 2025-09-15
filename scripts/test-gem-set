@@ -4,42 +4,38 @@
 #  - test-gem-file-contents
 #  - conditionally, if the local system can do it, test-gem-installation
 #
-eval "$(rbenv init - bash)"
-
 set -o errexit
 set -o pipefail
 
+ruby="ruby@latest"
 gem_platform_local=`ruby -e "puts Gem::Platform.local.to_s"`
 
 function remove_all_nokogiris {
-  yes | gem uninstall --force nokogiri || true
+  yes | mise x $ruby -- gem uninstall --force nokogiri || true
 }
 
 function install_and_test {
   gem=$1
   if [[ $gem =~ "java" ]] ; then
-    jruby_version=$(rbenv versions --bare | fgrep jruby | sort | tail -1)
-    rbenv shell ${jruby_version}
+    ruby="ruby@jruby"
   else
-    rbenv shell --unset
+    ruby="ruby@latest"
   fi
   remove_all_nokogiris
-  gem install --local $gem
-  ./scripts/test-gem-installation
+  mise x $ruby -- gem install --local $gem
+  mise x $ruby -- ./scripts/test-gem-installation
 
   if [[ $gem =~ nokogiri-[^-]*\.gem ]] ; then
     remove_all_nokogiris
-    NOKOGIRI_USE_SYSTEM_LIBRARIES=t gem install --local $gem
-    ./scripts/test-gem-installation
+    NOKOGIRI_USE_SYSTEM_LIBRARIES=t mise x $ruby -- gem install --local $gem
+    mise x $ruby -- ./scripts/test-gem-installation
   fi
 }
 
 gems=$*
 
-rbenv shell --unset
-
 for gem in $gems ; do
-  ./scripts/test-gem-file-contents $gem
+  mise x $ruby -- ./scripts/test-gem-file-contents $gem
 done
 
 for gem in $gems ; do
