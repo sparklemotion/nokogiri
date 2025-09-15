@@ -9,7 +9,6 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
-* [CRuby] [Windows and MacOS] Vendored libiconv is updated to [v1.18](https://savannah.gnu.org/news/?id=10703)
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
@@ -30,6 +29,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
+
+
+## v1.18.10 / 2025-09-15
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.13.9](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.9). Note that the security fixes published in v2.13.9 were already present in Nokogiri v1.18.9.
+* [CRuby] [Windows and MacOS] Vendored libiconv is updated to [v1.18](https://savannah.gnu.org/news/?id=10703)
 
 
 ## v1.18.9 / 2025-07-20
