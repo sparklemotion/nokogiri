@@ -1,4 +1,4 @@
-/**
+/*
  *
  */
 package nokogiri.internals;
