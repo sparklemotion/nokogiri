@@ -145,6 +145,7 @@ rb_xml_reader_namespaces(VALUE rb_reader)
   xmlTextReaderPtr c_reader;
   xmlNodePtr c_node;
   VALUE rb_errors;
+  libxmlStructuredErrorHandlerState handler_state;
 
   TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_text_reader_type, c_reader);
 
@@ -153,10 +154,11 @@ rb_xml_reader_namespaces(VALUE rb_reader)
   }
 
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   c_node = xmlTextReaderExpand(c_reader);
-  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  noko__structured_error_func_restore(&handler_state);
 
   if (c_node == NULL) {
     if (RARRAY_LEN(rb_errors) > 0) {
@@ -187,6 +189,7 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
   xmlNodePtr c_node;
   xmlAttrPtr c_property;
   VALUE rb_errors;
+  libxmlStructuredErrorHandlerState handler_state;
 
   TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_text_reader_type, c_reader);
 
@@ -195,10 +198,11 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
   }
 
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   c_node = xmlTextReaderExpand(c_reader);
-  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  noko__structured_error_func_restore(&handler_state);
 
   if (c_node == NULL) {
     if (RARRAY_LEN(rb_errors) > 0) {
@@ -560,15 +564,21 @@ read_more(VALUE rb_reader)
  * Returns a utf-8 encoded string.
  */
 static VALUE
-inner_xml(VALUE self)
+inner_xml(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
+  xmlTextReaderPtr c_reader;
   xmlChar *value;
   VALUE str;
+  libxmlStructuredErrorHandlerState handler_state;
 
-  TypedData_Get_Struct(self, xmlTextReader, &xml_text_reader_type, reader);
+  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_text_reader_type, c_reader);
 
-  value = xmlTextReaderReadInnerXml(reader);
+  VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
+
+  value = xmlTextReaderReadInnerXml(c_reader);
+
+  noko__structured_error_func_restore(&handler_state);
 
   str = Qnil;
   if (value) {
@@ -587,20 +597,30 @@ inner_xml(VALUE self)
  * Returns a utf-8 encoded string.
  */
 static VALUE
-outer_xml(VALUE self)
+outer_xml(VALUE rb_reader)
 {
-  xmlTextReaderPtr reader;
-  xmlChar *value;
-  VALUE str = Qnil;
+  xmlTextReaderPtr c_reader;
+  libxmlStructuredErrorHandlerState handler_state;
 
-  TypedData_Get_Struct(self, xmlTextReader, &xml_text_reader_type, reader);
+  TypedData_Get_Struct(rb_reader, xmlTextReader, &xml_text_reader_type, c_reader);
 
-  value = xmlTextReaderReadOuterXml(reader);
+  VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
+  noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  if (value) {
-    str = NOKOGIRI_STR_NEW2((char *)value);
-    xmlFree(value);
+  xmlChar *value = xmlTextReaderReadOuterXml(c_reader);
+
+  noko__structured_error_func_restore(&handler_state);
+
+  if (value == NULL) {
+    VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
+    if (RB_TEST(exception)) {
+      rb_exc_raise(exception);
+    }
+    return Qnil;
   }
+
+  VALUE str = NOKOGIRI_STR_NEW2((char *)value);
+  xmlFree(value);
   return str;
 }
 

@@ -773,4 +773,26 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
 
     assert_equal(1, reader.errors.length)
   end
+
+  def test_outer_xml_syntax_error
+    xml = <<~XML
+      <root><child>This & that</child></root>
+    XML
+    io = StringIO.new(xml)
+
+    assert_raises(Nokogiri::XML::SyntaxError) do
+      Nokogiri::XML::Reader.from_io(io).each { |node| node.outer_xml }
+    end
+  end
+
+  def test_inner_xml_syntax_error
+    xml = <<~XML
+      <root><child>This & that</child></root>
+    XML
+    io = StringIO.new(xml)
+
+    assert_raises(Nokogiri::XML::SyntaxError) do
+      Nokogiri::XML::Reader.from_io(io).each { |node| node.inner_xml }
+    end
+  end
 end
