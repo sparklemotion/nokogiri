@@ -32,13 +32,13 @@ public class XmlSaxPushParser extends RubyObject
   private static final long serialVersionUID = 1L;
 
   ParserContext.Options options;
-  IRubyObject saxParser;
+  transient IRubyObject saxParser;
 
-  NokogiriBlockingQueueInputStream stream;
+  transient NokogiriBlockingQueueInputStream stream;
 
-  private ParserTask parserTask = null;
-  private FutureTask<XmlSaxParserContext> futureTask = null;
-  private ExecutorService executor = null;
+  private transient ParserTask parserTask = null;
+  private transient FutureTask<XmlSaxParserContext> futureTask = null;
+  private transient ExecutorService executor = null;
   RaiseException ex = null;
 
   public
@@ -231,8 +231,7 @@ public class XmlSaxPushParser extends RubyObject
 
   static class ParserTask extends ParserContext.ParserTask<XmlSaxParserContext>
   {
-
-    final InputStream stream;
+    transient final InputStream stream;
 
     private
     ParserTask(ThreadContext context, IRubyObject handler, InputStream stream)

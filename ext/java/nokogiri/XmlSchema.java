@@ -47,7 +47,7 @@ public class XmlSchema extends RubyObject
 {
   private static final long serialVersionUID = 1L;
 
-  private Validator validator;
+  private transient Validator validator;
 
   public
   XmlSchema(Ruby ruby, RubyClass klazz)

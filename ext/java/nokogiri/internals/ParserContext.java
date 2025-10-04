@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.concurrent.Callable;
 
@@ -30,8 +31,8 @@ public abstract class ParserContext extends RubyObject
 {
   private static final long serialVersionUID = 1L;
 
-  protected InputSource source = null;
-  protected IRubyObject detected_encoding = null;
+  protected transient InputSource source = null;
+  protected transient IRubyObject detected_encoding = null;
   protected int stringDataSize = -1;
   protected String java_encoding;
 
@@ -189,8 +190,10 @@ public abstract class ParserContext extends RubyObject
    * Wrap Nokogiri parser options in a utility class.  This is
    * read-only.
    */
-  public static class Options
+  public static class Options implements Serializable
   {
+    private static final long serialVersionUID = 1L;
+
     protected static final long STRICT = 0;
     protected static final long RECOVER = 1;
     protected static final long NOENT = 2;

@@ -29,11 +29,11 @@ public class XmlEntityDecl extends XmlNode
   public static final int EXTERNAL_PARAMETER = 5;
   public static final int INTERNAL_PREDEFINED = 6;
 
-  private IRubyObject entityType;
-  private IRubyObject name;
-  private IRubyObject external_id;
-  private IRubyObject system_id;
-  private IRubyObject content;
+  private transient IRubyObject entityType;
+  private transient IRubyObject name;
+  private transient IRubyObject external_id;
+  private transient IRubyObject system_id;
+  private transient IRubyObject content;
 
   XmlEntityDecl(Ruby runtime, RubyClass klass)
   {

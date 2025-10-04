@@ -55,10 +55,10 @@ public class XmlNode extends RubyObject
   protected static final String TEXT_WRAPPER_NAME = "nokogiri_text_wrapper";
 
   /** The underlying Node object. */
-  protected Node node;
+  protected transient Node node;
 
   /* Cached objects */
-  protected IRubyObject content = null;
+  protected transient IRubyObject content = null;
   private transient XmlDocument doc;
   protected transient RubyString name;
 

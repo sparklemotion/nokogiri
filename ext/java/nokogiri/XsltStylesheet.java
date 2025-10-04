@@ -54,9 +54,9 @@ public class XsltStylesheet extends RubyObject
 {
   private static final long serialVersionUID = 1L;
 
-  private TransformerFactory factory = null;
-  private Templates sheet = null;
-  private IRubyObject stylesheet = null;
+  private transient TransformerFactory factory = null;
+  private transient Templates sheet = null;
+  private transient IRubyObject stylesheet = null;
   private boolean htmlish = false;
 
   public

@@ -146,7 +146,7 @@ public class XmlXpathContext extends RubyObject
     return this.evaluate(context, expr, context.getRuntime().getNil());
   }
 
-  private final NokogiriNamespaceContext nsContext = NokogiriNamespaceContext.create();
+  private transient final NokogiriNamespaceContext nsContext = NokogiriNamespaceContext.create();
 
   @JRubyMethod
   public IRubyObject

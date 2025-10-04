@@ -30,7 +30,7 @@ public class XmlNodeSet extends RubyObject implements NodeList
 {
   private static final long serialVersionUID = 1L;
 
-  IRubyObject[] nodes;
+  transient IRubyObject[] nodes;
 
   public
   XmlNodeSet(Ruby ruby, RubyClass klazz)
