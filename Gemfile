@@ -17,10 +17,10 @@ group :development do
   gem "rexical", "1.0.8"
 
   # tests
-  gem "minitest", "5.25.5"
+  gem "minitest", "5.26.0"
   gem "minitest-parallel_fork", "2.1.0"
   gem "ruby_memcheck", "3.0.1"
-  gem "rubyzip", "~> 3.1.0"
+  gem "rubyzip", "~> 3.2.0"
   gem "simplecov", "0.22.0"
 
   # rubocop
@@ -36,5 +36,5 @@ end
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
 group :rdoc do
-  gem "rdoc", "6.14.2" unless RUBY_PLATFORM == "java" || ENV["CI"]
+  gem "rdoc", "6.15.0" unless RUBY_PLATFORM == "java" || ENV["CI"]
 end
