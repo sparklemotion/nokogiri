@@ -792,11 +792,11 @@ else
             end
 
             def compile
-              execute("compile", "make -f win32/Makefile.gcc")
+              execute("compile", "make -j1 -f win32/Makefile.gcc")
             end
 
             def install
-              execute("install", "make -f win32/Makefile.gcc install")
+              execute("install", "make -j1 -f win32/Makefile.gcc install")
             end
           end
           recipe.cross_build_p = cross_build_p
