@@ -27,7 +27,7 @@ public class XmlNamespace extends RubyObject
 {
   private static final long serialVersionUID = 1L;
 
-  private Attr attr;
+  private transient Attr attr;
   private transient IRubyObject prefixRuby;
   private transient IRubyObject hrefRuby;
   private String prefix;

@@ -37,7 +37,7 @@ public class Html4ElementDescription extends RubyObject
     subElements = Collections.synchronizedMap(_subElements);
   }
 
-  protected HTMLElements.Element element;
+  protected transient HTMLElements.Element element;
 
   public
   Html4ElementDescription(Ruby runtime, RubyClass rubyClass)

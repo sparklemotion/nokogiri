@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 public class XmlRelaxng extends XmlSchema
 {
   private static final long serialVersionUID = 1L;
-  private Verifier verifier;
+  private transient Verifier verifier;
 
   public
   XmlRelaxng(Ruby ruby, RubyClass klazz)

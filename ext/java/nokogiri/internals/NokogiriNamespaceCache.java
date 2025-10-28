@@ -21,7 +21,6 @@ import org.w3c.dom.Node;
  */
 public class NokogiriNamespaceCache
 {
-
   private final Map<CacheKey, CacheEntry> cache;  // pair of the index of a given key and entry
   private XmlNamespace defaultNamespace = null;
 

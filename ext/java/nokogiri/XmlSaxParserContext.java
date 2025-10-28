@@ -41,10 +41,10 @@ public class XmlSaxParserContext extends ParserContext
   protected static final String FEATURE_CONTINUE_AFTER_FATAL_ERROR =
     "http://apache.org/xml/features/continue-after-fatal-error";
 
-  protected AbstractSAXParser parser;
+  protected transient AbstractSAXParser parser;
 
-  protected NokogiriHandler handler;
-  protected NokogiriErrorHandler errorHandler;
+  protected transient NokogiriHandler handler;
+  protected transient NokogiriErrorHandler errorHandler;
   private boolean replaceEntities = false;
   private boolean recovery = false;
 

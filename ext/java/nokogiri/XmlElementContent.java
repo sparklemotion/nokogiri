@@ -33,8 +33,8 @@ public class XmlElementContent extends RubyObject
   protected String name;
   protected Type type;
   protected Occur occur;
-  protected IRubyObject left;
-  protected IRubyObject right;
+  protected transient IRubyObject left;
+  protected transient IRubyObject right;
 
   /** values hardcoded from nokogiri/xml/element_content.rb; this
    * makes me uneasy, but it works */

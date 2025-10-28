@@ -40,7 +40,7 @@ public class XmlDtd extends XmlNode
   private static final long serialVersionUID = 1L;
 
   /** cache of children, Nokogiri::XML::NodeSet */
-  protected IRubyObject children = null;
+  protected transient IRubyObject children = null;
 
   /** cache of name => XmlAttributeDecl */
   protected RubyHash attributes = null;
@@ -60,13 +60,13 @@ public class XmlDtd extends XmlNode
   protected RubyHash contentModels;
 
   /** node name */
-  protected IRubyObject name;
+  protected transient IRubyObject name;
 
   /** public ID (or external ID) */
-  protected IRubyObject pubId;
+  protected transient IRubyObject pubId;
 
   /** system ID */
-  protected IRubyObject sysId;
+  protected transient IRubyObject sysId;
 
   public
   XmlDtd(Ruby ruby, RubyClass rubyClass)

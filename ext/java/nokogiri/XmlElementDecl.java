@@ -25,7 +25,7 @@ public class XmlElementDecl extends XmlNode
   private static final long serialVersionUID = 1L;
 
   RubyArray<?> attrDecls;
-  IRubyObject contentModel;
+  transient IRubyObject contentModel;
 
   public
   XmlElementDecl(Ruby runtime, RubyClass klazz)

@@ -55,7 +55,7 @@ public class XmlDocument extends XmlNode
 {
   private static final long serialVersionUID = 1L;
 
-  private NokogiriNamespaceCache nsCache;
+  private transient NokogiriNamespaceCache nsCache;
 
   /* UserData keys for storing extra info in the document node. */
   public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
@@ -71,8 +71,8 @@ public class XmlDocument extends XmlNode
   static { DOCUMENT.setEncoding(USASCIIEncoding.INSTANCE); }
 
   /** cache variables */
-  protected IRubyObject encoding;
-  protected IRubyObject url;
+  protected transient IRubyObject encoding;
+  protected transient IRubyObject url;
 
   public
   XmlDocument(Ruby runtime, RubyClass klazz)

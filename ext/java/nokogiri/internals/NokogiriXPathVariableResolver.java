@@ -1,5 +1,6 @@
 package nokogiri.internals;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathVariableResolver;
@@ -10,8 +11,9 @@ import javax.xml.xpath.XPathVariableResolver;
  * @author Ken Bloom <kbloom@gmail.com>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriXPathVariableResolver implements XPathVariableResolver
+public class NokogiriXPathVariableResolver implements XPathVariableResolver, Serializable
 {
+  private static final long serialVersionUID = 1L;
 
   private final HashMap<QName, String> variables = new HashMap<QName, String>();
 

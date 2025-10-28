@@ -66,10 +66,10 @@ public class XmlReader extends RubyObject
   private static final int XML_TEXTREADER_MODE_CLOSED = 4;
   private static final int XML_TEXTREADER_MODE_READING = 5;
 
-  List<ReaderNode> nodeQueue;
+  transient List<ReaderNode> nodeQueue;
   private int state;
   private int position = 0;
-  private XMLPullParserConfiguration config;
+  private transient XMLPullParserConfiguration config;
   private boolean continueParsing = true;
 
   public

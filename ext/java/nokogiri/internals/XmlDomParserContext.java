@@ -46,9 +46,9 @@ public class XmlDomParserContext extends ParserContext
   private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
   protected ParserContext.Options options;
-  protected DOMParser parser;
-  protected NokogiriErrorHandler errorHandler;
-  protected IRubyObject ruby_encoding;
+  protected transient DOMParser parser;
+  protected transient NokogiriErrorHandler errorHandler;
+  protected transient IRubyObject ruby_encoding;
 
   public
   XmlDomParserContext(Ruby runtime, IRubyObject options)

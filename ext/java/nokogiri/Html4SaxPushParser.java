@@ -32,13 +32,13 @@ public class Html4SaxPushParser extends RubyObject
   private static final long serialVersionUID = 1L;
 
   ParserContext.Options options;
-  IRubyObject saxParser;
+  transient IRubyObject saxParser;
 
-  NokogiriBlockingQueueInputStream stream;
+  transient NokogiriBlockingQueueInputStream stream;
 
-  private ParserTask parserTask = null;
-  private FutureTask<Html4SaxParserContext> futureTask = null;
-  private ExecutorService executor = null;
+  private transient ParserTask parserTask = null;
+  private transient FutureTask<Html4SaxParserContext> futureTask = null;
+  private transient ExecutorService executor = null;
 
   public
   Html4SaxPushParser(Ruby ruby, RubyClass rubyClass)
@@ -189,7 +189,6 @@ public class Html4SaxPushParser extends RubyObject
 
   static class ParserTask extends XmlSaxPushParser.ParserTask /* <Html4SaxPushParser> */
   {
-
     private
     ParserTask(ThreadContext context, IRubyObject handler, InputStream stream)
     {
