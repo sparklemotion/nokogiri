@@ -73,7 +73,11 @@ describe File.basename(gemfile) do
   let(:native_config) { YAML.load_file(File.join(__dir__, "..", "misc", "native.yml")) }
 
   let(:supported_ruby_versions) do
-    native_config["rubies"]
+    versions = native_config["rubies"]
+    native_config["exclude"].each do |h|
+      versions -= [h["ruby"]] if h["platform"] == gemspec.platform.to_s
+    end
+    versions
   end
 
   describe "setup" do
