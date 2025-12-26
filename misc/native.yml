@@ -10,7 +10,7 @@ platforms:
   - x86_64-linux-gnu
   - x86_64-linux-musl
 rubies:
+  - "4.0"
   - "3.4"
   - "3.3"
   - "3.2"
-  - "3.1"

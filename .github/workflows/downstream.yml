@@ -42,7 +42,7 @@ jobs:
           - url: https://github.com/WinRb/Viewpoint
             name: viewpoint
             command: "bundle exec rspec spec"
-            ruby: "3.1"
+            ruby: "3.2"
           - url: https://github.com/rails/rails
             name: xmlmini
             command: "cd activesupport && bundle exec rake test TESTOPTS=-n/XmlMini/"
