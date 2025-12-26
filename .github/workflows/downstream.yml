@@ -89,9 +89,10 @@ jobs:
         working-directory: ${{matrix.name}}
         run: |
           bundle remove nokogiri || true
-          bundle add nokogiri --path=".." --skip-install
+          bundle remove bundler || true
           if grep "add_development_dependency.*\bbundler\b" *gemspec ; then
             sed -i 's/.*add_development_dependency.*\bbundler\b.*//' *gemspec
           fi
+          bundle add nokogiri --path=".." --skip-install
           bundle install --jobs=1
           ${{matrix.command}}
