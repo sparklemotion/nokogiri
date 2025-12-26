@@ -1,4 +1,4 @@
-FROM ruby:alpine3.21
+FROM ruby:alpine3.23
 
 # prelude
 RUN apk update
@@ -8,7 +8,7 @@ RUN apk add bash build-base git
 RUN apk add valgrind
 
 # libxml-et-al
-RUN apk add libxml2-dev libxslt-dev pkgconfig
+RUN apk add libxml2-dev libxslt-dev pkgconfig yaml-dev
 
 # include_file bundle-install.step
 # -*- dockerfile -*-

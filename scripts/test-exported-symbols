@@ -8,8 +8,6 @@
 #  libexslt.a exist and can be found under the pwd.
 #
 
-require "set"
-
 def find_that_file(glob)
   Dir.glob(glob).first || raise("could not find #{glob}")
 end
