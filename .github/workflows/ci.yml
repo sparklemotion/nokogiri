@@ -355,7 +355,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["jruby-9.4"]
+        ruby: ["jruby-10.0"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -730,8 +730,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jruby: ["9.4"]
-        jre: ["8", "11"]
+        jruby: ["10.0"]
+        jre: ["21", "25"]
     name: "jruby-${{matrix.jruby}}-jre${{matrix.jre}}-install"
     runs-on: ubuntu-latest
     steps:
