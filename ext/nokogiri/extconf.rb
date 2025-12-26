@@ -619,7 +619,7 @@ end
 def needs_darwin_linker_hack
   config_cross_build? &&
     darwin? &&
-    Gem::Requirement.new("~> 3.2").satisfied_by?(Gem::Version.new(RbConfig::CONFIG["ruby_version"].split("+").first))
+    Gem::Requirement.new(">= 3.2").satisfied_by?(Gem::Version.new(RbConfig::CONFIG["ruby_version"].split("+").first))
 end
 
 #
