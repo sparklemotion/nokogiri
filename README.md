@@ -114,7 +114,7 @@ You can help sponsor the maintainers of this software through one of these organ
 Requirements:
 
 - Ruby >= 3.2
-- JRuby >= 9.4.0.0
+- JRuby >= 10.0
 
 If you are compiling the native extension against a system version of libxml2:
 
@@ -134,7 +134,7 @@ Nokogiri ships pre-compiled, "native" gems for the following platforms:
   - `x86_64-linux-musl`, `aarch64-linux-musl`, and `arm-linux-musl`
 - Darwin/MacOS: `x86_64-darwin` and `arm64-darwin`
 - Windows: `x64-mingw-ucrt`
-- Java: any platform running JRuby 9.4 or higher
+- Java: any platform running JRuby 10.0 or higher
 
 To determine whether your system supports one of these gems, look at the output of `bundle platform` or `ruby -e 'puts Gem::Platform.local.to_s'`.
 
