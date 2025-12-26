@@ -6,7 +6,6 @@ gemspec
 
 group :development do
   # bootstrapping
-  gem "bundler", "~> 2.3"
   gem "rake", "13.2.1"
 
   # building extensions
