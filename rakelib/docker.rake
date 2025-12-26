@@ -9,7 +9,7 @@ module DockerHelper
   IMAGE_NAME = "ghcr.io/sparklemotion/nokogiri-test"
   RUBIES = {
     # engine → array of ruby minor version docker tags
-    mri: ["3.1", "3.2", "3.3", "3.4"],
+    mri: ["3.2", "3.3", "3.4", "4.0"],
   }
 
   class << self
@@ -66,14 +66,13 @@ module DockerHelper
                 tag: #{platforms.inspect}
             runs-on: ubuntu-latest
             steps:
-              - uses: actions/checkout@v4
+              - uses: actions/checkout@v5
                 with:
                   submodules: true
               - uses: ruby/setup-ruby@v1
                 with:
-                  ruby-version: "3.1"
+                  ruby-version: "3.4"
                   bundler-cache: true
-                  bundler: latest
               - uses: docker/setup-buildx-action@v3
               - uses: docker/login-action@v3
                 with:

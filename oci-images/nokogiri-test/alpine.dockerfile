@@ -1,4 +1,4 @@
-FROM ruby:alpine3.21
+FROM ruby:alpine3.23
 
 # prelude
 RUN apk update
@@ -11,7 +11,7 @@ RUN apk add valgrind
 RUN apk add yaml-dev
 
 # libxml-et-al
-RUN apk add libxml2-dev libxslt-dev openssl-dev pkgconfig xmlsec-dev
+RUN apk add libxml2-dev libxslt-dev openssl-dev pkgconfig xmlsec-dev yaml-dev
 
 # include_file bundle-install.step
 # -*- dockerfile -*-

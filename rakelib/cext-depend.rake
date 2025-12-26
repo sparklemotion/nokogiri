@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
-
 namespace "cext" do
   desc "Regenerate C extension dependencies in #{File.dirname(NOKOGIRI_SPEC.extensions.first)}/depend"
   task :depend do

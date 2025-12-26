@@ -13,7 +13,6 @@ gemfile do
 end
 
 require "git_diff"
-require "set"
 
 gh = %x(which gh 2> /dev/null).strip
 if gh.empty?
