@@ -730,7 +730,10 @@ jobs:
         jre: ["21", "25"]
     name: "jruby-${{matrix.jruby}}-jre${{matrix.jre}}-install"
     runs-on: ubuntu-latest
+    container:
+      image: "jruby:${{matrix.jruby}}-jre${{matrix.jre}}"
     steps:
+      - run: apt update && apt install -y build-essential git
       - uses: actions/checkout@v5
         with:
           submodules: true
@@ -738,7 +741,4 @@ jobs:
         with:
           name: jruby-gem
           path: gems
-      - run: |
-          docker run --rm -v "$PWD:/nokogiri" -w /nokogiri \
-            jruby:${{matrix.jruby}}-jre${{matrix.jre}} \
-            ./scripts/test-gem-install gems
+      - run: ./scripts/test-gem-install gems

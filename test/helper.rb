@@ -39,6 +39,8 @@ warn "#{__FILE__}:#{__LINE__}: version info:"
 warn Nokogiri::VERSION_INFO.to_yaml
 warn
 
+require "minitest"
+require "minitest/mock"
 require "minitest/autorun"
 require "minitest/benchmark"
 

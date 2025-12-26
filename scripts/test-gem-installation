@@ -28,10 +28,11 @@ end
 require "nokogiri"
 require "yaml"
 
+puts "---------- Nokogiri version info ----------"
+puts Nokogiri::VERSION_INFO.to_yaml
+puts
+
 if ARGV.include?("-v")
-  puts "---------- Nokogiri version info ----------"
-  puts Nokogiri::VERSION_INFO.to_yaml
-  puts
   puts "---------- Nokogiri installed gemspec ----------"
   puts gemspec.to_ruby
   puts
