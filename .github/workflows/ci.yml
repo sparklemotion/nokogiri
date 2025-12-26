@@ -638,15 +638,15 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.image_tag) }}
         include:
           # declare docker image for each platform
-          - { platform: aarch64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
-          - { platform: arm-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
-          - { platform: x86_64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          - { runner: ubuntu-latest, platform: aarch64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          - { runner: ubuntu-latest, platform: arm-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
+          - { runner: ubuntu-latest, platform: x86_64-linux-musl, docker_tag: "-alpine", bootstrap: "apk add bash build-base &&" }
           # declare docker platform for each platform
-          - { platform: aarch64-linux-gnu, docker_platform: "--platform=linux/arm64/v8" }
-          - { platform: aarch64-linux-musl, docker_platform: "--platform=linux/arm64/v8" }
-          - { platform: arm-linux-gnu, docker_platform: "--platform=linux/arm/v7" }
-          - { platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
-    runs-on: ubuntu-latest
+          - { runner: ubuntu-24.04-arm, platform: aarch64-linux-gnu, docker_platform: "--platform=linux/arm64/v8" }
+          - { runner: ubuntu-24.04-arm, platform: aarch64-linux-musl, docker_platform: "--platform=linux/arm64/v8" }
+          - { runner: ubuntu-24.04-arm, platform: arm-linux-gnu, docker_platform: "--platform=linux/arm/v7" }
+          - { runner: ubuntu-24.04-arm, platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
+    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -656,7 +656,6 @@ jobs:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
       - run: |
-          docker run --rm --privileged alekitto/qemu-user-static --reset -p yes
           docker run --rm -v $PWD:/nokogiri -w /nokogiri \
             ${{ matrix.docker_platform }} ruby:${{ matrix.ruby }}${{ matrix.docker_tag }} \
             sh -c "
