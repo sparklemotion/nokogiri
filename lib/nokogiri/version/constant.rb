@@ -2,5 +2,5 @@
 
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = "1.18.10"
+  VERSION = "1.19.0"
 end

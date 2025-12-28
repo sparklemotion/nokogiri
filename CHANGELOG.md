@@ -4,6 +4,17 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.19.0 / 2025-12-28
+
+#### Ruby
+
+This release is focused on changes to Ruby version support, and is otherwise functionally identical to v1.18.10.
+
+- Introduce native gem support for Ruby 4.0. #3590
+- End support for Ruby 3.1, for which [upstream support ended 2025-03-26](https://www.ruby-lang.org/en/downloads/branches/).
+- End support for JRuby 9.4 (which targets Ruby 3.1 compatibility).
+
+
 ## v1.18.10 / 2025-09-15
 
 ### Dependencies
