@@ -4,9 +4,9 @@ FROM ubuntu:noble
 # -*- dockerfile -*-
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y apt-utils
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y apt-utils
 
 
 # include_file debian-git.step

@@ -42,7 +42,7 @@ jobs:
           - url: https://github.com/WinRb/Viewpoint
             name: viewpoint
             command: "bundle exec rspec spec"
-            ruby: "3.1"
+            ruby: "3.2"
           - url: https://github.com/rails/rails
             name: xmlmini
             command: "cd activesupport && bundle exec rake test TESTOPTS=-n/XmlMini/"
@@ -88,9 +88,10 @@ jobs:
         working-directory: ${{matrix.name}}
         run: |
           bundle remove nokogiri || true
-          bundle add nokogiri --path=".."
+          bundle remove bundler || true
           if grep "add_development_dependency.*\bbundler\b" *gemspec ; then
             sed -i 's/.*add_development_dependency.*\bbundler\b.*//' *gemspec
           fi
-          bundle install --local || bundle install
+          bundle add nokogiri --path=".." --skip-install
+          bundle install --jobs=1
           ${{matrix.command}}

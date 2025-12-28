@@ -105,7 +105,7 @@ bundle install
 
 ### Advanced
 
-Please install the latest or previous version of CRuby (e.g., 3.2 or 3.1 as of 2023-01), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
+Please install the latest or previous version of CRuby (e.g., 4.0 or 3.4 as of 2025-12), and a recent version of JRuby. We recommend using `rbenv`, which is used in test scripts when necessary to test gems against multiple rubies.
 
 Please install a system version of libxml2/libxslt (see [Installing Nokogiri](https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries) for details) so that you can test against both the packaged libraries and your system libraries.
 
