@@ -490,7 +490,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux-gnu \
             ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: generic-gem
           path: gems
@@ -594,7 +594,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-${{matrix.plat}} \
             ./scripts/test-gem-build gems ${{matrix.plat}}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
@@ -719,7 +719,7 @@ jobs:
         with:
           submodules: true
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: jruby-gem
           path: gems
