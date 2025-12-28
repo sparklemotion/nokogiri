@@ -9,7 +9,6 @@ skip_branch_with_pr: true
 clone_depth: 1
 
 cache:
-  - vendor/bundle
   - ports/archives
 
 install:
@@ -24,7 +23,6 @@ install:
   - gem --version
   - gem install bundler --conservative
   - git submodule update --init
-  - bundle config --local path vendor/bundle
   - bundle install
 
 build: off
@@ -34,14 +32,14 @@ test_script:
 
 environment:
   matrix:
-    - ruby_version: 33
+    - ruby_version: 40
       INSTALL_PACKAGES: "mingw-w64-i686-libyaml"
-    - ruby_version: 33
+    - ruby_version: 40
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt mingw-w64-i686-libyaml"
       EXTCONF_PARAMS: "--use-system-libraries"
 
-    - ruby_version: 31
+    - ruby_version: 32
       INSTALL_PACKAGES: "mingw-w64-i686-libyaml"
-    - ruby_version: 31
+    - ruby_version: 32
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt mingw-w64-i686-libyaml"
       EXTCONF_PARAMS: "--use-system-libraries"
