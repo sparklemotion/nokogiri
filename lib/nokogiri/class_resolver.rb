@@ -1,8 +1,6 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-require "set"
-
 module Nokogiri
   #
   # Some classes in Nokogiri are namespaced as a group, for example
