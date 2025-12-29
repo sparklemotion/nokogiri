@@ -214,7 +214,7 @@ module Nokogiri
 
       def extract_params(params) # :nodoc:
         handler = params.find do |param|
-          ![Hash, String, Symbol].include?(param.class)
+          ![Hash, String, Symbol, XPath::Expression].include?(param.class)
         end
         params -= [handler] if handler
 
