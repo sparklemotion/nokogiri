@@ -324,7 +324,21 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
-    runs-on: windows-2022
+        os: [ windows-2022 ]
+        include:
+        - os: windows-11-arm
+          sys: "enable"
+          ruby: "3.4"
+        - os: windows-11-arm
+          sys: "disable"
+          ruby: "3.4"
+        - os: windows-11-arm
+          sys: "enable"
+          ruby: "4.0"
+        - os: windows-11-arm
+          sys: "disable"
+          ruby: "4.0"
+    runs-on: ${{ matrix.os }}
     steps:
       - name: configure git crlf
         run: |
