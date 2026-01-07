@@ -40,6 +40,7 @@ void noko_init_xml_schema(void);
 void noko_init_xml_syntax_error(void);
 void noko_init_xml_text(void);
 void noko_init_xml_xpath_context(void);
+void noko_init_xml_xpath_expression(void);
 void noko_init_xslt_stylesheet(void);
 void noko_init_html_document(void);
 void noko_init_html_element_description(void);
@@ -253,6 +254,7 @@ Init_nokogiri(void)
   noko_init_html4_sax_parser();
 
   noko_init_xml_xpath_context();
+  noko_init_xml_xpath_expression();
   noko_init_xslt_stylesheet();
   noko_init_html_element_description();
   noko_init_html_entity_lookup();
