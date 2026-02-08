@@ -291,3 +291,18 @@ Some additional libraries may be distributed with your version of Nokogiri. Plea
 - Sergio Arbeo
 - Timothy Elliott
 - Nobuyoshi Nakada
+
+
+## Sponsors
+
+These folks have generously sponsored Nokogiri's development. Thank you for your support!
+
+<p class="sponsors">
+  <span style="white-space: nowrap;"><a href="https://sentry.io"><img src="https://nokogiri.org/images/sponsors/sentry-icon.png" alt="Sentry" height="44" style="vertical-align: middle;"></a>&nbsp;<b>Sentry</b></span>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <span style="white-space: nowrap;"><a href="https://codecov.io"><img src="https://nokogiri.org/images/sponsors/codecov-icon.png" alt="Codecov" height="44" style="vertical-align: middle;"></a>&nbsp;<b>Codecov</b></span>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <span style="white-space: nowrap;"><a href="https://gusto.com"><img src="https://nokogiri.org/images/sponsors/gusto-icon.png" alt="Gusto" height="44" style="vertical-align: middle;"></a>&nbsp;<b>Gusto</b></span>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <span style="white-space: nowrap;"><a href="https://hasdata.com"><img src="https://nokogiri.org/images/sponsors/hasdata-icon.png" alt="HasData" height="44" style="vertical-align: middle;"></a>&nbsp;<b>HasData</b></span>
+</p>
