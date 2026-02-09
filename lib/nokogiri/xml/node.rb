@@ -1227,7 +1227,7 @@ module Nokogiri
       # Parse +string_or_io+ as a document fragment within the context of
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
-      def parse(string_or_io, options = nil)
+      def parse(string_or_io, options_ = nil, options: options_)
         ##
         # When the current node is unparented and not an element node, use the
         # document as the parsing context instead. Otherwise, the in-context
@@ -1614,7 +1614,7 @@ module Nokogiri
         write_to(io, options)
       end
 
-      def canonicalize(mode = XML::XML_C14N_1_0, inclusive_namespaces = nil, with_comments = false)
+      def canonicalize(mode_ = XML::XML_C14N_1_0, inclusive_namespaces_ = nil, with_comments_ = false, mode: mode_, inclusive_namespaces: inclusive_namespaces_, with_comments: with_comments_)
         c14n_root = self
         document.canonicalize(mode, inclusive_namespaces, with_comments) do |node, parent|
           tn = node.is_a?(XML::Node) ? node : parent
