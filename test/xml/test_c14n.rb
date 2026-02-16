@@ -199,6 +199,11 @@ module Nokogiri
         end
       end
 
+      def test_raise_on_canonicalization_failure
+        doc = Nokogiri.XML('<root xmlns:a="1"></root>')
+        assert_raises(RuntimeError) { doc.canonicalize }
+      end
+
       def test_wrong_params
         xml = "<a><b></b></a>"
         doc = Nokogiri.XML(xml)

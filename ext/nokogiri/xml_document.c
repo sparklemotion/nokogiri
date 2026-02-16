@@ -652,14 +652,18 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     }
   }
 
-  xmlC14NExecute(c_doc, c_callback_wrapper, rb_callback,
-                 c_mode,
-                 c_namespaces,
-                 (int)RTEST(rb_comments_p),
-                 c_obuf);
+  int ret = xmlC14NExecute(c_doc, c_callback_wrapper, rb_callback,
+                           c_mode,
+                           c_namespaces,
+                           (int)RTEST(rb_comments_p),
+                           c_obuf);
 
   ruby_xfree(c_namespaces);
   xmlOutputBufferClose(c_obuf);
+
+  if (ret < 0) {
+    rb_raise(rb_eRuntimeError, "canonicalization failed");
+  }
 
   return rb_funcall(rb_io, rb_intern("string"), 0);
 }
