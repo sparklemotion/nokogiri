@@ -69,7 +69,7 @@ Please use the "Bug Report" or "Installation Difficulties" templates.
 
 ### Security and Vulnerability Reporting
 
-Please report vulnerabilities at https://hackerone.com/nokogiri
+Please report vulnerabilities at https://github.com/sparklemotion/nokogiri/security
 
 See [SECURITY.md](SECURITY.md) for full information and description of our security policy.
 
