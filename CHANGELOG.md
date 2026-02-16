@@ -32,6 +32,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 
 
+## v1.19.1 / 2026-02-16
+
+### Security
+
+* [CRuby] Address unchecked return value from `xmlC14NExecute` which was a contributing cause to ruby-saml GHSA-x4h9-gwv3-r4m4. See [GHSA-wx95-c6cv-8532](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-wx95-c6cv-8532) for more information.
+
+
 ## v1.19.0 / 2025-12-28
 
 #### Ruby
