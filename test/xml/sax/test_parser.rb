@@ -77,7 +77,7 @@ module Nokogiri
 
           it "parses a compressed file" do
             skip("libxml2 legacy support") unless Nokogiri.uses_libxml? && Nokogiri::LIBXML_ZLIB_ENABLED
-            skip("TODO: windows libxml 2.15.1 system libraries have ZLIB_ENABLED but it's really not") if Nokogiri::VersionInfo.instance.windows? && Nokogiri::VersionInfo.instance.libxml2_using_system?
+            skip("libxml2 >= 2.15 requires callers to pass XML_PARSE_UNZIP to enable decompression") if Nokogiri.uses_libxml?(">= 2.15.0")
 
             filename = XML_FILE + ".gz"
             parser.parse_file(filename)
