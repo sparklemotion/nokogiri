@@ -51,6 +51,7 @@ CrossRuby = Struct.new(:version, :platform) do
     (@binutils_prefix ||= case platform
      when "aarch64-linux-gnu" then "aarch64-linux-gnu-"
      when "aarch64-linux-musl" then "aarch64-linux-musl-"
+     when "aarch64-mingw-ucrt" then "aarch64-w64-mingw32-"
      when "arm-linux-gnu" then "arm-linux-gnueabihf-"
      when "arm-linux-musl" then "arm-linux-musleabihf-"
      when "arm64-darwin" then "aarch64-apple-darwin-"
@@ -66,6 +67,7 @@ CrossRuby = Struct.new(:version, :platform) do
   def target_file_format
     case platform
     when "aarch64-linux-gnu", "aarch64-linux-musl" then "elf64-littleaarch64"
+    when "aarch64-mingw-ucrt" then "coff-arm64"
     when "arm-linux-gnu", "arm-linux-musl" then "elf32-littlearm"
     when "arm64-darwin" then "Mach-O arm64"
     when "x64-mingw-ucrt" then "pei-x86-64"
@@ -88,6 +90,8 @@ CrossRuby = Struct.new(:version, :platform) do
     case platform
     when "x64-mingw-ucrt"
       "x64-ucrt-ruby#{api_ver_suffix}.dll"
+    when "aarch64-mingw-ucrt"
+      "aarch64-ucrt-ruby#{api_ver_suffix}.dll"
     else
       raise "CrossRuby.libruby_dll: unmatched platform: #{platform}"
     end
