@@ -485,7 +485,7 @@ def process_recipe(name, version, static_p, cross_p, cacheable_p = true)
         "--disable-shared",
         "--enable-static",
       ]
-      env["CFLAGS"] = concat_flags(env["CFLAGS"], "-fPIC")
+      env["CFLAGS"] = concat_flags(env["CFLAGS"], "-fPIC", "-fvisibility=hidden")
     else
       recipe.configure_options += [
         "--enable-shared",
@@ -594,34 +594,6 @@ def do_clean
   exit!(0)
 end
 
-# In ruby 3.2, symbol resolution changed on Darwin, to introduce the `-bundle_loader` flag to
-# resolve symbols against the ruby binary.
-#
-# This makes it challenging to build a single extension that works with both a ruby with
-# `--enable-shared` and one with `--disable-shared. To work around that, we choose to add
-# `-flat_namespace` to the link line (later in this file).
-#
-# The `-flat_namespace` line introduces its own behavior change, which is that (similar to on
-# Linux), any symbols in the extension that are exported may now be resolved by shared libraries
-# loaded by the Ruby process. Specifically, that means that libxml2 and libxslt, which are
-# statically linked into the nokogiri bundle, will resolve (at runtime) to a system libxml2 loaded
-# by Ruby on Darwin. And it appears that often Ruby on Darwin does indeed load the system libxml2,
-# and that messes with our assumptions about whether we're running with a patched libxml2 or a
-# vanilla libxml2.
-#
-# We choose to use `-load_hidden` in this case to prevent exporting those symbols from libxml2 and
-# libxslt, which ensures that they will be resolved to the static libraries in the bundle. In other
-# words, when we use `load_hidden`, what happens in the extension stays in the extension.
-#
-# See https://github.com/rake-compiler/rake-compiler-dock/issues/87 for more info.
-#
-# Anyway, this method is the logical bit to tell us when to turn on these workarounds.
-def needs_darwin_linker_hack
-  config_cross_build? &&
-    darwin? &&
-    RbConfig::MAKEFILE_CONFIG["EXTDLDFLAGS"].include?("-bundle_loader")
-end
-
 #
 #  main
 #
@@ -676,6 +648,9 @@ append_cflags(["-std=c99", "-Wno-declaration-after-statement"])
 
 # gumbo html5 serialization is slower with O3, let's make sure we use O2
 append_cflags("-O2")
+
+# https://github.com/sparklemotion/nokogiri/discussions/2746
+append_cflags("-fvisibility=hidden")
 
 # always include debugging information
 append_cflags("-g")
@@ -804,7 +779,7 @@ else
           class << recipe
             def configure
               env = {}
-              env["CFLAGS"] = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
+              env["CFLAGS"] = concat_flags(ENV["CFLAGS"], "-fPIC", "-g", "-fvisibility=hidden")
               env["CHOST"] = host
               execute("configure", ["./configure", "--static", configure_prefix], { env: env })
               if darwin?
@@ -835,7 +810,7 @@ else
         # The libiconv configure script doesn't accept "arm64" host string but "aarch64"
         recipe.host = recipe.host.gsub("arm64-apple-darwin", "aarch64-apple-darwin")
 
-        cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
+        cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g", "-fvisibility=hidden")
 
         recipe.configure_options += [
           "--disable-dependency-tracking",
@@ -899,7 +874,7 @@ else
     end
 
     cppflags = concat_flags(ENV["CPPFLAGS"])
-    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g", "-fvisibility=hidden")
 
     if cross_build_p
       cppflags = concat_flags(cppflags, "-DNOKOGIRI_PRECOMPILED_LIBRARIES")
@@ -958,7 +933,7 @@ else
       recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", "libxslt", "*.patch")].sort
     end
 
-    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g")
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-g", "-fvisibility=hidden")
 
     if darwin? && !cross_build_p
       recipe.configure_options << "RANLIB=/usr/bin/ranlib" unless ENV.key?("RANLIB")
@@ -1035,7 +1010,7 @@ else
   end.shelljoin
 
   if static_p
-    static_archive_ld_flag = needs_darwin_linker_hack ? ["-load_hidden"] : []
+    static_archive_ld_flag = []
     $libs = $libs.shellsplit.map do |arg|
       case arg
       when "-lxml2"
@@ -1092,7 +1067,7 @@ else
       end
 
       def compile
-        cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g")
+        cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-O2", "-g", "-fvisibility=hidden")
 
         env = { "CC" => gcc_cmd, "CFLAGS" => cflags }
         if config_cross_build?
