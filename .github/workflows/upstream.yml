@@ -26,7 +26,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -65,7 +65,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - name: Setup libxml2
@@ -104,7 +104,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -129,7 +129,7 @@ jobs:
         sys: ["disable"]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -160,7 +160,7 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -179,7 +179,7 @@ jobs:
   jruby-head:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/setup-java@v5
@@ -199,7 +199,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4

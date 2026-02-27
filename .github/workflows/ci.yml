@@ -26,7 +26,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -43,7 +43,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -64,7 +64,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -81,7 +81,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:ubuntu
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - run: bundle install --local || bundle install
@@ -109,7 +109,7 @@ jobs:
     outputs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
         with:
           ruby-version: "3.4"
@@ -132,7 +132,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -163,7 +163,7 @@ jobs:
     env:
       NOKOGIRI_LIBXML_MEMORY_MANAGEMENT: ${{matrix.mem}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -185,7 +185,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
@@ -203,7 +203,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       # skip cache because of https://github.com/actions/cache/issues/675
@@ -224,7 +224,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -249,7 +249,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -271,7 +271,7 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -295,7 +295,7 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: cachix/install-nix-action@v31
@@ -330,7 +330,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -356,7 +356,7 @@ jobs:
         ruby: ["jruby-10.0"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -382,7 +382,7 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -407,7 +407,7 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: vmactions/freebsd-vm@v1
@@ -436,7 +436,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -459,7 +459,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -479,7 +479,7 @@ jobs:
     name: "generic-package"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -505,7 +505,7 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -529,7 +529,7 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -550,7 +550,7 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
@@ -583,7 +583,7 @@ jobs:
           - "x86_64-linux-musl"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/cache@v4
@@ -608,7 +608,7 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -646,7 +646,7 @@ jobs:
           - { runner: ubuntu-24.04-arm, platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/download-artifact@v5
@@ -676,7 +676,7 @@ jobs:
           - { platform: x86_64-darwin, os: macos-15-intel }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -696,7 +696,7 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
@@ -715,7 +715,7 @@ jobs:
     container:
       image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - run: ./scripts/test-gem-build gems java
@@ -738,7 +738,7 @@ jobs:
       image: "jruby:${{matrix.jruby}}-jre${{matrix.jre}}"
     steps:
       - run: apt update && apt install -y build-essential git
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
       - uses: actions/download-artifact@v5
