@@ -121,6 +121,72 @@ jobs:
   #
   #  SECTION run the test suite across a broad matrix of rubies, configs, and systems
   #
+  riscv64:
+    name: "riscv64-linux (QEMU)"
+    needs: [ "basic" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Cache bundler
+        uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: bundler-${{ runner.os }}-riscv64-${{ hashFiles('Gemfile') }}
+          restore-keys: |
+            bundler-${{ runner.os }}-riscv64-
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: riscv64
+
+      - name: Build and test in riscv64 container
+        run: |
+          docker run --rm --platform=linux/riscv64 \
+            -v "$PWD:/work" -w /work \
+            ruby:3.4-slim bash -lc '
+              set -euo pipefail
+
+              ruby -v
+              uname -a
+
+              apt-get update
+              apt-get install -y --no-install-recommends \
+                zlib1g-dev \
+                libxml2-dev \
+                libxslt1-dev \
+                build-essential \
+                git \
+                pkg-config \
+                libyaml-dev \
+                patch \
+                xz-utils \
+                liblzma-dev
+              rm -rf /var/lib/apt/lists/*
+              
+              echo "libxml versions:"
+              dpkg -s libxml2 libxml2-dev 2>/dev/null | grep '^Package:' || true
+              dpkg -s libxml2 libxml2-dev 2>/dev/null | grep '^Version:' || true
+              xml2-config --version || true
+              
+              echo "libxslt versions:"
+              dpkg -s libxslt1.1 libxslt1-dev 2>/dev/null | grep '^Package:' || true
+              dpkg -s libxslt1.1 libxslt1-dev 2>/dev/null | grep '^Version:' || true
+              xslt-config --version || true
+              
+              echo "gem: --no-document" > ~/.gemrc
+          
+              bundle config set --local path vendor/bundle
+              bundle config set --local without rdoc
+              bundle config set --local no-document true
+              bundle config set --local jobs 4
+              bundle install --local || bundle install
+              bundle exec rake compile -- --enable-system-libraries
+              bundle exec rake test
+            '
   linux:
     needs: ["basic", "ruby_versions"]
     strategy:
