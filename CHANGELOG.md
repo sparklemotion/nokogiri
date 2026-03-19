@@ -10,7 +10,6 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
-* [JRuby] Saxon-HE is updated to 12.7, from 9.6.0-4. This addresses CVEs in transitive dependencies of the older version. (#3611)
 
 
 ### Improved
@@ -31,6 +30,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
+
+
+## v1.19.2 / 2026-03-19
+
+### Dependencies
+
+* [JRuby] Saxon-HE is updated to 12.7, from 9.6.0-4. Saxon-HE is a transitive dependency of nu.validator:jing, and this update addresses CVEs in Saxon-HE's own transitive dependencies JDOM and dom4j. We don't think this warrants a security release, however we're cutting a patch release to help users whose security scanners are flagging this. [#3611] @flavorjones
 
 
 ## v1.19.1 / 2026-02-16
