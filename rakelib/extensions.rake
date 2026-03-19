@@ -349,9 +349,11 @@ if java?
 
     jars = Jars::Installer.vendor_jars!("lib/nokogiri/jruby")
     jar_dependencies = jars.sort_by(&:gav).each_with_object({}) do |a, d|
-      g, a, v = a.gav.split(":")
-      name = [g, a].join(":")
-      d[name] = v
+      parts = a.gav.split(":")
+      group, artifact = parts[0], parts[1]
+      version = parts.last # handles both g:a:v and g:a:classifier:v
+      name = [group, artifact].join(":")
+      d[name] = version
     end
 
     # output this to try to minimize git merge conflicts going forward
