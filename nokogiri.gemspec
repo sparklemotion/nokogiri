@@ -319,6 +319,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/jruby/net/sourceforge/htmlunit/neko-htmlunit/*/neko-htmlunit-*.jar",
     "lib/nokogiri/jruby/nu/validator/jing/*/jing-*.jar",
     "lib/nokogiri/jruby/org/nokogiri/nekodtd/*/nekodtd-*.jar",
+    "lib/nokogiri/jruby/org/xmlresolver/xmlresolver/*/xmlresolver-*.jar",
     "lib/nokogiri/jruby/xalan/serializer/*/serializer-*.jar",
     "lib/nokogiri/jruby/xalan/xalan/*/xalan-*.jar",
     "lib/nokogiri/jruby/xerces/xercesImpl/*/xercesImpl-*.jar",
@@ -337,6 +338,7 @@ Gem::Specification.new do |spec|
     spec.requirements << "jar isorelax, isorelax, 20030108" # https://search.maven.org/artifact/isorelax/isorelax
     spec.requirements << "jar org.nokogiri, nekodtd, 0.1.11.noko2"
     spec.requirements << "jar net.sourceforge.htmlunit, neko-htmlunit, 2.63.0"
+    spec.requirements << "jar net.sf.saxon, Saxon-HE, 12.7" # https://search.maven.org/artifact/net.sf.saxon/Saxon-HE
     spec.requirements << "jar nu.validator, jing, 20200702VNU" # https://search.maven.org/artifact/nu.validator/jing
     spec.requirements << "jar xalan, serializer, 2.7.3" # https://search.maven.org/artifact/xalan/serializer
     spec.requirements << "jar xalan, xalan, 2.7.3" # https://search.maven.org/artifact/xalan/xalan
