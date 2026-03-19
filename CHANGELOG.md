@@ -4,6 +4,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Dependencies
+
+* [JRuby] Saxon-HE is updated to 12.7, from 9.6.0-4. This addresses CVEs in transitive dependencies of the older version. (#3611)
+
+
+
 ## v1.19.1 / 2026-02-16
 
 ### Security
