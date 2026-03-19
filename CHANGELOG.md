@@ -4,12 +4,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## v1.19.2 / 2026-03-19
 
 ### Dependencies
 
-* [JRuby] Saxon-HE is updated to 12.7, from 9.6.0-4. This addresses CVEs in transitive dependencies of the older version. (#3611)
-
+* [JRuby] Saxon-HE is updated to 12.7, from 9.6.0-4. Saxon-HE is a transitive dependency of nu.validator:jing, and this update addresses CVEs in Saxon-HE's own transitive dependencies JDOM and dom4j. We don't think this warrants a security release, however we're cutting a patch release to help users whose security scanners are flagging this. [#3611] @flavorjones
 
 
 ## v1.19.1 / 2026-02-16
