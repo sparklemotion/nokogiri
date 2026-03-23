@@ -10,8 +10,14 @@ module Nokogiri
   end
 
   ###
-  # See Nokogiri::XSLT::Stylesheet for creating and manipulating
-  # Stylesheet object.
+  # See Nokogiri::XSLT::Stylesheet for creating and manipulating Stylesheet objects.
+  #
+  # 🛡 <b>Do not use this module for untrusted stylesheet documents.</b> libxslt does not support
+  # safely processing untrusted stylesheets. Untrusted stylesheets may access the file system and
+  # network, consume large amounts of CPU, memory, or other system resources, and IO and file
+  # access are not restricted. Additionally, the stylesheet is parsed by libxml2 with +NOENT+ and
+  # +DTDLOAD+ enabled (see ParseOptions::DEFAULT_XSLT), meaning that <b>external entities will be
+  # resolved and external subsets will be loaded</b> during parsing.
   module XSLT
     class << self
       # :call-seq:
@@ -19,6 +25,9 @@ module Nokogiri
       #   parse(xsl, modules) → Nokogiri::XSLT::Stylesheet
       #
       # Parse the stylesheet in +xsl+, registering optional +modules+ as custom class handlers.
+      #
+      # 🛡 <b>Do not pass untrusted stylesheet content to this method.</b> See Nokogiri::XSLT for more
+      # information.
       #
       # [Parameters]
       # - +xsl+ (String) XSL content to be parsed into a stylesheet
