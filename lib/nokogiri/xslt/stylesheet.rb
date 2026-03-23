@@ -3,14 +3,19 @@
 module Nokogiri
   module XSLT
     ###
-    # A Stylesheet represents an XSLT Stylesheet object.  Stylesheet creation
-    # is done through Nokogiri.XSLT.  Here is an example of transforming
-    # an XML::Document with a Stylesheet:
+    # A Stylesheet represents an XSLT Stylesheet object. Stylesheet creation is done through
+    # Nokogiri::XSLT.parse (or the convenience method Nokogiri.XSLT). Here is an example of
+    # transforming an XML::Document with a Stylesheet:
     #
     #   doc   = Nokogiri::XML(File.read('some_file.xml'))
     #   xslt  = Nokogiri::XSLT(File.read('some_transformer.xslt'))
     #
     #   xslt.transform(doc) # => Nokogiri::XML::Document
+    #
+    # 🛡 <b>This class does not support execution of untrusted stylesheets.</b> An untrusted
+    # stylesheet may consume a large amount of CPU, memory, or other system resources during
+    # transformation, and IO and file access are not restricted. See Nokogiri::XSLT for more
+    # information about the security implications of untrusted stylesheets.
     #
     # Many XSLT transformations include serialization behavior to emit a non-XML document. For these
     # cases, please take care to invoke the #serialize method on the result of the transformation:
