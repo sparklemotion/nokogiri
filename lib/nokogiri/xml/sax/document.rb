@@ -39,7 +39,7 @@ module Nokogiri
       # of ParserContext#replace_entities. (Recall that the default value of
       # ParserContext#replace_entities is `false`.)
       #
-      # ⚠ <b>It is UNSAFE to set ParserContext#replace_entities to `true`</b> when parsing untrusted
+      # 🛡 <b>It is UNSAFE to set ParserContext#replace_entities to `true`</b> when parsing untrusted
       # documents.
       #
       # 💡 For more information on entity types, see [Wikipedia's page on

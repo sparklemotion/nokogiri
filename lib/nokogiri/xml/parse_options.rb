@@ -76,12 +76,12 @@ module Nokogiri
       #
       # ⚠ This option enables entity substitution, contrary to what the name implies.
       #
-      # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
+      # 🛡 <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       NOENT       = 1 << 1
 
       # Load external subsets. On by default for XSLT::Stylesheet.
       #
-      # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
+      # 🛡 <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       DTDLOAD     = 1 << 2
 
       # Default DTD attributes. On by default for XSLT::Stylesheet.
@@ -111,7 +111,7 @@ module Nokogiri
       # Forbid network access. On by default for XML::Document, XML::DocumentFragment,
       # HTML4::Document, HTML4::DocumentFragment, XSLT::Stylesheet, and XML::Schema.
       #
-      # ⚠ <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
+      # 🛡 <b>It is UNSAFE to unset this option</b> when parsing untrusted documents.
       NONET       = 1 << 11
 
       # Do not reuse the context dictionary. Off by default.
@@ -128,8 +128,7 @@ module Nokogiri
 
       # Compact small text nodes. Off by default.
       #
-      # ⚠ No modification of the DOM tree is allowed after parsing. libxml2 may crash if you try to
-      # modify the tree.
+      # ⚠ No modification of the DOM tree is allowed after parsing.
       COMPACT     = 1 << 16
 
       # Parse using XML-1.0 before update 5. Off by default
@@ -140,7 +139,7 @@ module Nokogiri
 
       # Relax any hardcoded limit from the parser. Off by default.
       #
-      # ⚠ <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
+      # 🛡 <b>It is UNSAFE to set this option</b> when parsing untrusted documents.
       HUGE        = 1 << 19
 
       # Support line numbers up to <code>long int</code> (default is a <code>short int</code>). On
@@ -151,7 +150,12 @@ module Nokogiri
       # The options mask used by default for parsing XML::Document and XML::DocumentFragment
       DEFAULT_XML  = RECOVER | NONET | BIG_LINES
 
-      # The options mask used by default used for parsing XSLT::Stylesheet
+      # Shorthand options mask useful for parsing XSLT stylesheets:
+      # sets RECOVER, NONET, NOENT, DTDLOAD, DTDATTR, NOCDATA, BIG_LINES.
+      #
+      # 🛡 This option set includes `NOENT` and `DTDLOAD` which are unsafe for untrusted
+      # documents. <b>Do not parse untrusted XSLT stylesheets.</b> See Nokogiri::XSLT for more
+      # information.
       DEFAULT_XSLT = RECOVER | NONET | NOENT | DTDLOAD | DTDATTR | NOCDATA | BIG_LINES
 
       # The options mask used by default used for parsing HTML4::Document and HTML4::DocumentFragment
