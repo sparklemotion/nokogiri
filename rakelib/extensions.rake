@@ -218,6 +218,9 @@ def verify_dll(dll, cross_ruby)
 
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
     raise "export function Init_nokogiri not in dll #{dll}" unless nm.include?(" T Init_nokogiri")
+    if (exported = nm.lines.grep(/ T /)).size > 1
+      raise "unexpected exported symbols in dll #{dll}: #{exported}"
+    end
 
     # Verify that the DLL dependencies are all allowed.
     actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq.sort
@@ -243,6 +246,9 @@ def verify_dll(dll, cross_ruby)
 
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/.match?(dump)
     raise "export function Init_nokogiri not in dll #{dll}" unless / T _?Init_nokogiri/.match?(nm)
+    if (exported = nm.lines.grep(/ T .*(xml|xslt)/)).size > 1 # libiconv exports its symbols even though I tried. maybe you'll have better luck.
+      raise "unexpected exported symbols in dll #{dll}: #{exported}"
+    end
 
     # if liblzma is being referenced, let's make sure it's referring
     # to the system-installed file and not the homebrew-installed file.
