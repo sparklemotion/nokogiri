@@ -36,6 +36,10 @@ module Nokogiri
         result
       end
 
+      # Hoisted so it does not escape the `write_to` frame to the heap.
+      ESCAPE_CHAR = lambda { |c| "&#x#{c.ord.to_s(16)};" }.freeze
+      private_constant :ESCAPE_CHAR
+
       def write_to(io, *options)
         return super unless document.is_a?(HTML5::Document)
 
@@ -63,7 +67,7 @@ module Nokogiri
           # Serialize including the current node.
           html = html_standard_serialize(options[:preserve_newline] || false)
           encoding ||= document.encoding || Encoding::UTF_8
-          io << html.encode(encoding, fallback: lambda { |c| "&#x#{c.ord.to_s(16)};" })
+          io << html.encode(encoding, fallback: ESCAPE_CHAR)
         end
       end
 
