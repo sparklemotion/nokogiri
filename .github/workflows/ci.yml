@@ -546,9 +546,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ windows-2022 ]
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
-        os: [ windows-2022 ]
         include:
           - os: windows-11-arm
             sys: "enable"
