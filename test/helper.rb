@@ -31,7 +31,7 @@ if ENV["TEST_NOKOGIRI_WITH_LIBXML_RUBY"]
   #  which will a) bundle that gem, and b) set the appropriate env var to
   #  trigger this block
   #
-  require "libxml"
+  require "libxml-ruby"
   warn "#{__FILE__}:#{__LINE__}: loaded libxml-ruby '#{LibXML::XML::VERSION}'"
 end
 
