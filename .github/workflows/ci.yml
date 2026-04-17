@@ -324,7 +324,15 @@ jobs:
       matrix:
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
-    runs-on: windows-2022
+        os: [ windows-2022 ]
+        include:
+          - sys: "enable"
+            ruby: "3.4"
+            os: windows-11-arm
+          - sys: "disable"
+            ruby: "3.4"
+            os: windows-11-arm
+    runs-on: ${{ matrix.os }}
     steps:
       - name: configure git crlf
         run: |
@@ -335,7 +343,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
@@ -387,7 +394,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: truffleruby
           bundler-cache: true
           bundler: 2.5.10
@@ -510,7 +516,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v8
@@ -546,16 +551,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2022 ]
         sys: ["enable", "disable"]
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
+        os: [ windows-2022 ]
         include:
-          - os: windows-11-arm
-            sys: "enable"
+          - sys: "enable"
             ruby: "3.4"
-          - os: windows-11-arm
-            sys: "disable"
+            os: windows-11-arm
+          - sys: "disable"
             ruby: "3.4"
+            os: windows-11-arm
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -563,7 +568,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v8
