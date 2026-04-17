@@ -135,7 +135,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -166,7 +166,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -227,7 +227,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -252,7 +252,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -279,7 +279,7 @@ jobs:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -347,7 +347,7 @@ jobs:
           mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -398,7 +398,7 @@ jobs:
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -445,7 +445,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -468,7 +468,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -488,7 +488,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -599,7 +599,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           submodules: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
