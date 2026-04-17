@@ -335,7 +335,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
@@ -387,7 +386,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: truffleruby
           bundler-cache: true
           bundler: 2.5.10
@@ -510,7 +508,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v8
@@ -563,7 +560,6 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v8
