@@ -6,27 +6,27 @@ gemspec
 
 group :development do
   # bootstrapping
-  gem "rake", "13.3.0"
+  gem "rake", "13.4.2"
 
   # building extensions
   gem "rake-compiler", "1.3.1"
-  gem "rake-compiler-dock", "1.11.1"
+  gem "rake-compiler-dock", "1.12.0"
 
   # parser generator
   gem "rexical", "1.0.8"
 
   # tests
-  gem "minitest", "6.0.1"
+  gem "minitest", "6.0.4"
   gem "minitest-mock", "5.27.0"
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
-  gem "rubyzip", "~> 3.1.0"
+  gem "rubyzip", "~> 3.2.2"
   gem "simplecov", "0.22.0"
 
   # rubocop
   unless RUBY_PLATFORM == "java" || ENV["APPVEYOR"]
-    gem "standard", "1.50.0"
-    gem "rubocop-minitest", "0.38.2"
+    gem "standard", "1.54.0"
+    gem "rubocop-minitest", "0.39.1"
     gem "rubocop-packaging", "0.6.0"
     gem "rubocop-rake", "0.7.1"
   end
@@ -36,5 +36,5 @@ end
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
 group :rdoc do
-  gem "rdoc", "7.0.3" unless RUBY_PLATFORM == "java" || ENV["CI"]
+  gem "rdoc", "7.2.0" unless RUBY_PLATFORM == "java" || ENV["CI"]
 end
