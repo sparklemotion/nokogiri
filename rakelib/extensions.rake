@@ -230,7 +230,7 @@ def verify_dll(dll, cross_ruby)
     end
 
     # Verify that the expected so version requirements match the actual dependencies.
-    ref_versions_data = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d\.]+)$/i)
+    ref_versions_data = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d.]+)$/i)
     # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
     actual_ref_versions = ref_versions_data.each.with_object({}) do |(lib, ver), h|
       if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")

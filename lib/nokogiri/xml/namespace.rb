@@ -5,6 +5,7 @@ module Nokogiri
   module XML
     class Namespace
       include Nokogiri::XML::PP::Node
+
       attr_reader :document
 
       #
