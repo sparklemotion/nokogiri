@@ -257,13 +257,13 @@ module Html5libTestCaseParser
         node[:contents] = node_text[5..-5]
       elsif /^<(svg |math )?(.+)>$/ =~ node_text
         node[:type] = :element
-        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:ns] = $LAST_MATCH_INFO[1]&.rstrip
         node[:tag] = $LAST_MATCH_INFO[2]
         node[:attributes] = []
         node[:children] = []
       elsif /^([^ ]+ )?([^=]+)="(.*)"$/ =~ node_text
         node[:type] = :attribute
-        node[:ns] = $LAST_MATCH_INFO[1].nil? ? nil : $LAST_MATCH_INFO[1].rstrip
+        node[:ns] = $LAST_MATCH_INFO[1]&.rstrip
         node[:name] = $LAST_MATCH_INFO[2]
         node[:value] = $LAST_MATCH_INFO[3]
       elsif node_text == "content"
