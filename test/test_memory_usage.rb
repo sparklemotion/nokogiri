@@ -337,5 +337,21 @@ class TestMemoryUsage < Nokogiri::TestCase
         assert_equal(472, parser.document.data.length)
       end
     end
+
+    it "XSLT#transform doesn't leak on null byte in params" do
+      # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v2fc-qm4h-8hqv
+      xsl = Nokogiri::XSLT.parse(<<~XSL)
+        <?xml version="1.0"?>
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:param name="p"/>
+          <xsl:template match="/"><r><xsl:value-of select="$p"/></r></xsl:template>
+        </xsl:stylesheet>
+      XSL
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        assert_raises(ArgumentError) { xsl.transform(doc, ["p", "val\x00ue"]) }
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
