@@ -133,6 +133,35 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
   return rval ;
 }
 
+
+/*
+ * Build the C-string params array passed to xsltApplyStylesheet.
+ *
+ * Note: params[j] is a raw pointer into a Ruby string's buffer, and we do not pin the underlying
+ * VALUEs against GC compaction. This is safe (despite not pinning the VALUEs) because libxslt fully
+ * processes params (interning names, evaluating values) before template execution begins, and Ruby
+ * callbacks can only run during template execution. By the time GC compaction is reachable, libxslt
+ * no longer reads params[].
+ */
+typedef struct {
+  VALUE rb_param;
+  long param_len;
+  const char **params;
+} build_xslt_params_args_t;
+
+static VALUE
+build_xslt_params(VALUE args_ptr)
+{
+  build_xslt_params_args_t *args = (build_xslt_params_args_t *)args_ptr;
+
+  for (long j = 0; j < args->param_len; j++) {
+    VALUE entry = rb_ary_entry(args->rb_param, j);
+    args->params[j] = StringValueCStr(entry);
+  }
+
+  return Qnil;
+}
+
 /*
  * call-seq:
  *   transform(document)
@@ -254,7 +283,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xmlDocPtr c_result_document ;
   nokogiriXsltStylesheetTuple *wrapper;
   const char **params ;
-  long param_len, j ;
+  long param_len ;
   int parse_error_occurred ;
   int defensive_copy_p = 0;
 
@@ -277,10 +306,17 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
   param_len = RARRAY_LEN(rb_param);
   params = ruby_xcalloc((size_t)param_len + 1, sizeof(char *));
-  for (j = 0 ; j < param_len ; j++) {
-    VALUE entry = rb_ary_entry(rb_param, j);
-    const char *ptr = StringValueCStr(entry);
-    params[j] = ptr;
+  {
+    // populate params under rb_protect so that a raise from StringValueCStr
+    // (e.g. on a null byte) does not leak the params allocation.
+    build_xslt_params_args_t args = { rb_param, param_len, params };
+    int state = 0;
+
+    rb_protect(build_xslt_params, (VALUE)&args, &state);
+    if (state) {
+      ruby_xfree(params);
+      rb_jump_tag(state);
+    }
   }
   params[param_len] = 0 ;
 
