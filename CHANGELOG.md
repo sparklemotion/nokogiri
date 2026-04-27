@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed / Security
+
+* [CRuby] Address memory leak in `XSLT::Stylesheet#transform`. See [GHSA-v2fc-qm4h-8hqv](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v2fc-qm4h-8hqv) for more information.
+
+
 ## v1.19.2 / 2026-03-19
 
 ### Dependencies
