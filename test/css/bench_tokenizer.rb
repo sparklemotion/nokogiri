@@ -37,4 +37,22 @@ class TestBenchCSSTokenizer < Nokogiri::TestBenchmark
       end
     end
   end
+
+  # The function-call rule {ident}\({w} requires `(` after an identifier.
+  # If the `(` is missing and the ident-shaped prefix contains many
+  # `\<6-hex>` escapes, the engine backtracks through the {1,6}
+  # ambiguity inside `{nmchar}*` for 6**N parses.
+  describe "css ident tokenizer (function-rule failure ambiguity)" do
+    bench_range { bench_linear(50_000, 300_000, 50_000) }
+
+    bench_performance_linear("redos in function rule", 0.99) do |n|
+      Timeout.timeout(5) do
+        payload = ('\\aaaaaa' * n) + "X"
+        1000.times do
+          Nokogiri::CSS.xpath_for(payload)
+        rescue Nokogiri::CSS::SyntaxError
+        end
+      end
+    end
+  end
 end
