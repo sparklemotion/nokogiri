@@ -4,10 +4,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
-## next / unreleased
+## v1.19.3 / 2026-04-27
 
 ### Fixed / Security
 
+* Address exponential regex backtracking in CSS selector tokenizer. See [GHSA-c4rq-3m3g-8wgx](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-c4rq-3m3g-8wgx) for more information.
 * [CRuby] Address memory leak in `XSLT::Stylesheet#transform`. See [GHSA-v2fc-qm4h-8hqv](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v2fc-qm4h-8hqv) for more information.
 
 
