@@ -4,6 +4,11 @@ require "helper"
 require "timeout"
 
 class TestBenchCSSTokenizer < Nokogiri::TestBenchmark
+  # JRuby's JIT warmup makes per-call timings too noisy for an R**2 fit;
+  # the ReDoS property is a regex property, not an engine one, so MRI
+  # coverage is sufficient.
+  before { skip("benchmarks are too noisy under JRuby JIT") if Nokogiri.jruby? }
+
   # GHSA-c4rq-3m3g-8wgx: ambiguous regex in the STRING rule backtracks
   # exponentially on unterminated `[foo="\a\a\a..."` input. Each sample
   # repeats the parse to average out per-call jitter.
