@@ -16,8 +16,8 @@ macro
   name      {nmstart}{nmchar}*
   ident     -?{name}
   charref   {nmchar}+
-  string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*"
-  string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*'
+  string1   "(?>[^\n\r\f"\\]|\\?{nl}|{nonascii}|{escape})*"
+  string2   '(?>[^\n\r\f'\\]|\\?{nl}|{nonascii}|{escape})*'
   string    ({string1}|{string2})
 
 rule
