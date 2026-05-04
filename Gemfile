@@ -16,11 +16,11 @@ group :development do
   gem "rexical", "1.0.8"
 
   # tests
-  gem "minitest", "6.0.5"
+  gem "minitest", "6.0.6"
   gem "minitest-mock", "5.27.0"
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
-  gem "rubyzip", "~> 3.2.2"
+  gem "rubyzip", "~> 3.3.0"
   gem "simplecov", "0.22.0"
 
   # rubocop
