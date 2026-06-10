@@ -34,6 +34,8 @@ Style/TrailingCommaInArguments:
   EnforcedStyleForMultiline: comma
 Layout/SpaceInsideHashLiteralBraces:
   EnforcedStyle: space
+Layout/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
 
 Minitest/AssertInDelta: # new in 0.10
   Enabled: true
