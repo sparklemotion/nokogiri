@@ -316,7 +316,7 @@ public class XmlDocument extends XmlNode
   public IRubyObject
   encoding_set(IRubyObject encoding)
   {
-    this.encoding = encoding;
+    this.encoding = encoding.convertToString();
     return this;
   }
 

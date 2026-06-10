@@ -321,12 +321,13 @@ static VALUE
 set_encoding(VALUE self, VALUE encoding)
 {
   xmlDocPtr doc = noko_xml_document_unwrap(self);
+  xmlChar *new_encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));
 
   if (doc->encoding) {
     xmlFree(DISCARD_CONST_QUAL_XMLCHAR(doc->encoding));
   }
 
-  doc->encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));
+  doc->encoding = new_encoding;
 
   return encoding;
 }

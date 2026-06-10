@@ -661,6 +661,16 @@ module Nokogiri
           end
         end
 
+        def test_encoding_setter_raising
+          doc = Nokogiri::XML(%(<?xml version="1.0" encoding="UTF-8"?><root/>))
+          assert_equal("UTF-8", doc.encoding)
+
+          assert_raises(TypeError) { doc.encoding = Object.new }
+
+          result = refute_valgrind_errors(yield_on_jruby: true) { doc.encoding }
+          assert_equal("UTF-8", result)
+        end
+
         def test_memory_explosion_on_invalid_xml
           doc = Nokogiri::XML("<<<")
           refute_nil(doc)
