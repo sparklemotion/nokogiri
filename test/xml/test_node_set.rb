@@ -729,6 +729,36 @@ module Nokogiri
             assert_nil(node_set[-1 * (node_set.length + 1)])
           end
 
+          it "large_negative_index_truncating_to_in_range_returns_nil" do
+            node_set = xml.search("//employee")
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              node_set[-4294967297]
+            end
+
+            assert_nil(result)
+          end
+
+          it "slice_with_large_negative_index_truncating_to_in_range_returns_nil" do
+            node_set = xml.search("//employee")
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              node_set.slice(-4294967297)
+            end
+
+            assert_nil(result)
+          end
+
+          it "array_slice_with_large_negative_start_truncating_to_in_range_returns_nil" do
+            node_set = xml.search("//employee")
+            assert_nil(node_set[-4294967297, 1])
+          end
+
+          it "array_slice_with_large_negative_range_begin_truncating_to_in_range_returns_nil" do
+            node_set = xml.search("//employee")
+            assert_nil(node_set[-4294967297..-1])
+          end
+
           it "array_index" do
             employees = xml.search("//employee")
             other = xml.search("//position").first
