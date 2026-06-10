@@ -22,6 +22,7 @@ require "yaml"
 require "nokogiri"
 
 require_relative "helpers/memory_debugger"
+require_relative "helpers/mock_server"
 
 if ENV["TEST_NOKOGIRI_WITH_LIBXML_RUBY"]
   #
@@ -102,6 +103,31 @@ module Nokogiri
     def file_url_for(path)
       path_with_leading_slash = path.start_with?("/") ? path : "/#{path}"
       "file://#{path_with_leading_slash}"
+    end
+
+    def assert_network_connection(scheme: "http", path: "/making-a-request", &block)
+      assert tcp_connection_attempted?(scheme:, path:, &block), "should open a network connection"
+    end
+
+    def refute_network_connection(scheme: "http", path: "/making-a-request", &block)
+      refute tcp_connection_attempted?(scheme:, path:, &block), "should not open a network connection"
+    end
+
+    def ignoring_syntax_errors
+      yield
+    rescue Nokogiri::XML::SyntaxError
+    end
+
+    def tcp_connection_attempted?(scheme: "http", path: "/making-a-request")
+      flunk("MockServer is not supported on this platform; the calling test must skip explicitly") unless MockServer.supported?
+
+      listener = MockServer.listener_class.new
+      begin
+        yield("#{scheme}://127.0.0.1:#{listener.port}#{path}")
+      ensure
+        connections = listener.stop
+      end
+      connections.positive?
     end
   end
 
