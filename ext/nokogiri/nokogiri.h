@@ -184,8 +184,17 @@ int noko_io_read(void *ctx, char *buffer, int len);
 int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 
-#define Noko_Node_Get_Struct(obj,type,sval) ((sval) = (type*)DATA_PTR(obj))
-#define Noko_Namespace_Get_Struct(obj,type,sval) ((sval) = (type*)DATA_PTR(obj))
+static inline void *
+_noko_data_ptr(VALUE rb_object)
+{
+  void *c_data = DATA_PTR(rb_object);
+  if (c_data == NULL) {
+    rb_raise(rb_eRuntimeError, "Uninitialized %" PRIsVALUE " struct (null data pointer)", rb_obj_class(rb_object));
+  }
+  return c_data;
+}
+#define Noko_Node_Get_Struct(obj,type,sval) ((sval) = (type*)_noko_data_ptr(obj))
+#define Noko_Namespace_Get_Struct(obj,type,sval) ((sval) = (type*)_noko_data_ptr(obj))
 
 VALUE noko_xml_node_wrap(VALUE klass, xmlNodePtr node) ;
 VALUE noko_xml_node_wrap_node_set_result(xmlNodePtr node, VALUE node_set) ;

@@ -712,6 +712,9 @@ noko_xml_document_unwrap(VALUE rb_document)
 {
   xmlDocPtr c_document;
   TypedData_Get_Struct(rb_document, xmlDoc, &xml_doc_type, c_document);
+  if (c_document == NULL) {
+    rb_raise(rb_eRuntimeError, "Uninitialized %" PRIsVALUE " struct (null data pointer)", rb_obj_class(rb_document));
+  }
   return c_document;
 }
 
