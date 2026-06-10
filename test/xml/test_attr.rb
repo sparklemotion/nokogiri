@@ -13,6 +13,14 @@ module Nokogiri
         end
       end
 
+      def test_value_set_on_uninitialized_attr_raises_without_crashing
+        attr = Nokogiri::XML::Attr.allocate
+
+        refute_valgrind_errors(yield_on_jruby: true) do
+          assert_raises(RuntimeError) { attr.value = "x" }
+        end
+      end
+
       def test_content=
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath("//address")[3]

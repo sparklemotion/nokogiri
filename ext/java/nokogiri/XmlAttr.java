@@ -100,6 +100,9 @@ public class XmlAttr extends XmlNode
   public IRubyObject
   value_set(ThreadContext context, IRubyObject content)
   {
+    if (node == null) {
+      throw context.runtime.newRuntimeError("Uninitialized " + getMetaClass().getRealClass().getName() + " struct (null data pointer)");
+    }
     Attr attr = (Attr) node;
     if (content != null && !content.isNil()) {
       attr.setValue(rubyStringToString(XmlNode.encode_special_chars(context, content)));

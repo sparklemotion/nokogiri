@@ -651,6 +651,16 @@ module Nokogiri
           assert_equal("UTF-8", xml.encoding)
         end
 
+        def test_encoding_set_on_uninitialized_document_raises_without_crashing
+          skip_unless_libxml2("on jruby a bare document has some partial functionality")
+
+          doc = Nokogiri::XML::Document.allocate
+
+          refute_valgrind_errors do
+            assert_raises(RuntimeError) { doc.encoding = "UTF-8" }
+          end
+        end
+
         def test_memory_explosion_on_invalid_xml
           doc = Nokogiri::XML("<<<")
           refute_nil(doc)
