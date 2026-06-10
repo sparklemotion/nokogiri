@@ -21,6 +21,8 @@ require "yaml"
 
 require "nokogiri"
 
+require_relative "helpers/memory_debugger"
+
 if ENV["TEST_NOKOGIRI_WITH_LIBXML_RUBY"]
   #
   #  if you'd like to test with the libxml-ruby gem loaded, it's
@@ -73,18 +75,6 @@ module Nokogiri
     XML_ATOM_FILE        = File.join(ASSETS_DIR, "atom.xml")
     XSLT_FILE            = File.join(ASSETS_DIR, "staff.xslt")
     XPATH_FILE           = File.join(ASSETS_DIR, "slow-xpath.xml")
-
-    def i_am_running_in_valgrind
-      # https://stackoverflow.com/questions/365458/how-can-i-detect-if-a-program-is-running-from-within-valgrind/62364698#62364698
-      ENV["LD_PRELOAD"] =~ /valgrind|vgpreload/
-    end
-
-    def i_am_running_with_asan
-      # https://stackoverflow.com/questions/35012059/check-whether-sanitizer-like-addresssanitizer-is-active
-      %x"ldd #{Gem.ruby}".include?("libasan.so")
-    rescue
-      false
-    end
 
     def skip_unless_libxml2(msg = "this test should only run with libxml2")
       skip(msg) unless Nokogiri.uses_libxml?
@@ -309,7 +299,7 @@ module Nokogiri
     # otherwise, will loop for 10 seconds, measure vmsize over time, calculate the best-fit linear
     # slope, and fail if there is definitely a leak.
     def memwatch(method, n: nil, retry_once: true, &block)
-      if i_am_running_in_valgrind
+      if MemoryDebugger.active?
         refute_valgrind_errors do
           t1 = Time.now
           loop do
