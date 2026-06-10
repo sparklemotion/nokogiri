@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
@@ -289,22 +292,101 @@ public class XmlSchema extends RubyObject
                     String systemId,
                     String baseURI)
     {
-      if (noNet && systemId != null && (systemId.startsWith("http://") || systemId.startsWith("ftp://"))) {
-        if (systemId.startsWith(XMLConstants.W3C_XML_SCHEMA_NS_URI)) {
-          return null; // use default resolver
-        }
+      if (noNet && !effectiveResourceIsLocal(systemId, baseURI)) {
         try {
           this.errorHandler.warning(new SAXParseException(String.format("Attempt to load network entity '%s'", systemId), null));
         } catch (SAXException ignored) {
         }
-      } else {
-        String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
-        lsInput.setPublicId(publicId);
-        lsInput.setSystemId(adjusted != null ? adjusted : systemId);
-        lsInput.setBaseURI(baseURI);
+        return new SchemaLSInput(); // an empty input blocks the fetch
       }
+
+      String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
+      lsInput.setPublicId(publicId);
+      lsInput.setSystemId(adjusted != null ? adjusted : systemId);
+      lsInput.setBaseURI(baseURI);
       return lsInput;
     }
+  }
+
+  // We enforce NONET for schema resolution by hand because Xerces-J (the JAXP implementation
+  // backing XML::Schema on JRuby) does not implement the standard JAXP property
+  // XMLConstants.ACCESS_EXTERNAL_SCHEMA — so we cannot simply restrict external access on the
+  // SchemaFactory and must classify each resolved resource in the LSResourceResolver instead.
+  //
+  // Decides whether a schema-import resource may be resolved while NONET is on: true means
+  // local (allowed), false means a network resource (blocked). A relative systemId inherits
+  // its document's base, so it is resolved against baseURI before classification — a relative
+  // import under a remote base is a network fetch even though the systemId alone looks local.
+  private static boolean
+  effectiveResourceIsLocal(String systemId, String baseURI)
+  {
+    // a null systemId means there is nothing external to resolve
+    if (systemId == null) {
+      return true;
+    }
+    try {
+      URI uri = new URI(systemId);
+      if (baseURI != null && !baseURI.isEmpty()) {
+        uri = new URI(baseURI).resolve(uri);
+      }
+      return isLocalResource(uri);
+    } catch (URISyntaxException | IllegalArgumentException e) {
+      // fail closed: an unparseable base or systemId (e.g. a raw UNC path "\\host\share") is
+      // not provably local, and the JVM's file/URL handling may still reach the network
+      return false;
+    }
+  }
+
+  // Test seam for the Ruby suite: local_resource?(systemId, baseURI = nil).
+  @JRubyMethod(meta = true, name = "local_resource?", required = 1, optional = 1, visibility = Visibility.PRIVATE)
+  public static IRubyObject
+  local_resource_eh(ThreadContext context, IRubyObject klazz, IRubyObject[] args)
+  {
+    String systemId = args[0].isNil() ? null : args[0].asJavaString();
+    String baseURI = (args.length > 1 && !args[1].isNil()) ? args[1].asJavaString() : null;
+    return context.runtime.newBoolean(effectiveResourceIsLocal(systemId, baseURI));
+  }
+
+  // Classifies an already-parsed URI. Local is a missing scheme, or the "file" scheme, with
+  // no remote authority and no UNC-shaped path. This is intentionally stricter than libxml2's
+  // xmlNoNetExternalEntityLoader, which folds a remote host (file://host/...) into a local
+  // path rather than rejecting it.
+  //
+  // TODO: a Windows drive-letter path like "C:\path" parses as scheme "c" and would be
+  // blocked; support those if we need it later.
+  private static boolean
+  isLocalResource(URI uri)
+  {
+    // only a missing scheme (a relative or absolute path) or file: can be local; any
+    // other scheme is a network resource
+    String scheme = uri.getScheme();
+    if (scheme != null && !scheme.equalsIgnoreCase("file")) {
+      return false;
+    }
+
+    // an opaque "file:" URI (e.g. file:foo, with no "//") is not a usable local path; reject
+    // it, matching libxml2, which does not resolve that form as a local file either
+    if (uri.isOpaque()) {
+      return false;
+    }
+
+    // a non-empty, non-localhost authority is a remote host — file://host/path, or the
+    // schemeless network-path form //host/path. Stricter than libxml2, which folds such a
+    // host into a (failing) local path.
+    String authority = uri.getRawAuthority();
+    if (authority != null && !authority.isEmpty() && !authority.equalsIgnoreCase("localhost")) {
+      return false;
+    }
+
+    // reject UNC-shaped paths even under an allowed authority: file:////host/share,
+    // file://localhost//host/share, and %2f/%5c-encoded variants. getPath() is decoded, so
+    // the encoded forms are normalized before this check.
+    String path = uri.getPath();
+    if (path != null && (path.startsWith("//") || path.indexOf('\\') >= 0)) {
+      return false;
+    }
+
+    return true;
   }
 
   private static class SchemaLSInput implements LSInput

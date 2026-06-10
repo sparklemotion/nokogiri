@@ -53,6 +53,14 @@ module Nokogiri
       defined?(Nokogiri::LIBXML_ICONV_ENABLED) && Nokogiri::LIBXML_ICONV_ENABLED
     end
 
+    def libxml2_has_zlib?
+      defined?(Nokogiri::LIBXML_ZLIB_ENABLED) && Nokogiri::LIBXML_ZLIB_ENABLED
+    end
+
+    def libxml2_has_http?
+      defined?(Nokogiri::LIBXML_HTTP_ENABLED) && Nokogiri::LIBXML_HTTP_ENABLED
+    end
+
     def libxslt_has_datetime?
       defined?(Nokogiri::LIBXSLT_DATETIME_ENABLED) && Nokogiri::LIBXSLT_DATETIME_ENABLED
     end
@@ -145,6 +153,8 @@ module Nokogiri
             end
             libxml["memory_management"] = Nokogiri::LIBXML_MEMORY_MANAGEMENT
             libxml["iconv_enabled"] = libxml2_has_iconv?
+            libxml["zlib_enabled"] = libxml2_has_zlib?
+            libxml["http_enabled"] = libxml2_has_http?
             libxml["compiled"] = compiled_libxml_version.to_s
             libxml["loaded"] = loaded_libxml_version.to_s
           end
