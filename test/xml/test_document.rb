@@ -1230,6 +1230,19 @@ module Nokogiri
             assert_equal("foo", target.root.content)
           end
 
+          it "raises an exception when assigning a non-element node as the root" do
+            doc = Nokogiri::XML("<root/>")
+            dtd = doc.create_internal_subset("a", nil, nil)
+            dtd.unlink
+
+            e = assert_raises(TypeError) do
+              doc.root = dtd
+            end
+            assert_equal("root must be a Nokogiri::XML::Element", e.message)
+
+            assert_equal("root", doc.root.name)
+          end
+
           it "raises an exception if passed something besides a Node" do
             doc = Nokogiri::XML::Document.parse(<<~EOF)
               <root>
