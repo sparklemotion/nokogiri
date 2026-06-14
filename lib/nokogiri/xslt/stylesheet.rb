@@ -12,7 +12,7 @@ module Nokogiri
     #
     #   xslt.transform(doc) # => Nokogiri::XML::Document
     #
-    # 🛡 <b>This class does not support execution of untrusted stylesheets.</b> An untrusted
+    # 🛡️️ <b>This class does not support execution of untrusted stylesheets.</b> An untrusted
     # stylesheet may consume a large amount of CPU, memory, or other system resources during
     # transformation, and IO and file access are not restricted. See Nokogiri::XSLT for more
     # information about the security implications of untrusted stylesheets.

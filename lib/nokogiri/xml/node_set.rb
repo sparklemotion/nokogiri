@@ -280,7 +280,7 @@ module Nokogiri
       #
       # [Returns] +self+, to support chaining.
       #
-      # ⚠ Note that if a +String+ is passed, the markup will be parsed <b>once per node</b> in the
+      # ⚠️️️ Note that if a +String+ is passed, the markup will be parsed <b>once per node</b> in the
       # NodeSet. You can avoid this overhead in cases where you know exactly the wrapper you wish to
       # use by passing a +Node+ instead.
       #

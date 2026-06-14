@@ -31,7 +31,7 @@ module Nokogiri
       #
       # ### Entity Handling
       #
-      # ⚠ Entity handling is complicated in a SAX parser! Please read this section carefully if
+      # ⚠️️️ Entity handling is complicated in a SAX parser! Please read this section carefully if
       # you're not getting the behavior you expect.
       #
       # Entities will be reported to the user via callbacks to #characters, to #reference, or
@@ -39,7 +39,7 @@ module Nokogiri
       # of ParserContext#replace_entities. (Recall that the default value of
       # ParserContext#replace_entities is `false`.)
       #
-      # 🛡 <b>It is UNSAFE to set ParserContext#replace_entities to `true`</b> when parsing untrusted
+      # 🛡️️ <b>It is UNSAFE to set ParserContext#replace_entities to `true`</b> when parsing untrusted
       # documents.
       #
       # 💡 For more information on entity types, see [Wikipedia's page on
@@ -194,9 +194,9 @@ module Nokogiri
         # [Parameters]
         # - +string+ contains the character data or entity replacement text
         #
-        # ⚠ Please see Document@Entity+Handling for important information about how entities are handled.
+        # ⚠️️️ Please see Document@Entity+Handling for important information about how entities are handled.
         #
-        # ⚠ This method might be called multiple times for a contiguous string of characters.
+        # ⚠️️️ This method might be called multiple times for a contiguous string of characters.
         #
         def characters(string)
         end
@@ -208,9 +208,9 @@ module Nokogiri
         # - +name+ (String) is the name of the entity
         # - +content+ (String, nil) is the replacement text for the entity, if known
         #
-        # ⚠ Please see Document@Entity+Handling for important information about how entities are handled.
+        # ⚠️️️ Please see Document@Entity+Handling for important information about how entities are handled.
         #
-        # ⚠ An internal entity may result in a call to both #characters and #reference.
+        # ⚠️️️ An internal entity may result in a call to both #characters and #reference.
         #
         # Since v1.17.0
         #

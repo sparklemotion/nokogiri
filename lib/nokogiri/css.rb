@@ -20,7 +20,7 @@ module Nokogiri
       #
       # 💡 Note that translated queries are cached by default for performance concerns.
       #
-      # ⚠ Users should prefer Nokogiri::XML::Searchable#css, which is mixed into all document and
+      # ⚠️️️ Users should prefer Nokogiri::XML::Searchable#css, which is mixed into all document and
       # node classes, for querying documents with CSS selectors. This method is the underlying
       # mechanism used by XML::Searchable and is provided solely for advanced users to translate
       # \CSS selectors to XPath directly.
@@ -54,7 +54,7 @@ module Nokogiri
       #   Nokogiri::CSS::XPathVisitor for more information on some of the complex behavior that can
       #   be customized for your document type. Default is +Nokogiri::CSS::XPathVisitor.new+.
       #
-      #   ⚠ Note that this option is mutually exclusive with +prefix+ and +ns+. If +visitor+ is
+      #   ⚠️️️ Note that this option is mutually exclusive with +prefix+ and +ns+. If +visitor+ is
       #   provided, +prefix+ and +ns+ must not be present.
       #
       # - +cache:+ (Boolean)

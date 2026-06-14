@@ -110,11 +110,11 @@ _noko_xml_relax_ng_parse_schema(
  * [Parameters]
  * - +document+ (XML::Document) A document containing the RELAX NG schema definition
  * - +parse_options+ (Nokogiri::XML::ParseOptions)
- *   Defaults to ParseOptions::DEFAULT_SCHEMA ⚠ Unused
+ *   Defaults to ParseOptions::DEFAULT_SCHEMA ⚠️️ Unused
  *
  * [Returns] Nokogiri::XML::RelaxNG
  *
- * ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+ * ⚠️️ +parse_options+ is currently unused by this method and is present only as a placeholder for
  * future functionality.
  */
 static VALUE

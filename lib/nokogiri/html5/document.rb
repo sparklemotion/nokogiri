@@ -87,7 +87,7 @@ module Nokogiri
         #   If present, the block will be passed a Hash object to modify with parse options before the
         #   input is parsed. See rdoc-ref:HTML5@Parsing+options for a list of available options.
         #
-        #   ⚠ Note that +url:+ and +encoding:+ cannot be set by the configuration block.
+        #   ⚠️️️ Note that +url:+ and +encoding:+ cannot be set by the configuration block.
         #
         # [Returns] Nokogiri::HTML5::Document
         #

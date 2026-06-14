@@ -39,7 +39,7 @@ module Nokogiri
   #
   #   fragment = Nokogiri::HTML5.fragment(input)
   #
-  # ⚠ HTML5 functionality is not available when running JRuby.
+  # ⚠️️️ HTML5 functionality is not available when running JRuby.
   #
   # == Parsing options
   #

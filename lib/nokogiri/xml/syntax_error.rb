@@ -31,7 +31,7 @@ module Nokogiri
       # Document objects. It will return `nil` for DOM parsing errors and for errors emitted during
       # Schema validation of files.
       #
-      # ⚠ `#path` is not supported on JRuby, where it will always return `nil`.
+      # ⚠️️️ `#path` is not supported on JRuby, where it will always return `nil`.
       attr_reader :path
       attr_reader :str1
       attr_reader :str2

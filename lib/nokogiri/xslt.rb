@@ -12,7 +12,7 @@ module Nokogiri
   ###
   # See Nokogiri::XSLT::Stylesheet for creating and manipulating Stylesheet objects.
   #
-  # 🛡 <b>Do not use this module for untrusted stylesheet documents.</b> libxslt does not support
+  # 🛡️️ <b>Do not use this module for untrusted stylesheet documents.</b> libxslt does not support
   # safely processing untrusted stylesheets. Untrusted stylesheets may access the file system and
   # network, consume large amounts of CPU, memory, or other system resources, and IO and file
   # access are not restricted. Additionally, the stylesheet is parsed by libxml2 with +NOENT+ and
@@ -26,7 +26,7 @@ module Nokogiri
       #
       # Parse the stylesheet in +xsl+, registering optional +modules+ as custom class handlers.
       #
-      # 🛡 <b>Do not pass untrusted stylesheet content to this method.</b> See Nokogiri::XSLT for more
+      # 🛡️️ <b>Do not pass untrusted stylesheet content to this method.</b> See Nokogiri::XSLT for more
       # information.
       #
       # [Parameters]
@@ -34,7 +34,7 @@ module Nokogiri
       # - +modules+ (Hash<String ⇒ Class>) A hash of URI-to-handler relations for linking a
       #   namespace to a custom function handler.
       #
-      # ⚠ The XSLT handler classes are registered *globally*.
+      # ⚠️️️ The XSLT handler classes are registered *globally*.
       #
       # Also see Nokogiri::XSLT.register
       #
@@ -118,7 +118,7 @@ module Nokogiri
       #
       #  Register a class that implements custom XSLT transformation functions.
       #
-      #  ⚠ The XSLT handler classes are registered *globally*.
+      #  ⚠️️️ The XSLT handler classes are registered *globally*.
       #
       #  [Parameters}
       #  - +uri+ (String) The namespace for the custom handlers

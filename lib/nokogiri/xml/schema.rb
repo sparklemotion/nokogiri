@@ -15,12 +15,12 @@ module Nokogiri
 
     # Nokogiri::XML::Schema is used for validating \XML against an \XSD schema definition.
     #
-    # ⚠ Since v1.11.0, Schema treats inputs as *untrusted* by default, and so external entities are
+    # ⚠️️️ Since v1.11.0, Schema treats inputs as *untrusted* by default, and so external entities are
     # not resolved from the network (+http://+ or +ftp://+). When parsing a trusted document, the
     # caller may turn off the +NONET+ option via the ParseOptions to (re-)enable external entity
     # resolution over a network connection.
     #
-    # 🛡 Before v1.11.0, documents were "trusted" by default during schema parsing which was counter
+    # 🛡️️ Before v1.11.0, documents were "trusted" by default during schema parsing which was counter
     # to Nokogiri's "untrusted by default" security policy.
     #
     # *Example:* Determine whether an \XML document is valid.

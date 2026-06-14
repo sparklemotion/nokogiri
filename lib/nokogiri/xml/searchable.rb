@@ -50,7 +50,7 @@ module Nokogiri
       #   }.new
       #   node.search('.//title[nokogiri:regex(., "\w+")]', 'div.employee:regex("[0-9]+")', handler)
       #
-      # ⚠ NOTE that the #search method may not always correctly detect whether the input is a CSS
+      # ⚠️️️ NOTE that the #search method may not always correctly detect whether the input is a CSS
       # selector or an XPath expression; and the heuristic used may change in the future. The authors
       # strongly recommend using Searchable#css when you know you're searching with a CSS selector,
       # or Searchable#xpath when you know you're searching with an XPath expression.
@@ -114,20 +114,20 @@ module Nokogiri
       #   node.css('img > @href') # returns all +href+ attributes on an +img+ element
       #   node.css('img / @href') # same
       #
-      #   # ⚠ this returns +class+ attributes from all +div+ elements AND THEIR CHILDREN!
+      #   # ⚠️️️ this returns +class+ attributes from all +div+ elements AND THEIR CHILDREN!
       #   node.css('div @class')
       #
       #   node.css
       #
       # 💡 Array-like syntax is supported in CSS queries as an alternative to using +:nth-child()+.
       #
-      # ⚠ NOTE that indices are 1-based like +:nth-child+ and not 0-based like Ruby Arrays. For
+      # ⚠️️️ NOTE that indices are 1-based like +:nth-child+ and not 0-based like Ruby Arrays. For
       # example:
       #
       #   # equivalent to 'li:nth-child(2)'
       #   node.css('li[2]') # retrieve the second li element in a list
       #
-      # ⚠ NOTE that the CSS query string is case-sensitive with regards to your document type. HTML
+      # ⚠️️️ NOTE that the CSS query string is case-sensitive with regards to your document type. HTML
       # tags will match only lowercase CSS queries, so if you search for "H1" in an HTML document,
       # you'll never find anything. However, "H1" might be found in an XML document, where tags
       # names are case-sensitive (e.g., "H1" is distinct from "h1").

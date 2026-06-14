@@ -16,7 +16,7 @@ module Nokogiri
       # takes a Nokogiri::XML::SAX::Document, an optional encoding, then given an HTML input, sends
       # messages to the Nokogiri::XML::SAX::Document.
       #
-      # ⚠ This is an HTML4 parser and so may not support some HTML5 features and behaviors.
+      # ⚠️️️ This is an HTML4 parser and so may not support some HTML5 features and behaviors.
       #
       # Here is a basic usage example:
       #

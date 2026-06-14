@@ -15,7 +15,7 @@ module Nokogiri
 
     # Nokogiri::XML::RelaxNG is used for validating \XML against a RELAX NG schema definition.
     #
-    # 🛡 <b>Do not use this class for untrusted schema documents.</b> RELAX NG input is always
+    # 🛡️️ <b>Do not use this class for untrusted schema documents.</b> RELAX NG input is always
     # treated as *trusted*, meaning that the underlying parsing libraries <b>will access network
     # resources</b>. This is counter to Nokogiri's "untrusted by default" security policy, but is an
     # unfortunate limitation of the underlying libraries.
@@ -49,11 +49,11 @@ module Nokogiri
       # [Parameters]
       # - +input+ (String | IO) RELAX NG schema definition
       # - +options:+ (Nokogiri::XML::ParseOptions)
-      #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA ⚠ Unused
+      #   Defaults to Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA ⚠️️️ Unused
       #
       # [Returns] Nokogiri::XML::RelaxNG
       #
-      # ⚠ +parse_options+ is currently unused by this method and is present only as a placeholder for
+      # ⚠️️️ +parse_options+ is currently unused by this method and is present only as a placeholder for
       # future functionality.
       #
       # Also see convenience method Nokogiri::XML::RelaxNG()

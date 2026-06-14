@@ -30,7 +30,7 @@ module Nokogiri
         #
         # Parse \XML input from a String or IO object, and return a new XML::Document.
         #
-        # 🛡 By default, Nokogiri treats documents as untrusted, and so does not attempt to load DTDs
+        # 🛡️️ By default, Nokogiri treats documents as untrusted, and so does not attempt to load DTDs
         # or access the network. See Nokogiri::XML::ParseOptions for a complete list of options; and
         # that module's DEFAULT_XML constant for what's set (and not set) by default.
         #
@@ -104,7 +104,7 @@ module Nokogiri
       # :singleton-method: wrap
       # :call-seq: wrap(java_document) → Nokogiri::XML::Document
       #
-      # ⚠ This method is only available when running JRuby.
+      # ⚠️️️ This method is only available when running JRuby.
       #
       # Create a Document using an existing Java DOM document object.
       #
@@ -122,7 +122,7 @@ module Nokogiri
       # :method: to_java
       # :call-seq: to_java() → Java::OrgW3cDom::Document
       #
-      # ⚠ This method is only available when running JRuby.
+      # ⚠️️️ This method is only available when running JRuby.
       #
       # Returns the underlying Java DOM document object for this document.
       #
@@ -328,7 +328,7 @@ module Nokogiri
       # Recursively get all namespaces from this node and its subtree and return them as a
       # hash.
       #
-      # ⚠ This method will not handle duplicate namespace prefixes, since the return value is a hash.
+      # ⚠️️️ This method will not handle duplicate namespace prefixes, since the return value is a hash.
       #
       # Note that this method does an xpath lookup for nodes with namespaces, and as a result the
       # order (and which duplicate prefix "wins") may be dependent on the implementation of the

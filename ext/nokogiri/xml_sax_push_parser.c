@@ -158,7 +158,7 @@ noko_xml_sax_push_parser__replace_entities_get(VALUE self)
  * [Parameters]
  * - +value+ (Boolean) Whether external parsed entities will be resolved.
  *
- * ⚠ <b>It is UNSAFE to set this option to +true+</b> when parsing untrusted documents. The option
+ * ⚠️️ <b>It is UNSAFE to set this option to +true+</b> when parsing untrusted documents. The option
  * defaults to +false+ for this reason.
  *
  * This option is perhaps misnamed by the libxml2 author, since it controls resolution and not

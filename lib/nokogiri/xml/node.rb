@@ -487,7 +487,7 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a String
       # containing markup.
       #
-      # ⚠ Please note that despite the name, this method will *not* always parse a String argument
+      # ⚠️️️ Please note that despite the name, this method will *not* always parse a String argument
       # as HTML. A String argument will be parsed with the +DocumentFragment+ parser related to this
       # node's document.
       #
@@ -683,7 +683,7 @@ module Nokogiri
       #
       # Fetch an attribute from this node.
       #
-      # ⚠ Note that attributes with namespaces cannot be accessed with this method. To access
+      # ⚠️️️ Note that attributes with namespaces cannot be accessed with this method. To access
       # namespaced attributes, use #attribute_with_ns.
       #
       # [Returns] (String, nil) value of the attribute +name+, or +nil+ if no matching attribute exists
@@ -697,7 +697,7 @@ module Nokogiri
       #
       # *Example:* Namespaced attributes will not be returned.
       #
-      # ⚠ Note namespaced attributes may be accessed with #attribute or #attribute_with_ns
+      # ⚠️️️ Note namespaced attributes may be accessed with #attribute or #attribute_with_ns
       #
       #   doc = Nokogiri::XML(<<~EOF)
       #     <root xmlns:width='http://example.com/widths'>
@@ -717,7 +717,7 @@ module Nokogiri
       #
       # Update the attribute +name+ to +value+, or create the attribute if it does not exist.
       #
-      # ⚠ Note that attributes with namespaces cannot be accessed with this method. To access
+      # ⚠️️️ Note that attributes with namespaces cannot be accessed with this method. To access
       # namespaced attributes for update, use #attribute_with_ns. To add a namespaced attribute,
       # see the example below.
       #
@@ -756,7 +756,7 @@ module Nokogiri
       #
       # Fetch this node's attributes.
       #
-      # ⚠ Because the keys do not include any namespace information for the attribute, in case of a
+      # ⚠️️️ Because the keys do not include any namespace information for the attribute, in case of a
       # simple name collision, not all attributes will be returned. In this case, you will need to
       # use #attribute_nodes.
       #
@@ -787,7 +787,7 @@ module Nokogiri
       #
       # *Example* with an attribute name collision:
       #
-      # ⚠ Note that only one of the attributes is returned in the Hash.
+      # ⚠️️️ Note that only one of the attributes is returned in the Hash.
       #
       #   doc = Nokogiri::XML(<<~EOF)
       #     <root xmlns:width='http://example.com/widths'

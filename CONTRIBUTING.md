@@ -350,8 +350,8 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
   - Use a `[Yields]` definition to note the block parameters
   - use RBS syntax whenever possible to declare variable types
 - Callouts
-  - Use a `🛡` character for security-related notes
-  - Use a `⚠` character to warn the user about tricky usage
+  - Use a `🛡️` character for security-related notes
+  - Use a `⚠️` character to warn the user about tricky usage
   - Use a `💡` character to call attention to other important notes
 - Examples
   - Prefer to **show** nuanced behavior in code examples, rather than try to explain it in prose.

@@ -214,7 +214,7 @@ build_xslt_params(VALUE args_ptr)
  *   doc = Nokogiri::XML::Document.parse(xml)
  *   stylesheet = Nokogiri::XSLT.parse(xslt)
  *
- * ⚠ Note that the +h1+ element is empty because no param has been provided!
+ * ⚠️️ Note that the +h1+ element is empty because no param has been provided!
  *
  *   stylesheet.transform(doc).to_xml
  *   # => "<html><body>\n" +
@@ -227,7 +227,7 @@ build_xslt_params(VALUE args_ptr)
  *
  * *Example* of using an input parameter hash:
  *
- * ⚠ The title is populated, but note how we need to quote-escape the value.
+ * ⚠️️ The title is populated, but note how we need to quote-escape the value.
  *
  *   stylesheet.transform(doc, { "title" => "'Employee List'" }).to_xml
  *   # => "<html><body>\n" +

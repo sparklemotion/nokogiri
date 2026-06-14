@@ -501,7 +501,7 @@ rb_xml_node_add_namespace_definition(VALUE rb_node, VALUE rb_prefix, VALUE rb_hr
  *
  * [Returns] Attribute (Nokogiri::XML::Attr) belonging to this node with name +name+.
  *
- * ⚠ Note that attribute namespaces are ignored and only the simple (non-namespace-prefixed) name is
+ * ⚠️️ Note that attribute namespaces are ignored and only the simple (non-namespace-prefixed) name is
  * used to find a matching attribute. In case of a simple name collision, only one of the matching
  * attributes will be returned. In this case, you will need to use #attribute_with_ns.
  *
@@ -514,7 +514,7 @@ rb_xml_node_add_namespace_definition(VALUE rb_node, VALUE rb_prefix, VALUE rb_hr
  *
  * *Example* showing that namespaced attributes will not be returned:
  *
- * ⚠ Note that only one of the two matching attributes is returned.
+ * ⚠️️ Note that only one of the two matching attributes is returned.
  *
  *   doc = Nokogiri::XML(<<~EOF)
  *     <root xmlns:width='http://example.com/widths'
@@ -746,7 +746,7 @@ rb_xml_node_children(VALUE self)
  *   Contents of all the text nodes in this node's subtree, concatenated together into a single
  *   String.
  *
- * ⚠ Note that entities will _always_ be expanded in the returned String.
+ * ⚠️️ Note that entities will _always_ be expanded in the returned String.
  *
  * See related: #inner_html
  *
@@ -1497,7 +1497,7 @@ node_type(VALUE self)
  * [Parameters]
  * - +input+ (String) The new content for this node.
  *
- * ⚠ This method behaves differently depending on the node type. For Text, CDATA, Comment, and
+ * ⚠️️ This method behaves differently depending on the node type. For Text, CDATA, Comment, and
  * ProcessingInstruction nodes, it treats the input as raw content, which means that the final DOM
  * will contain the entity-escaped version of the input (see example below). For Element and Attr
  * nodes, it treats the input as parsed content and expects it to be valid markup that is already
@@ -2018,7 +2018,7 @@ html_standard_serialize(
  *
  * ---
  *
- * <b> ⚠ The CRuby and JRuby implementations differ in important ways! </b>
+ * <b> ⚠️️ The CRuby and JRuby implementations differ in important ways! </b>
  *
  * Semantic differences:
  * - The CRuby method reflects the node's line number <i>in the parsed string</i>

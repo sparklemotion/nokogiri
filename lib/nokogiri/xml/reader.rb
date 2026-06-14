@@ -25,11 +25,11 @@ module Nokogiri
     #       puts node.name
     #     end
     #
-    # ⚠ Nokogiri::XML::Reader#each can only be called once! Once the cursor moves through the entire
+    # ⚠️️️ Nokogiri::XML::Reader#each can only be called once! Once the cursor moves through the entire
     # document, you must parse the document again. It may be better to capture all information you
     # need during a single iteration.
     #
-    # ⚠ libxml2 does not support error recovery in the Reader parser. The +RECOVER+ ParseOption is
+    # ⚠️️️ libxml2 does not support error recovery in the Reader parser. The +RECOVER+ ParseOption is
     # ignored. If a syntax error is encountered during parsing, an exception will be raised.
     class Reader
       include Enumerable
