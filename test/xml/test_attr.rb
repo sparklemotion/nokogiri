@@ -36,6 +36,13 @@ module Nokogiri
         assert_equal(%{street="Y&amp;ent1;"}, street.to_xml.strip)
       end
 
+      def test_set_value_returns_assigned_value
+        attr = Nokogiri::XML.parse("<root foo='bar'/>").root.attribute("foo")
+
+        assert_equal("new value", attr.public_send(:value=, "new value"))
+        assert_nil(attr.public_send(:value=, nil))
+      end
+
       def test_set_value_with_entity_string_in_html_file
         html = Nokogiri::HTML("<html><body><div foo='asdf'>")
         foo = html.at_css("div").attributes["foo"]
@@ -89,6 +96,57 @@ module Nokogiri
         assert_equal("", disabled.value)
         # but we emit a boolean attribute at serialize-time
         assert_equal(%{disabled}, disabled.to_html.strip)
+      end
+
+      def test_set_value_does_not_pin_unwrapped_children
+        skip("memory-safety test specific to libxml2") unless Nokogiri.uses_libxml?
+
+        doc = Nokogiri::XML.parse("<root foo='bar'/>")
+        attr = doc.root.attribute("foo")
+        node_cache = doc.instance_variable_get(:@node_cache)
+        node_cache_size = node_cache.length
+
+        10.times do |i|
+          attr.value = i.to_s
+        end
+
+        assert_equal(node_cache_size, node_cache.length)
+        assert_equal("9", attr.value)
+      end
+
+      def test_set_value_does_not_free_wrapped_children
+        skip("memory-safety test specific to libxml2") unless Nokogiri.uses_libxml?
+
+        attr = Nokogiri::XML.parse("<root foo='bar'/>").root.attribute("foo")
+        child = attr.child # wrap the XML::Text node
+
+        refute_valgrind_errors do
+          attr.value = "new value"
+        end
+
+        assert_equal "bar", child.to_s
+      end
+
+      def test_set_value_preserves_all_wrapped_children
+        skip("memory-safety test specific to libxml2") unless Nokogiri.uses_libxml?
+
+        doc = Nokogiri::XML.parse(<<~XML)
+          <!DOCTYPE root [<!ENTITY e "E">]>
+          <root foo="a&e;b"/>
+        XML
+        attr = doc.root.attribute("foo")
+        old_children = attr.children.to_a
+
+        assert_equal(["a", "&e;", "b"], old_children.map(&:to_s))
+
+        refute_valgrind_errors do
+          attr.value = "new value"
+          GC.start(full_mark: true)
+        end
+
+        assert_equal(["a", "&e;", "b"], old_children.map(&:to_s))
+        assert(old_children.all? { |child| child.parent.nil? })
+        assert_equal("new value", attr.value)
       end
 
       def test_unlink # aliased as :remove

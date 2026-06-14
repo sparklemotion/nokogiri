@@ -10,37 +10,42 @@ VALUE cNokogiriXmlAttr;
  * (e.g., a HTML boolean attribute).
  */
 static VALUE
-set_value(VALUE self, VALUE content)
+noko_xml_attr_set_value(VALUE self, VALUE content)
 {
   xmlAttrPtr attr;
-  xmlChar *value;
-  xmlNode *cur;
 
   Noko_Node_Get_Struct(self, xmlAttr, attr);
 
-  if (attr->children) {
-    xmlFreeNodeList(attr->children);
+  {
+    /* Unlink and pin any wrapped children */
+    xmlNode *cur = attr->children;
+    xmlNode *next;
+
+    while (cur) {
+      next = cur->next;
+      if (cur->_private) {
+        xmlUnlinkNode(cur);
+        noko_xml_document_pin_node(cur);
+      }
+      cur = next;
+    }
   }
-  attr->children = attr->last = NULL;
 
   if (content == Qnil) {
-    return content;
-  }
-
-  value = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValueCStr(content));
-  if (xmlStrlen(value) == 0) {
-    attr->children = xmlNewDocText(attr->doc, value);
+    xmlNodeSetContent((xmlNodePtr)attr, NULL); /* Clear any remaining unwrapped children. */
   } else {
-    attr->children = xmlStringGetNodeList(attr->doc, value);
-  }
-  xmlFree(value);
+    xmlChar *value = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValueCStr(content));
 
-  for (cur = attr->children; cur; cur = cur->next) {
-    cur->parent = (xmlNode *)attr;
-    cur->doc = attr->doc;
-    if (cur->next == NULL) {
-      attr->last = cur;
+    if (xmlStrlen(value) == 0) {
+      xmlNodeSetContent((xmlNodePtr)attr, NULL); /* Clear any remaining unwrapped children. */
+
+      /* Preserve empty-string attributes as `foo=""` and not boolean `foo` */
+      attr->children = attr->last = xmlNewDocText(attr->doc, value);
+      attr->children->parent = (xmlNode *)attr;
+    } else {
+      xmlNodeSetContent((xmlNodePtr)attr, value);
     }
+    xmlFree(value);
   }
 
   return content;
@@ -53,7 +58,7 @@ set_value(VALUE self, VALUE content)
  * Create a new Attr element on the +document+ with +name+
  */
 static VALUE
-new (int argc, VALUE *argv, VALUE klass)
+noko_xml_attr__new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
   VALUE document;
@@ -97,7 +102,7 @@ noko_init_xml_attr(void)
    */
   cNokogiriXmlAttr = rb_define_class_under(mNokogiriXml, "Attr", cNokogiriXmlNode);
 
-  rb_define_singleton_method(cNokogiriXmlAttr, "new", new, -1);
+  rb_define_singleton_method(cNokogiriXmlAttr, "new", noko_xml_attr__new, -1);
 
-  rb_define_method(cNokogiriXmlAttr, "value=", set_value, 1);
+  rb_define_method(cNokogiriXmlAttr, "value=", noko_xml_attr_set_value, 1);
 }
