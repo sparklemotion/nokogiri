@@ -101,6 +101,16 @@ class MemorySuiteTestTask < Minitest::TestTask
   end
 end
 
+class MemorySuiteValgrindTestTask < ValgrindTestTask
+  def ruby(*args, **options, &block)
+    ENV["NCPU"] = nil
+    ENV["NOKOGIRI_MEMORY_SUITE"] = "t"
+    ENV["NOKOGIRI_TEST_GC_LEVEL"] = "major"
+
+    super
+  end
+end
+
 if defined?(RubyMemcheck)
   class MemcheckTestTask < RubyMemcheck::TestTask
     def ruby(*args, **options, &block)
@@ -161,6 +171,10 @@ namespace "test" do
   end
 
   MemorySuiteTestTask.create("memory_suite") do |t|
+    nokogiri_test_memory_suite_configuration(t)
+  end
+
+  MemorySuiteValgrindTestTask.create("memory_suite:valgrind") do |t|
     nokogiri_test_memory_suite_configuration(t)
   end
 
