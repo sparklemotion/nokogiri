@@ -224,14 +224,18 @@ module Nokogiri
       end
     end
 
-    def refute_valgrind_errors
-      # force the test to explicitly declare a skip
-      raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
+    def refute_valgrind_errors(yield_on_jruby: false)
+      if Nokogiri.jruby?
+        # force the test to explicitly declare a skip
+        raise "memory stress tests shouldn't be run on JRuby" unless yield_on_jruby
 
-      GC.start(full_mark: true) if MemoryDebugger.active?
-      yield.tap do
+        yield.tap { @assertions += 1 }
+      else
         GC.start(full_mark: true) if MemoryDebugger.active?
-        @assertions += 1
+        yield.tap do
+          GC.start(full_mark: true) if MemoryDebugger.active?
+          @assertions += 1
+        end
       end
     end
 
