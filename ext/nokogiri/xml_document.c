@@ -714,7 +714,8 @@ noko_xml_document_unwrap(VALUE rb_document)
 /* Schema creation will remove and deallocate "blank" nodes.
  * If those blank nodes have been exposed to Ruby, they could get freed
  * out from under the VALUE pointer.  This function checks to see if any of
- * those nodes have been exposed to Ruby, and if so we should raise an exception.
+ * those nodes have been exposed to Ruby, and if so the caller operates on a
+ * defensive copy of the document so libxml2 frees nodes in the copy instead.
  */
 int
 noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document)
