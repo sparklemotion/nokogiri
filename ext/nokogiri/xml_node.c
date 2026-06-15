@@ -971,6 +971,10 @@ rb_xml_node_initialize_copy_with_args(VALUE rb_self, VALUE rb_other, VALUE rb_le
   xmlDocPtr c_new_parent_doc;
   VALUE rb_node_cache;
 
+  if (!rb_obj_is_kind_of(rb_other, cNokogiriXmlNode)) {
+    rb_raise(rb_eTypeError, "argument must be a kind of Nokogiri::XML::Node");
+  }
+
   Noko_Node_Get_Struct(rb_other, xmlNode, c_other);
   c_level = (int)NUM2INT(rb_level);
   c_new_parent_doc = noko_xml_document_unwrap(rb_new_parent_doc);
