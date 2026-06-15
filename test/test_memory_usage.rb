@@ -255,6 +255,14 @@ class TestMemoryUsage < Nokogiri::TestCase
       end
     end
 
+    it "XPathContext keeps its document alive" do
+      ctx = Nokogiri::XML::XPathContext.new(Nokogiri::XML::Document.parse("<root><x/></root>"))
+
+      memwatch(__method__) do
+        ctx.evaluate("//x").length
+      end
+    end
+
     it "test_leaking_dtd_nodes_after_internal_subset_removal" do
       # see https://github.com/sparklemotion/nokogiri/issues/1784
       memwatch(__method__) do
