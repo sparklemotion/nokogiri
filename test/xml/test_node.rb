@@ -263,6 +263,15 @@ module Nokogiri
           assert_instance_of(subclass, node)
         end
 
+        def test_initialize_copy_with_args_rejects_non_node_source
+          doc = XML::Document.parse("<root/>")
+          namespace = doc.root.add_namespace_definition("x", "u")
+
+          assert_raises(TypeError) do
+            XML::Node.allocate.send(:initialize_copy_with_args, namespace, 1, doc)
+          end
+        end
+
         def test_search_direct_children_of_node
           xml = <<~XML
             <root>
