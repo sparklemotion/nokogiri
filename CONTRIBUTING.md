@@ -192,6 +192,12 @@ Run test/test_memory_usage.rb and look for memory leaks using RSS size and linea
 bundle exec rake compile test:memory_suite
 ```
 
+Run test/test_memory_usage.rb under valgrind, which loops in each test looking for memory errors:
+
+``` sh
+bundle exec rake compile test:memory_suite:valgrind
+```
+
 
 Note that by you can run the test suite with a variety of GC behaviors. For example, running a major after each test completes has, on occasion, been useful for localizing some classes of memory bugs, but does slow the suite down. Some variations of the test suite behavior are available (see `test/helper.rb` for more info):
 
