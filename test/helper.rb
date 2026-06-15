@@ -228,8 +228,9 @@ module Nokogiri
       # force the test to explicitly declare a skip
       raise "memory stress tests shouldn't be run on JRuby" if Nokogiri.jruby?
 
+      GC.start(full_mark: true) if MemoryDebugger.active?
       yield.tap do
-        GC.start(full_mark: true) if @@gc_level == :minor
+        GC.start(full_mark: true) if MemoryDebugger.active?
         @assertions += 1
       end
     end
