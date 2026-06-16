@@ -149,8 +149,8 @@ public class NokogiriHelpers
         return xmlEntityRef;
       case Node.PROCESSING_INSTRUCTION_NODE:
         XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction)
-            NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime,
-                "Nokogiri::XML::ProcessingInstruction"));
+          NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime,
+            "Nokogiri::XML::ProcessingInstruction"));
         xmlProcessingInstruction.setNode(runtime, node);
         return xmlProcessingInstruction;
       case Node.CDATA_SECTION_NODE:

@@ -105,7 +105,7 @@ public class XmlReader extends RubyObject
     InputSource inputSource = new InputSource();
     ParserContext.setUrl(context, inputSource, url);
     XMLInputSource xmlInputSource = new XMLInputSource(inputSource.getPublicId(),
-        inputSource.getSystemId(), null, in, null);
+      inputSource.getSystemId(), null, in, null);
     try {
       config.setInputSource(xmlInputSource);
     } catch (IOException e) {

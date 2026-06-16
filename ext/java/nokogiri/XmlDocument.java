@@ -572,7 +572,7 @@ public class XmlDocument extends XmlNode
         xmlDtd.accept(context, visitor);
       } else if (type == Node.PROCESSING_INSTRUCTION_NODE) {
         XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) getCachedNodeOrCreate(context.runtime,
-            child);
+          child);
         xmlProcessingInstruction.accept(context, visitor);
       } else if (type == Node.TEXT_NODE) {
         XmlText xmlText = (XmlText) getCachedNodeOrCreate(context.runtime, child);

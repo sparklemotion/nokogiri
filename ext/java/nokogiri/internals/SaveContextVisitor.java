@@ -489,7 +489,8 @@ public class SaveContextVisitor
   }
 
   private Map<String, String>
-  pushXmlnsNamespaceStack() {
+  pushXmlnsNamespaceStack()
+  {
     if (!asXml || xmlnsNamespaceStack == null) { return null; }
     Map<String, String> newContext;
     if (xmlnsNamespaceStack.isEmpty()) {
@@ -502,13 +503,15 @@ public class SaveContextVisitor
   }
 
   private Map<String, String>
-  popXmlnsNamespaceStack() {
+  popXmlnsNamespaceStack()
+  {
     if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
     return xmlnsNamespaceStack.pop();
   }
 
   private Map<String, String>
-  peekXmlnsNamespaceStack() {
+  peekXmlnsNamespaceStack()
+  {
     if (!asXml || xmlnsNamespaceStack == null || xmlnsNamespaceStack.isEmpty()) { return null; }
     return xmlnsNamespaceStack.peek();
   }
@@ -599,7 +602,8 @@ public class SaveContextVisitor
    * @return True if the object is redundant, false otherwise.
    */
   private boolean
-  findOrAddRedundantNamespaceAttr(Map<String, String> xmlnsContext, Attr attr) {
+  findOrAddRedundantNamespaceAttr(Map<String, String> xmlnsContext, Attr attr)
+  {
     if (xmlnsContext == null || !attr.getSpecified()) { return false; }
 
     String xmlnsPrefix;
