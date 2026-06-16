@@ -98,6 +98,11 @@ module Nokogiri
     def truffleruby_system_libraries?
       RUBY_ENGINE == "truffleruby" && !Nokogiri::PACKAGED_LIBRARIES
     end
+
+    def file_url_for(path)
+      path_with_leading_slash = path.start_with?("/") ? path : "/#{path}"
+      "file://#{path_with_leading_slash}"
+    end
   end
 
   class TestBenchmark < Minitest::BenchSpec

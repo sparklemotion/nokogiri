@@ -85,8 +85,9 @@ module Nokogiri
             read_memory(string_or_io, url, encoding, options.to_i)
           end
 
-          # do xinclude processing
-          doc.do_xinclude(options) if options.xinclude?
+          # do xinclude processing; the document is freshly parsed and unexposed to Ruby, so the
+          # defensive copy is unnecessary
+          doc.do_xinclude(options, safe_copy: false) if options.xinclude?
 
           doc
         end

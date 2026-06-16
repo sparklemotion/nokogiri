@@ -2154,25 +2154,20 @@ compare(VALUE self, VALUE _other)
 
 
 /*
- * call-seq:
- *   process_xincludes(flags)
- *
- * Loads and substitutes all xinclude elements below the node. The
- * parser context will be initialized with +flags+.
+ * Run XInclude substitution over the tree rooted at +c_node+, with the parser context initialized
+ * from +c_flags+. Collects libxml2's structured errors and raises Nokogiri::XML::SyntaxError (or
+ * RuntimeError) on failure.
  */
-static VALUE
-noko_xml_node__process_xincludes(VALUE rb_node, VALUE rb_flags)
+static void
+_noko_xml_node_process_xinclude_subtree(xmlNodePtr c_node, int c_flags)
 {
   int status ;
-  xmlNodePtr c_node;
   VALUE rb_errors = rb_ary_new();
   libxmlStructuredErrorHandlerState handler_state;
 
-  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
-
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
-  status = xmlXIncludeProcessTreeFlags(c_node, (int)NUM2INT(rb_flags));
+  status = xmlXIncludeProcessTreeFlags(c_node, c_flags);
 
   noko__structured_error_func_restore(&handler_state);
 
@@ -2185,8 +2180,74 @@ noko_xml_node__process_xincludes(VALUE rb_node, VALUE rb_flags)
       rb_raise(rb_eRuntimeError, "Could not perform xinclude substitution");
     }
   }
+}
+
+
+/*
+ * Whether +c_node+ is an <xi:include> element in either the 2001 or 2003 XInclude namespace.
+ */
+static int
+_noko_xml_node_xinclude_element_p(xmlNodePtr c_node)
+{
+  return c_node->type == XML_ELEMENT_NODE
+         && xmlStrEqual(c_node->name, XINCLUDE_NODE)
+         && c_node->ns != NULL
+         && (xmlStrEqual(c_node->ns->href, XINCLUDE_NS) || xmlStrEqual(c_node->ns->href, XINCLUDE_OLD_NS));
+}
+
+
+/*
+ * call-seq:
+ *   process_xincludes(flags)
+ *
+ * Loads and substitutes all xinclude elements below the node. The
+ * parser context will be initialized with +flags+.
+ */
+static VALUE
+noko_xml_node__process_xincludes(VALUE rb_node, VALUE rb_flags)
+{
+  xmlNodePtr c_node;
+
+  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
+
+  if (c_node->parent == NULL && _noko_xml_node_xinclude_element_p(c_node)) {
+    rb_raise(rb_eRuntimeError, "cannot process XInclude on an unlinked <xi:include> node");
+  }
+
+  _noko_xml_node_process_xinclude_subtree(c_node, (int)NUM2INT(rb_flags));
 
   return rb_node;
+}
+
+
+/*
+ * Process this single <xi:include> node, substituting an unwrapped copy of it in its place so
+ * that libxml2 frees the copy. This node is unlinked and pinned to the document, so any Ruby
+ * wrapper for it (or for its descendants or namespaces) keeps pointing at valid memory. The
+ * parser context is initialized with +flags+.
+ */
+static VALUE
+noko_xml_node__safe_process_xinclude(VALUE rb_node, VALUE rb_flags)
+{
+  xmlNodePtr c_node, c_copy;
+
+  Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
+
+  if (c_node->parent == NULL) {
+    rb_raise(rb_eRuntimeError, "cannot process XInclude on an unlinked <xi:include> node");
+  }
+
+  c_copy = xmlDocCopyNode(c_node, c_node->doc, 1);
+  if (c_copy == NULL) {
+    rb_raise(rb_eRuntimeError, "Could not copy node for xinclude substitution");
+  }
+
+  xmlReplaceNode(c_node, c_copy);
+  noko_xml_document_pin_node(c_node);
+
+  _noko_xml_node_process_xinclude_subtree(c_copy, (int)NUM2INT(rb_flags));
+
+  return Qnil;
 }
 
 
@@ -2442,6 +2503,7 @@ noko_init_xml_node(void)
   rb_define_method(cNokogiriXmlNode, "unlink", unlink_node, 0);
 
   rb_define_protected_method(cNokogiriXmlNode, "initialize_copy_with_args", rb_xml_node_initialize_copy_with_args, 3);
+  rb_define_protected_method(cNokogiriXmlNode, "safe_process_xinclude", noko_xml_node__safe_process_xinclude, 1);
 
   rb_define_private_method(cNokogiriXmlNode, "add_child_node", add_child, 1);
   rb_define_private_method(cNokogiriXmlNode, "add_next_sibling_node", add_next_sibling, 1);
