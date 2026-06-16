@@ -351,13 +351,14 @@ Some guidelines (see [lib/nokogiri/xml/node.rb](lib/nokogiri/xml/node.rb) and [e
   - indicate block/yield usage of a method
 - Briefly explain the purpose of the method, what it returns, and what side effects it has
 - Method signatures
-  - Use a `[Parameters]` definition to note the expected types of all the parameters as a bulleted list
+  - Use a `[Parameters]` definition to note positional parameters as a bulleted list. Put the type in parentheses immediately after the name, and note any default at the end of the description, e.g. `- +options+ (Nokogiri::XML::ParseOptions) The parser options. (default +ParseOptions::DEFAULT_XML+)`
+  - Use an `[Optional Keyword Arguments]` definition (separate from `[Parameters]`) for keyword arguments, with the same item format
   - Use a `[Returns]` definition to note the return type
   - Use a `[Yields]` definition to note the block parameters
-  - use RBS syntax whenever possible to declare variable types
+  - use RBS syntax whenever possible to declare variable types, e.g. a union like `(String | IO)`
 - Callouts
-  - Use a `🛡️` character for security-related notes
-  - Use a `⚠️` character to warn the user about tricky usage
+  - Use a `🛡️️` character for security-related notes
+  - Use a `⚠️️️` character to warn the user about tricky usage
   - Use a `💡` character to call attention to other important notes
 - Examples
   - Prefer to **show** nuanced behavior in code examples, rather than try to explain it in prose.
@@ -378,16 +379,17 @@ There are some pending Rubocop rules in `.rubocop_todo.yml`. If you'd like to fi
 
 For C code, naming is currently inconsistent, but I am generally moving towards some guidelines that will make stack traces more readable and usable:
 
-- Public functions and functions bound to Ruby methods should start with `noko_` followed by the snake case class name.
-  - e.g., `noko_xml_sax_parser_context_...`
-- Static functions (file scope) do not need the "noko" prefix, but should be named with the snake case class name.
-  - e.g., `xml_sax_parser_context_...`
-- Ruby singleton methods should have `_s_` before the method name
-  - e.g., `noko_xml_sax_parser_context_s_io` for `Nokogiri::XML::SAX::ParserContext.io`
-- Ruby instance methods should have `__` before the method name
-  - e.g., `noko_xml_sax_parser_context__line` for `Nokogiri::XML::SAX::ParserContext#line`
-- Ruby attribute getters and setters should have `_get` or `_set` as a suffix
-  - e.g., `noko_xml_sax_parser_context__recovery_set` for `Nokogiri::XML::SAX::ParserContext#recovery=`
+- Functions bound to Ruby methods should start with `noko_` followed by the snake case class or module name.
+  - Singleton methods should have `_s_` before the method name: `noko_xml_sax_parser_context_s_io` for `Nokogiri::XML::SAX::ParserContext.io`
+  - Instance methods should have `__` before the method name: `noko_xml_sax_parser_context__line` for `Nokogiri::XML::SAX::ParserContext#line`
+  - Attribute setters should have `_set` as a suffix: `noko_xml_sax_parser_context__recovery_set` for `Nokogiri::XML::SAX::ParserContext#recovery=`
+  - Predicates should have `_eh` as a suffix: `noko_xml_node__blank_eh` for `Nokogiri::XML::Node#blank?`
+
+- Public C functions should start with `noko_`
+  - When appropriate, follow with the snake case class or module name and a descriptive name: `noko_xml_node_wrap_node_set_result`
+  - Else, followed by `__` and a description: `noko__structured_error_func_save`
+
+- Unbound static C functions should start with `_noko_` followed by the snake case class or module name, and a descriptive name: `_noko_xml_xpath_context_dfree`
 
 
 ## How Continuous Integration ("CI") is configured
