@@ -905,7 +905,10 @@ else
     end
 
     if config_with_xml2_legacy?
-      recipe.configure_options << "--with-legacy"
+      recipe.configure_options += [
+        "--with-legacy",
+        "--with-http",
+      ]
     end
 
     if zlib_recipe
