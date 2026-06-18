@@ -221,6 +221,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(
 {
   VALUE rb_retval;
   VALUE *argv;
+  VALUE argv_handle;
   VALUE rb_node_set = Qnil;
   xmlNodeSetPtr c_node_set = NULL;
   xmlXPathObjectPtr c_xpath_object;
@@ -228,10 +229,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(
   assert(ctxt->context->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctxt->context->doc));
 
-  argv = (VALUE *)ruby_xcalloc((size_t)argc, sizeof(VALUE));
-  for (int j = 0 ; j < argc ; ++j) {
-    rb_gc_register_address(&argv[j]);
-  }
+  argv = ALLOCV_N(VALUE, argv_handle, argc);
 
   for (int j = argc - 1 ; j >= 0 ; --j) {
     c_xpath_object = valuePop(ctxt);
@@ -249,10 +247,7 @@ Nokogiri_marshal_xpath_funcall_and_return_values(
                 argv
               );
 
-  for (int j = 0 ; j < argc ; ++j) {
-    rb_gc_unregister_address(&argv[j]);
-  }
-  ruby_xfree(argv);
+  ALLOCV_END(argv_handle);
 
   switch (TYPE(rb_retval)) {
     case T_FLOAT:
