@@ -354,131 +354,159 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
       assert(child.to_s) # This will raise a valgrind error if the node was freed
     end
 
+    # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
+    # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2
     describe "CVE-2020-26247" do
-      # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
-      let(:schema) do
-        <<~EOSCHEMA
-          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-            <xs:import namespace="test" schemaLocation="http://localhost:8000/making-a-request"/>
-          </xs:schema>
-        EOSCHEMA
-      end
+      before { skip("MockServer not supported") unless Nokogiri::MockServer.supported? }
 
-      if Nokogiri.uses_libxml?
-        describe "with default parse options" do
-          it "XML::Schema parsing does not attempt to access external DTDs" do
-            doc = Nokogiri::XML::Schema.new(schema)
-            errors = doc.errors.map(&:to_s)
-            refute_empty(
-              errors.grep(/Attempt to load network entity/),
-              "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_empty(
-              errors.grep(/failed to load HTTP resource/),
-              "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'",
-            )
-            assert_empty(
-              errors.grep(/failed to load external entity/),
-              "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'",
-            )
-          end
-
-          it "XML::Schema parsing of memory does not attempt to access external DTDs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema)
-            errors = doc.errors.map(&:to_s)
-            refute_empty(
-              errors.grep(/Attempt to load network entity/),
-              "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_empty(
-              errors.grep(/failed to load HTTP resource/),
-              "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'",
-            )
-            assert_empty(
-              errors.grep(/failed to load external entity/),
-              "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'",
-            )
-          end
-        end
-
-        describe "with NONET turned off" do
-          it "XML::Schema parsing attempts to access external DTDs" do
-            doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
-            errors = doc.errors.map(&:to_s)
-            assert_empty(
-              errors.grep(/Attempt to load network entity/),
-              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
-          end
-
-          it "XML::Schema parsing attempts to access external DTDs with kwargs" do
-            doc = Nokogiri::XML::Schema.new(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
-            errors = doc.errors.map(&:to_s)
-            assert_empty(
-              errors.grep(/Attempt to load network entity/),
-              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
-          end
-
-          it "XML::Schema parsing of memory attempts to access external DTDs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
-            errors = doc.errors.map(&:to_s)
-            assert_empty(
-              errors.grep(/ERROR: Attempt to load network entity/),
-              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
-          end
-
-          it "XML::Schema parsing of memory attempts to access external DTDs with kwargs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
-            errors = doc.errors.map(&:to_s)
-            assert_empty(
-              errors.grep(/ERROR: Attempt to load network entity/),
-              "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT",
-            )
-            assert_equal(1, errors.grep(%r{failed to load.*http://localhost:8000/making-a-request}).length)
-          end
-        end
-      end
+      network_schemata = %w[ http HTTP https HTTPS ftp FTP jar:http jar:https telnet ]
 
       if Nokogiri.jruby?
-        describe "with default parse options" do
-          it "XML::Schema parsing does not attempt to access external DTDs" do
-            doc = Nokogiri::XML::Schema.new(schema)
-            assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+        unsupported_schemata = %w[ telnet ]
+        supported_schemata = network_schemata - unsupported_schemata
+      else
+        supported_schemata = []
+        supported_schemata << "http" if Nokogiri::LIBXML_HTTP_ENABLED
+        supported_schemata += %w[ ftp ] if Nokogiri.uses_libxml?("< 2.10.0")
+        unsupported_schemata = network_schemata - supported_schemata
+      end
+
+      schemata_matrix = supported_schemata.map { |s| [s, true] } + unsupported_schemata.map { |s| [s, false] }
+      schemata_matrix.each do |scheme, network_supported|
+        describe "external resource via #{network_supported ? "supported" : "unsupported"} scheme #{scheme.inspect}" do
+          describe "with default parse options" do
+            it "XML::Schema.new does not hit the network" do
+              refute_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                Nokogiri::XML::Schema.new(schema_importing(url))
+              end
+            end
+
+            it "XML::Schema.read_memory does not hit the network" do
+              refute_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                Nokogiri::XML::Schema.read_memory(schema_importing(url))
+              end
+            end
           end
 
-          it "XML::Schema parsing of memory does not attempt to access external DTDs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema)
-            assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
-          end
-        end
+          describe "with NONET turned off" do
+            if network_supported
+              it "XML::Schema.new hits the network" do
+                assert_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  ignoring_syntax_errors do # it's OS-dependent whether the mock TCP server causes a syntax error
+                    Nokogiri::XML::Schema.new(schema_importing(url), Nokogiri::XML::ParseOptions.new.nononet)
+                  end
+                end
+              end
 
-        describe "with NONET turned off" do
-          it "XML::Schema parsing attempts to access external DTDs" do
-            doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
-            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
-          end
+              it "XML::Schema.new with kwargs hits the network" do
+                assert_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  ignoring_syntax_errors do # it's OS-dependent whether the mock TCP server causes a syntax error
+                    Nokogiri::XML::Schema.new(schema_importing(url), parse_options: Nokogiri::XML::ParseOptions.new.nononet)
+                  end
+                end
+              end
 
-          it "XML::Schema parsing attempts to access external DTDs with kwargs" do
-            doc = Nokogiri::XML::Schema.new(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
-            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
-          end
+              it "XML::Schema.read_memory hits the network" do
+                assert_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  ignoring_syntax_errors do # it's OS-dependent whether the mock TCP server causes a syntax error
+                    Nokogiri::XML::Schema.read_memory(schema_importing(url), Nokogiri::XML::ParseOptions.new.nononet)
+                  end
+                end
+              end
 
-          it "XML::Schema parsing of memory attempts to access external DTDs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
-            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
-          end
+              it "XML::Schema.read_memory with kwargs hits the network" do
+                assert_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  ignoring_syntax_errors do # it's OS-dependent whether the mock TCP server causes a syntax error
+                    Nokogiri::XML::Schema.read_memory(schema_importing(url), parse_options: Nokogiri::XML::ParseOptions.new.nononet)
+                  end
+                end
+              end
+            else
+              it "XML::Schema.new does not hit the network" do
+                refute_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  Nokogiri::XML::Schema.new(schema_importing(url), Nokogiri::XML::ParseOptions.new.nononet)
+                end
+              end
 
-          it "XML::Schema parsing of memory attempts to access external DTDs with kwargs" do
-            doc = Nokogiri::XML::Schema.read_memory(schema, parse_options: Nokogiri::XML::ParseOptions.new.nononet)
-            assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+              it "XML::Schema.read_memory does not hit the network" do
+                refute_network_connection(scheme:, path: schema_location_path(scheme)) do |url|
+                  Nokogiri::XML::Schema.read_memory(schema_importing(url), Nokogiri::XML::ParseOptions.new.nononet)
+                end
+              end
+            end
           end
         end
       end
     end
+
+    describe "relative import against a remote document base (default parse options)" do
+      before { skip("MockServer not supported") unless Nokogiri::MockServer.supported? }
+
+      it "XML::Schema.from_document does not hit the network" do
+        refute_network_connection(path: "/import.xsd") do |url|
+          base = url.delete_suffix("import.xsd")
+          doc = Nokogiri::XML(schema_importing("import.xsd"), base)
+          Nokogiri::XML::Schema.from_document(doc)
+        end
+      end
+    end
+
+    if Nokogiri.jruby?
+      describe "local resource" do
+        {
+          nil => true,
+          "schema.xsd" => true,
+          "/absolute/schema.xsd" => true,
+          "file:/path/schema.xsd" => true,
+          "file:///path/schema.xsd" => true,
+          "file://localhost/path/schema.xsd" => true,
+          "file:schema.xsd" => false,
+          "http://example.com/schema.xsd" => false,
+          "https://example.com/schema.xsd" => false,
+          "ftp://example.com/schema.xsd" => false,
+          "file://example.com/share/schema.xsd" => false,
+          "file:////host/share/schema.xsd" => false,
+          "file://localhost//host/share/schema.xsd" => false,
+          "//host/share/schema.xsd" => false,
+          "file:/%2f%2fhost/share/schema.xsd" => false,
+          "file:/%5c%5chost/share/schema.xsd" => false,
+          "\\\\host\\share\\schema.xsd" => false,
+          "C:/path/schema.xsd" => false,
+          "jar:file:/archive.jar!/schema.xsd" => false,
+        }.each do |system_id, expected|
+          it "#{system_id.inspect} is #{expected ? "allowed" : "blocked"}" do
+            assert_equal(expected, Nokogiri::XML::Schema.send(:local_resource?, system_id))
+          end
+        end
+      end
+
+      describe "local resource resolved against a base URI" do
+        {
+          ["import.xsd", "http://example.com/"] => false,
+          ["import.xsd", "file:///srv/schemas/"] => true,
+          ["file:///etc/passwd.xsd", "http://example.com/"] => true,
+          ["//host/share.xsd", "file:base.xsd"] => false,
+          ["//host/share.xsd", "file:///srv/"] => false,
+        }.each do |(system_id, base), expected|
+          it "#{system_id.inspect} against #{base.inspect} is #{expected ? "allowed" : "blocked"}" do
+            assert_equal(expected, Nokogiri::XML::Schema.send(:local_resource?, system_id, base))
+          end
+        end
+      end
+    end
+  end
+
+  private
+
+  def schema_importing(url)
+    <<~EOSCHEMA
+      <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="test" schemaLocation="#{url}"/>
+      </xs:schema>
+    EOSCHEMA
+  end
+
+  def schema_location_path(scheme)
+    scheme.match?(/\Ajar:/i) ? "/schema.jar!/import.xsd" : "/import.xsd"
   end
 end
