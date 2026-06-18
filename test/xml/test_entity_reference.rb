@@ -239,42 +239,24 @@ module Nokogiri
       end
 
       test_relative_and_absolute_path :test_document_dtd_loading_with_nonet do
-        # Make sure that we don't include remote entities unless NOENT is set to true
-        xml = <<~XML
-          <?xml version="1.0" encoding="UTF-8" ?>
-          <!DOCTYPE document SYSTEM "http://foo.bar.com/">
-          <document>
-            <body>&bar;</body>
-          </document>
-        XML
-        doc = @parser.parse(xml, path) do |cfg|
-          cfg.default_xml
-          cfg.dtdload
-        end
+        skip("MockServer not supported") unless Nokogiri::MockServer.supported?
 
-        assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
+        # Make sure that we don't load remote DTDs unless NONET is turned off
+        refute_network_connection do |url|
+          xml = <<~XML
+            <?xml version="1.0" encoding="UTF-8" ?>
+            <!DOCTYPE document SYSTEM "#{url}">
+            <document>
+              <body>&bar;</body>
+            </document>
+          XML
+          doc = @parser.parse(xml, path) do |cfg|
+            cfg.default_xml
+            cfg.dtdload
+          end
 
-        expected = if Nokogiri.uses_libxml?("~> 2.14")
-          [
-            "2:49: ERROR: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
-            # "attempt to load network entity" removed in gnome/libxml2@1b1e8b3c
-            "4:14: ERROR: Entity 'bar' not defined",
-          ]
-        elsif Nokogiri.uses_libxml?("~> 2.13.0")
-          [
-            "2:49: WARNING: failed to load \"http://foo.bar.com/\": Attempt to load network entity",
-            "ERROR: Attempt to load network entity: http://foo.bar.com/",
-            "4:14: ERROR: Entity 'bar' not defined",
-          ]
-        elsif Nokogiri.uses_libxml?
-          [
-            "ERROR: Attempt to load network entity http://foo.bar.com/",
-            "4:14: ERROR: Entity 'bar' not defined",
-          ]
-        else # jruby
-          ["Attempt to load network entity http://foo.bar.com/"]
+          assert_kind_of Nokogiri::XML::EntityReference, doc.xpath("//body").first.children.first
         end
-        assert_equal(expected, doc.errors.map(&:to_s))
       end
       # TODO: can we retrieve a resource pointing to localhost when NONET is set to true ?
     end
@@ -311,33 +293,37 @@ module Nokogiri
       end
 
       test_relative_and_absolute_path :test_more_sax_entity_reference do
+        skip("MockServer not supported") unless Nokogiri::MockServer.supported?
+
         # Make sure that we don't include entity references unless NOENT is set to true
-        xml = <<~XML
-          <?xml version="1.0" encoding="UTF-8" ?>
-          <!DOCTYPE document SYSTEM "http://foo.bar.com/">
-          <document>
-            <body>&bar;</body>
-          </document>
-        XML
-        @parser.parse(xml)
+        refute_network_connection do |url|
+          xml = <<~XML
+            <?xml version="1.0" encoding="UTF-8" ?>
+            <!DOCTYPE document SYSTEM "#{url}">
+            <document>
+              <body>&bar;</body>
+            </document>
+          XML
+          @parser.parse(xml)
 
-        actual = if Nokogiri.uses_libxml?(">= 2.13.0") # gnome/libxml2@b717abdd
-          @parser.document.warnings
-        else
-          @parser.document.errors
+          actual = if Nokogiri.uses_libxml?(">= 2.13.0") # gnome/libxml2@b717abdd
+            @parser.document.warnings
+          else
+            @parser.document.errors
+          end
+
+          refute_nil(actual)
+          refute_empty(actual)
+
+          actual = actual.map { |e| e.to_s.strip }
+          expected = if truffleruby_system_libraries?
+            ["error_func: %s"]
+          else
+            ["Entity 'bar' not defined"]
+          end
+
+          assert_equal(expected, actual)
         end
-
-        refute_nil(actual)
-        refute_empty(actual)
-
-        actual = actual.map { |e| e.to_s.strip }
-        expected = if truffleruby_system_libraries?
-          ["error_func: %s"]
-        else
-          ["Entity 'bar' not defined"]
-        end
-
-        assert_equal(expected, actual)
       end
     end
 

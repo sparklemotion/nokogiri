@@ -12,6 +12,15 @@ static const xmlChar *NOKOGIRI_BUILTIN_PREFIX = (const xmlChar *)"nokogiri-built
 static const xmlChar *NOKOGIRI_BUILTIN_URI = (const xmlChar *)"https://www.nokogiri.org/default_ns/ruby/builtins";
 
 static void
+_noko_xml_xpath_context_dmark(void *data)
+{
+  xmlXPathContextPtr c_context = data;
+  if (c_context->doc && DOC_RUBY_OBJECT_TEST(c_context->doc)) {
+    rb_gc_mark(DOC_RUBY_OBJECT(c_context->doc));
+  }
+}
+
+static void
 _noko_xml_xpath_context_dfree(void *data)
 {
   xmlXPathContextPtr c_context = data;
@@ -21,9 +30,10 @@ _noko_xml_xpath_context_dfree(void *data)
 static const rb_data_type_t _noko_xml_xpath_context_type = {
   .wrap_struct_name = "xmlXPathContext",
   .function = {
+    .dmark = _noko_xml_xpath_context_dmark,
     .dfree = _noko_xml_xpath_context_dfree,
   },
-  .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
+  .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 /* find a CSS class in an HTML element's `class` attribute */

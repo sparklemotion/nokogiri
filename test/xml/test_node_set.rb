@@ -719,6 +719,8 @@ module Nokogiri
         end
 
         describe "#[]" do
+          c_long_wider_than_int = [0].pack("l!").bytesize > [0].pack("i!").bytesize
+
           it "negative_index_works" do
             assert(node_set = xml.search("//employee"))
             assert_equal(node_set.last, node_set[-1])
@@ -727,6 +729,40 @@ module Nokogiri
           it "large_negative_index_returns_nil" do
             assert(node_set = xml.search("//employee"))
             assert_nil(node_set[-1 * (node_set.length + 1)])
+          end
+
+          it "large_negative_index_truncating_to_in_range_returns_nil" do
+            skip("long-to-int truncation only occurs where long is wider than int (LP64)") unless c_long_wider_than_int
+            node_set = xml.search("//employee")
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              node_set[-4294967297]
+            end
+
+            assert_nil(result)
+          end
+
+          it "slice_with_large_negative_index_truncating_to_in_range_returns_nil" do
+            skip("long-to-int truncation only occurs where long is wider than int (LP64)") unless c_long_wider_than_int
+            node_set = xml.search("//employee")
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              node_set.slice(-4294967297)
+            end
+
+            assert_nil(result)
+          end
+
+          it "array_slice_with_large_negative_start_truncating_to_in_range_returns_nil" do
+            skip("long-to-int truncation only occurs where long is wider than int (LP64)") unless c_long_wider_than_int
+            node_set = xml.search("//employee")
+            assert_nil(node_set[-4294967297, 1])
+          end
+
+          it "array_slice_with_large_negative_range_begin_truncating_to_in_range_returns_nil" do
+            skip("long-to-int truncation only occurs where long is wider than int (LP64)") unless c_long_wider_than_int
+            node_set = xml.search("//employee")
+            assert_nil(node_set[-4294967297..-1])
           end
 
           it "array_index" do

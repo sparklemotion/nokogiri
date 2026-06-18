@@ -648,16 +648,67 @@ module Nokogiri
         set_namespace(ns)
       end
 
+      XINCLUDE_NAMESPACES = {
+        "xi2001" => "http://www.w3.org/2001/XInclude",
+        "xi2003" => "http://www.w3.org/2003/XInclude",
+      }.freeze
+      private_constant :XINCLUDE_NAMESPACES
+
+      # Every top-level <xi:include> in the subtree, in either XInclude namespace, excluding
+      # includes nested inside another include's fallback (libxml2 only expands those if the
+      # parent include fails).
+      XINCLUDE_QUERY =
+        "descendant-or-self::xi2001:include[not(ancestor::xi2001:include) and not(ancestor::xi2003:include)] | " \
+        "descendant-or-self::xi2003:include[not(ancestor::xi2001:include) and not(ancestor::xi2003:include)]"
+      private_constant :XINCLUDE_QUERY
+
       ###
-      # Do xinclude substitution on the subtree below node. If given a block, a
-      # Nokogiri::XML::ParseOptions object initialized from +options+, will be
-      # passed to it, allowing more convenient modification of the parser options.
-      def do_xinclude(options = XML::ParseOptions::DEFAULT_XML)
+      # :call-seq:
+      #   do_xinclude(options = ParseOptions::DEFAULT_XML, safe_copy: true) → self
+      #   do_xinclude(options = ParseOptions::DEFAULT_XML, safe_copy: true) { |options| ... } → self
+      #
+      # Do XInclude substitution on the subtree below this node, replacing each +<xi:include>+ with
+      # the content it references.
+      #
+      # [Parameters]
+      # - +options+ (Nokogiri::XML::ParseOptions) The parser options for the substitution. (default
+      #   +ParseOptions::DEFAULT_XML+)
+      #
+      # [Optional Keyword Arguments]
+      # - +safe_copy:+ (Boolean) Operate on a defensive copy of each +<xi:include>+ element, to
+      #   prevent libxml2 from freeing memory that is bound to live Ruby objects. (default +true+)
+      #
+      #   When +true+, each +<xi:include>+ is processed on an unwrapped copy of itself, so libxml2
+      #   frees the copy while the original node is unlinked from the document and kept alive. This
+      #   prevents a use-after-free when the +<xi:include>+ node, or any of its descendants or
+      #   namespaces, has already been exposed to Ruby; as a consequence such a wrapped node ends up
+      #   detached from the document rather than removed or converted in place.
+      #
+      #   When +false+, the document is processed in place. This is faster but only safe when nothing
+      #   in the subtree has been exposed to Ruby (for example, immediately after parsing), which is
+      #   why Document.parse uses it.
+      #
+      #   This option has no effect on the pure-Java backend, which performs XInclude substitution
+      #   during parsing.
+      #
+      # [Yields]
+      #   If a block is given, a Nokogiri::XML::ParseOptions object initialized from +options+ is
+      #   yielded to it, which can be configured before substitution.
+      #
+      # [Returns] +self+ (Nokogiri::XML::Node)
+      def do_xinclude(options = XML::ParseOptions::DEFAULT_XML, safe_copy: true)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         yield options if block_given?
 
-        # call c extension
-        process_xincludes(options.to_i)
+        if safe_copy && Nokogiri.uses_libxml?
+          xpath(XINCLUDE_QUERY, XINCLUDE_NAMESPACES).each do |include_node|
+            include_node.safe_process_xinclude(options.to_i)
+          end
+        else
+          process_xincludes(options.to_i)
+        end
+
+        self
       end
 
       alias_method :next, :next_sibling

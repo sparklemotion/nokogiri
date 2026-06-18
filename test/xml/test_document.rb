@@ -651,6 +651,26 @@ module Nokogiri
           assert_equal("UTF-8", xml.encoding)
         end
 
+        def test_encoding_set_on_uninitialized_document_raises_without_crashing
+          skip_unless_libxml2("on jruby a bare document has some partial functionality")
+
+          doc = Nokogiri::XML::Document.allocate
+
+          refute_valgrind_errors do
+            assert_raises(RuntimeError) { doc.encoding = "UTF-8" }
+          end
+        end
+
+        def test_encoding_setter_raising
+          doc = Nokogiri::XML(%(<?xml version="1.0" encoding="UTF-8"?><root/>))
+          assert_equal("UTF-8", doc.encoding)
+
+          assert_raises(TypeError) { doc.encoding = Object.new }
+
+          result = refute_valgrind_errors(yield_on_jruby: true) { doc.encoding }
+          assert_equal("UTF-8", result)
+        end
+
         def test_memory_explosion_on_invalid_xml
           doc = Nokogiri::XML("<<<")
           refute_nil(doc)
@@ -1228,6 +1248,19 @@ module Nokogiri
             assert_nil(target.root)
             target.root = source.root
             assert_equal("foo", target.root.content)
+          end
+
+          it "raises an exception when assigning a non-element node as the root" do
+            doc = Nokogiri::XML("<root/>")
+            dtd = doc.create_internal_subset("a", nil, nil)
+            dtd.unlink
+
+            e = assert_raises(TypeError) do
+              doc.root = dtd
+            end
+            assert_equal("root must be a Nokogiri::XML::Element", e.message)
+
+            assert_equal("root", doc.root.name)
           end
 
           it "raises an exception if passed something besides a Node" do

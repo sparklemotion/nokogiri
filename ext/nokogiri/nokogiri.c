@@ -203,9 +203,6 @@ Init_nokogiri(void)
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xsltEngineVersion));
 
-  rb_const_set(mNokogiri, rb_intern("LIBXML_ZLIB_ENABLED"),
-               xmlHasFeature(XML_WITH_ZLIB) == 1 ? Qtrue : Qfalse);
-
 #ifdef NOKOGIRI_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
 #  ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
@@ -227,6 +224,12 @@ Init_nokogiri(void)
 #else
   rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qfalse);
 #endif
+
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ZLIB_ENABLED"),
+               xmlHasFeature(XML_WITH_ZLIB) == 1 ? Qtrue : Qfalse);
+
+  rb_const_set(mNokogiri, rb_intern("LIBXML_HTTP_ENABLED"),
+               xmlHasFeature(XML_WITH_HTTP) == 1 ? Qtrue : Qfalse);
 
 #ifdef NOKOGIRI_OTHER_LIBRARY_VERSIONS
   rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));

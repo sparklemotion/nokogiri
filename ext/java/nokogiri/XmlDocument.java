@@ -316,7 +316,7 @@ public class XmlDocument extends XmlNode
   public IRubyObject
   encoding_set(IRubyObject encoding)
   {
-    this.encoding = encoding;
+    this.encoding = encoding.convertToString();
     return this;
   }
 
@@ -436,6 +436,10 @@ public class XmlDocument extends XmlNode
       throw context.runtime.newArgumentError("expected Nokogiri::XML::Node but received " + new_root.getType());
     }
     XmlNode newRoot = asXmlNode(context, new_root);
+
+    if (newRoot.node.getNodeType() != Node.ELEMENT_NODE) {
+      throw context.runtime.newTypeError("root must be a Nokogiri::XML::Element");
+    }
 
     IRubyObject root = root(context);
     if (root.isNil()) {
