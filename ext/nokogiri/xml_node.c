@@ -2351,9 +2351,7 @@ in_context(VALUE self, VALUE _str, VALUE _options)
 VALUE
 rb_xml_node_data_ptr_eh(VALUE self)
 {
-  xmlNodePtr c_node;
-  Noko_Node_Get_Struct(self, xmlNode, c_node);
-  return c_node ? Qtrue : Qfalse;
+  return DATA_PTR(self) ? Qtrue : Qfalse;
 }
 
 VALUE
