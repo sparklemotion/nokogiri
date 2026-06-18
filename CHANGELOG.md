@@ -15,6 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Improved
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
+* [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
 
 
 ### Changed
