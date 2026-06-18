@@ -255,12 +255,6 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
 
   c_document = noko_xml_document_unwrap(self);
 
-  c_current_root = xmlDocGetRootElement(c_document);
-  if (c_current_root) {
-    xmlUnlinkNode(c_current_root);
-    noko_xml_document_pin_node(c_current_root);
-  }
-
   if (!NIL_P(rb_new_root)) {
     if (!rb_obj_is_kind_of(rb_new_root, cNokogiriXmlNode)) {
       rb_raise(rb_eArgError,
@@ -270,13 +264,23 @@ rb_xml_document_root_set(VALUE self, VALUE rb_new_root)
 
     Noko_Node_Get_Struct(rb_new_root, xmlNode, c_new_root);
 
-    /* If the new root's document is not the same as the current document,
-     * then we need to dup the node in to this document. */
-    if (c_new_root->doc != c_document) {
-      c_new_root = xmlDocCopyNode(c_new_root, c_document, 1);
-      if (!c_new_root) {
-        rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
-      }
+    if (c_new_root->type != XML_ELEMENT_NODE) {
+      rb_raise(rb_eTypeError, "root must be a Nokogiri::XML::Element");
+    }
+  }
+
+  c_current_root = xmlDocGetRootElement(c_document);
+  if (c_current_root) {
+    xmlUnlinkNode(c_current_root);
+    noko_xml_document_pin_node(c_current_root);
+  }
+
+  /* If the new root's document is not the same as the current document,
+   * then we need to dup the node in to this document. */
+  if (c_new_root && c_new_root->doc != c_document) {
+    c_new_root = xmlDocCopyNode(c_new_root, c_document, 1);
+    if (!c_new_root) {
+      rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
   }
 

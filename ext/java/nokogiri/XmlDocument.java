@@ -441,6 +441,10 @@ public class XmlDocument extends XmlNode
     }
     XmlNode newRoot = asXmlNode(context, new_root);
 
+    if (newRoot.node.getNodeType() != Node.ELEMENT_NODE) {
+      throw context.runtime.newTypeError("root must be a Nokogiri::XML::Element");
+    }
+
     IRubyObject root = root(context);
     if (root.isNil()) {
       Node newRootNode;
