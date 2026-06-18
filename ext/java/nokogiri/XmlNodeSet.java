@@ -326,16 +326,16 @@ public class XmlNodeSet extends RubyObject implements NodeList
   //  https://github.com/jruby/jruby/blame/13a3ec76d883a162b9d46c374c6e9eeea27b3261/core/src/main/java/org/jruby/RubyRange.java#L974
   //  once we upgraded the min JRuby version to >= 9.2
   private static IRubyObject
-  rangeBeginLength(ThreadContext context, IRubyObject rangeMaybe, int len, int[] begLen)
+  rangeBeginLength(ThreadContext context, IRubyObject rangeMaybe, int len, long[] begLen)
   {
     RubyRange range = (RubyRange) rangeMaybe;
-    int min = range.begin(context).convertToInteger().getIntValue();
-    int max = range.end(context).convertToInteger().getIntValue();
+    long min = range.begin(context).convertToInteger().getLongValue();
+    long max = range.end(context).convertToInteger().getLongValue();
 
     if (min < 0) {
       min += len;
       if (min < 0) {
-        throw context.runtime.newRangeError(min + ".." + (range.isExcludeEnd() ? "." : "") + max + " out of range");
+        return context.nil;
       }
     }
 
@@ -358,20 +358,22 @@ public class XmlNodeSet extends RubyObject implements NodeList
   slice(ThreadContext context, IRubyObject indexOrRange)
   {
     if (indexOrRange instanceof RubyFixnum) {
-      return slice(context, ((RubyFixnum) indexOrRange).getIntValue());
+      return slice(context, ((RubyFixnum) indexOrRange).getLongValue());
     }
     if (indexOrRange instanceof RubyRange) {
-      int[] begLen = new int[2];
-      rangeBeginLength(context, indexOrRange, nodes.length, begLen);
-      int min = begLen[0];
-      int max = begLen[1];
+      long[] begLen = new long[2];
+      if (rangeBeginLength(context, indexOrRange, nodes.length, begLen).isNil()) {
+        return context.nil;
+      }
+      long min = begLen[0];
+      long max = begLen[1];
       return subseq(context, min, max - min);
     }
     throw context.runtime.newTypeError("index must be an Integer or a Range");
   }
 
   IRubyObject
-  slice(ThreadContext context, int idx)
+  slice(ThreadContext context, long idx)
   {
     if (idx < 0) {
       idx += nodes.length;
@@ -381,15 +383,15 @@ public class XmlNodeSet extends RubyObject implements NodeList
       return context.nil;
     }
 
-    return nodes[idx];
+    return nodes[(int) idx];
   }
 
   @JRubyMethod(name = {"[]", "slice"})
   public IRubyObject
   slice(ThreadContext context, IRubyObject start, IRubyObject length)
   {
-    int s = ((RubyFixnum) start).getIntValue();
-    int l = ((RubyFixnum) length).getIntValue();
+    long s = ((RubyFixnum) start).getLongValue();
+    long l = ((RubyFixnum) length).getLongValue();
 
     if (s < 0) {
       s += nodes.length;
@@ -399,23 +401,15 @@ public class XmlNodeSet extends RubyObject implements NodeList
   }
 
   public IRubyObject
-  subseq(ThreadContext context, int start, int length)
+  subseq(ThreadContext context, long start, long length)
   {
-    if (start > nodes.length) {
+    if (start < 0 || length < 0 || start > nodes.length) {
       return context.nil;
     }
 
-    if (start < 0 || length < 0) {
-      return context.nil;
-    }
+    long end = start + Math.min(length, nodes.length - start);
 
-    if (start + length > nodes.length) {
-      length = nodes.length - start;
-    }
-
-    int to = start + length;
-
-    return newNodeSet(context.runtime, Arrays.copyOfRange(nodes, start, to));
+    return newNodeSet(context.runtime, Arrays.copyOfRange(nodes, (int) start, (int) end));
   }
 
   @JRubyMethod(name = {"to_a", "to_ary"})

@@ -304,7 +304,7 @@ index_at(VALUE rb_self, long offset)
 
   TypedData_Get_Struct(rb_self, xmlNodeSet, &xml_node_set_type, c_self);
 
-  if (offset >= c_self->nodeNr || abs((int)offset) > c_self->nodeNr) {
+  if (offset >= c_self->nodeNr || offset < -c_self->nodeNr) {
     return Qnil;
   }
 
