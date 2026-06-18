@@ -4,6 +4,21 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## v1.19.4 / 2026-06-18
+
+### Security
+
+* [CRuby] (Low) Fixed a possible invalid memory read when `XML::Node#initialize_copy_with_args` is called with an argument that is not a `Node`. See [GHSA-g9g8-vgvw-g3vf](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-g9g8-vgvw-g3vf) for more information.
+* [CRuby] (Low) Fixed a possible use-after-free when an `XML::XPathContext` is used after its source document has been garbage collected. See [GHSA-p67v-3w7g-wjg7](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-p67v-3w7g-wjg7) for more information.
+* [CRuby] (Low) Fixed a possible use-after-free during XInclude processing via `Node#do_xinclude`. See [GHSA-wfpw-mmfh-qq69](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-wfpw-mmfh-qq69) for more information.
+* [CRuby] (Low) Fixed a possible use-after-free when `Document#root=` is assigned a non-element node. See [GHSA-wjv4-x9w8-wm3h](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-wjv4-x9w8-wm3h) for more information.
+* [CRuby] (Low) Fixed a possible use-after-free when setting an attribute value via `XML::Attr#value=` or `#content=`. See [GHSA-phwj-rprq-35pp](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-phwj-rprq-35pp) for more information.
+* [CRuby] (Low) Fixed a null pointer dereference when methods are called on uninitialized wrapper objects (e.g. via `allocate`); these now raise instead of crashing the process. See [GHSA-9cv2-cfxc-v4v2](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-9cv2-cfxc-v4v2) for more information.
+* [CRuby] (Low) Fixed a possible use-after-free when `Document#encoding=` raises an exception. See [GHSA-5v8h-3h3q-446p](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-5v8h-3h3q-446p) for more information.
+* [CRuby] (Medium) Fixed an out-of-bounds read in `XML::NodeSet#[]` (alias `#slice`) when given a large negative index. See [GHSA-5prr-v3j2-97mh](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-5prr-v3j2-97mh) for more information.
+* [JRuby] (Low) `XML::Schema` now enforces the `NONET` parse option, which Nokogiri enables by default. It was not enforced on JRuby, so a schema parsed with default options could still fetch external resources over the network, potentially enabling SSRF or XXE attacks and bypassing the mitigation for CVE-2020-26247. See [GHSA-8678-w3jw-xfc2](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2) for more information.
+
+
 ## v1.19.3 / 2026-04-27
 
 ### Fixed / Security
