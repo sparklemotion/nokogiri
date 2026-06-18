@@ -6,6 +6,23 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
+* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
+
+
+### Improved
+
+* [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
+* [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
+
+
+### Changed
+
+* The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+
+
 ### Fixed
 
 * `Node#namespace=` now declares the namespace on the node when no declaration of its prefix is in scope there. Previously, on CRuby, a node given a namespace and then moved under an element that binds the same prefix, or the default namespace, to a different URI was serialized in that other namespace. On JRuby, the namespace was missing from `Node#namespace_definitions`. (#3459, #3462) @flavorjones
