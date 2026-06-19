@@ -127,7 +127,7 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
     end
 
     # Test the errors.
-    errpayload = doc.errors.map(&:to_s).join("\n")
+    errpayload = doc.errors.join("\n")
     assert_equal(
       @test[:errors].length,
       doc.errors.length,
