@@ -335,7 +335,7 @@ module Nokogiri
       ###
       # Convert this NodeSet to a string.
       def to_s
-        map(&:to_s).join
+        map(&:to_s).join # not an Array # rubocop:disable Style/MapJoin
       end
 
       ###

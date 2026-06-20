@@ -20,12 +20,12 @@ group :development do
   gem "minitest-mock", "5.27.0"
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
-  gem "rubyzip", "~> 3.3.0"
+  gem "rubyzip", "~> 3.4.0"
   gem "simplecov", "0.22.0"
 
   # rubocop
   unless RUBY_PLATFORM == "java" || ENV["APPVEYOR"]
-    gem "standard", "1.54.0"
+    gem "standard", "1.55.0"
     gem "rubocop-minitest", "0.39.1"
     gem "rubocop-packaging", "0.6.0"
     gem "rubocop-rake", "0.7.1"
