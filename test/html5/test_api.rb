@@ -319,17 +319,15 @@ class TestHtml5API < Nokogiri::TestCase
   end
 
   def test_node_wrap_uses_parent_node_as_parsing_context_node
-    doc = Nokogiri.HTML5("<html><body><select><option></option></select></body></html>")
-    el = doc.at_css("option")
+    doc = Nokogiri.HTML5("<html><body><p></p></body></html>")
+    el = doc.at_css("p")
 
-    # fails to parse because `div` is not valid in the context of a `select` element
-    exception = assert_raises(RuntimeError) { el.wrap("<div></div>") }
-    assert_match(/Failed to parse .* in the context of a 'select' element/, exception.message)
+    exception = assert_raises(RuntimeError) { el.wrap("<html></html>") }
+    assert_match(/Failed to parse .* in the context of a 'body' element/, exception.message)
 
-    # parses because `optgroup` is valid in the context of a `select` element
-    el.wrap("<optgroup></optgroup>")
-    assert_equal("optgroup", el.parent.name)
-    assert_equal("select", el.parent.parent.name)
+    el.wrap("<div></div>")
+    assert_equal("div", el.parent.name)
+    assert_equal("body", el.parent.parent.name)
   end
 
   def test_parse_in_context_of_foreign_namespace
