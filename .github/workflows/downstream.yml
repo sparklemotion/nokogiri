@@ -52,9 +52,13 @@ jobs:
             command: "bundle exec rake spec"
             ruby: "3.2"
           - url: https://github.com/SAML-Toolkits/ruby-saml
-            name: ruby-saml
-            command: "bundle exec rake test MT_COMPAT=t"
-            ruby: "3.2"
+            name: ruby-saml-cruby
+            command: "bundle exec rake test"
+            ruby: "3.4"
+          - url: https://github.com/SAML-Toolkits/ruby-saml
+            name: ruby-saml-jruby
+            command: "bundle exec rake test"
+            ruby: "jruby"
           - url: https://github.com/sparklemotion/mechanize
             name: mechanize
             command: "bundle exec rake test"
