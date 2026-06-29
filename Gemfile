@@ -36,5 +36,5 @@ end
 # `bundle config set --local without rdoc`
 # Then re-run `bundle install`.
 group :rdoc do
-  gem "rdoc", "7.2.0" unless RUBY_PLATFORM == "java" || ENV["CI"]
+  gem "rdoc", "8.0.0" unless RUBY_PLATFORM == "java" || ENV["CI"]
 end
