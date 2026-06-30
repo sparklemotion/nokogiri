@@ -1114,7 +1114,7 @@ else
       end
     end
   end
-  append_cppflags("-I#{File.join(libgumbo_recipe.path, "include")}")
+  $CPPFLAGS << " -I#{File.join(libgumbo_recipe.path, "include")}"
   $libs = $libs + " " + File.join(libgumbo_recipe.path, "lib", "libgumbo.a")
   $LIBPATH = $LIBPATH | [File.join(libgumbo_recipe.path, "lib")]
   ensure_func("gumbo_parse_with_options", "nokogiri_gumbo.h")
