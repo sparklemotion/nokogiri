@@ -58,6 +58,7 @@ module DockerHelper
           schedule:
             - cron: "0 5 * * 3" # At 05:00 on Wednesday # https://crontab.guru/#0_5_*_*_3
         # reference: https://github.com/marketplace/actions/build-and-push-docker-images
+        permissions: {}
         jobs:
           build_images:
             strategy:
@@ -65,22 +66,26 @@ module DockerHelper
               matrix:
                 tag: #{platforms.inspect}
             runs-on: ubuntu-latest
+            permissions:
+              contents: read
+              packages: write # push images to ghcr.io
             steps:
-              - uses: actions/checkout@v5
+              - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
                 with:
                   submodules: true
-              - uses: ruby/setup-ruby@v1
+                  persist-credentials: false
+              - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0 # zizmor: ignore[cache-poisoning] -- runs only on schedule/dispatch (no PR trigger); bundler cache is build tooling, branch-isolated
                 with:
                   ruby-version: "3.4"
                   bundler-cache: true
-              - uses: docker/setup-buildx-action@v3
-              - uses: docker/login-action@v3
+              - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+              - uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
                 with:
                   registry: ghcr.io
                   username: ${{github.actor}}
                   password: ${{secrets.GITHUB_TOKEN}}
               - name: ${{matrix.tag}}
-                uses: docker/build-push-action@v6
+                uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
                 with:
                   context: "."
                   push: true

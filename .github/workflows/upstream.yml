@@ -13,8 +13,11 @@ on:
     paths:
       - .github/workflows/upstream.yml # this file
 
+permissions: {}
 jobs:
   xmlsoft-head:
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -26,10 +29,11 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "3.3"
           apt-get: "autogen libtool shtool liblzma-dev"
@@ -57,17 +61,20 @@ jobs:
           ./autogen.sh
       - name: "Compile against libxml2 and libxslt source directories"
         shell: bash
-        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+        run: 'bundle exec rake compile -- --with-xml2-source-dir="${GITHUB_WORKSPACE}/libxml2" --with-xslt-source-dir="${GITHUB_WORKSPACE}/libxslt"'
       - run: "bundle exec rake test"
 
   xmlsoft-head-valgrind:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4 # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - name: Setup libxml2
         env:
           NOCONFIGURE: t
@@ -87,11 +94,13 @@ jobs:
       - name: "Run bundle install"
         run: "bundle install --local || bundle install"
       - name: "Compile against libxml2 and libxslt source directories"
-        run: "bundle exec rake compile -- --with-xml2-source-dir=${GITHUB_WORKSPACE}/libxml2 --with-xslt-source-dir=${GITHUB_WORKSPACE}/libxslt"
+        run: 'bundle exec rake compile -- --with-xml2-source-dir="${GITHUB_WORKSPACE}/libxml2" --with-xslt-source-dir="${GITHUB_WORKSPACE}/libxslt"'
       - run: "bundle exec rake test:valgrind"
       - run: "bundle exec rake test:memcheck"
 
   ruby-head:
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -104,17 +113,18 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -123,22 +133,25 @@ jobs:
       - run: bundle exec rake test
 
   ruby-head-valgrind:
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         sys: ["disable"]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "head"
           apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -148,6 +161,8 @@ jobs:
       - run: bundle exec rake test:memcheck
 
   truffleruby-head:
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -160,16 +175,17 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: truffleruby-head
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -177,16 +193,19 @@ jobs:
       - run: bundle exec rake test
 
   jruby-head:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/setup-java@v5
+          persist-credentials: false
+      - uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
         with:
           distribution: zulu
           java-version: 21
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "jruby-head"
           bundler-cache: true
@@ -195,14 +214,17 @@ jobs:
       - run: bundle exec rake test
 
   html5lib-tests:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4 # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ports
           key: ports-ubuntu-3.4-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}

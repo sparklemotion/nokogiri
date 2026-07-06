@@ -16,8 +16,11 @@ on:
     types: [opened, synchronize]
     branches:
       - '*'
+permissions: {}
 jobs:
   downstream:
+    permissions:
+      contents: read
     name: downstream-${{matrix.name}}
     strategy:
       fail-fast: false
@@ -27,54 +30,65 @@ jobs:
             name: loofah
             command: "bundle exec rake test"
             ruby: "3.4"
+            precommand: ""
           - url: https://github.com/rails/rails-html-sanitizer
             name: rails-html-sanitizer
             command: "bundle exec rake test"
             ruby: "3.4"
+            precommand: ""
           - url: https://github.com/rgrove/sanitize
             name: sanitize
             command: "bundle exec rake test"
             ruby: "3.4"
+            precommand: ""
           - url: https://github.com/ebeigarts/signer
             name: signer
             command: "bundle exec rake spec"
             ruby: "3.2"
+            precommand: ""
           - url: https://github.com/WinRb/Viewpoint
             name: viewpoint
             command: "bundle exec rspec spec"
             ruby: "3.2"
+            precommand: ""
           - url: https://github.com/rails/rails
             name: xmlmini
             command: "cd activesupport && bundle exec rake test TESTOPTS=-n/XmlMini/"
             ruby: "3.4"
+            precommand: ""
           - url: https://github.com/pythonicrubyist/creek
             name: creek
             command: "bundle exec rake spec"
             ruby: "3.2"
+            precommand: ""
           - url: https://github.com/SAML-Toolkits/ruby-saml
             name: ruby-saml
             command: "bundle exec rake test MT_COMPAT=t"
             ruby: "3.2"
+            precommand: ""
           - url: https://github.com/sparklemotion/mechanize
             name: mechanize
             command: "bundle exec rake test"
             ruby: "3.4"
+            precommand: ""
           - url: https://github.com/stimulusreflex/stimulus_reflex
             name: stimulus_reflex
             command: "bundle exec rake test"
             ruby: "3.4"
+            precommand: ""
           # - url: https://github.com/instructure/nokogiri-xmlsec-instructure
           #   name: nokogiri-xmlsec-instructure
           #   precommand: "apt install -y libxmlsec1-dev"
           #   command: "bundle exec rake compile rspec"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         with:
           path: ports
           key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
@@ -89,8 +103,8 @@ jobs:
         run: |
           bundle remove nokogiri || true
           bundle remove bundler || true
-          if grep "add_development_dependency.*\bbundler\b" *gemspec ; then
-            sed -i 's/.*add_development_dependency.*\bbundler\b.*//' *gemspec
+          if grep "add_development_dependency.*\bbundler\b" ./*gemspec ; then
+            sed -i 's/.*add_development_dependency.*\bbundler\b.*//' ./*gemspec
           fi
           bundle add nokogiri --path=".." --skip-install
           bundle install --jobs=1

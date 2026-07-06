@@ -17,22 +17,44 @@ on:
     branches:
       - '*'
 
+permissions: {}
 jobs:
   #
   #  SECTION pre-checks for fast feedback loops, and to gate the rest of the suite
   #
   rubocop:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4 # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - run: bundle install --local || bundle install
       - run: bundle exec rake rubocop
 
+  lint-actions:
+    permissions:
+      contents: read
+    name: GitHub Actions audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Run actionlint
+        uses: rhysd/actionlint@393031adb9afb225ee52ae2ccd7a5af5525e03e8 # v1.7.11
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
+        with:
+          advanced-security: false
+
   basic:
+    permissions:
+      contents: read
     needs: ["rubocop"]
     strategy:
       fail-fast: false
@@ -41,17 +63,20 @@ jobs:
         sys: ["enable"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}}
+      image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
       - run: bundle exec rake test:bench
 
   gumbo:
+    permissions:
+      contents: read
     needs: ["rubocop"]
     strategy:
       fail-fast: false
@@ -64,10 +89,11 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -75,15 +101,18 @@ jobs:
       - run: bundle exec rake gumbo:test
 
   css:
+    permissions:
+      contents: read
     name: "css parser"
     needs: ["basic"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:ubuntu
+      image: ghcr.io/sparklemotion/nokogiri-test:ubuntu # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - run: bundle install --local || bundle install
       - run: bundle exec rake css:clean css:generate
       - run: bundle exec rake compile -- --enable-system-libraries
@@ -93,6 +122,7 @@ jobs:
   #  SECTION meta - control variables
   #
   ruby_versions:
+    permissions: {}
     needs: ["basic"]
     outputs:
       # these are usually the same, but are different once we get to ruby release candidates
@@ -104,24 +134,30 @@ jobs:
       - run: echo "generating rubies ..."
 
   rcd_image_version:
+    permissions:
+      contents: read
     needs: ["basic"]
     runs-on: ubuntu-latest
     outputs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
-      - uses: actions/checkout@v7
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it
         with:
           ruby-version: "3.4"
           bundler-cache: true
           bundler: latest
       - id: rcd_image_version
-        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "rcd_image_version=#{RakeCompilerDock::IMAGE_VERSION}"' >> $GITHUB_OUTPUT
+        run: bundle exec ruby -e 'require "rake_compiler_dock"; puts "rcd_image_version=#{RakeCompilerDock::IMAGE_VERSION}"' >> "$GITHUB_OUTPUT"
 
   #
   #  SECTION run the test suite across a broad matrix of rubies, configs, and systems
   #
   linux:
+    permissions:
+      contents: read
     needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -130,12 +166,13 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.image_tag) }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -146,6 +183,8 @@ jobs:
       - run: bundle exec rake test:bench
 
   valgrind:
+    permissions:
+      contents: read
     needs: ["linux", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -159,14 +198,15 @@ jobs:
             mem: "default"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     env:
       NOKOGIRI_LIBXML_MEMORY_MANAGEMENT: ${{matrix.mem}}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -176,6 +216,8 @@ jobs:
       - run: bundle exec rake test:valgrind
 
   musl:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -183,17 +225,20 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:alpine
+      image: ghcr.io/sparklemotion/nokogiri-test:alpine # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       # skip cache because of https://github.com/actions/cache/issues/675
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test
 
   musl-valgrind:
+    permissions:
+      contents: read
     needs: ["musl"]
     strategy:
       fail-fast: false
@@ -201,17 +246,20 @@ jobs:
         sys: ["disable"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:alpine
+      image: ghcr.io/sparklemotion/nokogiri-test:alpine # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       # skip cache because of https://github.com/actions/cache/issues/675
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile -- --${{matrix.sys}}-system-libraries
       - run: bundle exec rake test:valgrind
 
   libxmlruby:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -222,12 +270,13 @@ jobs:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -237,6 +286,8 @@ jobs:
       - run: bundle exec rake test
 
   libxmlruby-valgrind:
+    permissions:
+      contents: read
     needs: ["libxmlruby"]
     strategy:
       fail-fast: false
@@ -247,12 +298,13 @@ jobs:
       BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -262,6 +314,8 @@ jobs:
       - run: bundle exec rake test:valgrind
 
   osx:
+    permissions:
+      contents: read
     needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -271,15 +325,16 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -288,6 +343,8 @@ jobs:
       - run: bundle exec rake test
 
   darwin-nix:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -295,10 +352,11 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: cachix/install-nix-action@v31
+          persist-credentials: false
+      - uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
         with:
           nix_path: nixpkgs=channel:nixos-24.11
       - run: nix-shell --packages ruby bundler --run 'bundle install'
@@ -310,6 +368,7 @@ jobs:
       # there are a bunch of examples of other packages doing this in nixpkgs so this seems to be expected.
       - if: matrix.sys == 'enable'
         run: |
+          # shellcheck disable=SC2016 # ${libxml2.dev} is a Nix expression, not a shell variable; single quotes are intentional
           nix-shell \
             --expr 'with import <nixpkgs> {}; mkShell { buildInputs = [ ruby bundler libxml2 libxslt ]; env.NIX_CFLAGS_COMPILE = "-I ${libxml2.dev}/include/libxml2"; }' \
             --run 'bundle exec rake compile -- --enable-system-libraries --disable-xml2-legacy'
@@ -318,6 +377,8 @@ jobs:
           nix-shell --packages ruby bundler libxml2 libxslt --run 'bundle exec rake test'
 
   windows:
+    permissions:
+      contents: read
     needs: ["basic", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -338,16 +399,17 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -356,6 +418,8 @@ jobs:
       - run: bundle exec rake test
 
   jruby:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -363,10 +427,11 @@ jobs:
         ruby: ["jruby-10.0"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -376,6 +441,8 @@ jobs:
       - run: bundle exec rake test:bench
 
   truffleruby:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -389,16 +456,17 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: truffleruby
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -406,6 +474,8 @@ jobs:
       - run: bundle exec rake test
 
   bsd:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -413,10 +483,11 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: vmactions/freebsd-vm@v1
+          persist-credentials: false
+      - uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0 # v1.5.0
         with:
           usesh: true
           copyback: false
@@ -431,6 +502,8 @@ jobs:
   #  SECTION let's look for memory leaks
   #
   memory_suite:
+    permissions:
+      contents: read
     continue-on-error: true # still pressure testing the value of this suite
     needs: ["basic"]
     strategy:
@@ -440,12 +513,13 @@ jobs:
         ruby: ["3.4"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -455,6 +529,8 @@ jobs:
       - run: bundle exec rake test:memory_suite
 
   memcheck:
+    permissions:
+      contents: read
     needs: ["basic"]
     strategy:
       fail-fast: false
@@ -463,12 +539,13 @@ jobs:
         ruby: ["3.4"]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}}
+      image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -481,28 +558,35 @@ jobs:
   #  SECTION the end-to-end gem installation tests
   #
   generic-package:
+    permissions:
+      contents: read
     needs: ["rcd_image_version"]
     name: "generic-package"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: |
+      - env:
+          RCD_IMAGE_VERSION: ${{needs.rcd_image_version.outputs.rcd_image_version}}
+        run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-x86_64-linux-gnu \
+            "ghcr.io/rake-compiler/rake-compiler-dock-image:${RCD_IMAGE_VERSION}-mri-x86_64-linux-gnu" \
             ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: generic-gem
           path: gems
           retention-days: 1
 
   generic-linux-install:
+    permissions:
+      contents: read
     needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -511,20 +595,23 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generic-gem
           path: gems
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
   generic-darwin-install:
+    permissions:
+      contents: read
     needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -534,19 +621,22 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generic-gem
           path: gems
       - run: ./scripts/test-gem-install gems --${{matrix.sys}}-system-libraries
 
   generic-windows-install:
+    permissions:
+      contents: read
     needs: ["generic-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -563,14 +653,15 @@ jobs:
             os: windows-11-arm
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby-pkgs@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby-pkgs@2233d39c1315c667a2970436418b520a6300124e # v1.33.5
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generic-gem
           path: gems
@@ -578,6 +669,8 @@ jobs:
         shell: bash
 
   cruby-package:
+    permissions:
+      contents: read
     needs: ["rcd_image_version"]
     name: "cruby-package"
     strategy:
@@ -596,24 +689,30 @@ jobs:
           - "x86_64-linux-musl"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/cache@v4
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
-      - run: |
+      - env:
+          RCD_IMAGE_VERSION: ${{needs.rcd_image_version.outputs.rcd_image_version}}
+          PLAT: ${{matrix.plat}}
+        run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
-            ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-mri-${{matrix.plat}} \
-            ./scripts/test-gem-build gems ${{matrix.plat}}
-      - uses: actions/upload-artifact@v7
+            "ghcr.io/rake-compiler/rake-compiler-dock-image:${RCD_IMAGE_VERSION}-mri-${PLAT}" \
+            ./scripts/test-gem-build gems "$PLAT"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
           retention-days: 1
 
   cruby-install-with-setup-ruby:
+    permissions:
+      contents: read
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -621,19 +720,22 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: cruby-x86_64-linux-gnu-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
   cruby-linux-install-matrix:
+    permissions:
+      contents: read
     needs: ["cruby-package", "ruby_versions"]
     name: "cruby-${{ matrix.platform }}-install (${{ matrix.ruby }})"
     strategy:
@@ -659,22 +761,31 @@ jobs:
           - { runner: ubuntu-24.04-arm, platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/download-artifact@v8
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
-      - run: |
-          docker run --rm -v $PWD:/nokogiri -w /nokogiri \
-            ${{ matrix.docker_platform }} ruby:${{ matrix.ruby }}${{ matrix.docker_tag }} \
+      - env:
+          DOCKER_PLATFORM: ${{ matrix.docker_platform }}
+          RUBY_VERSION: ${{ matrix.ruby }}
+          DOCKER_TAG: ${{ matrix.docker_tag }}
+          BOOTSTRAP: ${{ matrix.bootstrap }}
+        run: |
+          # shellcheck disable=SC2086 # DOCKER_PLATFORM and BOOTSTRAP intentionally word-split (platform flags / optional shell prefix)
+          docker run --rm -v "$PWD:/nokogiri" -w /nokogiri \
+            $DOCKER_PLATFORM "ruby:${RUBY_VERSION}${DOCKER_TAG}" \
             sh -c "
-              ${{ matrix.bootstrap }}
+              $BOOTSTRAP
               ./scripts/test-gem-install gems
             "
 
   cruby-darwin-install-matrix:
+    permissions:
+      contents: read
     needs: ["cruby-package", "ruby_versions"]
     name: "cruby-${{ matrix.platform }}-install (${{ matrix.ruby }})"
     strategy:
@@ -689,19 +800,22 @@ jobs:
           - { platform: x86_64-darwin, os: macos-15-intel }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "${{ matrix.ruby }}"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
       - run: ./scripts/test-gem-install gems
 
   cruby-x64-mingw-ucrt-install:
+    permissions:
+      contents: read
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -709,13 +823,14 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: cruby-x64-mingw-ucrt-gem
           path: gems
@@ -723,6 +838,8 @@ jobs:
         shell: bash
 
   cruby-aarch64-mingw-ucrt-install:
+    permissions:
+      contents: read
     needs: ["cruby-package", "ruby_versions"]
     strategy:
       fail-fast: false
@@ -730,13 +847,14 @@ jobs:
         ruby: ["3.4"]
     runs-on: windows-11-arm
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: ruby/setup-ruby@v1
+          persist-credentials: false
+      - uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: cruby-aarch64-mingw-ucrt-gem
           path: gems
@@ -744,22 +862,27 @@ jobs:
         shell: bash
 
   jruby-package:
+    permissions:
+      contents: read
     needs: ["rcd_image_version"]
     runs-on: ubuntu-latest
     container:
-      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby"
+      image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby" # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
+          persist-credentials: false
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: jruby-gem
           path: gems
           retention-days: 1
 
   jruby-install:
+    permissions:
+      contents: read
     needs: ["jruby-package"]
     strategy:
       fail-fast: false
@@ -769,13 +892,14 @@ jobs:
     name: "jruby-${{matrix.jruby}}-jre${{matrix.jre}}-install"
     runs-on: ubuntu-latest
     container:
-      image: "jruby:${{matrix.jruby}}-jre${{matrix.jre}}"
+      image: "jruby:${{matrix.jruby}}-jre${{matrix.jre}}" # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
       - run: apt update && apt install -y build-essential git
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
-      - uses: actions/download-artifact@v8
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jruby-gem
           path: gems
