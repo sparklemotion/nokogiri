@@ -55,7 +55,7 @@ jobs:
   basic:
     permissions:
       contents: read
-    needs: ["rubocop"]
+    needs: ["rubocop", "lint-actions"]
     strategy:
       fail-fast: false
       matrix:
@@ -77,7 +77,7 @@ jobs:
   gumbo:
     permissions:
       contents: read
-    needs: ["rubocop"]
+    needs: ["rubocop", "lint-actions"]
     strategy:
       fail-fast: false
       matrix:
