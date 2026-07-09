@@ -88,7 +88,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
         with:
           path: ports
           key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
