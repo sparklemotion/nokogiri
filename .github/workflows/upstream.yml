@@ -124,7 +124,7 @@ jobs:
           mingw: "_upgrade_ libxml2 libxslt pkgconf"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -151,7 +151,7 @@ jobs:
           apt-get: "libxml2-dev libxslt1-dev pkg-config valgrind"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -185,7 +185,7 @@ jobs:
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -224,7 +224,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ports
           key: ports-ubuntu-3.4-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}

@@ -46,9 +46,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Run actionlint
-        uses: rhysd/actionlint@393031adb9afb225ee52ae2ccd7a5af5525e03e8 # v1.7.11
+        uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
+        uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
         with:
           advanced-security: false
 
@@ -172,7 +172,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -206,7 +206,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -276,7 +276,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -304,7 +304,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -334,7 +334,7 @@ jobs:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -409,7 +409,7 @@ jobs:
           mingw: "libxml2 libxslt"
           bundler-cache: true
           bundler: latest
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -466,7 +466,7 @@ jobs:
           bundler-cache: true
           bundler: 2.5.10
           apt-get: ${{ matrix.apt_packages }}
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -519,7 +519,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -545,7 +545,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         if: matrix.sys == 'disable'
         with:
           path: ports
@@ -568,7 +568,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
@@ -693,7 +693,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v4.3.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # zizmor: ignore[cache-poisoning] -- branch-isolated cache; fork PRs cannot write the base-branch cache and the key has no attacker-controllable component # v6.1.0
         with:
           path: ports/archives
           key: tarballs-ubuntu-${{hashFiles('dependencies.yml', 'patches/**/*.patch')}}
