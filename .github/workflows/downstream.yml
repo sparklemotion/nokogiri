@@ -94,7 +94,6 @@ jobs:
           key: ports-ubuntu-${{matrix.ruby}}-${{hashFiles('dependencies.yml', 'patches/**/*.patch', 'ext/nokogiri/extconf.rb')}}
       - if: matrix.precommand
         run: ${{matrix.precommand}}
-      - run: gem install bundler -v ">= 2.3.22" # for "add --path"
       - run: bundle install --local || bundle install
       - run: bundle exec rake compile
       - run: git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
