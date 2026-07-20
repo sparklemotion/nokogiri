@@ -21,7 +21,7 @@ group :development do
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
   gem "rubyzip", "~> 3.4.0"
-  gem "simplecov", "0.22.0"
+  gem "simplecov", "1.0.0"
 
   # rubocop
   unless RUBY_PLATFORM == "java" || ENV["APPVEYOR"]
