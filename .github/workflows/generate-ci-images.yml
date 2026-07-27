@@ -18,11 +18,11 @@ jobs:
       contents: read
       packages: write # push images to ghcr.io
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # zizmor: ignore[cache-poisoning] -- runs only on schedule/dispatch (no PR trigger); bundler cache is build tooling, branch-isolated # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # zizmor: ignore[cache-poisoning] -- runs only on schedule/dispatch (no PR trigger); bundler cache is build tooling, branch-isolated # v1.319.0
         with:
           ruby-version: "3.4"
           bundler-cache: true

@@ -29,7 +29,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-3.4 # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -42,13 +42,13 @@ jobs:
     name: GitHub Actions audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Run actionlint
         uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
         with:
           advanced-security: false
 
@@ -65,7 +65,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:${{matrix.image}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -89,11 +89,11 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.319.0
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -109,7 +109,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:ubuntu # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -141,10 +141,10 @@ jobs:
     outputs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.319.0
         with:
           ruby-version: "3.4"
           bundler-cache: true
@@ -168,7 +168,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -202,7 +202,7 @@ jobs:
     env:
       NOKOGIRI_LIBXML_MEMORY_MANAGEMENT: ${{matrix.mem}}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -227,7 +227,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -248,7 +248,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:alpine # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -272,7 +272,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -300,7 +300,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -325,11 +325,11 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.319.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -352,11 +352,11 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: cachix/install-nix-action@a49548c11d9846ad46ecc0115273879b045f001c # v31.10.7
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
         with:
           nix_path: nixpkgs=channel:nixos-24.11
       - run: nix-shell --packages ruby bundler --run 'bundle install'
@@ -399,7 +399,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -427,11 +427,11 @@ jobs:
         ruby: ["jruby-10.0"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.319.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -456,7 +456,7 @@ jobs:
             apt_packages: "libxml2-dev libxslt1-dev pkg-config"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -483,11 +483,11 @@ jobs:
         sys: ["enable", "disable"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0 # v1.5.0
+      - uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
         with:
           usesh: true
           copyback: false
@@ -515,7 +515,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -541,7 +541,7 @@ jobs:
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -564,7 +564,7 @@ jobs:
     name: "generic-package"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -595,7 +595,7 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -621,11 +621,11 @@ jobs:
         os: [ macos-15-intel, macos-15 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -653,7 +653,7 @@ jobs:
             os: windows-11-arm
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -689,7 +689,7 @@ jobs:
           - "x86_64-linux-musl"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -720,11 +720,11 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -761,7 +761,7 @@ jobs:
           - { runner: ubuntu-24.04-arm, platform: arm-linux-musl, docker_platform: "--platform=linux/arm/v7" }
     runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -800,11 +800,11 @@ jobs:
           - { platform: x86_64-darwin, os: macos-15-intel }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           ruby-version: "${{ matrix.ruby }}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -823,11 +823,11 @@ jobs:
         ruby: ${{ fromJSON(needs.ruby_versions.outputs.setup_ruby_win) }}
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -847,11 +847,11 @@ jobs:
         ruby: ["3.4"]
     runs-on: windows-11-arm
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@6e5d382445ae5590b7449d8b3bc8cb1c2c27f617 # v1.317.0
+      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -869,7 +869,7 @@ jobs:
     container:
       image: "ghcr.io/rake-compiler/rake-compiler-dock-image:${{needs.rcd_image_version.outputs.rcd_image_version}}-jruby" # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
@@ -895,7 +895,7 @@ jobs:
       image: "jruby:${{matrix.jruby}}-jre${{matrix.jre}}" # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
     steps:
       - run: apt update && apt install -y build-essential git
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
           persist-credentials: false
