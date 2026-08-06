@@ -232,9 +232,9 @@ void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE 
 #define DISCARD_CONST_QUAL_XMLCHAR(v) DISCARD_CONST_QUAL(xmlChar *, v)
 
 #if HAVE_RB_CATEGORY_WARNING
-#  define NOKO_WARN_DEPRECATION(message...) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, message)
+#  define NOKO_WARN_DEPRECATION(...) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, __VA_ARGS__)
 #else
-#  define NOKO_WARN_DEPRECATION(message...) rb_warning(message)
+#  define NOKO_WARN_DEPRECATION(...) rb_warning(__VA_ARGS__)
 #endif
 
 void noko__structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
