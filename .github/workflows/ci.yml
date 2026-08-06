@@ -18,6 +18,9 @@ on:
       - '*'
 
 permissions: {}
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
 jobs:
   #
   #  SECTION pre-checks for fast feedback loops, and to gate the rest of the suite
@@ -702,6 +705,7 @@ jobs:
           PLAT: ${{matrix.plat}}
         run: |
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
+            -e NOKOGIRI_USE_MIRRORED_GNU_SOURCE \
             "ghcr.io/rake-compiler/rake-compiler-dock-image:${RCD_IMAGE_VERSION}-mri-${PLAT}" \
             ./scripts/test-gem-build gems "$PLAT"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
