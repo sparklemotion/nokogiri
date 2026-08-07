@@ -14,6 +14,9 @@ on:
       - .github/workflows/upstream.yml # this file
 
 permissions: {}
+env:
+  # gnu.org has frequent downtime, so use the mirror at nokogiri.org
+  NOKOGIRI_USE_MIRRORED_GNU_SOURCE: "t"
 jobs:
   xmlsoft-head:
     permissions:

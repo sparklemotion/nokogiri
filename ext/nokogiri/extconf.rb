@@ -243,6 +243,16 @@ def gnome_source
   "https://download.gnome.org"
 end
 
+def gnu_source
+  # As of 2026-08, gnu.org has enough downtime to make CI jobs fail regularly, so allow downloading
+  # from a copy hosted on nokogiri.org.
+  if ENV["NOKOGIRI_USE_MIRRORED_GNU_SOURCE"]
+    "https://nokogiri.org/mirror"
+  else
+    "https://ftpmirror.gnu.org"
+  end
+end
+
 LOCAL_PACKAGE_RESPONSE = Object.new
 def LOCAL_PACKAGE_RESPONSE.%(package)
   package ? "yes: #{package}" : "no"
@@ -827,7 +837,7 @@ else
         cross_build_p,
       ) do |recipe|
         recipe.files = [{
-          url: "https://ftpmirror.gnu.org/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
+          url: "#{gnu_source}/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["libiconv"]["sha256"],
         }]
 
