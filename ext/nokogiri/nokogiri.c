@@ -180,6 +180,7 @@ libxml_uses_ruby_memory_management:
 }
 
 
+RUBY_FUNC_EXPORTED
 void
 Init_nokogiri(void)
 {
