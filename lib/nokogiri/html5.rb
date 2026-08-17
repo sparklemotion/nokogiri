@@ -285,10 +285,26 @@ module Nokogiri
       def read_and_encode(string, encoding)
         # Read the string with the given encoding.
         if string.respond_to?(:read)
-          string = if encoding.nil?
-            string.read
-          else
-            string.read(encoding: encoding)
+          external = string.external_encoding if string.respond_to?(:external_encoding)
+          internal = string.internal_encoding if string.respond_to?(:internal_encoding)
+          string = string.read
+
+          if encoding
+            string = string.dup
+            string.force_encoding(encoding)
+          elsif internal.nil? && external == Encoding.default_external
+            # The IO was opened without an explicit encoding, so its external encoding is the
+            # process default and says nothing about the document. Prefer an encoding the document
+            # declares itself, and keep the IO's encoding when the document declares none.
+            declared = detect_encoding(string)
+            if declared
+              string = string.dup
+              begin
+                string.force_encoding(declared)
+              rescue ArgumentError
+                # an unknown encoding name is not a reason to discard what the IO gave us
+              end
+            end
           end
         else
           # Otherwise the string has the given encoding.
@@ -322,33 +338,8 @@ module Nokogiri
       #
       def reencode(body, content_type = nil)
         if body.encoding == Encoding::ASCII_8BIT
-          encoding = nil
-
-          # look for a Byte Order Mark (BOM)
-          initial_bytes = body[0..2].bytes
-          if initial_bytes[0..2] == [0xEF, 0xBB, 0xBF]
-            encoding = Encoding::UTF_8
-          elsif initial_bytes[0..1] == [0xFE, 0xFF]
-            encoding = Encoding::UTF_16BE
-          elsif initial_bytes[0..1] == [0xFF, 0xFE]
-            encoding = Encoding::UTF_16LE
-          end
-
-          # look for a charset in a content-encoding header
-          if content_type
-            encoding ||= content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
-          end
-
-          # look for a charset in a meta tag in the first 1024 bytes
-          unless encoding
-            data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, "")
-            data.scan(/<meta.*?>/im).each do |meta|
-              encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
-            end
-          end
-
           # if all else fails, default to the official default encoding for HTML
-          encoding ||= Encoding::ISO_8859_1
+          encoding = detect_encoding(body, content_type) || Encoding::ISO_8859_1
 
           # change the encoding to match the detected or inferred encoding
           body = body.dup
@@ -360,6 +351,37 @@ module Nokogiri
         end
 
         body.encode(Encoding::UTF_8)
+      end
+
+      # Return the encoding the document declares for itself, or nil when it declares none. Only
+      # the first 1024 bytes are examined, per the HTML5 standard's prescan.
+      def detect_encoding(body, content_type = nil)
+        head = body.byteslice(0, 1024).b
+
+        # look for a Byte Order Mark (BOM)
+        initial_bytes = head[0..2].bytes
+        if initial_bytes[0..2] == [0xEF, 0xBB, 0xBF]
+          return Encoding::UTF_8
+        elsif initial_bytes[0..1] == [0xFE, 0xFF]
+          return Encoding::UTF_16BE
+        elsif initial_bytes[0..1] == [0xFF, 0xFE]
+          return Encoding::UTF_16LE
+        end
+
+        # look for a charset in a content-encoding header
+        if content_type
+          encoding = content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
+          return encoding if encoding
+        end
+
+        # look for a charset in a meta tag in the first 1024 bytes
+        data = head.gsub(/<!--.*?(-->|\Z)/m, "")
+        data.scan(/<meta.*?>/im).each do |meta|
+          encoding = meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
+          return encoding if encoding
+        end
+
+        nil
       end
     end
   end
