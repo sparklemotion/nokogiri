@@ -87,6 +87,75 @@ class TestHtml5Encoding < Nokogiri::TestCase
     end
   end
 
+  # https://github.com/sparklemotion/nokogiri/issues/2801
+  def test_io_sniffs_meta_charset
+    doc = File.open(SHIFT_JIS_HTML) { |io| Nokogiri::HTML5::Document.parse(io) }
+
+    assert_equal("こんにちは！", doc.at_css("title").content)
+  end
+
+  def test_io_honors_external_encoding_chosen_by_caller
+    doc = File.open(SHIFT_JIS_NO_CHARSET, encoding: "Shift_JIS") do |io|
+      Nokogiri::HTML5::Document.parse(io)
+    end
+
+    assert_equal("こんにちは！", doc.at_css("title").content)
+  end
+
+  def test_io_honors_encoding_argument
+    doc = File.open(SHIFT_JIS_NO_CHARSET) do |io|
+      Nokogiri::HTML5::Document.parse(io, encoding: "Shift_JIS")
+    end
+
+    assert_equal("こんにちは！", doc.at_css("title").content)
+  end
+
+  def test_fragment_io_sniffs_meta_charset
+    frag = File.open(SHIFT_JIS_HTML) { |io| Nokogiri::HTML5::DocumentFragment.parse(io) }
+
+    assert_equal("こんにちは！", frag.at_css("h2").content)
+  end
+
+  def test_io_keeps_its_encoding_when_the_document_declares_none
+    Tempfile.create(["utf8-no-charset", ".html"]) do |file|
+      file.write("<title>Señor</title>")
+      file.close
+
+      doc = File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
+
+      assert_equal("Señor", doc.at_css("title").content)
+    end
+  end
+
+  def test_io_sniffs_utf8_bom
+    Tempfile.create(["utf8-bom", ".html"]) do |file|
+      file.binmode
+      file.write("\xEF\xBB\xBF<title>Se\xC3\xB1or</title>".b)
+      file.close
+
+      doc = File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
+
+      assert_equal("Señor", doc.at_css("title").content)
+    end
+  end
+
+  # A document that declares an encoding its bytes do not use is decoded by the declaration,
+  # matching what a binary String already does.
+  def test_io_prefers_the_declaration_over_the_bytes
+    markup = %(<meta charset="Shift_JIS"><title>Señor</title>)
+    Tempfile.create(["mismatched-charset", ".html"]) do |file|
+      file.write(markup)
+      file.close
+
+      from_io = File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
+
+      assert_equal(
+        Nokogiri::HTML5::Document.parse(markup.b).at_css("title").content,
+        from_io.at_css("title").content,
+      )
+    end
+  end
+
   # https://github.com/rubys/nokogumbo/issues/68
   def test_charset_sniff_to_html
     html = <<-EOF.gsub(/^      /, "")
