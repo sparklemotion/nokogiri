@@ -31,6 +31,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
+* [CRuby] HTML5 parsing of an IO opened without an explicit encoding now uses the encoding the document declares in a BOM or a `meta` charset declaration. Previously the IO's external encoding was used, so `File.open(path)` on a Shift_JIS document produced replacement characters, and passing `encoding:` alongside an IO raised `TypeError`. (#2801) @kataokatsuki
 
 
 ## v1.19.4 / 2026-06-18
