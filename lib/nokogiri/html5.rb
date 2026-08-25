@@ -285,24 +285,33 @@ module Nokogiri
       def read_and_encode(string, encoding)
         # Read the string with the given encoding.
         if string.respond_to?(:read)
-          external = string.external_encoding if string.respond_to?(:external_encoding)
           internal = string.internal_encoding if string.respond_to?(:internal_encoding)
+          # A StringIO holds an already-decoded String and reports that String's encoding rather
+          # than a locale default, so wrapping a String in one must not change how it decodes.
+          wraps_a_string = StringIO === string
           string = string.read
 
           if encoding
-            string = string.dup
             string.force_encoding(encoding)
-          elsif internal.nil? && external == Encoding.default_external
-            # The IO was opened without an explicit encoding, so its external encoding is the
-            # process default and says nothing about the document. Prefer an encoding the document
-            # declares itself, and keep the IO's encoding when the document declares none.
+          elsif internal.nil? && !wraps_a_string
+            # Ruby records nothing about whether an IO's external encoding was chosen by the
+            # caller or inherited from the locale, so it cannot stand in for what the document
+            # says about itself. Prefer the document's own declaration, and let a caller who
+            # needs to override it say so with the `encoding:` argument.
+            #
+            # When the document declares nothing, keep the IO's encoding. The standard's answer
+            # there is windows-1252 and #reencode falls back to ISO_8859_1, so this is a third
+            # answer and a deliberate one: it is the conservative choice and it leaves documents
+            # that parse correctly today parsing the same way.
             declared = detect_encoding(string)
             if declared
-              string = string.dup
               begin
                 string.force_encoding(declared)
               rescue ArgumentError
-                # an unknown encoding name is not a reason to discard what the IO gave us
+                # The document named an encoding Ruby does not know. #reencode makes the same
+                # choice for the binary path, so make it here too rather than keeping an IO
+                # encoding this branch has already decided says nothing about the document.
+                string.force_encoding(Encoding::ISO_8859_1)
               end
             end
           end
@@ -353,6 +362,41 @@ module Nokogiri
         body.encode(Encoding::UTF_8)
       end
 
+      # The standard's charset labels are not Ruby encoding names. "Get an encoding" maps
+      # roughly 220 labels onto encodings, while String#force_encoding accepts only Ruby's own
+      # names and aliases. Normalize the labels Ruby rejects but that appear in real documents,
+      # so that the IO path and the binary path agree on the same declaration. The standard
+      # folds latin1 and iso-8859-1 into windows-1252; Ruby keeps them as ISO-8859-1, and so
+      # does #reencode's fallback, so latin1 follows its synonym here rather than the table.
+      LABEL_ALIASES = {
+        "utf8" => "UTF-8",
+        "unicode-1-1-utf-8" => "UTF-8",
+        "latin1" => "ISO-8859-1",
+        "shift-jis" => "Shift_JIS",
+        "x-sjis" => "Shift_JIS",
+        "ms932" => "Shift_JIS",
+        "csshiftjis" => "Shift_JIS",
+        "x-user-defined" => "Windows-1252",
+      }.freeze
+      private_constant :LABEL_ALIASES
+
+      # Returns nil for an empty label, so that `charset=""` counts as no declaration rather
+      # than as a declaration of an encoding named "".
+      def normalize_encoding_label(label)
+        # "Get an encoding" strips leading and trailing ASCII whitespace and matches
+        # case-insensitively, so normalize first and keep the normalized form even when the
+        # label is not in the table above -- Encoding.find is case-insensitive too.
+        label = label.strip.downcase
+        return if label.empty?
+
+        label = LABEL_ALIASES.fetch(label, label)
+        # The standard's prescan replaces two of the encodings it gets: "If charset is
+        # UTF-16BE/LE, then set charset to UTF-8" (a document that really were UTF-16 could not
+        # have carried an ASCII-readable meta), and "If charset is x-user-defined, then set
+        # charset to windows-1252". The latter is in LABEL_ALIASES above.
+        /\Autf-16/i.match?(label) ? "UTF-8" : label
+      end
+
       # Return the encoding the document declares for itself, or nil when it declares none. Only
       # the first 1024 bytes are examined, per the HTML5 standard's prescan.
       def detect_encoding(body, content_type = nil)
@@ -371,6 +415,7 @@ module Nokogiri
         # look for a charset in a content-encoding header
         if content_type
           encoding = content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
+          encoding = normalize_encoding_label(encoding) if encoding
           return encoding if encoding
         end
 
@@ -378,6 +423,7 @@ module Nokogiri
         data = head.gsub(/<!--.*?(-->|\Z)/m, "")
         data.scan(/<meta.*?>/im).each do |meta|
           encoding = meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
+          encoding = normalize_encoding_label(encoding) if encoding
           return encoding if encoding
         end
 
