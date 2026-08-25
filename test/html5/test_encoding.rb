@@ -94,14 +94,6 @@ class TestHtml5Encoding < Nokogiri::TestCase
     assert_equal("こんにちは！", doc.at_css("title").content)
   end
 
-  def test_io_honors_external_encoding_chosen_by_caller
-    doc = File.open(SHIFT_JIS_NO_CHARSET, encoding: "Shift_JIS") do |io|
-      Nokogiri::HTML5::Document.parse(io)
-    end
-
-    assert_equal("こんにちは！", doc.at_css("title").content)
-  end
-
   def test_io_honors_encoding_argument
     doc = File.open(SHIFT_JIS_NO_CHARSET) do |io|
       Nokogiri::HTML5::Document.parse(io, encoding: "Shift_JIS")
@@ -121,16 +113,18 @@ class TestHtml5Encoding < Nokogiri::TestCase
       file.write("<title>Señor</title>")
       file.close
 
-      doc = File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
+      doc = File.open(file.path, encoding: "UTF-8") { |io| Nokogiri::HTML5::Document.parse(io) }
 
       assert_equal("Señor", doc.at_css("title").content)
     end
   end
 
-  def test_io_sniffs_utf8_bom
-    Tempfile.create(["utf8-bom", ".html"]) do |file|
+  # A UTF-8 BOM would decode correctly under a UTF-8 locale with or without the prescan, so
+  # use a UTF-16 BOM: those bytes are not readable as anything else.
+  def test_io_sniffs_utf16_bom
+    Tempfile.create(["utf16-bom", ".html"]) do |file|
       file.binmode
-      file.write("\xEF\xBB\xBF<title>Se\xC3\xB1or</title>".b)
+      file.write("\xFF\xFE".b + "<title>Señor</title>".encode("UTF-16LE").b)
       file.close
 
       doc = File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
@@ -153,6 +147,94 @@ class TestHtml5Encoding < Nokogiri::TestCase
         Nokogiri::HTML5::Document.parse(markup.b).at_css("title").content,
         from_io.at_css("title").content,
       )
+    end
+  end
+
+  # A declaration whose encoding cannot decode the document's bytes raises, and raises the same
+  # way whether the markup arrives as an IO or as a binary String. Which error it is depends on
+  # how the bytes fail: a sequence Shift_JIS does not allow at all, or one it allows but leaves
+  # unassigned.
+  def test_io_raises_when_the_declaration_cannot_decode_the_bytes
+    {
+      "日本語".encode("EUC-JP") => Encoding::UndefinedConversionError,
+      "日本語".encode("UTF-8") => Encoding::InvalidByteSequenceError,
+    }.each do |body, error|
+      markup = %(<meta charset="Shift_JIS"><title>).b + body.b + %(</title>).b
+
+      Tempfile.create(["mismatched-charset", ".html"]) do |file|
+        file.binmode
+        file.write(markup)
+        file.close
+
+        assert_raises(error) do
+          File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }
+        end
+        assert_raises(error) { Nokogiri::HTML5::Document.parse(markup) }
+      end
+    end
+  end
+
+  # A StringIO reports the encoding of the String it holds, so wrapping a String in one must
+  # not change how the markup is decoded.
+  def test_stringio_decodes_like_the_string_it_wraps
+    markup = %(<meta charset="iso-8859-1"><title>Señor</title>)
+
+    assert_equal(
+      Nokogiri::HTML5::Document.parse(markup).at_css("title").content,
+      Nokogiri::HTML5::Document.parse(StringIO.new(markup)).at_css("title").content,
+    )
+  end
+
+  def test_binary_stringio_decodes_like_the_string_it_wraps
+    markup = %(<meta charset="iso-8859-1"><title>Señor</title>).b
+
+    assert_equal(
+      Nokogiri::HTML5::Document.parse(markup).at_css("title").content,
+      Nokogiri::HTML5::Document.parse(StringIO.new(markup)).at_css("title").content,
+    )
+  end
+
+  def test_fragment_stringio_decodes_like_the_string_it_wraps
+    markup = %(<meta charset="iso-8859-1"><title>Se\u00F1or</title>)
+
+    assert_equal(
+      Nokogiri::HTML5::DocumentFragment.parse(markup).at_css("title").content,
+      Nokogiri::HTML5::DocumentFragment.parse(StringIO.new(markup)).at_css("title").content,
+    )
+  end
+
+  # The standard's labels are not Ruby encoding names, so each one Ruby rejects is normalized.
+  # Use bytes that decode differently under each target so a wrong mapping shows up.
+  def test_declaration_labels_ruby_does_not_know_are_normalized
+    {
+      "utf8" => "\u00F1",
+      "unicode-1-1-utf-8" => "\u00F1",
+      "UTF8" => "\u00F1",
+      "latin1" => "\u00C3\u00B1",
+      "shift-jis" => "\u3042",
+      "x-sjis" => "\u3042",
+      "ms932" => "\u3042",
+      "csshiftjis" => "\u3042",
+    }.each do |label, expected|
+      body = label.downcase.match?(/sjis|shift|932/) ? "\x82\xA0".b : "\xC3\xB1".b
+      markup = %(<meta charset="#{label}"><title>).b + body + %(</title>).b
+
+      assert_equal(expected, Nokogiri::HTML5::Document.parse(markup).at_css("title").content, label)
+    end
+  end
+
+  # "Get an encoding" fails on an empty label, so the prescan moves on to the next `meta`
+  # instead of treating `charset=""` as a declaration.
+  def test_an_empty_charset_is_not_a_declaration
+    markup = %(<meta charset=""><meta charset="utf-8"><title>Se\xC3\xB1or</title>).b
+
+    Tempfile.create(["empty-charset", ".html"]) do |file|
+      file.binmode
+      file.write(markup)
+      file.close
+
+      assert_equal("Señor", File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }.at_css("title").content)
+      assert_equal("Señor", Nokogiri::HTML5::Document.parse(markup).at_css("title").content)
     end
   end
 
