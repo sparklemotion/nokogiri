@@ -32,7 +32,11 @@ module Nokogiri
         ###
         # Create a new PushParser with +doc+ as the SAX Document, providing
         # an optional +file_name+ and +encoding+
-        def initialize(doc = XML::SAX::Document.new, file_name = nil, encoding = "UTF-8")
+        def initialize(
+          doc = XML::SAX::Document.new,
+          file_name_ = nil, encoding_ = "UTF-8",
+          file_name: file_name_, encoding: encoding_
+        )
           @document = doc
           @encoding = encoding
           @sax_parser = XML::SAX::Parser.new(doc)
