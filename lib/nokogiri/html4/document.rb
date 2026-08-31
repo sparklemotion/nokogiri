@@ -205,8 +205,9 @@ module Nokogiri
           if input.respond_to?(:read)
             if input.is_a?(Pathname)
               # resolve the Pathname to the file and open it as an IO object, see #2110
-              input = input.expand_path.open
-              url ||= input.path
+              return input.expand_path.open do |io|
+                parse(io, url: url, encoding: encoding, options: options)
+              end
             end
 
             unless encoding
