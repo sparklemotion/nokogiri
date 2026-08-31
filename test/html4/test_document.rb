@@ -6,25 +6,6 @@ module Nokogiri
   module HTML4
     class TestDocument < Nokogiri::TestCase
       describe Nokogiri::HTML4::Document do
-        class TrackingPathname < Pathname
-          attr_reader :opened_io
-
-          def expand_path
-            self
-          end
-
-          def open(*args, &block)
-            if block
-              super(*args) do |io|
-                @opened_io = io
-                block.call(io)
-              end
-            else
-              @opened_io = super(*args)
-            end
-          end
-        end
-
         let(:html) { Nokogiri::HTML4.parse(File.read(HTML_FILE)) }
 
         def test_nil_css
@@ -649,7 +630,7 @@ module Nokogiri
         def test_parse_can_take_pathnames
           assert_operator(File.size(HTML_FILE), :>, 4096) # file must be big enough to trip the read callback more than once
 
-          pathname = TrackingPathname.new(HTML_FILE)
+          pathname = Nokogiri::TestHelpers::TrackingPathname.new(HTML_FILE)
           doc = Nokogiri::HTML4.parse(pathname)
 
           # an arbitrary assertion on the structure of the document
