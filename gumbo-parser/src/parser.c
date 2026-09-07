@@ -1025,14 +1025,29 @@ static GumboNode* pop_current_node(GumboParser* parser) {
       && state->_closed_html_tag
     )
   ;
+  // The tree construction loop frees an unknown end tag's name once it is done
+  // with the token, so the current token can be an end tag that no longer names
+  // anything. That happens when stop_on_first_error ends the loop on the same
+  // iteration that freed the name, leaving this token current for
+  // finish_parsing. Such a token cannot match any node, and passing it on would
+  // break node_qualified_tagname_is's precondition that an unknown tag carries
+  // a name.
+  const GumboToken* current_token = state->_current_token;
+  const bool current_token_names_an_end_tag =
+    current_token->type == GUMBO_TOKEN_END_TAG
+    && (
+      current_token->v.end_tag.tag != GUMBO_TAG_UNKNOWN
+      || current_token->v.end_tag.name
+    )
+  ;
   if (
     (
-      state->_current_token->type != GUMBO_TOKEN_END_TAG
+      !current_token_names_an_end_tag
       || !node_qualified_tagname_is (
         current_node,
         GUMBO_NAMESPACE_HTML,
-        state->_current_token->v.end_tag.tag,
-        state->_current_token->v.end_tag.name
+        current_token->v.end_tag.tag,
+        current_token->v.end_tag.name
       )
     )
     && !is_closed_body_or_html_tag

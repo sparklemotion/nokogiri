@@ -29,6 +29,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
+* [CRuby] gumbo: `gumbo_parse_with_options` no longer crashes when `stop_on_first_error` is set and the parse ends on an unknown end tag in a fragment context. This is a C API path; it is not reachable from Ruby, because Nokogiri never sets `stop_on_first_error`. @jeremy
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 
