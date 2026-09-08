@@ -1338,6 +1338,10 @@ set_namespace(VALUE self, VALUE namespace)
 
   xmlSetNs(node, ns);
 
+  if (ns && ns->prefix)  {
+    xmlReconciliateNs(node->doc, node);
+  }
+
   return self;
 }
 

@@ -845,6 +845,29 @@ module Nokogiri
             end
           end
         end
+
+        # https://github.com/sparklemotion/nokogiri/issues/3459
+        describe "reparenting with duplicate namespace prefixes" do
+          it "stitches together ok" do
+            doc = Nokogiri::XML(<<~XML)
+              <dnd:adventure xmlns:dnd="http://www.w3.org/dungeons#">
+                <dnd:party xmlns:dnd="http://www.w3.org/dragons#">
+                  <dnd:members>
+                  </dnd:members>
+                </dnd:party>
+              </dnd:adventure>
+            XML
+
+            dungeons_ns = doc.root.namespace_definitions.find { |ns| ns.prefix == "dnd" }
+            parent = doc.xpath("//ns:members", ns: "http://www.w3.org/dragons#").first
+
+            node = doc.create_element("character")
+            node.namespace = dungeons_ns
+            parent.add_child(node)
+
+            assert_includes(doc.to_xml, %{<dnd:character xmlns:dnd="http://www.w3.org/dungeons#"/>})
+          end
+        end
       end
     end
   end
