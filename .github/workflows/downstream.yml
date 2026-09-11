@@ -99,7 +99,7 @@ jobs:
       - run: git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
       - name: ${{matrix.name}} test suite
         working-directory: ${{matrix.name}}
-        run: |
+        run: | # zizmor: ignore[adhoc-packages] -- this job intentionally installs this checkout of nokogiri into the downstream project, outside its lockfile
           bundle remove nokogiri || true
           bundle remove bundler || true
           if grep "add_development_dependency.*\bbundler\b" ./*gemspec ; then
