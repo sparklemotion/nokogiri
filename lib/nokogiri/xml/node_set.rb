@@ -15,6 +15,10 @@ module Nokogiri
       include Nokogiri::XML::Searchable
       include Enumerable
 
+      # Distinguishes an omitted argument from an explicit +false+ or +nil+.
+      NOT_GIVEN = Object.new.freeze
+      private_constant :NOT_GIVEN
+
       # The Document this NodeSet is associated with
       attr_accessor :document
 
@@ -184,10 +188,10 @@ module Nokogiri
       # called as a setter, +#attr+ returns the NodeSet.
       #
       # If +key+ is an attribute name, then either +value+ or +block+
-      # must be passed.
+      # must be passed. Passing both raises ArgumentError.
       #
       # If +key+ is a Hash then attributes will be set for each
-      # key/value pair:
+      # key/value pair, and passing a block raises ArgumentError:
       #
       #   node_set.attr("href" => "https://www.nokogiri.org", "class" => "member")
       #
@@ -196,23 +200,28 @@ module Nokogiri
       #
       #   node_set.attr("href", "https://www.nokogiri.org")
       #
+      # Values are coerced with +to_s+, the same as Node#[]=, so +false+ sets the string "false"
+      # and +nil+ sets the empty string. Use #remove_attr to remove an attribute.
+      #
       # If +block+ is passed, it will be called on each Node object in
       # the NodeSet and the return value used as the attribute value
       # for that node:
       #
       #   node_set.attr("class") { |node| node.name }
       #
-      def attr(key, value = nil, &block)
-        unless key.is_a?(Hash) || (key && (value || block))
-          return first&.attribute(key)
-        end
+      def attr(key, value = NOT_GIVEN, &block)
+        if key.is_a?(Hash)
+          raise(ArgumentError, "cannot pass both a Hash and a block") if block
 
-        hash = key.is_a?(Hash) ? key : { key => value }
+          key.each { |name, val| each { |node| node[name] = val } }
+        elsif NOT_GIVEN.equal?(value)
+          return first&.attribute(key) unless block
 
-        hash.each do |k, v|
-          each do |node|
-            node[k] = v || yield(node)
-          end
+          each { |node| node[key] = block.call(node) }
+        else
+          raise(ArgumentError, "cannot pass both a value and a block") if block
+
+          each { |node| node[key] = value }
         end
 
         self
