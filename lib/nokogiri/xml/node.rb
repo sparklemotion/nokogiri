@@ -544,7 +544,10 @@ module Nokogiri
         node_or_tags = parent.coerce(node_or_tags)
 
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling(n) }
+          node_or_tags = Nokogiri::XML::NodeSet.new(
+            document,
+            node_or_tags.map { |n| add_previous_sibling(n) },
+          )
           unlink
         else
           replace_node(node_or_tags)
