@@ -15,14 +15,14 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
-* [CRuby] HTML5 parsing of an IO now prefers the encoding the document declares in a BOM or a `meta` charset declaration over the encoding the IO was read as. This applies to every IO-parsed document, including ones whose declaration no longer matches their bytes: a UTF-8 page carrying `<meta charset="iso-8859-1">` parsed correctly before and now decodes by that declaration, which is what `Nokogiri::HTML5(File.binread(path))` of the same bytes already did. Pass `encoding:` to override the declaration. (#2801) @kataokatsuki
+* [CRuby] HTML5 parsing of an IO now prefers the encoding the document declares in a BOM or a `meta` charset over the encoding the IO was read as, unless the IO transcodes, is a StringIO, or `encoding:` is passed. A UTF-8 page carrying a stale `<meta charset="iso-8859-1">` therefore decodes as ISO-8859-1, which is what `Nokogiri::HTML5(File.binread(path))` already did. Wherever a declaration is read, its charset label is now resolved more like the HTML Standard's prescan: `utf8`, `latin1`, `shift-jis`, `ms932`, `x-user-defined` and the UTF-16 labels are recognized, and a label Ruby cannot resolve is skipped in favor of the next `meta`. (#2801) @kataokatsuki
 
 
 ### Fixed
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
-* [CRuby] `Nokogiri::HTML5(File.open(path))` on a Shift_JIS document no longer produces replacement characters, and passing `encoding:` alongside an IO no longer raises `TypeError`. (#2801) @kataokatsuki
+* [CRuby] `Nokogiri::HTML5(File.open(path))` on a document that declares Shift_JIS no longer produces replacement characters, and passing `encoding:` alongside an IO no longer raises `TypeError`. (#2801) @kataokatsuki
 
 
 
