@@ -213,13 +213,116 @@ class TestHtml5Encoding < Nokogiri::TestCase
       "latin1" => "\u00C3\u00B1",
       "shift-jis" => "\u3042",
       "x-sjis" => "\u3042",
-      "ms932" => "\u3042",
       "csshiftjis" => "\u3042",
+      "x-user-defined" => "\u20ac",
     }.each do |label, expected|
-      body = label.downcase.match?(/sjis|shift|932/) ? "\x82\xA0".b : "\xC3\xB1".b
+      body = case label
+      when /sjis|shift/ then "\x82\xA0".b
+      when "x-user-defined" then "\x80".b
+      else "\xC3\xB1".b
+      end
       markup = %(<meta charset="#{label}"><title>).b + body + %(</title>).b
 
       assert_equal(expected, Nokogiri::HTML5::Document.parse(markup).at_css("title").content, label)
+    end
+  end
+
+  # ms932 is Microsoft's code page 932. Ruby's Shift_JIS lacks its NEC and IBM extensions, so the
+  # label maps to Windows-31J, which has them.
+  def test_ms932_decodes_the_windows_31j_extensions
+    markup = %(<meta charset="ms932"><title>).b + "\u2460".encode("Windows-31J").b + %(</title>).b
+
+    assert_equal("\u2460", Nokogiri::HTML5::Document.parse(markup).at_css("title").content)
+  end
+
+  # The prescan's UTF-16 replacement applies to the two exact labels and their generic form, not
+  # to any label that happens to start with "utf-16".
+  def test_only_the_utf16_labels_are_replaced_with_utf8
+    utf8 = %(<title>Se\xC3\xB1or</title>).b
+    ["utf-16", "UTF-16LE", "utf-16be"].each do |label|
+      markup = %(<meta charset="#{label}">).b + utf8
+
+      assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(markup).at_css("title").content, label)
+    end
+
+    unknown = %(<meta charset="utf-16bogus"><title>Se\xF1or</title>).b
+
+    assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(unknown).at_css("title").content)
+  end
+
+  # A label Ruby cannot resolve is not a declaration, so the prescan moves on to the next `meta`.
+  # Where no later `meta` resolves either, the document counts as declaring nothing.
+  def test_an_unresolvable_charset_is_skipped
+    with_later = %(<meta charset="bogus"><meta charset="utf-8"><title>Se\xC3\xB1or</title>).b
+    alone = %(<meta charset="bogus"><title>Se\xC3\xB1or</title>).b
+
+    Tempfile.create(["unresolvable-charset", ".html"]) do |file|
+      file.binmode
+      file.write(with_later)
+      file.close
+
+      assert_equal("Se\u00f1or", File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }.at_css("title").content)
+      assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(with_later).at_css("title").content)
+    end
+
+    Tempfile.create(["unresolvable-charset", ".html"]) do |file|
+      file.binmode
+      file.write(alone)
+      file.close
+
+      doc = File.open(file.path, encoding: "UTF-8") { |io| Nokogiri::HTML5::Document.parse(io) }
+
+      assert_equal("Se\u00f1or", doc.at_css("title").content)
+    end
+  end
+
+  # The whole quoted value is the label; the standard strips its ASCII whitespace.
+  def test_a_padded_charset_value_is_read_whole
+    markup = %(<meta charset=" UTF-8 "><meta charset="iso-8859-1"><title>Se\xC3\xB1or</title>).b
+
+    Tempfile.create(["padded-charset", ".html"]) do |file|
+      file.binmode
+      file.write(markup)
+      file.close
+
+      assert_equal("Se\u00f1or", File.open(file.path) { |io| Nokogiri::HTML5::Document.parse(io) }.at_css("title").content)
+      assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(markup).at_css("title").content)
+    end
+  end
+
+  # A bare charset attribute value runs to whitespace or the end of the tag, so `charset=utf-8;`
+  # names an encoding Ruby does not have and the prescan moves on.
+  def test_a_bare_charset_value_includes_a_trailing_semicolon
+    markup = %(<meta charset=utf-8;><meta charset=iso-8859-1><title>Se\xF1or</title>).b
+
+    assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(markup).at_css("title").content)
+  end
+
+  # An IO that transcodes has already produced characters, so its document is not sniffed.
+  def test_a_transcoding_io_is_not_sniffed
+    markup = %(<meta charset="iso-8859-1"><title>).b + "\u3042".encode("Shift_JIS").b + %(</title>).b
+
+    Tempfile.create(["transcoding-io", ".html"]) do |file|
+      file.binmode
+      file.write(markup)
+      file.close
+
+      doc = File.open(file.path, "r:Shift_JIS:UTF-8") { |io| Nokogiri::HTML5::Document.parse(io) }
+
+      assert_equal("\u3042", doc.at_css("title").content)
+    end
+  end
+
+  def test_a_bom_outranks_a_contradicting_meta
+    markup = "\xEF\xBB\xBF".b + %(<meta charset="iso-8859-1"><title>Se\xC3\xB1or</title>).b
+
+    Tempfile.create(["bom-vs-meta", ".html"]) do |file|
+      file.binmode
+      file.write(markup)
+      file.close
+
+      assert_equal("Se\u00f1or", File.open(file.path, "rb") { |io| Nokogiri::HTML5::Document.parse(io) }.at_css("title").content)
+      assert_equal("Se\u00f1or", Nokogiri::HTML5::Document.parse(markup).at_css("title").content)
     end
   end
 
