@@ -23,6 +23,7 @@ require "nokogiri"
 
 require_relative "helpers/memory_debugger"
 require_relative "helpers/mock_server"
+require_relative "helpers/tracking_pathname"
 
 if ENV["TEST_NOKOGIRI_WITH_LIBXML_RUBY"]
   #

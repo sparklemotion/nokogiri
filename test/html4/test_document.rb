@@ -630,11 +630,13 @@ module Nokogiri
         def test_parse_can_take_pathnames
           assert_operator(File.size(HTML_FILE), :>, 4096) # file must be big enough to trip the read callback more than once
 
-          doc = Nokogiri::HTML4.parse(Pathname.new(HTML_FILE))
+          pathname = Nokogiri::TestHelpers::TrackingPathname.new(HTML_FILE)
+          doc = Nokogiri::HTML4.parse(pathname)
 
           # an arbitrary assertion on the structure of the document
           assert_equal(166, doc.css("a").length)
           assert_equal(HTML_FILE, doc.url)
+          assert_predicate(pathname.opened_io, :closed?)
         end
 
         def test_html?

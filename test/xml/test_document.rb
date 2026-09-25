@@ -788,7 +788,8 @@ module Nokogiri
         def test_parse_can_take_pathnames
           assert_operator(File.size(XML_ATOM_FILE), :>, 4096) # file must be big enough to trip the read callback more than once
 
-          doc = Nokogiri::XML.parse(Pathname.new(XML_ATOM_FILE))
+          pathname = Nokogiri::TestHelpers::TrackingPathname.new(XML_ATOM_FILE)
+          doc = Nokogiri::XML.parse(pathname)
 
           # an arbitrary assertion on the structure of the document
           assert_equal(20, doc.xpath(
@@ -796,6 +797,7 @@ module Nokogiri
             "xmlns" => "http://www.w3.org/2005/Atom",
           ).length)
           assert_equal(XML_ATOM_FILE, doc.url)
+          assert_predicate(pathname.opened_io, :closed?)
         end
 
         def test_search_on_empty_documents
