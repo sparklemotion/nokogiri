@@ -25,6 +25,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
+* `XML::Document.parse` and `HTML4::Document.parse` close files they open for `Pathname` inputs. (#3682) @OskarEichler
 * [CRuby] When a namespace is set on an unparented node, ensure the namespace is defined on the node. (#3459, #3462)
 * [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones

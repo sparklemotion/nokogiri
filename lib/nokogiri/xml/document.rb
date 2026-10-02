@@ -75,8 +75,9 @@ module Nokogiri
             # TODO: should we instead check for respond_to?(:to_path) ?
             if string_or_io.is_a?(Pathname)
               # resolve the Pathname to the file and open it as an IO object, see #2110
-              string_or_io = string_or_io.expand_path.open
-              url ||= string_or_io.path
+              return string_or_io.expand_path.open do |io|
+                parse(io, url: url, encoding: encoding, options: options)
+              end
             end
 
             read_io(string_or_io, url, encoding, options.to_i)
