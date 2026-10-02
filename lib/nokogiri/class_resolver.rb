@@ -46,9 +46,11 @@ module Nokogiri
       inspecting = self.class
 
       while inspecting
-        namespace_path = inspecting.name.split("::")[0..-2]
+        inspecting_name = inspecting.name
         inspecting = inspecting.superclass
+        next unless inspecting_name
 
+        namespace_path = inspecting_name.split("::")[0..-2]
         next unless VALID_NAMESPACES.include?(namespace_path.last)
 
         related_class_name = (namespace_path << class_name).join("::")
