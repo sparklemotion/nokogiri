@@ -20,7 +20,7 @@ group :development do
   gem "minitest-mock", "5.27.0"
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
-  gem "rubyzip", "~> 3.6.0"
+  gem "rubyzip", "~> 3.7.0"
   gem "simplecov", "1.2.0"
 
   # rubocop
