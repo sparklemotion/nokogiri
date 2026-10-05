@@ -96,7 +96,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -147,7 +147,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
         with:
           ruby-version: "3.4"
           bundler-cache: true
@@ -332,7 +332,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -434,7 +434,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -490,7 +490,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: vmactions/freebsd-vm@4469451fe39bee80be4066836c5170362e9349f3 # v1.5.7
+      - uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1.5.8
         with:
           usesh: true
           copyback: false
@@ -628,7 +628,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -728,7 +728,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -808,7 +808,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: "${{ matrix.ruby }}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -831,7 +831,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -855,7 +855,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
