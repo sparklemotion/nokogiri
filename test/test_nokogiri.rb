@@ -55,6 +55,18 @@ module Nokogiri
         doc = Nokogiri.make { b("bold tag") }
         assert_equal("<b>bold tag</b>", doc.to_html.chomp)
       end
+
+      def test_no_hardcoded_paths
+        skip("only relevant in precompiled gem") unless Nokogiri::VERSION_INFO.dig("libxml", "precompiled")
+        skip("C-ext is not stripped on aarch64-mingw-ucrt and so contains hardcoded paths in debug info") if RUBY_PLATFORM == "aarch64-mingw-ucrt"
+
+        cext_fname = $LOADED_FEATURES.grep(/\/\d.\d\/nokogiri./).first
+        refute_nil(cext_fname, "the C-ext should be loaded")
+        cext_text = File.binread(cext_fname)
+        assert_match(/Init_nokogiri/, cext_text, "C-ext shoud contain the init function")
+        refute_match(/usr\/local/, cext_text, "there should be no rpath to /usr/local/rake-compiler/ruby/x86_64-unknown-linux-musl/ruby-3.4.5/lib or so")
+        refute_match(/home\//, cext_text, "there should be no path to /home/ or so")
+      end
     end
   end
 end
