@@ -72,4 +72,19 @@ describe "compaction" do
       end
     end
   end
+
+  describe Nokogiri::XML::SAX::ParserContext do
+    it "parses an IO after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      context = -> { Nokogiri::XML::SAX::ParserContext.io(StringIO.new("<root><alpha/></root>")) }.call
+
+      gc_verify_compaction_references
+
+      handler = Nokogiri::SAX::TestCase::Doc.new
+      context.parse_with(Nokogiri::XML::SAX::Parser.new(handler))
+
+      assert_equal([["root", []], ["alpha", []]], handler.start_elements)
+    end
+  end
 end
