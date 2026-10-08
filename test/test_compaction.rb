@@ -72,4 +72,34 @@ describe "compaction" do
       end
     end
   end
+
+  describe Nokogiri::XML::Reader do
+    it "reads an IO after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      # Construct the IO in a separate frame so a live stack reference cannot pin it.
+      reader = -> { Nokogiri::XML::Reader.from_io(StringIO.new("<root>#{"<a/>" * 100}</root>")) }.call
+
+      gc_verify_compaction_references
+
+      names = []
+      reader.each { |node| names << node.name if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT }
+
+      assert_equal(["root"] + (["a"] * 100), names)
+    end
+
+    it "reads a String after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      # libxml2 < 2.11 reads this embedded string lazily, so its buffer must stay pinned.
+      reader = -> { Nokogiri::XML::Reader.from_memory(+"<root><a>hello</a></root>") }.call
+
+      gc_verify_compaction_references
+
+      values = []
+      reader.each { |node| values << node.value if node.value? }
+
+      assert_equal(["hello"], values)
+    end
+  end
 end
