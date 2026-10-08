@@ -691,6 +691,101 @@ module Nokogiri
           assert_equal(3, doc.xpath("//self::*:child").length)
         end
       end
+
+      describe "compiled" do
+        let(:xml) {
+          <<~XML
+            <root xmlns="http://nokogiri.org/default" xmlns:ns1="http://nokogiri.org/ns1">
+              <child>default</child>
+              <ns1:child>ns1</ns1:child>
+            </root>
+          XML
+        }
+
+        let(:doc) { Nokogiri::XML::Document.parse(xml) }
+
+        describe "XPath expressions" do
+          it "works in the trivial case" do
+            expr = Nokogiri::XML::XPath.expression("//xmlns:child")
+
+            result = doc.xpath(expr)
+            assert_equal(doc.xpath("//xmlns:child"), result)
+            assert_pattern do
+              result => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+          end
+
+          it "works as expected with namespace bindings" do
+            expr = Nokogiri::XML::XPath.expression("//ns:child")
+
+            node = doc.at_xpath(expr, { "ns" => "http://nokogiri.org/ns1" })
+            assert_equal("ns1", node.text)
+
+            assert_raises(XPath::SyntaxError) do
+              doc.at_xpath("//ns:child")
+            end
+          end
+
+          it "works as expected with a function handler" do
+            expr = Nokogiri::XML::XPath.expression("//xmlns:child[nokogiri:thing(.)]")
+
+            doc.xpath(expr, @handler)
+            assert_equal(1, @handler.things.length)
+
+            assert_raises(XPath::SyntaxError) do
+              doc.xpath("//xmlns:child[nokogiri:thing(.)]")
+            end
+          end
+
+          it "works as expected with bound variables" do
+            expr = Nokogiri::XML::XPath.expression("//address[@domestic=$value]")
+
+            nodes = @xml.xpath("//address[@domestic=$value]", nil, value: "Yes")
+            assert_equal(4, nodes.length)
+
+            assert_raises(XPath::SyntaxError) do
+              @xml.xpath(expr)
+            end
+          end
+
+          it "can be evaluated in different documents" do
+            doc1 = Nokogiri::XML::Document.parse(xml)
+            doc2 = Nokogiri::XML::Document.parse(xml)
+
+            expr = Nokogiri::XML::XPath.expression("//xmlns:child")
+
+            result1 = doc1.xpath(expr)
+            result2 = doc2.xpath(expr)
+
+            assert_pattern do
+              result1 => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+            assert_pattern do
+              result2 => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+          end
+        end
+
+        describe "CSS selectors" do
+          it "works" do
+            expr = Nokogiri::CSS.selector("child")
+
+            result = doc.css(expr)
+            assert_equal(doc.css("child"), result)
+            assert_pattern do
+              result => [{name: "child", namespace: { href: "http://nokogiri.org/default" }}]
+            end
+          end
+
+          it "can be evaluated in different documents"
+
+          it "work with function handlers"
+
+          it "work with variable bindings"
+
+          it "work with namespace bindings"
+        end
+      end
     end
   end
 end
