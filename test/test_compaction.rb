@@ -72,4 +72,35 @@ describe "compaction" do
       end
     end
   end
+
+  describe Nokogiri::XML::SAX::PushParser do
+    it "keeps parsing after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      # Keep the SAX parser off the machine stack so only PushParser's @sax_parser references it.
+      parser = Nokogiri::XML::SAX::PushParser.new(Nokogiri::SAX::TestCase::Doc.new)
+
+      gc_verify_compaction_references
+
+      parser << "<root><alpha/></root>"
+      parser.finish
+
+      assert_equal([["root", []], ["alpha", []]], parser.document.start_elements)
+    end
+  end
+
+  describe Nokogiri::HTML4::SAX::PushParser do
+    it "keeps parsing after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      parser = Nokogiri::HTML4::SAX::PushParser.new(Nokogiri::SAX::TestCase::Doc.new)
+
+      gc_verify_compaction_references
+
+      parser << "<html><body><p>hello</p></body></html>"
+      parser.finish
+
+      assert_equal(["html", "body", "p"], parser.document.start_elements.map(&:first))
+    end
+  end
 end
