@@ -2034,6 +2034,12 @@ module Nokogiri
 
         DefaultDescriptions[name] = d
       end
+
+      # deeply freeze these tables so they can be read from any Ractor
+      constants(false).each do |name|
+        value = const_get(name, false)
+        Nokogiri.make_shareable(value) unless value.is_a?(Module)
+      end
     end
   end
 end

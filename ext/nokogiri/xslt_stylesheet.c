@@ -1,4 +1,6 @@
 #include <nokogiri.h>
+#include <ruby/thread.h>
+#include <ruby/thread_native.h>
 
 VALUE cNokogiriXsltStylesheet;
 
@@ -68,6 +70,53 @@ Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
 }
 
 /*
+ * libxslt reports stylesheet compilation errors only through a process-wide error handler
+ * (xsltSetGenericErrorFunc), so compilation is serialized across Ractors with this lock. See
+ * https://gitlab.gnome.org/GNOME/libxslt/-/work_items/173 for a per-stylesheet alternative.
+ *
+ * The lock holder may allocate Ruby memory and so run GC, which needs every Ractor to reach
+ * a safe point. A waiter therefore waits without the GVL, rather than blocking while holding it.
+ * Stylesheet compilation is infrequent, so the cost of releasing the GVL doesn't matter.
+ */
+static rb_nativethread_lock_t xslt_generic_error_lock;
+
+static void *
+xslt_generic_error_lock_acquire_without_gvl(void *unused)
+{
+  rb_nativethread_lock_lock(&xslt_generic_error_lock);
+  return NULL;
+}
+
+static void
+xslt_generic_error_lock_acquire(void)
+{
+  rb_thread_call_without_gvl(xslt_generic_error_lock_acquire_without_gvl, NULL, NULL, NULL);
+}
+
+typedef struct {
+  xmlDocPtr doc;
+  VALUE errstr;
+  xsltStylesheetPtr ss;
+} parse_stylesheet_args_t;
+
+static VALUE
+parse_stylesheet_with_error_handler(VALUE data)
+{
+  parse_stylesheet_args_t *args = (parse_stylesheet_args_t *)data;
+  xsltSetGenericErrorFunc((void *)args->errstr, xslt_generic_error_handler);
+  args->ss = xsltParseStylesheetDoc(args->doc);
+  return Qnil;
+}
+
+static VALUE
+release_error_handler(VALUE unused)
+{
+  xsltSetGenericErrorFunc(NULL, NULL);
+  rb_nativethread_lock_unlock(&xslt_generic_error_lock);
+  return Qnil;
+}
+
+/*
  * call-seq:
  *   parse_stylesheet_doc(document)
  *
@@ -88,12 +137,12 @@ parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
   xml = noko_xml_document_unwrap(xmldocobj);
 
   errstr = rb_str_new(0, 0);
-  xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
-
   xml_cpy = xmlCopyDoc(xml, 1); /* 1 => recursive */
-  ss = xsltParseStylesheetDoc(xml_cpy);
 
-  xsltSetGenericErrorFunc(NULL, NULL);
+  parse_stylesheet_args_t args = { xml_cpy, errstr, NULL };
+  xslt_generic_error_lock_acquire();
+  rb_ensure(parse_stylesheet_with_error_handler, (VALUE)&args, release_error_handler, Qnil);
+  ss = args.ss;
 
   if (!ss) {
     xmlFreeDoc(xml_cpy);
@@ -330,10 +379,13 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xsltFreeTransformContext(c_transform_context);
 
   rb_error_str = rb_str_new(0, 0);
-  xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
-  c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
+  /* report libxslt errors through this transformation's context, not the process-wide handler */
+  c_transform_context = xsltNewTransformContext(wrapper->ss, c_document);
+  xsltSetTransformErrorFunc(c_transform_context, (void *)rb_error_str, xslt_generic_error_handler);
+  c_result_document = xsltApplyStylesheetUser(wrapper->ss, c_document, params, NULL, NULL, c_transform_context);
+  xsltFreeTransformContext(c_transform_context);
 
   ruby_xfree(params);
   if (defensive_copy_p) {
@@ -341,7 +393,6 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
     c_document = NULL;
   }
 
-  xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
   parse_error_occurred = (Qfalse == rb_funcall(rb_error_str, rb_intern("empty?"), 0));
@@ -432,7 +483,14 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
     rb_raise(rb_eRuntimeError, "internal error: @modules not set");
   }
 
+  /*
+   * Replace the registry rather than modifying it, and freeze the new one, so that a Ractor
+   * other than the main Ractor can read it during a transformation. Registering still
+   * happens only in the main Ractor.
+   */
+  modules = rb_hash_dup(modules);
   rb_hash_aset(modules, uri, obj);
+  rb_iv_set(self, "@modules", rb_obj_freeze(modules));
   xsltRegisterExtModule(
     (unsigned char *)StringValueCStr(uri),
     initFunc,
@@ -444,8 +502,10 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
 void
 noko_init_xslt_stylesheet(void)
 {
+  rb_nativethread_lock_initialize(&xslt_generic_error_lock);
+
   rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_s_register, 2);
-  rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
+  rb_iv_set(mNokogiriXslt, "@modules", rb_obj_freeze(rb_hash_new()));
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
 
