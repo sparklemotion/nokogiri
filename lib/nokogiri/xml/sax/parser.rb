@@ -67,8 +67,8 @@ module Nokogiri
           "SHIFT-JIS" => 20, # Shift_JIS
           "EUC-JP" => 21, # EUC-JP
           "ASCII" => 22, # pure ASCII
-        }
-        REVERSE_ENCODINGS = ENCODINGS.invert # :nodoc:
+        }.freeze
+        REVERSE_ENCODINGS = ENCODINGS.invert.freeze # :nodoc:
         deprecate_constant :ENCODINGS
 
         # The Nokogiri::XML::SAX::Document where events will be sent.

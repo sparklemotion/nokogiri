@@ -2,6 +2,7 @@
 
 require "singleton"
 require "shellwords"
+require_relative "../ractor_support"
 
 module Nokogiri
   class VersionInfo # :nodoc:
@@ -197,6 +198,9 @@ module Nokogiri
     instance.warnings.each do |warning|
       warn "WARNING: #{warning}"
     end
+
+    # the singleton has no state; freezing it lets any Ractor read it
+    instance.freeze
   end
 
   # :nodoc:
@@ -230,5 +234,5 @@ module Nokogiri
   require_relative "../extension"
 
   # Detailed version info about Nokogiri and the installed extension dependencies.
-  VERSION_INFO = VersionInfo.instance.to_hash
+  VERSION_INFO = Nokogiri.make_shareable(VersionInfo.instance.to_hash)
 end

@@ -37,7 +37,7 @@ module Nokogiri
       end
 
       # Hoisted so it does not escape the `write_to` frame to the heap.
-      ESCAPE_CHAR = lambda { |c| "&#x#{c.ord.to_s(16)};" }.freeze
+      ESCAPE_CHAR = Nokogiri.make_shareable(lambda { |c| "&#x#{c.ord.to_s(16)};" })
       private_constant :ESCAPE_CHAR
 
       def write_to(io, *options)
