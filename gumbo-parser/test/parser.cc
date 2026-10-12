@@ -2337,4 +2337,21 @@ TEST_F(GumboParserTest, FosterParenting) {
   EXPECT_EQ(std::string("quux"), text->v.text.text);
 }
 
+// stop_on_first_error can end the tree construction loop on the same iteration
+// that freed an unknown end tag's name. finish_parsing then still sees that
+// token as current. Before the fix in pop_current_node this aborted on
+// node_qualified_tagname_is's assertion, and dereferenced NULL when the
+// current node also had an unknown tag and assertions were compiled out.
+TEST_F(GumboParserTest, StopOnFirstErrorAfterUnknownEndTag) {
+  options_.stop_on_first_error = true;
+  ParseFragment("</ta>", "div", GUMBO_NAMESPACE_HTML);
+  ASSERT_TRUE(output_ != NULL);
+}
+
+TEST_F(GumboParserTest, StopOnFirstErrorAfterUnknownEndTagWithUnknownNode) {
+  options_.stop_on_first_error = true;
+  ParseFragment("<custom-el></ta>", "div", GUMBO_NAMESPACE_HTML);
+  ASSERT_TRUE(output_ != NULL);
+}
+
 }  // namespace
