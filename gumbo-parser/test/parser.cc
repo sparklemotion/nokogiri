@@ -941,18 +941,13 @@ TEST_F(GumboParserTest, MisnestedTable2) {
   GumboNode* td1 = GetChild(tr1, 0);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, td1->type);
   EXPECT_EQ(GUMBO_TAG_TD, GetTag(td1));
-  ASSERT_EQ(3, GetChildCount(td1));
+  ASSERT_EQ(2, GetChildCount(td1));
 
   GumboNode* cell1 = GetChild(td1, 0);
   ASSERT_EQ(GUMBO_NODE_TEXT, cell1->type);
-  EXPECT_STREQ("Cell1", cell1->v.text.text);
+  EXPECT_STREQ("Cell1Cell3", cell1->v.text.text);
 
-  // Foster-parented out of the inner <tr>
-  GumboNode* cell3 = GetChild(td1, 1);
-  ASSERT_EQ(GUMBO_NODE_TEXT, cell3->type);
-  EXPECT_STREQ("Cell3", cell3->v.text.text);
-
-  GumboNode* table2 = GetChild(td1, 2);
+  GumboNode* table2 = GetChild(td1, 1);
   ASSERT_EQ(GUMBO_NODE_ELEMENT, table2->type);
   EXPECT_EQ(GUMBO_TAG_TABLE, GetTag(table2));
   ASSERT_EQ(1, GetChildCount(table2));
@@ -2335,6 +2330,85 @@ TEST_F(GumboParserTest, FosterParenting) {
   text = GetChild(p, 0);
   ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
   EXPECT_EQ(std::string("quux"), text->v.text.text);
+}
+
+TEST_F(GumboParserTest, FosterParentingTextMergedIntoPrecedingText) {
+  Parse("x<table>x");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(2, GetChildCount(body));
+
+  // The second "x" is foster-parented out of the table. Per the "insert a
+  // character" algorithm it is appended to the text node immediately before
+  // the adjusted insertion location, not inserted as a sibling.
+  GumboNode* text = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_STREQ("xx", text->v.text.text);
+  EXPECT_EQ(body, text->parent);
+  EXPECT_EQ(0, text->index_within_parent);
+  // The merged runs are not contiguous in the source ("<table>" sits between
+  // them), so original_text keeps only the first run's span.
+  EXPECT_EQ("x", ToString(text->v.text.original_text));
+  EXPECT_EQ(0, text->v.text.start_pos.offset);
+
+  GumboNode* table = GetChild(body, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, table->type);
+  EXPECT_EQ(GUMBO_TAG_TABLE, GetTag(table));
+  EXPECT_EQ(1, table->index_within_parent);
+}
+
+TEST_F(GumboParserTest, FosterParentingTextPromotesPrecedingWhitespace) {
+  Parse("<div> <table>x</table></div>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* div = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, div->type);
+  EXPECT_EQ(GUMBO_TAG_DIV, GetTag(div));
+  ASSERT_EQ(2, GetChildCount(div));
+
+  // The whitespace-only " " node absorbs the foster-parented "x" and is
+  // promoted from GUMBO_NODE_WHITESPACE to GUMBO_NODE_TEXT.
+  GumboNode* text = GetChild(div, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_STREQ(" x", text->v.text.text);
+
+  GumboNode* table = GetChild(div, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, table->type);
+  EXPECT_EQ(GUMBO_TAG_TABLE, GetTag(table));
+}
+
+TEST_F(GumboParserTest, FosterParentingTextMergedAcrossMultipleFlushes) {
+  // "A" is flushed when <table> opens; " B" and " B" are foster-parented out
+  // of the table in two separate flushes. All three runs must end up in a
+  // single text node.
+  Parse("A<table><tr> B</tr> B</table>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(2, GetChildCount(body));
+
+  GumboNode* text = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
+  EXPECT_STREQ("A B B", text->v.text.text);
+
+  GumboNode* table = GetChild(body, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, table->type);
+  EXPECT_EQ(GUMBO_TAG_TABLE, GetTag(table));
+  ASSERT_EQ(1, GetChildCount(table));
+
+  GumboNode* tbody = GetChild(table, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, tbody->type);
+  EXPECT_EQ(GUMBO_TAG_TBODY, GetTag(tbody));
+  ASSERT_EQ(1, GetChildCount(tbody));
+
+  GumboNode* tr = GetChild(tbody, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, tr->type);
+  EXPECT_EQ(GUMBO_TAG_TR, GetTag(tr));
+  ASSERT_EQ(0, GetChildCount(tr));
 }
 
 }  // namespace
