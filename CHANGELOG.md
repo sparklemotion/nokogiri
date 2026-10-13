@@ -21,10 +21,12 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+* `XML::NodeSet#attr` raises `ArgumentError` when a block is passed alongside a value or a Hash. Previously the block won and the value was silently discarded. (#3678, #3690) @flavorjones
 
 
 ### Fixed
 
+* `XML::NodeSet#attr` sets `false` and `nil` values instead of treating them as an omitted argument. Previously `node_set.attr("a", false)` returned a getter result without setting anything, and `node_set.attr("a" => false)` raised `LocalJumpError`. Values are coerced with `to_s`, the same as `Node#[]=`, so these now set `a="false"` and `a=""`. (#3678, #3690) @flavorjones
 * [CRuby] When a namespace is set on an unparented node, ensure the namespace is defined on the node. (#3459, #3462)
 * [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones

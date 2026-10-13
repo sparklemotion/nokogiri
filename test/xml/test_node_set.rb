@@ -126,6 +126,34 @@ module Nokogiri
               list.send(method, { "foo" => "bar" })
               list.each { |e| assert_equal("bar", e["foo"]) }
             end
+
+            it "sets a false attribute value" do
+              assert_same(list, list.send(method, "foo", false))
+              list.each { |e| assert_equal("false", e["foo"]) }
+            end
+
+            it "sets a nil attribute value" do
+              assert_same(list, list.send(method, "foo", nil))
+              list.each { |e| assert_equal("", e["foo"]) }
+            end
+
+            it "sets a false attribute value given a hash" do
+              assert_same(list, list.send(method, { "foo" => false }))
+              list.each { |e| assert_equal("false", e["foo"]) }
+            end
+
+            it "sets a nil attribute value given a hash" do
+              assert_same(list, list.send(method, { "foo" => nil }))
+              list.each { |e| assert_equal("", e["foo"]) }
+            end
+
+            it "raises when given both a value and a block" do
+              assert_raises(ArgumentError) { list.send(method, "foo", "bar") { "baz" } }
+            end
+
+            it "raises when given both a hash and a block" do
+              assert_raises(ArgumentError) { list.send(method, { "foo" => "bar" }) { "baz" } }
+            end
           end
         end
 
