@@ -340,7 +340,7 @@ module Nokogiri
           t1 = Time.now
           loop do
             yield
-            break if Time.new - t1 > 1
+            break if Time.now - t1 > 1
           end
         end
 
