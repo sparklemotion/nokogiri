@@ -95,6 +95,21 @@ noko_xml_schema__validate_file(VALUE self, VALUE rb_filename)
   return errors;
 }
 
+#ifdef HAVE_XMLSCHEMASETRESOURCELOADER
+static xmlParserErrors
+noko_xml_schema__nonet_resource_loader(
+  void *data,
+  const char *url,
+  const char *publicId,
+  xmlResourceType type,
+  xmlParserInputFlags flags,
+  xmlParserInputPtr *out
+)
+{
+  return xmlNewInputFromUrl(url, flags & ~XML_INPUT_NETWORK, out);
+}
+#endif
+
 static VALUE
 xml_schema_parse_schema(
   VALUE rb_class,
@@ -102,7 +117,9 @@ xml_schema_parse_schema(
   VALUE rb_parse_options
 )
 {
+#ifndef HAVE_XMLSCHEMASETRESOURCELOADER
   xmlExternalEntityLoader saved_loader = 0;
+#endif
   libxmlStructuredErrorHandlerState handler_state;
 
   if (NIL_P(rb_parse_options)) {
@@ -123,15 +140,21 @@ xml_schema_parse_schema(
   );
 
   if (c_parse_options & XML_PARSE_NONET) {
+#ifdef HAVE_XMLSCHEMASETRESOURCELOADER
+    xmlSchemaSetResourceLoader(c_parser_context, noko_xml_schema__nonet_resource_loader, NULL);
+#else
     saved_loader = xmlGetExternalEntityLoader();
     xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+#endif
   }
 
   xmlSchemaPtr c_schema = xmlSchemaParse(c_parser_context);
 
+#ifndef HAVE_XMLSCHEMASETRESOURCELOADER
   if (saved_loader) {
     xmlSetExternalEntityLoader(saved_loader);
   }
+#endif
 
   xmlSchemaFreeParserCtxt(c_parser_context);
   noko__structured_error_func_restore(&handler_state);
