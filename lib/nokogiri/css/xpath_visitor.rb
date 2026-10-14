@@ -24,7 +24,7 @@ module Nokogiri
         OPTIMAL = :optimal
 
         # :nodoc: array of values for validation
-        VALUES = [NEVER, ALWAYS, OPTIMAL]
+        VALUES = [NEVER, ALWAYS, OPTIMAL].freeze
       end
 
       # Enum to direct XPathVisitor when to tweak the XPath query to suit the nature of the document
@@ -41,7 +41,7 @@ module Nokogiri
         HTML5 = :html5
 
         # :nodoc: array of values for validation
-        VALUES = [XML, HTML4, HTML5]
+        VALUES = [XML, HTML4, HTML5].freeze
       end
 
       # The visitor configuration set via the +builtins:+ keyword argument to XPathVisitor.new.
