@@ -89,6 +89,30 @@ describe "Ractor" do
     assert_includes(actual[:xslt], "<count>2</count>")
   end
 
+  it "uses XSLT extension modules registered in the main Ractor" do
+    skip_unless_ractors
+
+    shout = Class.new do
+      def shout(str)
+        str.to_s.upcase
+      end
+    end
+    Nokogiri::XSLT.register("urn:nokogiri-test-ractor-shout", shout)
+    Ractor.make_shareable(shout)
+
+    result = Ractor.new do
+      xsl = Nokogiri::XSLT(<<~EOX)
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                        xmlns:my="urn:nokogiri-test-ractor-shout" extension-element-prefixes="my">
+          <xsl:template match="/"><out><xsl:value-of select="my:shout(string(//b))"/></out></xsl:template>
+        </xsl:stylesheet>
+      EOX
+      xsl.transform(Nokogiri::XML("<a><b>two</b></a>")).root.text
+    end.value
+
+    assert_equal("TWO", result)
+  end
+
   it "collects errors correctly when several Ractors run concurrently" do
     skip_unless_ractors
 
