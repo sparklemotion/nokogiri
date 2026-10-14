@@ -14,10 +14,22 @@ xml_sax_push_parser_free(void *data)
   }
 }
 
+/* The @sax_parser ivar marks the parser; libxml2 also retains its movable VALUE in _private. */
+static void
+_noko_xml_sax_push_parser_update_references(void *data)
+{
+  xmlParserCtxtPtr ctx = data;
+
+  if (ctx->_private) {
+    ctx->_private = (void *)rb_gc_location((VALUE)ctx->_private);
+  }
+}
+
 static const rb_data_type_t xml_sax_push_parser_type = {
   .wrap_struct_name = "xmlParserCtxt",
   .function = {
     .dfree = xml_sax_push_parser_free,
+    .dcompact = _noko_xml_sax_push_parser_update_references,
   },
   .flags = RUBY_TYPED_FREE_IMMEDIATELY | RUBY_TYPED_WB_PROTECTED,
 };
