@@ -183,7 +183,13 @@ libxml_uses_ruby_memory_management:
 void
 Init_nokogiri(void)
 {
+#if defined(LIBXML_THREAD_ENABLED) && defined(HAVE_XMLSCHEMASETRESOURCELOADER)
+  /*
+   * Each Ractor may parse and use its own documents. This needs libxml2's per-context
+   * resource loaders (2.14+), so that no process-wide loader is swapped during a parse.
+   */
   rb_ext_ractor_safe(true);
+#endif
 
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");

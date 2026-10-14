@@ -4,7 +4,8 @@ require "helper"
 
 describe "Ractor" do
   def skip_unless_ractors
-    skip("Ractor tests require Ruby 4.0 or later") unless Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("4.0")
+    skip("Ractor.shareable_proc is not available") unless defined?(Ractor.shareable_proc)
+    skip("Ractor support requires libxml2 >= 2.14") unless Nokogiri.uses_libxml?(">= 2.14")
   end
 
   # rubocop:disable Lint/ConstantDefinitionInBlock
