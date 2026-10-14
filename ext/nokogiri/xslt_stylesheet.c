@@ -462,7 +462,14 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
     rb_raise(rb_eRuntimeError, "internal error: @modules not set");
   }
 
+  /*
+   * Replace the registry rather than modifying it, and freeze the new one, so that a Ractor
+   * other than the main Ractor can read it during a transformation. Registering still
+   * happens only in the main Ractor.
+   */
+  modules = rb_hash_dup(modules);
   rb_hash_aset(modules, uri, obj);
+  rb_iv_set(self, "@modules", rb_obj_freeze(modules));
   xsltRegisterExtModule(
     (unsigned char *)StringValueCStr(uri),
     initFunc,
@@ -478,7 +485,7 @@ noko_init_xslt_stylesheet(void)
   xsltSetGenericErrorFunc(NULL, xslt_generic_error_handler);
 
   rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_s_register, 2);
-  rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
+  rb_iv_set(mNokogiriXslt, "@modules", rb_obj_freeze(rb_hash_new()));
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
 
