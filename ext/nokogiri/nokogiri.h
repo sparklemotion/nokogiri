@@ -39,6 +39,7 @@
 #include <libxml/xmlreader.h>
 #include <libxml/xmlsave.h>
 #include <libxml/xmlschemas.h>
+#include <libxml/xmlschemastypes.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
