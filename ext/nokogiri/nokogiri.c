@@ -197,6 +197,15 @@ Init_nokogiri(void)
   xmlInitParser();
   exsltRegisterAll();
 
+  /* xmlSchemaInitTypes() and xmlRelaxNGInitTypes() (libxml2) and xsltInit() (libxslt) are normally
+   * called lazily on first use, with an unlocked check of a global flag. libxml2 2.15.0 made the first
+   * two thread-safe (80798c40 and ac5fcb0e, "ensure thread safe global initialization"); with older
+   * libxml2 two Ractors racing to parse a schema for the first time can double free. Calling them
+   * here makes the later calls no-ops. */
+  xmlSchemaInitTypes();
+  xmlRelaxNGInitTypes();
+  xsltInit();
+
   rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
 
