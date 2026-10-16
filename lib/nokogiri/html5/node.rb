@@ -36,9 +36,15 @@ module Nokogiri
         result
       end
 
-      # Hoisted so it does not escape the `write_to` frame to the heap.
-      ESCAPE_CHAR = lambda { |c| "&#x#{c.ord.to_s(16)};" }.freeze
-      private_constant :ESCAPE_CHAR
+      # String#encode's +fallback+ accepts any object that responds to #[]. A module is shareable
+      # (unlike a proc), so this can be used from any Ractor. It is also not a closure, so it does
+      # not allocate a proc or make `write_to`'s frame escape to the heap on every call.
+      module EscapeChar # :nodoc:
+        def self.[](char)
+          "&#x#{char.ord.to_s(16)};"
+        end
+      end
+      private_constant :EscapeChar
 
       def write_to(io, *options)
         return super unless document.is_a?(HTML5::Document)
@@ -67,7 +73,7 @@ module Nokogiri
           # Serialize including the current node.
           html = html_standard_serialize(options[:preserve_newline] || false)
           encoding ||= document.encoding || Encoding::UTF_8
-          io << html.encode(encoding, fallback: ESCAPE_CHAR)
+          io << html.encode(encoding, fallback: EscapeChar)
         end
       end
 
