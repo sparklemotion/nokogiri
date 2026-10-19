@@ -3,6 +3,32 @@
 require "helper"
 
 describe Nokogiri::ClassResolver do
+  it "resolves related classes through anonymous subclasses" do
+    cases = [
+      [Nokogiri::XML::Document, "DocumentFragment", Nokogiri::XML::DocumentFragment],
+      [Nokogiri::HTML4::Document, "DocumentFragment", Nokogiri::HTML4::DocumentFragment],
+      [Nokogiri::XML::Builder, "Document", Nokogiri::XML::Document],
+      [Nokogiri::HTML4::Builder, "Document", Nokogiri::HTML4::Document],
+      [Nokogiri::XML::SAX::Parser, "ParserContext", Nokogiri::XML::SAX::ParserContext],
+      [Nokogiri::HTML4::SAX::Parser, "ParserContext", Nokogiri::HTML4::SAX::ParserContext],
+    ]
+    if defined?(Nokogiri::HTML5)
+      cases << [Nokogiri::HTML5::Document, "DocumentFragment", Nokogiri::HTML5::DocumentFragment]
+      cases << [Nokogiri::HTML5::Builder, "Document", Nokogiri::HTML5::Document]
+    end
+
+    cases.each do |base, class_name, expected|
+      subclass = Class.new(base)
+      assert_equal(expected, subclass.new.related_class(class_name))
+      assert_equal(expected, Class.new(subclass).new.related_class(class_name))
+    end
+  end
+
+  it "returns nil when an anonymous class has no related class" do
+    subclass = Class.new { include Nokogiri::ClassResolver }
+    assert_nil(subclass.new.related_class("DocumentFragment"))
+  end
+
   describe Nokogiri::XML::Node do
     it "finds the right things" do
       assert_equal(
