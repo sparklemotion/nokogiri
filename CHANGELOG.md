@@ -4,6 +4,36 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Dependencies
+
+* [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
+* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
+
+
+### Improved
+
+* [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
+* [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
+
+
+### Changed
+
+* The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+
+
+### Fixed
+
+* [CRuby] When a namespace is set on an unparented node, ensure the namespace is defined on the node. (#3459, #3462)
+* [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
+* [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
+* [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
+* [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
+* [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
+* CSS `an+b` selectors with a zero or negative step now follow the Selectors spec: `:nth-child(0n+3)` matches only the third element (previously nothing), `0n-1` matches nothing instead of raising `ZeroDivisionError`, and `-n+0` / `-2n` match nothing instead of every (or every other) element. @afurm
+
+
 ## v1.19.4 / 2026-06-18
 
 ### Security

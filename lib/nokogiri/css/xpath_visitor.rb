@@ -326,7 +326,9 @@ module Nokogiri
           options[:last] ? "(last()-position()+1)" : "position()"
         end
 
-        if b.zero?
+        if a.zero?
+          "#{position}=#{b}"
+        elsif b.zero? && a.positive?
           "(#{position} mod #{a})=0"
         else
           compare = a < 0 ? "<=" : ">="
@@ -345,7 +347,7 @@ module Nokogiri
           b = values[3].to_i
         elsif op == "-"
           a = values[0].to_i
-          b = a - (values[3].to_i % a)
+          b = a.zero? ? -values[3].to_i : a - (values[3].to_i % a)
         else
           raise ArgumentError, "expected an+b node to have either + or - as the operator, but is #{op.inspect}"
         end

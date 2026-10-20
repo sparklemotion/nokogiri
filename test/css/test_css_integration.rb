@@ -167,6 +167,22 @@ describe Nokogiri::CSS do
           assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], subject.css("table//tr:nth(n+3)"))
         end
 
+        it "selects 0np3" do
+          assert_result_rows([3], subject.css("table//tr:nth(0n+3)"))
+          assert_result_rows([3], subject.css("table//tr:nth-child(0n+3)"))
+          assert_result_rows([12], subject.css("table//tr:nth-last-child(0n+3)"))
+        end
+
+        it "selects nothing for 0nm1" do
+          assert_empty(subject.css("table//tr:nth(0n-1)"))
+        end
+
+        it "selects nothing for mn and m2n" do
+          assert_empty(subject.css("table//tr:nth(-n+0)"))
+          assert_empty(subject.css("table//tr:nth(-2n)"))
+          assert_empty(subject.css("table//tr:nth-child(-2n)"))
+        end
+
         it "selects first" do
           assert_result_rows([1], subject.css("table//tr:first"))
           assert_result_rows([1], subject.css("table//tr:first()"))
