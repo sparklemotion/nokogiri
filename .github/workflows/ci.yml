@@ -96,7 +96,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.329.0
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -147,7 +147,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.329.0
         with:
           ruby-version: "3.4"
           bundler-cache: true
@@ -332,7 +332,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.329.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -434,7 +434,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # zizmor: ignore[cache-poisoning] -- bundler cache is test tooling; branch-isolated so fork PRs cannot poison it # v1.329.0
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -581,7 +581,7 @@ jobs:
           docker run --rm -v "$(pwd):/nokogiri" -w /nokogiri \
             "ghcr.io/rake-compiler/rake-compiler-dock-image:${RCD_IMAGE_VERSION}-mri-x86_64-linux-gnu" \
             ./scripts/test-gem-build gems ruby
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generic-gem
           path: gems
@@ -606,7 +606,7 @@ jobs:
         with:
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: generic-gem
           path: gems
@@ -628,10 +628,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: generic-gem
           path: gems
@@ -664,7 +664,7 @@ jobs:
         with:
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: generic-gem
           path: gems
@@ -708,7 +708,7 @@ jobs:
             -e NOKOGIRI_USE_MIRRORED_GNU_SOURCE \
             "ghcr.io/rake-compiler/rake-compiler-dock-image:${RCD_IMAGE_VERSION}-mri-${PLAT}" \
             ./scripts/test-gem-build gems "$PLAT"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "cruby-${{matrix.plat}}-gem"
           path: gems
@@ -728,10 +728,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cruby-x86_64-linux-gnu-gem
           path: gems
@@ -769,7 +769,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
@@ -808,10 +808,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "${{ matrix.ruby }}"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cruby-${{ matrix.platform }}-gem
           path: gems
@@ -831,10 +831,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cruby-x64-mingw-ucrt-gem
           path: gems
@@ -855,10 +855,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "${{matrix.ruby}}"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cruby-aarch64-mingw-ucrt-gem
           path: gems
@@ -878,7 +878,7 @@ jobs:
           submodules: true
           persist-credentials: false
       - run: ./scripts/test-gem-build gems java
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: jruby-gem
           path: gems
@@ -903,7 +903,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: jruby-gem
           path: gems
