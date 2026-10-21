@@ -27,7 +27,7 @@ module Nokogiri
     end
 
     # Instance of Nokogiri::HTML4::EntityLookup
-    NamedCharacters = EntityLookup.new
+    NamedCharacters = EntityLookup.new.freeze
   end
 end
 

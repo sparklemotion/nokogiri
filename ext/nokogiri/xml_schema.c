@@ -95,6 +95,22 @@ noko_xml_schema__validate_file(VALUE self, VALUE rb_filename)
   return errors;
 }
 
+#ifdef HAVE_XMLSCHEMASETRESOURCELOADER
+/* like xmlNoNetExternalEntityLoader, but set on one parser context rather than process-wide */
+static xmlParserErrors
+xml_schema_nonet_resource_loader(
+  void *ctxt,
+  const char *url,
+  const char *public_id,
+  xmlResourceType type,
+  xmlParserInputFlags flags,
+  xmlParserInputPtr *out
+)
+{
+  return xmlNewInputFromUrl(url, (xmlParserInputFlags)(flags & ~(unsigned int)XML_INPUT_NETWORK), out);
+}
+#endif
+
 static VALUE
 xml_schema_parse_schema(
   VALUE rb_class,
@@ -123,8 +139,12 @@ xml_schema_parse_schema(
   );
 
   if (c_parse_options & XML_PARSE_NONET) {
+#ifdef HAVE_XMLSCHEMASETRESOURCELOADER
+    xmlSchemaSetResourceLoader(c_parser_context, xml_schema_nonet_resource_loader, NULL);
+#else
     saved_loader = xmlGetExternalEntityLoader();
     xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+#endif
   }
 
   xmlSchemaPtr c_schema = xmlSchemaParse(c_parser_context);

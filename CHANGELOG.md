@@ -16,11 +16,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
 * [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
+* [CRuby] Nokogiri can be used in Ractors other than the main Ractor, when built with libxml2 v2.14 or later (which includes the vendored libraries). Each Ractor parses and works with its own documents; a document can't be passed between Ractors. XSLT extension modules are registered from the main Ractor, and can then be used in any Ractor. Each Ractor keeps its own CSS selector cache. @rubys
 
 
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
+* Nokogiri's constants are now frozen, so that any Ractor can read them. This includes `Nokogiri::VERSION_INFO`, the version and patch constants, and the HTML4 element description tables. Code that modified one of them will now raise `FrozenError`. @rubys
 
 
 ### Fixed

@@ -267,6 +267,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/html5/node.rb",
     "lib/nokogiri/jruby/dependencies.rb",
     "lib/nokogiri/jruby/nokogiri_jars.rb",
+    "lib/nokogiri/ractor_support.rb",
     "lib/nokogiri/syntax_error.rb",
     "lib/nokogiri/version.rb",
     "lib/nokogiri/version/constant.rb",
