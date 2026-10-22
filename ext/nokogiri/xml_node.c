@@ -1744,7 +1744,7 @@ static inline void
 output_partial_string(VALUE out, char const *str, size_t length)
 {
   if (length) {
-    rb_enc_str_buf_cat(out, str, (long)length, rb_utf8_encoding());
+    rb_enc_str_buf_cat(out, str, (rb_len_t)length, rb_utf8_encoding());
   }
 }
 

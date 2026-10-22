@@ -145,7 +145,7 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
  */
 typedef struct {
   VALUE rb_param;
-  long param_len;
+  rb_len_t param_len;
   const char **params;
 } build_xslt_params_args_t;
 
@@ -154,7 +154,7 @@ build_xslt_params(VALUE args_ptr)
 {
   build_xslt_params_args_t *args = (build_xslt_params_args_t *)args_ptr;
 
-  for (long j = 0; j < args->param_len; j++) {
+  for (rb_len_t j = 0; j < args->param_len; j++) {
     VALUE entry = rb_ary_entry(args->rb_param, j);
     args->params[j] = StringValueCStr(entry);
   }
@@ -283,7 +283,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xmlDocPtr c_result_document ;
   nokogiriXsltStylesheetTuple *wrapper;
   const char **params ;
-  long param_len ;
+  rb_len_t param_len ;
   int parse_error_occurred ;
   int defensive_copy_p = 0;
 
