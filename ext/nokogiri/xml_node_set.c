@@ -298,7 +298,7 @@ minus(VALUE rb_self, VALUE rb_other)
 
 
 static VALUE
-index_at(VALUE rb_self, long offset)
+index_at(VALUE rb_self, rb_len_t offset)
 {
   xmlNodeSetPtr c_self;
 
@@ -314,9 +314,9 @@ index_at(VALUE rb_self, long offset)
 }
 
 static VALUE
-subseq(VALUE rb_self, long beg, long len)
+subseq(VALUE rb_self, rb_len_t beg, rb_len_t len)
 {
-  long j;
+  rb_len_t j;
   xmlNodeSetPtr c_self;
   xmlNodeSetPtr new_set ;
 
@@ -355,14 +355,14 @@ static VALUE
 slice(int argc, VALUE *argv, VALUE rb_self)
 {
   VALUE arg ;
-  long beg, len ;
+  rb_len_t beg, len ;
   xmlNodeSetPtr c_self;
 
   TypedData_Get_Struct(rb_self, xmlNodeSet, &xml_node_set_type, c_self);
 
   if (argc == 2) {
-    beg = NUM2LONG(argv[0]);
-    len = NUM2LONG(argv[1]);
+    beg = RB_NUM2LEN(argv[0]);
+    len = RB_NUM2LEN(argv[1]);
     if (beg < 0) {
       beg += c_self->nodeNr ;
     }
@@ -375,11 +375,11 @@ slice(int argc, VALUE *argv, VALUE rb_self)
   arg = argv[0];
 
   if (FIXNUM_P(arg)) {
-    return index_at(rb_self, FIX2LONG(arg));
+    return index_at(rb_self, RB_FIX2LEN(arg));
   }
 
   /* if arg is Range */
-  switch (rb_range_beg_len(arg, &beg, &len, (long)c_self->nodeNr, 0)) {
+  switch (rb_range_beg_len(arg, &beg, &len, (rb_len_t)c_self->nodeNr, 0)) {
     case Qfalse:
       break;
     case Qnil:
@@ -388,7 +388,7 @@ slice(int argc, VALUE *argv, VALUE rb_self)
       return subseq(rb_self, beg, len);
   }
 
-  return index_at(rb_self, NUM2LONG(arg));
+  return index_at(rb_self, RB_NUM2LEN(arg));
 }
 
 

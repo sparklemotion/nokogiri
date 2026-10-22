@@ -121,7 +121,7 @@ noko_xml_sax_parser_end_element_callback(void *ctx, const xmlChar *name)
 static VALUE
 xml_sax_parser_marshal_attributes(int attributes_len, const xmlChar **c_attributes)
 {
-  VALUE rb_array = rb_ary_new2((long)attributes_len);
+  VALUE rb_array = rb_ary_new2((rb_len_t)attributes_len);
   VALUE cNokogiriXmlSaxParserAttribute;
 
   cNokogiriXmlSaxParserAttribute = rb_const_get_at(cNokogiriXmlSaxParser, rb_intern("Attribute"));
@@ -165,13 +165,13 @@ noko_xml_sax_parser_start_element_ns_callback(
 
   VALUE attribute_ary = xml_sax_parser_marshal_attributes(nb_attributes, attributes);
 
-  VALUE ns_list = rb_ary_new2((long)nb_namespaces);
+  VALUE ns_list = rb_ary_new2((rb_len_t)nb_namespaces);
 
   if (namespaces) {
     int i;
     for (i = 0; i < nb_namespaces * 2; i += 2) {
       rb_ary_push(ns_list,
-                  rb_ary_new3((long)2,
+                  rb_ary_new3((rb_len_t)2,
                               RBSTR_OR_QNIL(namespaces[i + 0]),
                               RBSTR_OR_QNIL(namespaces[i + 1])
                              )
