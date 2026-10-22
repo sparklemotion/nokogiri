@@ -183,6 +183,14 @@ libxml_uses_ruby_memory_management:
 void
 Init_nokogiri(void)
 {
+#if defined(LIBXML_THREAD_ENABLED) && defined(HAVE_XMLSCHEMASETRESOURCELOADER)
+  /*
+   * Each Ractor may parse and use its own documents. This needs libxml2's per-context
+   * resource loaders (2.14+), so that no process-wide loader is swapped during a parse.
+   */
+  rb_ext_ractor_safe(true);
+#endif
+
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");
   mNokogiriHtml4    = rb_define_module_under(mNokogiri, "HTML4");
@@ -196,6 +204,15 @@ Init_nokogiri(void)
   set_libxml_memory_management(); /* must be before any function calls that might invoke xmlInitParser() */
   xmlInitParser();
   exsltRegisterAll();
+
+  /* xmlSchemaInitTypes() and xmlRelaxNGInitTypes() (libxml2) and xsltInit() (libxslt) are normally
+   * called lazily on first use, with an unlocked check of a global flag. libxml2 2.15.0 made the first
+   * two thread-safe (80798c40 and ac5fcb0e, "ensure thread safe global initialization"); with older
+   * libxml2 two Ractors racing to parse a schema for the first time can double free. Calling them
+   * here makes the later calls no-ops. */
+  xmlSchemaInitTypes();
+  xmlRelaxNGInitTypes();
+  xsltInit();
 
   rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
