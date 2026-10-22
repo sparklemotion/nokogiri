@@ -18,8 +18,8 @@ rb_html_document_s_new(int argc, VALUE *argv, VALUE klass)
   htmlDocPtr doc;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  uri = rb_ary_entry(rest, (long)0);
-  external_id = rb_ary_entry(rest, (long)1);
+  uri = rb_ary_entry(rest, (rb_len_t)0);
+  external_id = rb_ary_entry(rest, (rb_len_t)1);
 
   doc = htmlNewDoc(
           RTEST(uri) ? (const xmlChar *)StringValueCStr(uri) : NULL,

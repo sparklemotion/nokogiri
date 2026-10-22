@@ -85,7 +85,7 @@ int xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding);
 #include <ruby/version.h>
 
 #define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
-#define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
+#define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (rb_len_t)(len), rb_utf8_encoding())
 #define RBSTR_OR_QNIL(_str) (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
 #ifndef NORETURN_DECL
@@ -236,6 +236,12 @@ void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE 
 #  define NOKO_WARN_DEPRECATION(message...) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, message)
 #else
 #  define NOKO_WARN_DEPRECATION(message...) rb_warning(message)
+#endif
+
+#ifndef HAVE_RB_LEN_T
+typedef long rb_len_t;
+#define RB_NUM2LEN RB_NUM2LONG
+#define RB_FIX2LEN RB_FIX2LONG
 #endif
 
 void noko__structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);
