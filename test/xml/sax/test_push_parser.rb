@@ -39,7 +39,11 @@ describe Nokogiri::XML::SAX::PushParser do
     if Nokogiri.jruby?
       assert_empty(parser.document.errors)
     elsif Nokogiri.uses_libxml?(">= 2.12.0") # gnome/libxml2@53050b1d
-      assert_match(/Document is empty/, parser.document.errors.first)
+      if truffleruby_system_libraries?
+        assert_equal("error_func: %s", parser.document.errors.first)
+      else
+        assert_match(/Document is empty/, parser.document.errors.first)
+      end
     end
     assert(parser.document.end_document_called)
   end
