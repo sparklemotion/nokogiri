@@ -123,7 +123,11 @@ module Nokogiri
               parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
               parser.parse_memory(html_encoding_broken2)
 
-              assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+              if truffleruby_system_libraries?
+                assert_includes(parser.document.errors, "error_func: %s")
+              else
+                assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+              end
             end
 
             parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
