@@ -133,6 +133,29 @@ module Nokogiri
 
   class TestBenchmark < Minitest::BenchSpec
     extend TestBase
+
+    PASSES = 10
+
+    # Like Minitest::Benchmark#assert_performance, but makes several passes over the range and
+    # keeps the fastest time for each input, discarding samples slowed by a GC pause or a busy CI
+    # runner.
+    def assert_performance(validation, &work)
+      range = self.class.bench_range
+
+      passes = Array.new(PASSES) do
+        range.map do |x|
+          GC.start
+          t0 = Minitest.clock_time
+          instance_exec(x, &work)
+          Minitest.clock_time - t0
+        end
+      end
+      times = passes.transpose.map(&:min)
+
+      io.puts([name, *times.map { |t| "%9.6f" % t }].join("\t"))
+
+      validation[range, times]
+    end
   end
 
   # rubocop:disable Style/ClassVars
