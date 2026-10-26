@@ -283,10 +283,12 @@ module Nokogiri
         end
 
         actual = actual.map { |e| e.to_s.strip }
-        expected = if truffleruby_system_libraries?
-          ["error_func: %s"]
-        else
+        expected = if !truffleruby_system_libraries?
           ["Entity 'bar' not defined"]
+        elsif Nokogiri.uses_libxml?(">= 2.13.0")
+          ["warning_func: %s"]
+        else
+          ["error_func: %s"]
         end
 
         assert_equal(expected, actual)
@@ -316,10 +318,12 @@ module Nokogiri
           refute_empty(actual)
 
           actual = actual.map { |e| e.to_s.strip }
-          expected = if truffleruby_system_libraries?
-            ["error_func: %s"]
-          else
+          expected = if !truffleruby_system_libraries?
             ["Entity 'bar' not defined"]
+          elsif Nokogiri.uses_libxml?(">= 2.13.0")
+            ["warning_func: %s"]
+          else
+            ["error_func: %s"]
           end
 
           assert_equal(expected, actual)
