@@ -1,4 +1,6 @@
 #include <nokogiri.h>
+#include <libxml/xmlschemastypes.h>
+#include <libxslt/xslt.h>
 
 VALUE mNokogiri ;
 VALUE mNokogiriGumbo ;
@@ -169,20 +171,40 @@ set_libxml_memory_management(void)
   }
   if (NOKOGIRI_WINDOWS_DLLS) {
 libxml_uses_default_memory_management:
-    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("default"));
+    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), rb_obj_freeze(NOKOGIRI_STR_NEW2("default")));
     return;
   } else {
 libxml_uses_ruby_memory_management:
-    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), NOKOGIRI_STR_NEW2("ruby"));
+    rb_const_set(mNokogiri, rb_intern("LIBXML_MEMORY_MANAGEMENT"), rb_obj_freeze(NOKOGIRI_STR_NEW2("ruby")));
     xmlMemSetup((xmlFreeFunc)ruby_xfree, (xmlMallocFunc)ruby_xmalloc, (xmlReallocFunc)ruby_xrealloc, ruby_strdup);
     return;
   }
 }
 
+#ifdef NOKOGIRI_PACKAGED_LIBRARIES
+/* constants are frozen so that they can be read from any Ractor */
+static VALUE
+frozen_patch_list(const char *patches)
+{
+  VALUE list = rb_str_split(NOKOGIRI_STR_NEW2(patches), " ");
+  for (long j = 0; j < RARRAY_LEN(list); j++) {
+    rb_obj_freeze(RARRAY_AREF(list, j));
+  }
+  return rb_obj_freeze(list);
+}
+#endif
 
 void
 Init_nokogiri(void)
 {
+#if defined(LIBXML_THREAD_ENABLED) && defined(HAVE_XMLSCHEMASETRESOURCELOADER)
+  /*
+   * Each Ractor may parse and use its own documents. This needs libxml2's per-context
+   * resource loaders (2.14+), so that no process-wide loader is swapped during a parse.
+   */
+  rb_ext_ractor_safe(true);
+#endif
+
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriGumbo    = rb_define_module_under(mNokogiri, "Gumbo");
   mNokogiriHtml4    = rb_define_module_under(mNokogiri, "HTML4");
@@ -197,11 +219,20 @@ Init_nokogiri(void)
   xmlInitParser();
   exsltRegisterAll();
 
-  rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
-  rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
+  /*
+   * libxml2 and libxslt build these tables lazily, on first use, without a lock. Build them
+   * now, before more than one Ractor can race to do it.
+   */
+  xmlSchemaInitTypes();
+  xmlRelaxNGInitTypes();
+  xsltInit();
 
-  rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION));
-  rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xsltEngineVersion));
+  rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), rb_obj_freeze(NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION)));
+  rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), rb_obj_freeze(NOKOGIRI_STR_NEW2(xmlParserVersion)));
+
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"),
+               rb_obj_freeze(NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION)));
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), rb_obj_freeze(NOKOGIRI_STR_NEW2(xsltEngineVersion)));
 
 #ifdef NOKOGIRI_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
@@ -210,8 +241,8 @@ Init_nokogiri(void)
 #  else
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
 #  endif
-  rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
-  rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATCHES), " "));
+  rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), frozen_patch_list(NOKOGIRI_LIBXML2_PATCHES));
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), frozen_patch_list(NOKOGIRI_LIBXSLT_PATCHES));
 #else
   rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qfalse);
   rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
@@ -232,7 +263,8 @@ Init_nokogiri(void)
                xmlHasFeature(XML_WITH_HTTP) == 1 ? Qtrue : Qfalse);
 
 #ifdef NOKOGIRI_OTHER_LIBRARY_VERSIONS
-  rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
+  rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"),
+               rb_obj_freeze(NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS)));
 #endif
 
   if (xsltExtModuleFunctionLookup((const xmlChar *)"date-time", EXSLT_DATE_NAMESPACE)) {

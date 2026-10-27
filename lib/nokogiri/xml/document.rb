@@ -16,12 +16,8 @@ module Nokogiri
       # attempting to handle unicode characters partly because libxml2 doesn't handle unicode
       # characters in NCNAMEs.
       NCNAME_START_CHAR = "A-Za-z_"
-      NCNAME_CHAR       = NCNAME_START_CHAR + "\\-\\.0-9"
+      NCNAME_CHAR       = (NCNAME_START_CHAR + "\\-\\.0-9").freeze
       NCNAME_RE         = /^xmlns(?::([#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*))?$/
-
-      OBJECT_DUP_METHOD = Object.instance_method(:dup)
-      OBJECT_CLONE_METHOD = Object.instance_method(:clone)
-      private_constant :OBJECT_DUP_METHOD, :OBJECT_CLONE_METHOD
 
       class << self
         # call-seq:
@@ -206,7 +202,7 @@ module Nokogiri
       # [Returns] The new Nokogiri::XML::Document
       #
       def dup(level = 1)
-        copy = OBJECT_DUP_METHOD.bind_call(self)
+        copy = Object.instance_method(:dup).bind_call(self)
         copy.initialize_copy_with_args(self, level)
       end
 
@@ -222,7 +218,7 @@ module Nokogiri
       # [Returns] The new Nokogiri::XML::Document
       #
       def clone(level = 1)
-        copy = OBJECT_CLONE_METHOD.bind_call(self)
+        copy = Object.instance_method(:clone).bind_call(self)
         copy.initialize_copy_with_args(self, level)
       end
 
