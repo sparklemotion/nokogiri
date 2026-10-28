@@ -30,6 +30,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
 * [CRuby] `XML::SAX::PushParser` and `HTML4::SAX::PushParser` keep parsing correctly after GC compaction relocates their SAX parser. (#3665) @zanker
 * `Node#namespace = false` now raises `TypeError`. Previously it crashed the process on CRuby and raised `ClassCastException` on JRuby. (#3719) @flavorjones
+* [CRuby] `XPathContext#evaluate` no longer leaks memory when a custom XPath function handler raises an exception. (#3715, #1610) @flavorjones
+* [CRuby] When a custom XPath function handler raises an exception, `XPathContext#evaluate` now resets libxml2's error handlers and unregisters the custom function lookup. Previously, libxml2 could keep references to garbage-collected Ruby objects. (#3715) @flavorjones
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
