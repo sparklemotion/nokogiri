@@ -212,6 +212,30 @@ module Nokogiri
         assert_raises(TypeError) { doc.canonicalize(nil, :wrong_type) }
         doc.canonicalize(nil, nil, :wrong_type)
       end
+
+      def test_inclusive_namespaces_converted_with_to_str
+        to_str_class = Class.new do
+          def initialize(str)
+            @str = str
+          end
+
+          def to_str
+            +"" << @str
+          end
+        end
+
+        prefixes = Array.new(20) { |i| "p#{i}" + "p" * 2000 }
+        doc = Nokogiri.XML(%(<root #{prefixes.map { |p| %(xmlns:#{p}="urn:#{p[0, 4]}") }.join(" ")}><a/></root>))
+        expected = doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, prefixes)
+        params = prefixes.map { |p| to_str_class.new(p) }
+
+        actual = if Nokogiri.jruby?
+          doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, params)
+        else
+          stress_memory_while { doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, params) }
+        end
+        assert_equal(expected, actual)
+      end
     end
   end
 end

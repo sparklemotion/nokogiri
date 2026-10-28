@@ -142,6 +142,9 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
  * processes params (interning names, evaluating values) before template execution begins, and Ruby
  * callbacks can only run during template execution. By the time GC compaction is reachable, libxslt
  * no longer reads params[].
+ *
+ * StringValueCStr may convert an entry via #to_str, so each converted string is stored back into
+ * rb_param (a private copy of the caller's array) to keep it alive until the transform is done.
  */
 typedef struct {
   VALUE rb_param;
@@ -157,6 +160,7 @@ build_xslt_params(VALUE args_ptr)
   for (long j = 0; j < args->param_len; j++) {
     VALUE entry = rb_ary_entry(args->rb_param, j);
     args->params[j] = StringValueCStr(entry);
+    rb_ary_store(args->rb_param, j, entry);
   }
 
   return Qnil;
@@ -300,6 +304,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   }
 
   Check_Type(rb_param, T_ARRAY);
+  rb_param = rb_ary_dup(rb_param);
 
   c_document = noko_xml_document_unwrap(rb_document);
   TypedData_Get_Struct(self, nokogiriXsltStylesheetTuple, &nokogiri_xslt_stylesheet_tuple_type, wrapper);
@@ -334,6 +339,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
   c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
+  RB_GC_GUARD(rb_param);
 
   ruby_xfree(params);
   if (defensive_copy_p) {
