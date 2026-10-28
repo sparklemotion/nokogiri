@@ -160,6 +160,32 @@ module Nokogiri
         assert_equal("Booyah", result.at_css("h1").content)
       end
 
+      def test_transform_with_to_str_params
+        skip_unless_libxml2("JRuby does not convert params with #to_str")
+
+        to_str_class = Class.new do
+          def initialize(str)
+            @str = str
+          end
+
+          def to_str
+            +"" << @str
+          end
+        end
+
+        style = Nokogiri::XSLT(<<~XSL)
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:param name="title"/>
+            <xsl:template match="/"><out><xsl:value-of select="$title"/></out></xsl:template>
+          </xsl:stylesheet>
+        XSL
+        title = "x" * 2000
+        params = [to_str_class.new("title"), to_str_class.new("'#{title}'")]
+
+        result = stress_memory_while { style.transform(Nokogiri::XML("<a/>"), params) }
+        assert_equal(title, result.root.content)
+      end
+
       def test_transform2
         assert(style = Nokogiri::XSLT(File.open(XSLT_FILE)))
         assert(result_doc = style.transform(doc))

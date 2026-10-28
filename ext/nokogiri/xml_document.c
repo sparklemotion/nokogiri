@@ -650,10 +650,13 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     c_namespaces = NULL;
   } else {
     long ns_len = RARRAY_LEN(rb_namespaces);
+    // keep any strings converted via #to_str alive until canonicalization is done
+    rb_namespaces = rb_ary_dup(rb_namespaces);
     c_namespaces = ruby_xcalloc((size_t)ns_len + 1, sizeof(xmlChar *));
     for (int j = 0 ; j < ns_len ; j++) {
       VALUE entry = rb_ary_entry(rb_namespaces, j);
       c_namespaces[j] = (xmlChar *)StringValueCStr(entry);
+      rb_ary_store(rb_namespaces, j, entry);
     }
   }
 
@@ -662,6 +665,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
                            c_namespaces,
                            (int)RTEST(rb_comments_p),
                            c_obuf);
+  RB_GC_GUARD(rb_namespaces);
 
   ruby_xfree(c_namespaces);
   xmlOutputBufferClose(c_obuf);
