@@ -92,6 +92,98 @@ module Nokogiri
           end
         end
       end
+
+      describe "when a custom function handler raises" do
+        before { skip_unless_libxml2("the C extension's handling of a raise") }
+
+        let(:raising_handler) do
+          Class.new do
+            def boom(_nodes = nil)
+              raise "boom"
+            end
+
+            def invalid_return_type
+              Object.new
+            end
+
+            def called_after_raise
+              "called"
+            end
+          end.new
+        end
+
+        it "raises the handler's exception" do
+          doc = Nokogiri::XML::Document.parse("<root/>")
+
+          e = assert_raises(RuntimeError) { doc.xpath("nokogiri:boom()", raising_handler) }
+          assert_equal("boom", e.message)
+        end
+
+        it "raises when the handler returns an unsupported type" do
+          doc = Nokogiri::XML::Document.parse("<root/>")
+
+          e = assert_raises(RuntimeError) { doc.xpath("nokogiri:invalid_return_type()", raising_handler) }
+          assert_equal("Invalid return type", e.message)
+        end
+
+        it "does not leave the handler registered on the context" do
+          xc = XPathContext.new(Nokogiri::XML::Document.parse("<root/>"))
+
+          assert_raises(RuntimeError) { xc.evaluate("nokogiri:boom()", raising_handler) }
+
+          assert_raises(XPath::SyntaxError) { xc.evaluate("nokogiri:called_after_raise()") }
+        end
+
+        it "does not leave the handler registered when the handler's respond_to? raises" do
+          handler = Class.new do
+            def respond_to_missing?(name, include_private = false)
+              raise "respond_to? boom"
+            end
+          end.new
+          xc = XPathContext.new(Nokogiri::XML::Document.parse("<root/>"))
+
+          e = assert_raises(RuntimeError) { xc.evaluate("nokogiri:missing()", handler) }
+          assert_equal("respond_to? boom", e.message)
+
+          assert_raises(XPath::SyntaxError) { xc.evaluate("nokogiri:missing()") }
+        end
+
+        it "raises the handler's exception even if building an XPath error would rescue an exception" do
+          XPath::SyntaxError.prepend(Module.new do
+            def initialize(...)
+              if Thread.current[:rescue_while_initializing_xpath_syntax_error]
+                begin
+                  raise "secondary"
+                rescue RuntimeError
+                  nil
+                end
+              end
+              super
+            end
+          end)
+          handler = Class.new do
+            def respond_to_missing?(name, include_private = false)
+              raise "respond_to? boom"
+            end
+          end.new
+          xc = XPathContext.new(Nokogiri::XML::Document.parse("<root/>"))
+
+          Thread.current[:rescue_while_initializing_xpath_syntax_error] = true
+          e = assert_raises(RuntimeError) { xc.evaluate("nokogiri:missing()", handler) }
+          assert_equal("respond_to? boom", e.message)
+        ensure
+          Thread.current[:rescue_while_initializing_xpath_syntax_error] = nil
+        end
+
+        it "does not leave libxml2's error handlers pointing at freed memory" do
+          doc = Nokogiri::XML::Document.parse("<root/>")
+          assert_raises(RuntimeError) { doc.xpath("nokogiri:boom()", raising_handler) }
+          GC.start(full_mark: true, immediate_sweep: true)
+          Array.new(10_000) { |i| "reuse the freed slot #{i}" }
+
+          doc.root.write_to(StringIO.new, encoding: "unsupported-encoding")
+        end
+      end
     end
   end
 end

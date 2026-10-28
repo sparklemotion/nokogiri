@@ -361,5 +361,33 @@ class TestMemoryUsage < Nokogiri::TestCase
         assert_raises(ArgumentError) { xsl.transform(doc, ["p", "val\x00ue"]) }
       end
     end
+
+    it "XPath evaluation doesn't leak when a custom function handler raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3715
+      handler = Class.new do
+        def boom(_nodes)
+          raise "boom"
+        end
+      end.new
+      doc = Nokogiri::XML("<root><a/></root>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { doc.xpath("nokogiri:boom(//a)", handler) }
+      end
+    end
+
+    it "XPath evaluation doesn't leak when a custom function handler's respond_to? raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3715
+      handler = Class.new do
+        def respond_to_missing?(name, include_private = false)
+          raise "boom"
+        end
+      end.new
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { doc.xpath("nokogiri-builtin:css-class('x', 'x')", handler) }
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
