@@ -432,6 +432,50 @@ describe Nokogiri::CSS do
           assert_equal(["custom"], doc.css('body > a\-b').map(&:text))
         end
 
+        it "selects escaped attribute names" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p a-b="1">dash</p>
+              <p>other</p>
+            </body></html>
+          HTML
+
+          assert_equal(["dash"], doc.css('p[a\-b]').map(&:text))
+          assert_equal(["dash"], doc.css('p[a\-b="1"]').map(&:text))
+          assert_empty(doc.css('p[a\-b="2"]'))
+          assert_empty(doc.css('p[a\]\|\/\/\*\[\@b]'))
+        end
+
+        it "selects attribute names that are not XPath names" do
+          skip("XML does not allow these attribute names") if subject_class == Nokogiri::XML::Document
+
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p @click="go">alpine</p>
+              <p :class="c">vue</p>
+              <p>other</p>
+            </body></html>
+          HTML
+
+          assert_equal(["alpine"], doc.css('p[\@click]').map(&:text))
+          assert_equal(["alpine"], doc.css('p[\@click="go"]').map(&:text))
+          assert_equal(["vue"], doc.css('p[\:class]').map(&:text))
+        end
+
+        it "does not select a namespaced attribute by its qualified name" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <svg xmlns:xlink="http://www.w3.org/1999/xlink"><a xlink:href="v">link</a></svg>
+            </body></html>
+          HTML
+
+          # HTML4 does not parse namespaces, so it creates an attribute named "xlink:href" in no namespace.
+          expected = (subject_class == Nokogiri::HTML4::Document) ? ["link"] : []
+
+          assert_equal(expected, doc.css('[xlink\:href]').map(&:text))
+          assert_equal(expected, doc.css('[|xlink\:href="v"]').map(&:text))
+        end
+
         it "handles xpath attribute selectors" do
           doc = subject_class.parse(<<~HTML)
             <html><body>
