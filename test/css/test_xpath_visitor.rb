@@ -251,6 +251,38 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//*[@id='a\u{FFFD}']", '#a\0')
       end
 
+      it "name with escapes" do
+        assert_xpath("//p[@a-b]", 'p[a\-b]')
+        assert_xpath("//p[@a-b='1']", 'p[a\-b="1"]')
+        assert_xpath("//p[@a-b]", 'p[\61 -b]')
+        assert_xpath("//p[@x:a-b]", 'p[x|a\-b]')
+        assert_xpath("//p[@a-b:c]", 'p[a\-b|c]')
+        assert_xpath("//p[@a-b]", 'p[|a\-b]')
+        assert_xpath("//p[@a\u{FFFD}]", 'p[a\0]')
+        assert_xpath("//p[@a-b]", 'p[@a\-b]')
+        assert_xpath("//@a-b", '@a\-b')
+        assert_xpath("//a[nokogiri:foo(.,@a-b)]", 'a:foo(@a\-b)')
+      end
+
+      it "name that is not an XPath name" do
+        assert_xpath("//p[@*[namespace-uri()='' and name()='a!b']]", 'p[a\!b]')
+        assert_xpath("//p[@*[namespace-uri()='' and name()='a!b']='1']", 'p[a\!b="1"]')
+        assert_xpath("//p[@*[namespace-uri()='' and name()='@click']]", 'p[\@click]')
+        assert_xpath("//p[@*[namespace-uri()='' and name()=':class']]", 'p[\:class]')
+        assert_xpath("//p[@*[namespace-uri()='' and name()='*']]", 'p[\*]')
+        assert_xpath("//p[@*[namespace-uri()='' and name()='a!b']]", 'p[|a\!b]')
+        assert_xpath(%q{//p[@*[namespace-uri()='' and name()="a'b"]]}, %q{p[a\'b]})
+        assert_xpath("//p[@*[namespace-uri()='' and name()='a]|//*[@b']]", 'p[a\]\|\/\/\*\[\@b]')
+        assert_xpath("//@*[namespace-uri()='' and name()='a!b']", '@a\!b')
+      end
+
+      it "namespaced name that is not an XPath name" do
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('p[x|a\!b]', cache: false) }
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('p[a\!b|c]', cache: false) }
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('p[\*|a]', cache: false) }
+        assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('p[x|\*]', cache: false) }
+      end
+
       it "parses leading @ (extended-syntax)" do
         assert_xpath("//a[@id='Boing']", "a[@id='Boing']")
         assert_xpath("//a[@id='Boing']", "a[@id = 'Boing']")

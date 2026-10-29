@@ -289,7 +289,18 @@ module Nokogiri
       end
 
       def visit_attrib_name(node)
-        "@#{node.value.first}"
+        if node.value.length == 2 # has a namespace prefix
+          unless node.value.all? { |name| xpath_name?(name) }
+            raise Nokogiri::CSS::SyntaxError, "Invalid attribute name '#{node.value.join("|")}'"
+          end
+
+          "@#{node.value.join(":")}"
+        elsif xpath_name?(node.value.first)
+          "@#{node.value.first}"
+        else
+          # HTML parsers allow attribute names like "@click" and ":class". On JRuby, local-name() of ":class" is "class".
+          "@*[namespace-uri()='' and name()=#{xpath_string_literal(node.value.first)}]"
+        end
       end
 
       def accept(node)

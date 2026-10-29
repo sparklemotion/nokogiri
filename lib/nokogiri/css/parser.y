@@ -22,7 +22,7 @@ rule
   ;
 
   xpath_attribute_name:
-    '@' IDENT { result = val[1] }
+    '@' IDENT { result = Parser.unescape_css_identifier(val[1]) }
   ;
 
   xpath_attribute:
@@ -88,8 +88,10 @@ rule
   ;
 
   attrib_name:
-    namespace '|' IDENT { result = Node.new(:ATTRIB_NAME, [[val[0], val[2]].compact.join(':')]) }
-  | IDENT { result = Node.new(:ATTRIB_NAME, [val[0]]) }
+    namespace '|' IDENT {
+      result = Node.new(:ATTRIB_NAME, [val[0], val[2]].compact.map { |name| Parser.unescape_css_identifier(name) })
+    }
+  | IDENT { result = Node.new(:ATTRIB_NAME, [Parser.unescape_css_identifier(val[0])]) }
   | xpath_attribute
   ;
 
