@@ -414,6 +414,24 @@ describe Nokogiri::CSS do
           assert_empty(doc.css('[id=\\\'x\\\'\\ or\\ true\\(\\)]'))
         end
 
+        it "selects escaped element names and :contains() text" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p>it's</p>
+              <p>a"b'c</p>
+              <p>other</p>
+              <a-b>custom</a-b>
+            </body></html>
+          HTML
+
+          assert_equal(["it's"], doc.css(%q{p:contains('it\'s')}).map(&:text))
+          assert_equal(["it's"], doc.css(%q{p:contains('it\27s')}).map(&:text))
+          assert_equal([%q(a"b'c)], doc.css(%q{p:contains("a\"b'c")}).map(&:text))
+          assert_empty(doc.css(%q{p:contains('\') or (\'1\'=\'1')}))
+          assert_equal(["custom"], doc.css('a\-b').map(&:text))
+          assert_equal(["custom"], doc.css('body > a\-b').map(&:text))
+        end
+
         it "handles xpath attribute selectors" do
           doc = subject_class.parse(<<~HTML)
             <html><body>
