@@ -457,9 +457,13 @@ describe Nokogiri::CSS do
             </body></html>
           HTML
 
-          assert_equal(["alpine"], doc.css('p[\@click]').map(&:text))
-          assert_equal(["alpine"], doc.css('p[\@click="go"]').map(&:text))
           assert_equal(["vue"], doc.css('p[\:class]').map(&:text))
+
+          # libxml2's HTML4 parser drops "@click" before 2.14, which adopted the HTML5 tokenizer.
+          if subject_class != Nokogiri::HTML4::Document || Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.14.0")
+            assert_equal(["alpine"], doc.css('p[\@click]').map(&:text))
+            assert_equal(["alpine"], doc.css('p[\@click="go"]').map(&:text))
+          end
         end
 
         it "does not select a namespaced attribute by its qualified name" do
