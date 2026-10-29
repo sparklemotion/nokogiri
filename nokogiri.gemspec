@@ -105,6 +105,7 @@ Gem::Specification.new do |spec|
     "ext/java/nokogiri/internals/NokogiriNonStrictErrorHandler.java",
     "ext/java/nokogiri/internals/NokogiriNonStrictErrorHandler4NekoHtml.java",
     "ext/java/nokogiri/internals/NokogiriStrictErrorHandler.java",
+    "ext/java/nokogiri/internals/NokogiriXPathContext.java",
     "ext/java/nokogiri/internals/NokogiriXPathFunction.java",
     "ext/java/nokogiri/internals/NokogiriXPathFunctionResolver.java",
     "ext/java/nokogiri/internals/NokogiriXPathVariableResolver.java",
