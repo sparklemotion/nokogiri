@@ -636,7 +636,7 @@ module Nokogiri
       # for this node. You probably want #default_namespace= instead, or perhaps
       # #add_namespace_definition with a nil prefix argument.
       def namespace=(ns)
-        return set_namespace(ns) unless ns
+        return set_namespace(ns) if ns.nil?
 
         unless Nokogiri::XML::Namespace === ns
           raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
