@@ -143,6 +143,21 @@ describe Nokogiri::CSS::XPathVisitor do
       )
     end
 
+    it ". class with quotes" do
+      assert_xpath(
+        %q{//*[contains(concat(' ',normalize-space(@class),' ')," it's ")]},
+        %q{.it\'s},
+      )
+      assert_xpath(
+        %q{//*[contains(concat(' ',normalize-space(@class),' '),' a"b ')]},
+        %q{.a\"b},
+      )
+      assert_xpath(
+        %q{//*[contains(concat(' ',normalize-space(@class),' '),concat(' a"b',"'",'c '))]},
+        %q{.a\"b\'c},
+      )
+    end
+
     describe "namespaces" do
       let(:ns) do
         {
@@ -200,6 +215,15 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath("//*[@id='escape:needed']", '#escape\00003Aneeded')
       end
 
+      it "#id with quotes" do
+        assert_xpath(%q{//*[@id="it's"]}, %q{#it\'s})
+        assert_xpath(%q{//*[@id="it's"]}, %q{#it\27s})
+        assert_xpath(%q{//*[@id='a"b']}, %q{#a\"b})
+        assert_xpath(%q{//*[@id=concat('a"b',"'",'c')]}, %q{#a\"b\'c})
+        assert_xpath(%q{//*[@id="x' or '1'='1"]}, %q{#x\'\ or\ \'1\'\=\'1})
+        assert_xpath("//*[@id='a\nb']", '#a\a b')
+      end
+
       it "parses leading @ (extended-syntax)" do
         assert_xpath("//a[@id='Boing']", "a[@id='Boing']")
         assert_xpath("//a[@id='Boing']", "a[@id = 'Boing']")
@@ -208,8 +232,10 @@ describe Nokogiri::CSS::XPathVisitor do
 
       it "rhs with quotes" do
         assert_xpath(%q{//h1[@a="'"]}, %q{h1[a="'"]})
-        assert_xpath(%q{//h1[@a=concat("'","")]}, "h1[a='\\'']")
-        assert_xpath(%q{//h1[@a=concat("",'"',"'","")]}, %q{h1[a='"\'']})
+        assert_xpath(%q{//h1[@a="'"]}, "h1[a='\\'']")
+        assert_xpath(%q{//h1[@a=concat('"',"'",'')]}, %q{h1[a='"\'']})
+        assert_xpath(%q{//h1[@a="'foo'"]}, %q{h1[a=\'foo\']})
+        assert_xpath(%q{//*[@a="'x' or true()"]}, %q{[a=\'x\'\ or\ true\(\)]})
       end
 
       it "rhs is number or string" do
@@ -271,6 +297,29 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath(
           "//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
           "a[data-words~=\"bar\"]",
+        )
+      end
+
+      it "~= with quotes" do
+        assert_xpath(
+          %q{//a[contains(concat(' ',normalize-space(@class),' ')," it's ")]},
+          %q{a[class~="it's"]},
+        )
+        assert_xpath(
+          %q{//a[contains(concat(' ',normalize-space(@class),' ')," it's ")]},
+          %q{a[class~='it\'s']},
+        )
+        assert_xpath(
+          %q{//a[contains(concat(' ',normalize-space(@class),' '),' a"b ')]},
+          %q{a[class~="a\"b"]},
+        )
+        assert_xpath(
+          %q{//a[contains(concat(' ',normalize-space(@class),' '),concat(' a"b',"'",'c '))]},
+          %q{a[class~="a\"b'c"]},
+        )
+        assert_xpath(
+          %q{//a[contains(concat(' ',normalize-space(@class),' ')," 'foo ")]},
+          %q{a[class~=\'foo]},
         )
       end
 
@@ -638,6 +687,14 @@ describe Nokogiri::CSS::XPathVisitor do
         "//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
         ".a.b",
       )
+    end
+
+    it ". class with quotes" do
+      assert_xpath(%q{//*[nokogiri-builtin:css-class(@class,"it's")]}, %q{.it\'s})
+      assert_xpath(%q{//*[nokogiri-builtin:css-class(@class,'a"b')]}, %q{.a\"b})
+      assert_xpath(%q{//*[nokogiri-builtin:css-class(@class,concat('a"b',"'",'c'))]}, %q{.a\"b\'c})
+      assert_xpath(%q{//a[nokogiri-builtin:css-class(@class,"it's")]}, %q{a[class~='it\'s']})
+      assert_xpath(%q{//a[nokogiri-builtin:css-class(@class,concat('a"b',"'",'c'))]}, %q{a[class~="a\"b'c"]})
     end
 
     it "~=" do

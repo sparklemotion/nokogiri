@@ -394,6 +394,26 @@ describe Nokogiri::CSS do
           assert_equal(expected, result)
         end
 
+        it "selects ids and classes containing quotes" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <div id="it's" class="it's">apostrophe</div>
+              <div id='a"b' class='a"b'>double-quote</div>
+              <div id="other" class="other">other</div>
+            </body></html>
+          HTML
+
+          assert_equal(["apostrophe"], doc.css(%q(#it\'s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(#it\27s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(.it\'s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(div[class~="it's"])).map(&:text))
+          assert_equal(["double-quote"], doc.css(%q(#a\"b)).map(&:text))
+          assert_equal(["double-quote"], doc.css(%q(.a\"b)).map(&:text))
+          assert_empty(doc.css(%q(#x\'\ or\ \'1\'\=\'1)))
+          assert_empty(doc.css(%q(.x\'\ or\ \'1\'\=\'1)))
+          assert_empty(doc.css('[id=\\\'x\\\'\\ or\\ true\\(\\)]'))
+        end
+
         it "handles xpath attribute selectors" do
           doc = subject_class.parse(<<~HTML)
             <html><body>

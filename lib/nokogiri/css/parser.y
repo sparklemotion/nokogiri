@@ -214,7 +214,7 @@ rule
 
   attrib_val_0or1:
     eql_incl_dash IDENT { result = [val[0], unescape_css_identifier(val[1])] }
-  | eql_incl_dash STRING { result = [val[0], unescape_css_string(val[1])] }
+  | eql_incl_dash STRING { result = [val[0], unescape_css_string(val[1][1..-2])] }
   | eql_incl_dash NUMBER { result = [val[0], val[1]] }
   |
   ;

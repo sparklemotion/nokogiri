@@ -35,6 +35,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 * `XML::XPathContext.new` and `XML::XPathContext#node=` raise `TypeError` when the argument is not a `Node`. Previously, on CRuby, most such arguments crashed the process. (#3720) @flavorjones
 * CSS `an+b` selectors with a zero or negative step now follow the Selectors spec: `:nth-child(0n+3)` matches only the third element (previously nothing), `0n-1` matches nothing instead of raising `ZeroDivisionError`, and `-n+0` / `-2n` match nothing instead of every (or every other) element. @afurm
+* CSS `#id`, `.class` and attribute selectors whose value contains a quote character, such as `#it\'s` or `[a=\'b\']`, now match that value. Previously they raised `Nokogiri::XML::XPath::SyntaxError` or generated an XPath query with a different meaning. An `#id` selector containing an escaped newline no longer drops the text after it. (#3724, #3727) @flavorjones
 
 
 ## v1.19.4 / 2026-06-18
