@@ -773,6 +773,31 @@ module Nokogiri
           assert_equal("foo", doc.at_css("div").content)
         end
 
+        def test_parse_io_raising_a_non_standard_error_raises_it
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          io = Object.new
+          io.define_singleton_method(:read) { |_len| raise(interrupt) }
+
+          assert_raises(interrupt) { Nokogiri::XML.parse(io) }
+        end
+
+        def test_parse_io_raising_a_non_standard_error_does_not_leave_a_stale_error_handler
+          skip_unless_libxml2("libxml2 error handlers are global state")
+
+          # canonicalizing a relative namespace URI reports an error to libxml2's global error handler
+          c14n_doc = Nokogiri::XML(%(<root xmlns="relative-uri"/>))
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          io = Object.new
+          io.define_singleton_method(:read) { |_len| raise(interrupt) }
+
+          assert_raises(interrupt) { Nokogiri::XML.parse(io) }
+
+          GC.start
+          canaries = Array.new(10_000) { [] }
+          assert_raises(RuntimeError) { c14n_doc.canonicalize }
+          assert(canaries.all?(&:empty?), "error was pushed onto the failed parse's collected error list")
+        end
+
         def test_parse_works_with_an_object_that_responds_to_path
           xml = +"<root><sub>hello</sub></root>"
           def xml.path

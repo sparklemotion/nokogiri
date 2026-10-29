@@ -271,6 +271,18 @@ module Nokogiri
           assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_memory(0xcafecafe) }
           assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_io(0xcafecafe) }
         end
+
+        it "raises a non-standard error from the IO's read" do
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          interrupting_io = lambda do |*chunks|
+            Object.new.tap do |io|
+              io.define_singleton_method(:read) { |_len| chunks.empty? ? raise(interrupt) : chunks.shift }
+            end
+          end
+
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call) }
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call("<root>")) }
+        end
       end
     end
   end
