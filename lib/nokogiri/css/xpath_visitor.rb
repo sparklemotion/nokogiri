@@ -168,24 +168,15 @@ module Nokogiri
       end
 
       def visit_id(node)
-        node.value.first =~ /^#(.*)$/
-        "@id='#{Regexp.last_match(1)}'"
+        "@id=#{xpath_string_literal(node.value.first.delete_prefix("#"))}"
       end
 
       def visit_attribute_condition(node)
         attribute = node.value.first.accept(self)
         return attribute if node.value.length == 1
 
-        value = node.value.last
-        value = "'#{value}'" unless /^['"]/.match?(value)
-
-        # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
-        if (value[0] == value[-1]) && %q{"'}.include?(value[0])
-          str_value = value[1..-2]
-          if str_value.include?(value[0])
-            value = 'concat("' + str_value.split('"', -1).join(%q{",'"',"}) + '","")'
-          end
-        end
+        str_value = node.value.last
+        value = xpath_string_literal(str_value)
 
         case node.value[1]
         when :equal
@@ -199,8 +190,7 @@ module Nokogiri
         when :dash_match
           "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
         when :includes
-          value = value[1..-2] # strip quotes
-          css_class(attribute, value)
+          css_class(attribute, str_value)
         when :suffix_match
           "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
@@ -367,10 +357,22 @@ module Nokogiri
       def css_class(hay, needle)
         if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
           # use the builtin implementation
-          "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+          "nokogiri-builtin:css-class(#{hay},#{xpath_string_literal(needle)})"
         else
           # use only ordinary xpath functions
-          "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+          "contains(concat(' ',normalize-space(#{hay}),' '),#{xpath_string_literal(" #{needle} ")})"
+        end
+      end
+
+      # XPath 1.0 string literals have no escape mechanism, so a string containing both quote
+      # characters has to be assembled with concat().
+      def xpath_string_literal(string)
+        if !string.include?("'")
+          "'#{string}'"
+        elsif !string.include?('"')
+          %("#{string}")
+        else
+          "concat('" + string.split("'", -1).join(%q{',"'",'}) + "')"
         end
       end
     end

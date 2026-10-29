@@ -701,7 +701,7 @@ def _reduce_65(val, _values, result)
 end
 
 def _reduce_66(val, _values, result)
- result = [val[0], unescape_css_string(val[1])]
+ result = [val[0], unescape_css_string(val[1][1..-2])]
     result
 end
 
