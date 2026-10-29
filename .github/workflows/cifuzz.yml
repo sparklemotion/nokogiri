@@ -1,0 +1,35 @@
+name: cifuzz
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  cancel-in-progress: true
+on:
+  pull_request:
+    paths:
+      - .github/workflows/cifuzz.yml # this file
+      - gumbo-parser/**
+
+permissions: {}
+jobs:
+  gumbo:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build fuzzers
+        id: build
+        uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@a2ebe3f664dd49408022031825bd708ddab89235 # master 2026-10-21
+        with:
+          oss-fuzz-project-name: nokogiri
+          sanitizer: address
+      - name: Run fuzzers
+        uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@a2ebe3f664dd49408022031825bd708ddab89235 # master 2026-10-21
+        with:
+          oss-fuzz-project-name: nokogiri
+          sanitizer: address
+          fuzz-seconds: 600
+      - name: Upload crash
+        if: failure() && steps.build.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cifuzz-artifacts
+          path: ./out/artifacts
