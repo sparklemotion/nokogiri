@@ -419,7 +419,7 @@ def _reduce_8(val, _values, result)
 end
 
 def _reduce_9(val, _values, result)
- result = val[1]
+ result = Parser.unescape_css_identifier(val[1])
     result
 end
 
@@ -523,12 +523,13 @@ def _reduce_30(val, _values, result)
 end
 
 def _reduce_31(val, _values, result)
- result = Node.new(:ATTRIB_NAME, [[val[0], val[2]].compact.join(':')])
+      result = Node.new(:ATTRIB_NAME, [val[0], val[2]].compact.map { |name| Parser.unescape_css_identifier(name) })
+
     result
 end
 
 def _reduce_32(val, _values, result)
- result = Node.new(:ATTRIB_NAME, [val[0]])
+ result = Node.new(:ATTRIB_NAME, [Parser.unescape_css_identifier(val[0])])
     result
 end
 
