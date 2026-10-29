@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "helper"
+require "open3"
 
 module Nokogiri
   module XML
@@ -90,6 +91,50 @@ module Nokogiri
           not_nodes.each do |not_node|
             assert_raises(TypeError) { xc.node = not_node }
           end
+        end
+      end
+
+      describe "Xalan DTM manager" do
+        before { skip_unless_jruby }
+
+        it "evaluates XPath and XSLT when Xalan is loaded by a parent of the JRuby class loader" do
+          # https://github.com/sparklemotion/nokogiri/issues/3707
+          xalan_jars = [org.apache.xpath.XPathContext, org.apache.xml.serializer.Serializer].map do |klass|
+            klass.java_class.protection_domain.code_source.location.path
+          end
+          script = <<~RUBY
+            require "nokogiri"
+            java.lang.Thread.currentThread.setContextClassLoader(java.lang.ClassLoader.getSystemClassLoader)
+            puts org.apache.xpath.XPathContext.java_class.class_loader == java.lang.ClassLoader.getSystemClassLoader
+            puts Nokogiri::XML("<root/>").xpath("/root").length
+            puts javax.xml.transform.TransformerFactory.newInstance.java_class.name
+            stylesheet = Nokogiri::XSLT(%q(<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:template match="/"><out><xsl:value-of select="count(//p)"/></out></xsl:template></xsl:stylesheet>))
+            puts stylesheet.transform(Nokogiri::XML("<r><p/><p/></r>")).root.text
+          RUBY
+
+          stdout, stderr, _status = Open3.capture3(
+            { "CLASSPATH" => xalan_jars.join(File::PATH_SEPARATOR) },
+            RbConfig.ruby,
+            "-I", File.expand_path("../../lib", __dir__),
+            "-I", File.expand_path("../../lib/nokogiri/jruby", __dir__),
+            "-e", script
+          )
+
+          assert_equal(["true", "1", "org.apache.xalan.processor.TransformerFactoryImpl", "2"], stdout.lines(chomp: true), stderr)
+        end
+
+        it "does not set the JVM-wide system property" do
+          Nokogiri::XML("<root/>").xpath("/root")
+
+          assert_nil(java.lang.System.getProperty("org.apache.xml.dtm.DTMManager"))
+        end
+
+        it "uses XalanDTMManagerPatch" do
+          doc = Nokogiri::XML("<root/>")
+          doc.xpath("/root")
+
+          xpath_context = doc.to_java.getUserData("CACHED_XPATH_CONTEXT")
+          assert_equal("nokogiri.internals.XalanDTMManagerPatch", xpath_context.getDTMManager.java_class.name)
         end
       end
     end
