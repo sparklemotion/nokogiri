@@ -295,37 +295,116 @@ Nokogiri_marshal_xpath_funcall_and_return_values(
   }
 }
 
+/*
+ * A Ruby exception must not unwind through libxml2's stack frames, because that skips libxml2's
+ * cleanup and leaks memory. So the handler is called under rb_protect, and the exception is
+ * re-raised after xmlXPathEvalExpression returns.
+ *
+ * Until then, no Ruby code may run: the pending exception lives only in the thread's errinfo,
+ * which a rescue elsewhere would overwrite.
+ */
+typedef struct {
+  VALUE handler;
+  int exception_state;
+} _noko_xml_xpath_context__handler_call_t;
+
+typedef struct {
+  VALUE handler;
+  const xmlChar *name;
+  const xmlChar *ns_uri;
+} _noko_xml_xpath_context__lookup_args_t;
+
+typedef struct {
+  xmlXPathParserContextPtr ctxt;
+  int argc;
+} _noko_xml_xpath_context__invoke_args_t;
+
+PRINTFLIKE_DECL(2, 3)
+static void
+_noko_xml_xpath_context__ignore_error(void *data, const char *msg, ...)
+{
+}
+
+static void
+_noko_xml_xpath_context__abort_evaluation(xmlXPathParserContextPtr ctxt)
+{
+  /* silence the error that some libxml2 versions report, which would run Ruby code */
+  xmlSetStructuredErrorFunc(NULL, NULL);
+  xmlSetGenericErrorFunc(NULL, _noko_xml_xpath_context__ignore_error);
+
+  ctxt->error = XPATH_EXPR_ERROR;
+}
+
+static VALUE
+_noko_xml_xpath_context__invoke_handler(VALUE data)
+{
+  _noko_xml_xpath_context__invoke_args_t *args = (_noko_xml_xpath_context__invoke_args_t *)data;
+  _noko_xml_xpath_context__handler_call_t *handler_call = args->ctxt->context->userData;
+
+  Nokogiri_marshal_xpath_funcall_and_return_values(
+    args->ctxt,
+    args->argc,
+    handler_call->handler,
+    (const char *)(args->ctxt->context->function)
+  );
+
+  return Qnil;
+}
+
 static void
 _noko_xml_xpath_context__handler_invoker(xmlXPathParserContextPtr ctxt, int argc)
 {
-  VALUE rb_xpath_handler = Qnil;
-  const char *method_name = NULL ;
+  _noko_xml_xpath_context__handler_call_t *handler_call;
+  _noko_xml_xpath_context__invoke_args_t args = { ctxt, argc };
 
   assert(ctxt);
   assert(ctxt->context);
   assert(ctxt->context->userData);
   assert(ctxt->context->function);
 
-  rb_xpath_handler = (VALUE)(ctxt->context->userData);
-  method_name = (const char *)(ctxt->context->function);
+  handler_call = ctxt->context->userData;
 
-  Nokogiri_marshal_xpath_funcall_and_return_values(
-    ctxt,
-    argc,
-    rb_xpath_handler,
-    method_name
-  );
+  if (handler_call->exception_state == 0) {
+    rb_protect(_noko_xml_xpath_context__invoke_handler, (VALUE)&args, &handler_call->exception_state);
+  }
+
+  if (handler_call->exception_state != 0) {
+    _noko_xml_xpath_context__abort_evaluation(ctxt);
+  }
+}
+
+static VALUE
+_noko_xml_xpath_context__handler_responds_to(VALUE data)
+{
+  _noko_xml_xpath_context__lookup_args_t *args = (_noko_xml_xpath_context__lookup_args_t *)data;
+
+  if (rb_respond_to(args->handler, rb_intern((const char *)args->name))) {
+    if (args->ns_uri == NULL) {
+      NOKO_WARN_DEPRECATION("A custom XPath or CSS handler function named '%s' is being invoked without a namespace. Please update your query to reference this function as 'nokogiri:%s'. Invoking custom handler functions without a namespace is deprecated and will become an error in Nokogiri v1.17.0.",
+                            args->name, args->name); // TODO deprecated in v1.15.0, remove in v1.19.0
+    }
+    return Qtrue;
+  }
+
+  return Qfalse;
 }
 
 static xmlXPathFunction
 _noko_xml_xpath_context_handler_lookup(void *data, const xmlChar *c_name, const xmlChar *c_ns_uri)
 {
-  VALUE rb_handler = (VALUE)data;
-  if (rb_respond_to(rb_handler, rb_intern((const char *)c_name))) {
-    if (c_ns_uri == NULL) {
-      NOKO_WARN_DEPRECATION("A custom XPath or CSS handler function named '%s' is being invoked without a namespace. Please update your query to reference this function as 'nokogiri:%s'. Invoking custom handler functions without a namespace is deprecated and will become an error in Nokogiri v1.17.0.",
-                            c_name, c_name); // TODO deprecated in v1.15.0, remove in v1.19.0
-    }
+  _noko_xml_xpath_context__handler_call_t *handler_call = data;
+  _noko_xml_xpath_context__lookup_args_t args = { handler_call->handler, c_name, c_ns_uri };
+  VALUE responds_to = Qfalse;
+
+  if (handler_call->exception_state == 0) {
+    responds_to = rb_protect(_noko_xml_xpath_context__handler_responds_to, (VALUE)&args, &handler_call->exception_state);
+  }
+
+  /*
+   * After an exception, return the invoker anyway, so that it aborts the evaluation. Returning NULL
+   * would make libxml2 fall back to its own functions, or report an unknown function.
+   */
+  if (handler_call->exception_state != 0 || RTEST(responds_to)) {
     return _noko_xml_xpath_context__handler_invoker;
   }
 
@@ -376,6 +455,8 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   VALUE rb_errors = rb_ary_new();
   xmlXPathObjectPtr c_xpath_object;
   VALUE rb_xpath_object = Qnil;
+  _noko_xml_xpath_context__handler_call_t handler_call = { Qnil, 0 };
+  void *previous_user_data;
 
   TypedData_Get_Struct(rb_context, xmlXPathContext, &_noko_xml_xpath_context_type, c_context);
 
@@ -383,13 +464,17 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
 
   c_expression_str = (xmlChar *)StringValueCStr(rb_expression);
 
+  /* restored afterwards, because a handler may call evaluate re-entrantly on this context */
+  previous_user_data = c_context->userData;
+
   if (Qnil != rb_function_lookup_handler) {
+    handler_call.handler = rb_function_lookup_handler;
     /* FIXME: not sure if this is the correct place to shove private data. */
-    c_context->userData = (void *)rb_function_lookup_handler;
+    c_context->userData = &handler_call;
     xmlXPathRegisterFuncLookup(
       c_context,
       _noko_xml_xpath_context_handler_lookup,
-      (void *)rb_function_lookup_handler
+      &handler_call
     );
   }
 
@@ -403,6 +488,12 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   xmlSetGenericErrorFunc(NULL, NULL);
 
   xmlXPathRegisterFuncLookup(c_context, NULL, NULL);
+  c_context->userData = previous_user_data;
+
+  if (handler_call.exception_state != 0) {
+    xmlXPathFreeObject(c_xpath_object);
+    rb_jump_tag(handler_call.exception_state);
+  }
 
   if (c_xpath_object == NULL) {
     rb_exc_raise(rb_ary_entry(rb_errors, 0));
