@@ -50,6 +50,9 @@ module Nokogiri
           assert_raises(TypeError) do
             xml.root.namespace = Object.new
           end
+          assert_raises(TypeError) do
+            xml.root.namespace = false
+          end
         end
 
         def test_remove_namespace
