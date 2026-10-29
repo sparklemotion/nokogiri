@@ -138,13 +138,14 @@ module Nokogiri
 
         it "raises a non-standard error from the IO's read" do
           interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
-          interrupting_io = lambda do |*chunks|
+          interrupting_io = lambda do |data|
+            data = data.dup
             Object.new.tap do |io|
-              io.define_singleton_method(:read) { |_len| chunks.empty? ? raise(interrupt) : chunks.shift }
+              io.define_singleton_method(:read) { |len| data.empty? ? raise(interrupt) : data.slice!(0, len) }
             end
           end
 
-          assert_raises(interrupt) { parser.parse_io(interrupting_io.call) }
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call("")) }
           assert_raises(interrupt) { parser.parse_io(interrupting_io.call("<root>")) }
         end
 
