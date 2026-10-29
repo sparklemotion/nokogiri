@@ -20,13 +20,15 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
 
   class InterruptingIO
     def initialize(*chunks)
-      @chunks = chunks
+      @chunks = chunks.map(&:dup)
     end
 
-    def read(_size)
+    def read(size)
       raise(InterruptedRead) if @chunks.empty?
 
-      @chunks.shift
+      chunk = @chunks.first.slice!(0, size)
+      @chunks.shift if @chunks.first.empty?
+      chunk
     end
   end
 
