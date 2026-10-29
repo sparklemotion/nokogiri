@@ -39,7 +39,7 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
   def test_read_raises_a_non_standard_error_from_io
     reader = Nokogiri::XML::Reader.from_io(InterruptingIO.new("<root>"))
 
-    assert_raises(InterruptedRead) { reader.read }
+    assert_raises(InterruptedRead) { while reader.read; end }
   end
 
   [:outer_xml, :inner_xml, :namespaces, :attribute_hash].each do |method_name|
