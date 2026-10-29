@@ -471,6 +471,8 @@ OSS-Fuzz was configured to fuzz Nokogiri's libgumbo in https://github.com/google
 
 Notifications go to `nokogiri-oss-fuzz@googlegroups.com`.
 
+Pull requests that change `gumbo-parser` also run [CIFuzz](https://google.github.io/oss-fuzz/getting-started/continuous-integration/), which builds the OSS-Fuzz targets from the pull request and fuzzes them with ASan for 10 minutes.
+
 Some historical context can be found in [discussion #2992](https://github.com/sparklemotion/nokogiri/discussions/2992) and [pull request #3007](https://github.com/sparklemotion/nokogiri/pull/3007) by @fuzzy-boiii23a.
 
 
