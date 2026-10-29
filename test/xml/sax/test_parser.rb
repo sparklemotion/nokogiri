@@ -136,6 +136,18 @@ module Nokogiri
           assert_equal("argument expected to respond to :read", e.message)
         end
 
+        it "raises a non-standard error from the IO's read" do
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          interrupting_io = lambda do |*chunks|
+            Object.new.tap do |io|
+              io.define_singleton_method(:read) { |_len| chunks.empty? ? raise(interrupt) : chunks.shift }
+            end
+          end
+
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call) }
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call("<root>")) }
+        end
+
         it "preserves the order of namespace decls" do
           parser.parse(<<~XML)
             <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>

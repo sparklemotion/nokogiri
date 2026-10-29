@@ -384,16 +384,23 @@ noko_xml_document_s_read_io(VALUE rb_class,
 
   const char *c_url    = NIL_P(rb_url)      ? NULL : StringValueCStr(rb_url);
   const char *c_enc    = NIL_P(rb_encoding) ? NULL : StringValueCStr(rb_encoding);
+  noko_io_read_reset_exception();
   xmlDocPtr c_document = xmlReadIO(
-                           (xmlInputReadCallback)noko_io_read,
+                           (xmlInputReadCallback)noko_io_read_protected,
                            (xmlInputCloseCallback)noko_io_close,
                            (void *)rb_io,
                            c_url,
                            c_enc,
                            (int)NUM2INT(rb_options)
                          );
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFreeDoc(c_document);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   if (c_document == NULL) {
     xmlFreeDoc(c_document);

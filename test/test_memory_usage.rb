@@ -409,5 +409,34 @@ class TestMemoryUsage < Nokogiri::TestCase
         assert_raises(RuntimeError) { xsl.transform(doc) }
       end
     end
+
+    describe "when an IO's read raises an exception that is not a StandardError" do
+      # https://github.com/sparklemotion/nokogiri/issues/3721
+      let(:interrupt) { Class.new(Exception) } # rubocop:disable Lint/InheritException
+      let(:io) do
+        interrupt = self.interrupt
+        Object.new.tap do |io|
+          io.define_singleton_method(:read) { |_len| raise(interrupt) }
+        end
+      end
+
+      it "XML::Document.parse doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::XML::Document.parse(io) }
+        end
+      end
+
+      it "HTML4::Document.parse doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::HTML4::Document.parse(io) }
+        end
+      end
+
+      it "XML::Reader.from_io doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::XML::Reader.from_io(io) }
+        end
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end

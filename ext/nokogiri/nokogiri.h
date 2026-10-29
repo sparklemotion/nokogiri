@@ -181,6 +181,10 @@ void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
 int noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document);
 
 int noko_io_read(void *ctx, char *buffer, int len);
+int noko_io_read_protected(void *ctx, char *buffer, int len);
+void noko_io_read_reset_exception(void);
+VALUE noko_io_read_take_exception(void);
+NORETURN_DECL void noko_io_read_raise_exception(VALUE rb_exception);
 int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 

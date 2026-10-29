@@ -48,9 +48,16 @@ rb_html_document_s_read_io(VALUE klass, VALUE rb_io, VALUE rb_url, VALUE rb_enco
 
   xmlSetStructuredErrorFunc((void *)rb_error_list, noko__error_array_pusher);
 
-  c_doc = htmlReadIO(noko_io_read, noko_io_close, (void *)rb_io, c_url, c_encoding, options);
+  noko_io_read_reset_exception();
+  c_doc = htmlReadIO(noko_io_read_protected, noko_io_close, (void *)rb_io, c_url, c_encoding, options);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   xmlSetStructuredErrorFunc(NULL, NULL);
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFreeDoc(c_doc);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   /*
    * If EncodingFound has occurred in EncodingReader, make sure to do

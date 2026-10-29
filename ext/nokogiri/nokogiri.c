@@ -50,7 +50,7 @@ void noko_init_html4_sax_parser(void);
 void noko_init_gumbo(void);
 void noko_init_test_global_handlers(void);
 
-static ID id_read, id_write, id_external_encoding;
+static ID id_read, id_write, id_external_encoding, id_io_read_exception;
 
 
 static VALUE
@@ -89,6 +89,87 @@ noko_io_read(void *io, char *c_buffer, int c_buffer_len)
   memcpy(c_buffer, StringValuePtr(rb_read_string), safe_len);
 
   return (int)safe_len;
+}
+
+
+typedef struct {
+  void *io;
+  char *c_buffer;
+  int c_buffer_len;
+  int n_bytes_read;
+} noko_io_read_args_t;
+
+static VALUE
+noko_io_read_call(VALUE data)
+{
+  noko_io_read_args_t *args = (noko_io_read_args_t *)data;
+  args->n_bytes_read = noko_io_read(args->io, args->c_buffer, args->c_buffer_len);
+  return Qnil;
+}
+
+
+/*
+ * Like noko_io_read, a StandardError raised by IO#read is swallowed, and libxml2 sees a read
+ * error. Any other exception (e.g., Interrupt or Timeout::ExitException) must not unwind through
+ * libxml2's stack frames, because that skips libxml2's cleanup and leaks memory, and skips the
+ * reset of the error handlers. So it is saved in a fiber-local variable, and $! is cleared until
+ * it is re-raised.
+ *
+ * A caller of libxml2 that passes this callback must call noko_io_read_reset_exception before
+ * calling libxml2, and noko_io_read_take_exception after libxml2 returns, and must re-raise a
+ * non-nil result with noko_io_read_raise_exception.
+ */
+int
+noko_io_read_protected(void *io, char *c_buffer, int c_buffer_len)
+{
+  noko_io_read_args_t args = { io, c_buffer, c_buffer_len, -1 };
+  int state = 0;
+
+  rb_protect(noko_io_read_call, (VALUE)&args, &state);
+
+  if (state) {
+    VALUE rb_errinfo_value = rb_errinfo();
+    if (RB_TYPE_P(rb_errinfo_value, T_OBJECT) && rb_obj_is_kind_of(rb_errinfo_value, rb_eException)) {
+      rb_set_errinfo(Qnil);
+    } else {
+      rb_errinfo_value = Qnil;
+    }
+    rb_thread_local_aset(rb_thread_current(), id_io_read_exception,
+                         rb_assoc_new(INT2FIX(state), rb_errinfo_value));
+    return -1;
+  }
+
+  return args.n_bytes_read;
+}
+
+
+void
+noko_io_read_reset_exception(void)
+{
+  rb_thread_local_aset(rb_thread_current(), id_io_read_exception, Qnil);
+}
+
+
+VALUE
+noko_io_read_take_exception(void)
+{
+  VALUE rb_thread = rb_thread_current();
+  VALUE rb_exception = rb_thread_local_aref(rb_thread, id_io_read_exception);
+
+  rb_thread_local_aset(rb_thread, id_io_read_exception, Qnil);
+  return rb_exception;
+}
+
+
+void
+noko_io_read_raise_exception(VALUE rb_exception)
+{
+  VALUE rb_errinfo_value = rb_ary_entry(rb_exception, 1);
+
+  if (!NIL_P(rb_errinfo_value)) {
+    rb_set_errinfo(rb_errinfo_value);
+  }
+  rb_jump_tag(FIX2INT(rb_ary_entry(rb_exception, 0)));
 }
 
 
@@ -292,6 +373,7 @@ Init_nokogiri(void)
   noko_init_test_global_handlers();
 
   id_read = rb_intern("read");
+  id_io_read_exception = rb_intern("__nokogiri_io_read_exception");
   id_write = rb_intern("write");
   id_external_encoding = rb_intern("external_encoding");
 }

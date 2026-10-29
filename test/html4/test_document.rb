@@ -330,6 +330,15 @@ module Nokogiri
           assert_equal("foo", doc.at_css("div").content)
         end
 
+        def test_parse_io_raising_a_non_standard_error_raises_it
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          io = Object.new
+          io.define_singleton_method(:read) { |_len| raise(interrupt) }
+
+          assert_raises(interrupt) { Nokogiri::HTML4.parse(io) }
+          assert_raises(interrupt) { Nokogiri::HTML4.parse(io, nil, "UTF-8") }
+        end
+
         def test_parse_temp_file
           temp_html_file = Tempfile.new("TEMP_HTML_FILE")
           File.open(HTML_FILE, "rb") { |f| temp_html_file.write(f.read) }
