@@ -68,17 +68,31 @@ noko_io_read_failed(VALUE arg, VALUE exc)
 }
 
 
+static VALUE
+noko_io_read_rescue(VALUE rb_args)
+{
+  return rb_rescue(noko_io_read_check, rb_args, noko_io_read_failed, 0);
+}
+
+
 int
 noko_io_read(void *io, char *c_buffer, int c_buffer_len)
 {
   VALUE rb_io = (VALUE)io;
   VALUE rb_read_string, rb_args[2];
   size_t n_bytes_read, safe_len;
+  int state = 0;
 
   rb_args[0] = rb_io;
   rb_args[1] = INT2NUM(c_buffer_len);
 
-  rb_read_string = rb_rescue(noko_io_read_check, (VALUE)rb_args, noko_io_read_failed, 0);
+  rb_read_string = rb_protect(noko_io_read_rescue, (VALUE)rb_args, &state);
+  if (state) {
+    // A non-StandardError (e.g. Timeout::ExitException) is about to unwind through libxml2, so the
+    // caller won't get to reset the error handler. Don't leave it pointing at the caller's errors.
+    xmlSetStructuredErrorFunc(NULL, NULL);
+    rb_jump_tag(state);
+  }
 
   if (NIL_P(rb_read_string)) { return 0; }
   if (rb_read_string == Qundef) { return -1; }

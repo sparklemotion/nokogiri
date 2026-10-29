@@ -32,6 +32,27 @@ module Nokogiri
         end
       end
 
+      it "deregisters the function handler when a custom function raises" do
+        skip_unless_libxml2("libxml2 handler registration")
+
+        doc = Document.parse("<root/>")
+        handler = Class.new do
+          def boom
+            raise(ArgumentError, "boom")
+          end
+        end.new
+
+        xc = XPathContext.new(doc)
+
+        assert_raises(ArgumentError) do
+          xc.evaluate("nokogiri:boom()", handler)
+        end
+
+        assert_raises(XPath::SyntaxError) do
+          xc.evaluate("nokogiri:boom()")
+        end
+      end
+
       it "can register and deregister variables" do
         doc = Nokogiri::XML.parse(File.read(TestBase::XML_FILE), TestBase::XML_FILE)
 

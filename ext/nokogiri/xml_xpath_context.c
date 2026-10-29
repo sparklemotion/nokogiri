@@ -357,6 +357,22 @@ _noko_xml_xpath_context__generic_exception_pusher(void *data, const char *msg, .
   rb_ary_push(rb_errors, rb_exception);
 }
 
+typedef struct {
+  xmlXPathContextPtr c_context;
+  const xmlChar *c_expression_str;
+  xmlXPathObjectPtr c_xpath_object;
+} _noko_xml_xpath_context_eval_args_t;
+
+static VALUE
+_noko_xml_xpath_context__eval(VALUE args_ptr)
+{
+  _noko_xml_xpath_context_eval_args_t *args = (_noko_xml_xpath_context_eval_args_t *)args_ptr;
+
+  args->c_xpath_object = xmlXPathEvalExpression(args->c_expression_str, args->c_context);
+
+  return Qnil;
+}
+
 /*
  * call-seq:
  *   evaluate(search_path, handler = nil) → Object
@@ -376,6 +392,7 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   VALUE rb_errors = rb_ary_new();
   xmlXPathObjectPtr c_xpath_object;
   VALUE rb_xpath_object = Qnil;
+  int state = 0;
 
   TypedData_Get_Struct(rb_context, xmlXPathContext, &_noko_xml_xpath_context_type, c_context);
 
@@ -397,12 +414,23 @@ noko_xml_xpath_context_evaluate(int argc, VALUE *argv, VALUE rb_context)
   xmlSetStructuredErrorFunc((void *)rb_errors, noko__error_array_pusher);
   xmlSetGenericErrorFunc((void *)rb_errors, _noko_xml_xpath_context__generic_exception_pusher);
 
-  c_xpath_object = xmlXPathEvalExpression(c_expression_str, c_context);
+  {
+    // evaluate under rb_protect so that a raise from a custom function handler does not leave the
+    // global error handlers pointing at rb_errors, or the handler registered on this context.
+    _noko_xml_xpath_context_eval_args_t args = { c_context, c_expression_str, NULL };
+
+    rb_protect(_noko_xml_xpath_context__eval, (VALUE)&args, &state);
+    c_xpath_object = args.c_xpath_object;
+  }
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
   xmlXPathRegisterFuncLookup(c_context, NULL, NULL);
+
+  if (state) {
+    rb_jump_tag(state);
+  }
 
   if (c_xpath_object == NULL) {
     rb_exc_raise(rb_ary_entry(rb_errors, 0));

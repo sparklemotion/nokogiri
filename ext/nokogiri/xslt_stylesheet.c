@@ -162,6 +162,23 @@ build_xslt_params(VALUE args_ptr)
   return Qnil;
 }
 
+typedef struct {
+  xsltStylesheetPtr ss;
+  xmlDocPtr c_document;
+  const char **params;
+  xmlDocPtr c_result_document;
+} apply_xslt_stylesheet_args_t;
+
+static VALUE
+apply_xslt_stylesheet(VALUE args_ptr)
+{
+  apply_xslt_stylesheet_args_t *args = (apply_xslt_stylesheet_args_t *)args_ptr;
+
+  args->c_result_document = xsltApplyStylesheet(args->ss, args->c_document, args->params);
+
+  return Qnil;
+}
+
 /*
  * call-seq:
  *   transform(document)
@@ -286,6 +303,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   long param_len ;
   int parse_error_occurred ;
   int defensive_copy_p = 0;
+  int state = 0;
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_param);
   if (NIL_P(rb_param)) { rb_param = rb_ary_new2(0L) ; }
@@ -333,7 +351,14 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
-  c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
+  {
+    // apply under rb_protect so that a raise from an extension function does not leave the
+    // generic error handlers pointing at rb_error_str, or leak the params allocation.
+    apply_xslt_stylesheet_args_t args = { wrapper->ss, c_document, params, NULL };
+
+    rb_protect(apply_xslt_stylesheet, (VALUE)&args, &state);
+    c_result_document = args.c_result_document;
+  }
 
   ruby_xfree(params);
   if (defensive_copy_p) {
@@ -343,6 +368,10 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+
+  if (state) {
+    rb_jump_tag(state);
+  }
 
   parse_error_occurred = (Qfalse == rb_funcall(rb_error_str, rb_intern("empty?"), 0));
 

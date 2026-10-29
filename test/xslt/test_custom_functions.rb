@@ -125,6 +125,42 @@ module Nokogiri
         result = xsl.transform(@xml)
         assert_match(/FOO/, result.css("title").first.text)
       end
+
+      def test_function_that_raises_does_not_leave_a_stale_error_handler
+        skip_unless_libxml2("java version doesn't support this feature")
+        foo = Class.new do
+          def boom(nodes)
+            raise(ArgumentError, "boom")
+          end
+        end
+
+        xsl = Nokogiri.XSLT(<<~EOXSL, "http://e.org/functions" => foo)
+          <?xml version="1.0"?>
+          <xsl:stylesheet version="1.0"
+            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:f="http://e.org/functions"
+            extension-element-prefixes="f">
+            <xsl:template match="text()">
+              <xsl:copy-of select="f:boom(.)"/>
+            </xsl:template>
+          </xsl:stylesheet>
+        EOXSL
+        assert_raises(ArgumentError) { xsl.transform(@xml) }
+
+        GC.start
+        canaries = Array.new(10_000) { +"" }
+        # the invalid select expression is reported to libxml2's global generic error handler
+        capture_subprocess_io do
+          assert_raises(RuntimeError) do
+            Nokogiri.XSLT(<<~EOXSL)
+              <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                <xsl:template match="/"><xsl:value-of select="1 +"/></xsl:template>
+              </xsl:stylesheet>
+            EOXSL
+          end
+        end
+        assert(canaries.all?(&:empty?), "error was appended to the failed transform's collected error string")
+      end
     end
   end
 end

@@ -350,6 +350,25 @@ module Nokogiri
         assert_equal(foo, doc.xpath("//foo"))
       end
 
+      def test_custom_xpath_function_that_raises_does_not_leave_a_stale_error_handler
+        skip_unless_libxml2("libxml2 error handlers are global state")
+
+        # canonicalizing a relative namespace URI reports an error to libxml2's global error handler
+        c14n_doc = Nokogiri::XML(%(<root xmlns="relative-uri"/>))
+        handler = Class.new do
+          def boom
+            raise(ArgumentError, "boom")
+          end
+        end.new
+
+        assert_raises(ArgumentError) { @xml.xpath("nokogiri:boom()", handler) }
+
+        GC.start
+        canaries = Array.new(10_000) { [] }
+        assert_raises(RuntimeError) { c14n_doc.canonicalize }
+        assert(canaries.all?(&:empty?), "error was pushed onto the failed query's collected error list")
+      end
+
       def test_node_set_should_be_decorated
         # "called decorate on nil" exception in JRuby issue#514
         process_output = <<~END
