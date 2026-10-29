@@ -74,6 +74,24 @@ module Nokogiri
         xc.node = doc.root.elements[1]
         assert_pattern { xc.evaluate(".//foo") => [{ name: "foo", inner_html: "two" }] }
       end
+
+      describe "argument that is not a Node" do
+        let(:doc) { Nokogiri::XML::Document.parse("<root xmlns:ns='http://example.com/ns'/>") }
+        let(:not_nodes) { [nil, "not a node", [], doc.root.namespace_definitions.first] }
+
+        it ".new raises TypeError" do
+          not_nodes.each do |not_node|
+            assert_raises(TypeError) { XPathContext.new(not_node) }
+          end
+        end
+
+        it "#node= raises TypeError" do
+          xc = XPathContext.new(doc)
+          not_nodes.each do |not_node|
+            assert_raises(TypeError) { xc.node = not_node }
+          end
+        end
+      end
     end
   end
 end
