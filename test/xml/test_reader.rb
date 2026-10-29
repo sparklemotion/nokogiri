@@ -33,10 +33,14 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
   end
 
   def test_from_io_raising_a_non_standard_error_raises_it
+    skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
     assert_raises(InterruptedRead) { Nokogiri::XML::Reader.from_io(InterruptingIO.new) }
   end
 
   def test_read_raises_a_non_standard_error_from_io
+    skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
     reader = Nokogiri::XML::Reader.from_io(InterruptingIO.new("<root>"))
 
     assert_raises(InterruptedRead) { while reader.read; end }
@@ -44,6 +48,8 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
 
   [:outer_xml, :inner_xml, :namespaces, :attribute_hash].each do |method_name|
     define_method("test_#{method_name}_raises_a_non_standard_error_from_io") do
+      skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
       reader = Nokogiri::XML::Reader.from_io(InterruptingIO.new(%(<root a="1" xmlns:x="x">), "<child>"))
       reader.read
 
