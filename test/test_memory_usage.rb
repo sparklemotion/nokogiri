@@ -389,5 +389,25 @@ class TestMemoryUsage < Nokogiri::TestCase
         assert_raises(RuntimeError) { doc.xpath("nokogiri-builtin:css-class('x', 'x')", handler) }
       end
     end
+
+    it "XSLT#transform doesn't leak when an extension function raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3721
+      functions = Class.new do
+        def boom(_nodes)
+          raise "boom"
+        end
+      end
+      xsl = Nokogiri::XSLT(<<~XSL, "http://e.org/functions" => functions)
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+          xmlns:f="http://e.org/functions" extension-element-prefixes="f">
+          <xsl:template match="/"><r><xsl:value-of select="f:boom(.)"/></r></xsl:template>
+        </xsl:stylesheet>
+      XSL
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { xsl.transform(doc) }
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
