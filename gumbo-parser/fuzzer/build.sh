@@ -56,8 +56,10 @@ pushd $srcdir
 make
 popd
 
-if [[ "${SANITIZER}" = "normal" ]] ; then
-  $CXX $CXXFLAGS -o build/parse_fuzzer parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
-else
-  $CXX $CXXFLAGS -o build/parse_fuzzer-$SANITIZER parse_fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
-fi
+for fuzzer in parse_fuzzer parse_options_fuzzer ; do
+  if [[ "${SANITIZER}" = "normal" ]] ; then
+    $CXX $CXXFLAGS -o build/$fuzzer $fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
+  else
+    $CXX $CXXFLAGS -o build/$fuzzer-$SANITIZER $fuzzer.cc $srcdir/libgumbo.a $ENGINE_LINK $SANITIZER_LINK
+  fi
+done

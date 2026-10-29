@@ -277,6 +277,8 @@ Build the fuzzers by navigating to the `gumbo-parser` directory and running `mak
 - parse_fuzzer-msan (fuzzer built using [MSAN](https://clang.llvm.org/docs/MemorySanitizer.html))
 - parse_fuzzer-ubsan (fuzzer built using [UBSAN](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html))
 
+Each sanitizer also builds a `parse_options_fuzzer`, which reads the parser options, including fragment parsing, from the first bytes of each input.
+
 To fuzz more efficiently, use the dictionary (gumbo.dict) and corpus (gumbo_corpus) found in `gumbo-parser/fuzzer` using the following arguments (assuming parse_fuzzer is in use):
 
 ```
