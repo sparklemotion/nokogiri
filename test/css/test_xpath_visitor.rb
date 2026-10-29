@@ -123,6 +123,9 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a-b:c", 'a\-b|c')
       assert_xpath("//*[not(self::a-b)]", ':not(a\-b)')
       assert_xpath("//a-b", "\\61\r\n-b")
+      assert_xpath("//a\u{FFFD}", 'a\0')
+      assert_xpath("//a\u{FFFD}", 'a\d800')
+      assert_xpath("//a\u{FFFD}", 'a\110000')
     end
 
     it "type that is not an XML name" do
@@ -131,7 +134,6 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\[1\]', cache: false) }
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\|b|c', cache: false) }
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a|b\ \|\ \/\/c', cache: false) }
-      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\110000', cache: false) }
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\*', cache: false) }
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\2a', cache: false) }
       assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\*|a', cache: false) }
@@ -246,6 +248,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath(%q{//*[@id="x' or '1'='1"]}, %q{#x\'\ or\ \'1\'\=\'1})
         assert_xpath("//*[@id='a\nb']", '#a\a b')
         assert_xpath("//*[@id='ab']", "#\\61\r\nb")
+        assert_xpath("//*[@id='a\u{FFFD}']", '#a\0')
       end
 
       it "parses leading @ (extended-syntax)" do
@@ -654,6 +657,10 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\r\nb')")
       assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\rb')")
       assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\fb')")
+      assert_xpath("//p[contains(.,'a\vb')]", "p:contains('\\61\vb')")
+      assert_xpath("//p[contains(.,'a\u{FFFD}b')]", "p:contains('a\\0 b')")
+      assert_xpath("//p[contains(.,'a\u{FFFD}b')]", "p:contains('a\\d800 b')")
+      assert_xpath("//p[contains(.,'a\u{FFFD}b')]", "p:contains('a\\110000 b')")
     end
 
     it "handles gt() (extended-syntax)" do
