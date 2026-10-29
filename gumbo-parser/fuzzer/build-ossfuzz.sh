@@ -5,6 +5,7 @@
 set -ex
 
 cd src
+make clean
 make
 cd ../
 

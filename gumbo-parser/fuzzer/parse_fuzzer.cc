@@ -59,7 +59,7 @@ void FormatErrors(const char* input, size_t input_length, const GumboOutput* out
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   /* arbitrary upper size limit to avoid "out-of-memory in parse_fuzzer" reports */
-  if (size < 10 | size > 25000) {
+  if (size < 10 || size > 25000) {
     return 0;
   }
 
@@ -69,9 +69,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   int result = SanityCheckPointers((char*)data, size, output->root, 0);
   FormatErrors((char*)data, size, output);
 
-  if (output) {
-    gumbo_destroy_output(output);
-  }
+  gumbo_destroy_output(output);
 
   if (result < 0) {
     return -1;
