@@ -81,7 +81,7 @@ public class XmlXpathContext extends RubyObject
   rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node)
   {
     try {
-      return new XmlXpathContext(context.runtime, (RubyClass) klazz, (XmlNode) node);
+      return new XmlXpathContext(context.runtime, (RubyClass) klazz, XmlNode.asXmlNode(context, node));
     } catch (IllegalArgumentException e) {
       throw context.getRuntime().newRuntimeError(e.getMessage());
     }
@@ -183,7 +183,7 @@ public class XmlXpathContext extends RubyObject
   public IRubyObject
   set_node(ThreadContext context, IRubyObject rb_node)
   {
-    this.context = (XmlNode) rb_node;
+    this.context = XmlNode.asXmlNode(context, rb_node);
     return rb_node;
   }
 

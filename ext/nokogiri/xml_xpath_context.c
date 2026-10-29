@@ -431,6 +431,12 @@ noko_xml_xpath_context_new(VALUE klass, VALUE rb_node)
   xmlXPathContextPtr c_context;
   VALUE rb_context;
 
+  if (!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode)) {
+    rb_raise(rb_eTypeError,
+             "expected a Nokogiri::XML::Node, received %"PRIsVALUE,
+             rb_obj_class(rb_node));
+  }
+
   Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
 #if LIBXML_VERSION < 21000
@@ -462,6 +468,12 @@ noko_xml_xpath_context_set_node(VALUE rb_context, VALUE rb_node)
 {
   xmlNodePtr c_node;
   xmlXPathContextPtr c_context;
+
+  if (!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode)) {
+    rb_raise(rb_eTypeError,
+             "expected a Nokogiri::XML::Node, received %"PRIsVALUE,
+             rb_obj_class(rb_node));
+  }
 
   TypedData_Get_Struct(rb_context, xmlXPathContext, &_noko_xml_xpath_context_type, c_context);
   Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
