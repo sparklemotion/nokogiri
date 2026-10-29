@@ -116,6 +116,29 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a", "|a")
     end
 
+    it "type with escapes" do
+      assert_xpath("//a-b", 'a\-b')
+      assert_xpath("//a-b", '\61 -b')
+      assert_xpath("//aaron:a-b", 'aaron|a\-b')
+      assert_xpath("//a-b:c", 'a\-b|c')
+      assert_xpath("//*[not(self::a-b)]", ':not(a\-b)')
+      assert_xpath("//a-b", "\\61\r\n-b")
+    end
+
+    it "type that is not an XML name" do
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\!b', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\31 23', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\[1\]', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\|b|c', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a|b\ \|\ \/\/c', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a\110000', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\*', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\2a', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('\*|a', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for('a|\*', cache: false) }
+      assert_raises(Nokogiri::CSS::SyntaxError) { Nokogiri::CSS.xpath_for(':not(\*)', cache: false) }
+    end
+
     it ". class" do
       assert_xpath(
         "//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
@@ -222,6 +245,7 @@ describe Nokogiri::CSS::XPathVisitor do
         assert_xpath(%q{//*[@id=concat('a"b',"'",'c')]}, %q{#a\"b\'c})
         assert_xpath(%q{//*[@id="x' or '1'='1"]}, %q{#x\'\ or\ \'1\'\=\'1})
         assert_xpath("//*[@id='a\nb']", '#a\a b')
+        assert_xpath("//*[@id='ab']", "#\\61\r\nb")
       end
 
       it "parses leading @ (extended-syntax)" do
@@ -535,6 +559,8 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[nokogiri:foo(.,a,10)]", "a:foo(a, 10)")
       assert_xpath("//a[nokogiri:foo(.,42)]", "a:foo(42)")
       assert_xpath("//a[nokogiri:foo(.,'bar')]", "a:foo('bar')")
+      assert_xpath(%q{//a[nokogiri:foo(.,"it's")]}, %q{a:foo('it\'s')})
+      assert_xpath(%q{//a[nokogiri:foo(.,'bar',"it's")]}, %q{a:foo("bar", 'it\'s')})
     end
 
     it "bare pseudo-class matches any ident" do
@@ -614,7 +640,20 @@ describe Nokogiri::CSS::XPathVisitor do
 
     it "handles contains() (extended-syntax)" do
       # https://api.jquery.com/contains-selector/
-      assert_xpath(%{//div[contains(.,"youtube")]}, %{div:contains("youtube")})
+      assert_xpath("//div[contains(.,'youtube')]", %{div:contains("youtube")})
+      assert_xpath("//div[contains(.,'youtube')]", %{div:contains('youtube')})
+    end
+
+    it "handles contains() with escapes (extended-syntax)" do
+      assert_xpath(%q{//p[contains(.,"it's")]}, %q{p:contains('it\'s')})
+      assert_xpath(%q{//p[contains(.,"it's")]}, %q{p:contains('it\27s')})
+      assert_xpath(%q{//p[contains(.,'a"b')]}, %q{p:contains("a\"b")})
+      assert_xpath(%q{//p[contains(.,concat('a"b',"'",'c'))]}, %q{p:contains("a\"b'c")})
+      assert_xpath(%q{//p[contains(.,"') or ('1'='1")]}, %q{p:contains('\') or (\'1\'=\'1')})
+      assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\nb')")
+      assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\r\nb')")
+      assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\rb')")
+      assert_xpath("//p[contains(.,'ab')]", "p:contains('a\\\fb')")
     end
 
     it "handles gt() (extended-syntax)" do
@@ -898,6 +937,19 @@ describe Nokogiri::CSS::XPathVisitor do
           assert_xpath("//*[nokogiri-builtin:local-name-is('a')]/@href", "a/@href")
         end
       end
+
+      it "matches an escaped local-name" do
+        if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
+          assert_xpath("//*:a-b", 'a\-b')
+        else
+          assert_xpath("//*[nokogiri-builtin:local-name-is('a-b')]", 'a\-b')
+        end
+      end
+
+      it "avoids the wildcard when the local-name is not an XML name" do
+        assert_xpath("//*[nokogiri-builtin:local-name-is('a!b')]", 'a\!b')
+        assert_xpath(%q{//*[nokogiri-builtin:local-name-is("a'b")]}, %q{a\'b})
+      end
     end
 
     describe "builtins:never" do
@@ -908,6 +960,12 @@ describe Nokogiri::CSS::XPathVisitor do
 
       it "avoids the wildcard when using attribute selectors (extended-syntax)" do
         assert_xpath("//*[local-name()='a']/@href", "a/@href")
+      end
+
+      it "matches an escaped local-name" do
+        assert_xpath("//*[local-name()='a-b']", 'a\-b')
+        assert_xpath("//*[local-name()='a!b']", 'a\!b')
+        assert_xpath(%q{//*[local-name()="a'b"]}, %q{a\'b})
       end
     end
 
@@ -922,6 +980,20 @@ describe Nokogiri::CSS::XPathVisitor do
           end
         else
           assert_xpath("//*[local-name()='foo']", "foo")
+        end
+      end
+
+      it "matches an escaped local-name" do
+        if Nokogiri.uses_libxml?
+          if Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch")
+            assert_xpath("//*:a-b", 'a\-b')
+          else
+            assert_xpath("//*[nokogiri-builtin:local-name-is('a-b')]", 'a\-b')
+          end
+          assert_xpath("//*[nokogiri-builtin:local-name-is('a!b')]", 'a\!b')
+        else
+          assert_xpath("//*[local-name()='a-b']", 'a\-b')
+          assert_xpath("//*[local-name()='a!b']", 'a\!b')
         end
       end
     end

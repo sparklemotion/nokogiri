@@ -55,7 +55,7 @@ rule
   ;
 
   class:
-    '.' IDENT { result = Node.new(:CLASS_CONDITION, [unescape_css_identifier(val[1])]) }
+    '.' IDENT { result = Node.new(:CLASS_CONDITION, [Parser.unescape_css_identifier(val[1])]) }
   ;
 
   element_name:
@@ -64,11 +64,10 @@ rule
   ;
 
   namespaced_ident:
-    namespace '|' IDENT { result = Node.new(:ELEMENT_NAME, [val[0], val[2]]) }
-  | IDENT {
-      name = val[0]
-      result = Node.new(:ELEMENT_NAME, [name])
+    namespace '|' IDENT {
+      result = Node.new(:ELEMENT_NAME, [val[0] && unescape_css_element_name(val[0]), unescape_css_element_name(val[2])])
     }
+  | IDENT { result = Node.new(:ELEMENT_NAME, [unescape_css_element_name(val[0])]) }
   ;
 
   namespace:
@@ -209,12 +208,12 @@ rule
   ;
 
   attribute_id:
-    HASH { result = Node.new(:ID, [unescape_css_identifier(val[0])]) }
+    HASH { result = Node.new(:ID, [Parser.unescape_css_identifier(val[0])]) }
   ;
 
   attrib_val_0or1:
-    eql_incl_dash IDENT { result = [val[0], unescape_css_identifier(val[1])] }
-  | eql_incl_dash STRING { result = [val[0], unescape_css_string(val[1][1..-2])] }
+    eql_incl_dash IDENT { result = [val[0], Parser.unescape_css_identifier(val[1])] }
+  | eql_incl_dash STRING { result = [val[0], Parser.unescape_css_string(val[1][1..-2])] }
   | eql_incl_dash NUMBER { result = [val[0], val[1]] }
   |
   ;
@@ -262,16 +261,23 @@ end
 
 ---- inner
 
-def unescape_css_identifier(identifier)
-  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/){ |m| $1 || [$2.hex].pack('U') }
+def self.unescape_css_identifier(identifier)
+  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|\s)?)/){ |m| $1 || [$2.hex].pack('U') }
 end
 
-def unescape_css_string(str)
-  str.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/) do |m|
-    if $1=="\n"
+def self.unescape_css_string(str)
+  str.gsub(/\\(?:(\r\n|[^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|\s)?)/) do |m|
+    if ["\n", "\r\n", "\r", "\f"].include?($1)
       ''
     else
       $1 || [$2.hex].pack('U')
     end
   end
+end
+
+# A decoded "*" would turn into the universal selector.
+def unescape_css_element_name(identifier)
+  name = Parser.unescape_css_identifier(identifier)
+  raise SyntaxError, "Invalid element name '#{identifier}'" if name == "*"
+  name
 end

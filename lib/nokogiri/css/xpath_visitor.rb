@@ -9,6 +9,11 @@ module Nokogiri
     class XPathVisitor
       WILDCARD_NAMESPACES = Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch") # :nodoc:
 
+      # The ASCII characters allowed in an XML NCName. Every XPath delimiter and operator is ASCII,
+      # so non-ASCII characters are left for the XPath parser to accept or reject.
+      XPATH_NAME = /\A(?:[A-Za-z_]|[^\x00-\x7F])(?:[A-Za-z0-9_.-]|[^\x00-\x7F])*\z/
+      private_constant :XPATH_NAME
+
       # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
       module BuiltinsConfig
         # Never use Nokogiri builtin functions, always generate vanilla XPath 1.0 queries. This is
@@ -136,7 +141,7 @@ module Nokogiri
         when /^(last|last-of-type)\(/
           "position()=last()"
         when /^contains\(/
-          "contains(.,#{node.value[1]})"
+          "contains(.,#{xpath_function_argument(node.value[1])})"
         when /^gt\(/
           "position()>#{node.value[1]}"
         when /^only-child\(/
@@ -151,9 +156,7 @@ module Nokogiri
 
           # xpath function call, let's marshal those arguments
           args = ["."]
-          args += node.value[1..-1].map do |n|
-            n.is_a?(Nokogiri::CSS::Node) ? n.accept(self) : n
-          end
+          args += node.value[1..-1].map { |arg| xpath_function_argument(arg) }
           "nokogiri:#{node.value.first}#{args.join(",")})"
         end
       end
@@ -255,17 +258,21 @@ module Nokogiri
       end
 
       def visit_element_name(node)
-        if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
+        html5_local_name = @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
+        node.value.each { |name| validate_xpath_element_name(name) } unless html5_local_name
+
+        if html5_local_name
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
+          name = node.value.first
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
-            if WILDCARD_NAMESPACES
-              "*:#{node.value.first}"
+            if WILDCARD_NAMESPACES && xpath_name?(name)
+              "*:#{name}"
             else
-              "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+              "*[nokogiri-builtin:local-name-is(#{xpath_string_literal(name)})]"
             end
           else
-            "*[local-name()='#{node.value.first}']"
+            "*[local-name()=#{xpath_string_literal(name)}]"
           end
         elsif node.value.length == 2 # has a namespace prefix
           if node.value.first.nil? # namespace prefix is empty
@@ -294,6 +301,27 @@ module Nokogiri
       def validate_xpath_function_name(name)
         if name.start_with?("-")
           raise Nokogiri::CSS::SyntaxError, "Invalid XPath function name '#{name}'"
+        end
+      end
+
+      def validate_xpath_element_name(name)
+        unless name.nil? || name == "*" || xpath_name?(name)
+          raise Nokogiri::CSS::SyntaxError, "Invalid element name '#{name}'"
+        end
+      end
+
+      def xpath_name?(name)
+        name.valid_encoding? && XPATH_NAME.match?(name)
+      end
+
+      # Function arguments reach the visitor as raw tokens, and only a STRING token starts with a quote.
+      def xpath_function_argument(arg)
+        if arg.is_a?(Nokogiri::CSS::Node)
+          arg.accept(self)
+        elsif arg.is_a?(String) && arg.start_with?("'", '"')
+          xpath_string_literal(Parser.unescape_css_string(arg[1..-2]))
+        else
+          arg
         end
       end
 
