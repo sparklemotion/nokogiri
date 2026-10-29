@@ -311,7 +311,7 @@ module Nokogiri
       end
 
       def xpath_name?(name)
-        name.valid_encoding? && XPATH_NAME.match?(name)
+        XPATH_NAME.match?(name)
       end
 
       # Function arguments reach the visitor as raw tokens, and only a STRING token starts with a quote.

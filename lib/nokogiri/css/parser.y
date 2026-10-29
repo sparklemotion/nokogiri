@@ -262,16 +262,26 @@ end
 ---- inner
 
 def self.unescape_css_identifier(identifier)
-  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|\s)?)/){ |m| $1 || [$2.hex].pack('U') }
+  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|[ \t\n\r\f])?)/){ |m| $1 || unescape_css_code_point($2) }
 end
 
 def self.unescape_css_string(str)
-  str.gsub(/\\(?:(\r\n|[^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|\s)?)/) do |m|
+  str.gsub(/\\(?:(\r\n|[^0-9a-fA-F])|([0-9a-fA-F]{1,6})(?:\r\n|[ \t\n\r\f])?)/) do |m|
     if ["\n", "\r\n", "\r", "\f"].include?($1)
       ''
     else
-      $1 || [$2.hex].pack('U')
+      $1 || unescape_css_code_point($2)
     end
+  end
+end
+
+# https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point
+def self.unescape_css_code_point(hex)
+  code_point = hex.hex
+  if code_point == 0 || code_point.between?(0xD800, 0xDFFF) || code_point > 0x10FFFF
+    "\u{FFFD}"
+  else
+    [code_point].pack('U')
   end
 end
 
