@@ -16,6 +16,47 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
     assert_equal(io, reader.source)
   end
 
+  class InterruptedRead < Exception; end # rubocop:disable Lint/InheritException
+
+  class InterruptingIO
+    def initialize(*chunks)
+      @chunks = chunks.map(&:dup)
+    end
+
+    def read(size)
+      raise(InterruptedRead) if @chunks.empty?
+
+      chunk = @chunks.first.slice!(0, size)
+      @chunks.shift if @chunks.first.empty?
+      chunk
+    end
+  end
+
+  def test_from_io_raising_a_non_standard_error_raises_it
+    skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
+    assert_raises(InterruptedRead) { Nokogiri::XML::Reader.from_io(InterruptingIO.new) }
+  end
+
+  def test_read_raises_a_non_standard_error_from_io
+    skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
+    reader = Nokogiri::XML::Reader.from_io(InterruptingIO.new("<root>"))
+
+    assert_raises(InterruptedRead) { while reader.read; end }
+  end
+
+  [:outer_xml, :inner_xml, :namespaces, :attribute_hash].each do |method_name|
+    define_method("test_#{method_name}_raises_a_non_standard_error_from_io") do
+      skip_unless_libxml2("JRuby's Reader does not propagate every exception from the IO")
+
+      reader = Nokogiri::XML::Reader.from_io(InterruptingIO.new(%(<root a="1" xmlns:x="x">), "<child>"))
+      reader.read
+
+      assert_raises(InterruptedRead) { reader.public_send(method_name) }
+    end
+  end
+
   def test_from_io_sets_io_as_source
     io = File.open(SNUGGLES_FILE)
     reader = Nokogiri::XML::Reader.from_io(io)

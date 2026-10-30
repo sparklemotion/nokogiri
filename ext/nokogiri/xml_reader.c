@@ -156,9 +156,13 @@ rb_xml_reader_namespaces(VALUE rb_reader)
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
+  noko_io_read_reset_exception();
   c_node = xmlTextReaderExpand(c_reader);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) { noko_io_read_raise_exception(rb_io_read_exception); }
 
   if (c_node == NULL) {
     if (RARRAY_LEN(rb_errors) > 0) {
@@ -200,9 +204,13 @@ rb_xml_reader_attribute_hash(VALUE rb_reader)
   rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
+  noko_io_read_reset_exception();
   c_node = xmlTextReaderExpand(c_reader);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) { noko_io_read_raise_exception(rb_io_read_exception); }
 
   if (c_node == NULL) {
     if (RARRAY_LEN(rb_errors) > 0) {
@@ -529,9 +537,13 @@ read_more(VALUE rb_reader)
   VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
+  noko_io_read_reset_exception();
   int status = xmlTextReaderRead(c_reader);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) { noko_io_read_raise_exception(rb_io_read_exception); }
 
   xmlDocPtr c_document = xmlTextReaderCurrentDoc(c_reader);
   if (c_document && c_document->encoding == NULL) {
@@ -576,9 +588,16 @@ inner_xml(VALUE rb_reader)
   VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
+  noko_io_read_reset_exception();
   value = xmlTextReaderReadInnerXml(c_reader);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFree(value);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   str = Qnil;
   if (value) {
@@ -607,9 +626,16 @@ outer_xml(VALUE rb_reader)
   VALUE rb_errors = rb_funcall(rb_reader, rb_intern("errors"), 0);
   noko__structured_error_func_save_and_set(&handler_state, (void *)rb_errors, noko__error_array_pusher);
 
+  noko_io_read_reset_exception();
   xmlChar *value = xmlTextReaderReadOuterXml(c_reader);
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFree(value);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   if (value == NULL) {
     VALUE exception = rb_funcall(cNokogiriXmlSyntaxError, rb_intern("aggregate"), 1, rb_errors);
@@ -696,14 +722,21 @@ from_io(int argc, VALUE *argv, VALUE klass)
   if (RTEST(encoding)) { c_encoding = StringValueCStr(encoding); }
   if (RTEST(rb_options)) { c_options = (int)NUM2INT(rb_options); }
 
+  noko_io_read_reset_exception();
   c_reader = xmlReaderForIO(
-             (xmlInputReadCallback)noko_io_read,
+             (xmlInputReadCallback)noko_io_read_protected,
              (xmlInputCloseCallback)noko_io_close,
              (void *)rb_io,
              c_url,
              c_encoding,
              c_options
            );
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFreeTextReader(c_reader);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   if (c_reader == NULL) {
     xmlFreeTextReader(c_reader);
