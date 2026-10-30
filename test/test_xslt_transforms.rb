@@ -259,6 +259,23 @@ module Nokogiri
         assert_raises(RuntimeError) { xslt.transform(doc) }
       end
 
+      def test_xslt_transform_error_reported_without_transform_context
+        # libxslt reports some errors, like this one, directly to the global generic error handler
+        # and not to the transform context's error handler.
+        skip_unless_libxml2("libxslt-specific error reporting")
+
+        xslt = Nokogiri::XSLT(<<~EOX)
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
+            <xsl:template match="/">
+              <xsl:value-of select="format-number(1.5, '0.0.0')" />
+            </xsl:template>
+          </xsl:stylesheet>
+        EOX
+
+        exception = assert_raises(RuntimeError) { xslt.transform(Nokogiri::XML("<root />")) }
+        assert_includes(exception.message, "error in format string")
+      end
+
       def test_xslt_parse_error
         xslt_str = <<~EOX
           <xsl:stylesheet version="1.0"

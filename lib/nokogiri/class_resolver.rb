@@ -16,7 +16,7 @@ module Nokogiri
   #
   module ClassResolver
     # #related_class restricts matching namespaces to those matching this set.
-    VALID_NAMESPACES = Set.new(["HTML", "HTML4", "HTML5", "XML", "SAX"])
+    VALID_NAMESPACES = Set.new(["HTML", "HTML4", "HTML5", "XML", "SAX"]).freeze
 
     # :call-seq:
     #   related_class(class_name) → Class

@@ -18,6 +18,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
 
 
+### Added
+
+* [CRuby] Nokogiri is now Ractor-safe: the extension declares `rb_ext_ractor_safe(true)`, and the process-global state it used to mutate (the external entity loader for `NONET` schema parsing, libxslt's generic error handler) and the lazily-initialized libxml2/libxslt globals are no longer racy. Ruby-level constants and caches are frozen or Ractor-local.
+
+
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
