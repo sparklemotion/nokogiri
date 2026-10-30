@@ -471,7 +471,7 @@ new (int argc, VALUE *argv, VALUE klass)
   VALUE version, rest, rb_doc ;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  version = rb_ary_entry(rest, (long)0);
+  version = rb_ary_entry(rest, (rb_len_t)0);
   if (NIL_P(version)) { version = rb_str_new2("1.0"); }
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
@@ -656,7 +656,7 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   if (NIL_P(rb_namespaces)) {
     c_namespaces = NULL;
   } else {
-    long ns_len = RARRAY_LEN(rb_namespaces);
+    rb_len_t ns_len = RARRAY_LEN(rb_namespaces);
     c_namespaces = ruby_xcalloc((size_t)ns_len + 1, sizeof(xmlChar *));
     for (int j = 0 ; j < ns_len ; j++) {
       VALUE entry = rb_ary_entry(rb_namespaces, j);
@@ -741,7 +741,7 @@ noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document)
     return 0;
   }
 
-  for (long jnode = 0; jnode < RARRAY_LEN(cache); jnode++) {
+  for (rb_len_t jnode = 0; jnode < RARRAY_LEN(cache); jnode++) {
     xmlNodePtr node;
     VALUE element = rb_ary_entry(cache, jnode);
 
