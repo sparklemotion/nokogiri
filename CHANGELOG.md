@@ -42,6 +42,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * CSS attribute names containing a CSS escape, such as `[a\-b]`, now match. Previously they raised `Nokogiri::XML::XPath::SyntaxError`. An unprefixed attribute name that cannot be written as an XPath name test after unescaping, such as `[\@click]` or `[\:class]`, matches an attribute with that exact name in no namespace. The HTML parsers create such attributes. A prefixed one, such as `[x|a\!b]`, raises `Nokogiri::CSS::SyntaxError`. (#3732, #3735) @flavorjones
 * [CRuby] An XSLT extension function that raises an exception no longer leaks memory or leaves behind a stale libxml2 error handler, which could write into a freed Ruby object. (#3718, #3721) @Priyank-gouda678 @flavorjones
 * [CRuby] When an IO's `read` raises an exception that is not a `StandardError`, such as `Interrupt` or `Timeout::ExitException`, parsing with `XML::Document`, `HTML4::Document` or `XML::Reader` no longer leaks memory or leaves behind a stale libxml2 error handler. (#3718, #3721) @Priyank-gouda678 @flavorjones
+* [CRuby] Nokogiri compiles on 64-bit Windows with Ruby 4.1, which stores String and Array lengths in the new `rb_len_t` type. Previously compilation failed with an incompatible pointer type error in `xml_node_set.c`. (#3711) @larskanis
 
 
 ## v1.19.4 / 2026-06-18
