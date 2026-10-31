@@ -588,6 +588,7 @@ error:
         continue;
       }
       VALUE element_name = rb_funcall(node, name, 0);
+      Check_Type(element_name, T_STRING);
       if (RSTRING_LEN(element_name) == 4
           && !st_strcasecmp(RSTRING_PTR(element_name), "form")
           && lookup_namespace(node, false) == GUMBO_NAMESPACE_HTML) {
