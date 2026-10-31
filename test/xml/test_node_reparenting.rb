@@ -867,6 +867,26 @@ module Nokogiri
 
             assert_includes(doc.to_xml, %{<dnd:character xmlns:dnd="http://www.w3.org/dungeons#"/>})
           end
+
+          it "does not redeclare a prefixed namespace that the new parent already binds" do
+            doc = Nokogiri::XML(<<~XML)
+              <root xmlns:m="urn:messages">
+                <request xmlns="urn:messages"/>
+              </root>
+            XML
+
+            messages_ns = doc.root.namespace_definitions.find { |ns| ns.prefix == "m" }
+            parent = doc.root.elements.first
+
+            node = doc.create_element("item")
+            node.namespace = messages_ns
+            parent.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: "m", href: "urn:messages" }
+            end
+            assert_empty(node.namespace_definitions)
+          end
         end
       end
     end
