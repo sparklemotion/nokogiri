@@ -460,6 +460,15 @@ module Nokogiri
         assert_nil(doc.at_xpath("//*[local-name() = 'products']").namespace)
       end
 
+      def test_builder_element_with_a_prefix_declared_on_the_root_uses_that_namespace
+        doc = Nokogiri::XML(%(<root xmlns:foo='http://example.org/foo'/>))
+        Nokogiri::XML::Builder.with(doc.root) { |xml| xml.send("foo:child") }
+
+        assert_pattern do
+          doc.root.elements.first.namespace => { prefix: "foo", href: "http://example.org/foo" }
+        end
+      end
+
       def test_builder_reuses_namespaces
         # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
         builder = Nokogiri::XML::Builder.new

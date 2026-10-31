@@ -196,6 +196,16 @@ module Nokogiri
           assert_nil(node.namespace)
         end
 
+        def test_create_element_with_a_prefix_declared_on_the_root_uses_that_namespace
+          doc = Nokogiri::XML(%(<root xmlns:foo='http://example.org/foo'/>))
+          node = doc.create_element("foo:child")
+          doc.root.add_child(node)
+
+          assert_pattern do
+            node.namespace => { prefix: "foo", href: "http://example.org/foo" }
+          end
+        end
+
         def test_create_element_with_namespace
           elm = xml.create_element("foo", "xmlns:foo": "http://tenderlovemaking.com")
           assert_equal("http://tenderlovemaking.com", elm.namespaces["xmlns:foo"])

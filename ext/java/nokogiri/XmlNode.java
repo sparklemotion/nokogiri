@@ -321,8 +321,12 @@ public class XmlNode extends RubyObject
 
     Element element;
     String node_name = rubyStringToString(name);
-
-    element = document.createElementNS(null, node_name);
+    String prefix = NokogiriHelpers.getPrefix(node_name);
+    String namespace_uri = null;
+    if (prefix != null && document.getDocumentElement() != null) {
+      namespace_uri = document.getDocumentElement().lookupNamespaceURI(prefix);
+    }
+    element = document.createElementNS(namespace_uri, node_name);
     setNode(context.runtime, element);
   }
 
