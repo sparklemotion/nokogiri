@@ -8,7 +8,8 @@ module Nokogiri
       undef_method :content
       undef_method :namespace
       undef_method :namespace_definitions
-      undef_method :line if method_defined?(:line)
+      undef_method :line
+      undef_method :line= if method_defined?(:line=)
 
       def keys
         attributes.keys
