@@ -1387,11 +1387,14 @@ static bool is_open_element(const GumboParser* parser, const GumboNode* node) {
 // Clones attributes, tags, etc. of a node, but does not copy the content. The
 // clone shares no structure with the original node: all owned strings and
 // values are fresh copies.
+// This doesn't support custom elements because it does not need to at this
+// time.
 static GumboNode* clone_node (
   GumboNode* node,
   GumboParseFlags reason
 ) {
   assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
+  assert(node->v.element.tag != GUMBO_TAG_UNKNOWN);
   GumboNode* new_node = gumbo_alloc(sizeof(GumboNode));
   *new_node = *node;
   new_node->parent = NULL;
