@@ -303,6 +303,46 @@ class TestHtml5API < Nokogiri::TestCase
     assert_nil(mi.namespace)
   end
 
+  def test_fragment_context_ancestor_with_non_string_name_raises_type_error
+    ancestor = Class.new do
+      def element?
+        true
+      end
+
+      def name
+        12345
+      end
+
+      def parent
+        nil
+      end
+    end.new
+
+    context = Class.new do
+      attr_reader :parent
+
+      def initialize(parent)
+        @parent = parent
+      end
+
+      def element?
+        false
+      end
+
+      def name
+        "div"
+      end
+
+      def namespace
+        nil
+      end
+    end.new(ancestor)
+
+    assert_raises(TypeError) do
+      Nokogiri::HTML5::DocumentFragment.new(Nokogiri::HTML5::Document.new, "<p>hi</p>", context: context)
+    end
+  end
+
   def test_html_eh
     doc = Nokogiri.HTML5("<html><body><div></div></body></html>")
     assert_predicate(doc, :html?)
