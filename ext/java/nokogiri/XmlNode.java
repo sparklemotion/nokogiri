@@ -423,7 +423,6 @@ public class XmlNode extends RubyObject
     }
 
     Element e = (Element) node;
-    Node parent = e.getParentNode();
 
     // disable error checking to prevent lines like the following
     // from throwing a `NAMESPACE_ERR' exception:
@@ -442,27 +441,22 @@ public class XmlNode extends RubyObject
         set_namespace(context, ((XmlNode)parent(context)).namespace(context));
       }
     } else {
+      String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
+      String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
+      boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
+
       // add xmlns attribute if this is a new root node or if the node's
       // namespace isn't a default namespace in the new document
-      if (parent == null || parent.getNodeType() == Node.DOCUMENT_NODE) {
+      if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
         // this is the root node, so we must set the namespaces attributes anyway
         e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
       } else if (prefix == null) {
         // this is a default namespace but isn't the default where this node is being added
-        boolean isDefault = parent.isDefaultNamespace(nsURI);
-
-        if (!isDefault) {
-          e.setAttribute("xmlns", nsURI);
-        }
-      } else if (parent.getNodeType() == Node.ELEMENT_NODE) {
-        String currentPrefix = parent.lookupPrefix(nsURI);
-        String currentURI = parent.lookupNamespaceURI(prefix);
-
-        if (!prefix.equals(currentPrefix) || !nsURI.equals(currentURI)) {
-          // this is a prefixed namespace
-          // but doesn't have the same prefix or the prefix is set to a different URI
-          e.setAttribute("xmlns:" + prefix, nsURI);
-        }
+        if (!isDefault) { e.setAttribute("xmlns", nsURI); }
+      } else if (!prefix.equals(currentPrefix) || !nsURI.equals(currentURI)) {
+        // this is a prefixed namespace
+        // but doesn't have the same prefix or the prefix is set to a different URI
+        e.setAttribute("xmlns:" + prefix, nsURI);
       }
     }
 
@@ -500,7 +494,7 @@ public class XmlNode extends RubyObject
 
     // if this namespace is a duplicate of what's already in the document, remove it.
     // a "duplicate" here is if the prefix and the URI both match what resolves in the parent.
-    if (parent != null && parent.getNodeType() == Node.ELEMENT_NODE) {
+    if (e.getParentNode().getNodeType() == Node.ELEMENT_NODE) {
       RubyArray<?> nsdefs = this.namespace_definitions(context);
       for (int j = 0 ; j < nsdefs.getLength() ; j++) {
         XmlNamespace ns = (XmlNamespace)nsdefs.get(j);
@@ -1538,7 +1532,18 @@ public class XmlNode extends RubyObject
       String new_name = NokogiriHelpers.newQName(ns.getPrefix(), node);
       this.node = NokogiriHelpers.renameNode(node, ns.getHref(), new_name);
 
-      this.relink_namespace(context);
+      if (node instanceof Element) {
+        Element e = (Element) node;
+        String prefix = ns.getPrefix();
+        String attrName = prefix == null ? "xmlns" : "xmlns:" + prefix;
+        Node parent = e.getParentNode();
+        boolean inScope = "xml".equals(prefix) ||
+                          e.hasAttribute(attrName) ||
+                          (parent != null && parent.lookupNamespaceURI(prefix) != null);
+        if (!inScope) {
+          e.setAttributeNS("http://www.w3.org/2000/xmlns/", attrName, ns.getHref());
+        }
+      }
     }
 
     clearXpathContext(getNode());

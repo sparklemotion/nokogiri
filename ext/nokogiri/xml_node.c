@@ -1334,8 +1334,9 @@ set_namespace(VALUE self, VALUE namespace)
 
   xmlSetNs(node, ns);
 
-  if (ns && ns->prefix)  {
-    xmlReconciliateNs(node->doc, node);
+  if (ns && node->type == XML_ELEMENT_NODE && !xmlSearchNs(node->doc, node, ns->prefix)) {
+    xmlNsPtr definition = xmlNewNs(node, ns->href, ns->prefix);
+    if (definition) { xmlSetNs(node, definition); }
   }
 
   return self;

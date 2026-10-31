@@ -887,6 +887,36 @@ module Nokogiri
             end
             assert_empty(node.namespace_definitions)
           end
+
+          it "stitches together a default namespace" do
+            doc = Nokogiri::XML(<<~XML)
+              <root xmlns="urn:outer">
+                <inner xmlns="urn:inner"/>
+              </root>
+            XML
+
+            node = doc.create_element("item")
+            node.namespace = doc.root.namespace
+            doc.root.elements.first.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: nil, href: "urn:outer" }
+              node.namespace_definitions => [{ prefix: nil, href: "urn:outer" }]
+            end
+          end
+
+          it "does not redeclare a default namespace that the new parent already binds" do
+            doc = Nokogiri::XML(%{<root xmlns="urn:outer"/>})
+
+            node = doc.create_element("item")
+            node.namespace = doc.root.namespace
+            doc.root.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: nil, href: "urn:outer" }
+            end
+            assert_empty(node.namespace_definitions)
+          end
         end
       end
     end
