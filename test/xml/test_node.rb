@@ -1625,6 +1625,30 @@ module Nokogiri
             node.line = line_number
             assert_equal(line_number, node.line)
           end
+
+          it "is ignored for node types whose C struct has no line field" do
+            skip_unless_libxml2("Xerces does not have line numbers for nodes")
+
+            document = Nokogiri::XML(<<~XML)
+              <!DOCTYPE root SYSTEM "http://nokogiri.org/dtd">
+              <root attr="value"/>
+            XML
+            document.encoding = "UTF-8"
+
+            # Documents, DTDs, attributes, and declaration nodes do not use the xmlNode struct
+            # layout, so writing `line` wrote out of bounds or clobbered an adjacent field (for
+            # example the document's encoding pointer or the DTD's system id). The value is now
+            # ignored for them instead.
+            refute_valgrind_errors do
+              document.line = 54321
+              document.internal_subset.line = 54321
+              document.root.attribute_nodes.first.line = 54321
+            end
+
+            assert_equal("UTF-8", document.encoding)
+            assert_equal("http://nokogiri.org/dtd", document.internal_subset.system_id)
+            assert_equal("value", document.root["attr"])
+          end
         end
       end
     end

@@ -2064,6 +2064,17 @@ rb_xml_node_line_set(VALUE rb_node, VALUE rb_line_number)
 
   Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
+  // Only element, text, comment, and PI nodes use the xmlNode struct layout that has a `line`
+  // field, which is exactly what xmlGetLineNo() (the read side, #line) looks at. Documents, DTDs,
+  // attributes, and the declaration nodes use a differently-shaped (and sometimes smaller) C
+  // struct, so writing `line` on them would write out of bounds or clobber an unrelated field.
+  if (c_node->type != XML_ELEMENT_NODE
+      && c_node->type != XML_TEXT_NODE
+      && c_node->type != XML_COMMENT_NODE
+      && c_node->type != XML_PI_NODE) {
+    return rb_line_number;
+  }
+
   // libxml2 optionally uses xmlNode.psvi to store longer line numbers, but only for text nodes.
   // search for "psvi" in SAX2.c and tree.c to learn more.
   if (line_number < 65535) {
