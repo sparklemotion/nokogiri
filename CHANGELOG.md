@@ -43,6 +43,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] An XSLT extension function that raises an exception no longer leaks memory or leaves behind a stale libxml2 error handler, which could write into a freed Ruby object. (#3718, #3721) @Priyank-gouda678 @flavorjones
 * [CRuby] When an IO's `read` raises an exception that is not a `StandardError`, such as `Interrupt` or `Timeout::ExitException`, parsing with `XML::Document`, `HTML4::Document` or `XML::Reader` no longer leaks memory or leaves behind a stale libxml2 error handler. (#3718, #3721) @Priyank-gouda678 @flavorjones
 * [CRuby] Nokogiri compiles on 64-bit Windows with Ruby 4.1, which stores String and Array lengths in the new `rb_len_t` type. Previously compilation failed with an incompatible pointer type error in `xml_node_set.c`. (#3711) @larskanis
+* [CRuby] `Node#line=` now raises `NoMethodError` on `Document`, `DTD`, `Attr`, `ElementDecl`, `AttributeDecl` and `EntityDecl`, as `#line` already does on all of them except `Attr`. Previously it wrote past the end of the node's memory or overwrote an unrelated field, which could crash the process. (#3737, #3738) @Priyank-gouda678 @flavorjones
 
 
 ## v1.19.4 / 2026-06-18

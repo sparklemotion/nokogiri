@@ -434,6 +434,7 @@ module Nokogiri
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
+      undef_method :line= if method_defined?(:line=)
 
       def add_child(node_or_tags)
         raise "A document may not have multiple root nodes." if root && root.name != "nokogiri_text_wrapper" && !(node_or_tags.comment? || node_or_tags.processing_instruction?)

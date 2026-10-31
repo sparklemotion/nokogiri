@@ -157,6 +157,14 @@ module Nokogiri
         assert_equal("new value", attr.value)
       end
 
+      def test_line=
+        attr = Nokogiri::XML("<root foo='bar'/>").root.attribute_nodes.first
+
+        assert_raises(NoMethodError) do
+          attr.line = 1
+        end
+      end
+
       def test_unlink # aliased as :remove
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath("/staff/employee/address").first
