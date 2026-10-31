@@ -21,7 +21,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
-* [CRuby] The HTML5 serializer escapes `<` and `>` in attribute values as `&lt;` and `&gt;`, following [whatwg/html#6362](https://github.com/whatwg/html/pull/6362). Previously they were written literally. (#3529) @flavorjones
+* [CRuby] The HTML5 serializer escapes `<` and `>` in attribute values as `&lt;` and `&gt;`, following [whatwg/html#6362](https://github.com/whatwg/html/pull/6362). Previously they were written literally. (#3529, #3741) @flavorjones
 
 
 ### Fixed
