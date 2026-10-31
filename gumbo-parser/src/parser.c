@@ -2902,6 +2902,10 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
     for (unsigned int i = 0; i < children->length; ++i) {
       if (children->data[i] == body_node) {
         gumbo_vector_remove_at(i, children);
+        for (unsigned int j = i; j < children->length; ++j) {
+          GumboNode* sibling = children->data[j];
+          sibling->index_within_parent = j;
+        }
         break;
       }
     }
