@@ -157,6 +157,19 @@ module Nokogiri
         assert_equal("new value", attr.value)
       end
 
+      def test_line
+        skip_unless_libxml2("Xerces does not have line numbers for nodes")
+
+        xml = Nokogiri::XML(<<~XML)
+          <root>
+            <child foo="bar"/>
+          </root>
+        XML
+        attr = xml.at_css("child").attribute_nodes.first
+
+        assert_equal(2, attr.line)
+      end
+
       def test_line=
         attr = Nokogiri::XML("<root foo='bar'/>").root.attribute_nodes.first
 
