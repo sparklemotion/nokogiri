@@ -323,7 +323,7 @@ public class XmlNode extends RubyObject
     String node_name = rubyStringToString(name);
     String prefix = NokogiriHelpers.getPrefix(node_name);
     String namespace_uri = null;
-    if (document.getDocumentElement() != null) {
+    if (prefix != null && document.getDocumentElement() != null) {
       namespace_uri = document.getDocumentElement().lookupNamespaceURI(prefix);
     }
     element = document.createElementNS(namespace_uri, node_name);
