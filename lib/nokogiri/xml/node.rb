@@ -630,11 +630,13 @@ module Nokogiri
       end
 
       ###
-      # Set the default namespace on this node (as would be defined with an
-      # "xmlns=" attribute in XML source), as a Namespace object +ns+. Note that
-      # a Namespace added this way will NOT be serialized as an xmlns attribute
-      # for this node. You probably want #default_namespace= instead, or perhaps
-      # #add_namespace_definition with a nil prefix argument.
+      # Set the namespace of this node to the Namespace object +ns+, which must belong to this
+      # node's document. Pass +nil+ to remove the node's namespace.
+      #
+      # If no declaration of the namespace's prefix is in scope on this node, a declaration of
+      # +ns+ is added to this node.
+      #
+      # To declare a prefixed namespace without putting this node in it, use #add_namespace_definition.
       def namespace=(ns)
         return set_namespace(ns) if ns.nil?
 

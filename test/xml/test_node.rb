@@ -1348,6 +1348,81 @@ module Nokogiri
           assert_match(/xmlns="bar"/, subject.to_xml)
         end
 
+        # https://github.com/sparklemotion/nokogiri/issues/3459
+        def test_namespace_set_on_unparented_node_also_sets_a_definition
+          doc = Nokogiri::XML(%{<root xmlns:foo="http://example.com/foo"></root>})
+          ns = doc.root.namespace_definitions.first
+
+          node = doc.create_element("other")
+          node.namespace = ns
+
+          assert_pattern do
+            node.namespace_definitions => [{ prefix: "foo", href: "http://example.com/foo" }]
+          end
+        end
+
+        def test_default_namespace_set_on_unparented_node_also_sets_a_definition
+          doc = Nokogiri::XML(%{<root xmlns="http://example.com/foo"></root>})
+
+          node = doc.create_element("other")
+          node.namespace = doc.root.namespace
+
+          assert_pattern do
+            node.namespace_definitions => [{ prefix: nil, href: "http://example.com/foo" }]
+          end
+        end
+
+        def test_namespace_set_on_parented_node_keeps_the_chosen_prefix
+          doc = Nokogiri::XML(%{<root xmlns:p="urn:u" xmlns:q="urn:u"><node/></root>})
+          node = doc.root.elements.first
+
+          node.namespace = doc.root.namespace_definitions.find { |ns| ns.prefix == "q" }
+
+          assert_pattern do
+            node.namespace => { prefix: "q", href: "urn:u" }
+          end
+        end
+
+        def test_namespace_set_on_parented_node_keeps_attribute_namespaces
+          doc = Nokogiri::XML(%{<root xmlns="urn:u" xmlns:p="urn:u"><node p:a="v"/></root>})
+          node = doc.root.elements.first
+
+          node.namespace = doc.root.namespace_definitions.find { |ns| ns.prefix == "p" }
+
+          assert_pattern do
+            node.namespace => { prefix: "p", href: "urn:u" }
+            node.attribute_nodes.first.namespace => { prefix: "p", href: "urn:u" }
+          end
+        end
+
+        def test_namespace_set_on_parented_node_keeps_descendant_default_namespaces
+          doc = Nokogiri::XML(%{<root xmlns:p="urn:p"><node><child xmlns="urn:d"><grandchild/></child></node></root>})
+          node = doc.root.elements.first
+
+          node.namespace = doc.root.namespace_definitions.first
+
+          child = node.elements.first
+          grandchild = child.elements.first
+
+          assert_pattern do
+            child.namespace => { prefix: nil, href: "urn:d" }
+            child.namespace_definitions => [{ prefix: nil, href: "urn:d" }]
+            grandchild.namespace => { prefix: nil, href: "urn:d" }
+          end
+        end
+
+        def test_xml_namespace_set_on_unparented_node_does_not_declare_it
+          doc = Nokogiri::XML(%{<root xml:lang="en"/>})
+          node = doc.create_element("node")
+
+          node.namespace = doc.root.attribute_with_ns("lang", "http://www.w3.org/XML/1998/namespace").namespace
+
+          assert_pattern do
+            node.namespace => { prefix: "xml", href: "http://www.w3.org/XML/1998/namespace" }
+          end
+          assert_empty(node.namespace_definitions)
+        end
+
         # issue 771
         def test_format_noblank
           content = <<~XML

@@ -1531,6 +1531,19 @@ public class XmlNode extends RubyObject
       // and keep the return value. -mbklein
       String new_name = NokogiriHelpers.newQName(ns.getPrefix(), node);
       this.node = NokogiriHelpers.renameNode(node, ns.getHref(), new_name);
+
+      if (node instanceof Element) {
+        Element e = (Element) node;
+        String prefix = ns.getPrefix();
+        String attrName = prefix == null ? "xmlns" : "xmlns:" + prefix;
+        Node parent = e.getParentNode();
+        boolean inScope = "xml".equals(prefix) ||
+                          e.hasAttribute(attrName) ||
+                          (parent != null && parent.lookupNamespaceURI(prefix) != null);
+        if (!inScope) {
+          e.setAttributeNS("http://www.w3.org/2000/xmlns/", attrName, ns.getHref());
+        }
+      }
     }
 
     clearXpathContext(getNode());

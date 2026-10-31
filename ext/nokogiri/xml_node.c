@@ -115,14 +115,10 @@ relink_namespace(xmlNodePtr reparented)
     xmlNsPtr prev = NULL;
 
     while (curr) {
-      xmlNsPtr ns = xmlSearchNsByHref(
-                      reparented->doc,
-                      reparented->parent,
-                      curr->href
-                    );
-      /* If we find the namespace is already declared, remove it from this
-       * definition list. */
-      if (ns && ns != curr && xmlStrEqual(ns->prefix, curr->prefix)) {
+      xmlNsPtr ns = xmlSearchNs(reparented->doc, reparented->parent, curr->prefix);
+      /* If the parent already binds this prefix to the same href, remove it
+       * from this definition list. */
+      if (ns && ns != curr && xmlStrEqual(ns->href, curr->href)) {
         if (prev) {
           prev->next = curr->next;
         } else {
@@ -1337,6 +1333,11 @@ set_namespace(VALUE self, VALUE namespace)
   }
 
   xmlSetNs(node, ns);
+
+  if (ns && node->type == XML_ELEMENT_NODE && !xmlSearchNs(node->doc, node, ns->prefix)) {
+    xmlNsPtr definition = xmlNewNs(node, ns->href, ns->prefix);
+    if (definition) { xmlSetNs(node, definition); }
+  }
 
   return self;
 }

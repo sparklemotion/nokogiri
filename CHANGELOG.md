@@ -25,7 +25,8 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
-* [CRuby] When a namespace is set on an unparented node, ensure the namespace is defined on the node. (#3459, #3462)
+* `Node#namespace=` now declares the namespace on the node when no declaration of its prefix is in scope there. Previously, on CRuby, a node given a namespace and then moved under an element that binds the same prefix, or the default namespace, to a different URI was serialized in that other namespace. On JRuby, the namespace was missing from `Node#namespace_definitions`. (#3459, #3462) @flavorjones
+* [CRuby] Reparenting removes a node's declaration of a prefix that the new parent binds to the same URI. (#3462) @flavorjones
 * [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
 * [CRuby] `XML::SAX::PushParser` and `HTML4::SAX::PushParser` keep parsing correctly after GC compaction relocates their SAX parser. (#3665) @zanker
