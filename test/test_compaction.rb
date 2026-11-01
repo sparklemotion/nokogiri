@@ -228,6 +228,50 @@ describe "compaction" do
 
       assert_equal("compactedolleh", result.root.content)
     end
+
+    it "calls extension functions after a nested transform with the same stylesheet" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      stylesheet = nil
+      nested = false
+
+      nesting_handler = Class.new do
+        define_method(:nest) do |_nodes|
+          unless nested
+            nested = true
+            stylesheet.transform(Nokogiri::XML("<root>inner</root>"))
+          end
+          GC.verify_compaction_references(expand_heap: true, toward: :empty)
+          "nested"
+        end
+      end
+
+      reversing_handler = Class.new do
+        def reverse(nodes)
+          nodes.first.content.reverse
+        end
+      end
+
+      stylesheet = Nokogiri::XSLT.parse(
+        <<~XSL,
+          <xsl:stylesheet version="1.0"
+            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:n="http://nokogiri.org/test/compaction/nest"
+            xmlns:r="http://nokogiri.org/test/compaction/reverse"
+            extension-element-prefixes="n r">
+            <xsl:template match="/">
+              <result><xsl:value-of select="n:nest(root)"/><xsl:value-of select="r:reverse(root)"/></result>
+            </xsl:template>
+          </xsl:stylesheet>
+        XSL
+        "http://nokogiri.org/test/compaction/nest" => nesting_handler,
+        "http://nokogiri.org/test/compaction/reverse" => reversing_handler,
+      )
+
+      result = stylesheet.transform(Nokogiri::XML("<root>hello</root>"))
+
+      assert_equal("nestedolleh", result.root.content)
+    end
   end
 
   describe Nokogiri::XML::SAX::ParserContext do
