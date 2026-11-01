@@ -3,6 +3,12 @@
 require "helper"
 
 describe "compaction" do
+  before do
+    if Gem::Requirement.new("< 3.3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
+      skip("GC.verify_compaction_references grows the heap on every call before Ruby 3.3")
+    end
+  end
+
   def skip_compaction_tests
     !GC.respond_to?(:verify_compaction_references)
   end
