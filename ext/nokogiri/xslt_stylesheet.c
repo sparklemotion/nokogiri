@@ -6,7 +6,19 @@ static void
 mark(void *data)
 {
   nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
+  long i;
+
+  /* GC can run while Nokogiri_wrap_xslt_stylesheet allocates func_instances. */
+  if (!RB_TYPE_P(wrapper->func_instances, T_ARRAY)) {
+    return;
+  }
+
   rb_gc_mark(wrapper->func_instances);
+
+  /* libxslt retains each extension handler instance's movable VALUE as module data. */
+  for (i = 0; i < RARRAY_LEN(wrapper->func_instances); i++) {
+    rb_gc_mark(RARRAY_AREF(wrapper->func_instances, i));
+  }
 }
 
 static void
@@ -489,6 +501,7 @@ shutdownFunc(xsltTransformContextPtr ctxt,
              const xmlChar *uri, void *data)
 {
   nokogiriXsltStylesheetTuple *wrapper;
+  long i;
 
   TypedData_Get_Struct(
     (VALUE)ctxt->style->_private,
@@ -497,7 +510,13 @@ shutdownFunc(xsltTransformContextPtr ctxt,
     wrapper
   );
 
-  rb_ary_clear(wrapper->func_instances);
+  /* Other transform contexts, such as a nested transform's, may still use their instances. */
+  for (i = 0; i < RARRAY_LEN(wrapper->func_instances); i++) {
+    if (RARRAY_AREF(wrapper->func_instances, i) == (VALUE)data) {
+      rb_ary_delete_at(wrapper->func_instances, i);
+      break;
+    }
+  }
 }
 
 /* docstring is in lib/nokogiri/xslt.rb */
