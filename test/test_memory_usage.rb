@@ -378,6 +378,22 @@ class TestMemoryUsage < Nokogiri::TestCase
       end
     end
 
+    it "Document#canonicalize doesn't leak inclusive namespaces" do
+      doc = Nokogiri::XML(%(<root xmlns:a="urn:a"><a:child/></root>))
+
+      memwatch(__method__) do
+        doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, ["a"])
+      end
+    end
+
+    it "Document#canonicalize doesn't leak on null byte in inclusive namespaces" do
+      doc = Nokogiri::XML(%(<root xmlns:a="urn:a"><a:child/></root>))
+
+      memwatch(__method__) do
+        assert_raises(ArgumentError) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, ["a", "b\x00"]) }
+      end
+    end
+
     it "XPath evaluation doesn't leak when a custom function handler raises" do
       # https://github.com/sparklemotion/nokogiri/issues/3715
       handler = Class.new do
