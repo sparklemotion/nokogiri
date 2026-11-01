@@ -710,9 +710,12 @@ from_memory(int argc, VALUE *argv, VALUE klass)
   if (RTEST(encoding)) { c_encoding = StringValueCStr(encoding); }
   if (RTEST(rb_options)) { c_options = (int)NUM2INT(rb_options); }
 
+  /* libxml2 < 2.11 reads the buffer without copying it, so hand it a copy the caller cannot change. */
+  VALUE rb_frozen_buffer = rb_str_new_frozen(StringValue(rb_buffer));
+
   c_reader = xmlReaderForMemory(
-             StringValuePtr(rb_buffer),
-             (int)RSTRING_LEN(rb_buffer),
+             RSTRING_PTR(rb_frozen_buffer),
+             (int)RSTRING_LEN(rb_frozen_buffer),
              c_url,
              c_encoding,
              c_options
@@ -723,7 +726,7 @@ from_memory(int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eRuntimeError, "couldn't create a parser");
   }
 
-  rb_reader = _noko_xml_reader_wrap(klass, c_reader, rb_buffer);
+  rb_reader = _noko_xml_reader_wrap(klass, c_reader, rb_frozen_buffer);
   args[0] = rb_buffer;
   args[1] = rb_url;
   args[2] = encoding;

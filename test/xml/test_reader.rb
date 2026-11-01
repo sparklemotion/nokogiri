@@ -210,6 +210,32 @@ class Nokogiri::XML::TestReader < Nokogiri::TestCase
     assert_equal(xml, reader.source)
   end
 
+  def test_reader_is_unaffected_by_later_changes_to_the_source_string
+    xml = +"<root><a>hello</a><b>world</b></root>"
+    reader = Nokogiri::XML::Reader(xml)
+
+    xml.replace("<zzzz>" * 40)
+
+    values = []
+    reader.each { |node| values << node.value if node.value? }
+
+    assert_same(xml, reader.source)
+    assert_equal(["hello", "world"], values)
+  end
+
+  def test_from_memory_converts_the_source_with_to_str
+    source = Object.new
+    def source.to_str
+      "<root><a>hello</a></root>"
+    end
+    reader = Nokogiri::XML::Reader.from_memory(source)
+
+    values = []
+    reader.each { |node| values << node.value if node.value? }
+
+    assert_equal(["hello"], values)
+  end
+
   def test_default?
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
         <x xmlns:tenderlove='http://tenderlovemaking.com/'>
