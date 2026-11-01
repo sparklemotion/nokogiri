@@ -210,6 +210,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
         <span><a b='"'></a></span>
         <span><a b="<"></a></span>
         <span><a b=">"></a></span>
+        <span><a href="javascript:&quot;&lt;>&quot;"></a></span>
         <span><svg xlink:href="a"></svg></span>
         <span><svg xmlns:svg="test"></svg></span>
         <span>a</span>
@@ -244,8 +245,9 @@ class TestHtml5Serialize < Nokogiri::TestCase
     ["<a b=\"&amp;\"></a>", "<span><a b=\"&amp;\"></a></span>"],
     ["<a b=\"&nbsp;\"></a>", "<span><a b=\"&nbsp;\"></a></span>"],
     ["<a b=\"&quot;\"></a>", "<span><a b=\"&quot;\"></a></span>"],
-    ["<a b=\"<\"></a>", "<span><a b=\"<\"></a></span>"],
-    ["<a b=\">\"></a>", "<span><a b=\">\"></a></span>"],
+    ["<a b=\"&lt;\"></a>", "<span><a b=\"&lt;\"></a></span>"],
+    ["<a b=\"&gt;\"></a>", "<span><a b=\"&gt;\"></a></span>"],
+    ["<a href=\"javascript:&quot;&lt;&gt;&quot;\"></a>", "<span><a href=\"javascript:&quot;&lt;&gt;&quot;\"></a></span>"],
     ["<svg xlink:href=\"a\"></svg>", "<span><svg xlink:href=\"a\"></svg></span>"],
     ["<svg xmlns:svg=\"test\"></svg>", "<span><svg xmlns:svg=\"test\"></svg></span>"],
     ["a", "<span>a</span>"],
