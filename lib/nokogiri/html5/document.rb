@@ -48,6 +48,11 @@ module Nokogiri
       # Since v1.14.0
       attr_reader :quirks_mode
 
+      # Whether the parser treated the content of +noscript+ elements as text, or +nil+ before the
+      # first parse. Fragments parsed into this document must match it, because the serializer emits
+      # +noscript+ text literally only when this is true.
+      attr_accessor :parse_noscript_content_as_text # :nodoc:
+
       class << self
         # :call-seq:
         #   parse(input) { |options| ... } → HTML5::Document
@@ -150,8 +155,11 @@ module Nokogiri
           options[:max_errors] ||= options.delete(:max_parse_errors) || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
           options[:max_tree_depth] ||= Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
 
+          noscript_content_as_text = options[:parse_noscript_content_as_text] ? true : false
+
           doc = Nokogiri::Gumbo.parse(string, url, self, **options)
           doc.encoding = "UTF-8"
+          doc.parse_noscript_content_as_text = noscript_content_as_text
           doc
         end
       end
@@ -160,6 +168,7 @@ module Nokogiri
         super
         @url = nil
         @quirks_mode = nil
+        @parse_noscript_content_as_text = nil
       end
 
       # :call-seq:

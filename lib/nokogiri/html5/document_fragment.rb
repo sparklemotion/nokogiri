@@ -130,7 +130,9 @@ module Nokogiri
       #   element. (default +Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES+)
       #
       # - +parse_noscript_content_as_text:+ (Boolean) Whether to parse the content of +noscript+
-      #   elements as text. (default +false+)
+      #   elements as text. (default: the value +document+ was parsed with, or +false+) Raises
+      #   ArgumentError if +document+ was parsed with a different value, because the serializer
+      #   escapes +noscript+ text according to the document's value.
       #
       # See rdoc-ref:HTML5@Parsing+options for a complete description of these parsing options.
       #
@@ -162,8 +164,21 @@ module Nokogiri
         options[:max_attributes] ||= Nokogiri::Gumbo::DEFAULT_MAX_ATTRIBUTES
         options[:max_errors] ||= options.delete(:max_parse_errors) || Nokogiri::Gumbo::DEFAULT_MAX_ERRORS
         options[:max_tree_depth] ||= Nokogiri::Gumbo::DEFAULT_MAX_TREE_DEPTH
+        noscript_content_as_text = options[:parse_noscript_content_as_text] = noscript_parsing_mode(doc, options)
 
         Nokogiri::Gumbo.fragment(self, input, context, **options)
+        doc.parse_noscript_content_as_text = noscript_content_as_text if doc.parse_noscript_content_as_text.nil?
+      end
+
+      private def noscript_parsing_mode(doc, options)
+        doc_mode = doc.parse_noscript_content_as_text
+        mode = options.fetch(:parse_noscript_content_as_text, doc_mode) ? true : false
+
+        if !doc_mode.nil? && mode != doc_mode
+          raise ArgumentError, "parse_noscript_content_as_text: #{mode} does not match the document's value #{doc_mode}"
+        end
+
+        mode
       end
 
       def serialize(options = {}, &block) # :nodoc:
