@@ -6,28 +6,17 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-### Dependencies
-
-* [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
-* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
-
-
-### Improved
-
-* [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
-* [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
-
-
-### Changed
-
-* The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
-
-
 ### Fixed
 
 * `Node#namespace=` now declares the namespace on the node when no declaration of its prefix is in scope there. Previously, on CRuby, a node given a namespace and then moved under an element that binds the same prefix, or the default namespace, to a different URI was serialized in that other namespace. On JRuby, the namespace was missing from `Node#namespace_definitions`. (#3459, #3462) @flavorjones
+* `XML::Reader` is no longer affected by changes made to its source String after the reader is created. Previously, such a change could make the reader parse the changed String on JRuby, or changed or freed memory on CRuby with libxml2 < 2.11. (#3694) @flavorjones
+* `Node#namespace = false` now raises `TypeError`. Previously it crashed the process on CRuby and raised `ClassCastException` on JRuby. (#3719) @flavorjones
+* `XML::XPathContext.new` and `XML::XPathContext#node=` raise `TypeError` when the argument is not a `Node`. Previously, on CRuby, most such arguments crashed the process. (#3720) @flavorjones
+* CSS `an+b` selectors with a zero or negative step now follow the Selectors spec: `:nth-child(0n+3)` matches only the third element (previously nothing), `0n-1` matches nothing instead of raising `ZeroDivisionError`, and `-n+0` / `-2n` match nothing instead of every (or every other) element. @afurm
+* CSS `#id`, `.class` and attribute selectors whose value contains a quote character, such as `#it\'s` or `[a=\'b\']`, now match that value. Previously they raised `Nokogiri::XML::XPath::SyntaxError` or generated an XPath query with a different meaning. An `#id` selector containing an escaped newline no longer drops the text after it. (#3724, #3727) @flavorjones
+* CSS `:contains()` arguments, custom pseudo-class string arguments, and element names containing a CSS escape, such as `p:contains('it\'s')` or `a\-b`, now match. Previously they raised `Nokogiri::XML::XPath::SyntaxError`. An element name that is not an XML name after unescaping, such as `a\!b`, raises `Nokogiri::CSS::SyntaxError`, except as an unprefixed name in an HTML5 document, where it matches by local name. In ids, classes, attribute values, element names and string arguments, an escape for U+0000, a surrogate, or a code point above U+10FFFF now decodes to U+FFFD, and a vertical tab after a hexadecimal escape is no longer dropped, as [CSS Syntax Level 3](https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point) requires. (#3728, #3729) @flavorjones
+* CSS attribute names containing a CSS escape, such as `[a\-b]`, now match. Previously they raised `Nokogiri::XML::XPath::SyntaxError`. An unprefixed attribute name that cannot be written as an XPath name test after unescaping, such as `[\@click]` or `[\:class]`, matches an attribute with that exact name in no namespace. The HTML parsers create such attributes. A prefixed one, such as `[x|a\!b]`, raises `Nokogiri::CSS::SyntaxError`. (#3732, #3735) @flavorjones
 * [CRuby] Reparenting removes a node's declaration of a prefix that the new parent binds to the same URI. (#3462) @flavorjones
-* [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
 * [CRuby] `XML::SAX::PushParser` and `HTML4::SAX::PushParser` keep parsing correctly after GC compaction relocates their SAX parser. (#3665) @zanker
 * [CRuby] `XML::Reader` keeps reading correctly when GC compaction runs. Previously, compaction could move the IO or String the reader was created from, and the reader then crashed or parsed the wrong bytes. (#3666, #3668) @zanker
@@ -37,26 +26,17 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `Document#canonicalize` passes the correct inclusive namespace prefixes when it converts a prefix with `#to_str`, and when GC compaction runs during canonicalization. Previously, libxml2 could read freed or moved memory, and the output lost namespaces or Ruby crashed. Raising on a prefix with a null byte also no longer leaks memory. (#3714, #3750) @Priyank-gouda678 @flavorjones
 * [CRuby] `XSLT::Stylesheet#transform` calls custom XSLT extension functions correctly when GC compaction runs during the transform. Previously, compaction could move an extension handler instance, and a later call to one of its functions raised an exception or crashed. (#3748) @flavorjones
 * [CRuby] `XSLT::Stylesheet#transform` calls custom XSLT extension functions correctly after an extension function runs another transform with the same stylesheet, or while another thread does. Previously, the inner or concurrent transform released extension handler instances that the other transform still used, and GC could free them. (#3748) @flavorjones
-* `XML::Reader` is no longer affected by changes made to its source String after the reader is created. Previously, such a change could make the reader parse the changed String on JRuby, or changed or freed memory on CRuby with libxml2 < 2.11. (#3694) @flavorjones
 * [CRuby] `XML::Reader.from_memory` accepts an object that responds to `to_str`. Previously, it could raise `Nokogiri::XML::SyntaxError`. (#3694) @flavorjones
-* `Node#namespace = false` now raises `TypeError`. Previously it crashed the process on CRuby and raised `ClassCastException` on JRuby. (#3719) @flavorjones
 * [CRuby] `XPathContext#evaluate` no longer leaks memory when a custom XPath function handler raises an exception. (#3715, #1610) @flavorjones
 * [CRuby] When a custom XPath function handler raises an exception, `XPathContext#evaluate` now resets libxml2's error handlers and unregisters the custom function lookup. Previously, libxml2 could keep references to garbage-collected Ruby objects. (#3715) @flavorjones
-* [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [CRuby] gumbo: `gumbo_parse_with_options` no longer crashes when `stop_on_first_error` is set and the parse ends on an unknown end tag in a fragment context. This is a C API path; it is not reachable from Ruby, because Nokogiri never sets `stop_on_first_error`. (#3672) @jeremy
-* [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
-* [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
-* `XML::XPathContext.new` and `XML::XPathContext#node=` raise `TypeError` when the argument is not a `Node`. Previously, on CRuby, most such arguments crashed the process. (#3720) @flavorjones
 * [CRuby] HTML5 fragment parsing raises `TypeError` when the context node or one of its ancestors is an element whose `name` returns something other than a `String`. Previously this could crash the process. (#3740) @flavorjones
 * [CRuby] HTML5 parsing no longer leaks memory when a comment follows `</body>` and a `<frameset>` start tag follows the comment. (#3744) @flavorjones
-* CSS `an+b` selectors with a zero or negative step now follow the Selectors spec: `:nth-child(0n+3)` matches only the third element (previously nothing), `0n-1` matches nothing instead of raising `ZeroDivisionError`, and `-n+0` / `-2n` match nothing instead of every (or every other) element. @afurm
-* CSS `#id`, `.class` and attribute selectors whose value contains a quote character, such as `#it\'s` or `[a=\'b\']`, now match that value. Previously they raised `Nokogiri::XML::XPath::SyntaxError` or generated an XPath query with a different meaning. An `#id` selector containing an escaped newline no longer drops the text after it. (#3724, #3727) @flavorjones
-* CSS `:contains()` arguments, custom pseudo-class string arguments, and element names containing a CSS escape, such as `p:contains('it\'s')` or `a\-b`, now match. Previously they raised `Nokogiri::XML::XPath::SyntaxError`. An element name that is not an XML name after unescaping, such as `a\!b`, raises `Nokogiri::CSS::SyntaxError`, except as an unprefixed name in an HTML5 document, where it matches by local name. In ids, classes, attribute values, element names and string arguments, an escape for U+0000, a surrogate, or a code point above U+10FFFF now decodes to U+FFFD, and a vertical tab after a hexadecimal escape is no longer dropped, as [CSS Syntax Level 3](https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point) requires. (#3728, #3729) @flavorjones
-* CSS attribute names containing a CSS escape, such as `[a\-b]`, now match. Previously they raised `Nokogiri::XML::XPath::SyntaxError`. An unprefixed attribute name that cannot be written as an XPath name test after unescaping, such as `[\@click]` or `[\:class]`, matches an attribute with that exact name in no namespace. The HTML parsers create such attributes. A prefixed one, such as `[x|a\!b]`, raises `Nokogiri::CSS::SyntaxError`. (#3732, #3735) @flavorjones
 * [CRuby] An XSLT extension function that raises an exception no longer leaks memory or leaves behind a stale libxml2 error handler, which could write into a freed Ruby object. (#3718, #3721) @Priyank-gouda678 @flavorjones
 * [CRuby] When an IO's `read` raises an exception that is not a `StandardError`, such as `Interrupt` or `Timeout::ExitException`, parsing with `XML::Document`, `HTML4::Document` or `XML::Reader` no longer leaks memory or leaves behind a stale libxml2 error handler. (#3718, #3721) @Priyank-gouda678 @flavorjones
 * [CRuby] Nokogiri compiles on 64-bit Windows with Ruby 4.1, which stores String and Array lengths in the new `rb_len_t` type. Previously compilation failed with an incompatible pointer type error in `xml_node_set.c`. (#3711) @larskanis
 * [CRuby] `Node#line=` now raises `NoMethodError` on `Document`, `DTD`, `Attr`, `ElementDecl`, `AttributeDecl` and `EntityDecl`, as `#line` already does on all of them except `Attr`. Previously it wrote past the end of the node's memory or overwrote an unrelated field, which could crash the process. (#3737, #3738) @Priyank-gouda678 @flavorjones
+* [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 * [JRuby] XPath queries work when Xalan is loaded by a parent of the JRuby class loader and the thread's context class loader is that parent, as in a servlet container with Xalan in `WEB-INF/lib`. Previously they raised `DTMConfigurationException: No default implementation found`. Nokogiri also no longer sets the JVM-wide system property `org.apache.xml.dtm.DTMManager`, which made XSLT transformations and other Xalan users in the same JVM fail in that setup. (#3707) @flavorjones
 
 
