@@ -18,11 +18,23 @@ dealloc(void *data)
   ruby_xfree(wrapper);
 }
 
+/* libxslt retains this Stylesheet's own movable VALUE in _private. */
+static void
+update_references(void *data)
+{
+  nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
+
+  if (wrapper->ss && wrapper->ss->_private) {
+    wrapper->ss->_private = (void *)rb_gc_location((VALUE)wrapper->ss->_private);
+  }
+}
+
 static const rb_data_type_t nokogiri_xslt_stylesheet_tuple_type = {
   .wrap_struct_name = "nokogiriXsltStylesheetTuple",
   .function = {
     .dmark = mark,
     .dfree = dealloc,
+    .dcompact = update_references,
   },
   .flags = RUBY_TYPED_FREE_IMMEDIATELY
 };

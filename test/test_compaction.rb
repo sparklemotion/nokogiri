@@ -133,4 +133,36 @@ describe "compaction" do
       assert_equal(["hello"], values)
     end
   end
+
+  describe Nokogiri::XSLT::Stylesheet do
+    it "calls extension functions after compaction" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      handler = Class.new do
+        def reverse(nodes)
+          nodes.first.content.reverse
+        end
+      end
+
+      # Parse in a separate frame so a live stack reference cannot pin the stylesheet.
+      stylesheet = lambda do
+        Nokogiri::XSLT.parse(<<~XSL, "http://nokogiri.org/test/compaction" => handler)
+          <xsl:stylesheet version="1.0"
+            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:f="http://nokogiri.org/test/compaction"
+            extension-element-prefixes="f">
+            <xsl:template match="/">
+              <reversed><xsl:value-of select="f:reverse(root)"/></reversed>
+            </xsl:template>
+          </xsl:stylesheet>
+        XSL
+      end.call
+
+      gc_verify_compaction_references
+
+      result = stylesheet.transform(Nokogiri::XML("<root>hello</root>"))
+
+      assert_equal("olleh", result.root.content)
+    end
+  end
 end
