@@ -6,7 +6,19 @@ static void
 mark(void *data)
 {
   nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
+  long i;
+
+  /* GC can run while Nokogiri_wrap_xslt_stylesheet allocates func_instances. */
+  if (!RB_TYPE_P(wrapper->func_instances, T_ARRAY)) {
+    return;
+  }
+
   rb_gc_mark(wrapper->func_instances);
+
+  /* libxslt retains each extension handler instance's movable VALUE as module data. */
+  for (i = 0; i < RARRAY_LEN(wrapper->func_instances); i++) {
+    rb_gc_mark(RARRAY_AREF(wrapper->func_instances, i));
+  }
 }
 
 static void

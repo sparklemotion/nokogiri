@@ -278,6 +278,20 @@ module Nokogiri
         assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
       end
 
+      def test_parse_stylesheet_doc_stress
+        skip_unless_libxml2("this is testing CRuby GC behavior")
+
+        xslt_doc = Nokogiri::XML(<<~XSL)
+          <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"/>
+        XSL
+
+        stylesheet = stress_memory_while do
+          Nokogiri::XSLT::Stylesheet.parse_stylesheet_doc(xslt_doc)
+        end
+
+        assert_kind_of(Nokogiri::XSLT::Stylesheet, stylesheet)
+      end
+
       def test_passing_a_non_document_to_transform
         xsl = Nokogiri::XSLT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"></xsl:stylesheet>')
         assert_raises(ArgumentError) { xsl.transform("<div></div>") }
