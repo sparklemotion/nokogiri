@@ -6,21 +6,10 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
-### Dependencies
-
-* [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
-* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
-
-
 ### Improved
 
 * [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
 * [CRuby] Improved XPath argument marshalling performance by using `ALLOCV_N` instead of `rb_gc_register_address`. (#3648) @jhawthorn
-
-
-### Changed
-
-* The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
 
 
 ### Fixed
@@ -48,7 +37,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `XML::Reader.from_memory` accepts an object that responds to `to_str`. Previously, it could raise `Nokogiri::XML::SyntaxError`. (#3694) @flavorjones
 * [CRuby] `XPathContext#evaluate` no longer leaks memory when a custom XPath function handler raises an exception. (#3715, #1610) @flavorjones
 * [CRuby] When a custom XPath function handler raises an exception, `XPathContext#evaluate` now resets libxml2's error handlers and unregisters the custom function lookup. Previously, libxml2 could keep references to garbage-collected Ruby objects. (#3715) @flavorjones
+* [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
 * [CRuby] gumbo: `gumbo_parse_with_options` no longer crashes when `stop_on_first_error` is set and the parse ends on an unknown end tag in a fragment context. This is a C API path; it is not reachable from Ruby, because Nokogiri never sets `stop_on_first_error`. (#3672) @jeremy
+* [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [CRuby] HTML5 fragment parsing raises `TypeError` when the context node or one of its ancestors is an element whose `name` returns something other than a `String`. Previously this could crash the process. (#3740) @flavorjones
 * [CRuby] HTML5 parsing no longer leaks memory when a comment follows `</body>` and a `<frameset>` start tag follows the comment. (#3744) @flavorjones
 * [CRuby] An XSLT extension function that raises an exception no longer leaks memory or leaves behind a stale libxml2 error handler, which could write into a freed Ruby object. (#3718, #3721) @Priyank-gouda678 @flavorjones
@@ -176,10 +167,6 @@ This release is focused on changes to Ruby version support, and is otherwise fun
 ### Fixed
 
 * [CRuby] XML::SAX::ParserContext keeps a reference to the input to avoid a potential use-after-free issue that's existed since v1.4.0 (2009). (#3395) @flavorjones
-### Improved
-
-* [CRuby] The HTML5 parser now has linear performance when parsing many attributes. Previously performance was quadratic due to two hotspots, one in detecting duplicate attributes and one in constructing the libxml2 data structures. (#3393) @flavorjones
-
 
 
 ## v1.18.0 / 2024-12-25
