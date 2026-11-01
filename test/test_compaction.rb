@@ -164,5 +164,32 @@ describe "compaction" do
 
       assert_equal("olleh", result.root.content)
     end
+
+    it "transforms with params when compaction runs while params are converted" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+      skip_unless_libxml2("JRuby does not convert params with #to_str")
+
+      compact = method(:gc_verify_compaction_references)
+      compacting_param = Object.new
+      compacting_param.define_singleton_method(:to_str) do
+        compact.call
+        "'ok'"
+      end
+
+      stylesheet = Nokogiri::XSLT(<<~XSLT)
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:param name="title"/>
+          <xsl:param name="trigger"/>
+          <xsl:template match="/"><out><xsl:value-of select="$title"/></out></xsl:template>
+        </xsl:stylesheet>
+      XSLT
+
+      # Short strings are embedded in their object slots, so compaction moves their bytes.
+      params = ["title", "'Employee List'", "trigger", compacting_param]
+
+      result = stylesheet.transform(Nokogiri::XML("<root/>"), params)
+
+      assert_equal("Employee List", result.root.content)
+    end
   end
 end

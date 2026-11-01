@@ -362,6 +362,22 @@ class TestMemoryUsage < Nokogiri::TestCase
       end
     end
 
+    it "XSLT#transform doesn't leak params" do
+      # https://github.com/sparklemotion/nokogiri/issues/3670
+      xsl = Nokogiri::XSLT.parse(<<~XSL)
+        <?xml version="1.0"?>
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:param name="p"/>
+          <xsl:template match="/"><r><xsl:value-of select="$p"/></r></xsl:template>
+        </xsl:stylesheet>
+      XSL
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        xsl.transform(doc, ["p", "'value'"])
+      end
+    end
+
     it "XPath evaluation doesn't leak when a custom function handler raises" do
       # https://github.com/sparklemotion/nokogiri/issues/3715
       handler = Class.new do
