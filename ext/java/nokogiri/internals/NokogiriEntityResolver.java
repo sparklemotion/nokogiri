@@ -1,5 +1,7 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.effectiveResourceIsLocal;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -103,12 +105,12 @@ public class NokogiriEntityResolver implements EntityResolver2
     } else if (!name.equals("[dtd]") && !options.noEnt) {
       return emptyInputSource(s);
     }
-    String adjustedSystemId;
-    URI uri = URI.create(systemId);
-    if (options.noNet && uri.getHost() != null) {
+    if (options.noNet && !effectiveResourceIsLocal(systemId, baseURI)) {
       addError("Attempt to load network entity " + systemId);
       return emptyInputSource(s);
     }
+    String adjustedSystemId;
+    URI uri = URI.create(systemId);
     // if this is a url or absolute file name then use it
     if (uri.isAbsolute() && !uri.isOpaque()) {
       adjustedSystemId = uri.toURL().toString();
@@ -116,10 +118,6 @@ public class NokogiriEntityResolver implements EntityResolver2
       adjustedSystemId = uri.getPath();
     } else if (baseURI != null) {
       URI baseuri = URI.create(baseURI);
-      if (options.noNet && baseuri.getHost() != null) {
-        addError("Attempt to load network entity " + systemId);
-        return emptyInputSource(s);
-      }
       if (baseuri.getHost() == null) {
         // this is a local file
         adjustedSystemId = join(baseuri.getPath(), uri.getPath()).getCanonicalPath();
