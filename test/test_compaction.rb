@@ -222,4 +222,64 @@ describe "compaction" do
       assert_equal(["html", "body", "p"], handler.start_elements.map(&:first))
     end
   end
+
+  describe Nokogiri::XML::Document do
+    let(:prefixes) { Array.new(10) { |i| "p#{i}" } }
+    let(:doc) { Nokogiri::XML(%(<root #{prefixes.map { |p| %(xmlns:#{p}="urn:#{p}") }.join(" ")}><a/><b/></root>)) }
+    let(:expected) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, prefixes) }
+
+    it "canonicalizes with inclusive namespaces when compaction runs while they are converted" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      compact = method(:gc_verify_compaction_references)
+      compacting_prefix = Object.new
+      compacting_prefix.define_singleton_method(:to_str) do
+        compact.call
+        "p9"
+      end
+
+      # Short strings are embedded in their object slots, so compaction moves their bytes.
+      inclusive_namespaces = prefixes[0..-2].map(&:dup) + [compacting_prefix]
+
+      assert_equal(expected, doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces))
+    end
+
+    it "canonicalizes with inclusive namespaces when compaction runs in the block" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+
+      expected # canonicalize before compaction can run
+      inclusive_namespaces = prefixes.map(&:dup)
+      compacted = false
+
+      actual = doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces) do
+        gc_verify_compaction_references unless compacted
+        compacted = true
+      end
+
+      assert_equal(expected, actual)
+    end
+
+    it "canonicalizes with inclusive namespaces when compaction runs while they are copied" do
+      skip("GC compaction is unavailable") if skip_compaction_tests
+      skip("GC.stress is too slow under a memory debugger") if Nokogiri::MemoryDebugger.active?
+
+      to_str_class = Struct.new(:str) do
+        def to_str = str.dup
+      end
+      inclusive_namespaces = prefixes.map { |p| to_str_class.new(p) }
+      expected # canonicalize before compaction can run
+
+      auto_compact = GC.auto_compact
+      results = begin
+        GC.auto_compact = true
+        stress_memory_while do
+          Array.new(20) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces) }
+        end
+      ensure
+        GC.auto_compact = auto_compact
+      end
+
+      assert_equal([expected], results.uniq)
+    end
+  end
 end
