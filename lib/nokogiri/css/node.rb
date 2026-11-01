@@ -3,7 +3,7 @@
 module Nokogiri
   module CSS
     class Node # :nodoc:
-      ALLOW_COMBINATOR_ON_SELF = [:DIRECT_ADJACENT_SELECTOR, :FOLLOWING_SELECTOR, :CHILD_SELECTOR]
+      ALLOW_COMBINATOR_ON_SELF = [:DIRECT_ADJACENT_SELECTOR, :FOLLOWING_SELECTOR, :CHILD_SELECTOR].freeze
 
       # Get the type of this node
       attr_accessor :type

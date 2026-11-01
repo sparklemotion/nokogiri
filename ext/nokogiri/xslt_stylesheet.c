@@ -27,24 +27,51 @@ static const rb_data_type_t nokogiri_xslt_stylesheet_tuple_type = {
   .flags = RUBY_TYPED_FREE_IMMEDIATELY
 };
 
+static ID id_xslt_error_buffer;
+
+/*
+ *  libxslt's generic error handler (xsltGenericError and xsltGenericErrorContext) is process-global,
+ *  unlike libxml2's which is thread-local. Setting and resetting it around each operation would race
+ *  when stylesheets are parsed or applied in parallel from multiple Ractors.
+ *
+ *  Instead, xslt_generic_error_handler is installed once when the extension is loaded, with a NULL
+ *  context, and it finds the string it should append to in thread-local storage.
+ */
+static VALUE
+xslt_error_buffer_swap(VALUE rb_error_str)
+{
+  VALUE rb_thread = rb_thread_current();
+  VALUE rb_previous = rb_thread_local_aref(rb_thread, id_xslt_error_buffer);
+  rb_thread_local_aset(rb_thread, id_xslt_error_buffer, rb_error_str);
+  return rb_previous;
+}
+
 PRINTFLIKE_DECL(2, 3)
 static void
 xslt_generic_error_handler(void *ctx, const char *msg, ...)
 {
   VALUE message;
+  VALUE rb_error_str = (VALUE)ctx;
 
-#ifdef TRUFFLERUBY_NOKOGIRI_SYSTEM_LIBRARIES
-  /* It is not currently possible to pass var args from native
-     functions to sulong, so we work around the issue here. */
-  message = rb_sprintf("xslt_generic_error_handler: %s", msg);
-#else
+  if (!rb_error_str && ruby_native_thread_p()) {
+    rb_error_str = rb_thread_local_aref(rb_thread_current(), id_xslt_error_buffer);
+  }
+
+  if (!RTEST(rb_error_str)) {
+    /* nobody is collecting errors, behave like libxslt's default handler */
+    va_list args;
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+    return;
+  }
+
   va_list args;
   va_start(args, msg);
   message = rb_vsprintf(msg, args);
   va_end(args);
-#endif
 
-  rb_str_concat((VALUE)ctx, message);
+  rb_str_concat(rb_error_str, message);
 }
 
 PRINTFLIKE_DECL(2, 3)
@@ -105,18 +132,18 @@ static VALUE
 parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 {
   xmlDocPtr xml, xml_cpy;
-  VALUE errstr, exception;
+  VALUE errstr, exception, previous_errstr;
   xsltStylesheetPtr ss ;
 
   xml = noko_xml_document_unwrap(xmldocobj);
 
   errstr = rb_str_new(0, 0);
-  xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
+  previous_errstr = xslt_error_buffer_swap(errstr);
 
   xml_cpy = xmlCopyDoc(xml, 1); /* 1 => recursive */
   ss = xsltParseStylesheetDoc(xml_cpy);
 
-  xsltSetGenericErrorFunc(NULL, NULL);
+  xslt_error_buffer_swap(previous_errstr);
 
   if (!ss) {
     xmlFreeDoc(xml_cpy);
@@ -301,7 +328,7 @@ build_xslt_params(VALUE args_ptr)
 static VALUE
 rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 {
-  VALUE rb_document, rb_param, rb_error_str;
+  VALUE rb_document, rb_param, rb_error_str, rb_previous_error_str;
   xmlDocPtr c_document ;
   xmlDocPtr c_result_document ;
   nokogiriXsltStylesheetTuple *wrapper;
@@ -364,7 +391,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   c_transform_context->_private = &function_call;
 
   rb_error_str = rb_str_new(0, 0);
-  xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
+  rb_previous_error_str = xslt_error_buffer_swap(rb_error_str);
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
   c_result_document = xsltApplyStylesheetUser(wrapper->ss, c_document, params, NULL, NULL, c_transform_context);
@@ -376,7 +403,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
     c_document = NULL;
   }
 
-  xsltSetGenericErrorFunc(NULL, NULL);
+  xslt_error_buffer_swap(rb_previous_error_str);
   xmlSetGenericErrorFunc(NULL, NULL);
 
   if (function_call.exception_state != 0) {
@@ -387,6 +414,9 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   parse_error_occurred = (Qfalse == rb_funcall(rb_error_str, rb_intern("empty?"), 0));
 
   if (parse_error_occurred) {
+    if (c_result_document) {
+      xmlFreeDoc(c_result_document);
+    }
     rb_exc_raise(rb_exc_new3(rb_eRuntimeError, rb_error_str));
   }
 
@@ -489,7 +519,14 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
     rb_raise(rb_eRuntimeError, "internal error: @modules not set");
   }
 
+  /*
+   * Replace the registry rather than modifying it, and freeze the new one, so that a Ractor
+   * other than the main Ractor can read it during a transformation. Registering still
+   * happens only in the main Ractor.
+   */
+  modules = rb_hash_dup(modules);
   rb_hash_aset(modules, uri, obj);
+  rb_iv_set(self, "@modules", rb_obj_freeze(modules));
   xsltRegisterExtModule(
     (unsigned char *)StringValueCStr(uri),
     initFunc,
@@ -501,8 +538,11 @@ rb_xslt_s_register(VALUE self, VALUE uri, VALUE obj)
 void
 noko_init_xslt_stylesheet(void)
 {
+  id_xslt_error_buffer = rb_intern("__nokogiri_xslt_error_buffer");
+  xsltSetGenericErrorFunc(NULL, xslt_generic_error_handler);
+
   rb_define_singleton_method(mNokogiriXslt, "register", rb_xslt_s_register, 2);
-  rb_iv_set(mNokogiriXslt, "@modules", rb_hash_new());
+  rb_iv_set(mNokogiriXslt, "@modules", rb_obj_freeze(rb_hash_new()));
 
   cNokogiriXsltStylesheet = rb_define_class_under(mNokogiriXslt, "Stylesheet", rb_cObject);
 
