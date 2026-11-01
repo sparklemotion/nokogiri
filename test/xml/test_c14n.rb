@@ -220,6 +220,7 @@ module Nokogiri
           end
 
           def to_str
+            GC.start
             +"" << @str
           end
         end
@@ -229,12 +230,7 @@ module Nokogiri
         expected = doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, prefixes)
         params = prefixes.map { |p| to_str_class.new(p) }
 
-        actual = if Nokogiri.jruby?
-          doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, params)
-        else
-          stress_memory_while { doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, params) }
-        end
-        assert_equal(expected, actual)
+        assert_equal(expected, doc.root.canonicalize(XML::XML_C14N_EXCLUSIVE_1_0, params))
       end
     end
   end

@@ -261,6 +261,7 @@ describe "compaction" do
 
     it "canonicalizes with inclusive namespaces when compaction runs while they are copied" do
       skip("GC compaction is unavailable") if skip_compaction_tests
+      skip("GC.stress is too slow under a memory debugger") if Nokogiri::MemoryDebugger.active?
 
       to_str_class = Struct.new(:str) do
         def to_str = str.dup
