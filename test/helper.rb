@@ -105,12 +105,12 @@ module Nokogiri
       "file://#{path_with_leading_slash}"
     end
 
-    def assert_network_connection(scheme: "http", path: "/making-a-request", &block)
-      assert tcp_connection_attempted?(scheme:, path:, &block), "should open a network connection"
+    def assert_network_connection(scheme: "http", host: "127.0.0.1", path: "/making-a-request", &block)
+      assert tcp_connection_attempted?(scheme:, host:, path:, &block), "should open a network connection"
     end
 
-    def refute_network_connection(scheme: "http", path: "/making-a-request", &block)
-      refute tcp_connection_attempted?(scheme:, path:, &block), "should not open a network connection"
+    def refute_network_connection(scheme: "http", host: "127.0.0.1", path: "/making-a-request", &block)
+      refute tcp_connection_attempted?(scheme:, host:, path:, &block), "should not open a network connection"
     end
 
     def ignoring_syntax_errors
@@ -118,12 +118,12 @@ module Nokogiri
     rescue Nokogiri::XML::SyntaxError
     end
 
-    def tcp_connection_attempted?(scheme: "http", path: "/making-a-request")
+    def tcp_connection_attempted?(scheme: "http", host: "127.0.0.1", path: "/making-a-request")
       flunk("MockServer is not supported on this platform; the calling test must skip explicitly") unless MockServer.supported?
 
       listener = MockServer.listener_class.new
       begin
-        yield("#{scheme}://127.0.0.1:#{listener.port}#{path}")
+        yield("#{scheme}://#{host}:#{listener.port}#{path}")
       ensure
         connections = listener.stop
       end

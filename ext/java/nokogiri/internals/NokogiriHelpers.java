@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -684,6 +686,72 @@ public class NokogiriHelpers
   }
 
   private static final Set<String> CharsetNames = Charset.availableCharsets().keySet();
+
+  // Decides whether an external resource may be resolved while NONET is on: true means
+  // local (allowed), false means a network resource (blocked). A relative systemId inherits
+  // its document's base, so it is resolved against baseURI before classification — a relative
+  // reference under a remote base is a network fetch even though the systemId alone looks local.
+  public static boolean
+  effectiveResourceIsLocal(String systemId, String baseURI)
+  {
+    // a null systemId means there is nothing external to resolve
+    if (systemId == null) {
+      return true;
+    }
+    try {
+      URI uri = new URI(systemId);
+      if (baseURI != null && !baseURI.isEmpty()) {
+        uri = new URI(baseURI).resolve(uri);
+      }
+      return isLocalResource(uri);
+    } catch (URISyntaxException | IllegalArgumentException e) {
+      // fail closed: an unparseable base or systemId (e.g. a raw UNC path "\\host\share") is
+      // not provably local, and the JVM's file/URL handling may still reach the network
+      return false;
+    }
+  }
+
+  // Classifies an already-parsed URI. Local is a missing scheme, or the "file" scheme, with
+  // no remote authority and no UNC-shaped path. This is intentionally stricter than libxml2's
+  // xmlNoNetExternalEntityLoader, which folds a remote host (file://host/...) into a local
+  // path rather than rejecting it.
+  //
+  // TODO: a Windows drive-letter path like "C:\path" parses as scheme "c" and would be
+  // blocked; support those if we need it later.
+  private static boolean
+  isLocalResource(URI uri)
+  {
+    // only a missing scheme (a relative or absolute path) or file: can be local; any
+    // other scheme is a network resource
+    String scheme = uri.getScheme();
+    if (scheme != null && !scheme.equalsIgnoreCase("file")) {
+      return false;
+    }
+
+    // an opaque "file:" URI (e.g. file:foo, with no "//") is not a usable local path; reject
+    // it, matching libxml2, which does not resolve that form as a local file either
+    if (uri.isOpaque()) {
+      return false;
+    }
+
+    // a non-empty, non-localhost authority is a remote host — file://host/path, or the
+    // schemeless network-path form //host/path. Stricter than libxml2, which folds such a
+    // host into a (failing) local path.
+    String authority = uri.getRawAuthority();
+    if (authority != null && !authority.isEmpty() && !authority.equalsIgnoreCase("localhost")) {
+      return false;
+    }
+
+    // reject UNC-shaped paths even under an allowed authority: file:////host/share,
+    // file://localhost//host/share, and %2f/%5c-encoded variants. getPath() is decoded, so
+    // the encoded forms are normalized before this check.
+    String path = uri.getPath();
+    if (path != null && (path.startsWith("//") || path.indexOf('\\') >= 0)) {
+      return false;
+    }
+
+    return true;
+  }
 
   public static String
   adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId)
