@@ -30,6 +30,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Builder now correctly builds namespaced nodes that define their own namespace when that ns prefix collides with one defined by the parent (or another ancestor). (#3458, #3461) @flavorjones
 * [CRuby] `Reader.outer_xml` and `.inner_xml` properly capture syntax errors. (#3558) @flavorjones
 * [CRuby] `XML::SAX::PushParser` and `HTML4::SAX::PushParser` keep parsing correctly after GC compaction relocates their SAX parser. (#3665) @zanker
+* [CRuby] `XML::Reader` keeps reading correctly when GC compaction runs. Previously, compaction could move the IO or String the reader was created from, and the reader then crashed or parsed the wrong bytes. (#3666, #3668) @zanker
+* `XML::Reader` is no longer affected by changes made to its source String after the reader is created. Previously, such a change could make the reader parse the changed String on JRuby, or changed or freed memory on CRuby with libxml2 < 2.11. (#3694) @flavorjones
+* [CRuby] `XML::Reader.from_memory` accepts an object that responds to `to_str`. Previously, it could raise `Nokogiri::XML::SyntaxError`. (#3694) @flavorjones
 * `Node#namespace = false` now raises `TypeError`. Previously it crashed the process on CRuby and raised `ClassCastException` on JRuby. (#3719) @flavorjones
 * [CRuby] `XPathContext#evaluate` no longer leaks memory when a custom XPath function handler raises an exception. (#3715, #1610) @flavorjones
 * [CRuby] When a custom XPath function handler raises an exception, `XPathContext#evaluate` now resets libxml2's error handlers and unregisters the custom function lookup. Previously, libxml2 could keep references to garbage-collected Ruby objects. (#3715) @flavorjones

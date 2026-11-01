@@ -31,6 +31,7 @@ import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
@@ -255,7 +256,9 @@ public class XmlReader extends RubyObject
       // use the default options RECOVER | NONET
       options = new ParserContext.Options(2048 | 1);
     }
-    IRubyObject stringIO = runtime.getClass("StringIO").newInstance(context, args[0], Block.NULL_BLOCK);
+    // The parser reads lazily, so hand it a copy the caller cannot change.
+    RubyString frozenSource = args[0].convertToString().newFrozen();
+    IRubyObject stringIO = runtime.getClass("StringIO").newInstance(context, frozenSource, Block.NULL_BLOCK);
     InputStream in = new IOInputStream(stringIO);
     reader.setInput(context, in, url, options);
     return reader;
