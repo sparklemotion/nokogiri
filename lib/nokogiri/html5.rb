@@ -181,6 +181,22 @@ module Nokogiri
   #   #          })]
   #   #      })
   #
+  # ⚠ HTML parsed with <tt>parse_noscript_content_as_text: false</tt> and then serialized may
+  # parse differently in a browser that supports scripting. A comment or a raw-text element (such
+  # as +style+ or +xmp+) inside +noscript+ may contain the text <tt></noscript></tt>. The
+  # serializer emits it unchanged, as the HTML standard requires, and the browser ends the
+  # +noscript+ element there and parses the rest as markup.
+  #
+  #   frag = Nokogiri::HTML5.fragment("<noscript><!--</noscript><img src=x onerror=alert(1)>--></noscript>")
+  #   frag.css("img") # => []
+  #   puts frag.to_html
+  #   # => <noscript><!--</noscript><img src=x onerror=alert(1)>--></noscript>
+  #   # A browser that supports scripting parses this as a noscript element followed by an img element.
+  #
+  # Applications that sanitize HTML and allow +noscript+ elements should parse with
+  # <tt>parse_noscript_content_as_text: true</tt>, which exposes that +img+ element to the
+  # sanitizer, or should remove +noscript+ elements.
+  #
   # == HTML Serialization
   #
   # After parsing HTML, it may be serialized using any of the Nokogiri::XML::Node serialization

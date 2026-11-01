@@ -1927,7 +1927,8 @@ static void
 output_node(
   VALUE out,
   xmlNodePtr node,
-  bool preserve_newline
+  bool preserve_newline,
+  bool scripting_enabled
 )
 {
   static char const *const VOID_ELEMENTS[] = {
@@ -1936,8 +1937,10 @@ output_node(
   };
 
   static char const *const UNESCAPED_TEXT_ELEMENTS[] = {
-    "style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript",
+    "style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext",
   };
+
+  static char const *const NOSCRIPT_ELEMENT[] = { "noscript" };
 
   switch (node->type) {
     case XML_ELEMENT_NODE:
@@ -1948,7 +1951,7 @@ output_node(
       // Add attributes.
       for (xmlAttrPtr attr = node->properties; attr; attr = attr->next) {
         output_char(out, ' ');
-        output_node(out, (xmlNodePtr)attr, preserve_newline);
+        output_node(out, (xmlNodePtr)attr, preserve_newline, scripting_enabled);
       }
       output_char(out, '>');
 
@@ -1958,7 +1961,7 @@ output_node(
           output_char(out, '\n');
         }
         for (xmlNodePtr child = node->children; child; child = child->next) {
-          output_node(out, child, preserve_newline);
+          output_node(out, child, preserve_newline, scripting_enabled);
         }
         output_string(out, "</");
         output_tagname(out, node);
@@ -1984,8 +1987,9 @@ output_node(
 
     case XML_TEXT_NODE:
       if (node->parent
-          && is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
-                       sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])) {
+          && (is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
+                        sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])
+              || (scripting_enabled && is_one_of(node->parent, NOSCRIPT_ELEMENT, 1)))) {
         output_string(out, (char const *)node->content);
       } else {
         output_escaped_string(out, node->content, false);
@@ -2021,7 +2025,7 @@ output_node(
     case XML_DOCUMENT_FRAG_NODE:
     case XML_HTML_DOCUMENT_NODE:
       for (xmlNodePtr child = node->children; child; child = child->next) {
-        output_node(out, child, preserve_newline);
+        output_node(out, child, preserve_newline, scripting_enabled);
       }
       break;
 
@@ -2034,13 +2038,14 @@ output_node(
 static VALUE
 html_standard_serialize(
   VALUE self,
-  VALUE preserve_newline
+  VALUE preserve_newline,
+  VALUE scripting_enabled
 )
 {
   xmlNodePtr node;
   Noko_Node_Get_Struct(self, xmlNode, node);
   VALUE output = rb_str_buf_new(4096);
-  output_node(output, node, RTEST(preserve_newline));
+  output_node(output, node, RTEST(preserve_newline), RTEST(scripting_enabled));
   return output;
 }
 
@@ -2542,7 +2547,7 @@ noko_init_xml_node(void)
   rb_define_private_method(cNokogiriXmlNode, "in_context", in_context, 2);
   rb_define_private_method(cNokogiriXmlNode, "native_write_to", native_write_to, 4);
   rb_define_private_method(cNokogiriXmlNode, "prepend_newline?", rb_prepend_newline, 0);
-  rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 1);
+  rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 2);
   rb_define_private_method(cNokogiriXmlNode, "process_xincludes", noko_xml_node__process_xincludes, 1);
   rb_define_private_method(cNokogiriXmlNode, "replace_node", replace, 1);
   rb_define_private_method(cNokogiriXmlNode, "set", set, 2);
