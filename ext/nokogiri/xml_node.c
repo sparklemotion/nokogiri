@@ -1228,6 +1228,29 @@ namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
   return Qfalse;
 }
 
+/* If a matching attribute node already exists, then xmlSetNsProp will destroy
+ * the existing node's children. However, if Nokogiri has a node object
+ * pointing to one of those children, we are left with a broken reference.
+ *
+ * We can avoid this by unlinking these nodes first.
+ */
+static void
+unlink_wrapped_attr_children(xmlAttrPtr attr)
+{
+  xmlNodePtr cur, next;
+
+  if (!attr || attr->type != XML_ATTRIBUTE_NODE) {
+    return;
+  }
+  for (cur = attr->children; cur; cur = next) {
+    next = cur->next;
+    if (cur->_private) {
+      noko_xml_document_pin_node(cur);
+      xmlUnlinkNode(cur);
+    }
+  }
+}
+
 /*
  * call-seq:
  *  []=(property, value)
@@ -1237,31 +1260,36 @@ namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
 static VALUE
 set(VALUE self, VALUE property, VALUE value)
 {
-  xmlNodePtr node, cur;
-  xmlAttrPtr prop;
+  xmlNodePtr node;
+  xmlNsPtr ns = NULL;
+  const xmlChar *name, *local_name, *c_value;
+  xmlChar *prefix;
+  int prefix_len;
   Noko_Node_Get_Struct(self, xmlNode, node);
 
-  /* If a matching attribute node already exists, then xmlSetProp will destroy
-   * the existing node's children. However, if Nokogiri has a node object
-   * pointing to one of those children, we are left with a broken reference.
-   *
-   * We can avoid this by unlinking these nodes first.
-   */
   if (node->type != XML_ELEMENT_NODE) {
     return (Qnil);
   }
-  prop = xmlHasProp(node, (xmlChar *)StringValueCStr(property));
-  if (prop && prop->children) {
-    for (cur = prop->children; cur; cur = cur->next) {
-      if (cur->_private) {
-        noko_xml_document_pin_node(cur);
-        xmlUnlinkNode(cur);
-      }
+  name = (const xmlChar *)StringValueCStr(property);
+  c_value = (const xmlChar *)StringValueCStr(value);
+
+  /* Resolve a QName the way xmlSetProp does, so that we find the same attribute it would replace. */
+  local_name = xmlSplitQName3(name, &prefix_len);
+  if (local_name) {
+    prefix = xmlStrndup(name, prefix_len);
+    if (!prefix) {
+      rb_memerror();
     }
+    ns = xmlSearchNs(node->doc, node, prefix);
+    xmlFree(prefix);
+  }
+  if (!ns) {
+    local_name = name;
   }
 
-  xmlSetProp(node, (xmlChar *)StringValueCStr(property),
-             (xmlChar *)StringValueCStr(value));
+  unlink_wrapped_attr_children(xmlHasNsProp(node, local_name, ns ? ns->href : NULL));
+
+  xmlSetNsProp(node, ns, local_name, c_value);
 
   return value;
 }
@@ -1567,6 +1595,7 @@ set_lang(VALUE self_rb, VALUE lang_rb)
   Noko_Node_Get_Struct(self_rb, xmlNode, self);
   lang = (xmlChar *)StringValueCStr(lang_rb);
 
+  unlink_wrapped_attr_children(xmlHasNsProp(self, BAD_CAST "lang", XML_XML_NAMESPACE));
   xmlNodeSetLang(self, lang);
 
   return Qnil ;
