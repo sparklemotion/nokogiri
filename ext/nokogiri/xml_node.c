@@ -1835,9 +1835,9 @@ output_escaped_string(VALUE out, xmlChar const *start, bool attr)
       replaced_bytes = 2;
     } else if (attr && ch == '"') {
       replacement = "&quot;";
-    } else if (!attr && ch == '<') {
+    } else if (ch == '<') {
       replacement = "&lt;";
-    } else if (!attr && ch == '>') {
+    } else if (ch == '>') {
       replacement = "&gt;";
     } else {
       ++next;
