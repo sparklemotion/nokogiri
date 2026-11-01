@@ -39,6 +39,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] `XPathContext#evaluate` no longer leaks memory when a custom XPath function handler raises an exception. (#3715, #1610) @flavorjones
 * [CRuby] When a custom XPath function handler raises an exception, `XPathContext#evaluate` now resets libxml2's error handlers and unregisters the custom function lookup. Previously, libxml2 could keep references to garbage-collected Ruby objects. (#3715) @flavorjones
 * [CRuby MacOS] Fixed an issue handling SIGINT during HTML5 parsing. (#3528, #3535) @stevecheckoway
+* [CRuby] gumbo: `gumbo_parse_with_options` no longer crashes when `stop_on_first_error` is set and the parse ends on an unknown end tag in a fragment context. This is a C API path; it is not reachable from Ruby, because Nokogiri never sets `stop_on_first_error`. (#3672) @jeremy
 * [JRuby] Fixed multiple issues with `Node#namespace_definitions` so that it now behaves identically to CRuby. (#2543, #3460) @flavorjones
 * [JRuby] `Document#create_element` and `Node.new` no longer set the namespace to the document's default namespace. The namespace must be set explicitly with `namespace=` or by parenting the node. (#3457, #3463) @flavorjones
 * `XML::XPathContext.new` and `XML::XPathContext#node=` raise `TypeError` when the argument is not a `Node`. Previously, on CRuby, most such arguments crashed the process. (#3720) @flavorjones
