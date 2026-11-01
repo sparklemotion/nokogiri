@@ -2899,15 +2899,7 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
     // follows the </frameset>.
     clear_active_formatting_elements(parser);
 
-    // Remove the body node. We may want to factor this out into a generic
-    // helper, but right now this is the only code that needs to do this.
-    GumboVector* children = &parser->_output->root->v.element.children;
-    for (unsigned int i = 0; i < children->length; ++i) {
-      if (children->data[i] == body_node) {
-        gumbo_vector_remove_at(i, children);
-        break;
-      }
-    }
+    remove_from_parent(body_node);
     destroy_node(body_node);
 
     // Insert the <frameset>, and switch the insertion mode.

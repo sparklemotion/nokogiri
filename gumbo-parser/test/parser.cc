@@ -568,6 +568,33 @@ TEST_F(GumboParserTest, CommentInText) {
   EXPECT_STREQ(" end", end->v.text.text);
 }
 
+TEST_F(GumboParserTest, CommentsAfterBodyReplacedByFrameset) {
+  Parse(std::string("<x></body><!--a--><!--b--><frameset></frameset>"));
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(4, GetChildCount(html));
+
+  GumboNode* head = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, head->type);
+  EXPECT_EQ(GUMBO_TAG_HEAD, head->v.element.tag);
+  EXPECT_EQ(0, head->index_within_parent);
+
+  GumboNode* comment_a = GetChild(html, 1);
+  ASSERT_EQ(GUMBO_NODE_COMMENT, comment_a->type);
+  EXPECT_STREQ("a", comment_a->v.text.text);
+  EXPECT_EQ(1, comment_a->index_within_parent);
+
+  GumboNode* comment_b = GetChild(html, 2);
+  ASSERT_EQ(GUMBO_NODE_COMMENT, comment_b->type);
+  EXPECT_STREQ("b", comment_b->v.text.text);
+  EXPECT_EQ(2, comment_b->index_within_parent);
+
+  GumboNode* frameset = GetChild(html, 3);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, frameset->type);
+  EXPECT_EQ(GUMBO_TAG_FRAMESET, frameset->v.element.tag);
+  EXPECT_EQ(3, frameset->index_within_parent);
+}
+
 TEST_F(GumboParserTest, CommentBeforeNode) {
   Parse("<!--This is a comment-->\n<h1>hello world!</h1>");
   GumboNode* comment = GetChild(root_, 0);
