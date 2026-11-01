@@ -172,11 +172,10 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
 /*
  * Build the C-string params array passed to xsltApplyStylesheet.
  *
- * Note: params[j] is a raw pointer into a Ruby string's buffer, and we do not pin the underlying
- * VALUEs against GC compaction. This is safe (despite not pinning the VALUEs) because libxslt fully
- * processes params (interning names, evaluating values) before template execution begins, and Ruby
- * callbacks can only run during template execution. By the time GC compaction is reachable, libxslt
- * no longer reads params[].
+ * Note: params[j] is a copy of the Ruby string's bytes, not a pointer into its buffer, because GC
+ * compaction moves the bytes of short strings that are embedded in their object slots. Compaction
+ * can run during a #to_str conversion in this loop and, when libxml2 uses Ruby's allocator, during
+ * libxslt's own allocations. Free params with free_xslt_params.
  */
 typedef struct {
   VALUE rb_param;
@@ -191,10 +190,19 @@ build_xslt_params(VALUE args_ptr)
 
   for (rb_len_t j = 0; j < args->param_len; j++) {
     VALUE entry = rb_ary_entry(args->rb_param, j);
-    args->params[j] = StringValueCStr(entry);
+    args->params[j] = ruby_strdup(StringValueCStr(entry));
   }
 
   return Qnil;
+}
+
+static void
+free_xslt_params(const char **params, rb_len_t param_len)
+{
+  for (rb_len_t j = 0; j < param_len; j++) {
+    ruby_xfree((void *)params[j]);
+  }
+  ruby_xfree(params);
 }
 
 /*
@@ -350,7 +358,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
     rb_protect(build_xslt_params, (VALUE)&args, &state);
     if (state) {
-      ruby_xfree(params);
+      free_xslt_params(params, param_len);
       rb_jump_tag(state);
     }
   }
@@ -367,7 +375,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
   c_transform_context = xsltNewTransformContext(wrapper->ss, c_document);
   if (c_transform_context == NULL) {
-    ruby_xfree(params);
+    free_xslt_params(params, param_len);
     if (defensive_copy_p) {
       xmlFreeDoc(c_document);
     }
@@ -382,7 +390,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   c_result_document = xsltApplyStylesheetUser(wrapper->ss, c_document, params, NULL, NULL, c_transform_context);
   xsltFreeTransformContext(c_transform_context);
 
-  ruby_xfree(params);
+  free_xslt_params(params, param_len);
   if (defensive_copy_p) {
     xmlFreeDoc(c_document);
     c_document = NULL;
