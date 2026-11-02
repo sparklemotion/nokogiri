@@ -9,6 +9,11 @@ module Nokogiri
     class XPathVisitor
       WILDCARD_NAMESPACES = Nokogiri.libxml2_patches.include?("0009-allow-wildcard-namespaces.patch") # :nodoc:
 
+      # The ASCII characters allowed in an XML NCName. Every XPath delimiter and operator is ASCII,
+      # so non-ASCII characters are left for the XPath parser to accept or reject.
+      XPATH_NAME = /\A(?:[A-Za-z_]|[^\x00-\x7F])(?:[A-Za-z0-9_.-]|[^\x00-\x7F])*\z/
+      private_constant :XPATH_NAME
+
       # Enum to direct XPathVisitor when to use Nokogiri builtin XPath functions.
       module BuiltinsConfig
         # Never use Nokogiri builtin functions, always generate vanilla XPath 1.0 queries. This is
@@ -136,7 +141,7 @@ module Nokogiri
         when /^(last|last-of-type)\(/
           "position()=last()"
         when /^contains\(/
-          "contains(.,#{node.value[1]})"
+          "contains(.,#{xpath_function_argument(node.value[1])})"
         when /^gt\(/
           "position()>#{node.value[1]}"
         when /^only-child\(/
@@ -151,9 +156,7 @@ module Nokogiri
 
           # xpath function call, let's marshal those arguments
           args = ["."]
-          args += node.value[1..-1].map do |n|
-            n.is_a?(Nokogiri::CSS::Node) ? n.accept(self) : n
-          end
+          args += node.value[1..-1].map { |arg| xpath_function_argument(arg) }
           "nokogiri:#{node.value.first}#{args.join(",")})"
         end
       end
@@ -168,24 +171,15 @@ module Nokogiri
       end
 
       def visit_id(node)
-        node.value.first =~ /^#(.*)$/
-        "@id='#{Regexp.last_match(1)}'"
+        "@id=#{xpath_string_literal(node.value.first.delete_prefix("#"))}"
       end
 
       def visit_attribute_condition(node)
         attribute = node.value.first.accept(self)
         return attribute if node.value.length == 1
 
-        value = node.value.last
-        value = "'#{value}'" unless /^['"]/.match?(value)
-
-        # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
-        if (value[0] == value[-1]) && %q{"'}.include?(value[0])
-          str_value = value[1..-2]
-          if str_value.include?(value[0])
-            value = 'concat("' + str_value.split('"', -1).join(%q{",'"',"}) + '","")'
-          end
-        end
+        str_value = node.value.last
+        value = xpath_string_literal(str_value)
 
         case node.value[1]
         when :equal
@@ -199,8 +193,7 @@ module Nokogiri
         when :dash_match
           "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
         when :includes
-          value = value[1..-2] # strip quotes
-          css_class(attribute, value)
+          css_class(attribute, str_value)
         when :suffix_match
           "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
@@ -265,17 +258,21 @@ module Nokogiri
       end
 
       def visit_element_name(node)
-        if @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
+        html5_local_name = @doctype == DoctypeConfig::HTML5 && html5_element_name_needs_namespace_handling(node)
+        node.value.each { |name| validate_xpath_element_name(name) } unless html5_local_name
+
+        if html5_local_name
           # HTML5 has namespaces that should be ignored in CSS queries
           # https://github.com/sparklemotion/nokogiri/issues/2376
+          name = node.value.first
           if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
-            if WILDCARD_NAMESPACES
-              "*:#{node.value.first}"
+            if WILDCARD_NAMESPACES && xpath_name?(name)
+              "*:#{name}"
             else
-              "*[nokogiri-builtin:local-name-is('#{node.value.first}')]"
+              "*[nokogiri-builtin:local-name-is(#{xpath_string_literal(name)})]"
             end
           else
-            "*[local-name()='#{node.value.first}']"
+            "*[local-name()=#{xpath_string_literal(name)}]"
           end
         elsif node.value.length == 2 # has a namespace prefix
           if node.value.first.nil? # namespace prefix is empty
@@ -292,7 +289,18 @@ module Nokogiri
       end
 
       def visit_attrib_name(node)
-        "@#{node.value.first}"
+        if node.value.length == 2 # has a namespace prefix
+          unless node.value.all? { |name| xpath_name?(name) }
+            raise Nokogiri::CSS::SyntaxError, "Invalid attribute name '#{node.value.join("|")}'"
+          end
+
+          "@#{node.value.join(":")}"
+        elsif xpath_name?(node.value.first)
+          "@#{node.value.first}"
+        else
+          # HTML parsers allow attribute names like "@click" and ":class". On JRuby, local-name() of ":class" is "class".
+          "@*[namespace-uri()='' and name()=#{xpath_string_literal(node.value.first)}]"
+        end
       end
 
       def accept(node)
@@ -304,6 +312,27 @@ module Nokogiri
       def validate_xpath_function_name(name)
         if name.start_with?("-")
           raise Nokogiri::CSS::SyntaxError, "Invalid XPath function name '#{name}'"
+        end
+      end
+
+      def validate_xpath_element_name(name)
+        unless name.nil? || name == "*" || xpath_name?(name)
+          raise Nokogiri::CSS::SyntaxError, "Invalid element name '#{name}'"
+        end
+      end
+
+      def xpath_name?(name)
+        XPATH_NAME.match?(name)
+      end
+
+      # Function arguments reach the visitor as raw tokens, and only a STRING token starts with a quote.
+      def xpath_function_argument(arg)
+        if arg.is_a?(Nokogiri::CSS::Node)
+          arg.accept(self)
+        elsif arg.is_a?(String) && arg.start_with?("'", '"')
+          xpath_string_literal(Parser.unescape_css_string(arg[1..-2]))
+        else
+          arg
         end
       end
 
@@ -326,7 +355,9 @@ module Nokogiri
           options[:last] ? "(last()-position()+1)" : "position()"
         end
 
-        if b.zero?
+        if a.zero?
+          "#{position}=#{b}"
+        elsif b.zero? && a.positive?
           "(#{position} mod #{a})=0"
         else
           compare = a < 0 ? "<=" : ">="
@@ -345,7 +376,7 @@ module Nokogiri
           b = values[3].to_i
         elsif op == "-"
           a = values[0].to_i
-          b = a - (values[3].to_i % a)
+          b = a.zero? ? -values[3].to_i : a - (values[3].to_i % a)
         else
           raise ArgumentError, "expected an+b node to have either + or - as the operator, but is #{op.inspect}"
         end
@@ -365,10 +396,22 @@ module Nokogiri
       def css_class(hay, needle)
         if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
           # use the builtin implementation
-          "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+          "nokogiri-builtin:css-class(#{hay},#{xpath_string_literal(needle)})"
         else
           # use only ordinary xpath functions
-          "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+          "contains(concat(' ',normalize-space(#{hay}),' '),#{xpath_string_literal(" #{needle} ")})"
+        end
+      end
+
+      # XPath 1.0 string literals have no escape mechanism, so a string containing both quote
+      # characters has to be assembled with concat().
+      def xpath_string_literal(string)
+        if !string.include?("'")
+          "'#{string}'"
+        elsif !string.include?('"')
+          %("#{string}")
+        else
+          "concat('" + string.split("'", -1).join(%q{',"'",'}) + "')"
         end
       end
     end

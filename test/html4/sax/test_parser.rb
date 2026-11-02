@@ -123,7 +123,11 @@ module Nokogiri
               parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
               parser.parse_memory(html_encoding_broken2)
 
-              assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+              if truffleruby_system_libraries?
+                assert_includes(parser.document.errors, "error_func: %s")
+              else
+                assert(parser.document.errors.any? { |e| e.match(/Invalid byte/) })
+              end
             end
 
             parser = Nokogiri::HTML4::SAX::Parser.new(Doc.new)
@@ -266,6 +270,19 @@ module Nokogiri
           assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse(0xcafecafe) }
           assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_memory(0xcafecafe) }
           assert_raises(TypeError) { Nokogiri::HTML4::SAX::Parser.new.parse_io(0xcafecafe) }
+        end
+
+        it "raises a non-standard error from the IO's read" do
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          interrupting_io = lambda do |data|
+            data = data.dup
+            Object.new.tap do |io|
+              io.define_singleton_method(:read) { |len| data.empty? ? raise(interrupt) : data.slice!(0, len) }
+            end
+          end
+
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call("")) }
+          assert_raises(interrupt) { parser.parse_io(interrupting_io.call("<root>")) }
         end
       end
     end

@@ -113,6 +113,71 @@ set_line(xmlNodePtr node, size_t line)
   }
 }
 
+// This function is essentially xmlNewNsProp, but we skip the full list traversal to append by
+// providing the last property in the linked list as a parameter.
+static xmlAttrPtr
+append_property(xmlNodePtr node, xmlNsPtr ns, const xmlChar *name, const xmlChar *value, xmlAttrPtr last_prop)
+{
+  xmlAttrPtr cur = (xmlAttrPtr) xmlMalloc(sizeof(xmlAttr));
+  if (cur == NULL) {
+    return NULL;
+  }
+  memset(cur, 0, sizeof(xmlAttr));
+  cur->type = XML_ATTRIBUTE_NODE;
+  cur->parent = node;
+  xmlDocPtr doc = node->doc;
+  cur->doc = doc;
+  cur->ns = ns;
+
+  if ((doc != NULL) && (doc->dict != NULL)) {
+    cur->name = (xmlChar *) xmlDictLookup(doc->dict, name, -1);
+  } else {
+    cur->name = xmlStrdup(name);
+  }
+  if (cur->name == NULL) {
+    goto error;
+  }
+
+  if (value != NULL) {
+    cur->children = xmlNewDocText(doc, value);
+    if (cur->children == NULL) {
+      goto error;
+    }
+    cur->last = NULL;
+    xmlNodePtr tmp = cur->children;
+    while (tmp != NULL) {
+      tmp->parent = (xmlNodePtr) cur;
+      if (tmp->next == NULL) {
+        cur->last = tmp;
+      }
+      tmp = tmp->next;
+    }
+
+    if (doc != NULL) {
+      int res = xmlIsID(doc, node, cur);
+      if (res < 0) {
+        goto error;
+      }
+      if ((res == 1) && (xmlAddIDSafe(cur, value) < 0)) {
+        goto error;
+      }
+    }
+  }
+
+  if (node->properties == NULL) {
+    node->properties = cur;
+  } else {
+    last_prop->next = cur;
+    cur->prev = last_prop;
+  }
+
+  return cur;
+
+error:
+  xmlFreeProp(cur);
+  return (NULL);
+}
+
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
 // at gumbo_node.
 static void
@@ -200,6 +265,7 @@ build_tree(
         xmlAddChild(xml_node, xml_child);
 
         // Add the attributes.
+        xmlAttrPtr last_prop = NULL;
         const GumboVector *attrs = &gumbo_child->v.element.attributes;
         for (size_t i = 0; i < attrs->length; i++) {
           const GumboAttribute *attr = attrs->data[i];
@@ -220,7 +286,9 @@ build_tree(
             default:
               ns = NULL;
           }
-          xmlNewNsProp(xml_child, ns, (const xmlChar *)attr->name, (const xmlChar *)attr->value);
+
+          // We micromanage the attribute list for performance reasons.
+          last_prop = append_property(xml_child, ns, (const xmlChar *)attr->name, (const xmlChar *)attr->value, last_prop);
         }
 
         // Add children for this element.
@@ -373,12 +441,20 @@ parse_continue(VALUE parse_args)
   } else {
     doc = new_html_doc(NULL, NULL, NULL);
   }
-  args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
+
+  // We're about to build the libxml2 tree structure from the Gumbo tree
+  // structure. If an exception is raised during tree building, control passes
+  // to `parse_cleanup()` which needs to free the newly allocated `xmlDoc`,
+  // `doc`. If the tree is successfully constructed, then
+  // `noko_xml_document_wrap()` will create a new Ruby object which will own
+  // `doc`. In that case, `parse_cleanup()` should not free `doc`.
+  args->doc = doc;
   build_tree(doc, (xmlNodePtr)doc, output->document);
+  args->doc = NULL;
   VALUE rdoc = noko_xml_document_wrap(args->klass, doc);
+
   rb_iv_set(rdoc, "@url", args->url_or_frag);
   rb_iv_set(rdoc, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
-  args->doc = NULL; // The Ruby runtime now owns doc so don't delete it.
   add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
 }
@@ -512,6 +588,7 @@ error:
         continue;
       }
       VALUE element_name = rb_funcall(node, name, 0);
+      Check_Type(element_name, T_STRING);
       if (RSTRING_LEN(element_name) == 4
           && !st_strcasecmp(RSTRING_PTR(element_name), "form")
           && lookup_namespace(node, false) == GUMBO_NAMESPACE_HTML) {
@@ -568,7 +645,7 @@ error:
     .output = output,
     .input = tags,
     .url_or_frag = doc_fragment,
-    .doc = (xmlDocPtr)extract_xml_node(doc),
+    .doc = NULL,
   };
   rb_ensure(fragment_continue, (VALUE)(&args), parse_cleanup, (VALUE)(&args));
   return Qnil;
@@ -580,9 +657,9 @@ fragment_continue(VALUE parse_args)
   ParseArgs *args = (ParseArgs *)parse_args;
   GumboOutput *output = args->output;
   VALUE doc_fragment = args->url_or_frag;
-  xmlDocPtr xml_doc = args->doc;
+  VALUE doc = rb_funcall(doc_fragment, rb_intern_const("document"), 0);
+  xmlDocPtr xml_doc = (xmlDocPtr)extract_xml_node(doc);
 
-  args->doc = NULL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
   rb_iv_set(doc_fragment, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));

@@ -78,6 +78,30 @@ module Nokogiri
         assert_equal({ "xmlns:a" => "x", "xmlns:c" => "z" }, namespaces_defined_on(b))
       end
 
+      def test_builder_namespaces_part_three
+        doc = Nokogiri::XML::Builder.new do |xml|
+          xml["dnd"].adventure("xmlns:dnd" => "http://www.w3.org/dungeons#") do
+            xml["dnd"].party("xmlns:dnd" => "http://www.w3.org/dragons#") do
+              xml["dnd"].character("xmlns:dnd" => "http://www.w3.org/dungeons#") do
+                xml["dnd"].name("Nigel", "xmlns:dnd" => "http://www.w3.org/dungeons#")
+              end
+            end
+          end
+        end.doc
+
+        adventure_node = doc.at_xpath("//*[local-name()='adventure']")
+        assert_equal("http://www.w3.org/dungeons#", adventure_node.namespace.href)
+
+        party_node = doc.at_xpath("//*[local-name()='party']")
+        assert_equal("http://www.w3.org/dragons#", party_node.namespace.href)
+
+        character_node = doc.at_xpath("//*[local-name()='character']")
+        assert_equal("http://www.w3.org/dungeons#", character_node.namespace.href)
+
+        name_node = doc.at_xpath("//*[local-name()='name']")
+        assert_equal("http://www.w3.org/dungeons#", name_node.namespace.href)
+      end
+
       def test_builder_with_unlink
         b = Nokogiri::XML::Builder.new do |xml|
           xml.foo do
@@ -434,6 +458,15 @@ module Nokogiri
         assert_equal("baz", doc.at_xpath("//*[local-name() = 'product']").namespaces["xmlns:foo"])
         assert_equal("bar", doc.at_xpath("//*[local-name() = 'products']").namespaces["xmlns:foo"])
         assert_nil(doc.at_xpath("//*[local-name() = 'products']").namespace)
+      end
+
+      def test_builder_element_with_a_prefix_declared_on_the_root_uses_that_namespace
+        doc = Nokogiri::XML(%(<root xmlns:foo='http://example.org/foo'/>))
+        Nokogiri::XML::Builder.with(doc.root) { |xml| xml.send("foo:child") }
+
+        assert_pattern do
+          doc.root.elements.first.namespace => { prefix: "foo", href: "http://example.org/foo" }
+        end
       end
 
       def test_builder_reuses_namespaces

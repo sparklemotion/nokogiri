@@ -66,6 +66,9 @@ int xmlCtxtGetOptions(xmlParserCtxtPtr ctxt);
 #ifndef HAVE_XMLSWITCHENCODINGNAME
 int xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding);
 #endif
+#ifndef HAVE_XMLADDIDSAFE
+int xmlAddIDSafe(xmlAttrPtr attr, const xmlChar *value);
+#endif
 
 #define XMLNS_PREFIX "xmlns"
 #define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
@@ -85,7 +88,7 @@ int xmlSwitchEncodingName(xmlParserCtxtPtr ctxt, const char *encoding);
 #include <ruby/version.h>
 
 #define NOKOGIRI_STR_NEW2(str) NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
-#define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
+#define NOKOGIRI_STR_NEW(str, len) rb_external_str_new_with_enc((const char *)(str), (rb_len_t)(len), rb_utf8_encoding())
 #define RBSTR_OR_QNIL(_str) (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
 #ifndef NORETURN_DECL
@@ -178,6 +181,10 @@ void noko_xml_document_pin_namespace(xmlNsPtr, xmlDocPtr);
 int noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document);
 
 int noko_io_read(void *ctx, char *buffer, int len);
+int noko_io_read_protected(void *ctx, char *buffer, int len);
+void noko_io_read_reset_exception(void);
+VALUE noko_io_read_take_exception(void);
+NORETURN_DECL void noko_io_read_raise_exception(VALUE rb_exception);
 int noko_io_write(void *ctx, char *buffer, int len);
 int noko_io_close(void *ctx);
 
@@ -232,6 +239,12 @@ void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE 
 #  define NOKO_WARN_DEPRECATION(message...) rb_category_warning(RB_WARN_CATEGORY_DEPRECATED, message)
 #else
 #  define NOKO_WARN_DEPRECATION(message...) rb_warning(message)
+#endif
+
+#ifndef HAVE_RB_LEN_T
+typedef long rb_len_t;
+#define RB_NUM2LEN RB_NUM2LONG
+#define RB_FIX2LEN RB_FIX2LONG
 #endif
 
 void noko__structured_error_func_save(libxmlStructuredErrorHandlerState *handler_state);

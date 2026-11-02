@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "3.3"
           bundler-cache: true
@@ -113,7 +113,7 @@ jobs:
       rcd_image_version: ${{steps.rcd_image_version.outputs.rcd_image_version}}
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "3.4"
           bundler-cache: true
@@ -277,7 +277,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -338,7 +338,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          setup-ruby-ref: ruby/setup-ruby/7f797815d8adceb1c412e7abefdd1ab4abc47a5f
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
           bundler-cache: true
@@ -362,7 +362,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: ${{matrix.ruby}}
           bundler-cache: true
@@ -390,7 +390,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          setup-ruby-ref: ruby/setup-ruby/7f797815d8adceb1c412e7abefdd1ab4abc47a5f
           ruby-version: truffleruby
           bundler-cache: true
           bundler: 2.5.10
@@ -514,7 +514,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          setup-ruby-ref: ruby/setup-ruby/7f797815d8adceb1c412e7abefdd1ab4abc47a5f
           ruby-version: "${{matrix.ruby}}"
           apt-get: "libxml2-dev libxslt1-dev pkg-config"
       - uses: actions/download-artifact@v4
@@ -536,7 +536,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v4
@@ -559,7 +559,7 @@ jobs:
           submodules: true
       - uses: ruby/setup-ruby-pkgs@v1
         with:
-          setup-ruby-ref: ruby/setup-ruby/d3e3bd032ad2222a8ac878bbccf2aba78864e134
+          setup-ruby-ref: ruby/setup-ruby/7f797815d8adceb1c412e7abefdd1ab4abc47a5f
           ruby-version: "${{matrix.ruby}}"
           mingw: "libxml2 libxslt"
       - uses: actions/download-artifact@v4
@@ -615,7 +615,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v4
@@ -683,7 +683,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "${{ matrix.ruby }}"
       - uses: actions/download-artifact@v4
@@ -703,7 +703,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: ruby/setup-ruby@d3e3bd032ad2222a8ac878bbccf2aba78864e134
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
         with:
           ruby-version: "${{matrix.ruby}}"
       - uses: actions/download-artifact@v4

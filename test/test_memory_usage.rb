@@ -361,5 +361,114 @@ class TestMemoryUsage < Nokogiri::TestCase
         assert_raises(ArgumentError) { xsl.transform(doc, ["p", "val\x00ue"]) }
       end
     end
+
+    it "XSLT#transform doesn't leak params" do
+      # https://github.com/sparklemotion/nokogiri/issues/3670
+      xsl = Nokogiri::XSLT.parse(<<~XSL)
+        <?xml version="1.0"?>
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:param name="p"/>
+          <xsl:template match="/"><r><xsl:value-of select="$p"/></r></xsl:template>
+        </xsl:stylesheet>
+      XSL
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        xsl.transform(doc, ["p", "'value'"])
+      end
+    end
+
+    it "Document#canonicalize doesn't leak inclusive namespaces" do
+      doc = Nokogiri::XML(%(<root xmlns:a="urn:a"><a:child/></root>))
+
+      memwatch(__method__) do
+        doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, ["a"])
+      end
+    end
+
+    it "Document#canonicalize doesn't leak on null byte in inclusive namespaces" do
+      doc = Nokogiri::XML(%(<root xmlns:a="urn:a"><a:child/></root>))
+
+      memwatch(__method__) do
+        assert_raises(ArgumentError) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, ["a", "b\x00"]) }
+      end
+    end
+
+    it "XPath evaluation doesn't leak when a custom function handler raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3715
+      handler = Class.new do
+        def boom(_nodes)
+          raise "boom"
+        end
+      end.new
+      doc = Nokogiri::XML("<root><a/></root>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { doc.xpath("nokogiri:boom(//a)", handler) }
+      end
+    end
+
+    it "XPath evaluation doesn't leak when a custom function handler's respond_to? raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3715
+      handler = Class.new do
+        def respond_to_missing?(name, include_private = false)
+          raise "boom"
+        end
+      end.new
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { doc.xpath("nokogiri-builtin:css-class('x', 'x')", handler) }
+      end
+    end
+
+    it "XSLT#transform doesn't leak when an extension function raises" do
+      # https://github.com/sparklemotion/nokogiri/issues/3721
+      functions = Class.new do
+        def boom(_nodes)
+          raise "boom"
+        end
+      end
+      xsl = Nokogiri::XSLT(<<~XSL, "http://e.org/functions" => functions)
+        <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+          xmlns:f="http://e.org/functions" extension-element-prefixes="f">
+          <xsl:template match="/"><r><xsl:value-of select="f:boom(.)"/></r></xsl:template>
+        </xsl:stylesheet>
+      XSL
+      doc = Nokogiri::XML("<root/>")
+
+      memwatch(__method__) do
+        assert_raises(RuntimeError) { xsl.transform(doc) }
+      end
+    end
+
+    describe "when an IO's read raises an exception that is not a StandardError" do
+      # https://github.com/sparklemotion/nokogiri/issues/3721
+      let(:interrupt) { Class.new(Exception) } # rubocop:disable Lint/InheritException
+      let(:io) do
+        interrupt = self.interrupt
+        Object.new.tap do |io|
+          io.define_singleton_method(:read) { |_len| raise(interrupt) }
+        end
+      end
+
+      it "XML::Document.parse doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::XML::Document.parse(io) }
+        end
+      end
+
+      it "HTML4::Document.parse doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::HTML4::Document.parse(io) }
+        end
+      end
+
+      it "XML::Reader.from_io doesn't leak" do
+        memwatch(__method__) do
+          assert_raises(interrupt) { Nokogiri::XML::Reader.from_io(io) }
+        end
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end

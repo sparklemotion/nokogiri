@@ -26,12 +26,10 @@ describe "namespace definitions" do
     end
 
     child2 = doc.create_element("b", "xmlns:foo" => "http://nokogiri.org/ns/foo")
-    pending_if("https://github.com/sparklemotion/nokogiri/issues/2543", Nokogiri.jruby?) do
-      assert_equal(1, child2.namespace_definitions.length)
-      child2.namespace_definitions.first.tap do |ns|
-        assert_equal("foo", ns.prefix)
-        assert_equal("http://nokogiri.org/ns/foo", ns.href)
-      end
+    assert_equal(1, child2.namespace_definitions.length)
+    child2.namespace_definitions.first.tap do |ns|
+      assert_equal("foo", ns.prefix)
+      assert_equal("http://nokogiri.org/ns/foo", ns.href)
     end
   end
 end

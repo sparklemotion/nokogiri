@@ -8,6 +8,8 @@ module Nokogiri
       alias_method :to_s, :content
       alias_method :content=, :value=
 
+      undef_method :line= if method_defined?(:line=)
+
       #
       #  :call-seq: deconstruct_keys(array_of_names) → Hash
       #

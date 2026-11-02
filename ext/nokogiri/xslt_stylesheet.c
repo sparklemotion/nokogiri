@@ -6,7 +6,19 @@ static void
 mark(void *data)
 {
   nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
+  long i;
+
+  /* GC can run while Nokogiri_wrap_xslt_stylesheet allocates func_instances. */
+  if (!RB_TYPE_P(wrapper->func_instances, T_ARRAY)) {
+    return;
+  }
+
   rb_gc_mark(wrapper->func_instances);
+
+  /* libxslt retains each extension handler instance's movable VALUE as module data. */
+  for (i = 0; i < RARRAY_LEN(wrapper->func_instances); i++) {
+    rb_gc_mark(RARRAY_AREF(wrapper->func_instances, i));
+  }
 }
 
 static void
@@ -18,11 +30,23 @@ dealloc(void *data)
   ruby_xfree(wrapper);
 }
 
+/* libxslt retains this Stylesheet's own movable VALUE in _private. */
+static void
+update_references(void *data)
+{
+  nokogiriXsltStylesheetTuple *wrapper = (nokogiriXsltStylesheetTuple *)data;
+
+  if (wrapper->ss && wrapper->ss->_private) {
+    wrapper->ss->_private = (void *)rb_gc_location((VALUE)wrapper->ss->_private);
+  }
+}
+
 static const rb_data_type_t nokogiri_xslt_stylesheet_tuple_type = {
   .wrap_struct_name = "nokogiriXsltStylesheetTuple",
   .function = {
     .dmark = mark,
     .dfree = dealloc,
+    .dcompact = update_references,
   },
   .flags = RUBY_TYPED_FREE_IMMEDIATELY
 };
@@ -46,6 +70,29 @@ xslt_generic_error_handler(void *ctx, const char *msg, ...)
 
   rb_str_concat((VALUE)ctx, message);
 }
+
+PRINTFLIKE_DECL(2, 3)
+static void
+ignore_error(void *ctx, const char *msg, ...)
+{
+}
+
+/*
+ * A Ruby exception must not unwind through libxslt's stack frames, because that skips libxslt's
+ * cleanup and leaks memory, and skips the reset of the error handlers. So an extension function is
+ * called under rb_protect, and the exception is re-raised after the transform returns.
+ *
+ * Until then, no Ruby code may run: the pending exception lives only in the thread's errinfo,
+ * which a rescue elsewhere would overwrite.
+ */
+typedef struct {
+  int exception_state;
+} _noko_xslt_stylesheet__function_call_t;
+
+typedef struct {
+  xmlXPathParserContextPtr ctxt;
+  int nargs;
+} _noko_xslt_stylesheet__invoke_args_t;
 
 VALUE
 Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
@@ -137,15 +184,14 @@ rb_xslt_stylesheet_serialize(VALUE self, VALUE xmlobj)
 /*
  * Build the C-string params array passed to xsltApplyStylesheet.
  *
- * Note: params[j] is a raw pointer into a Ruby string's buffer, and we do not pin the underlying
- * VALUEs against GC compaction. This is safe (despite not pinning the VALUEs) because libxslt fully
- * processes params (interning names, evaluating values) before template execution begins, and Ruby
- * callbacks can only run during template execution. By the time GC compaction is reachable, libxslt
- * no longer reads params[].
+ * Note: params[j] is a copy of the Ruby string's bytes, not a pointer into its buffer, because GC
+ * compaction moves the bytes of short strings that are embedded in their object slots. Compaction
+ * can run during a #to_str conversion in this loop and, when libxml2 uses Ruby's allocator, during
+ * libxslt's own allocations. Free params with free_xslt_params.
  */
 typedef struct {
   VALUE rb_param;
-  long param_len;
+  rb_len_t param_len;
   const char **params;
 } build_xslt_params_args_t;
 
@@ -154,12 +200,21 @@ build_xslt_params(VALUE args_ptr)
 {
   build_xslt_params_args_t *args = (build_xslt_params_args_t *)args_ptr;
 
-  for (long j = 0; j < args->param_len; j++) {
+  for (rb_len_t j = 0; j < args->param_len; j++) {
     VALUE entry = rb_ary_entry(args->rb_param, j);
-    args->params[j] = StringValueCStr(entry);
+    args->params[j] = ruby_strdup(StringValueCStr(entry));
   }
 
   return Qnil;
+}
+
+static void
+free_xslt_params(const char **params, rb_len_t param_len)
+{
+  for (rb_len_t j = 0; j < param_len; j++) {
+    ruby_xfree((void *)params[j]);
+  }
+  ruby_xfree(params);
 }
 
 /*
@@ -283,9 +338,10 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   xmlDocPtr c_result_document ;
   nokogiriXsltStylesheetTuple *wrapper;
   const char **params ;
-  long param_len ;
+  rb_len_t param_len ;
   int parse_error_occurred ;
   int defensive_copy_p = 0;
+  _noko_xslt_stylesheet__function_call_t function_call = { 0 };
 
   rb_scan_args(argc, argv, "11", &rb_document, &rb_param);
   if (NIL_P(rb_param)) { rb_param = rb_ary_new2(0L) ; }
@@ -314,7 +370,7 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
     rb_protect(build_xslt_params, (VALUE)&args, &state);
     if (state) {
-      ruby_xfree(params);
+      free_xslt_params(params, param_len);
       rb_jump_tag(state);
     }
   }
@@ -329,13 +385,24 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   }
   xsltFreeTransformContext(c_transform_context);
 
+  c_transform_context = xsltNewTransformContext(wrapper->ss, c_document);
+  if (c_transform_context == NULL) {
+    free_xslt_params(params, param_len);
+    if (defensive_copy_p) {
+      xmlFreeDoc(c_document);
+    }
+    rb_raise(rb_eRuntimeError, "could not create an XSLT transform context");
+  }
+  c_transform_context->_private = &function_call;
+
   rb_error_str = rb_str_new(0, 0);
   xsltSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
   xmlSetGenericErrorFunc((void *)rb_error_str, xslt_generic_error_handler);
 
-  c_result_document = xsltApplyStylesheet(wrapper->ss, c_document, params);
+  c_result_document = xsltApplyStylesheetUser(wrapper->ss, c_document, params, NULL, NULL, c_transform_context);
+  xsltFreeTransformContext(c_transform_context);
 
-  ruby_xfree(params);
+  free_xslt_params(params, param_len);
   if (defensive_copy_p) {
     xmlFreeDoc(c_document);
     c_document = NULL;
@@ -343,6 +410,11 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
 
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+
+  if (function_call.exception_state != 0) {
+    xmlFreeDoc(c_result_document);
+    rb_jump_tag(function_call.exception_state);
+  }
 
   parse_error_occurred = (Qfalse == rb_funcall(rb_error_str, rb_intern("empty?"), 0));
 
@@ -353,25 +425,42 @@ rb_xslt_stylesheet_transform(int argc, VALUE *argv, VALUE self)
   return noko_xml_document_wrap((VALUE)0, c_result_document) ;
 }
 
+static VALUE
+invoke_function(VALUE data)
+{
+  _noko_xslt_stylesheet__invoke_args_t *args = (_noko_xslt_stylesheet__invoke_args_t *)data;
+  xsltTransformContextPtr transform = xsltXPathGetTransformContext(args->ctxt);
+  VALUE handler = (VALUE)xsltGetExtData(transform, args->ctxt->context->functionURI);
+
+  Nokogiri_marshal_xpath_funcall_and_return_values(
+    args->ctxt,
+    args->nargs,
+    handler,
+    (const char *)(args->ctxt->context->function)
+  );
+
+  return Qnil;
+}
+
 static void
 method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 {
-  VALUE handler;
-  const char *function_name;
-  xsltTransformContextPtr transform;
-  const xmlChar *functionURI;
+  xsltTransformContextPtr transform = xsltXPathGetTransformContext(ctxt);
+  _noko_xslt_stylesheet__function_call_t *function_call = transform->_private;
+  _noko_xslt_stylesheet__invoke_args_t args = { ctxt, nargs };
 
-  transform = xsltXPathGetTransformContext(ctxt);
-  functionURI = ctxt->context->functionURI;
-  handler = (VALUE)xsltGetExtData(transform, functionURI);
-  function_name = (const char *)(ctxt->context->function);
+  if (function_call->exception_state == 0) {
+    rb_protect(invoke_function, (VALUE)&args, &function_call->exception_state);
+  }
 
-  Nokogiri_marshal_xpath_funcall_and_return_values(
-    ctxt,
-    nargs,
-    handler,
-    (const char *)function_name
-  );
+  if (function_call->exception_state != 0) {
+    /* silence the errors libxslt reports while it stops, which would run Ruby code */
+    xsltSetGenericErrorFunc(NULL, ignore_error);
+    xmlSetGenericErrorFunc(NULL, ignore_error);
+
+    ctxt->error = XPATH_EXPR_ERROR;
+    transform->state = XSLT_STATE_STOPPED;
+  }
 }
 
 static void *
@@ -412,6 +501,7 @@ shutdownFunc(xsltTransformContextPtr ctxt,
              const xmlChar *uri, void *data)
 {
   nokogiriXsltStylesheetTuple *wrapper;
+  long i;
 
   TypedData_Get_Struct(
     (VALUE)ctxt->style->_private,
@@ -420,7 +510,13 @@ shutdownFunc(xsltTransformContextPtr ctxt,
     wrapper
   );
 
-  rb_ary_clear(wrapper->func_instances);
+  /* Other transform contexts, such as a nested transform's, may still use their instances. */
+  for (i = 0; i < RARRAY_LEN(wrapper->func_instances); i++) {
+    if (RARRAY_AREF(wrapper->func_instances, i) == (VALUE)data) {
+      rb_ary_delete_at(wrapper->func_instances, i);
+      break;
+    }
+  }
 }
 
 /* docstring is in lib/nokogiri/xslt.rb */

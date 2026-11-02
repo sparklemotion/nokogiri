@@ -167,6 +167,22 @@ describe Nokogiri::CSS do
           assert_result_rows([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], subject.css("table//tr:nth(n+3)"))
         end
 
+        it "selects 0np3" do
+          assert_result_rows([3], subject.css("table//tr:nth(0n+3)"))
+          assert_result_rows([3], subject.css("table//tr:nth-child(0n+3)"))
+          assert_result_rows([12], subject.css("table//tr:nth-last-child(0n+3)"))
+        end
+
+        it "selects nothing for 0nm1" do
+          assert_empty(subject.css("table//tr:nth(0n-1)"))
+        end
+
+        it "selects nothing for mn and m2n" do
+          assert_empty(subject.css("table//tr:nth(-n+0)"))
+          assert_empty(subject.css("table//tr:nth(-2n)"))
+          assert_empty(subject.css("table//tr:nth-child(-2n)"))
+        end
+
         it "selects first" do
           assert_result_rows([1], subject.css("table//tr:first"))
           assert_result_rows([1], subject.css("table//tr:first()"))
@@ -376,6 +392,92 @@ describe Nokogiri::CSS do
 
           expected = doc.css("div")
           assert_equal(expected, result)
+        end
+
+        it "selects ids and classes containing quotes" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <div id="it's" class="it's">apostrophe</div>
+              <div id='a"b' class='a"b'>double-quote</div>
+              <div id="other" class="other">other</div>
+            </body></html>
+          HTML
+
+          assert_equal(["apostrophe"], doc.css(%q(#it\'s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(#it\27s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(.it\'s)).map(&:text))
+          assert_equal(["apostrophe"], doc.css(%q(div[class~="it's"])).map(&:text))
+          assert_equal(["double-quote"], doc.css(%q(#a\"b)).map(&:text))
+          assert_equal(["double-quote"], doc.css(%q(.a\"b)).map(&:text))
+          assert_empty(doc.css(%q(#x\'\ or\ \'1\'\=\'1)))
+          assert_empty(doc.css(%q(.x\'\ or\ \'1\'\=\'1)))
+          assert_empty(doc.css('[id=\\\'x\\\'\\ or\\ true\\(\\)]'))
+        end
+
+        it "selects escaped element names and :contains() text" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p>it's</p>
+              <p>a"b'c</p>
+              <p>other</p>
+              <a-b>custom</a-b>
+            </body></html>
+          HTML
+
+          assert_equal(["it's"], doc.css(%q{p:contains('it\'s')}).map(&:text))
+          assert_equal(["it's"], doc.css(%q{p:contains('it\27s')}).map(&:text))
+          assert_equal([%q(a"b'c)], doc.css(%q{p:contains("a\"b'c")}).map(&:text))
+          assert_empty(doc.css(%q{p:contains('\') or (\'1\'=\'1')}))
+          assert_equal(["custom"], doc.css('a\-b').map(&:text))
+          assert_equal(["custom"], doc.css('body > a\-b').map(&:text))
+        end
+
+        it "selects escaped attribute names" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p a-b="1">dash</p>
+              <p>other</p>
+            </body></html>
+          HTML
+
+          assert_equal(["dash"], doc.css('p[a\-b]').map(&:text))
+          assert_equal(["dash"], doc.css('p[a\-b="1"]').map(&:text))
+          assert_empty(doc.css('p[a\-b="2"]'))
+          assert_empty(doc.css('p[a\]\|\/\/\*\[\@b]'))
+        end
+
+        it "selects attribute names that are not XPath names" do
+          skip("XML does not allow these attribute names") if subject_class == Nokogiri::XML::Document
+
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p @click="go">alpine</p>
+              <p :class="c">vue</p>
+              <p>other</p>
+            </body></html>
+          HTML
+
+          assert_equal(["vue"], doc.css('p[\:class]').map(&:text))
+
+          # libxml2's HTML4 parser drops "@click" before 2.14, which adopted the HTML5 tokenizer.
+          if subject_class != Nokogiri::HTML4::Document || Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.14.0")
+            assert_equal(["alpine"], doc.css('p[\@click]').map(&:text))
+            assert_equal(["alpine"], doc.css('p[\@click="go"]').map(&:text))
+          end
+        end
+
+        it "does not select a namespaced attribute by its qualified name" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <svg xmlns:xlink="http://www.w3.org/1999/xlink"><a xlink:href="v">link</a></svg>
+            </body></html>
+          HTML
+
+          # HTML4 does not parse namespaces, so it creates an attribute named "xlink:href" in no namespace.
+          expected = (subject_class == Nokogiri::HTML4::Document) ? ["link"] : []
+
+          assert_equal(expected, doc.css('[xlink\:href]').map(&:text))
+          assert_equal(expected, doc.css('[|xlink\:href="v"]').map(&:text))
         end
 
         it "handles xpath attribute selectors" do

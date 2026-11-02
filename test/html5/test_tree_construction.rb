@@ -81,7 +81,7 @@ class TestHtml5TreeConstructionBase < Nokogiri::TestCase
         # run the test using a context Element
         if @test[:context].length > 1
           # the test is in a foreign context
-          doc = Nokogiri::HTML5::Document.parse("<!DOCTYPE html><math></math><svg></svg>")
+          doc = Nokogiri::HTML5::Document.parse("<!DOCTYPE html><math></math><svg></svg>", **options)
           foreign_el = doc.at_css(@test[:context].first)
           context_node_name = @test[:context].last
           context_node = foreign_el.add_child("<#{context_node_name}></#{context_node_name}>").first

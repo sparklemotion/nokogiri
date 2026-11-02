@@ -210,6 +210,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
         <span><a b='"'></a></span>
         <span><a b="<"></a></span>
         <span><a b=">"></a></span>
+        <span><a href="javascript:&quot;&lt;>&quot;"></a></span>
         <span><svg xlink:href="a"></svg></span>
         <span><svg xmlns:svg="test"></svg></span>
         <span>a</span>
@@ -231,7 +232,7 @@ class TestHtml5Serialize < Nokogiri::TestCase
         <span b=c></span>
         </div>
       EOF
-      Nokogiri::HTML5(html).xpath("/html/body/div/*")
+      Nokogiri::HTML5(html, parse_noscript_content_as_text: true).xpath("/html/body/div/*")
     end
     @serializing_test_data
   end
@@ -244,8 +245,9 @@ class TestHtml5Serialize < Nokogiri::TestCase
     ["<a b=\"&amp;\"></a>", "<span><a b=\"&amp;\"></a></span>"],
     ["<a b=\"&nbsp;\"></a>", "<span><a b=\"&nbsp;\"></a></span>"],
     ["<a b=\"&quot;\"></a>", "<span><a b=\"&quot;\"></a></span>"],
-    ["<a b=\"<\"></a>", "<span><a b=\"<\"></a></span>"],
-    ["<a b=\">\"></a>", "<span><a b=\">\"></a></span>"],
+    ["<a b=\"&lt;\"></a>", "<span><a b=\"&lt;\"></a></span>"],
+    ["<a b=\"&gt;\"></a>", "<span><a b=\"&gt;\"></a></span>"],
+    ["<a href=\"javascript:&quot;&lt;&gt;&quot;\"></a>", "<span><a href=\"javascript:&quot;&lt;&gt;&quot;\"></a></span>"],
     ["<svg xlink:href=\"a\"></svg>", "<span><svg xlink:href=\"a\"></svg></span>"],
     ["<svg xmlns:svg=\"test\"></svg>", "<span><svg xmlns:svg=\"test\"></svg></span>"],
     ["a", "<span>a</span>"],
@@ -567,6 +569,65 @@ class TestHtml5Serialize < Nokogiri::TestCase
       expected = %{<math><style>&lt;img src&gt;</style></math>}
 
       assert_equal(expected, Nokogiri::HTML5.fragment(input).to_html)
+    end
+  end
+
+  describe "noscript text serialization" do
+    let(:input) { %{<noscript>&lt;/noscript&gt;&lt;img src=x&gt;</noscript>} }
+    let(:escaped) { %{<noscript>&lt;/noscript&gt;&lt;img src=x&gt;</noscript>} }
+    let(:literal) { %{<noscript><p>&lt;/noscript&gt;</p></noscript>} }
+
+    it "is escaped in a fragment parsed with scripting disabled" do
+      assert_equal(escaped, Nokogiri::HTML5.fragment(input).to_html)
+    end
+
+    it "is escaped in a document parsed with scripting disabled" do
+      assert_equal(escaped, Nokogiri::HTML5("<body>#{input}").at_css("noscript").to_html)
+    end
+
+    it "is literal in a fragment parsed with noscript content as text" do
+      fragment = Nokogiri::HTML5.fragment(literal, parse_noscript_content_as_text: true)
+
+      assert_equal(literal, fragment.to_html)
+    end
+
+    it "is literal in a document parsed with noscript content as text" do
+      doc = Nokogiri::HTML5("<body>#{literal}", parse_noscript_content_as_text: true)
+
+      assert_equal(literal, doc.at_css("noscript").to_html)
+    end
+
+    it "is literal in a fragment created with noscript content as text" do
+      fragment = Nokogiri::HTML5::DocumentFragment.new(
+        Nokogiri::HTML5::Document.new, literal, parse_noscript_content_as_text: true
+      )
+
+      assert_equal(literal, fragment.to_html)
+    end
+
+    it "is safe in a fragment of a document parsed with noscript content as text" do
+      doc = Nokogiri::HTML5("<body>", parse_noscript_content_as_text: true)
+
+      assert_equal(escaped, doc.fragment(input).to_html)
+    end
+
+    it "requires a fragment to parse noscript content the way its document did" do
+      doc = Nokogiri::HTML5("<body>", parse_noscript_content_as_text: true)
+
+      assert_raises(ArgumentError) do
+        Nokogiri::HTML5::DocumentFragment.new(doc, input, parse_noscript_content_as_text: false)
+      end
+    end
+
+    it "does not record a fragment's noscript parsing mode when the fragment fails to parse" do
+      doc = Nokogiri::HTML5::Document.new
+      assert_raises(ArgumentError) do
+        Nokogiri::HTML5::DocumentFragment.new(doc, input, parse_noscript_content_as_text: true, max_tree_depth: 0)
+      end
+
+      fragment = Nokogiri::HTML5::DocumentFragment.new(doc, input, parse_noscript_content_as_text: false)
+
+      assert_equal(escaped, fragment.to_html)
     end
   end
 end if Nokogiri.uses_gumbo?

@@ -259,6 +259,45 @@ module Nokogiri
         end
       end
       # TODO: can we retrieve a resource pointing to localhost when NONET is set to true ?
+
+      # short-form IPv4 hosts like "127.1" are a regression test for GHSA-v995-44v6-5fqm
+      ["127.0.0.1", "127.1", "127.0.1"].each do |host|
+        define_method("test_external_dtd_with_nonet_via_#{host}") do
+          skip("MockServer not supported") unless Nokogiri::MockServer.supported?
+
+          refute_network_connection(host:) do |url|
+            xml = <<~XML
+              <!DOCTYPE document SYSTEM "#{url}">
+              <document>&bar;</document>
+            XML
+            Nokogiri::XML::Document.parse(xml) { |cfg| cfg.default_xml.dtdload }
+          end
+        end
+
+        define_method("test_external_entity_with_nonet_via_#{host}") do
+          skip("MockServer not supported") unless Nokogiri::MockServer.supported?
+
+          refute_network_connection(host:) do |url|
+            xml = <<~XML
+              <!DOCTYPE document [<!ENTITY bar SYSTEM "#{url}">]>
+              <document>&bar;</document>
+            XML
+            Nokogiri::XML::Document.parse(xml) { |cfg| cfg.default_xml.noent }
+          end
+        end
+      end
+
+      def test_absolute_path_dtd_under_network_base_with_nonet
+        skip("MockServer not supported") unless Nokogiri::MockServer.supported?
+
+        refute_network_connection do |url|
+          xml = <<~XML
+            <!DOCTYPE document SYSTEM "/dtd">
+            <document>&bar;</document>
+          XML
+          Nokogiri::XML::Document.parse(xml, url) { |cfg| cfg.default_xml.dtdload }
+        end
+      end
     end
 
     class TestSaxEntityReference < Nokogiri::SAX::TestCase
@@ -283,10 +322,12 @@ module Nokogiri
         end
 
         actual = actual.map { |e| e.to_s.strip }
-        expected = if truffleruby_system_libraries?
-          ["error_func: %s"]
-        else
+        expected = if !truffleruby_system_libraries?
           ["Entity 'bar' not defined"]
+        elsif Nokogiri.uses_libxml?(">= 2.13.0")
+          ["warning_func: %s"]
+        else
+          ["error_func: %s"]
         end
 
         assert_equal(expected, actual)
@@ -316,10 +357,12 @@ module Nokogiri
           refute_empty(actual)
 
           actual = actual.map { |e| e.to_s.strip }
-          expected = if truffleruby_system_libraries?
-            ["error_func: %s"]
-          else
+          expected = if !truffleruby_system_libraries?
             ["Entity 'bar' not defined"]
+          elsif Nokogiri.uses_libxml?(">= 2.13.0")
+            ["warning_func: %s"]
+          else
+            ["error_func: %s"]
           end
 
           assert_equal(expected, actual)
@@ -371,6 +414,20 @@ module Nokogiri
           end
         end
         assert_operator(reader.errors.size, :>, 0)
+      end
+
+      ["127.0.0.1", "127.1", "127.0.1"].each do |host|
+        define_method("test_reader_external_entity_with_nonet_via_#{host}") do
+          skip("MockServer not supported") unless Nokogiri::MockServer.supported?
+
+          refute_network_connection(host:) do |url|
+            xml = <<~XML
+              <!DOCTYPE document [<!ENTITY bar SYSTEM "#{url}">]>
+              <document>&bar;</document>
+            XML
+            Nokogiri::XML::Reader(xml) { |cfg| cfg.default_xml.noent }.each {}
+          end
+        end
       end
     end
   end

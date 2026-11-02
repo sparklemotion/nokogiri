@@ -973,7 +973,33 @@ static void maybe_flush_text_node_buffer(GumboParser* parser) {
   );
 
   InsertionLocation location = get_appropriate_insertion_location(parser, NULL);
-  if (location.target->type == GUMBO_NODE_DOCUMENT) {
+  GumboNode* prev = NULL;
+  if (location.target->type == GUMBO_NODE_ELEMENT ||
+      location.target->type == GUMBO_NODE_TEMPLATE) {
+    GumboVector* siblings = &location.target->v.element.children;
+    if (location.index == -1) {
+      if (siblings->length > 0) prev = siblings->data[siblings->length - 1];
+    } else if (location.index > 0) {
+      prev = siblings->data[location.index - 1];
+    }
+  }
+  if (prev != NULL &&
+      (prev->type == GUMBO_NODE_TEXT || prev->type == GUMBO_NODE_WHITESPACE) &&
+      (text_node->type == GUMBO_NODE_TEXT ||
+       text_node->type == GUMBO_NODE_WHITESPACE)) {
+    GumboText* prev_data = &prev->v.text;
+    size_t prev_length = strlen(prev_data->text);
+    size_t added_length = strlen(text_node_data->text);
+    char* merged = gumbo_alloc(prev_length + added_length + 1);
+    memcpy(merged, prev_data->text, prev_length);
+    memcpy(merged + prev_length, text_node_data->text, added_length + 1);
+    gumbo_free((void*) prev_data->text);
+    prev_data->text = merged;
+    if (text_node->type == GUMBO_NODE_TEXT) {
+      prev->type = GUMBO_NODE_TEXT;
+    }
+    destroy_node(text_node);
+  } else if (location.target->type == GUMBO_NODE_DOCUMENT) {
     // The DOM does not allow Document nodes to have Text children, so per the
     // spec, they are dropped on the floor.
     destroy_node(text_node);
@@ -1025,14 +1051,29 @@ static GumboNode* pop_current_node(GumboParser* parser) {
       && state->_closed_html_tag
     )
   ;
+  // The tree construction loop frees an unknown end tag's name once it is done
+  // with the token, so the current token can be an end tag that no longer names
+  // anything. That happens when stop_on_first_error ends the loop on the same
+  // iteration that freed the name, leaving this token current for
+  // finish_parsing. Such a token cannot match any node, and passing it on would
+  // break node_qualified_tagname_is's precondition that an unknown tag carries
+  // a name.
+  const GumboToken* current_token = state->_current_token;
+  const bool current_token_names_an_end_tag =
+    current_token->type == GUMBO_TOKEN_END_TAG
+    && (
+      current_token->v.end_tag.tag != GUMBO_TAG_UNKNOWN
+      || current_token->v.end_tag.name
+    )
+  ;
   if (
     (
-      state->_current_token->type != GUMBO_TOKEN_END_TAG
+      !current_token_names_an_end_tag
       || !node_qualified_tagname_is (
         current_node,
         GUMBO_NAMESPACE_HTML,
-        state->_current_token->v.end_tag.tag,
-        state->_current_token->v.end_tag.name
+        current_token->v.end_tag.tag,
+        current_token->v.end_tag.name
       )
     )
     && !is_closed_body_or_html_tag
@@ -1387,11 +1428,14 @@ static bool is_open_element(const GumboParser* parser, const GumboNode* node) {
 // Clones attributes, tags, etc. of a node, but does not copy the content. The
 // clone shares no structure with the original node: all owned strings and
 // values are fresh copies.
+// This doesn't support custom elements because it does not need to at this
+// time.
 static GumboNode* clone_node (
   GumboNode* node,
   GumboParseFlags reason
 ) {
   assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
+  assert(node->v.element.tag != GUMBO_TAG_UNKNOWN);
   GumboNode* new_node = gumbo_alloc(sizeof(GumboNode));
   *new_node = *node;
   new_node->parent = NULL;
@@ -2904,15 +2948,7 @@ static void handle_in_body(GumboParser* parser, GumboToken* token) {
     // follows the </frameset>.
     clear_active_formatting_elements(parser);
 
-    // Remove the body node. We may want to factor this out into a generic
-    // helper, but right now this is the only code that needs to do this.
-    GumboVector* children = &parser->_output->root->v.element.children;
-    for (unsigned int i = 0; i < children->length; ++i) {
-      if (children->data[i] == body_node) {
-        gumbo_vector_remove_at(i, children);
-        break;
-      }
-    }
+    remove_from_parent(body_node);
     destroy_node(body_node);
 
     // Insert the <frameset>, and switch the insertion mode.

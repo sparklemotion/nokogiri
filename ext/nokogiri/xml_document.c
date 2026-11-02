@@ -384,16 +384,23 @@ noko_xml_document_s_read_io(VALUE rb_class,
 
   const char *c_url    = NIL_P(rb_url)      ? NULL : StringValueCStr(rb_url);
   const char *c_enc    = NIL_P(rb_encoding) ? NULL : StringValueCStr(rb_encoding);
+  noko_io_read_reset_exception();
   xmlDocPtr c_document = xmlReadIO(
-                           (xmlInputReadCallback)noko_io_read,
+                           (xmlInputReadCallback)noko_io_read_protected,
                            (xmlInputCloseCallback)noko_io_close,
                            (void *)rb_io,
                            c_url,
                            c_enc,
                            (int)NUM2INT(rb_options)
                          );
+  VALUE rb_io_read_exception = noko_io_read_take_exception();
 
   noko__structured_error_func_restore(&handler_state);
+
+  if (!NIL_P(rb_io_read_exception)) {
+    xmlFreeDoc(c_document);
+    noko_io_read_raise_exception(rb_io_read_exception);
+  }
 
   if (c_document == NULL) {
     xmlFreeDoc(c_document);
@@ -464,7 +471,7 @@ new (int argc, VALUE *argv, VALUE klass)
   VALUE version, rest, rb_doc ;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  version = rb_ary_entry(rest, (long)0);
+  version = rb_ary_entry(rest, (rb_len_t)0);
   if (NIL_P(version)) { version = rb_str_new2("1.0"); }
 
   doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
@@ -609,7 +616,8 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
   VALUE rb_namespaces;
   VALUE rb_comments_p;
   int c_mode = 0;
-  xmlChar **c_namespaces;
+  xmlChar **c_namespaces = NULL;
+  VALUE rb_namespaces_buffer = 0;
 
   xmlDocPtr c_doc;
   xmlOutputBufferPtr c_obuf;
@@ -629,6 +637,35 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     if (c_mode == XML_C14N_1_0 || c_mode == XML_C14N_1_1) {
       rb_raise(rb_eRuntimeError, "This canonicalizer does not support this operation");
     }
+
+    // Copy every prefix into one temporary buffer before libxml2 sees it. Converting first means a
+    // raise from #to_str or a null byte leaks nothing. Copying means GC compaction, which moves the
+    // bytes of embedded strings, cannot move a prefix while libxml2 reads it. No allocation may
+    // happen between reading a prefix's pointer and copying its bytes.
+    rb_len_t ns_len = RARRAY_LEN(rb_namespaces);
+    VALUE rb_prefixes = rb_ary_new_capa(ns_len);
+    for (rb_len_t j = 0; j < ns_len; j++) {
+      VALUE entry = rb_ary_entry(rb_namespaces, j);
+      StringValueCStr(entry);
+      rb_ary_push(rb_prefixes, entry);
+    }
+
+    size_t size = ((size_t)ns_len + 1) * sizeof(xmlChar *);
+    for (rb_len_t j = 0; j < ns_len; j++) {
+      size += (size_t)RSTRING_LEN(RARRAY_AREF(rb_prefixes, j)) + 1;
+    }
+    c_namespaces = ALLOCV(rb_namespaces_buffer, size);
+
+    xmlChar *c_prefix = (xmlChar *)(c_namespaces + ns_len + 1);
+    for (rb_len_t j = 0; j < ns_len; j++) {
+      VALUE prefix = RARRAY_AREF(rb_prefixes, j);
+      size_t prefix_len = (size_t)RSTRING_LEN(prefix);
+      memcpy(c_prefix, RSTRING_PTR(prefix), prefix_len);
+      c_prefix[prefix_len] = '\0';
+      c_namespaces[j] = c_prefix;
+      c_prefix += prefix_len + 1;
+    }
+    c_namespaces[ns_len] = NULL;
   }
 
   c_doc = noko_xml_document_unwrap(self);
@@ -646,24 +683,13 @@ rb_xml_document_canonicalize(int argc, VALUE *argv, VALUE self)
     rb_callback = (void *)rb_block_proc();
   }
 
-  if (NIL_P(rb_namespaces)) {
-    c_namespaces = NULL;
-  } else {
-    long ns_len = RARRAY_LEN(rb_namespaces);
-    c_namespaces = ruby_xcalloc((size_t)ns_len + 1, sizeof(xmlChar *));
-    for (int j = 0 ; j < ns_len ; j++) {
-      VALUE entry = rb_ary_entry(rb_namespaces, j);
-      c_namespaces[j] = (xmlChar *)StringValueCStr(entry);
-    }
-  }
-
   int ret = xmlC14NExecute(c_doc, c_callback_wrapper, rb_callback,
                            c_mode,
                            c_namespaces,
                            (int)RTEST(rb_comments_p),
                            c_obuf);
 
-  ruby_xfree(c_namespaces);
+  ALLOCV_END(rb_namespaces_buffer);
   xmlOutputBufferClose(c_obuf);
 
   if (ret < 0) {
@@ -733,7 +759,7 @@ noko_xml_document_has_wrapped_blank_nodes_p(xmlDocPtr c_document)
     return 0;
   }
 
-  for (long jnode = 0; jnode < RARRAY_LEN(cache); jnode++) {
+  for (rb_len_t jnode = 0; jnode < RARRAY_LEN(cache); jnode++) {
     xmlNodePtr node;
     VALUE element = rb_ary_entry(cache, jnode);
 

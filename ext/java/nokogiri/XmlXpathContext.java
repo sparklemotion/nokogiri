@@ -20,10 +20,10 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.SafePropertyAccessor;
 import org.w3c.dom.Node;
 
 import nokogiri.internals.NokogiriNamespaceContext;
+import nokogiri.internals.NokogiriXPathContext;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
 import nokogiri.internals.NokogiriXPathVariableResolver;
 
@@ -40,16 +40,6 @@ import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 public class XmlXpathContext extends RubyObject
 {
   private static final long serialVersionUID = 1L;
-
-  static
-  {
-    final String DTMManager = "org.apache.xml.dtm.DTMManager";
-    if (SafePropertyAccessor.getProperty(DTMManager) == null) {
-      try { // use patched "org.apache.xml.dtm.ref.DTMManagerDefault"
-        System.setProperty(DTMManager, nokogiri.internals.XalanDTMManagerPatch.class.getName());
-      } catch (SecurityException ex) { /* no-op - will work although might be slower */ }
-    }
-  }
 
   /**
    * user-data key for (cached) {@link XPathContext}
@@ -82,7 +72,7 @@ public class XmlXpathContext extends RubyObject
   rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node)
   {
     try {
-      return new XmlXpathContext(context.runtime, (RubyClass) klazz, (XmlNode) node);
+      return new XmlXpathContext(context.runtime, (RubyClass) klazz, XmlNode.asXmlNode(context, node));
     } catch (IllegalArgumentException e) {
       throw context.getRuntime().newRuntimeError(e.getMessage());
     }
@@ -185,7 +175,7 @@ public class XmlXpathContext extends RubyObject
   public IRubyObject
   set_node(ThreadContext context, IRubyObject rb_node)
   {
-    this.context = (XmlNode) rb_node;
+    this.context = XmlNode.asXmlNode(context, rb_node);
     return rb_node;
   }
 
@@ -268,8 +258,8 @@ public class XmlXpathContext extends RubyObject
   private static XPathContext
   newXPathContext(final NokogiriXPathFunctionResolver functionResolver)
   {
-    if (functionResolver == null) { return new XPathContext(false); }
-    return new XPathContext(new JAXPExtensionsProvider(functionResolver), false);
+    if (functionResolver == null) { return new NokogiriXPathContext(); }
+    return new NokogiriXPathContext(new JAXPExtensionsProvider(functionResolver));
   }
 
   private boolean

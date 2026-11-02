@@ -61,7 +61,7 @@ module Nokogiri
           native_write_to(io, encoding, indent_string, config_options)
         else
           # Serialize including the current node.
-          html = html_standard_serialize(options[:preserve_newline] || false)
+          html = html_standard_serialize(options[:preserve_newline] || false, document.parse_noscript_content_as_text)
           encoding ||= document.encoding || Encoding::UTF_8
           io << html.encode(encoding, fallback: lambda { |c| "&#x#{c.ord.to_s(16)};" })
         end

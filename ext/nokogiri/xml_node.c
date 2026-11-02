@@ -115,14 +115,10 @@ relink_namespace(xmlNodePtr reparented)
     xmlNsPtr prev = NULL;
 
     while (curr) {
-      xmlNsPtr ns = xmlSearchNsByHref(
-                      reparented->doc,
-                      reparented->parent,
-                      curr->href
-                    );
-      /* If we find the namespace is already declared, remove it from this
-       * definition list. */
-      if (ns && ns != curr && xmlStrEqual(ns->prefix, curr->prefix)) {
+      xmlNsPtr ns = xmlSearchNs(reparented->doc, reparented->parent, curr->prefix);
+      /* If the parent already binds this prefix to the same href, remove it
+       * from this definition list. */
+      if (ns && ns != curr && xmlStrEqual(ns->href, curr->href)) {
         if (prev) {
           prev->next = curr->next;
         } else {
@@ -1232,6 +1228,29 @@ namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
   return Qfalse;
 }
 
+/* If a matching attribute node already exists, then xmlSetNsProp will destroy
+ * the existing node's children. However, if Nokogiri has a node object
+ * pointing to one of those children, we are left with a broken reference.
+ *
+ * We can avoid this by unlinking these nodes first.
+ */
+static void
+unlink_wrapped_attr_children(xmlAttrPtr attr)
+{
+  xmlNodePtr cur, next;
+
+  if (!attr || attr->type != XML_ATTRIBUTE_NODE) {
+    return;
+  }
+  for (cur = attr->children; cur; cur = next) {
+    next = cur->next;
+    if (cur->_private) {
+      noko_xml_document_pin_node(cur);
+      xmlUnlinkNode(cur);
+    }
+  }
+}
+
 /*
  * call-seq:
  *  []=(property, value)
@@ -1241,31 +1260,36 @@ namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
 static VALUE
 set(VALUE self, VALUE property, VALUE value)
 {
-  xmlNodePtr node, cur;
-  xmlAttrPtr prop;
+  xmlNodePtr node;
+  xmlNsPtr ns = NULL;
+  const xmlChar *name, *local_name, *c_value;
+  xmlChar *prefix;
+  int prefix_len;
   Noko_Node_Get_Struct(self, xmlNode, node);
 
-  /* If a matching attribute node already exists, then xmlSetProp will destroy
-   * the existing node's children. However, if Nokogiri has a node object
-   * pointing to one of those children, we are left with a broken reference.
-   *
-   * We can avoid this by unlinking these nodes first.
-   */
   if (node->type != XML_ELEMENT_NODE) {
     return (Qnil);
   }
-  prop = xmlHasProp(node, (xmlChar *)StringValueCStr(property));
-  if (prop && prop->children) {
-    for (cur = prop->children; cur; cur = cur->next) {
-      if (cur->_private) {
-        noko_xml_document_pin_node(cur);
-        xmlUnlinkNode(cur);
-      }
+  name = (const xmlChar *)StringValueCStr(property);
+  c_value = (const xmlChar *)StringValueCStr(value);
+
+  /* Resolve a QName the way xmlSetProp does, so that we find the same attribute it would replace. */
+  local_name = xmlSplitQName3(name, &prefix_len);
+  if (local_name) {
+    prefix = xmlStrndup(name, prefix_len);
+    if (!prefix) {
+      rb_memerror();
     }
+    ns = xmlSearchNs(node->doc, node, prefix);
+    xmlFree(prefix);
+  }
+  if (!ns) {
+    local_name = name;
   }
 
-  xmlSetProp(node, (xmlChar *)StringValueCStr(property),
-             (xmlChar *)StringValueCStr(value));
+  unlink_wrapped_attr_children(xmlHasNsProp(node, local_name, ns ? ns->href : NULL));
+
+  xmlSetNsProp(node, ns, local_name, c_value);
 
   return value;
 }
@@ -1337,6 +1361,11 @@ set_namespace(VALUE self, VALUE namespace)
   }
 
   xmlSetNs(node, ns);
+
+  if (ns && node->type == XML_ELEMENT_NODE && !xmlSearchNs(node->doc, node, ns->prefix)) {
+    xmlNsPtr definition = xmlNewNs(node, ns->href, ns->prefix);
+    if (definition) { xmlSetNs(node, definition); }
+  }
 
   return self;
 }
@@ -1566,6 +1595,7 @@ set_lang(VALUE self_rb, VALUE lang_rb)
   Noko_Node_Get_Struct(self_rb, xmlNode, self);
   lang = (xmlChar *)StringValueCStr(lang_rb);
 
+  unlink_wrapped_attr_children(xmlHasNsProp(self, BAD_CAST "lang", XML_XML_NAMESPACE));
   xmlNodeSetLang(self, lang);
 
   return Qnil ;
@@ -1744,7 +1774,7 @@ static inline void
 output_partial_string(VALUE out, char const *str, size_t length)
 {
   if (length) {
-    rb_enc_str_buf_cat(out, str, (long)length, rb_utf8_encoding());
+    rb_enc_str_buf_cat(out, str, (rb_len_t)length, rb_utf8_encoding());
   }
 }
 
@@ -1834,9 +1864,9 @@ output_escaped_string(VALUE out, xmlChar const *start, bool attr)
       replaced_bytes = 2;
     } else if (attr && ch == '"') {
       replacement = "&quot;";
-    } else if (!attr && ch == '<') {
+    } else if (ch == '<') {
       replacement = "&lt;";
-    } else if (!attr && ch == '>') {
+    } else if (ch == '>') {
       replacement = "&gt;";
     } else {
       ++next;
@@ -1897,7 +1927,8 @@ static void
 output_node(
   VALUE out,
   xmlNodePtr node,
-  bool preserve_newline
+  bool preserve_newline,
+  bool scripting_enabled
 )
 {
   static char const *const VOID_ELEMENTS[] = {
@@ -1906,8 +1937,10 @@ output_node(
   };
 
   static char const *const UNESCAPED_TEXT_ELEMENTS[] = {
-    "style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext", "noscript",
+    "style", "script", "xmp", "iframe", "noembed", "noframes", "plaintext",
   };
+
+  static char const *const NOSCRIPT_ELEMENT[] = { "noscript" };
 
   switch (node->type) {
     case XML_ELEMENT_NODE:
@@ -1918,7 +1951,7 @@ output_node(
       // Add attributes.
       for (xmlAttrPtr attr = node->properties; attr; attr = attr->next) {
         output_char(out, ' ');
-        output_node(out, (xmlNodePtr)attr, preserve_newline);
+        output_node(out, (xmlNodePtr)attr, preserve_newline, scripting_enabled);
       }
       output_char(out, '>');
 
@@ -1928,7 +1961,7 @@ output_node(
           output_char(out, '\n');
         }
         for (xmlNodePtr child = node->children; child; child = child->next) {
-          output_node(out, child, preserve_newline);
+          output_node(out, child, preserve_newline, scripting_enabled);
         }
         output_string(out, "</");
         output_tagname(out, node);
@@ -1954,8 +1987,9 @@ output_node(
 
     case XML_TEXT_NODE:
       if (node->parent
-          && is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
-                       sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])) {
+          && (is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
+                        sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])
+              || (scripting_enabled && is_one_of(node->parent, NOSCRIPT_ELEMENT, 1)))) {
         output_string(out, (char const *)node->content);
       } else {
         output_escaped_string(out, node->content, false);
@@ -1991,7 +2025,7 @@ output_node(
     case XML_DOCUMENT_FRAG_NODE:
     case XML_HTML_DOCUMENT_NODE:
       for (xmlNodePtr child = node->children; child; child = child->next) {
-        output_node(out, child, preserve_newline);
+        output_node(out, child, preserve_newline, scripting_enabled);
       }
       break;
 
@@ -2004,13 +2038,14 @@ output_node(
 static VALUE
 html_standard_serialize(
   VALUE self,
-  VALUE preserve_newline
+  VALUE preserve_newline,
+  VALUE scripting_enabled
 )
 {
   xmlNodePtr node;
   Noko_Node_Get_Struct(self, xmlNode, node);
   VALUE output = rb_str_buf_new(4096);
-  output_node(output, node, RTEST(preserve_newline));
+  output_node(output, node, RTEST(preserve_newline), RTEST(scripting_enabled));
   return output;
 }
 
@@ -2512,7 +2547,7 @@ noko_init_xml_node(void)
   rb_define_private_method(cNokogiriXmlNode, "in_context", in_context, 2);
   rb_define_private_method(cNokogiriXmlNode, "native_write_to", native_write_to, 4);
   rb_define_private_method(cNokogiriXmlNode, "prepend_newline?", rb_prepend_newline, 0);
-  rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 1);
+  rb_define_private_method(cNokogiriXmlNode, "html_standard_serialize", html_standard_serialize, 2);
   rb_define_private_method(cNokogiriXmlNode, "process_xincludes", noko_xml_node__process_xincludes, 1);
   rb_define_private_method(cNokogiriXmlNode, "replace_node", replace, 1);
   rb_define_private_method(cNokogiriXmlNode, "set", set, 2);

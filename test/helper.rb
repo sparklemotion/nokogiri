@@ -105,12 +105,12 @@ module Nokogiri
       "file://#{path_with_leading_slash}"
     end
 
-    def assert_network_connection(scheme: "http", path: "/making-a-request", &block)
-      assert tcp_connection_attempted?(scheme:, path:, &block), "should open a network connection"
+    def assert_network_connection(scheme: "http", host: "127.0.0.1", path: "/making-a-request", &block)
+      assert tcp_connection_attempted?(scheme:, host:, path:, &block), "should open a network connection"
     end
 
-    def refute_network_connection(scheme: "http", path: "/making-a-request", &block)
-      refute tcp_connection_attempted?(scheme:, path:, &block), "should not open a network connection"
+    def refute_network_connection(scheme: "http", host: "127.0.0.1", path: "/making-a-request", &block)
+      refute tcp_connection_attempted?(scheme:, host:, path:, &block), "should not open a network connection"
     end
 
     def ignoring_syntax_errors
@@ -118,12 +118,12 @@ module Nokogiri
     rescue Nokogiri::XML::SyntaxError
     end
 
-    def tcp_connection_attempted?(scheme: "http", path: "/making-a-request")
+    def tcp_connection_attempted?(scheme: "http", host: "127.0.0.1", path: "/making-a-request")
       flunk("MockServer is not supported on this platform; the calling test must skip explicitly") unless MockServer.supported?
 
       listener = MockServer.listener_class.new
       begin
-        yield("#{scheme}://127.0.0.1:#{listener.port}#{path}")
+        yield("#{scheme}://#{host}:#{listener.port}#{path}")
       ensure
         connections = listener.stop
       end
@@ -133,6 +133,29 @@ module Nokogiri
 
   class TestBenchmark < Minitest::BenchSpec
     extend TestBase
+
+    PASSES = 10
+
+    # Like Minitest::Benchmark#assert_performance, but makes several passes over the range and
+    # keeps the fastest time for each input, discarding samples slowed by a GC pause or a busy CI
+    # runner.
+    def assert_performance(validation, &work)
+      range = self.class.bench_range
+
+      passes = Array.new(PASSES) do
+        range.map do |x|
+          GC.start
+          t0 = Minitest.clock_time
+          instance_exec(x, &work)
+          Minitest.clock_time - t0
+        end
+      end
+      times = passes.transpose.map(&:min)
+
+      io.puts([name, *times.map { |t| "%9.6f" % t }].join("\t"))
+
+      validation[range, times]
+    end
   end
 
   # rubocop:disable Style/ClassVars
@@ -294,19 +317,19 @@ module Nokogiri
       document.decorate!
     end
 
-    def pending(msg)
+    def pending(msg, extra_uplevel = 0)
       begin
         yield
       rescue Minitest::Assertion
-        skip("pending #{msg} [#{caller(2..2).first}]")
+        skip("pending #{msg} [#{caller(2 + extra_uplevel, 1).first}]")
       end
-      flunk("pending test unexpectedly passed: #{msg} [#{caller(1..1).first}]")
+      flunk("pending test unexpectedly passed: #{msg} [#{caller(1 + extra_uplevel, 1).first}]")
     end
 
     def pending_if(msg, pend_eh, &block)
       return yield unless pend_eh
 
-      pending(msg, &block)
+      pending(msg, 1, &block)
     end
 
     # returns the page size in bytes

@@ -845,6 +845,79 @@ module Nokogiri
             end
           end
         end
+
+        # https://github.com/sparklemotion/nokogiri/issues/3459
+        describe "reparenting with duplicate namespace prefixes" do
+          it "stitches together ok" do
+            doc = Nokogiri::XML(<<~XML)
+              <dnd:adventure xmlns:dnd="http://www.w3.org/dungeons#">
+                <dnd:party xmlns:dnd="http://www.w3.org/dragons#">
+                  <dnd:members>
+                  </dnd:members>
+                </dnd:party>
+              </dnd:adventure>
+            XML
+
+            dungeons_ns = doc.root.namespace_definitions.find { |ns| ns.prefix == "dnd" }
+            parent = doc.xpath("//ns:members", ns: "http://www.w3.org/dragons#").first
+
+            node = doc.create_element("character")
+            node.namespace = dungeons_ns
+            parent.add_child(node)
+
+            assert_includes(doc.to_xml, %{<dnd:character xmlns:dnd="http://www.w3.org/dungeons#"/>})
+          end
+
+          it "does not redeclare a prefixed namespace that the new parent already binds" do
+            doc = Nokogiri::XML(<<~XML)
+              <root xmlns:m="urn:messages">
+                <request xmlns="urn:messages"/>
+              </root>
+            XML
+
+            messages_ns = doc.root.namespace_definitions.find { |ns| ns.prefix == "m" }
+            parent = doc.root.elements.first
+
+            node = doc.create_element("item")
+            node.namespace = messages_ns
+            parent.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: "m", href: "urn:messages" }
+            end
+            assert_empty(node.namespace_definitions)
+          end
+
+          it "stitches together a default namespace" do
+            doc = Nokogiri::XML(<<~XML)
+              <root xmlns="urn:outer">
+                <inner xmlns="urn:inner"/>
+              </root>
+            XML
+
+            node = doc.create_element("item")
+            node.namespace = doc.root.namespace
+            doc.root.elements.first.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: nil, href: "urn:outer" }
+              node.namespace_definitions => [{ prefix: nil, href: "urn:outer" }]
+            end
+          end
+
+          it "does not redeclare a default namespace that the new parent already binds" do
+            doc = Nokogiri::XML(%{<root xmlns="urn:outer"/>})
+
+            node = doc.create_element("item")
+            node.namespace = doc.root.namespace
+            doc.root.add_child(node)
+
+            assert_pattern do
+              node.namespace => { prefix: nil, href: "urn:outer" }
+            end
+            assert_empty(node.namespace_definitions)
+          end
+        end
       end
     end
   end
