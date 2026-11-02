@@ -26,7 +26,7 @@ required_attributes(VALUE self)
 
   if (NULL == description->attrs_req) { return list; }
 
-  for (i = 0; description->attrs_depr[i]; i++) {
+  for (i = 0; description->attrs_req[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_req[i]));
   }
 

@@ -106,6 +106,26 @@ module Nokogiri
         assert_equal(0, attrs.length)
       end
 
+      def test_required_attributes_without_deprecated_attributes
+        # libxml2 < 2.14 lists required attributes for meta but no deprecated attributes
+        attrs = ElementDescription["meta"].required_attributes
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          assert_empty(attrs)
+        else
+          assert_equal(["content"], attrs)
+        end
+      end
+
+      def test_required_attributes_longer_than_deprecated_attributes
+        # libxml2 < 2.14 lists two required attributes for img but only one deprecated attribute
+        attrs = ElementDescription["img"].required_attributes
+        if Nokogiri.uses_libxml?(">= 2.14.0")
+          assert_empty(attrs)
+        else
+          assert_equal(["src", "alt"], attrs)
+        end
+      end
+
       def test_inspect
         desc = ElementDescription["input"]
         assert_match(desc.name, desc.inspect)
