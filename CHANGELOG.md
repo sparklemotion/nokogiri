@@ -8,13 +8,9 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Security
 
+* [CRuby] (Low) Fixed a possible use-after-free when an attribute value is replaced via `Node#[]=` or `Node#lang=` while Ruby objects still reference the attribute's children. See [GHSA-3w22-6jfg-527w](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-3w22-6jfg-527w) for more information.
 * [CRuby] (Low) The HTML5 serializer now escapes text inside `noscript` unless the document was parsed with `parse_noscript_content_as_text: true`, preventing a mutation XSS in applications that allow `noscript` in sanitized HTML. A fragment now parses `noscript` content the same way as its document, and raises `ArgumentError` if given a conflicting `parse_noscript_content_as_text:` value. Comments and raw-text elements inside `noscript` are still serialized unchanged, as the HTML standard requires, so applications that sanitize HTML and allow `noscript` should parse with `parse_noscript_content_as_text: true` or remove `noscript` elements. See [GHSA-4p39-36wj-23h4](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-4p39-36wj-23h4) for more information.
-
-
-### Dependencies
-
-* [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
-* [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
+* [JRuby] (Low) `NONET` now blocks external DTDs and entities whose systemId uses a short-form IPv4 host such as `127.1`, or is an absolute path in a document parsed from a network URL. Previously Nokogiri fetched them over the network during a parse with `DTDLOAD` or `NOENT`, potentially enabling SSRF. See [GHSA-v995-44v6-5fqm](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v995-44v6-5fqm) for more information.
 
 
 ### Improved
