@@ -431,13 +431,18 @@ public class XmlNode extends RubyObject
     String prefix = e.getPrefix();
     String nsURI = e.lookupNamespaceURI(prefix);
     this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
+    // renameNode may replace the element when it assigns a namespace, so continue with the returned element
+    e = (Element) this.node;
 
     if (nsURI == null || nsURI.isEmpty()) {
       RubyBoolean ns_inherit =
         (RubyBoolean)document(context.runtime).getInstanceVariable("@namespace_inheritance");
       if (ns_inherit.isTrue()) {
         set_namespace(context, ((XmlNode)parent(context)).namespace(context));
+        e = (Element) this.node;
       }
+      // in an HTML4 document, an xmlns attribute must not put the descendants in a namespace
+      if (document(context.runtime) instanceof Html4Document) { return; }
     } else {
       String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
       String currentURI = e.getParentNode().lookupNamespaceURI(prefix);

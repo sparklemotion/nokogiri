@@ -163,6 +163,13 @@ module Nokogiri
           assert_equal("<span>foo<br/></span><span>bar</span>", fragment.to_xml)
         end
 
+        def test_element_with_xmlns_attribute_and_child_element
+          html = %{<p xmlns="foo"><bad>x</bad></p>}
+          fragment = Nokogiri::HTML4::DocumentFragment.parse(html)
+          assert_equal(html, fragment.to_html)
+          assert_equal("x", fragment.at_css("bad").text)
+        end
+
         def test_fragment_script_tag_with_cdata
           doc = Nokogiri::HTML4::Document.new
           fragment = doc.fragment("<script>var foo = 'bar';</script>")
