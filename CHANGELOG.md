@@ -12,14 +12,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
-### Improved
-
-
-
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
 
+
+
+## v1.19.6 / 2026-11-02
 
 ### Fixed
 
