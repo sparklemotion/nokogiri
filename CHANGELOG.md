@@ -8,7 +8,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ### Fixed
 
-* [CRuby] Compile against Ruby 4.1.0-preview1, which defines `HAVE_RB_LEN_T` but not `RB_NUM2LEN` / `RB_FIX2LEN`. (#3755) @andrewfader
+* [CRuby] Compile against Ruby 4.1.0-preview1, which defines `HAVE_RB_LEN_T` but not `RB_FIX2LEN`. (#3755) @andrewfader
 
 
 ## v1.19.6 / 2026-11-02
