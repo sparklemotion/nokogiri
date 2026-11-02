@@ -425,7 +425,7 @@ module Nokogiri
               <!DOCTYPE document [<!ENTITY bar SYSTEM "#{url}">]>
               <document>&bar;</document>
             XML
-            Nokogiri::XML::Reader(xml) { |cfg| cfg.default_xml.noent }.each { nil }
+            Nokogiri::XML::Reader(xml) { |cfg| cfg.default_xml.noent }.each {}
           end
         end
       end
