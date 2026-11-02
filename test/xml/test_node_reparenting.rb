@@ -297,6 +297,14 @@ module Nokogiri
             end
           end
 
+          describe "given an HTML4 element with an xmlns attribute and a child element" do
+            it "adds the element to an XML document" do
+              doc = Nokogiri::XML("<root/>")
+              doc.root.add_child(Nokogiri::HTML4.fragment(%{<p xmlns="foo"><bad>x</bad></p>}))
+              assert_equal(%{<root><p xmlns="foo"><bad>x</bad></p></root>}, doc.root.to_xml(save_with: 0))
+            end
+          end
+
           describe "given a parent node with a default namespace" do
             before do
               @doc = Nokogiri::XML(<<~eoxml)
@@ -591,6 +599,13 @@ module Nokogiri
                 doc.namespace_inheritance = true
                 child = parent.add_child("<child></child>").first
                 refute_nil(child.namespace)
+                assert_equal("http://nokogiri.org/default_ns/test/foo", child.namespace.href)
+              end
+
+              it "inserts an HTML4 element with an xmlns attribute and a child element" do
+                doc.namespace_inheritance = true
+                child = Nokogiri::HTML4.fragment(%{<p xmlns="bar"><bad>x</bad></p>}).children.first
+                parent.add_child(child)
                 assert_equal("http://nokogiri.org/default_ns/test/foo", child.namespace.href)
               end
             end

@@ -4,6 +4,13 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ---
 
+## next / unreleased
+
+### Fixed
+
+* [JRuby] Parsing or reparenting an HTML4 element that has an `xmlns` attribute and a child element no longer raises `NullPointerException`. This was a regression in v1.19.5. (#3753) @flavorjones
+
+
 ## v1.19.5 / 2026-11-01
 
 ### Security
