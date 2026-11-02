@@ -243,7 +243,12 @@ void noko_xml_sax_parser_context_set_encoding(xmlParserCtxtPtr c_context, VALUE 
 
 #ifndef HAVE_RB_LEN_T
 typedef long rb_len_t;
+#endif
+/* Ruby 4.1.0-preview1 defines HAVE_RB_LEN_T but not the conversion macros, which came later. */
+#ifndef RB_NUM2LEN
 #define RB_NUM2LEN RB_NUM2LONG
+#endif
+#ifndef RB_FIX2LEN
 #define RB_FIX2LEN RB_FIX2LONG
 #endif
 

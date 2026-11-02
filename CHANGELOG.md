@@ -12,6 +12,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * [CRuby] Update to rake-compiler-dock v1.9.1 for building precompiled native gems. (#3404, #3418) @flavorjones
 
 
+### Fixed
+
+* [CRuby] Compile against Ruby 4.1.0-preview1, which defines `HAVE_RB_LEN_T` but not `RB_NUM2LEN` / `RB_FIX2LEN`. (#3755) @andrewfader
+
+
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
