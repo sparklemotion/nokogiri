@@ -40,6 +40,7 @@ static ID parent;
 #include <nokogiri.h>
 #include <libxml/tree.h>
 #include <libxml/HTMLtree.h>
+#include <ruby/thread.h>
 
 // URI = system id
 // external id = public id
@@ -62,16 +63,36 @@ get_parent(xmlNodePtr node)
   return node->parent;
 }
 
+struct gumbo_parse_args {
+  const GumboOptions *options;
+  VALUE input;
+};
+
+static void *
+nogvl_gumbo_parse_with_options(void *ptr)
+{
+    struct gumbo_parse_args *gpa = ptr;
+    return (void *)gumbo_parse_with_options(gpa->options, RSTRING_PTR(gpa->input), RSTRING_LEN(gpa->input));
+}
+
 static GumboOutput *
 perform_parse(const GumboOptions *options, VALUE input)
 {
   assert(RTEST(input));
   Check_Type(input, T_STRING);
+/*
   GumboOutput *output = gumbo_parse_with_options(
                           options,
                           RSTRING_PTR(input),
                           (size_t)RSTRING_LEN(input)
                         );
+*/
+  struct gumbo_parse_args gpa;
+  gpa.options = options;
+  gpa.input = input;
+  GumboOutput *output = rb_thread_call_without_gvl(
+                          nogvl_gumbo_parse_with_options, &gpa,
+                          RUBY_UBF_IO, 0);
 
   const char *status_string = gumbo_status_to_string(output->status);
   switch (output->status) {
@@ -181,7 +202,7 @@ error:
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
 // at gumbo_node.
 static void
-build_tree(
+build_tree0(
   xmlDocPtr doc,
   xmlNodePtr xml_output_node,
   const GumboNode *gumbo_node
@@ -298,6 +319,30 @@ build_tree(
       }
     }
   }
+}
+
+struct build_tree_args {
+  xmlDocPtr doc;
+  xmlNodePtr xml_output_node;
+  const GumboNode *gumbo_node;
+};
+
+static void *
+nogvl_build_tree(void *ptr)
+{
+    struct build_tree_args *bta = ptr;
+    build_tree0(bta->doc, bta->xml_output_node, bta->gumbo_node);
+}
+
+static void
+build_tree(xmlDocPtr doc, xmlNodePtr xml_output_node, const GumboNode *gumbo_node)
+{
+  //return build_tree0(doc, xml_output_node, gumbo_node);
+  struct build_tree_args bt;
+  bt.doc = doc;
+  bt.xml_output_node = xml_output_node;
+  bt.gumbo_node = gumbo_node;
+  rb_thread_call_without_gvl(nogvl_build_tree, &bt, RUBY_UBF_IO, 0);
 }
 
 static void
