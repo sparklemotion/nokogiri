@@ -14,6 +14,11 @@ module Nokogiri
 
       # The XPath search prefix to search anywhere in the current element's subtree, +.//+
       SUBTREE_SEARCH_PREFIX = ".//"
+
+      # TODO: document me
+      def self.expression(expr)
+        Nokogiri::XML::XPath::Expression.new(expr)
+      end
     end
   end
 end

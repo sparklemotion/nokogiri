@@ -116,6 +116,11 @@ module Nokogiri
           Parser.new.xpath_for(selector, visitor)
         end
       end
+
+      # TODO: document me
+      def selector(expr)
+        expr
+      end
     end
   end
 end
