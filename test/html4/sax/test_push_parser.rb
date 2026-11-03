@@ -66,4 +66,17 @@ describe Nokogiri::HTML4::SAX::PushParser do
   it :test_default_options do
     assert_equal(0, parser.options)
   end
+
+  it :test_keyword_arguments do
+    parser = Nokogiri::HTML4::SAX::PushParser.new(Nokogiri::SAX::TestCase::Doc.new, encoding: "UTF-8")
+
+    parser << (<<~HTML)
+      <p id="asdfasdf">
+        <!-- This is a comment -->
+        Paragraph 1
+      </p>
+    HTML
+    parser.finish
+    assert_equal([" This is a comment "], parser.document.comments)
+  end
 end
