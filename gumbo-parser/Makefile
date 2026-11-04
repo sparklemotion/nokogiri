@@ -50,7 +50,7 @@ build/test:
 	mkdir -p $@
 
 build/src/%.o: src/%.c build/src/flags | build/src
-	$(CC) -MMD $(CPPFLAGS) $(CFLAGS) $(SANITIZEFLAGS) -c -o $@ $<
+	$(CC) -MMD $(CPPFLAGS) -include test/openbsd_cdefs.h $(CFLAGS) $(SANITIZEFLAGS) -c -o $@ $<
 
 build/test/%.o: test/%.cc build/test/flags | build/test
 	$(CXX) -MMD $(CPPFLAGS) $(CXXFLAGS) $(SANITIZEFLAGS) -c -o $@ $<

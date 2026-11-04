@@ -9,6 +9,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Fixed
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14, including the vendored libxml2 v2.13.9. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
+* [CRuby] Compile the vendored libgumbo on OpenBSD, which failed since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
 
 
 ## v1.19.7 / 2026-11-02
