@@ -171,8 +171,9 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Searchable#css
       def css(*args)
-        if children.any?
-          children.css(*args) # 'children' is a smell here
+        nodes = children # 'children' is a smell here
+        if nodes.any?
+          nodes.css(*args)
         else
           NodeSet.new(document)
         end
