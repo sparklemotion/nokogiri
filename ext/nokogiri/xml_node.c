@@ -1085,6 +1085,12 @@ replace(VALUE self, VALUE new_node)
 
   xmlNodePtr pivot;
   Noko_Node_Get_Struct(self, xmlNode, pivot);
+
+  /* xmlReplaceNode() does not clear the document's DTD pointer the way xmlUnlinkNode() does */
+  if (pivot->doc->intSubset == (xmlDtdPtr)pivot) {
+    pivot->doc->intSubset = NULL;
+  }
+
   noko_xml_document_pin_node(pivot);
 
   return reparent;
