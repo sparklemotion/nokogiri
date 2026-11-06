@@ -6,6 +6,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 ## next / unreleased
 
+### Security
+
+* [CRuby] (Low) See [GHSA-h5xq-r7vj-m9v6](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-h5xq-r7vj-m9v6) for more information.
+
+
 ### Dependencies
 
 * [CRuby] Vendored libxml2 is updated to [v2.14.6](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.14.6), from v2.13.8. libxml2 v2.14 includes changes to more closely adhere to the HTML5 parser spec. Notably, the content of `iframe` and `noframes` tags is now treated as raw text, where previously it was parsed as PCDATA.
