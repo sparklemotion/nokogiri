@@ -21,7 +21,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
-* `XML::Builder` restores its current parent when a block passed to an attribute shortcut, such as `xml.div.klass { ... }`, raises an exception or exits early. Previously, if the caller rescued the exception and kept building, later nodes were added inside that `div`. v1.13.0 fixed the same bug for plain element blocks (#2372). (#3679) @OskarEichler
+* `XML::Builder` restores its current parent when a block passed to an attribute shortcut, such as `xml.div.klass { ... }`, raises an exception or exits early. Previously, if the caller rescued the exception and kept building, later nodes were added inside that `div`. v1.13.0 fixed the same bug for plain element blocks (#2372). (#3679, #3769) @OskarEichler
 
 
 
