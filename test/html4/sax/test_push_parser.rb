@@ -66,4 +66,15 @@ describe Nokogiri::HTML4::SAX::PushParser do
   it :test_default_options do
     assert_equal(0, parser.options)
   end
+
+  it "raises instead of crashing when used uninitialized" do
+    skip_unless_libxml2("JRuby raises a NullPointerException instead of crashing")
+
+    uninitialized = Nokogiri::HTML4::SAX::PushParser.allocate
+
+    refute_valgrind_errors do
+      error = assert_raises(RuntimeError) { uninitialized << "<p>" }
+      assert_match(/Uninitialized .* struct/, error.message)
+    end
+  end
 end
