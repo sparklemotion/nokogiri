@@ -112,6 +112,49 @@ module Nokogiri
         doc = Nokogiri::XML(xml) { |cfg| cfg.noent }
         assert_equal("<test/>", doc.root.to_xml)
       end
+
+      def test_cannot_add_children_to_an_undeclared_reference
+        doc = Nokogiri::XML("<root/>")
+        ref = EntityReference.new(doc, "undeclared")
+        doc.root.add_child(ref)
+        exception_type = Nokogiri.jruby? ? RuntimeError : ArgumentError
+
+        assert_raises(exception_type) { ref.add_child(doc.create_element("child")) }
+        assert_raises(exception_type) { ref.add_child(Nokogiri::XML::Text.new("text", doc)) }
+        assert_raises(exception_type) { ref.prepend_child(doc.create_element("child")) }
+        assert_raises(exception_type) { ref.children = "text" }
+      end
+
+      def test_cannot_add_children_to_a_declared_reference
+        doc = Nokogiri::XML(<<~XML)
+          <!DOCTYPE root [ <!ENTITY e1 "one"> <!ENTITY e2 "two"> ]>
+          <root>&e1;</root>
+        XML
+        ref = doc.root.children.first
+        exception_type = Nokogiri.jruby? ? RuntimeError : ArgumentError
+
+        assert_raises(exception_type) { ref.add_child(doc.create_element("child")) }
+        assert_raises(exception_type) { ref.prepend_child(doc.create_element("child")) }
+        assert_raises(exception_type) { ref.children = "text" }
+        assert_equal(["e1", "e2"], doc.internal_subset.children.map(&:name))
+        assert_equal("one", ref.content)
+      end
+
+      def test_setting_content_on_a_declared_reference_preserves_the_dtd
+        skip_unless_libxml2("JRuby raises NO_MODIFICATION_ALLOWED_ERR")
+
+        doc = Nokogiri::XML(<<~XML)
+          <!DOCTYPE root [ <!ENTITY e1 "one"> <!ENTITY e2 "two"> ]>
+          <root>&e1;</root>
+        XML
+        ref = doc.root.children.first
+
+        ref.content = "new content"
+
+        assert_equal(["e1", "e2"], doc.internal_subset.children.map(&:name))
+        assert_equal("<root>&e1;</root>", doc.root.to_xml)
+        assert_equal("one", ref.content)
+      end
     end
 
     module Common
