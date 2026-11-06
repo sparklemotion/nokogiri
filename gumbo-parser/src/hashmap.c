@@ -16,16 +16,16 @@
 #define HASHMAP_LOAD_FACTOR GROW_AT
 #endif
 
-static void *(*__malloc)(size_t) = NULL;
-static void *(*__realloc)(void *, size_t) = NULL;
-static void (*__free)(void *) = NULL;
+static void *(*default_malloc)(size_t) = NULL;
+static void *(*default_realloc)(void *, size_t) = NULL;
+static void (*default_free)(void *) = NULL;
 
 // hashmap_set_allocator allows for configuring a custom allocator for
 // all hashmap library operations. This function, if needed, should be called
 // only once at startup and a prior to calling hashmap_new().
 void hashmap_set_allocator(void *(*malloc)(size_t), void (*free)(void*)) {
-    __malloc = malloc;
-    __free = free;
+    default_malloc = malloc;
+    default_free = free;
 }
 
 struct bucket {
@@ -109,9 +109,9 @@ struct hashmap *hashmap_new_with_allocator(void *(*_malloc)(size_t),
     void (*elfree)(void *item),
     void *udata)
 {
-    _malloc = _malloc ? _malloc : __malloc ? __malloc : malloc;
-    _realloc = _realloc ? _realloc : __realloc ? __realloc : realloc;
-    _free = _free ? _free : __free ? __free : free;
+    _malloc = _malloc ? _malloc : default_malloc ? default_malloc : malloc;
+    _realloc = _realloc ? _realloc : default_realloc ? default_realloc : realloc;
+    _free = _free ? _free : default_free ? default_free : free;
     size_t ncap = 16;
     if (cap < ncap) {
         cap = ncap;
