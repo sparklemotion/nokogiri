@@ -1985,7 +1985,9 @@ output_node(
     }
     break;
 
+    // A CDATASection is a Text node, so the HTML standard serializes it as text.
     case XML_TEXT_NODE:
+    case XML_CDATA_SECTION_NODE:
       if (node->parent
           && (is_one_of(node->parent, UNESCAPED_TEXT_ELEMENTS,
                         sizeof UNESCAPED_TEXT_ELEMENTS / sizeof UNESCAPED_TEXT_ELEMENTS[0])
@@ -1994,12 +1996,6 @@ output_node(
       } else {
         output_escaped_string(out, node->content, false);
       }
-      break;
-
-    case XML_CDATA_SECTION_NODE:
-      output_string(out, "<![CDATA[");
-      output_string(out, (char const *)node->content);
-      output_string(out, "]]>");
       break;
 
     case XML_COMMENT_NODE:

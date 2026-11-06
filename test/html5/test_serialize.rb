@@ -572,6 +572,30 @@ class TestHtml5Serialize < Nokogiri::TestCase
     end
   end
 
+  describe "CDATA section serialization" do
+    it "escapes the content like text" do
+      input = %{<svg>]]&gt;&lt;img src=x&gt;<![CDATA[x]]></svg>}
+      expected = %{<svg>]]&gt;&lt;img src=x&gt;x</svg>}
+
+      assert_equal(expected, Nokogiri::HTML5.fragment(input).to_html)
+    end
+
+    it "escapes the content after the section is moved into HTML content" do
+      fragment = Nokogiri::HTML5.fragment(%{<div></div><svg><![CDATA[x><img src=x>]]></svg>})
+      fragment.at_css("div").add_child(fragment.at_css("svg").children)
+
+      assert_equal(%{<div>x&gt;&lt;img src=x&gt;</div><svg></svg>}, fragment.to_html)
+    end
+
+    it "writes the content literally in a raw text element" do
+      doc = Nokogiri::HTML5("<script></script>")
+      script = doc.at_css("script")
+      script.add_child(doc.create_cdata("a < b"))
+
+      assert_equal(%{<script>a < b</script>}, script.to_html)
+    end
+  end
+
   describe "noscript text serialization" do
     let(:input) { %{<noscript>&lt;/noscript&gt;&lt;img src=x&gt;</noscript>} }
     let(:escaped) { %{<noscript>&lt;/noscript&gt;&lt;img src=x&gt;</noscript>} }
