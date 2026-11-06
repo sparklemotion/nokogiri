@@ -465,18 +465,20 @@ module Nokogiri
           end
 
           if block
-            old_parent = @doc_builder.parent
-            @doc_builder.parent = @node
+            begin
+              old_parent = @doc_builder.parent
+              @doc_builder.parent = @node
 
-            arity = @doc_builder.arity || block.arity
-            value = if arity <= 0
-              @doc_builder.instance_eval(&block)
-            else
-              yield(@doc_builder)
+              arity = @doc_builder.arity || block.arity
+              value = if arity <= 0
+                @doc_builder.instance_eval(&block)
+              else
+                yield(@doc_builder)
+              end
+              return value
+            ensure
+              @doc_builder.parent = old_parent
             end
-
-            @doc_builder.parent = old_parent
-            return value
           end
           self
         end
