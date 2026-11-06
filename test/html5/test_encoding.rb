@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require "helper"
+require "open-uri"
 
 class TestHtml5Encoding < Nokogiri::TestCase
   if "".respond_to?(:encoding)
@@ -326,6 +327,22 @@ class TestHtml5Encoding < Nokogiri::TestCase
     end
   end
 
+  def test_an_open_uri_response_decodes_by_its_content_type_charset
+    ["iso-8859-1", "shift_jis"].each do |stale|
+      open_uri_responses(%(<meta charset="#{stale}"><title>Señor</title>), "text/html; charset=utf-8") do |io|
+        assert_equal("Señor", Nokogiri::HTML5::Document.parse(io).at_css("title").content, "#{stale} / #{io.class}")
+      end
+    end
+  end
+
+  def test_an_open_uri_response_without_a_charset_is_sniffed
+    markup = %(<meta charset="shift_jis"><title>).b + "\u3042".encode("Shift_JIS").b + %(</title>).b
+
+    open_uri_responses(markup, "text/html") do |io|
+      assert_equal("\u3042", Nokogiri::HTML5::Document.parse(io).at_css("title").content, io.class.name)
+    end
+  end
+
   # "Get an encoding" fails on an empty label, so the prescan moves on to the next `meta`
   # instead of treating `charset=""` as a declaration.
   def test_an_empty_charset_is_not_a_declaration
@@ -407,6 +424,24 @@ class TestHtml5Encoding < Nokogiri::TestCase
     ["UTF-16LE",       "Same as with UTF-16BE"], # English
     ["US-ASCII",       "Surprisingly not one of the required encodings"], # English
   ].freeze
+
+  # Yields the IO that URI.open would return for this body: a StringIO, then a Tempfile for the
+  # same body padded past OpenURI::Buffer::StringMax.
+  def open_uri_responses(body, content_type)
+    [body, body + ("<p></p>" * 2000)].zip([StringIO, Tempfile]) do |content, klass|
+      buffer = OpenURI::Buffer.new
+      buffer << content.b
+      io = buffer.io
+      io.meta_add_field("content-type", content_type)
+      io.rewind
+      assert_instance_of(klass, io)
+      begin
+        yield io
+      ensure
+        io.respond_to?(:close!) ? io.close! : io.close
+      end
+    end
+  end
 
   def encodings_html
     @encodings_html ||=

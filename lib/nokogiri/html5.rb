@@ -302,19 +302,22 @@ module Nokogiri
         # Read the string with the given encoding.
         if string.respond_to?(:read)
           internal = string.internal_encoding if string.respond_to?(:internal_encoding)
-          # A StringIO holds an already-decoded String and reports that String's encoding rather
-          # than a locale default, so wrapping a String in one must not change how it decodes.
-          wraps_a_string = StringIO === string
+          # open-uri attaches the response headers to the IO it returns.
+          content_type = string.meta["content-type"] if string.respond_to?(:meta)
+          # A StringIO reports the encoding of the String it wraps rather than a locale default,
+          # so without a header to consult, wrapping a String in one must not change how it decodes.
+          wraps_a_string = StringIO === string && content_type.nil?
           string = string.read
 
           if encoding
             string.force_encoding(encoding)
           elsif internal.nil? && !wraps_a_string
             # An IO's external encoding says nothing about the document: Ruby does not record
-            # whether the caller chose it or the locale did. Prefer the document's own declaration,
-            # with `encoding:` as the override. When it declares nothing, keep the IO's encoding,
+            # whether the caller chose it or the locale did, and open-uri fills in UTF-8 for a
+            # text/* response whose header names no charset. Prefer what is declared, with
+            # `encoding:` as the override. When nothing is declared, keep the IO's encoding,
             # which leaves documents that parse correctly today parsing the same way.
-            declared = detect_encoding(string)
+            declared = detect_encoding(string, content_type)
             string.force_encoding(declared) if declared
           end
         else
@@ -402,8 +405,8 @@ module Nokogiri
         nil
       end
 
-      # Return the encoding the document declares for itself, or nil when it declares none. Only
-      # the first 1024 bytes are examined, per the HTML5 standard's prescan.
+      # Return the encoding declared by a BOM, by +content_type+ or by a `meta`, in that order, or
+      # nil when none is. Only the first 1024 bytes are examined, per the HTML5 standard's prescan.
       def detect_encoding(body, content_type = nil)
         head = body.byteslice(0, 1024).b
 
@@ -417,7 +420,7 @@ module Nokogiri
           return Encoding::UTF_16LE
         end
 
-        # look for a charset in a content-encoding header
+        # look for a charset in a Content-Type header
         if content_type && (match = CHARSET_PARAMETER.match(content_type))
           encoding = encoding_for_label(match.captures.compact.first, meta: false)
           return encoding if encoding

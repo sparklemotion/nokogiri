@@ -15,7 +15,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Changed
 
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
-* [CRuby] HTML5 parsing of an IO now prefers the encoding the document declares in a BOM or a `meta` charset over the encoding the IO was read as, unless the IO transcodes, is a StringIO, or `encoding:` is passed. A UTF-8 page carrying a stale `<meta charset="iso-8859-1">` therefore decodes as ISO-8859-1, which is what `Nokogiri::HTML5(File.binread(path))` already did. Wherever a declaration is read, its charset label is now resolved more like the HTML Standard's prescan: `utf8`, `latin1`, `shift-jis`, `ms932`, `x-user-defined` and the UTF-16 labels are recognized, and a label Ruby cannot resolve is skipped in favor of the next `meta`. (#2801) @kataokatsuki
+* [CRuby] HTML5 parsing of an IO now prefers the encoding the document declares in a BOM or a `meta` charset over the encoding the IO was read as, unless the IO transcodes, is a StringIO, or `encoding:` is passed. A UTF-8 page carrying a stale `<meta charset="iso-8859-1">` therefore decodes as ISO-8859-1, which is what `Nokogiri::HTML5(File.binread(path))` already did. An IO from `URI.open`, StringIO or not, is decoded by the charset in its `Content-Type` header, and by the document's declaration when the header has none. Wherever a declaration is read, its charset label is now resolved more like the HTML Standard's prescan: `utf8`, `latin1`, `shift-jis`, `ms932`, `x-user-defined` and the UTF-16 labels are recognized, and a label Ruby cannot resolve is skipped in favor of the next `meta`. (#2801) @kataokatsuki @czj
 
 
 ### Fixed
