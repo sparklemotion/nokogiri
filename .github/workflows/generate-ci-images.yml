@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
-      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # zizmor: ignore[cache-poisoning] -- runs only on schedule/dispatch (no PR trigger); bundler cache is build tooling, branch-isolated # v1.335.0
+      - uses: ruby/setup-ruby@de492cf36cbab201753d720ce4f4e336cd688c94 # zizmor: ignore[cache-poisoning] -- runs only on schedule/dispatch (no PR trigger); bundler cache is build tooling, branch-isolated # v1.336.0
         with:
           ruby-version: "3.4"
           bundler-cache: true
