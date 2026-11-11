@@ -231,4 +231,6 @@ module Nokogiri
 
   # Detailed version info about Nokogiri and the installed extension dependencies.
   VERSION_INFO = VersionInfo.instance.to_hash
+  defined?(Ractor) ? Ractor.make_shareable(VERSION_INFO) : VERSION_INFO.freeze
+  VersionInfo.instance.freeze
 end

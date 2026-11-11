@@ -264,7 +264,7 @@ module Nokogiri
     class Builder
       include Nokogiri::ClassResolver
 
-      DEFAULT_DOCUMENT_OPTIONS = { namespace_inheritance: true }
+      DEFAULT_DOCUMENT_OPTIONS = { namespace_inheritance: true }.freeze
 
       # The current Document object being built
       attr_accessor :doc

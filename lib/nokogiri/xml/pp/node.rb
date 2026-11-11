@@ -5,7 +5,7 @@ module Nokogiri
     # :nodoc: all
     module PP
       module Node
-        COLLECTIONS = [:attribute_nodes, :children]
+        COLLECTIONS = [:attribute_nodes, :children].freeze
 
         def inspect
           # handle the case where an exception is thrown during object construction

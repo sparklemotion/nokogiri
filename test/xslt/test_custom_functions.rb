@@ -183,6 +183,23 @@ module Nokogiri
           end
           assert(canaries.all?(&:empty?), "error was appended to the failed transform's collected error string")
         end
+
+        it "still reports libxslt errors from later transforms" do
+          assert_raises(ArgumentError) { stylesheet.transform(@xml) }
+
+          # libxslt reports this error only to its global generic error handler
+          format_error = Nokogiri.XSLT(<<~EOXSL)
+            <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+              <xsl:template match="/"><xsl:value-of select="format-number(1.5, '0.0.0')"/></xsl:template>
+            </xsl:stylesheet>
+          EOXSL
+          e = assert_raises(RuntimeError) { format_error.transform(Nokogiri::XML("<root/>")) }
+          if truffleruby_system_libraries?
+            assert_includes(e.message, "xslt_generic_error_handler: %s")
+          else
+            assert_includes(e.message, "error in format string")
+          end
+        end
       end
     end
   end
