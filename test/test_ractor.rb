@@ -6,6 +6,9 @@ describe "Ractor" do
   def skip_unless_ractors
     skip("Ractor.shareable_proc is not available") unless defined?(Ractor.shareable_proc)
     skip("Ractor support requires libxml2 >= 2.14") unless Nokogiri.uses_libxml?(">= 2.14")
+    if Nokogiri::VersionInfo.instance.windows? && Gem::Version.new(RUBY_VERSION) < Gem::Version.new("4.1")
+      skip("Ractors hang on Windows before Ruby 4.1, see https://bugs.ruby-lang.org/issues/21537")
+    end
   end
 
   # rubocop:disable Lint/ConstantDefinitionInBlock
