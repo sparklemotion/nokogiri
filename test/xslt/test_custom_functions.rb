@@ -194,7 +194,11 @@ module Nokogiri
             </xsl:stylesheet>
           EOXSL
           e = assert_raises(RuntimeError) { format_error.transform(Nokogiri::XML("<root/>")) }
-          assert_includes(e.message, "error in format string")
+          if truffleruby_system_libraries?
+            assert_includes(e.message, "xslt_generic_error_handler: %s")
+          else
+            assert_includes(e.message, "error in format string")
+          end
         end
       end
     end

@@ -273,7 +273,11 @@ module Nokogiri
         EOX
 
         exception = assert_raises(RuntimeError) { xslt.transform(Nokogiri::XML("<root />")) }
-        assert_includes(exception.message, "error in format string")
+        if truffleruby_system_libraries?
+          assert_includes(exception.message, "xslt_generic_error_handler: %s")
+        else
+          assert_includes(exception.message, "error in format string")
+        end
       end
 
       def test_xslt_parse_error
