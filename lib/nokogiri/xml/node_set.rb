@@ -86,9 +86,18 @@ module Nokogiri
         rules, handler, ns, _ = extract_params(args)
         paths = css_rules_to_xpath(rules, ns)
 
-        inject(NodeSet.new(document)) do |set, node|
-          set + xpath_internal(node, paths, handler, ns, nil)
+        # Accumulating with NodeSet#+ copies the whole result set and compares every
+        # node already in it once per node searched, so the search takes time
+        # quadratic in the number of results. Collecting by pointer keeps the first
+        # occurrence of each node, which is the order #+ produced. A CSS selector
+        # only ever matches nodes, so every result responds to #pointer_id.
+        found = {}
+        each do |node|
+          xpath_internal(node, paths, handler, ns, nil).each do |result|
+            found[result.pointer_id] ||= result
+          end
         end
+        NodeSet.new(document, found.values)
       end
 
       ###
