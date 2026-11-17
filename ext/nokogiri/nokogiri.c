@@ -108,6 +108,20 @@ noko_io_read_call(VALUE data)
 }
 
 
+static void
+noko_io_save_exception(int state)
+{
+  VALUE rb_errinfo_value = rb_errinfo();
+  if (RB_TYPE_P(rb_errinfo_value, T_OBJECT) && rb_obj_is_kind_of(rb_errinfo_value, rb_eException)) {
+    rb_set_errinfo(Qnil);
+  } else {
+    rb_errinfo_value = Qnil;
+  }
+  rb_thread_local_aset(rb_thread_current(), id_io_read_exception,
+                       rb_assoc_new(INT2FIX(state), rb_errinfo_value));
+}
+
+
 /*
  * Like noko_io_read, a StandardError raised by IO#read is swallowed, and libxml2 sees a read
  * error. Any other exception (e.g., Interrupt or Timeout::ExitException) must not unwind through
@@ -128,14 +142,7 @@ noko_io_read_protected(void *io, char *c_buffer, int c_buffer_len)
   rb_protect(noko_io_read_call, (VALUE)&args, &state);
 
   if (state) {
-    VALUE rb_errinfo_value = rb_errinfo();
-    if (RB_TYPE_P(rb_errinfo_value, T_OBJECT) && rb_obj_is_kind_of(rb_errinfo_value, rb_eException)) {
-      rb_set_errinfo(Qnil);
-    } else {
-      rb_errinfo_value = Qnil;
-    }
-    rb_thread_local_aset(rb_thread_current(), id_io_read_exception,
-                         rb_assoc_new(INT2FIX(state), rb_errinfo_value));
+    noko_io_save_exception(state);
     return -1;
   }
 
@@ -209,6 +216,46 @@ noko_io_write(void *io, char *c_buffer, int c_buffer_len)
   if (rb_n_bytes_written == Qundef) { return -1; }
 
   return NUM2INT(rb_n_bytes_written);
+}
+
+
+typedef struct {
+  void *io;
+  char *c_buffer;
+  int c_buffer_len;
+  int n_bytes_written;
+} noko_io_write_args_t;
+
+static VALUE
+noko_io_write_call(VALUE data)
+{
+  noko_io_write_args_t *args = (noko_io_write_args_t *)data;
+  args->n_bytes_written = noko_io_write(args->io, args->c_buffer, args->c_buffer_len);
+  return Qnil;
+}
+
+
+/*
+ * The write counterpart of noko_io_read_protected: an exception that noko_io_write lets through
+ * (e.g., Interrupt, Timeout::ExitException, or a TypeError from a non-Integer return value) is
+ * saved instead of unwinding through libxml2, and libxml2 sees a write error. The exception is
+ * saved in the same place, so callers use noko_io_read_reset_exception,
+ * noko_io_read_take_exception and noko_io_read_raise_exception in the same way.
+ */
+int
+noko_io_write_protected(void *io, char *c_buffer, int c_buffer_len)
+{
+  noko_io_write_args_t args = { io, c_buffer, c_buffer_len, -1 };
+  int state = 0;
+
+  rb_protect(noko_io_write_call, (VALUE)&args, &state);
+
+  if (state) {
+    noko_io_save_exception(state);
+    return -1;
+  }
+
+  return args.n_bytes_written;
 }
 
 

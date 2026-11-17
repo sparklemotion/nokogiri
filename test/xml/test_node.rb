@@ -753,6 +753,55 @@ module Nokogiri
           assert_equal(xml.to_xml, io.read)
         end
 
+        def test_write_to_io_raising_a_non_standard_error_raises_it
+          interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+          io = Object.new
+          io.define_singleton_method(:write) { |_str| raise(interrupt) }
+
+          assert_raises(interrupt) { xml.write_to(io) }
+        end
+
+        describe "when write_to raises" do
+          let(:xsl) do
+            Nokogiri::XSLT(<<~XSL)
+              <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                <xsl:output method="xml" indent="yes"/>
+                <xsl:template match="/"><out><a><b/></a></out></xsl:template>
+              </xsl:stylesheet>
+            XSL
+          end
+
+          def assert_indentation_is_unchanged(expected)
+            GC.start
+            canaries = Array.new(10_000) { |i| format("canary%06d", i) }
+            actual = xsl.serialize(xsl.transform(xml))
+            assert_equal(expected, actual, "stale indent string was used")
+            actual.each_line { |line| assert_match(/\A\s*</, line, "stale indent string was used") }
+            assert_equal(10_000, canaries.length)
+          end
+
+          it "does not leave behind the indent string when IO#write raises" do
+            expected = xsl.serialize(xsl.transform(xml))
+            interrupt = Class.new(Exception) # rubocop:disable Lint/InheritException
+            io = Object.new
+            io.define_singleton_method(:write) { |_str| raise(interrupt) }
+
+            assert_raises(interrupt) { xml.write_to(io, indent_text: "I", indent: 12) }
+            assert_indentation_is_unchanged(expected)
+          end
+
+          it "does not leave behind the indent string when the encoding is invalid" do
+            skip_unless_libxml2("xmlTreeIndentString is libxml2 global state")
+
+            expected = xsl.serialize(xsl.transform(xml))
+
+            assert_raises(ArgumentError) do
+              xml.write_to(StringIO.new, indent_text: "I", indent: 12, encoding: "UTF-8\0")
+            end
+            assert_indentation_is_unchanged(expected)
+          end
+        end
+
         def test_write_to_with_block
           called = false
           io = StringIO.new

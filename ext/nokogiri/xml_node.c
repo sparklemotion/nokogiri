@@ -1748,24 +1748,36 @@ native_write_to(
 
   Noko_Node_Get_Struct(self, xmlNode, node);
 
+  // Convert the arguments before setting xmlTreeIndentString, so that nothing raises while the
+  // global points at the indent string, which may be freed once this method returns.
+  const char *c_indent_string = StringValueCStr(indent_string);
+  const char *c_encoding = RTEST(encoding) ? StringValueCStr(encoding) : NULL;
+  int c_options = (int)NUM2INT(options);
+
   xmlIndentTreeOutput = 1;
 
   before_indent = xmlTreeIndentString;
 
-  xmlTreeIndentString = StringValueCStr(indent_string);
+  xmlTreeIndentString = c_indent_string;
 
+  noko_io_read_reset_exception();
   savectx = xmlSaveToIO(
-              (xmlOutputWriteCallback)noko_io_write,
+              (xmlOutputWriteCallback)noko_io_write_protected,
               (xmlOutputCloseCallback)noko_io_close,
               (void *)io,
-              RTEST(encoding) ? StringValueCStr(encoding) : NULL,
-              (int)NUM2INT(options)
+              c_encoding,
+              c_options
             );
 
   xmlSaveTree(savectx, node);
   xmlSaveClose(savectx);
+  VALUE rb_io_write_exception = noko_io_read_take_exception();
 
   xmlTreeIndentString = before_indent;
+
+  if (!NIL_P(rb_io_write_exception)) { noko_io_read_raise_exception(rb_io_write_exception); }
+
+  RB_GC_GUARD(indent_string);
   return io;
 }
 

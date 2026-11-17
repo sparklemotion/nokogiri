@@ -21,6 +21,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
+* [CRuby] When `Node#write_to` raises, because the IO's `write` raises an exception that is not a `StandardError` (such as `Interrupt` or `Timeout::ExitException`) or because the encoding name contains a null byte, libxml2's indentation string no longer keeps pointing at the freed indent string. Previously a later `XSLT::Stylesheet#serialize` with `indent="yes"` could indent its output with the contents of freed memory. An exception from `write` also no longer unwinds through libxml2 and leaks the save context. @Priyank-gouda678
 
 
 
