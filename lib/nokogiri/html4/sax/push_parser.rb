@@ -8,7 +8,7 @@ module Nokogiri
         # operating
         attr_accessor :document
 
-        def initialize(doc = HTML4::SAX::Document.new, file_name = nil, encoding = "UTF-8")
+        def initialize(doc = HTML4::SAX::Document.new, file_name_ = nil, encoding_ = "UTF-8", file_name: file_name_, encoding: encoding_)
           @document = doc
           @encoding = encoding
           @sax_parser = HTML4::SAX::Parser.new(doc, @encoding)
