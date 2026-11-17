@@ -262,7 +262,6 @@ reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func 
         }
         break;
       case XML_DOCUMENT_FRAG_NODE:
-      case XML_ENTITY_REF_NODE:
       case XML_ELEMENT_NODE:
         switch (reparentee->type) {
           case XML_ELEMENT_NODE:
@@ -1567,6 +1566,11 @@ set_native_content(VALUE self, VALUE content)
 {
   xmlNodePtr node, child, next ;
   Noko_Node_Get_Struct(self, xmlNode, node);
+
+  /* An entity reference's children pointer is its xmlEntity declaration, which belongs to the DTD. */
+  if (node->type == XML_ENTITY_REF_NODE) {
+    return content;
+  }
 
   child = node->children;
   while (NULL != child) {

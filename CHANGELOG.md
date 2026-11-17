@@ -20,6 +20,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 ### Fixed
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
+* [CRuby] `XML::EntityReference#add_child`, `#prepend_child` and `#children=` now raise `ArgumentError`. Previously they accepted the new node, and libxml2 then read it as the reference's entity declaration: for an undeclared entity, `#content` read and briefly wrote memory past the node, and for a declared entity, the node was spliced into the DTD. `EntityReference#content=` is now a no-op; previously it unlinked the referenced entity's declaration and every DTD node after it. JRuby already refused both. This has been broken since at least v1.4.4 (2010). (#3766) @flavorjones
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
 
 
