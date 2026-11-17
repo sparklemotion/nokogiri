@@ -178,6 +178,20 @@ module Nokogiri
         end
       end
 
+      def test_namespace_definitions
+        xml = Nokogiri::XML(<<~XML)
+          <root xmlns:foo="http://example.com/foo">
+            <child xml:id="abc" foo:bar="baz"/>
+          </root>
+        XML
+
+        # an ID attribute (xml:id is always an ID) has a pointer to its xmlID where an element
+        # has its list of namespace definitions.
+        xml.at_css("child").attribute_nodes.each do |attr|
+          assert_empty(attr.namespace_definitions, attr.name)
+        end
+      end
+
       def test_unlink # aliased as :remove
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath("/staff/employee/address").first

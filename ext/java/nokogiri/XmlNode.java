@@ -1212,6 +1212,7 @@ public class XmlNode extends RubyObject
     // TODO: switch to common undeprecated API when 9.4 adds 10 methods
     if (doc == null) { return context.runtime.newEmptyArray(); }
     if (doc instanceof Html4Document) { return context.runtime.newEmptyArray(); }
+    if (!(node instanceof Element)) { return context.runtime.newEmptyArray(); }
 
     RubyArray<?> nsdefs = RubyArray.newArray(context.getRuntime());
     NamedNodeMap attrs = node.getAttributes();
