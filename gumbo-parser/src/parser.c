@@ -4913,6 +4913,10 @@ GumboOutput* gumbo_parse_with_options (
   );
 
   finish_parsing(&parser);
+  // With stop_on_first_error, the loop can end before a token marked for
+  // reprocessing is handled again, so the token still owns its memory.
+  if (state->_reprocess_current_token)
+    gumbo_token_destroy(&token);
   // For API uniformity reasons, if the doctype still has nulls, convert them to
   // empty strings.
   GumboDocument* doc_type = &parser._output->document->v.document;

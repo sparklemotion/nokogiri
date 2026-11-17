@@ -2455,4 +2455,10 @@ TEST_F(GumboParserTest, StopOnFirstErrorAfterUnknownEndTagWithUnknownNode) {
   ASSERT_TRUE(output_ != NULL);
 }
 
+TEST_F(GumboParserTest, StopOnFirstErrorBeforeReprocessingStartTag) {
+  options_.stop_on_first_error = true;
+  Parse("<p>");
+  ASSERT_EQ(0, GetChildCount(root_));
+}
+
 }  // namespace
