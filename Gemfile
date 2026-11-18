@@ -9,14 +9,14 @@ group :development do
   gem "rake", "13.4.2"
 
   # building extensions
-  gem "rake-compiler", "1.3.2"
+  gem "rake-compiler", "1.3.3"
   gem "rake-compiler-dock", "1.12.0"
 
   # parser generator
   gem "rexical", "1.0.8"
 
   # tests
-  gem "minitest", "6.0.6"
+  gem "minitest", "6.1.0"
   gem "minitest-mock", "5.27.0"
   gem "minitest-parallel_fork", "2.1.1"
   gem "ruby_memcheck", "3.0.1"
