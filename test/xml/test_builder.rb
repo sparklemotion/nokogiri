@@ -37,6 +37,50 @@ module Nokogiri
         assert_equal(expected_output, builder.to_xml)
       end
 
+      def test_builder_resilient_to_exceptions_in_node_builder_blocks
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            begin
+              xml.a.klass { raise "badjoras" }
+            rescue StandardError
+              # Ignored
+            end
+
+            xml.b
+          end
+        end
+
+        expected_output = <<~HEREDOC
+          <?xml version="1.0"?>
+          <root>
+            <a class="klass"/>
+            <b/>
+          </root>
+        HEREDOC
+        assert_equal(expected_output, builder.to_xml)
+      end
+
+      def test_builder_resilient_to_throw_in_node_builder_blocks
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            catch(:done) do
+              xml.a.klass { throw :done }
+            end
+
+            xml.b
+          end
+        end
+
+        expected_output = <<~HEREDOC
+          <?xml version="1.0"?>
+          <root>
+            <a class="klass"/>
+            <b/>
+          </root>
+        HEREDOC
+        assert_equal(expected_output, builder.to_xml)
+      end
+
       def test_builder_with_utf8_text
         text = "test ﺵ "
         doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test(text) }.doc
