@@ -1443,6 +1443,10 @@ namespace_definitions(VALUE rb_node)
 
   Noko_Node_Get_Struct(rb_node, xmlNode, c_node);
 
+  if (c_node->type != XML_ELEMENT_NODE) {
+    return definitions;
+  }
+
   c_namespace = c_node->nsDef;
   if (!c_namespace) {
     return definitions;
