@@ -45,6 +45,9 @@ noko_xml_sax_push_parser_unwrap(VALUE rb_parser)
 {
   xmlParserCtxtPtr c_parser;
   TypedData_Get_Struct(rb_parser, xmlParserCtxt, &xml_sax_push_parser_type, c_parser);
+  if (c_parser == NULL) {
+    rb_raise(rb_eRuntimeError, "Uninitialized %" PRIsVALUE " struct (null data pointer)", rb_obj_class(rb_parser));
+  }
   return c_parser;
 }
 
