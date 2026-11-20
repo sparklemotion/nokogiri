@@ -717,6 +717,18 @@ module Nokogiri
             assert_equal replacer, doc.root.children.first
           end
 
+          it "can replace the document's DTD" do
+            skip_unless_libxml2("the JRuby DTD node has no parent")
+
+            doc = Nokogiri::XML(%{<!DOCTYPE root [<!ENTITY e "x">]><root/>})
+            replacer = doc.create_comment("c")
+
+            doc.internal_subset.replace(replacer)
+
+            assert_nil(doc.internal_subset)
+            assert_equal(replacer, doc.children.first)
+          end
+
           it "replacing a child should not dup sibling text nodes" do
             # https://github.com/sparklemotion/nokogiri/issues/2916
             xml = "<root><parent>asdf</parent>qwer</root>"
