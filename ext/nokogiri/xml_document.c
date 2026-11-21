@@ -745,7 +745,7 @@ noko_xml_document_unwrap(VALUE rb_document)
   return c_document;
 }
 
-/* Schema creation will remove and deallocate "blank" nodes.
+/* XSLT whitespace stripping will remove and deallocate "blank" nodes.
  * If those blank nodes have been exposed to Ruby, they could get freed
  * out from under the VALUE pointer.  This function checks to see if any of
  * those nodes have been exposed to Ruby, and if so the caller operates on a
