@@ -797,6 +797,25 @@ module Nokogiri
             assert_equal(0, nodes.slice(100, 100_000).length)
           end
 
+          it "slice_with_length_overflowing_start_plus_length" do
+            # a 10-node xpath result fills its node table, so reading one slot past the end is out of bounds
+            xml = Nokogiri::XML::Builder.new do
+              root { 10.times { div } }
+            end.doc
+            nodes = xml.css("div")
+            c_long_max = (2**((8 * [0].pack("l!").bytesize) - 1)) - 1
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              nodes.slice(10, c_long_max)
+            end
+            assert_empty(result.to_a)
+
+            result = refute_valgrind_errors(yield_on_jruby: true) do
+              nodes.slice(1, c_long_max)
+            end
+            assert_equal(nodes.to_a.drop(1), result.to_a)
+          end
+
           it "array_slice_with_start_and_end" do
             employees = xml.search("//employee")
             assert_equal([employees[1], employees[2], employees[3]], employees[1, 3].to_a)

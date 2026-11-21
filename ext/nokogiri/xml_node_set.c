@@ -325,7 +325,7 @@ subseq(VALUE rb_self, rb_len_t beg, rb_len_t len)
   if (beg > c_self->nodeNr) { return Qnil ; }
   if (beg < 0 || len < 0) { return Qnil ; }
 
-  if ((beg + len) > c_self->nodeNr) {
+  if (len > c_self->nodeNr - beg) {
     len = c_self->nodeNr - beg ;
   }
 
