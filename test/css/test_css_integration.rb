@@ -183,6 +183,21 @@ describe Nokogiri::CSS do
           assert_empty(subject.css("table//tr:nth-child(-2n)"))
         end
 
+        it "selects nm1 and mnm1" do
+          assert_result_rows((1..14).to_a, subject.css("table//tr:nth(n-1)"))
+          assert_result_rows((1..14).to_a, subject.css("table//tr:nth-child(n-1)"))
+          assert_empty(subject.css("table//tr:nth-child(-n-1)"))
+        end
+
+        it "matches an+b keywords and n case-insensitively" do
+          assert_result_rows([1, 3, 5, 7, 9, 11, 13], subject.css("table//tr:nth-child(ODD)"))
+          assert_result_rows([2, 4, 6, 8, 10, 12, 14], subject.css("table//tr:nth-child(Even)"))
+          assert_result_rows((1..14).to_a, subject.css("table//tr:nth(N)"))
+          assert_result_rows([3, 7, 11], subject.css("table//tr:nth(4N-1)"))
+          assert_result_rows([3, 7, 11], subject.css("table//tr:nth(4N+3)"))
+          assert_result_rows([1, 2, 3], subject.css("table//tr:nth(-N+3)"))
+        end
+
         it "selects first" do
           assert_result_rows([1], subject.css("table//tr:first"))
           assert_result_rows([1], subject.css("table//tr:first()"))

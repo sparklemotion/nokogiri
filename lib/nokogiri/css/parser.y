@@ -121,13 +121,15 @@ rule
   | NUMBER
   | STRING
   | IDENT {
-      case val[0]
+      case val[0].downcase
       when 'even'
         result = Node.new(:NTH, ['2','n','+','0'])
       when 'odd'
         result = Node.new(:NTH, ['2','n','+','1'])
       when 'n'
         result = Node.new(:NTH, ['1','n','+','0'])
+      when /\A(-?)n-(\d+)\z/       # n-3, -n-3
+        result = Node.new(:NTH, ["#{$1}1",'n','-',$2])
       else
         result = val
       end
@@ -138,6 +140,7 @@ rule
   nth:
     NUMBER IDENT PLUS NUMBER          # 5n+3 -5n+3
     {
+      val[1] = val[1].downcase
       if val[1] == 'n'
         result = Node.new(:NTH, val)
       else
@@ -145,6 +148,7 @@ rule
       end
     }
   | IDENT PLUS NUMBER {               # n+3, -n+3
+      val[0] = val[0].downcase
       if val[0] == 'n'
         val.unshift("1")
         result = Node.new(:NTH, val)
@@ -157,7 +161,7 @@ rule
       end
     }
   | NUMBER IDENT {                    # 5n, -5n, 10n-1
-      n = val[1]
+      n = val[1].downcase
       if n[0, 2] == 'n-'
         val[1] = 'n'
         val << "-"

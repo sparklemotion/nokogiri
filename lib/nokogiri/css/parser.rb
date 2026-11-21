@@ -590,13 +590,15 @@ end
 # reduce 44 omitted
 
 def _reduce_45(val, _values, result)
-      case val[0]
+      case val[0].downcase
       when 'even'
         result = Node.new(:NTH, ['2','n','+','0'])
       when 'odd'
         result = Node.new(:NTH, ['2','n','+','1'])
       when 'n'
         result = Node.new(:NTH, ['1','n','+','0'])
+      when /\A(-?)n-(\d+)\z/       # n-3, -n-3
+        result = Node.new(:NTH, ["#{$1}1",'n','-',$2])
       else
         result = val
       end
@@ -607,6 +609,7 @@ end
 # reduce 46 omitted
 
 def _reduce_47(val, _values, result)
+      val[1] = val[1].downcase
       if val[1] == 'n'
         result = Node.new(:NTH, val)
       else
@@ -618,6 +621,7 @@ end
 
 def _reduce_48(val, _values, result)
                # n+3, -n+3
+      val[0] = val[0].downcase
       if val[0] == 'n'
         val.unshift("1")
         result = Node.new(:NTH, val)
@@ -634,7 +638,7 @@ end
 
 def _reduce_49(val, _values, result)
                     # 5n, -5n, 10n-1
-      n = val[1]
+      n = val[1].downcase
       if n[0, 2] == 'n-'
         val[1] = 'n'
         val << "-"
