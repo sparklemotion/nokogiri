@@ -952,6 +952,7 @@ else
       "--with-c14n",
       "--with-debug",
       "--with-threads",
+      "--sysconfdir=/etc",
       "CPPFLAGS=#{cppflags}",
       "CFLAGS=#{cflags}",
     ]
