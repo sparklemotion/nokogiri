@@ -513,7 +513,7 @@ jobs:
       fail-fast: false
       matrix:
         sys: ["disable"]
-        ruby: ["3.4"]
+        ruby: ["4.0"]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/sparklemotion/nokogiri-test:mri-${{matrix.ruby}} # zizmor: ignore[unpinned-images] -- CI container image; version tag is sufficient and digest pinning is impractical with the matrix tag scheme
