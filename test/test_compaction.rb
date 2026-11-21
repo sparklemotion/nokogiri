@@ -345,28 +345,5 @@ describe "compaction" do
 
       assert_equal(expected, actual)
     end
-
-    it "canonicalizes with inclusive namespaces when compaction runs while they are copied" do
-      skip("GC compaction is unavailable") if skip_compaction_tests
-      skip("GC.stress is too slow under a memory debugger") if Nokogiri::MemoryDebugger.active?
-
-      to_str_class = Struct.new(:str) do
-        def to_str = str.dup
-      end
-      inclusive_namespaces = prefixes.map { |p| to_str_class.new(p) }
-      expected # canonicalize before compaction can run
-
-      auto_compact = GC.auto_compact
-      results = begin
-        GC.auto_compact = true
-        stress_memory_while do
-          Array.new(20) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces) }
-        end
-      ensure
-        GC.auto_compact = auto_compact
-      end
-
-      assert_equal([expected], results.uniq)
-    end
   end
 end

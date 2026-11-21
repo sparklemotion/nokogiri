@@ -470,5 +470,37 @@ class TestMemoryUsage < Nokogiri::TestCase
         end
       end
     end
+
+    describe "XML::Document#canonicalize" do
+      let(:prefixes) { Array.new(10) { |i| "p#{i}" } }
+      let(:doc) { Nokogiri::XML(%(<root #{prefixes.map { |p| %(xmlns:#{p}="urn:#{p}") }.join(" ")}><a/><b/></root>)) }
+      let(:expected) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, prefixes) }
+
+      it "canonicalizes with inclusive namespaces when compaction runs while they are copied" do
+        if Gem::Requirement.new("< 3.3.0").satisfied_by?(Gem::Version.new(RUBY_VERSION))
+          skip("GC.verify_compaction_references grows the heap on every call before Ruby 3.3")
+        end
+        skip("GC compaction is unavailable") unless GC.respond_to?(:verify_compaction_references)
+        skip("GC.stress is too slow under a memory debugger") if Nokogiri::MemoryDebugger.active?
+
+        to_str_class = Struct.new(:str) do
+          def to_str = str.dup
+        end
+        inclusive_namespaces = prefixes.map { |p| to_str_class.new(p) }
+        expected # canonicalize before compaction can run
+
+        auto_compact = GC.auto_compact
+        results = begin
+          GC.auto_compact = true
+          stress_memory_while do
+            Array.new(20) { doc.canonicalize(Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0, inclusive_namespaces) }
+          end
+        ensure
+          GC.auto_compact = auto_compact
+        end
+
+        assert_equal([expected], results.uniq)
+      end
+    end
   end if ENV["NOKOGIRI_MEMORY_SUITE"] && Nokogiri.uses_libxml?
 end
