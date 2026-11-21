@@ -530,6 +530,12 @@ describe Nokogiri::CSS::XPathVisitor do
       assert_xpath("//a[position()=-1]", "a:nth-of-type(0n-1)")
       assert_xpath("//a[position()<=0]", "a:nth-of-type(-n+0)")
       assert_xpath("//a[(position()<=0) and (((position()-0) mod 2)=0)]", "a:nth-of-type(-2n)")
+      assert_xpath("//a[position()>=1]", "a:nth-of-type(n-1)")
+      assert_xpath("//a[position()<=-1]", "a:nth-of-type(-n-1)")
+      assert_xpath("//a[(position() mod 2)=0]", "a:nth-of-type(EVEN)")
+      assert_xpath("//a[(position()>=1) and (((position()-1) mod 2)=0)]", "a:nth-of-type(Odd)")
+      assert_xpath("//a[(position()>=1) and (((position()-1) mod 2)=0)]", "a:nth-of-type(2N+1)")
+      assert_xpath("//a[position()>=3]", "a:nth-of-type(N+3)")
 
       assert_xpath("//a[((last()-position()+1) mod 2)=0]", "a:nth-last-of-type(2n)")
       assert_xpath("//a[((last()-position()+1)>=1) and ((((last()-position()+1)-1) mod 2)=0)]", "a:nth-last-of-type(2n+1)")
