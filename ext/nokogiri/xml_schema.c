@@ -195,8 +195,10 @@ noko_xml_schema_s_from_document(int argc, VALUE *argv, VALUE rb_class)
     c_document = noko_xml_document_unwrap(rb_document);
   }
 
-  if (noko_xml_document_has_wrapped_blank_nodes_p(c_document)) {
-    // see https://github.com/sparklemotion/nokogiri/pull/2001
+  if (RARRAY_LEN(DOC_NODE_CACHE(c_document)) > 0) {
+    // Schema parsing frees comments, processing instructions, blank text, and other nodes, so
+    // parse a copy if Ruby has wrapped any node.
+    // See https://github.com/sparklemotion/nokogiri/pull/2001
     c_document = xmlCopyDoc(c_document, 1);
     defensive_copy_p = 1;
   }

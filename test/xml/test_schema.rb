@@ -354,6 +354,37 @@ class TestNokogiriXMLSchema < Nokogiri::TestCase
       assert(child.to_s) # This will raise a valgrind error if the node was freed
     end
 
+    describe "from_document does not free wrapped nodes that schema parsing removes" do
+      {
+        "comment" => "<!--c-->",
+        "processing instruction" => "<?pi data?>",
+      }.each do |name, markup|
+        it "#{name} in the schema element" do
+          xsd_doc = Nokogiri::XML(<<~XSD)
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">#{markup}<xs:element name="foo" type="xs:string"/></xs:schema>
+          XSD
+          node = xsd_doc.root.children.first
+
+          Nokogiri::XML::Schema.from_document(xsd_doc)
+
+          assert_includes(xsd_doc.root.to_xml, markup)
+          assert_same(xsd_doc.root, node.parent)
+        end
+
+        it "#{name} after an empty schema element" do
+          xsd_doc = Nokogiri::XML(<<~XSD)
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>#{markup}
+          XSD
+          node = xsd_doc.root.next_sibling
+
+          Nokogiri::XML::Schema.from_document(xsd_doc)
+
+          assert_includes(xsd_doc.to_xml, markup)
+          assert_same(xsd_doc, node.parent)
+        end
+      end
+    end
+
     # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
     # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2
     describe "CVE-2020-26247" do
