@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 #  this script is run by oss-fuzz to build the fuzzer
 #  see https://github.com/google/oss-fuzz/blob/master/projects/nokogiri/build.sh
