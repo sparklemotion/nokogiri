@@ -359,6 +359,28 @@ describe Nokogiri::CSS::XPathVisitor do
         )
       end
 
+      it "substring operators with empty values" do
+        assert_xpath("//a[false()]", 'a[id^=""]')
+        assert_xpath("//a[false()]", 'a[id$=""]')
+        assert_xpath("//a[false()]", 'a[id*=""]')
+        assert_xpath("//a[false()]", 'a[class~=""]')
+      end
+
+      it "~= with values containing whitespace" do
+        [
+          'a[class~=" "]',
+          'a[class~="a b"]',
+          'a[class~=" a"]',
+          'a[class~="a "]',
+          'a[class~="a\9 b"]',
+          'a[class~="a\a b"]',
+          'a[class~="a\c b"]',
+          'a[class~="a\d b"]',
+        ].each do |selector|
+          assert_xpath("//a[false()]", selector)
+        end
+      end
+
       it "~= with quotes" do
         assert_xpath(
           %q{//a[contains(concat(' ',normalize-space(@class),' ')," it's ")]},

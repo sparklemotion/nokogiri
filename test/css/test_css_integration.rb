@@ -409,6 +409,38 @@ describe Nokogiri::CSS do
           assert_equal(expected, result)
         end
 
+        it "does not select empty substring values or whitespace-containing ~= values" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <a id="x" class="x a b">match</a>
+              <a id="" class="">empty</a>
+              <a>missing</a>
+            </body></html>
+          HTML
+
+          [
+            'a[id^=""]',
+            'a[id$=""]',
+            'a[id*=""]',
+            'a[class~=""]',
+            'a[class~=" "]',
+            'a[class~="a b"]',
+            'a[class~=" a"]',
+            'a[class~="a "]',
+            'a[class~="a\9 b"]',
+            'a[class~="a\a b"]',
+            'a[class~="a\c b"]',
+            'a[class~="a\d b"]',
+          ].each do |selector|
+            assert_empty(doc.css(selector), selector)
+          end
+
+          assert_equal(["match"], doc.css('a[id^="x"]').map(&:text))
+          assert_equal(["match"], doc.css('a[id$="x"]').map(&:text))
+          assert_equal(["match"], doc.css('a[id*="x"]').map(&:text))
+          assert_equal(["match"], doc.css('a[class~="a"]').map(&:text))
+        end
+
         it "selects ids and classes containing quotes" do
           doc = subject_class.parse(<<~HTML)
             <html><body>
