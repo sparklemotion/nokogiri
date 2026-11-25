@@ -275,4 +275,24 @@ describe Nokogiri::XML::SAX::PushParser do
     assert_equal [["p", [["id", "asdf&asdf"]]]], parser.document.start_elements
     assert_equal "Paragraph 1 & 2", parser.document.data.join.strip
   end
+
+  it "raises instead of crashing when used uninitialized" do
+    skip_unless_libxml2("JRuby raises a NullPointerException instead of crashing")
+
+    uninitialized = Nokogiri::XML::SAX::PushParser.allocate
+
+    refute_valgrind_errors do
+      [
+        -> { uninitialized << "<foo/>" },
+        -> { uninitialized.finish },
+        -> { uninitialized.options },
+        -> { uninitialized.options = 0 },
+        -> { uninitialized.replace_entities },
+        -> { uninitialized.replace_entities = true },
+      ].each do |call|
+        error = assert_raises(RuntimeError) { call.call }
+        assert_match(/Uninitialized .* struct/, error.message)
+      end
+    end
+  end
 end
