@@ -118,6 +118,11 @@ module Nokogiri
           end
           new_fragment
         end
+
+        # Like #dup, clone into a new document unless one is explicitly supplied.
+        def clone(level = 1, new_parent_doc = document.dup)
+          super
+        end
       end
 
       ###

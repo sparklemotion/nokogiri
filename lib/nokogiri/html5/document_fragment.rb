@@ -85,8 +85,18 @@ module Nokogiri
         end
       end
 
-      attr_accessor :document
+      attr_writer :document
       attr_accessor :errors
+
+      def document
+        defined?(@document) ? @document : super
+      end
+
+      private def initialize_clone(other)
+        super
+        # Node#clone sets the native document after Ruby copies the instance variables.
+        remove_instance_variable(:@document) if instance_variable_defined?(:@document)
+      end
 
       # Get the parser's quirks mode value. See HTML5::QuirksMode.
       #
