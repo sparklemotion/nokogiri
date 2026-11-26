@@ -308,30 +308,41 @@ describe Nokogiri::CSS::XPathVisitor do
 
       it "|=" do
         assert_xpath(
-          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "//a[(@class='bar' or starts-with(@class,concat('bar','-')))]",
           "a[class|='bar']",
         )
         assert_xpath(
-          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "//a[(@class='bar' or starts-with(@class,concat('bar','-')))]",
           "a[class |= 'bar']",
         )
         assert_xpath(
-          "//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
+          "//a[(@id='Boing' or starts-with(@id,concat('Boing','-')))]",
           "a[id|='Boing']",
+        )
+      end
+
+      it "|= combined with other conditions" do
+        assert_xpath(
+          "//a[(@lang='en' or starts-with(@lang,concat('en','-'))) and @href]",
+          "a[lang|='en'][href]",
+        )
+        assert_xpath(
+          "//a[@href and (@lang='en' or starts-with(@lang,concat('en','-')))]",
+          "a[href][lang|='en']",
         )
       end
 
       it "|= (extended-syntax)" do
         assert_xpath(
-          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "//a[(@class='bar' or starts-with(@class,concat('bar','-')))]",
           "a[@class|='bar']",
         )
         assert_xpath(
-          "//a[@class='bar' or starts-with(@class,concat('bar','-'))]",
+          "//a[(@class='bar' or starts-with(@class,concat('bar','-')))]",
           "a[@class |= 'bar']",
         )
         assert_xpath(
-          "//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
+          "//a[(@id='Boing' or starts-with(@id,concat('Boing','-')))]",
           "a[@id|='Boing']",
         )
       end

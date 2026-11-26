@@ -191,7 +191,7 @@ module Nokogiri
         when :prefix_match
           "starts-with(#{attribute},#{value})"
         when :dash_match
-          "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
+          "(#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-')))"
         when :includes
           css_class(attribute, str_value)
         when :suffix_match
