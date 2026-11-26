@@ -272,6 +272,42 @@ TEST_F(GumboTokenizerTest, LeadingWhitespace) {
   EXPECT_EQ(18, clas->value_end.column);
 }
 
+TEST_F(GumboTokenizerTest, AttributeWithNoValue) {
+  SetInput("<div hidden class=foo>");
+
+  NextStartTag(GUMBO_TAG_DIV);
+  GumboTokenStartTag* start_tag = &token_.v.start_tag;
+  ASSERT_EQ(2, start_tag->attributes.length);
+
+  GumboAttribute* hidden =
+      static_cast<GumboAttribute*>(start_tag->attributes.data[0]);
+  EXPECT_STREQ("hidden", hidden->name);
+  EXPECT_EQ("hidden", ToString(hidden->original_name));
+  EXPECT_EQ(6, hidden->name_start.column);
+  EXPECT_EQ(12, hidden->name_end.column);
+  EXPECT_STREQ("", hidden->value);
+  EXPECT_EQ("", ToString(hidden->original_value));
+  EXPECT_EQ(11, hidden->original_value.data - text_);
+  EXPECT_EQ(1, hidden->value_start.line);
+  EXPECT_EQ(12, hidden->value_start.column);
+  EXPECT_EQ(11, hidden->value_start.offset);
+  EXPECT_EQ(1, hidden->value_end.line);
+  EXPECT_EQ(12, hidden->value_end.column);
+  EXPECT_EQ(11, hidden->value_end.offset);
+
+  GumboAttribute* clas =
+      static_cast<GumboAttribute*>(start_tag->attributes.data[1]);
+  EXPECT_STREQ("class", clas->name);
+  EXPECT_EQ(13, clas->name_start.column);
+  EXPECT_EQ(18, clas->name_end.column);
+  EXPECT_STREQ("foo", clas->value);
+  EXPECT_EQ("foo", ToString(clas->original_value));
+  EXPECT_EQ(19, clas->value_start.column);
+  EXPECT_EQ(22, clas->value_end.column);
+
+  AtEnd();
+}
+
 TEST_F(GumboTokenizerTest, Doctype) {
   SetInput("<!doctype html>");
   Next();

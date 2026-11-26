@@ -847,12 +847,13 @@ static void finish_attribute_name(GumboParser* parser) {
     &attr->name_end
   );
   attr->value = gumbo_strdup("");
-  copy_over_original_tag_text (
-    parser,
-    &attr->original_value,
-    &attr->name_start,
-    &attr->name_end
-  );
+  // There is no value text yet, so original_value is a zero-length piece just
+  // past the name and the value positions are the end of the name.
+  // finish_attribute_value() overwrites all three when a value follows.
+  attr->original_value.data = attr->original_name.data + attr->original_name.length;
+  attr->original_value.length = 0;
+  attr->value_start = attr->name_end;
+  attr->value_end = attr->name_end;
   gumbo_vector_add(attr, attributes);
   if (attributes_lookup) {
     gumbo_string_set_insert(attributes_lookup, attr->name);
