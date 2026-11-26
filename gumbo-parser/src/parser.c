@@ -4642,6 +4642,9 @@ static GumboNode* create_fragment_ctx_element (
     attr->value = encoding; // Do not free this!
     attr->original_value = kGumboEmptyString;
     attr->name_start = kGumboEmptySourcePosition;
+    attr->name_end = kGumboEmptySourcePosition;
+    attr->value_start = kGumboEmptySourcePosition;
+    attr->value_end = kGumboEmptySourcePosition;
     gumbo_vector_add(attr, &element->attributes);
   } else {
     element->attributes = kGumboEmptyVector;

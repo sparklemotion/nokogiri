@@ -23,6 +23,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * CSS `an+b` arguments now handle `n-b` and `-n-b` without a leading number (`:nth-child(n-1)` matched nothing), and the `odd`/`even` keywords and the `n` are matched case-insensitively (`:nth-child(ODD)` matched nothing, `:nth-child(2N+1)` raised `Racc::ParseError`). (#3780, #3781) @bardrop
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
 * [CRuby] `XML::Schema.from_document` no longer frees comment and processing-instruction nodes that Ruby has wrapped. Previously the Ruby objects were left pointing at freed memory. `from_document` now parses a copy of the document whenever Ruby has wrapped any of its nodes. (#3782) @flavorjones
+* [CRuby] gumbo: an attribute with no value no longer leaves `GumboAttribute.value_start` and `value_end` holding uninitialized heap memory, and its `original_value` is now the documented 0-length string rather than a copy of the attribute name's extent. This is a C API path; it is not reachable from Ruby, which reads only the attribute name and value. @Priyank-gouda678
 
 
 
