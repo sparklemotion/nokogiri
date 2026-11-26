@@ -409,6 +409,21 @@ describe Nokogiri::CSS do
           assert_equal(expected, result)
         end
 
+        it "selects |= combined with other conditions" do
+          doc = subject_class.parse(<<~HTML)
+            <html><body>
+              <p lang="en" title="t">en-title</p>
+              <p lang="en">en</p>
+              <p lang="en-US">en-US</p>
+              <p lang="fr" title="t">fr-title</p>
+            </body></html>
+          HTML
+
+          assert_equal(["en-title"], doc.css("p[lang|=en][title]").map(&:text))
+          assert_equal(["en-title"], doc.css("p[title][lang|=en]").map(&:text))
+          assert_equal(["en", "en-US"], doc.css("p[lang|=en]:not([title])").map(&:text))
+        end
+
         it "selects ids and classes containing quotes" do
           doc = subject_class.parse(<<~HTML)
             <html><body>

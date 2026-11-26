@@ -21,6 +21,7 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
 * CSS `an+b` arguments now handle `n-b` and `-n-b` without a leading number (`:nth-child(n-1)` matched nothing), and the `odd`/`even` keywords and the `n` are matched case-insensitively (`:nth-child(ODD)` matched nothing, `:nth-child(2N+1)` raised `Racc::ParseError`). (#3780, #3781) @bardrop
+* CSS `[att|=val]` combined with another condition now matches correctly. Previously the generated XPath lacked parentheses, so `p[lang|=en][title]` also matched `<p lang="en">` without a `title`, and `p[title][lang|=en]` also matched `<p lang="en-US">` without a `title`. @bardrop
 * [CRuby] Fix compilation of the vendored libgumbo on OpenBSD, broken since v1.19.5 because OpenBSD defines `__malloc` as a macro. (#3758) @flavorjones
 * [CRuby] `XML::Schema.from_document` no longer frees comment and processing-instruction nodes that Ruby has wrapped. Previously the Ruby objects were left pointing at freed memory. `from_document` now parses a copy of the document whenever Ruby has wrapped any of its nodes. (#3782) @flavorjones
 
