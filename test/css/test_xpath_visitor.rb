@@ -168,6 +168,11 @@ describe Nokogiri::CSS::XPathVisitor do
       )
     end
 
+    it ". class with whitespace-containing values" do
+      assert_xpath("//a[false()]", %q{a.a\ b})
+      assert_xpath("//a[false()]", %q{a.a\20 b})
+    end
+
     it ". class with quotes" do
       assert_xpath(
         %q{//*[contains(concat(' ',normalize-space(@class),' ')," it's ")]},
@@ -793,6 +798,11 @@ describe Nokogiri::CSS::XPathVisitor do
         "//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
         ".a.b",
       )
+    end
+
+    it ". class with whitespace-containing values" do
+      assert_xpath("//a[false()]", %q{a.a\ b})
+      assert_xpath("//a[false()]", %q{a.a\20 b})
     end
 
     it ". class with quotes" do

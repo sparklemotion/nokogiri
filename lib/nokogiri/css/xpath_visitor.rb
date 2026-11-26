@@ -182,8 +182,6 @@ module Nokogiri
         case node.value[1]
         when :substring_match, :prefix_match, :suffix_match
           return "false()" if str_value.empty?
-        when :includes
-          return "false()" if str_value.empty? || str_value.match?(/[\t\n\f\r ]/)
         end
         value = xpath_string_literal(str_value)
 
@@ -400,6 +398,8 @@ module Nokogiri
       end
 
       def css_class(hay, needle)
+        return "false()" if needle.empty? || needle.match?(/[\t\n\f\r ]/)
+
         if @builtins == BuiltinsConfig::ALWAYS || (@builtins == BuiltinsConfig::OPTIMAL && Nokogiri.uses_libxml?)
           # use the builtin implementation
           "nokogiri-builtin:css-class(#{hay},#{xpath_string_literal(needle)})"

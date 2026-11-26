@@ -409,7 +409,7 @@ describe Nokogiri::CSS do
           assert_equal(expected, result)
         end
 
-        it "does not select empty substring values or whitespace-containing ~= values" do
+        it "does not select empty substring values or whitespace-containing class tokens" do
           doc = subject_class.parse(<<~HTML)
             <html><body>
               <a id="x" class="x a b">match</a>
@@ -431,6 +431,8 @@ describe Nokogiri::CSS do
             'a[class~="a\a b"]',
             'a[class~="a\c b"]',
             'a[class~="a\d b"]',
+            'a.a\ b',
+            'a.a\20 b',
           ].each do |selector|
             assert_empty(doc.css(selector), selector)
           end
