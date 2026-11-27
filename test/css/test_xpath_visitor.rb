@@ -511,7 +511,7 @@ describe Nokogiri::CSS::XPathVisitor do
     end
 
     it ":empty" do
-      assert_xpath("//a[not(node())]", "a:empty")
+      assert_xpath("//a[not(* or text()[string-length(.)>0])]", "a:empty")
     end
 
     it ":nth(an+b)" do
