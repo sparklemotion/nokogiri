@@ -217,7 +217,9 @@ module Nokogiri
           when "last-of-type" then "position()=last()"
           when "only-child" then "count(preceding-sibling::*)=0 and count(following-sibling::*)=0"
           when "only-of-type" then "last()=1"
-          when "empty" then "not(node())"
+          # Selectors Level 3: comments and processing instructions do not count.
+          # A text node does, including whitespace. See #3794.
+          when "empty" then "not(* or text()[string-length(.)>0])"
           when "parent" then "node()"
           when "root" then "not(parent::*)"
           else

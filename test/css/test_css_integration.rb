@@ -278,6 +278,29 @@ describe Nokogiri::CSS do
           assert_equal("empty", result.first["class"])
         end
 
+        # Selectors Level 3 §6.6.5.7. See https://github.com/sparklemotion/nokogiri/issues/3794
+        it "treats a comment as empty and a text node as not empty" do
+          doc = subject_class.parse(<<~HTML)
+            <div id="pseudo-empty">
+              <p id="pseudo-empty-p1"></p>
+              <p id="pseudo-empty-p2"><!-- comment --></p>
+              <p id="pseudo-empty-p3"> </p>
+              <p id="pseudo-empty-p4">x</p>
+              <p id="pseudo-empty-p5"><b></b></p>
+            </div>
+          HTML
+
+          ids = doc.css("#pseudo-empty p:empty").map { |node| node["id"] }
+          assert_equal(["pseudo-empty-p1", "pseudo-empty-p2"], ids)
+        end
+
+        it "treats a processing instruction as empty" do
+          skip("HTML parsers do not keep processing instructions") unless subject_class == Nokogiri::XML::Document
+
+          doc = subject_class.parse("<root><g><?pi data?></g><h>x</h></root>")
+          assert_equal(["g"], doc.css("root > :empty").map(&:name))
+        end
+
         it "selects parent" do
           result = subject.css("p:parent")
           assert_equal(5, result.size)
