@@ -109,7 +109,8 @@ module Nokogiri
           Nokogiri::CSS::XPathVisitor.new(**visitor_kw)
         end
 
-        if cache
+        # SelectorCache is shared global state, which non-main Ractors can't access
+        if cache && (!defined?(Ractor) || Ractor.current == Ractor.main)
           key = SelectorCache.key(selector: selector, visitor: visitor)
           SelectorCache[key] ||= Parser.new.xpath_for(selector, visitor)
         else
