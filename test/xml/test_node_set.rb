@@ -238,6 +238,35 @@ module Nokogiri
             assert_equal(set.first, set.search(".a").first)
           end
 
+          it "css de-duplicates a node reachable from more than one node in the set" do
+            doc = Nokogiri::XML(<<~eoxml)
+              <root>
+                <div class="box">
+                  <div class="box"><span/></div>
+                </div>
+              </root>
+            eoxml
+            set = doc.css(".box")
+
+            assert_equal(2, set.length)
+            assert_equal(doc.css("span").to_a, set.css("span").to_a)
+          end
+
+          it "css returns results in the order each node in the set matched them" do
+            doc = Nokogiri::XML(<<~eoxml)
+              <root>
+                <a><one/><two/></a>
+                <b><two/><one/></b>
+              </root>
+            eoxml
+            set = doc.css("a, b")
+
+            assert_equal(
+              ["one", "two", "one", "two"],
+              set.css("one", "two").map(&:name),
+            )
+          end
+
           it "css search with namespace" do
             fragment = Nokogiri::XML.fragment(<<~eoxml)
               <html xmlns="http://www.w3.org/1999/xhtml">

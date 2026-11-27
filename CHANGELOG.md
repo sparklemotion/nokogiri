@@ -17,6 +17,11 @@ Nokogiri follows [Semantic Versioning](https://semver.org/), please see the [REA
 * The unused constant `Struct::HTMLElementDescription` is no longer defined. (#3432, #3433) @viralpraxis
 
 
+### Improved
+
+* `NodeSet#css` no longer takes time quadratic in the number of results. Previously it accumulated each node's results with `NodeSet#+`, which copies the accumulated set and compares every node already in it once per node searched. `DocumentFragment#css`, which searches the fragment's children, took the same path. (#3773) @ihamzatarar
+
+
 ### Fixed
 
 * [CRuby] `HTML4::ElementDescription#required_attributes` no longer crashes or returns a truncated list with libxml2 < 2.14. Previously it ended the loop over the required attributes when the deprecated attribute list ended, so `meta`, `map`, `param`, `style`, `textarea`, `optgroup` and `bdo`, which have no deprecated attributes, dereferenced a null pointer, and `img` returned only `src`. This has been broken since v1.5.0 (2011). (#3757) @Priyank-gouda678
