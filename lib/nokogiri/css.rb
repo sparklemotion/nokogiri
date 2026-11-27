@@ -82,9 +82,9 @@ module Nokogiri
       #
       def xpath_for(
         selector, options = nil,
-        prefix: options&.delete(:prefix),
-        visitor: options&.delete(:visitor),
-        ns: options&.delete(:ns),
+        prefix: options&.fetch(:prefix, nil),
+        visitor: options&.fetch(:visitor, nil),
+        ns: options&.fetch(:ns, nil),
         cache: true
       )
         unless options.nil?

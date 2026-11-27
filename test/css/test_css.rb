@@ -46,6 +46,40 @@ describe Nokogiri::CSS do
       )
     end
 
+    it "does not modify an options hash" do
+      namespaces = { "xmlns" => "http://example.com/" }
+      visitor = Nokogiri::CSS::XPathVisitor.new(prefix: "./", namespaces: namespaces)
+
+      [{ prefix: "./", ns: namespaces }, { visitor: visitor }].each do |options|
+        original_options = options.dup
+
+        assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+          assert_equal(["./xmlns:foo"], Nokogiri::CSS.xpath_for("foo", options))
+        end
+        assert_equal(original_options, options)
+      end
+    end
+
+    it "accepts a frozen options hash" do
+      namespaces = { "xmlns" => "http://example.com/" }
+      visitor = Nokogiri::CSS::XPathVisitor.new(prefix: "./", namespaces: namespaces)
+
+      [{ prefix: "./", ns: namespaces }, { visitor: visitor }].each do |options|
+        assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+          assert_equal(["./xmlns:foo"], Nokogiri::CSS.xpath_for("foo", options.freeze))
+        end
+      end
+    end
+
+    it "ignores the options hash default" do
+      options = Hash.new { raise "unexpected default lookup" }
+      options[:prefix] = "./"
+
+      assert_output(nil, /Passing options as an explicit hash is deprecated/) do
+        assert_equal(["./foo"], Nokogiri::CSS.xpath_for("foo", options))
+      end
+    end
+
     it "does not accept both prefix and visitor" do
       assert_raises(ArgumentError) do
         Nokogiri::CSS.xpath_for("foo", prefix: "./", visitor: Nokogiri::CSS::XPathVisitor.new)
